@@ -1,0 +1,41 @@
+{
+  "name": "testing-docspace-playwright",
+  "version": "1.0.0",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "npx playwright test",
+    "test:eu": "AWS_REGION=eu-central-1 npx playwright test",
+    "test:us": "AWS_REGION=us-east-2 npx playwright test",
+    "test:prod": "PORTAL_REGISTRATION_URL=https://$DOCSPACE_DOMAIN/apisystem/portal npx playwright test",
+    "test:prod:eu": "PORTAL_REGISTRATION_URL=https://$DOCSPACE_DOMAIN/apisystem/portal AWS_REGION=eu-central-1 npx playwright test",
+    "test:prod:us": "PORTAL_REGISTRATION_URL=https://$DOCSPACE_DOMAIN/apisystem/portal AWS_REGION=us-west-2 npx playwright test",
+    "test:ui": "playwright test tests/ui_tests",
+    "test:api": "playwright test tests/api_tests",
+    "test:ui:headed": "playwright test tests/ui_tests --headed",
+    "test:debug": "LOG_LEVEL=debug npm test",
+    "test:info": "LOG_LEVEL=info npm test",
+    "test:error": "LOG_LEVEL=error npm test",
+    "test:silent": "LOG_LEVEL=silent npm test",
+    "lint": "npx eslint"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@eslint/js": "^9.18.0",
+    "@playwright/test": "^1.49.1",
+    "eslint": "^9.18.0",
+    "eslint-config-prettier": "^10.0.1",
+    "eslint-plugin-prettier": "^5.2.3",
+    "globals": "^15.14.0",
+    "prettier": "^3.4.2"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "loglevel": "^1.9.2"
+  }
+}
