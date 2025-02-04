@@ -13,6 +13,11 @@ This project contains automated tests for ONLYOFFICE DocSpace using Playwright t
 1. Clone the repository
 2. Install dependencies: `npm install`
 
+## Environment Configuration
+
+1. Create a `.env` file in the root directory of the project
+2. Contact the repository maintainers to obtain the required environment variables and their values
+3. Add these variables to your `.env` file
 
 ## Running Tests
 
