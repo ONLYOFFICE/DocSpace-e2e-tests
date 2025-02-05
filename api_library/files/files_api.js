@@ -121,4 +121,30 @@ export class FilesApi {
 
     log.info("All folders in My Documents deleted successfully");
   }
+
+  // Create a file in "My Documents"
+  async createFileInMyDocs(fileName, fileType = "docx") {
+    log.debug(`Creating file: ${fileName}.${fileType} in My Documents`);
+
+    const response = await this.apiContext.post(
+      `${this.baseURL}/files/@my/file`,
+      {
+        headers: this.getAuthHeaders(),
+        data: {
+          title: `${fileName}.${fileType}`,
+        },
+      },
+    );
+
+    if (!response.ok()) {
+      throw new Error(
+        `Failed to create file (${response.status()}): ${await response.text()}`,
+      );
+    }
+
+    const responseBody = await response.json();
+    log.info(`File created successfully: ${responseBody.response.id}`);
+
+    return responseBody.response;
+  }
 }
