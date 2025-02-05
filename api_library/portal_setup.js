@@ -16,7 +16,7 @@ export class PortalSetupApi {
 
   // Creating a portal
   async createPortal(portalNamePrefix = "test-portal") {
-    this.portalName = `${portalNamePrefix}-${Date.now()}`;
+    this.portalName = `${portalNamePrefix}-${new Date().toISOString().replace(/[:.]/g, "-")}`;
     log.info(`Creating portal: ${this.portalName}`);
 
     const response = await this.apiContext.post(`${this.baseURL}/register`, {
