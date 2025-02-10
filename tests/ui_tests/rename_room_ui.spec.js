@@ -27,7 +27,7 @@ test.describe("Room Renaming Tests", () => {
   });
 
   test.afterAll(async () => {
-    await portalSetup.deletePortal();
+    await portalSetup.deletePortal(true, true);
     await apiContext.dispose();
   });
 
