@@ -1,4 +1,5 @@
 import { FilesApi } from "../api_library/files/files_api";
+import { RoomsApi } from "../api_library/files/rooms_api";
 import config from "../config/config";
 import log from "../utils/logger";
 
@@ -12,11 +13,13 @@ export class PortalSetupApi {
     this.portalDomain = null;
     this.adminUserId = null;
     this.documentsApi = null;
+    this.roomsApi = null;
   }
 
-  // Creating a portal
   async createPortal(portalNamePrefix = "test-portal") {
-    this.portalName = `${portalNamePrefix}-${new Date().toISOString().replace(/[:.]/g, "-")}`;
+    this.portalName = `${portalNamePrefix}-${new Date()
+      .toISOString()
+      .replace(/[:.]/g, "-")}`;
     log.info(`Creating portal: ${this.portalName}`);
 
     const response = await this.apiContext.post(`${this.baseURL}/register`, {
@@ -111,7 +114,6 @@ export class PortalSetupApi {
     return body;
   }
 
-  //Lazy initialization of DocumentsApi
   async #initDocumentsApi() {
     if (!this.documentsApi) {
       this.documentsApi = new FilesApi(this.apiContext, this.portalDomain, () =>
@@ -120,10 +122,14 @@ export class PortalSetupApi {
     }
   }
 
-  /**
-   * Clean up all files and folders in "My Documents".
-   * This method ensures that the portal is clean before deletion.
-   */
+  async #initRoomsApi() {
+    if (!this.roomsApi) {
+      this.roomsApi = new RoomsApi(this.apiContext, this.portalDomain, () =>
+        this.getAuthHeaders(),
+      );
+    }
+  }
+
   async cleanupFilesAndFolders() {
     await this.#initDocumentsApi();
     try {
@@ -137,11 +143,34 @@ export class PortalSetupApi {
     }
   }
 
-  /**
-   * Delete the portal, optionally cleaning up files and folders first.
-   * @param {boolean} cleanup - If true, cleans up files and folders before deleting the portal.
-   */
-  async deletePortal(cleanup = true) {
+  async deleteAllRooms(deleteAfter = false) {
+    await this.#initRoomsApi();
+    try {
+      const rooms = await this.roomsApi.getAllRooms();
+      if (!rooms.length) {
+        log.info("No rooms found to delete.");
+        return;
+      }
+
+      log.info(`Found ${rooms.length} rooms. Archiving and deleting...`);
+      for (const room of rooms) {
+        log.info(`Archiving room ID: ${room.id}, Title: ${room.title}`);
+        await this.roomsApi.archiveRoom(room.id);
+
+        log.info(`Deleting room ID: ${room.id}, Title: ${room.title}`);
+        await this.roomsApi.deleteRoom(room.id, deleteAfter);
+      }
+    } catch (error) {
+      log.error("Error during room deletion:", error.message);
+      throw error;
+    }
+  }
+
+  async deletePortal(cleanup = true, deleteRooms = false) {
+    if (deleteRooms) {
+      await this.deleteAllRooms(true);
+    }
+
     if (cleanup) {
       await this.cleanupFilesAndFolders();
     }

@@ -37,11 +37,33 @@ export class RoomsApi {
     return { room, statusCode: response.status() };
   }
 
-  async archiveRoom(roomId) {
-    const response = await this.apiContext.post(
+  async getAllRooms() {
+    log.debug("Fetching all rooms...");
+    const response = await this.apiContext.get(`${this.baseURL}/files/rooms`, {
+      headers: this.getAuthHeaders(),
+    });
+
+    if (!response.ok()) {
+      throw new Error(
+        `Failed to fetch rooms (${response.status()}): ${await response.text()}`,
+      );
+    }
+
+    const responseData = await response.json();
+    return responseData.response?.folders || [];
+  }
+
+  async archiveRoom(roomId, deleteAfter = true) {
+    const headers = {
+      ...this.getAuthHeaders(),
+      "Content-Type": "application/json",
+    };
+
+    const response = await this.apiContext.put(
       `${this.baseURL}/files/rooms/${roomId}/archive`,
       {
-        headers: this.getAuthHeaders(),
+        headers,
+        data: JSON.stringify({ deleteAfter }),
       },
     );
 
@@ -51,7 +73,7 @@ export class RoomsApi {
       );
     }
 
-    log.info(`Room with ID: ${roomId} archived successfully`);
+    log.debug(`Room with ID: ${roomId} archived successfully`);
     return { statusCode: response.status() };
   }
 
@@ -70,6 +92,25 @@ export class RoomsApi {
     }
 
     log.info(`Room with ID: ${roomId} pinned successfully`);
+    return { statusCode: response.status() };
+  }
+
+  async deleteRoom(roomId, deleteAfter = true) {
+    const response = await this.apiContext.delete(
+      `${this.baseURL}/files/rooms/${roomId}`,
+      {
+        headers: this.getAuthHeaders(),
+        data: { deleteAfter },
+      },
+    );
+
+    if (!response.ok()) {
+      throw new Error(
+        `Failed to delete room (${response.status()}): ${await response.text()}`,
+      );
+    }
+
+    log.info(`Room with ID: ${roomId} deleted successfully`);
     return { statusCode: response.status() };
   }
 }

@@ -17,7 +17,7 @@ test.describe("Room Creation API", () => {
   });
 
   test.afterAll(async () => {
-    await portalSetup.deletePortal();
+    await portalSetup.deletePortal(true, true);
     await apiContext.dispose();
   });
 
