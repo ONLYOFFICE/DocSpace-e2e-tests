@@ -7,7 +7,9 @@ export class RoomsListPage {
       `div[data-title='${title}'] div[data-testid='context-menu-button']`;
     this.editRoomButtonSelector = "li[id='option_edit-room']";
     this.roomNameInputSelector = "input[id='shared_room-name']";
-  }
+    this.roomMoveArchiveSelector = "li[id='option_archive-room']";
+    this.loginButton = 'button[id="shared_move-to-archived-modal_submit"]';
+      }
 
   // Open the rooms list
   async openRoomsList() {
@@ -29,5 +31,13 @@ export class RoomsListPage {
   async isRoomVisible(roomTitle) {
     await this.page.waitForSelector(this.roomTitleSelector(roomTitle));
     return true;
-  }
+  }     
+      
+  async MoveRoomToArchive(roomTitle) {
+    await this.openRoomContextMenu(roomTitle);
+    await this.page.click(this.roomMoveArchiveSelector);
+    await this.page.waitForSelector(this.roomTitleSelector(roomTitle));
+    await this.page.click(this.loginButton);
+       
+  }  
 }
