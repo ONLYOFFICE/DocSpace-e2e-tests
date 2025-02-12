@@ -1,8 +1,8 @@
 import { test, expect } from "@playwright/test";
-import { PortalSetupApi } from "../../api_library/portal_setup";
-import { RoomsApi } from "../../api_library/files/rooms_api";
-import { RoomsListPage } from "../../page_objects/room_list_page";
-import { PortalLoginPage } from "../../page_objects/portal_login_page";
+import { PortalSetupApi } from "../../../api_library/portal_setup";
+import { RoomsApi } from "../../../api_library/files/rooms_api";
+import { RoomsListPage } from "../../../page_objects/room_list_page";
+import { PortalLoginPage } from "../../../page_objects/portal_login_page";
 
 test.describe("Room Renaming Tests", () => {
   let apiContext;
