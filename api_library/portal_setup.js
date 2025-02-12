@@ -114,6 +114,37 @@ export class PortalSetupApi {
     return body;
   }
 
+  async createUser() {
+    log.debug("Creating user...");
+    const response = await this.apiContext.post(
+      `https://${this.portalDomain}/api/2.0/people`,
+      {
+        headers: this.getAuthHeaders(),
+        data: {
+          firstName: "user-one",
+          lastName: "user-one",
+          email: config.DOCSPACE_USER_EMAIL,
+          password: config.DOCSPACE_USER_PASSWORD,
+          type: "User",
+          isUser: true,
+        },
+      },
+    );
+
+    const body = await response.json();
+     if (!response.ok()) {
+       log.error(
+         `Failed to create user: ${response.status()} - ${body.error || body.message}`,
+       );
+       throw new Error(
+         `Failed to create user: ${response.status()} - ${body.error || body.message}`,
+       );
+     }
+
+     log.debug(`User created successfully: ${JSON.stringify(body, null, 2)}`);
+     return body;
+  }
+
   async #initDocumentsApi() {
     if (!this.documentsApi) {
       this.documentsApi = new FilesApi(this.apiContext, this.portalDomain, () =>
@@ -197,6 +228,14 @@ export class PortalSetupApi {
     const portalData = await this.createPortal(portalNamePrefix);
     await this.authenticate();
     await this.activateAdminUser();
+    return portalData;
+  }
+
+  async setupPortalUser(portalNamePrefix = "test-portal") {
+    const portalData = await this.createPortal(portalNamePrefix);
+    await this.authenticate();
+    await this.activateAdminUser();
+    await this.createUser();
     return portalData;
   }
 }
