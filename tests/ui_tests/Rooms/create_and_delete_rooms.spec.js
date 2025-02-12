@@ -5,7 +5,7 @@ import { ArchivePage } from "../../../page_objects/archive_page";
 import { RoomsListPage } from "../../../page_objects/room_list_page";
 import { PortalLoginPage } from "../../../page_objects/portal_login_page";
 
-test.describe("Create Collaboration Room Tests", () => {
+test.describe("Create and Delete Rooms Tests", () => {
   let apiContext;
   let portalSetup;
   let roomsApi;
