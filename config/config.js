@@ -14,6 +14,8 @@ const config = {
   AWS_REGION: process.env.AWS_REGION,
   DOCSPACE_ADMIN_EMAIL: process.env.DOCSPACE_ADMIN_EMAIL,
   DOCSPACE_ADMIN_PASSWORD: process.env.DOCSPACE_ADMIN_PASSWORD,
+  DOCSPACE_USER_EMAIL: process.env.DOCSPACE_USER_EMAIL,
+  DOCSPACE_USER_PASSWORD: process.env.DOCSPACE_USER_PASSWORD,
   logLevel: process.env.LOG_LEVEL || "info",
 };
 
