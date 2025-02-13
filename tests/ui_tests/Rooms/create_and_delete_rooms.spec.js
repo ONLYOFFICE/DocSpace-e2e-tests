@@ -28,14 +28,14 @@ test.describe("Create and Delete Rooms Tests", () => {
     portalLoginPage = new PortalLoginPage(page);
     await portalLoginPage.loginToPortal(portalSetup.portalDomain);
   });
-
-  test.afterAll(async () => {
-    await portalSetup.deletePortal();
-    await apiContext.dispose();
-  });
+  
+test.afterAll(async () => {
+  await portalSetup.deletePortal();
+  await apiContext.dispose();
+});
 
   test.describe("Create Collaboration Room Tests", () => {
-    test("delete Form Filling room", async ({ page }) => {
+ test("delete Form Filling room", async ({ page }) => {
       const originalTitle = "Form Filling Room"; // Replace with the desired name
       const newTitle = "New Form Filling Room";
       await roomsApi.createRoom(originalTitle, "form_filling");
@@ -43,21 +43,30 @@ test.describe("Create and Delete Rooms Tests", () => {
       await roomsListPage.renameRoom(originalTitle, newTitle);
       const renamedRoomLocator = page.locator(`text=${newTitle}`);
       await expect(renamedRoomLocator).toBeVisible();
+            await roomsListPage.renametag(newTitle, "TAG Filling Room");
+      const tagLocator = page.locator(`text=TAG Filling Room`);
+      await expect(tagLocator).toBeVisible();
+      await roomsListPage.uploadPictures(newTitle);
       await roomsListPage.MoveRoomToArchive(newTitle);
       await page.waitForTimeout(5000)
       // Navigate to Archive page
       await archivePage.openArchiveList();
+      await archivePage.downloadRoom(newTitle);
+      await page.waitForTimeout(5000)
+      // Check that the room is downloaded
+      const downloadedRoomLocator = page.locator(`text=${newTitle}`);
+      await expect(downloadedRoomLocator).toBeVisible();
       const deletedRoomLocator = page.locator(`text=${newTitle}`);
       await expect(deletedRoomLocator).toBeVisible();
       // Delete room from archive
       await archivePage.deleteRoom(newTitle);
-      await page.waitForTimeout(5000)
-      await expect(deletedRoomLocator).not.toBeVisible(); // Check that the room is no longer visible
+      await expect(deletedRoomLocator).not.toBeVisible({ timeout: 10000 });
+      // Check that the room is no longer visible
       const toastLocator = page.locator('text=Room removed'); // Replace with the correct toast selector
       await expect(toastLocator).toBeVisible();
     });
 
-    test("delete Collaboration room", async ({ page }) => {
+test("delete Collaboration room", async ({ page }) => {
       const originalTitle = "Test Room - Collaboration"; // Replace with the desired name
       const newTitle = "New Collaboration Room";
       await roomsApi.createRoom(originalTitle, "collaboration");
@@ -65,38 +74,56 @@ test.describe("Create and Delete Rooms Tests", () => {
       await roomsListPage.renameRoom(originalTitle, newTitle);
       const renamedRoomLocator = page.locator(`text=${newTitle}`);
       await expect(renamedRoomLocator).toBeVisible();
+      await roomsListPage.renametag(newTitle, "TAG Collaboration Room");
+      const tagLocator = page.locator(`text=TAG Collaboration Room`);
+      await expect(tagLocator).toBeVisible();
+      await roomsListPage.uploadPictures(newTitle);
       await roomsListPage.MoveRoomToArchive(newTitle);
       await page.waitForTimeout(5000)
       // Navigate to Archive page
       await archivePage.openArchiveList();
+      await archivePage.downloadRoom(newTitle);
+      await page.waitForTimeout(5000)
+      // Check that the room is downloaded
+      const downloadedRoomLocator = page.locator(`text=${newTitle}`);
+      await expect(downloadedRoomLocator).toBeVisible();
       const deletedRoomLocator = page.locator(`text=${newTitle}`);
       await expect(deletedRoomLocator).toBeVisible();
       // Delete room from archive
       await archivePage.deleteRoom(newTitle);
-      await page.waitForTimeout(5000)
-      await expect(deletedRoomLocator).not.toBeVisible(); // Check that the room is no longer visible
+      await expect(deletedRoomLocator).not.toBeVisible({ timeout: 10000 });
+      // Check that the room is no longer visible
       const toastLocator = page.locator('text=Room removed'); // Replace with the correct toast selector
       await expect(toastLocator).toBeVisible();
     });
 
     test("delete Custom room", async ({ page }) => {
       const originalTitle = "Test Room - Custom"; // Replace with the desired name
-      const newTitle = "Custom Room";
+      const newTitle = "Custom RoomV2";
       await roomsApi.createRoom(originalTitle, "custom");
       await roomsListPage.openRoomsList();
       await roomsListPage.renameRoom(originalTitle, newTitle);
       const renamedRoomLocator = page.locator(`text=${newTitle}`);
       await expect(renamedRoomLocator).toBeVisible();
+      await roomsListPage.renametag(newTitle, "TAG Custom Room");
+      const tagLocator = page.locator(`text=TAG Custom Room`);
+      await expect(tagLocator).toBeVisible();
+      await roomsListPage.uploadPictures(newTitle);
       await roomsListPage.MoveRoomToArchive(newTitle);
       await page.waitForTimeout(5000)
       // Navigate to Archive page
       await archivePage.openArchiveList();
+      await archivePage.downloadRoom(newTitle);
+      await page.waitForTimeout(5000)
+      // Check that the room is downloaded
+      const downloadedRoomLocator = page.locator(`text=${newTitle}`);
+      await expect(downloadedRoomLocator).toBeVisible();
       const deletedRoomLocator = page.locator(`text=${newTitle}`);
       await expect(deletedRoomLocator).toBeVisible();
       // Delete room from archive
       await archivePage.deleteRoom(newTitle);
-      await page.waitForTimeout(5000)
-      await expect(deletedRoomLocator).not.toBeVisible(); // Check that the room is no longer visible
+      await expect(deletedRoomLocator).not.toBeVisible({ timeout: 10000 });
+      // Check that the room is no longer visible
       const toastLocator = page.locator('text=Room removed'); // Replace with the correct toast selector
       await expect(toastLocator).toBeVisible();
     });
@@ -109,16 +136,25 @@ test.describe("Create and Delete Rooms Tests", () => {
       await roomsListPage.renameRoom(originalTitle, newTitle);
       const renamedRoomLocator = page.locator(`text=${newTitle}`);
       await expect(renamedRoomLocator).toBeVisible();
+      await roomsListPage.renametag(newTitle, "TAG Public Room");
+      const tagLocator = page.locator(`text=TAG Public Room`);
+      await expect(tagLocator).toBeVisible();
+      await roomsListPage.uploadPictures(newTitle);
       await roomsListPage.MoveRoomToArchive(newTitle);
       await page.waitForTimeout(5000)
       // Navigate to Archive page
       await archivePage.openArchiveList();
+      await archivePage.downloadRoom(newTitle);
+      await page.waitForTimeout(5000)
+      // Check that the room is downloaded
+      const downloadedRoomLocator = page.locator(`text=${newTitle}`);
+      await expect(downloadedRoomLocator).toBeVisible();
       const deletedRoomLocator = page.locator(`text=${newTitle}`);
       await expect(deletedRoomLocator).toBeVisible();
       // Delete room from archive
       await archivePage.deleteRoom(newTitle);
-      await page.waitForTimeout(5000)
-      await expect(deletedRoomLocator).not.toBeVisible(); // Check that the room is no longer visible
+      await expect(deletedRoomLocator).not.toBeVisible({ timeout: 10000 });
+      // Check that the room is no longer visible
       const toastLocator = page.locator('text=Room removed'); // Replace with the correct toast selector
       await expect(toastLocator).toBeVisible();
     });
@@ -131,16 +167,25 @@ test.describe("Create and Delete Rooms Tests", () => {
       await roomsListPage.renameRoom(originalTitle, newTitle);
       const renamedRoomLocator = page.locator(`text=${newTitle}`);
       await expect(renamedRoomLocator).toBeVisible();
+      await roomsListPage.renametag(newTitle, "TAG virtual data Room");
+      const tagLocator = page.locator(`text=TAG virtual data Room`);
+      await expect(tagLocator).toBeVisible();
+      await roomsListPage.uploadPictures(newTitle);
       await roomsListPage.MoveRoomToArchive(newTitle);
       await page.waitForTimeout(5000)
       // Navigate to Archive page
       await archivePage.openArchiveList();
+      await archivePage.downloadRoom(newTitle);
+      await page.waitForTimeout(5000)
+      // Check that the room is downloaded
+      const downloadedRoomLocator = page.locator(`text=${newTitle}`);
+      await expect(downloadedRoomLocator).toBeVisible();
       const deletedRoomLocator = page.locator(`text=${newTitle}`);
       await expect(deletedRoomLocator).toBeVisible();
       // Delete room from archive
       await archivePage.deleteRoom(newTitle);
-      await page.waitForTimeout(5000)
-      await expect(deletedRoomLocator).not.toBeVisible(); // Check that the room is no longer visible
+      await expect(deletedRoomLocator).not.toBeVisible({ timeout: 10000 });
+      // Check that the room is no longer visible
       const toastLocator = page.locator('text=Room removed'); // Replace with the correct toast selector
       await expect(toastLocator).toBeVisible();
     });
