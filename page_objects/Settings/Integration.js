@@ -1,4 +1,5 @@
 import MainPage from "../MainPage";
+import config from "../../config/config.js";
 
 export class Integration extends MainPage {
     constructor(page) {
@@ -9,7 +10,7 @@ export class Integration extends MainPage {
         this.ldapSettingsHide = page.getByText('Hide', { exact: true });
         this.enableLdap = page.locator('circle').first();
         this.ldapNameServerInput = page.locator('input[name="server"]');
-        this.ldapUserDininput = page.locator('input[name="userDN"]');
+        this.ldapUserDininput = page.locator('input[name="userDN"][data-testid="text-input"]');
         this.ldapUserFilterInput = page.getByText('(uid=*)');
         this.ldapLoginInput = page.locator('input[name="login"]');
         this.ldapPasswordInput = page.getByTestId('input-block').getByTestId('text-input');
@@ -36,23 +37,30 @@ export class Integration extends MainPage {
         this.ldapUserTypeDocSpaceadmin = page.getByText('DocSpace adminPaid');
         this.ldapUserTypeRoomAdmin = page.getByText('Room adminPaid');
         this.ldapUserTypeUser = page.getByText('User', { exact: true });
+        this.facebookSwitch = page.locator('[data-consumer="facebook"][data-testid="box"]');
+        this.facebookID = page.getByRole('textbox', { name: 'Facebook ID' });
+        this.facebookKey = page.getByRole('textbox', { name: 'Facebook Key' });
+        this.saveButtonServices = page.getByRole('button', { name: 'Enable' });
+        this.s3Switch = page.locator('[data-consumer="s3"][data-testid="box"]');
+        this.s3AccessKey = page.getByRole('textbox', { name: 'S3 accesskey' });
+        this.s3SecretKey = page.getByRole('textbox', { name: 'S3 secret access key' });
     }
 
     async activateLdap() {
         await this.ldapSettingsShow.click();
         await this.ldapSettingsHide.click();
         await this.enableLdap.click();
-        await this.ldapNameServerInput.fill('LDAP://174.138.56.168');
-        await this.ldapUserDininput.fill('dc=qamail,dc=teamlab,dc=info');
-        await this.ldapUserFilterInput.fill('(objectclass=*)');
+        await this.ldapNameServerInput.fill(config.LDAP_SERVER);
+        await this.ldapUserDininput.fill(config.LDAP_USER_DN);
+        await this.ldapUserFilterInput.fill(config.LDAP_USER_FILTER);
         await this.ldapUserType.click();
         await this.ldapUserTypeDocSpaceadmin.click();
         await this.ldapUserType.click();
         await this.ldapUserTypeRoomAdmin.click();
         await this.ldapUserType.click();
         await this.ldapUserTypeUser.click();
-        await this.ldapLoginInput.fill('cn=admin,dc=qamail,dc=teamlab,dc=info');
-        await this.ldapPasswordInput.fill('123456');
+        await this.ldapLoginInput.fill(config.LDAP_LOGIN);
+        await this.ldapPasswordInput.fill(config.LDAP_PASSWORD);
         await this.SaveButton.click();
     }
 
@@ -70,10 +78,10 @@ export class Integration extends MainPage {
         await this.smtpHost.fill('smtp.yandex.com');
         await this.smtpPort.fill('587');
         await this.smtpAuthEnable.click();
-        await this.smtpHostlogin.fill('anton.kashichkintest1@yandex.ru');
-        await this.smtpHostPassword.fill('amzayubfjcphwzqd');
+        await this.smtpHostlogin.fill(config.SMTP_HOST_LOGIN);
+        await this.smtpHostPassword.fill(config.SMTP_HOST_PASSWORD);
         await this.smtpSenderDisplayName.fill('Autotest');
-        await this.smtpSenderEmail.fill('anton.kashichkintest1@yandex.ru');
+        await this.smtpSenderEmail.fill(config.SMTP_HOST_LOGIN);
         await this.smtpSSLEnable.click();
         await this.SaveButton.click();        
     }
@@ -82,4 +90,20 @@ export class Integration extends MainPage {
         await this.navigateToIntegration.click();
         await this.navigateToThirdParty.click();
     }
+
+    async activateFacebook() {
+        await this.facebookSwitch.click();
+        await this.facebookID.fill(config.FACEBOOK_ID);
+        await this.facebookKey.fill(config.FACEBOOK_KEY);
+        await this.saveButtonServices.click();
+    }
+
+    async activateAWSS3() {
+        await this.s3Switch.click();
+        await this.s3AccessKey.fill(config.S3_ACCESS_KEY);
+        await this.s3SecretKey.fill(config.S3_SECRET_KEY);
+        await this.saveButtonServices.click();
+    }
 }
+
+

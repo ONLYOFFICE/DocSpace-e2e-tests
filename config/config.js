@@ -17,7 +17,21 @@ const config = {
   DOCSPACE_USER_EMAIL: process.env.DOCSPACE_USER_EMAIL,
   DOCSPACE_USER_PASSWORD: process.env.DOCSPACE_USER_PASSWORD,
   TEST_SITE_REGISTRATION_URL: process.env.TEST_SITE_REGISTRATION_URL,
+  FACEBOOK_ID: process.env.FACEBOOK_ID,
+  FACEBOOK_KEY: process.env.FACEBOOK_KEY,
+  S3_ACCESS_KEY: process.env.S3_ACCESS_KEY,
+  S3_SECRET_KEY: process.env.S3_SECRET_KEY,
+  LDAP_SERVER: process.env.LDAP_SERVER,
+  LDAP_USER_DN: process.env.LDAP_USER_DN,
+  LDAP_USER_FILTER: process.env.LDAP_USER_FILTER,
+  LDAP_LOGIN: process.env.LDAP_LOGIN,
+  LDAP_PASSWORD: process.env.LDAP_PASSWORD,
+  SMTP_HOST: process.env.SMTP_HOST,
+  SMTP_HOST_LOGIN: process.env.SMTP_HOST_LOGIN,
+  SMTP_HOST_PASSWORD: process.env.SMTP_HOST_PASSWORD,
+  
   logLevel: process.env.LOG_LEVEL || "info",
 };
 
 export default config;
+  
