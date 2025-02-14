@@ -150,4 +150,4 @@ import { PortalLoginPage } from "../../../page_objects/portal_login_page";
         await security.sessionLifetimeDeactivation();
         await expect(page.locator('text=Settings have been successfully updated')).toHaveText('Settings have been successfully updated', { timeout: 10000 });
       });
-    });
+});
