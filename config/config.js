@@ -29,7 +29,9 @@ const config = {
   SMTP_HOST: process.env.SMTP_HOST,
   SMTP_HOST_LOGIN: process.env.SMTP_HOST_LOGIN,
   SMTP_HOST_PASSWORD: process.env.SMTP_HOST_PASSWORD,
-  
+  NEXTCLOUD_URL: process.env.NEXTCLOUD_URL,
+  NEXTCLOUD_LOGIN: process.env.NEXTCLOUD_LOGIN,
+  NEXTCLOUD_PASSWORD: process.env.NEXTCLOUD_PASSWORD,
   logLevel: process.env.LOG_LEVEL || "info",
 };
 

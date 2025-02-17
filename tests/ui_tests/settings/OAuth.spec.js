@@ -26,7 +26,7 @@ import { PortalLoginPage } from "../../../page_objects/portal_login_page";
               await apiContext.dispose();
             });
 
-    test('OAuth Create', async ({ page }) => {
+      test('OAuth Create', async ({ page }) => {
         await oAuth.navigateToSettings();
         await oAuth.navigateToOAuth();
         await oAuth.createOAuthApplication();
@@ -80,5 +80,4 @@ import { PortalLoginPage } from "../../../page_objects/portal_login_page";
         await page1.waitForURL('https://*.onlyoffice.com/administration/docspace-settings.aspx#oauth');
         await expect(page1).toHaveURL(/administration\/docspace-settings.aspx\#oauth/);
       });
-
 });

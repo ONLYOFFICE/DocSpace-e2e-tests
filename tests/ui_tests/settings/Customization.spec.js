@@ -27,7 +27,7 @@ import { PortalLoginPage } from "../../../page_objects/portal_login_page";
         await apiContext.dispose();
       });
 
-      test('changeLang&Time', async ({ page }) => {
+    test('changeLang&Time', async ({ page }) => {
         await customization.navigateToSettings();
         await page.waitForTimeout(1000);
         await customization.changeLanguage('English (United States)');
@@ -53,7 +53,7 @@ import { PortalLoginPage } from "../../../page_objects/portal_login_page";
         await expect(page.locator('text=Welcome Page settings have been successfully saved')).toHaveText('Welcome Page settings have been successfully saved', { timeout: 10000 });
     });
 
-    test.skip('Branding_UseAsLogo - временно отключено', async ({ page }) => {
+    test('Branding_UseAsLogo - временно отключено', async ({ page }) => {
         await customization.navigateToSettings();
         await page.getByText('Branding').click();
         await customization.setBrandingText('AutoTesting');
@@ -124,6 +124,5 @@ import { PortalLoginPage } from "../../../page_objects/portal_login_page";
         const page5 = await page5Promise;
         await page5.waitForURL('https://*.onlyoffice.com/administration/docspace-settings.aspx#DocSpacerenaming');
         await expect(page5).toHaveURL(/administration\/docspace-settings.aspx\#DocSpacerenaming/);
-        
     });
 });

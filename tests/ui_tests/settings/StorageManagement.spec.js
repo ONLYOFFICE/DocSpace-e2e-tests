@@ -26,7 +26,7 @@ import { PortalLoginPage } from "../../../page_objects/portal_login_page";
               await apiContext.dispose();
             }); 
 
-    test('Storage Management Link', async ({ page }) => {
+      test('Storage Management Link', async ({ page }) => {
         test.setTimeout(60000);
         await storageManagement.navigateToSettings();
         await storageManagement.navigateToStorageManagement.click();

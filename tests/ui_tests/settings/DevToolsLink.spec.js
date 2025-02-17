@@ -26,7 +26,7 @@ import { PortalLoginPage } from "../../../page_objects/portal_login_page";
       await apiContext.dispose();
     });
 
-    test('Api Link', async ({ page }) => {
+      test('Api Link', async ({ page }) => {
         await devToolsLink.navigateToSettings();
         await devToolsLink.navigateToDevTools.click();
         const page1Promise = page.waitForEvent('popup');
@@ -89,13 +89,11 @@ import { PortalLoginPage } from "../../../page_objects/portal_login_page";
         const page2 = await page2Promise;
         await page2.waitForURL('https://github.com/ONLYOFFICE/docspace-plugins/tree/master/markdown');
         await expect(page2).toHaveURL(/ONLYOFFICE\/docspace-plugins\/tree\/master\/markdown/);
-        
         await devToolsLink.drawIoLink.click();
         const page3Promise = page.waitForEvent('popup');
         const page3 = await page3Promise;
         await page3.waitForURL('https://github.com/ONLYOFFICE/docspace-plugins/tree/master/draw.io');
         await expect(page3).toHaveURL(/ONLYOFFICE\/docspace-plugins\/tree\/master\/draw.io/);
-        
         await devToolsLink.speechToTextLink.click();
         const page4Promise = page.waitForEvent('popup');
         const page4 = await page4Promise;
@@ -107,5 +105,4 @@ import { PortalLoginPage } from "../../../page_objects/portal_login_page";
         await page5.waitForURL('https://github.com/ONLYOFFICE/docspace-plugins/tree/master/pdf-converter');
         await expect(page5).toHaveURL(/ONLYOFFICE\/docspace-plugins\/tree\/master\/pdf-converter/);
       });
-
 });

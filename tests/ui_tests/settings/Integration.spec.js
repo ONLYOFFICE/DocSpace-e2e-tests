@@ -3,7 +3,6 @@ import { Integration } from "../../../page_objects/Settings/Integration";
 import { PortalSetupApi } from "../../../api_library/portal_setup";
 import { PortalLoginPage } from "../../../page_objects/portal_login_page";
 
-
     test.describe('Integration Tests', () => {  
       let apiContext;
       let portalSetup;
@@ -27,8 +26,8 @@ import { PortalLoginPage } from "../../../page_objects/portal_login_page";
       await apiContext.dispose();
     });
 
-    test.skip('Ldap - временно отключено', async ({ page }) => {
-       await integration.navigateToSettings();
+      test.skip('Ldap - временно отключено', async ({ page }) => {
+        await integration.navigateToSettings();
         await integration.navigateToIntegration.click();
         await integration.activateLdap();
         await expect(page.locator('text=100% Operation has been successfully completed')).toBeVisible({ timeout: 3000 });
@@ -99,7 +98,6 @@ import { PortalLoginPage } from "../../../page_objects/portal_login_page";
         await integration.s3Switch.click();
         await expect(page.locator('text=Deactivated successfully')).toHaveText('Deactivated successfully', { timeout: 10000 });
       });
-
 });
 
 
