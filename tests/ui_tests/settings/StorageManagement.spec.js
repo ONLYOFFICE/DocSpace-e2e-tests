@@ -26,7 +26,7 @@ import { PortalLoginPage } from "../../../page_objects/portal_login_page";
               await apiContext.dispose();
             }); 
 
-    test('Storage Management Link', async ({ page }) => {
+      test('Storage Management Link', async ({ page }) => {
         test.setTimeout(60000);
         await storageManagement.navigateToSettings();
         await storageManagement.navigateToStorageManagement.click();
@@ -37,7 +37,7 @@ import { PortalLoginPage } from "../../../page_objects/portal_login_page";
         await expect(page1).toHaveURL(/administration\/docspace-settings.aspx\#StorageManagement_block/);
       });
 
-      test.skip('Quota Room - временно отключено', async ({ page }) => {
+      test.skip('Quota Room - temporarily disabled due to lack of payment', async ({ page }) => {
         await storageManagement.navigateToSettings();
         await storageManagement.navigateToStorageManagement.click();
         await storageManagement.QuotaRoomActivate();
@@ -47,7 +47,7 @@ import { PortalLoginPage } from "../../../page_objects/portal_login_page";
         await expect(page.locator('text=Room quota has been successfully disabled.')).toHaveText('Room quota has been successfully disabled.', { timeout: 10000 });
       });
 
-      test.skip('Quota User - временно отключено', async ({ page }) => {
+      test.skip('Quota User - temporarily disabled due to lack of payment', async ({ page }) => {
         await storageManagement.navigateToSettings();
         await storageManagement.navigateToStorageManagement.click();
         await storageManagement.QuotaUserActivate();

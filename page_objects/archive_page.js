@@ -17,6 +17,11 @@ export class ArchivePage {
     this.restoreButtonSelector = 'button[id="restore-all_submit"]';
   }
 
+  async downloadRoom(roomTitle) {const download1Promise = page.waitForEvent('download');
+    await this.page.click(this.downloadArchiveButtonSelector);
+    const download1 = await download1Promise;
+    } 
+    
   // Open the archive rooms list
   async openArchiveList() {
     await this.page.click(this.archiveListSelector);  

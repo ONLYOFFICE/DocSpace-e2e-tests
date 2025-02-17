@@ -26,15 +26,14 @@ import { PortalLoginPage } from "../../../page_objects/portal_login_page";
               await apiContext.dispose();
             });
 
-        test('Create Webhook', async ({ page }) => {
+      test('Create Webhook', async ({ page }) => {
         await webhook.navigateToSettings();
         await webhook.navigateToWebhooks();
         await webhook.createWebhook('Autotest', 'https://webhook.site/5ac48dd9-de53-4144-8442-1e7245aab861');
         await expect(page.locator('text=Webhook created')).toHaveText('Webhook created', { timeout: 5000 });
-
       });
 
-        test('Webhook Redelivery', async ({ page }) => {
+      test('Webhook Redelivery', async ({ page }) => {
         await webhook.navigateToSettings();
         await webhook.navigateToWebhooks();
         await webhook.redeliverWebhook();
@@ -57,5 +56,4 @@ import { PortalLoginPage } from "../../../page_objects/portal_login_page";
         await page1.waitForURL('https://*.onlyoffice.com/administration/docspace-webhooks.aspx');
         await expect(page1).toHaveURL(/administration\/docspace-webhooks.aspx/);
       });
-
 });

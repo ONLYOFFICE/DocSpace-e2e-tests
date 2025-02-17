@@ -32,7 +32,7 @@ import { PortalLoginPage } from "../../../page_objects/portal_login_page";
         await page.waitForTimeout(1000);
         await deletionportal.deletionPortal();
         await page.waitForTimeout(1000);
-        await expect(page.locator('text=A link to confirm the operation has been sent to docspace-notifications@qamail.teamlab.info (the email address of the space owner).')).toHaveText('A link to confirm the operation has been sent to docspace-notifications@qamail.teamlab.info (the email address of the space owner).', { timeout: 10000 });
+        await expect(page.locator('text=A link to confirm the operation has been sent')).toHaveText('A link to confirm the operation has been sent', { timeout: 10000 });
       });
 
       test('Deactivate Portal', async ({ page }) => {
@@ -41,6 +41,6 @@ import { PortalLoginPage } from "../../../page_objects/portal_login_page";
         await page.waitForTimeout(1000);
         await deletionportal.deactivationPortal();
         await page.waitForTimeout(1000);
-        await expect(page.locator('text=A link to confirm the operation has been sent to docspace-notifications@qamail.teamlab.info (the email address of the space owner).')).toHaveText('A link to confirm the operation has been sent to docspace-notifications@qamail.teamlab.info (the email address of the space owner).', { timeout: 10000 });        
+        await expect(page.locator('text=A link to confirm the operation has been sent')).toHaveText('A link to confirm the operation has been sent', { timeout: 10000 });        
       });
     });

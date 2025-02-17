@@ -128,19 +128,19 @@ import { PortalLoginPage } from "../../../page_objects/portal_login_page";
         await expect(page7).toHaveURL(/administration\/docspace-settings.aspx\#sessionlifetime/);
       });
 
-      test('Login History', async ({ page }) => {
+      test.skip('Login History - temporarily disabled due to lack of payment', async ({ page }) => {
         await security.navigateToSettings();
         await security.navigateToLoginHistory();
         await expect(page.locator('text=Successful Login via API').first()).toHaveText('Successful Login via API', { timeout: 10000 });
       });
 
-      test('Audit Trail', async ({ page }) => {
+      test.skip('Audit Trail - temporarily disabled due to lack of payment', async ({ page }) => {
         await security.navigateToSettings();
         await security.navigateToAuditTrail();
         await expect(page.locator('text=Language Updated').first()).toHaveText('Language Updated', { timeout: 10000 });
       });
         
-      test.skip('Session Lifetime - падает метод удаления портала', async ({ page }) => {
+      test.skip('Session Lifetime - portal removal method crashes', async ({ page }) => {
         await security.navigateToSettings();
         await security.navigateToSecurity.click();
         await security.sessionLifetimeActivation();
@@ -150,4 +150,4 @@ import { PortalLoginPage } from "../../../page_objects/portal_login_page";
         await security.sessionLifetimeDeactivation();
         await expect(page.locator('text=Settings have been successfully updated')).toHaveText('Settings have been successfully updated', { timeout: 10000 });
       });
-    });
+});

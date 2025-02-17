@@ -26,7 +26,7 @@ import { PortalLoginPage } from "../../../page_objects/portal_login_page";
         await apiContext.dispose();
       });
 
-    test('Payment', async ({ page, context }) => { //Работает только с американского IP
+    test('Payment', async ({ page, context }) => {
         test.setTimeout(240000);
         const payment = new Payment(page, context);
         await payment.navigateToPayments();
@@ -36,7 +36,7 @@ import { PortalLoginPage } from "../../../page_objects/portal_login_page";
         await expect(page.locator('text=You are using Business plan')).toBeVisible({ timeout: 10000 });
     });
 
-    test('Change Tarif Plan', async ({ page }) => {  //Работает только при оплате с американского IP
+    test('Change Tarif Plan', async ({ page }) => {
         const payment = new Payment(page);
         await payment.navigateToPayments();
         await payment.downgradePlan();
