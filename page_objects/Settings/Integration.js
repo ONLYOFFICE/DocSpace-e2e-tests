@@ -44,6 +44,26 @@ export class Integration extends MainPage {
         this.s3Switch = page.locator('[data-consumer="s3"][data-testid="box"]');
         this.s3AccessKey = page.getByRole('textbox', { name: 'S3 accesskey' });
         this.s3SecretKey = page.getByRole('textbox', { name: 'S3 secret access key' });
+        this.manualSyncLDAPButton = page.getByTestId('button', { name: 'Sync users' });
+        this.enableAutoSyncLDAP = page.locator('circle').nth(1);
+        this.selectMinute = page.getByTestId('drop-down-item').filter({ hasText: /^05$/ }).first();
+        this.periodBox = page.getByTestId('cron').locator('path').first();
+        this.selectEveryDayPeriod = page.getByTestId('drop-down-item').filter({ hasText: /^Every day$/ });
+        this.hourCombobox = page.getByTestId('cron').locator('path').nth(3);
+        this.hourCombobox2 = page.getByTestId('cron').locator('div').filter({ hasText: 'Every hour' }).nth(3);
+        this.selectEveryHour = page.getByTestId('drop-down-item').filter({ hasText: /^06$/ }).nth(1);
+        this.selectEveryHour2 = page.getByTestId('drop-down-item').filter({ hasText: /^06$/ }).nth(2);
+        this.selectWeekPeriod = page.getByTestId('drop-down-item').filter({ hasText: /^Every week$/ });
+        this.selectMonthPeriod = page.getByTestId('drop-down-item').filter({ hasText: /^Every month$/ });
+        this.dayCombobox = page.getByTestId('cron').locator('div').filter({ hasText: 'Every day of the week' }).nth(2);
+        this.dayOfWeekCombobox = page.getByTestId('cron').locator('div').filter({ hasText: 'Day of the week' }).nth(2);
+        this.minuteCombobox = page.getByTestId('cron').locator('div').filter({ hasText: 'Every minute' }).nth(3);       
+        this.selectDay = page.locator('div').filter({ hasText: /^Thursday$/ });
+        this.dayOfTheMounthCombobox = page.getByTestId('cron').locator('div').filter({ hasText: 'Day of the month' }).nth(2);
+        this.selectdayOfTheMounth = page.locator('div').filter({ hasText: /^01$/ }).nth(1);
+        this.selectEveryEear = page.locator('div').filter({ hasText: /^Every year$/ });
+        this.monthBox = page.getByTestId('cron').locator('div').filter({ hasText: 'Every month' }).nth(2);
+        this.selectMonth = page.locator('div').filter({ hasText: /^May$/ });
     }
 
     async activateLdap() {
@@ -64,7 +84,8 @@ export class Integration extends MainPage {
         await this.SaveButton.click();
     }
 
-    async defaultLdap() {
+    async disableLdap() {
+        await this.ldapSettingsShow.click();
         await this.DefaultButton.click();
         await this.ldapOKButton.click();
     }
@@ -104,6 +125,83 @@ export class Integration extends MainPage {
         await this.s3SecretKey.fill(config.S3_SECRET_KEY);
         await this.saveButtonServices.click();
     }
+
+    async manualSyncLdap() {
+        await this.navigateToIntegration.click();
+        await this.page.waitForTimeout(1000);
+        await this.manualSyncLDAPButton.click();
+    }
+
+    async everyHour() {
+        await this.navigateToIntegration.click();
+        await this.page.waitForTimeout(1000);
+        await this.enableAutoSyncLDAP.click();
+        await this.minuteCombobox.click();
+        await this.selectMinute.click();
+        await this.SaveButton.click();
+    }
+
+    async everyDay() {
+        await this.navigateToIntegration.click();
+        await this.page.waitForTimeout(1000);
+        await this.enableAutoSyncLDAP.click();
+        await this.periodBox.click();
+        await this.selectEveryDayPeriod.click();
+        await this.hourCombobox2.click();
+        await this.selectEveryHour.click();
+        await this.minuteCombobox.click();
+        await this.selectMinute.click();
+        await this.SaveButton.click();
+    }
+
+    async everyWeek() {
+        await this.navigateToIntegration.click();
+        await this.page.waitForTimeout(1000);
+        await this.enableAutoSyncLDAP.click();
+        await this.periodBox.click();
+        await this.selectWeekPeriod.click();
+        await this.dayCombobox.click();
+        await this.selectDay.click();
+        await this.hourCombobox2.click();
+        await this.selectEveryHour.click();
+        await this.minuteCombobox.click();
+        await this.selectMinute.click();
+        await this.SaveButton.click();
+    }
+
+    async everyMonth() {
+        await this.navigateToIntegration.click();
+        await this.page.waitForTimeout(1000);
+        await this.enableAutoSyncLDAP.click();
+        await this.periodBox.click();
+        await this.selectMonthPeriod.click();
+        await this.dayOfTheMounthCombobox.click();
+        await this.selectdayOfTheMounth.click();
+        await this.dayOfWeekCombobox.click();
+        await this.selectDay.click();
+        await this.hourCombobox2.click();
+        await this.selectEveryHour2.click();
+        await this.minuteCombobox.click();
+        await this.selectMinute.click();
+        await this.SaveButton.click();
+    }
+
+    async everyYear() {
+        await this.navigateToIntegration.click();
+        await this.page.waitForTimeout(1000);
+        await this.enableAutoSyncLDAP.click();
+        await this.periodBox.click();
+        await this.selectEveryEear.click();
+        await this.monthBox.click();
+        await this.selectMonth.click();
+        await this.dayOfTheMounthCombobox.click();
+        await this.selectdayOfTheMounth.click();
+        await this.dayOfWeekCombobox.click();
+        await this.selectDay.click();
+        await this.hourCombobox2.click();
+        await this.selectEveryHour2.click();
+        await this.minuteCombobox.click();
+        await this.selectMinute.click();
+        await this.SaveButton.click();
+    }
 }
-
-

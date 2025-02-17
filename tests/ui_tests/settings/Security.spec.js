@@ -128,13 +128,13 @@ import { PortalLoginPage } from "../../../page_objects/portal_login_page";
         await expect(page7).toHaveURL(/administration\/docspace-settings.aspx\#sessionlifetime/);
       });
 
-      test('Login History', async ({ page }) => {
+      test.skip('Login History - временно отключено из-за отсутствия платности', async ({ page }) => {
         await security.navigateToSettings();
         await security.navigateToLoginHistory();
         await expect(page.locator('text=Successful Login via API').first()).toHaveText('Successful Login via API', { timeout: 10000 });
       });
 
-      test('Audit Trail', async ({ page }) => {
+      test.skip('Audit Trail - временно отключено из-за отсутствия платности', async ({ page }) => {
         await security.navigateToSettings();
         await security.navigateToAuditTrail();
         await expect(page.locator('text=Language Updated').first()).toHaveText('Language Updated', { timeout: 10000 });

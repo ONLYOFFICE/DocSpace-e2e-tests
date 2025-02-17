@@ -26,12 +26,69 @@ import { PortalLoginPage } from "../../../page_objects/portal_login_page";
       await apiContext.dispose();
     });
 
-      test.skip('Ldap - временно отключено', async ({ page }) => {
+      test.skip('Ldap - временно отключено из-за отсутствия платности', async ({ page }) => {
         await integration.navigateToSettings();
         await integration.navigateToIntegration.click();
         await integration.activateLdap();
         await expect(page.locator('text=100% Operation has been successfully completed')).toBeVisible({ timeout: 3000 });
-        await integration.defaultLdap();
+      });
+
+      test.skip('Manual Sync - временно отключено из-за отсутствия платности', async ({ page }) => {
+        await integration.navigateToSettings();
+        await integration.manualSyncLdap();
+        await expect(page.locator('text=100% Operation has been successfully completed.')).toBeVisible({ timeout: 3000 });
+      });
+
+      test.skip('Auto sync every hour - временно отключено из-за отсутствия платности', async ({ page }) => {
+        await integration.navigateToSettings();
+        await integration.everyHour();
+        await expect(page.locator('text=Settings have been successfully updated')).toBeVisible({ timeout: 10000 });
+        await integration.removeToast.click();
+        await integration.enableAutoSyncLDAP.click();
+        await expect(page.locator('text=Settings have been successfully updated')).toBeVisible({ timeout: 10000 });
+      });
+
+      test.skip('Auto sync every day - временно отключено из-за отсутствия платности', async ({ page }) => {
+        await integration.navigateToSettings();
+        await integration.everyDay();
+        await expect(page.locator('text=Settings have been successfully updated')).toBeVisible({ timeout: 10000 });
+        await integration.removeToast.click();
+        await integration.enableAutoSyncLDAP.click();
+        await expect(page.locator('text=Settings have been successfully updated')).toBeVisible({ timeout: 10000 });
+      });
+
+      test.skip('Auto sync every week - временно отключено из-за отсутствия платности', async ({ page }) => {
+        await integration.navigateToSettings();
+        await integration.everyWeek();
+        await expect(page.locator('text=Settings have been successfully updated')).toBeVisible({ timeout: 10000 });
+        await integration.removeToast.click();
+        await integration.enableAutoSyncLDAP.click();
+        await expect(page.locator('text=Settings have been successfully updated')).toBeVisible({ timeout: 10000 });
+      });
+
+      test.skip('Auto sync every month - временно отключено из-за отсутствия платности', async ({ page }) => {
+        await integration.navigateToSettings();
+        await integration.everyMonth();
+        await expect(page.locator('text=Settings have been successfully updated')).toBeVisible({ timeout: 10000 });
+        await integration.removeToast.click();
+        await integration.enableAutoSyncLDAP.click();
+        await expect(page.locator('text=Settings have been successfully updated')).toBeVisible({ timeout: 10000 });
+      });
+
+      test.skip('Auto sync every year - временно отключено из-за отсутствия платности', async ({ page }) => {
+        await integration.navigateToSettings();
+        await integration.everyYear();
+        await expect(page.locator('text=Settings have been successfully updated')).toBeVisible({ timeout: 10000 });
+        await integration.removeToast.click();
+        await integration.enableAutoSyncLDAP.click();
+        await expect(page.locator('text=Settings have been successfully updated')).toBeVisible({ timeout: 10000 });
+      });
+
+      test.skip('Disable LDAP  - временно отключено из-за отсутствия платности', async ({ page }) => {
+        await integration.navigateToSettings();
+        await integration.navigateToIntegration.click();
+        await page.waitForTimeout(1000);
+        await integration.disableLdap();
         await expect(page.locator('text=100% Operation has been successfully completed')).toBeVisible({ timeout: 3000 });
       });
 
