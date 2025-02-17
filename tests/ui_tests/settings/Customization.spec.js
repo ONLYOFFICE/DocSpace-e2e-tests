@@ -53,7 +53,7 @@ import { PortalLoginPage } from "../../../page_objects/portal_login_page";
         await expect(page.locator('text=Welcome Page settings have been successfully saved')).toHaveText('Welcome Page settings have been successfully saved', { timeout: 10000 });
     });
 
-    test.skip('Branding_UseAsLogo - временно отключено из-за отсутствия платности', async ({ page }) => {
+    test.skip('Branding_UseAsLogo - temporarily disabled due to lack of payment', async ({ page }) => {
         await customization.navigateToSettings();
         await page.getByText('Branding').click();
         await customization.setBrandingText('AutoTesting');

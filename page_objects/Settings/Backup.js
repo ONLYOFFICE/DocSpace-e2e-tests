@@ -206,9 +206,9 @@ export class Backup extends MainPage {
     async nextcloudAutoBackup() {
         await this.enableAutoBAckupSwitch.click();
         await this.selectThirdPartyResource.click();
-        await this.page.waitForTimeout(500); // Ждем после первого клика
+        await this.page.waitForTimeout(500); 
         await this.resourceBox.first().click();
-        await this.page.waitForTimeout(500); // Ждем после открытия комбобокса
+        await this.page.waitForTimeout(500); 
         await this.selectNextcloud.click();
         await this.connectButton.click();
         await this.connectionUrlInput.fill(config.NEXTCLOUD_URL);
