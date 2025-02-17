@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 import { PortalSetupApi } from "../../../api_library/portal_setup";
 import { PortalLoginPage } from "../../../page_objects/portal_login_page";
-import { ProfilePage } from "../../../page_objects/accounts/profile_page";
+import { ProfilePage } from "../../../page_objects/accounts/profilePage";
 
 test.describe("Profile Smoke Tests", () => {
   let apiContext;
