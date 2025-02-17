@@ -7,8 +7,8 @@ export class Payment extends MainPage {
         this.context = context;
         this.numberOfadmins = page.getByTestId('text-input');
         this.upgradeNowButton = page.getByTestId('button');
-        this.portalUrl = null; // Храним URL портала
-        this.page3 = null; // Храним вкладку Stripe
+        this.portalUrl = null; 
+        this.page3 = null; 
         this.minusButton = page.locator('.circle').first();
         this.approveButton = page.getByTestId('button');
         this.removeToast = page.getByText('Business plan updated');
@@ -44,8 +44,6 @@ export class Payment extends MainPage {
         await this.page3.waitForTimeout(2000);
         await this.page3.getByPlaceholder('(800) 555-').fill('(800) 555-4545');
         await this.page3.waitForTimeout(2000);
-        //await this.page3.locator('[data-testid="card-accordion-item"]').click();
-        //await this.page3.waitForTimeout(5000);
         await this.page3.getByPlaceholder('1234 1234 1234').fill('4242 4242 4242 4242');
         await this.page3.waitForTimeout(2000);
         await this.page3.getByPlaceholder('MM / YY').fill('01 / 30');
