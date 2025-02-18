@@ -45,6 +45,7 @@ test.describe('Customization Portal Tests', () => {
     );
   });
 
+<<<<<<< HEAD
   test('WelcomPageSettings', async ({ page }) => {
     await customization.navigateToSettings();
     await customization.setTitle('DocSpace Autotest Portal');
@@ -56,6 +57,23 @@ test.describe('Customization Portal Tests', () => {
       page.locator('text=Welcome Page settings have been successfully saved')
     ).toHaveText('Welcome Page settings have been successfully saved', { timeout: 10000 });
   });
+=======
+    test('changeLang&Time', async ({ page }) => {
+        await customization.navigateToSettings();
+        await page.waitForTimeout(1000);
+        await customization.changeLanguage('English (United States)');
+        await customization.changeTimezone('(UTC) Antarctica/Troll');
+        await customization.settingsTitle.click();
+        await customization.saveButton.click();
+        await page.waitForTimeout(1000);
+        await customization.RemoveToast.click();
+        await customization.changeLanguage('English (United Kingdom)');
+        await customization.changeTimezone('(UTC) Europe/London');
+        await customization.settingsTitle.click();
+        await customization.saveButton.click();
+        await expect(page.locator('text=Settings have been successfully updated')).toHaveText('Settings have been successfully updated', { timeout: 10000 });
+    });
+>>>>>>> main
 
   test.skip('Branding_UseAsLogo - временно отключено', async ({ page }) => {
     await customization.navigateToSettings();
@@ -77,6 +95,7 @@ test.describe('Customization Portal Tests', () => {
     );
   });
 
+<<<<<<< HEAD
   test('appearance', async ({ page }) => {
     await customization.navigateToSettings();
     await customization.navigateToAppearance.click();
@@ -99,6 +118,21 @@ test.describe('Customization Portal Tests', () => {
       { timeout: 10000 }
     );
   });
+=======
+    test.skip('Branding_UseAsLogo - temporarily disabled due to lack of payment', async ({ page }) => {
+        await customization.navigateToSettings();
+        await page.getByText('Branding').click();
+        await customization.setBrandingText('AutoTesting');
+        await customization.fieldContainerButton.click();
+        await customization.sectionWrapper.click();
+        await customization.saveButton.click();
+        await expect(page.locator('text=Settings have been successfully updated')).toHaveText('Settings have been successfully updated', { timeout: 10000 });
+        await customization.RemoveToast.click();
+        await page.waitForTimeout(1000);
+        await customization.restoreButton.click();
+        await expect(page.locator('text=Settings have been successfully updated')).toHaveText('Settings have been successfully updated', { timeout: 10000 });
+    });
+>>>>>>> main
 
   test('custom_appereance', async ({ page }) => {
     await customization.navigateToSettings();
@@ -125,6 +159,7 @@ test.describe('Customization Portal Tests', () => {
     );
   });
 
+<<<<<<< HEAD
   test('General Link', async ({ page }) => {
     test.setTimeout(120000);
     await customization.navigateToSettings();
@@ -159,3 +194,47 @@ test.describe('Customization Portal Tests', () => {
     await expect(page5).toHaveURL(/administration\/docspace-settings.aspx\#DocSpacerenaming/);
   });
 });
+=======
+    test('custom_appereance', async ({ page }) => {
+        await customization.navigateToSettings();
+        await customization.navigateToAppearance.click();
+        await customization.createCustomTheme('##0EEDE9', '#931073');
+        await expect(page.locator('text=Settings have been successfully updated')).toHaveText('Settings have been successfully updated', { timeout: 10000 });
+        await customization.RemoveToast.click();
+        await customization.darkThemeOption.click();
+        await customization.saveButton.click();
+        await page.waitForTimeout(1000);
+        await expect(page.locator('text=Settings have been successfully updated')).toHaveText('Settings have been successfully updated', { timeout: 10000 });
+        await customization.RemoveToast.click();
+        await customization.deleteCustomTheme();
+        await page.waitForTimeout(1000);
+        await expect(page.locator('text=Settings have been successfully updated')).toHaveText('Settings have been successfully updated', { timeout: 10000 });
+    });
+
+    test('General Link', async ({ page }) => {
+        test.setTimeout(120000);
+        await customization.navigateToSettings();
+        await page.waitForTimeout(1000);
+        const page1Promise = page.waitForEvent('popup');
+        await customization.docspaceLanguageGuideLink.click();
+        const page1 = await page1Promise;
+        await page1.waitForURL('https://*.onlyoffice.com/administration/docspace-settings.aspx#DocSpacelanguage');
+        await expect(page1).toHaveURL(/administration\/docspace-settings.aspx\#DocSpacelanguage/);
+        const page3Promise = page.waitForEvent('popup');
+        await customization.docspaceTitleGuideLink.click();
+        const page3 = await page3Promise;
+        await page3.waitForURL('https://*.onlyoffice.com/administration/docspace-settings.aspx#DocSpacetitle');
+        await expect(page3).toHaveURL(/administration\/docspace-settings.aspx\#DocSpacetitle/);
+        const page4Promise = page.waitForEvent('popup');
+        await customization.docspaceAlternativeUrlGuideLink.click();
+        const page4 = await page4Promise;
+        await page4.waitForURL('https://*.onlyoffice.com/administration/docspace-settings.aspx#alternativeurl');
+        await expect(page4).toHaveURL(/administration\/docspace-settings.aspx\#alternativeurl/);
+        const page5Promise = page.waitForEvent('popup');
+        await customization.docspaceRenamingGuideLink.click();
+        const page5 = await page5Promise;
+        await page5.waitForURL('https://*.onlyoffice.com/administration/docspace-settings.aspx#DocSpacerenaming');
+        await expect(page5).toHaveURL(/administration\/docspace-settings.aspx\#DocSpacerenaming/);
+    });
+});
+>>>>>>> main

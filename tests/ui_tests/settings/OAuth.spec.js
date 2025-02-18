@@ -26,6 +26,7 @@ test.describe('OAuth Tests', () => {
     await apiContext.dispose();
   });
 
+<<<<<<< HEAD
   test('OAuth Create', async ({ page }) => {
     await oAuth.navigateToSettings();
     await oAuth.navigateToOAuth();
@@ -33,6 +34,15 @@ test.describe('OAuth Tests', () => {
     await page.waitForTimeout(2000);
     await expect(page.locator('text=Autotest')).toBeVisible({ timeout: 5000 });
   });
+=======
+      test('OAuth Create', async ({ page }) => {
+        await oAuth.navigateToSettings();
+        await oAuth.navigateToOAuth();
+        await oAuth.createOAuthApplication();
+        await page.waitForTimeout(2000);
+        await expect(page.locator('text=Autotest')).toBeVisible({ timeout: 5000 });
+      });
+>>>>>>> main
 
   test('OAuth Edit', async ({ page }) => {
     await oAuth.navigateToSettings();
@@ -75,6 +85,7 @@ test.describe('OAuth Tests', () => {
     );
   });
 
+<<<<<<< HEAD
   test('OAuth Delete', async ({ page }) => {
     await oAuth.navigateToSettings();
     await oAuth.navigateToOAuth();
@@ -96,3 +107,23 @@ test.describe('OAuth Tests', () => {
     await expect(page1).toHaveURL(/administration\/docspace-settings.aspx\#oauth/);
   });
 });
+=======
+      test('OAuth Delete', async ({ page }) => {
+        await oAuth.navigateToSettings();
+        await oAuth.navigateToOAuth();
+        await oAuth.deleteOAuthApplication();
+        await expect(page.locator('text=Application deleted successfully')).toHaveText('Application deleted successfully', { timeout: 10000 });
+      });
+      
+      test('OAuth Link', async ({ page }) => {
+        test.setTimeout(60000);
+        await oAuth.navigateToSettings();
+        await oAuth.navigateToOAuth();
+        const page1Promise = page.waitForEvent('popup');
+        await oAuth.oauthGuideLink.click();
+        const page1 = await page1Promise;
+        await page1.waitForURL('https://*.onlyoffice.com/administration/docspace-settings.aspx#oauth');
+        await expect(page1).toHaveURL(/administration\/docspace-settings.aspx\#oauth/);
+      });
+});
+>>>>>>> main

@@ -26,6 +26,7 @@ test.describe('Developer Tools Link Tests', () => {
     await apiContext.dispose();
   });
 
+<<<<<<< HEAD
   test('Api Link', async ({ page }) => {
     await devToolsLink.navigateToSettings();
     await devToolsLink.navigateToDevTools.click();
@@ -35,6 +36,39 @@ test.describe('Developer Tools Link Tests', () => {
     await page1.waitForURL('https://*.onlyoffice.com/docspace/');
     await expect(page1).toHaveURL(/docspace/);
   });
+=======
+      test('Api Link', async ({ page }) => {
+        await devToolsLink.navigateToSettings();
+        await devToolsLink.navigateToDevTools.click();
+        const page1Promise = page.waitForEvent('popup');
+        await devToolsLink.clickLearnMoreButton();
+        const page1 = await page1Promise;
+        await page1.waitForURL('https://*.onlyoffice.com/docspace/');
+        await expect(page1).toHaveURL(/docspace/);
+      });
+      
+      test('JSDK Integration examples Link', async ({ page }) => {
+        test.setTimeout(60000);
+        await devToolsLink.navigateToSettings();
+        await devToolsLink.navigateToDevTools.click();
+        await devToolsLink.navigateJavaScriptSDK.click();
+        const page1Promise = page.waitForEvent('popup');
+        await devToolsLink.zoomLink.click();
+        const page1 = await page1Promise;
+        await page1.waitForURL('https://www.onlyoffice.com/office-for-zoom.aspx');
+        await expect(page1).toHaveURL(/office-for-zoom.aspx/);
+        const page2Promise = page.waitForEvent('popup');
+        await devToolsLink.wordPressLink.click();
+        const page2 = await page2Promise;
+        await page2.waitForURL('https://www.onlyoffice.com/office-for-wordpress.aspx');
+        await expect(page2).toHaveURL(/office-for-wordpress.aspx/);
+        const page3Promise = page.waitForEvent('popup');
+        await devToolsLink.drupalLink.click();
+        const page3 = await page3Promise;
+        await page3.waitForURL('https://www.onlyoffice.com/office-for-drupal.aspx');
+        await expect(page3).toHaveURL(/office-for-drupal.aspx/);
+      });
+>>>>>>> main
 
   test('JSDK Integration examples Link', async ({ page }) => {
     test.setTimeout(60000);
@@ -58,6 +92,7 @@ test.describe('Developer Tools Link Tests', () => {
     await expect(page3).toHaveURL(/office-for-drupal.aspx/);
   });
 
+<<<<<<< HEAD
   test('JSDK Link', async ({ page }) => {
     test.setTimeout(60000);
     await devToolsLink.navigateToSettings();
@@ -116,3 +151,36 @@ test.describe('Developer Tools Link Tests', () => {
     await expect(page5).toHaveURL(/ONLYOFFICE\/docspace-plugins\/tree\/master\/pdf-converter/);
   });
 });
+=======
+      test('Plugin SDK Link', async ({ page }) => {
+        await devToolsLink.navigateToSettings();
+        await devToolsLink.navigateToDevTools.click();
+        await devToolsLink.navigateToPlaginSDK.click();
+        const page1Promise = page.waitForEvent('popup');
+        await devToolsLink.readInstructionsButton.click();
+        const page1 = await page1Promise;
+        await page1.waitForURL('https://*.onlyoffice.com/docspace/plugins-sdk/get-started/basic-concepts/');
+        await expect(page1).toHaveURL(/docspace\/plugins-sdk\/get-started\/basic-concepts/);
+        await devToolsLink.markdownLink.click();
+        const page2Promise = page.waitForEvent('popup');
+        const page2 = await page2Promise;
+        await page2.waitForURL('https://github.com/ONLYOFFICE/docspace-plugins/tree/master/markdown');
+        await expect(page2).toHaveURL(/ONLYOFFICE\/docspace-plugins\/tree\/master\/markdown/);
+        await devToolsLink.drawIoLink.click();
+        const page3Promise = page.waitForEvent('popup');
+        const page3 = await page3Promise;
+        await page3.waitForURL('https://github.com/ONLYOFFICE/docspace-plugins/tree/master/draw.io');
+        await expect(page3).toHaveURL(/ONLYOFFICE\/docspace-plugins\/tree\/master\/draw.io/);
+        await devToolsLink.speechToTextLink.click();
+        const page4Promise = page.waitForEvent('popup');
+        const page4 = await page4Promise;
+        await page4.waitForURL('https://github.com/ONLYOFFICE/docspace-plugins/tree/master/speech-to-text');
+        await expect(page4).toHaveURL(/ONLYOFFICE\/docspace-plugins\/tree\/master\/speech-to-text/);
+        await devToolsLink.pdfConverterLink.click();
+        const page5Promise = page.waitForEvent('popup');
+        const page5 = await page5Promise;
+        await page5.waitForURL('https://github.com/ONLYOFFICE/docspace-plugins/tree/master/pdf-converter');
+        await expect(page5).toHaveURL(/ONLYOFFICE\/docspace-plugins\/tree\/master\/pdf-converter/);
+      });
+});
+>>>>>>> main

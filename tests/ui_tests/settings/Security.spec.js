@@ -164,6 +164,7 @@ test.describe('Security Tests', () => {
     await expect(page7).toHaveURL(/administration\/docspace-settings.aspx\#sessionlifetime/);
   });
 
+<<<<<<< HEAD
   test('Login History', async ({ page }) => {
     await security.navigateToSettings();
     await security.navigateToLoginHistory();
@@ -198,3 +199,28 @@ test.describe('Security Tests', () => {
     );
   });
 });
+=======
+      test.skip('Login History - temporarily disabled due to lack of payment', async ({ page }) => {
+        await security.navigateToSettings();
+        await security.navigateToLoginHistory();
+        await expect(page.locator('text=Successful Login via API').first()).toHaveText('Successful Login via API', { timeout: 10000 });
+      });
+
+      test.skip('Audit Trail - temporarily disabled due to lack of payment', async ({ page }) => {
+        await security.navigateToSettings();
+        await security.navigateToAuditTrail();
+        await expect(page.locator('text=Language Updated').first()).toHaveText('Language Updated', { timeout: 10000 });
+      });
+        
+      test.skip('Session Lifetime - portal removal method crashes', async ({ page }) => {
+        await security.navigateToSettings();
+        await security.navigateToSecurity.click();
+        await security.sessionLifetimeActivation();
+        await expect(page.locator('text=Settings have been successfully updated')).toHaveText('Settings have been successfully updated', { timeout: 10000 });
+        await security.removeToast.click();
+        await page.waitForTimeout(1000);
+        await security.sessionLifetimeDeactivation();
+        await expect(page.locator('text=Settings have been successfully updated')).toHaveText('Settings have been successfully updated', { timeout: 10000 });
+      });
+});
+>>>>>>> main
