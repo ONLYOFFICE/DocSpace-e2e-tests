@@ -4,8 +4,8 @@ export class ArchivePage {
     this.archiveListSelector = "div[id='document_catalog-archive']";
     this.roomTitleSelector = (title) => `div[data-title='${title}']`;
     this.contextMenuButtonSelector = (title) =>
-`div[data-title='${title}'] div[data-testid='context-menu-button']`;
-      // context menu buttons
+      `div[data-title='${title}'] div[data-testid='context-menu-button']`;
+    // context menu buttons
     this.selectArchiveSelector = "li[id='option_select']";
     this.openArchiveButtonSelector = "li[id='option_open']";
     this.infoArchiveButtonSelector = "li[id='option_room-info']";
@@ -17,16 +17,17 @@ export class ArchivePage {
     this.restoreButtonSelector = 'button[id="restore-all_submit"]';
   }
 
-  async downloadRoom(roomTitle) {const download1Promise = page.waitForEvent('download');
+  async downloadRoom(roomTitle) {
+    const download1Promise = page.waitForEvent('download');
     await this.page.click(this.downloadArchiveButtonSelector);
     const download1 = await download1Promise;
-    } 
-    
+  }
+
   // Open the archive rooms list
   async openArchiveList() {
-    await this.page.click(this.archiveListSelector);  
+    await this.page.click(this.archiveListSelector);
   }
-    // Open the context menu for a specific room
+  // Open the context menu for a specific room
   async openRoomContextMenu(roomTitle) {
     await this.page.click(this.contextMenuButtonSelector(roomTitle));
   }
@@ -40,12 +41,11 @@ export class ArchivePage {
   async unarchiveRoom(roomTitle) {
     await this.openRoomContextMenu(roomTitle);
     await this.page.click(this.unarchiveArchiveButtonSelector);
-    await this.page.click(this.restoreButtonSelector); 
-    }
+    await this.page.click(this.restoreButtonSelector);
+  }
 
   async downloadRoom(roomTitle) {
     await this.openRoomContextMenu(roomTitle);
     await this.page.click(this.downloadArchiveButtonSelector);
-
-} 
+  }
 }

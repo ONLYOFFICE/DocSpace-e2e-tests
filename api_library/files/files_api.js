@@ -1,4 +1,4 @@
-import log from "../../utils/logger.js";
+import log from '../../utils/logger.js';
 
 export class FilesApi {
   constructor(apiContext, portalDomain, getAuthHeaders) {
@@ -9,7 +9,7 @@ export class FilesApi {
 
   // Get all content of "My Documents" with pagination
   async getAllContentOfMyDocs() {
-    log.debug("Fetching all content of My Documents");
+    log.debug('Fetching all content of My Documents');
 
     let allFiles = [];
     let allFolders = [];
@@ -24,7 +24,7 @@ export class FilesApi {
 
       if (!response.ok()) {
         throw new Error(
-          `Failed to fetch content of My Documents (${response.status()}): ${await response.text()}`,
+          `Failed to fetch content of My Documents (${response.status()}): ${await response.text()}`
         );
       }
 
@@ -39,8 +39,8 @@ export class FilesApi {
       startIndex += pageSize;
     }
 
-    log.debug("Total files fetched:", allFiles.length);
-    log.debug("Total folders fetched:", allFolders.length);
+    log.debug('Total files fetched:', allFiles.length);
+    log.debug('Total folders fetched:', allFolders.length);
 
     return { files: allFiles, folders: allFolders };
   }
@@ -49,27 +49,19 @@ export class FilesApi {
   async deleteFileById(fileId, retries = 3) {
     for (let i = 0; i < retries; i++) {
       try {
-        const response = await this.apiContext.delete(
-          `${this.baseURL}/files/file/${fileId}`,
-          {
-            headers: this.getAuthHeaders(),
-            data: { Immediately: true },
-          },
-        );
+        const response = await this.apiContext.delete(`${this.baseURL}/files/file/${fileId}`, {
+          headers: this.getAuthHeaders(),
+          data: { Immediately: true },
+        });
 
         if (!response.ok()) {
-          throw new Error(
-            `Failed to delete file (${response.status()}): ${await response.text()}`,
-          );
+          throw new Error(`Failed to delete file (${response.status()}): ${await response.text()}`);
         }
 
         log.debug(`File with ID: ${fileId} deleted successfully`);
         return { statusCode: response.status() };
       } catch (error) {
-        log.error(
-          `Attempt ${i + 1}: Failed to delete file with ID: ${fileId}`,
-          error.message,
-        );
+        log.error(`Attempt ${i + 1}: Failed to delete file with ID: ${fileId}`, error.message);
         if (i === retries - 1) throw error; // Rethrow error after last attempt
         await new Promise((resolve) => setTimeout(resolve, 1000)); // Wait before retrying
       }
@@ -95,7 +87,7 @@ export class FilesApi {
       }
     }
 
-    log.debug("All files in My Documents deleted successfully");
+    log.debug('All files in My Documents deleted successfully');
   }
 
   // Delete all folders in "My Documents"
@@ -112,34 +104,26 @@ export class FilesApi {
         await this.deleteFolderById(folderId);
         log.debug(`Folder with ID: ${folderId} deleted successfully`);
       } catch (error) {
-        log.error(
-          `Failed to delete folder with ID: ${folderId}`,
-          error.message,
-        );
+        log.error(`Failed to delete folder with ID: ${folderId}`, error.message);
       }
     }
 
-    log.info("All folders in My Documents deleted successfully");
+    log.info('All folders in My Documents deleted successfully');
   }
 
   // Create a file in "My Documents"
-  async createFileInMyDocs(fileName, fileType = "docx") {
+  async createFileInMyDocs(fileName, fileType = 'docx') {
     log.debug(`Creating file: ${fileName}.${fileType} in My Documents`);
 
-    const response = await this.apiContext.post(
-      `${this.baseURL}/files/@my/file`,
-      {
-        headers: this.getAuthHeaders(),
-        data: {
-          title: `${fileName}.${fileType}`,
-        },
+    const response = await this.apiContext.post(`${this.baseURL}/files/@my/file`, {
+      headers: this.getAuthHeaders(),
+      data: {
+        title: `${fileName}.${fileType}`,
       },
-    );
+    });
 
     if (!response.ok()) {
-      throw new Error(
-        `Failed to create file (${response.status()}): ${await response.text()}`,
-      );
+      throw new Error(`Failed to create file (${response.status()}): ${await response.text()}`);
     }
 
     const responseBody = await response.json();

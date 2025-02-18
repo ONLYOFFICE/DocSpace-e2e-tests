@@ -1,11 +1,11 @@
-import log from "../../utils/logger.js";
+import log from '../../utils/logger.js';
 
 export class PeopleApiUserStatus {
   constructor(request, portalDomain) {
     this.request = request;
     this.portalDomain = portalDomain;
     this.baseUrl = `https://${portalDomain}/api/2.0/people`;
-    this.headers = { "Content-Type": "application/json" };
+    this.headers = { 'Content-Type': 'application/json' };
   }
 
   async getMyProfile() {
@@ -23,22 +23,20 @@ export class PeopleApiUserStatus {
       userIds: [userId],
     };
 
-    log.debug("PUT Request to change activation status:");
-    log.debug("URL:", url);
+    log.debug('PUT Request to change activation status:');
+    log.debug('URL:', url);
 
     const response = await this.request.put(url, {
       headers: this.headers,
       data: payload,
     });
 
-    log.debug("Response Status:", response.status());
+    log.debug('Response Status:', response.status());
     const responseBody = await response.text();
-    log.debug("Response Body:", responseBody);
+    log.debug('Response Body:', responseBody);
 
     if (response.status() !== 200) {
-      throw new Error(
-        `Activation failed: ${response.status()} - ${responseBody}`,
-      );
+      throw new Error(`Activation failed: ${response.status()} - ${responseBody}`);
     }
 
     return JSON.parse(responseBody);

@@ -1,7 +1,7 @@
-import { FilesApi } from "../api_library/files/files_api";
-import { RoomsApi } from "../api_library/files/rooms_api";
-import config from "../config/config";
-import log from "../utils/logger";
+import { FilesApi } from '../api_library/files/files_api';
+import { RoomsApi } from '../api_library/files/rooms_api';
+import config from '../config/config';
+import log from '../utils/logger';
 
 export class PortalSetupApi {
   constructor(apiContext) {
@@ -16,40 +16,34 @@ export class PortalSetupApi {
     this.roomsApi = null;
   }
 
-  async createPortal(portalNamePrefix = "test-portal") {
-    this.portalName = `${portalNamePrefix}-${new Date()
-      .toISOString()
-      .replace(/[:.]/g, "-")}`;
+  async createPortal(portalNamePrefix = 'test-portal') {
+    this.portalName = `${portalNamePrefix}-${new Date().toISOString().replace(/[:.]/g, '-')}`;
     log.info(`Creating portal: ${this.portalName}`);
 
     const response = await this.apiContext.post(`${this.baseURL}/register`, {
       data: {
         portalName: this.portalName,
-        firstName: "admin-zero",
-        lastName: "admin-zero",
+        firstName: 'admin-zero',
+        lastName: 'admin-zero',
         email: config.DOCSPACE_ADMIN_EMAIL,
         password: config.DOCSPACE_ADMIN_PASSWORD,
-        language: "en",
+        language: 'en',
         awsRegion: this.awsRegion,
       },
     });
 
     const body = await response.json();
     if (!response.ok()) {
-      log.debug(
-        `Failed to create portal: ${response.status()} - ${body.error || body.message}`,
-      );
+      log.debug(`Failed to create portal: ${response.status()} - ${body.error || body.message}`);
       throw new Error(
-        `Failed to create portal: ${response.status()} - ${body.error || body.message}`,
+        `Failed to create portal: ${response.status()} - ${body.error || body.message}`
       );
     }
 
     this.portalDomain = body.tenant.domain;
     this.adminUserId = body.tenant.ownerId;
 
-    log.info(
-      `Portal created successfully: ${this.portalName} (${this.portalDomain})`,
-    );
+    log.info(`Portal created successfully: ${this.portalName} (${this.portalDomain})`);
     log.debug(`Full Response: ${JSON.stringify(body, null, 2)}`);
 
     return body;
@@ -64,49 +58,49 @@ export class PortalSetupApi {
       `https://${this.portalDomain}/api/2.0/authentication`,
       {
         data: { userName: email, password },
-      },
+      }
     );
 
     const authBody = await authResponse.json();
     if (!authResponse.ok()) {
       log.debug(
-        `Authentication failed: ${authResponse.status()} - ${authBody.error || authBody.message}`,
+        `Authentication failed: ${authResponse.status()} - ${authBody.error || authBody.message}`
       );
       throw new Error(
-        `Authentication failed: ${authResponse.status()} - ${authBody.error || authBody.message}`,
+        `Authentication failed: ${authResponse.status()} - ${authBody.error || authBody.message}`
       );
     }
 
     this.token = authBody.response.token;
-    log.info("Authenticated successfully.");
+    log.info('Authenticated successfully.');
     log.debug(`Token: ${this.token}`);
     return this.token;
   }
 
   getAuthHeaders() {
     if (!this.token) {
-      throw new Error("Token is not set. Please authenticate first.");
+      throw new Error('Token is not set. Please authenticate first.');
     }
     return { Authorization: `Bearer ${this.token}` };
   }
 
   async activateAdminUser() {
-    log.debug("Activating admin user...");
+    log.debug('Activating admin user...');
     const response = await this.apiContext.put(
       `https://${this.portalDomain}/api/2.0/people/activationstatus/Activated`,
       {
         headers: this.getAuthHeaders(),
         data: { userIds: [this.adminUserId] },
-      },
+      }
     );
 
     const body = await response.json();
     if (!response.ok()) {
       log.error(
-        `Failed to activate admin user: ${response.status()} - ${body.error || body.message}`,
+        `Failed to activate admin user: ${response.status()} - ${body.error || body.message}`
       );
       throw new Error(
-        `Failed to activate admin user: ${response.status()} - ${body.error || body.message}`,
+        `Failed to activate admin user: ${response.status()} - ${body.error || body.message}`
       );
     }
 
@@ -115,61 +109,54 @@ export class PortalSetupApi {
   }
 
   async createUser() {
-    log.debug("Creating user...");
-    const response = await this.apiContext.post(
-      `https://${this.portalDomain}/api/2.0/people`,
-      {
-        headers: this.getAuthHeaders(),
-        data: {
-          firstName: "user-one",
-          lastName: "user-one",
-          email: config.DOCSPACE_USER_EMAIL,
-          password: config.DOCSPACE_USER_PASSWORD,
-          type: "User",
-          isUser: true,
-        },
+    log.debug('Creating user...');
+    const response = await this.apiContext.post(`https://${this.portalDomain}/api/2.0/people`, {
+      headers: this.getAuthHeaders(),
+      data: {
+        firstName: 'user-one',
+        lastName: 'user-one',
+        email: config.DOCSPACE_USER_EMAIL,
+        password: config.DOCSPACE_USER_PASSWORD,
+        type: 'User',
+        isUser: true,
       },
-    );
+    });
 
     const body = await response.json();
-     if (!response.ok()) {
-       log.error(
-         `Failed to create user: ${response.status()} - ${body.error || body.message}`,
-       );
-       throw new Error(
-         `Failed to create user: ${response.status()} - ${body.error || body.message}`,
-       );
-     }
+    if (!response.ok()) {
+      log.error(`Failed to create user: ${response.status()} - ${body.error || body.message}`);
+      throw new Error(
+        `Failed to create user: ${response.status()} - ${body.error || body.message}`
+      );
+    }
 
-     log.debug(`User created successfully: ${JSON.stringify(body, null, 2)}`);
-     return body;
+    log.debug(`User created successfully: ${JSON.stringify(body, null, 2)}`);
+    return body;
   }
 
   async #initDocumentsApi() {
     if (!this.documentsApi) {
       this.documentsApi = new FilesApi(this.apiContext, this.portalDomain, () =>
-        this.getAuthHeaders(),
+        this.getAuthHeaders()
       );
     }
   }
 
   async #initRoomsApi() {
     if (!this.roomsApi) {
-      this.roomsApi = new RoomsApi(this.apiContext, this.portalDomain, () =>
-        this.getAuthHeaders(),
-      );
+      this.roomsApi = new RoomsApi(this.apiContext, this.portalDomain, () => this.getAuthHeaders());
     }
   }
 
   async cleanupFilesAndFolders() {
     await this.#initDocumentsApi();
     try {
-      log.info("Cleaning up files and folders in My Documents...");
+      log.info('Cleaning up files and folders in My Documents...');
       await this.documentsApi.deleteAllFilesInMyDocs();
       await this.documentsApi.deleteAllFoldersInMyDocs();
-      log.info("All files and folders deleted successfully.");
+      log.info('All files and folders deleted successfully.');
     } catch (error) {
-      log.error("Error during cleanup:", error.message);
+      log.error('Error during cleanup:', error.message);
       throw error;
     }
   }
@@ -179,7 +166,7 @@ export class PortalSetupApi {
     try {
       const rooms = await this.roomsApi.getAllRooms();
       if (!rooms.length) {
-        log.info("No rooms found to delete.");
+        log.info('No rooms found to delete.');
         return;
       }
 
@@ -192,7 +179,7 @@ export class PortalSetupApi {
         await this.roomsApi.deleteRoom(room.id, deleteAfter);
       }
     } catch (error) {
-      log.error("Error during room deletion:", error.message);
+      log.error('Error during room deletion:', error.message);
       throw error;
     }
   }
@@ -216,22 +203,20 @@ export class PortalSetupApi {
     if (response.status() !== 200) {
       const errorText = await response.text();
       log.error(`Failed to delete portal: ${response.status()} - ${errorText}`);
-      throw new Error(
-        `Failed to delete portal: ${response.status()} - ${errorText}`,
-      );
+      throw new Error(`Failed to delete portal: ${response.status()} - ${errorText}`);
     }
 
     log.info(`Portal deleted successfully: ${this.portalName}`);
   }
 
-  async setupPortal(portalNamePrefix = "test-portal") {
+  async setupPortal(portalNamePrefix = 'test-portal') {
     const portalData = await this.createPortal(portalNamePrefix);
     await this.authenticate();
     await this.activateAdminUser();
     return portalData;
   }
 
-  async setupPortalUser(portalNamePrefix = "test-portal") {
+  async setupPortalUser(portalNamePrefix = 'test-portal') {
     const portalData = await this.createPortal(portalNamePrefix);
     await this.authenticate();
     await this.activateAdminUser();

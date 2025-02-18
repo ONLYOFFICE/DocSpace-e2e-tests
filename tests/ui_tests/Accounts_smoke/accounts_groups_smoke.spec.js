@@ -1,9 +1,9 @@
-import { test, expect } from "@playwright/test";
-import { PortalSetupApi } from "../../../api_library/portal_setup";
-import { PortalLoginPage } from "../../../page_objects/portal_login_page";
-import { GroupsPage } from "../../../page_objects/accounts/groups_page";
+import { test, expect } from '@playwright/test';
+import { PortalSetupApi } from '../../../api_library/portal_setup';
+import { PortalLoginPage } from '../../../page_objects/portal_login_page';
+import { GroupsPage } from '../../../page_objects/accounts/groups_page';
 
-test.describe("Groups Smoke Tests", () => {
+test.describe('Groups Smoke Tests', () => {
   let apiContext;
   let portalSetup;
   let portalLoginPage;

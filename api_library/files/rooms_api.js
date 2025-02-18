@@ -1,4 +1,4 @@
-import log from "../../utils/logger.js";
+import log from '../../utils/logger.js';
 
 export class RoomsApi {
   constructor(apiContext, portalDomain, getAuthHeaders) {
@@ -26,9 +26,7 @@ export class RoomsApi {
     });
 
     if (!response.ok()) {
-      throw new Error(
-        `Failed to create room (${response.status()}): ${await response.text()}`,
-      );
+      throw new Error(`Failed to create room (${response.status()}): ${await response.text()}`);
     }
 
     const { response: room } = await response.json();
@@ -38,15 +36,13 @@ export class RoomsApi {
   }
 
   async getAllRooms() {
-    log.debug("Fetching all rooms...");
+    log.debug('Fetching all rooms...');
     const response = await this.apiContext.get(`${this.baseURL}/files/rooms`, {
       headers: this.getAuthHeaders(),
     });
 
     if (!response.ok()) {
-      throw new Error(
-        `Failed to fetch rooms (${response.status()}): ${await response.text()}`,
-      );
+      throw new Error(`Failed to fetch rooms (${response.status()}): ${await response.text()}`);
     }
 
     const responseData = await response.json();
@@ -56,21 +52,16 @@ export class RoomsApi {
   async archiveRoom(roomId, deleteAfter = true) {
     const headers = {
       ...this.getAuthHeaders(),
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json',
     };
 
-    const response = await this.apiContext.put(
-      `${this.baseURL}/files/rooms/${roomId}/archive`,
-      {
-        headers,
-        data: JSON.stringify({ deleteAfter }),
-      },
-    );
+    const response = await this.apiContext.put(`${this.baseURL}/files/rooms/${roomId}/archive`, {
+      headers,
+      data: JSON.stringify({ deleteAfter }),
+    });
 
     if (!response.ok()) {
-      throw new Error(
-        `Failed to archive room (${response.status()}): ${await response.text()}`,
-      );
+      throw new Error(`Failed to archive room (${response.status()}): ${await response.text()}`);
     }
 
     log.debug(`Room with ID: ${roomId} archived successfully`);
@@ -78,17 +69,12 @@ export class RoomsApi {
   }
 
   async pinRoom(roomId) {
-    const response = await this.apiContext.put(
-      `${this.baseURL}/files/rooms/${roomId}/pin`,
-      {
-        headers: this.getAuthHeaders(),
-      },
-    );
+    const response = await this.apiContext.put(`${this.baseURL}/files/rooms/${roomId}/pin`, {
+      headers: this.getAuthHeaders(),
+    });
 
     if (!response.ok()) {
-      throw new Error(
-        `Failed to pin room (${response.status()}): ${await response.text()}`,
-      );
+      throw new Error(`Failed to pin room (${response.status()}): ${await response.text()}`);
     }
 
     log.info(`Room with ID: ${roomId} pinned successfully`);
@@ -96,18 +82,13 @@ export class RoomsApi {
   }
 
   async deleteRoom(roomId, deleteAfter = true) {
-    const response = await this.apiContext.delete(
-      `${this.baseURL}/files/rooms/${roomId}`,
-      {
-        headers: this.getAuthHeaders(),
-        data: { deleteAfter },
-      },
-    );
+    const response = await this.apiContext.delete(`${this.baseURL}/files/rooms/${roomId}`, {
+      headers: this.getAuthHeaders(),
+      data: { deleteAfter },
+    });
 
     if (!response.ok()) {
-      throw new Error(
-        `Failed to delete room (${response.status()}): ${await response.text()}`,
-      );
+      throw new Error(`Failed to delete room (${response.status()}): ${await response.text()}`);
     }
 
     log.info(`Room with ID: ${roomId} deleted successfully`);
