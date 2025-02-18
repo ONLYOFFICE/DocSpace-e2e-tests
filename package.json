@@ -19,7 +19,8 @@
     "test:info": "LOG_LEVEL=info npm test",
     "test:error": "LOG_LEVEL=error npm test",
     "test:silent": "LOG_LEVEL=silent npm test",
-    "lint": "npx eslint"
+    "lint": "npx eslint",
+    "prepare": "husky"
   },
   "keywords": [],
   "author": "",
@@ -40,13 +41,13 @@
     "dotenv": "^16.4.7",
     "loglevel": "^1.9.2"
   },
-    "husky": {
-      "hooks": {
-        "pre-commit": "npx lint-staged",
-        "pre-push": "npx lint-staged"
-      }
-    },
-    "lint-staged": {
-      "*.js": "eslint --fix"
+  "husky": {
+    "hooks": {
+      "pre-commit": "npx lint-staged",
+      "pre-push": "npx lint-staged"
     }
+  },
+  "lint-staged": {
+    "*.js": "eslint --fix"
   }
+}
