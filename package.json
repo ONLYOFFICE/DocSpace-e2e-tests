@@ -39,6 +39,7 @@
   },
   "dependencies": {
     "dotenv": "^16.4.7",
+    "imapflow": "^1.0.181",
     "loglevel": "^1.9.2"
   },
   "husky": {
