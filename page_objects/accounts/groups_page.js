@@ -5,12 +5,12 @@ export class GroupsPage {
     this.page = page;
     
     // Navigation
-    this.contactsLink = "div[id='document_catalog-accounts']";    // Contacts
+    this.contactsLink = "div[id='document_catalog-accounts']";
     this.groupsLink = "text=Groups";
     this.menuButton = "path";
     
     // Group Creation
-    this.actionsButton = "div[id='accounts_invite-main-button']"; //ActionButton
+    this.actionsButton = "div[id='accounts_invite-main-button']";
     this.createGroupMenu = "li[id='create_group']";
     this.createGroupEmptyScreenButton = "div[id='create-group-option']";
     this.textInputGroupName = "input[id='create-group-name']";
@@ -29,14 +29,7 @@ export class GroupsPage {
     this.deleteMenuItemSelector = "li[id='delete-group']";
     this.deleteButton = "div[id='group-modal_delete'], button[id='group-modal_delete'], #group-modal_delete";
     this.deleteSuccessMessageSelector = 'Group was deleted successfully';
-    
-    // Mobile Action Button
-    this.mobileActionButton = {
-      button: '[data-testid="main-button-mobile"]',
-      image: 'img',
-      path: 'path'
-    };
-  }
+   }
 
   get mobileActionPath() {
     return this.page.getByTestId('main-button-mobile').getByRole('img').locator('path');
@@ -71,8 +64,6 @@ export class GroupsPage {
     while (attempt < maxAttempts) {
       await this.mobileActionPath.click();
       await this.page.waitForTimeout(1000); // Wait a bit between attempts
-    
-      // Use a more specific selector for the Create Group button
       const createGroupButton = this.page.getByTestId('text').filter({ hasText: 'Create group' });
       if (await createGroupButton.isVisible()) {
         await createGroupButton.click();
