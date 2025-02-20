@@ -46,7 +46,7 @@ import { PortalLoginPage } from "../../../page_objects/portal_login_page";
         await expect(page1).toHaveURL(/administration\/docspace-settings.aspx\#AutoBackup/);
     });
 
-    test('Every day auto backup', async ({ page }) => {
+    test.skip('Every day auto backup - temporarily disabled due to lack of payment', async ({ page }) => {
         await backup.navigateToSettings();
         await backup.navigateToAutoBackup();
         await backup.backupRoom();
@@ -57,7 +57,7 @@ import { PortalLoginPage } from "../../../page_objects/portal_login_page";
         await expect(page.locator('text=Settings have been successfully updated')).toHaveText('Settings have been successfully updated', { timeout: 10000 });
     });
 
-    test('Every week auto backup', async ({ page }) => {
+    test.skip('Every week auto backup - temporarily disabled due to lack of payment', async ({ page }) => {
         await backup.navigateToSettings();
         await backup.navigateToAutoBackup();
         await backup.backupRoom();
@@ -68,7 +68,7 @@ import { PortalLoginPage } from "../../../page_objects/portal_login_page";
         await expect(page.locator('text=Settings have been successfully updated')).toHaveText('Settings have been successfully updated', { timeout: 10000 });
     });
 
-    test('Every month auto backup', async ({ page }) => {
+    test.skip('Every month auto backup - temporarily disabled due to lack of payment', async ({ page }) => {
         await backup.navigateToSettings();
         await backup.navigateToAutoBackup();
         await backup.backupRoom();
@@ -100,7 +100,7 @@ import { PortalLoginPage } from "../../../page_objects/portal_login_page";
         await expect(page.locator('text=The backup copy has been successfully created.')).toBeVisible({ timeout: 30000 });
     });
 
-    test('Auto backup in Third-Party storage S3', async ({ page }) => {
+    test.skip('Auto backup in Third-Party storage S3 - temporarily disabled due to lack of payment', async ({ page }) => {
         await backup.navigateToSettings();
         await backup.navigateToAutoBackup();
         await backup.s3AutoBackup();
@@ -118,7 +118,7 @@ import { PortalLoginPage } from "../../../page_objects/portal_login_page";
         await backup.disconnectNextcloud();
     });
 
-    test('Auto backup in Third-Party resource NextCloud', async ({ page }) => {
+    test.skip('Auto backup in Third-Party resource NextCloud - temporarily disabled due to lack of payment', async ({ page }) => {
         await backup.navigateToSettings();
         await backup.navigateToAutoBackup();
         await backup.nextcloudAutoBackup();
