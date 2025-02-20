@@ -36,6 +36,9 @@ const config = {
   QA_MAIL_LOGIN: process.env.QA_MAIL_LOGIN,
   QA_MAIL_PASSWORD: process.env.QA_MAIL_PASSWORD,
   logLevel: process.env.LOG_LEVEL || "info",
+  MOBILE_USER_AGENT: process.env.MOBILE_USER_AGENT,
+  IS_MOBILE: process.env.IS_MOBILE === 'true',
+  VIEW_PORT: process.env.VIEW_PORT
 };
 
 export default config;

@@ -1,3 +1,5 @@
+import config from "../../config/config.js";
+
 export class GroupsPage {
   constructor(page) {
     this.page = page;
@@ -5,6 +7,7 @@ export class GroupsPage {
     // Navigation
     this.contactsLink = "div[id='document_catalog-accounts']";
     this.groupsLink = "text=Groups";
+    this.menuButton = "path";
     
     // Group Creation
     this.actionsButton = "div[id='accounts_invite-main-button']";
@@ -26,30 +29,73 @@ export class GroupsPage {
     this.deleteMenuItemSelector = "li[id='delete-group']";
     this.deleteButton = "div[id='group-modal_delete'], button[id='group-modal_delete'], #group-modal_delete";
     this.deleteSuccessMessageSelector = 'Group was deleted successfully';
+   }
+
+  get mobileActionPath() {
+    return this.page.getByTestId('main-button-mobile').getByRole('img').locator('path');
   }
 
   async navigateToGroups() {
+    if (config.IS_MOBILE) {
+      const menuButton = this.page.locator(this.menuButton).first();
+      if(await menuButton.isVisible()) {
+        await menuButton.click();
+      }
+    }
     await this.page.click(this.contactsLink);
+    
+    try {
+      const popup = this.page.getByTestId('box');
+      const isVisible = await popup.isVisible({ timeout: 2000 });
+      if (isVisible) {
+        await popup.getByTestId('button').click();
+      }
+    } catch (error) {
+      // Ignore error if popup is not present
+    }
+    
     await this.page.click(this.groupsLink);
+    
   }
-
+  
+  async clickMobileActionButton() {  //click mobile action button on group page
+    let maxAttempts = 5;
+    let attempt = 0;
+    while (attempt < maxAttempts) {
+      await this.mobileActionPath.click();
+      await this.page.waitForTimeout(1000); // Wait a bit between attempts
+      const createGroupButton = this.page.getByTestId('text').filter({ hasText: 'Create group' });
+      if (await createGroupButton.isVisible()) {
+        await createGroupButton.click();
+        break;
+      }
+      attempt++;
+    }
+  }
   async createGroup(groupName) {
-    await this.page.click(this.actionsButton);
-    await this.page.click(this.createGroupMenu);
+    if (config.IS_MOBILE) {
+      await this.clickMobileActionButton();
+    }
+    else {
+      await this.page.click(this.actionsButton);
+      await this.page.click(this.createGroupMenu);
+    }
+    
     await this.page.fill(this.textInputGroupName, groupName);
     
     // Select manager
     await this.page.locator(this.addManagerMembersButton).first().click();
     await this.page.click(this.chooseManager);
-    await this.page.locator(this.selectButton).nth(2).click();
-        
-   // Select members
-   await this.page.locator(this.addManagerMembersButton).first().click();
-   await this.page.click(this.chooseMembers);
-   await this.page.locator(this.selectButton).nth(2).click();
-   
-   // Create group
+    await this.page.locator(this.selectButton).last().click();
+    
+    // Select members
+    await this.page.locator(this.addManagerMembersButton).first().click();
+    await this.page.click(this.chooseMembers);
+    await this.page.locator(this.selectButton).last().click();
+    
+    // Create group
     await this.page.click(this.createButton);
+    
   }
 
   async createGroupEmptyScreen(groupName) {
@@ -59,12 +105,12 @@ export class GroupsPage {
     // Select manager
     await this.page.locator(this.addManagerMembersButton).first().click();
     await this.page.click(this.chooseManager);
-    await this.page.locator(this.selectButton).nth(2).click();
+    await this.page.locator(this.selectButton).last().click();
         
    // Select members
    await this.page.locator(this.addManagerMembersButton).first().click();
    await this.page.click(this.chooseMembers);
-   await this.page.locator(this.selectButton).nth(2).click();
+   await this.page.locator(this.selectButton).last().click();
    
    // Create group
     await this.page.click(this.createButton);

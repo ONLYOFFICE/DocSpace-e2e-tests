@@ -16,7 +16,7 @@ export class PortalLoginPage {
     await this.page.fill(this.emailInput, config.DOCSPACE_ADMIN_EMAIL);
     await this.page.fill(this.passwordInput, config.DOCSPACE_ADMIN_PASSWORD);
     await this.page.click(this.loginButton);
-    await this.page.waitForSelector("button#rooms-shared_create-room-button", {
+    await this.page.waitForSelector('div[id="create-room"]', {
       timeout: 10000,
     });
   }
