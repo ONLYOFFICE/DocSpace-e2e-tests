@@ -113,4 +113,29 @@ export class RoomsApi {
     log.info(`Room with ID: ${roomId} deleted successfully`);
     return { statusCode: response.status() };
   }
+
+  async createFileInRoom(roomId, fileName, fileType = "docx") {
+    log.info(`Creating file: ${fileName}.${fileType} in room ${roomId}`);
+
+    const response = await this.apiContext.post(
+      `${this.baseURL}/files/room/${roomId}/file`,
+      {
+        headers: this.getAuthHeaders(),
+        data: {
+          title: `${fileName}.${fileType}`,
+        },
+      },
+    );
+
+    if (!response.ok()) {
+      throw new Error(
+        `Failed to create file in room (${response.status()}): ${await response.text()}`,
+      );
+    }
+
+    const responseBody = await response.json();
+    log.info(`File created successfully in room: ${responseBody.response.id}`);
+
+    return responseBody.response;
+  }
 }
