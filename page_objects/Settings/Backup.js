@@ -1,5 +1,5 @@
-import MainPage from "../MainPage";
-import { Integration } from "./Integration";
+import MainPage from "../mainPage.js";
+import { Integration } from "./integration.js";
 import config from "../../config/config.js";
 
 export class Backup extends MainPage {
@@ -59,7 +59,7 @@ export class Backup extends MainPage {
         await this.autoBackupTub.click();
     }
 
-    async BackupGuidePopup() {
+    async backupGuidePopup() {
         const page1Promise = this.page.waitForEvent('popup');
         await this.backupGuideLink.click();
         const page1 = await page1Promise;

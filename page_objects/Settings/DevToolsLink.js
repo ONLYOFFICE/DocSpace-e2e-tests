@@ -1,4 +1,4 @@
-import MainPage from "../MainPage";
+import MainPage from "../mainPage";
 
 export class DevToolsLink extends MainPage {
     constructor(page) {
@@ -17,7 +17,7 @@ export class DevToolsLink extends MainPage {
         this.readInstructionsButton = page.getByRole('button', { name: 'Read instructions' });
         this.markdownArea = page.getByText('markdownVer. 1.0.1DocSpace');
         this.markdownLink = this.markdownArea.getByText('Go to repository');
-        this.drawIoArea = page.getByText('draw.ioVer. 1.0.1A tool for');
+        this.drawIoArea = page.getByText('draw.ioVer. 1.0.2A tool for');
         this.drawIoLink = this.drawIoArea.getByText('Go to repository');
         this.speechToTextArea = page.getByText('speech-to-textVer. 1.0.2Speech to Text Conversion is a speech recognition');
         this.speechToTextLink = this.speechToTextArea.getByText('Go to repository');

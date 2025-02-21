@@ -1,4 +1,4 @@
-import MainPage from "../MainPage";
+import MainPage from "../mainPage.js";
 import config from "../../config/config.js";
 
 export class Integration extends MainPage {

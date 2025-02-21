@@ -32,6 +32,8 @@ const config = {
   NEXTCLOUD_URL: process.env.NEXTCLOUD_URL,
   NEXTCLOUD_LOGIN: process.env.NEXTCLOUD_LOGIN,
   NEXTCLOUD_PASSWORD: process.env.NEXTCLOUD_PASSWORD,
+  PDF_CONVERTER_KEY: process.env.PDF_CONVERTER_KEY,
+  SPEECH_TO_TEXT_KEY: process.env.SPEECH_TO_TEXT_KEY,
   logLevel: process.env.LOG_LEVEL || "info",
 };
 
