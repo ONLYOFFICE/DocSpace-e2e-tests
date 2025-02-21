@@ -1,7 +1,7 @@
 import { defineConfig } from "@playwright/test";
 import config from "./config/config.js";
 
-module.exports = defineConfig({
+export default defineConfig({
   testDir: "./tests",
   retries: 0,
   use: {
