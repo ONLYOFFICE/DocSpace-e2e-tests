@@ -197,43 +197,31 @@ export class PortalSetupApi {
     }
   }
 
-  async deletePortal(cleanup = true, deleteRooms = true) {
-    try {
-      if (cleanup) {
-        await this.cleanupFilesAndFolders().catch((error) => {
-          log.warn("Error during files cleanup:", error.message);
-        });
-      }
-
-      if (deleteRooms) {
-        await this.deleteAllRooms(true).catch((error) => {
-          log.warn("Error during rooms deletion:", error.message);
-        });
-      }
-
-      const deleteUrl = `https://${this.portalDomain}/api/2.0/portal/deleteportalimmediately`;
-      log.debug(`Attempting to delete portal: ${this.portalName}`);
-
-      const response = await this.apiContext.delete(deleteUrl, {
-        headers: this.getAuthHeaders(),
-        data: { reference: `${this.portalName}.onlyoffice.io` },
-      });
-
-      if (response.status() !== 200) {
-        const errorText = await response.text();
-        log.error(
-          `Failed to delete portal: ${response.status()} - ${errorText}`,
-        );
-        throw new Error(
-          `Failed to delete portal: ${response.status()} - ${errorText}`,
-        );
-      }
-
-      log.info(`Portal ${this.portalName} deleted successfully`);
-    } catch (error) {
-      log.error("Error during portal deletion:", error.message);
-      throw error;
+  async deletePortal(cleanup = true, deleteRooms = false) {
+    if (deleteRooms) {
+      await this.deleteAllRooms(true);
     }
+
+    if (cleanup) {
+      await this.cleanupFilesAndFolders();
+    }
+    const deleteUrl = `https://${this.portalDomain}/api/2.0/portal/deleteportalimmediately`;
+    log.debug(`Attempting to delete portal: ${this.portalName}`);
+
+    const response = await this.apiContext.delete(deleteUrl, {
+      headers: this.getAuthHeaders(),
+      data: { reference: `${this.portalName}.onlyoffice.io` },
+    });
+
+    if (response.status() !== 200) {
+      const errorText = await response.text();
+      log.error(`Failed to delete portal: ${response.status()} - ${errorText}`);
+      throw new Error(
+        `Failed to delete portal: ${response.status()} - ${errorText}`,
+      );
+    }
+
+    log.info(`Portal deleted successfully: ${this.portalName}`);
   }
 
   async setupPortal(portalNamePrefix = "test-portal") {

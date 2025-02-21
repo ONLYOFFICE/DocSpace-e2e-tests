@@ -277,23 +277,28 @@ export class RoomsListPage {
   }
 
   async CreateDocumentFiles() {
-    // Click the create button
+    // Click the create button and wait for menu
     const addButton = this.page.locator(
       ".add-button > .sc-fqkvVR > .icon-button_svg > div > .injected-svg > path",
     );
-    await addButton.waitFor({ state: "visible" });
+    await addButton.waitFor({ state: "visible", timeout: 10000 });
     await addButton.click();
 
-    // Select Document
+    // Wait for menu to be fully visible
+    await this.page.waitForTimeout(500);
+
+    // Select Document and ensure it's clickable
     const menuItem = this.page.getByRole("menuitem").nth(0);
-    await menuItem.waitFor({ state: "visible" });
+    await menuItem.waitFor({ state: "visible", timeout: 10000 });
+    await this.page.waitForTimeout(500);
     await menuItem.click();
 
+    // Wait for dialog to settle
     await this.page.waitForTimeout(500);
 
     // Click Create button
     const createButton = this.page.locator(".modal-footer button").first();
-    await createButton.waitFor({ state: "visible" });
+    await createButton.waitFor({ state: "visible", timeout: 10000 });
     await createButton.click();
 
     // Wait for new tab to open
@@ -365,19 +370,22 @@ export class RoomsListPage {
     await addButton.waitFor({ state: "visible" });
     await addButton.click();
 
+    await this.page.waitForTimeout(1000);
+
     // Select Folder
-    const menuItem = this.page.getByRole("menuitem").nth(3);
-    await menuItem.waitFor({ state: "visible" });
+    const menuItem = this.page.getByRole("menuitem").nth(4);
+    await menuItem.waitFor({ state: "visible", timeout: 10000 });
+    await this.page.waitForTimeout(1000);
     await menuItem.click();
 
-    await this.page.waitForTimeout(500);
+    await this.page.waitForTimeout(1000);
 
     // Click Create button
     const createButton = this.page.locator(".modal-footer button").first();
-    await createButton.waitFor({ state: "visible" });
+    await createButton.waitFor({ state: "visible", timeout: 10000 });
     await createButton.click();
 
-    await this.page.waitForTimeout(500);
+    await this.page.waitForTimeout(1000);
 
     return true;
   }
