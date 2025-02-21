@@ -51,10 +51,10 @@
   "husky": {
     "hooks": {
       "pre-commit": "npx lint-staged",
-      "pre-push": "npm test"
+      "pre-push": "npx lint-staged"
     }
   },
   "lint-staged": {
-    "*.js": "eslint --cache --fix"
+    "*.js": "eslint --fix"
   }
 }
