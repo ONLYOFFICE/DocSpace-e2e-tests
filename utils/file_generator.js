@@ -1,10 +1,10 @@
-const PDFDocument = require("pdfkit");
-const fs = require("fs-extra");
-const path = require("path");
-const os = require("os");
-const { Document, Packer, Paragraph } = require("docx");
-const Excel = require("xlsx");
-const PptxGenJS = require("pptxgenjs");
+import PDFDocument from "pdfkit";
+import fs from "fs-extra";
+import path from "path";
+import os from "os";
+import { Document, Packer, Paragraph } from "docx";
+import Excel from "xlsx";
+import PptxGenJS from "pptxgenjs";
 
 class FileGenerator {
   static async createTempDir() {
@@ -151,4 +151,4 @@ class FileGenerator {
   }
 }
 
-module.exports = FileGenerator;
+export default FileGenerator;

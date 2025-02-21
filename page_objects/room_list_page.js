@@ -1,3 +1,5 @@
+import log from "loglevel";
+
 export class RoomsListPage {
   constructor(page) {
     this.page = page;
@@ -77,14 +79,14 @@ export class RoomsListPage {
       .locator('button[data-testid="button"]')
       .nth(1); // Select the third button (index 2)
     const isVisible = await buttonLocator.isVisible(); // Check if the button is visible
-    console.log("Button is visible:", isVisible); // Log the visibility result
+    log.debug("Button is visible:", isVisible); // Log the visibility result
     if (isVisible) {
       await Promise.all([
         this.page.waitForLoadState("networkidle"),
         buttonLocator.click(),
       ]);
     } else {
-      console.error("Button is not visible!");
+      log.error("Button is not visible!");
     }
   }
 
@@ -106,14 +108,14 @@ export class RoomsListPage {
       .locator('button[data-testid="button"]')
       .nth(1); // Select the third button (index 2)
     const isVisible = await buttonLocator.isVisible(); // Check if the button is visible
-    console.log("Button is visible:", isVisible); // Log the visibility result
+    log.debug("Button is visible:", isVisible); // Log the visibility result
     if (isVisible) {
       await Promise.all([
         this.page.waitForLoadState("networkidle"),
         buttonLocator.click(),
       ]);
     } else {
-      console.error("Button is not visible!");
+      log.error("Button is not visible!");
     }
   }
 
@@ -144,14 +146,14 @@ export class RoomsListPage {
       .locator('button[data-testid="button"]')
       .nth(1); // Select the third button (index 2)
     const isVisible = await buttonLocator.isVisible(); // Check if the button is visible
-    console.log("Button is visible:", isVisible); // Log the visibility result
+    log.debug("Button is visible:", isVisible); // Log the visibility result
     if (isVisible) {
       await Promise.all([
         this.page.waitForLoadState("networkidle"),
         buttonLocator.click(),
       ]);
     } else {
-      console.error("Button is not visible!");
+      log.error("Button is not visible!");
     }
   }
 
