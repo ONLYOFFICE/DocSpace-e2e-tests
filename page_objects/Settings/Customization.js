@@ -1,4 +1,4 @@
-import MainPage from "../MainPage";
+import MainPage from "../mainPage";
 
 export class Customization extends MainPage {
     constructor(page) {

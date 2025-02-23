@@ -1,9 +1,9 @@
 import { test, expect } from '@playwright/test';
-import { Payment } from "../../../page_objects/Settings/Payment";
+import { Payment } from "../../../page_objects/settings/payment";
 import { PortalSetupApi } from "../../../api_library/portal_setup";
 import { PortalLoginPage } from "../../../page_objects/portal_login_page";
 
-    test.describe('Payment Tests', () => {  
+    test.describe('Payment tests', () => {  
         let apiContext;
         let portalSetup;
         let portalLoginPage;
@@ -36,7 +36,7 @@ import { PortalLoginPage } from "../../../page_objects/portal_login_page";
         await expect(page.locator('text=You are using Business plan')).toBeVisible({ timeout: 10000 });
     });
 
-    test('Change Tarif Plan', async ({ page }) => {
+    test('Change tarif plan', async ({ page }) => {
         const payment = new Payment(page);
         await payment.navigateToPayments();
         await payment.downgradePlan();

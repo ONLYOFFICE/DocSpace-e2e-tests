@@ -1,4 +1,4 @@
-import MainPage from "../MainPage";
+import MainPage from "../mainPage";
 
 export class OAuth extends MainPage {
     constructor(page) {

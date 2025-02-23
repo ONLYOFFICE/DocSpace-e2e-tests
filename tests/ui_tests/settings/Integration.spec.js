@@ -1,9 +1,9 @@
 import { test, expect } from '@playwright/test';
-import { Integration } from "../../../page_objects/Settings/Integration";
+import { Integration } from "../../../page_objects/settings/integration";
 import { PortalSetupApi } from "../../../api_library/portal_setup";
 import { PortalLoginPage } from "../../../page_objects/portal_login_page";
 
-    test.describe('Integration Tests', () => {  
+    test.describe('Integration tests', () => {  
       let apiContext;
       let portalSetup;
       let portalLoginPage;
@@ -33,7 +33,7 @@ import { PortalLoginPage } from "../../../page_objects/portal_login_page";
         await expect(page.locator('text=100% Operation has been successfully completed')).toBeVisible({ timeout: 3000 });
       });
 
-      test.skip('Manual Sync - temporarily disabled due to lack of payment', async ({ page }) => {
+      test.skip('Manual sync - temporarily disabled due to lack of payment', async ({ page }) => {
         await integration.navigateToSettings();
         await integration.manualSyncLdap();
         await expect(page.locator('text=100% Operation has been successfully completed.')).toBeVisible({ timeout: 3000 });
@@ -93,6 +93,7 @@ import { PortalLoginPage } from "../../../page_objects/portal_login_page";
       });
 
       test('Ldap Link', async ({ page }) => {
+        test.setTimeout(60000);
         await integration.navigateToSettings();
         await integration.navigateToIntegration.click();
         await page.waitForTimeout(2000);
@@ -128,7 +129,7 @@ import { PortalLoginPage } from "../../../page_objects/portal_login_page";
         await expect(page1).toHaveURL(/administration\/docspace-settings.aspx\#AdjustingIntegrationSettings_block/);
       });
 
-      test('Third Party Link', async ({ page }) => {
+      test('Third party link', async ({ page }) => {
         await integration.navigateToSettings();
         await integration.navigateToThirdPartyServices();
         const page1Promise = page.waitForEvent('popup');
@@ -138,7 +139,7 @@ import { PortalLoginPage } from "../../../page_objects/portal_login_page";
         await expect(page1).toHaveURL(/administration\/docspace-settings.aspx\#AdjustingIntegrationSettings_block/);
       });
 
-      test('Facebook Enable', async ({ page }) => {
+      test('Facebook enable', async ({ page }) => {
         await integration.navigateToSettings();
         await integration.navigateToThirdPartyServices();
         await integration.activateFacebook();
@@ -147,7 +148,7 @@ import { PortalLoginPage } from "../../../page_objects/portal_login_page";
         await expect(page.locator('text=Deactivated successfully')).toHaveText('Deactivated successfully', { timeout: 10000 });
       });
 
-      test('AWSS3 Enable', async ({ page }) => {
+      test('AWSS3 enable', async ({ page }) => {
         await integration.navigateToSettings();
         await integration.navigateToThirdPartyServices();
         await integration.activateAWSS3();

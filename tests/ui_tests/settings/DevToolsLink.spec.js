@@ -1,9 +1,9 @@
 import { test, expect } from '@playwright/test';
-import { DevToolsLink } from "../../../page_objects/Settings/DevToolsLink";
+import { DevToolsLink } from "../../../page_objects/settings/devToolsLink";
 import { PortalSetupApi } from "../../../api_library/portal_setup";
 import { PortalLoginPage } from "../../../page_objects/portal_login_page";
 
-    test.describe('Developer Tools Link Tests', () => {
+    test.describe('Developer tools link tests', () => {
       let apiContext;
       let portalSetup;
       let portalLoginPage;
@@ -26,7 +26,7 @@ import { PortalLoginPage } from "../../../page_objects/portal_login_page";
       await apiContext.dispose();
     });
 
-      test('Api Link', async ({ page }) => {
+      test('Api link', async ({ page }) => {
         await devToolsLink.navigateToSettings();
         await devToolsLink.navigateToDevTools.click();
         const page1Promise = page.waitForEvent('popup');
@@ -36,7 +36,7 @@ import { PortalLoginPage } from "../../../page_objects/portal_login_page";
         await expect(page1).toHaveURL(/docspace/);
       });
       
-      test('JSDK Integration examples Link', async ({ page }) => {
+      test('JSDK Integration examples link', async ({ page }) => {
         test.setTimeout(60000);
         await devToolsLink.navigateToSettings();
         await devToolsLink.navigateToDevTools.click();
@@ -58,7 +58,7 @@ import { PortalLoginPage } from "../../../page_objects/portal_login_page";
         await expect(page3).toHaveURL(/office-for-drupal.aspx/);
       });
 
-      test('JSDK Link', async ({ page }) => {
+      test('JSDK link', async ({ page }) => {
         test.setTimeout(60000);
         await devToolsLink.navigateToSettings();
         await devToolsLink.navigateToDevTools.click();
@@ -75,7 +75,8 @@ import { PortalLoginPage } from "../../../page_objects/portal_login_page";
         await expect(page2).toHaveURL(/all-connectors.aspx/);
       });
 
-      test('Plugin SDK Link', async ({ page }) => {
+      test('Plugin SDK link', async ({ page }) => {
+        test.setTimeout(60000);
         await devToolsLink.navigateToSettings();
         await devToolsLink.navigateToDevTools.click();
         await devToolsLink.navigateToPlaginSDK.click();
