@@ -1,32 +1,32 @@
 import { test, expect } from '@playwright/test';
-import { Security } from "../../../page_objects/Settings/Security";
+import { Security } from "../../../page_objects/settings/security";
 import { PortalSetupApi } from "../../../api_library/portal_setup";
 import { PortalLoginPage } from "../../../page_objects/portal_login_page";
 
-    test.describe('Security Tests', () => {  
+    test.describe('Security tests', () => {  
       let apiContext;
       let portalSetup;
       let portalLoginPage;
       let security;
 
     test.beforeAll(async ({ playwright }) => {
-            apiContext = await playwright.request.newContext();
-            portalSetup = new PortalSetupApi(apiContext);
-            const portalData = await portalSetup.setupPortal();
-           });
+      apiContext = await playwright.request.newContext();
+      portalSetup = new PortalSetupApi(apiContext);
+      const portalData = await portalSetup.setupPortal();
+    });
 
     test.beforeEach(async ({ page }) => {
-        security = new Security(page);
-        portalLoginPage = new PortalLoginPage(page);
-        await portalLoginPage.loginToPortal(portalSetup.portalDomain);
-      });
+      security = new Security(page);
+      portalLoginPage = new PortalLoginPage(page);
+      await portalLoginPage.loginToPortal(portalSetup.portalDomain);
+    });
 
-      test.afterAll(async () => {
-        await portalSetup.deletePortal();
-        await apiContext.dispose();
-      });
+    test.afterAll(async () => {
+      await portalSetup.deletePortal();
+      await apiContext.dispose();
+    });
 
-      test('Password Strength', async ({ page }) => {
+      test('Password strength', async ({ page }) => {
         await security.navigateToSettings();
         await security.navigateToSecurity.click();
         await security.updatePasswordStrength(17);
@@ -36,7 +36,7 @@ import { PortalLoginPage } from "../../../page_objects/portal_login_page";
         await expect(page.locator('text=Settings have been successfully updated')).toHaveText('Settings have been successfully updated', { timeout: 10000 });
       });
 
-      test('Trusted mail Domain', async ({ page }) => {
+      test('Trusted mail domain', async ({ page }) => {
         await security.navigateToSettings();
         await security.navigateToSecurity.click();
         await security.anyDomainsActivation();
@@ -74,7 +74,7 @@ import { PortalLoginPage } from "../../../page_objects/portal_login_page";
         await expect(input).toHaveValue('5');
       });
 
-      test('Administrator Message', async ({ page }) => {
+      test('Administrator message', async ({ page }) => {
         await security.navigateToSettings();
         await security.navigateToSecurity.click();
         await security.adminMessageActivation();
@@ -85,7 +85,7 @@ import { PortalLoginPage } from "../../../page_objects/portal_login_page";
         await expect(page.locator('text=Settings have been successfully updated')).toHaveText('Settings have been successfully updated', { timeout: 10000 });
       });
 
-      test('Security Link', async ({ page }) => {
+      test('Security link', async ({ page }) => {
         test.setTimeout(60000);
         await security.navigateToSettings();
         await security.navigateToSecurity.click();
@@ -128,19 +128,19 @@ import { PortalLoginPage } from "../../../page_objects/portal_login_page";
         await expect(page7).toHaveURL(/administration\/docspace-settings.aspx\#sessionlifetime/);
       });
 
-      test.skip('Login History - temporarily disabled due to lack of payment', async ({ page }) => {
+      test.skip('Login history - temporarily disabled due to lack of payment', async ({ page }) => {
         await security.navigateToSettings();
         await security.navigateToLoginHistory();
         await expect(page.locator('text=Successful Login via API').first()).toHaveText('Successful Login via API', { timeout: 10000 });
       });
 
-      test.skip('Audit Trail - temporarily disabled due to lack of payment', async ({ page }) => {
+      test.skip('Audit trail - temporarily disabled due to lack of payment', async ({ page }) => {
         await security.navigateToSettings();
         await security.navigateToAuditTrail();
         await expect(page.locator('text=Language Updated').first()).toHaveText('Language Updated', { timeout: 10000 });
       });
         
-      test.skip('Session Lifetime - portal removal method crashes', async ({ page }) => {
+      test.skip('Session lifetime - portal removal method crashes', async ({ page }) => {
         await security.navigateToSettings();
         await security.navigateToSecurity.click();
         await security.sessionLifetimeActivation();

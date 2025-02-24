@@ -1,9 +1,9 @@
 import { test, expect } from '@playwright/test';
-import { Customization } from "../../../page_objects/Settings/Customization";
+import { Customization } from "../../../page_objects/settings/customization";
 import { PortalSetupApi } from "../../../api_library/portal_setup";
 import { PortalLoginPage } from "../../../page_objects/portal_login_page";
 
-    test.describe('Customization Portal Tests', () => {
+    test.describe('Customization portal tests', () => {
         let apiContext;
         let portalSetup;
         let portalLoginPage;
@@ -25,9 +25,9 @@ import { PortalLoginPage } from "../../../page_objects/portal_login_page";
     test.afterAll(async () => {
         await portalSetup.deletePortal();
         await apiContext.dispose();
-      });
+    });
 
-    test('changeLang&Time', async ({ page }) => {
+    test('Change lang&time', async ({ page }) => {
         await customization.navigateToSettings();
         await page.waitForTimeout(1000);
         await customization.changeLanguage('English (United States)');
@@ -43,7 +43,7 @@ import { PortalLoginPage } from "../../../page_objects/portal_login_page";
         await expect(page.locator('text=Settings have been successfully updated')).toHaveText('Settings have been successfully updated', { timeout: 10000 });
     });
 
-    test('WelcomPageSettings', async ({ page }) => {
+    test('Welcom page settings', async ({ page }) => {
         await customization.navigateToSettings();
         await customization.setTitle('DocSpace Autotest Portal');
         await customization.settingsTitleWelcomePage.click();
@@ -53,7 +53,7 @@ import { PortalLoginPage } from "../../../page_objects/portal_login_page";
         await expect(page.locator('text=Welcome Page settings have been successfully saved')).toHaveText('Welcome Page settings have been successfully saved', { timeout: 10000 });
     });
 
-    test.skip('Branding_UseAsLogo - temporarily disabled due to lack of payment', async ({ page }) => {
+    test.skip('Branding use as logo - temporarily disabled due to lack of payment', async ({ page }) => {
         await customization.navigateToSettings();
         await page.getByText('Branding').click();
         await customization.setBrandingText('AutoTesting');
@@ -67,7 +67,7 @@ import { PortalLoginPage } from "../../../page_objects/portal_login_page";
         await expect(page.locator('text=Settings have been successfully updated')).toHaveText('Settings have been successfully updated', { timeout: 10000 });
     });
 
-    test('appearance', async ({ page }) => {
+    test('Appearance', async ({ page }) => {
         await customization.navigateToSettings();
         await customization.navigateToAppearance.click();
         await page.waitForTimeout(2000);
@@ -84,7 +84,7 @@ import { PortalLoginPage } from "../../../page_objects/portal_login_page";
         await expect(page.locator('text=Settings have been successfully updated')).toHaveText('Settings have been successfully updated', { timeout: 10000 });
     });
 
-    test('custom_appereance', async ({ page }) => {
+    test('Custom appereance', async ({ page }) => {
         await customization.navigateToSettings();
         await customization.navigateToAppearance.click();
         await customization.createCustomTheme('##0EEDE9', '#931073');
@@ -100,7 +100,7 @@ import { PortalLoginPage } from "../../../page_objects/portal_login_page";
         await expect(page.locator('text=Settings have been successfully updated')).toHaveText('Settings have been successfully updated', { timeout: 10000 });
     });
 
-    test('General Link', async ({ page }) => {
+    test('General link', async ({ page }) => {
         test.setTimeout(120000);
         await customization.navigateToSettings();
         await page.waitForTimeout(1000);

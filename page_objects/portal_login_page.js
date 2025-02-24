@@ -16,8 +16,17 @@ export class PortalLoginPage {
     await this.page.fill(this.emailInput, config.DOCSPACE_ADMIN_EMAIL);
     await this.page.fill(this.passwordInput, config.DOCSPACE_ADMIN_PASSWORD);
     await this.page.click(this.loginButton);
-    await this.page.waitForSelector('div[id="create-room"]', {
-      timeout: 10000,
-    });
+
+    // Wait for navigation and network requests to complete
+    await this.page.waitForLoadState("networkidle");
+
+    // Wait for the create room button to be visible
+    await this.page.waitForSelector(
+      "button[id='rooms-shared_create-room-button']",
+      {
+        timeout: 30000,
+        state: "visible",
+      },
+    );
   }
 }

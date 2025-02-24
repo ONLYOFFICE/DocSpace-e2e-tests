@@ -1,9 +1,9 @@
 import { test, expect } from '@playwright/test';
-import { Backup } from "../../../page_objects/Settings/Backup";
+import { Backup } from "../../../page_objects/settings/backup";
 import { PortalSetupApi } from "../../../api_library/portal_setup";
 import { PortalLoginPage } from "../../../page_objects/portal_login_page";
 
-    test.describe('Backup Portal Tests', () => {
+    test.describe('Backup portal tests', () => {
         let apiContext;
         let portalSetup;
         let portalLoginPage;
@@ -32,7 +32,7 @@ import { PortalLoginPage } from "../../../page_objects/portal_login_page";
         await backup.navigateToSettings();
         await backup.navigateTobackup.click();
         await page.waitForTimeout(1000);
-        const page1 = await backup.BackupGuidePopup();
+        const page1 = await backup.backupGuidePopup();
         await page1.waitForURL('https://*.onlyoffice.com/administration/docspace-settings.aspx#CreatingBackup_block');
         await expect(page1).toHaveURL(/administration\/docspace-settings.aspx\#CreatingBackup_block/);
     });
@@ -41,7 +41,7 @@ import { PortalLoginPage } from "../../../page_objects/portal_login_page";
         await backup.navigateToSettings();
         await backup.navigateToAutoBackup();
         await page.waitForTimeout(1000);
-        const page1 = await backup.BackupGuidePopup();
+        const page1 = await backup.backupGuidePopup();
         await page1.waitForURL('https://*.onlyoffice.com/administration/docspace-settings.aspx#AutoBackup');
         await expect(page1).toHaveURL(/administration\/docspace-settings.aspx\#AutoBackup/);
     });
