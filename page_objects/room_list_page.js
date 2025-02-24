@@ -1,4 +1,5 @@
 import log from "loglevel";
+import { FileGenerator } from "../utils/file_generator.js";
 
 export class RoomsListPage {
   constructor(page) {
@@ -394,7 +395,6 @@ export class RoomsListPage {
 
   async UploadFile(fileType = "pdf", options = {}) {
     // Generate file
-    const FileGenerator = require("../utils/file_generator");
     const fileName = `test_${fileType}_${Date.now()}`;
     const filePath = await FileGenerator.generateFile(fileType, {
       filename: `${fileName}.${fileType}`,

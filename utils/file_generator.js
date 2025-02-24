@@ -151,4 +151,4 @@ class FileGenerator {
   }
 }
 
-export default FileGenerator;
+export { FileGenerator };
