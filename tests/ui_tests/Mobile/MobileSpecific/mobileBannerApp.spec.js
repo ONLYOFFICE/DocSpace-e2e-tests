@@ -48,7 +48,6 @@ test.describe("MobileBanner App Tests", () => {
     const view = page.locator(mobile.viewButtonBannerApp);
     await view.click();
     const currentUrl = page.url();
-    console.log("Open link:", currentUrl);
     await expect(
       page.getByText("ONLYOFFICE Documents", { exact: true }),
     ).toBeVisible();

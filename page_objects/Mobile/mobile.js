@@ -1,5 +1,4 @@
 import config from "../../config/config.js";
-//import { Locator, Page } from '@playwright/test';
 
 export class MobilePage {
   constructor(page) {
