@@ -132,17 +132,17 @@ export class PortalSetupApi {
     );
 
     const body = await response.json();
-     if (!response.ok()) {
-       log.error(
-         `Failed to create user: ${response.status()} - ${body.error || body.message}`,
-       );
-       throw new Error(
-         `Failed to create user: ${response.status()} - ${body.error || body.message}`,
-       );
-     }
+    if (!response.ok()) {
+      log.error(
+        `Failed to create user: ${response.status()} - ${body.error || body.message}`,
+      );
+      throw new Error(
+        `Failed to create user: ${response.status()} - ${body.error || body.message}`,
+      );
+    }
 
-     log.debug(`User created successfully: ${JSON.stringify(body, null, 2)}`);
-     return body;
+    log.debug(`User created successfully: ${JSON.stringify(body, null, 2)}`);
+    return body;
   }
 
   async #initDocumentsApi() {
