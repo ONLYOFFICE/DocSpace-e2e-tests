@@ -41,6 +41,8 @@ const config = {
   MOBILE_USER_AGENT: process.env.MOBILE_USER_AGENT,
   IS_MOBILE: process.env.IS_MOBILE === "true",
   VIEW_PORT: process.env.VIEW_PORT,
+  MACHINEKEY: process.env.MACHINEKEY,
+  PKEY: process.env.PKEY,
 };
 
 export default config;

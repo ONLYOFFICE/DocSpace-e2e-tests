@@ -2,12 +2,14 @@ import { test, expect } from '@playwright/test';
 import { Security } from "../../../page_objects/settings/security";
 import { PortalSetupApi } from "../../../api_library/portal_setup";
 import { PortalLoginPage } from "../../../page_objects/portal_login_page";
+import { PaymentApi } from "../../../api_library/paymentApi/paymentApi";
 
     test.describe('Security tests', () => {  
       let apiContext;
       let portalSetup;
       let portalLoginPage;
       let security;
+      let paymentApi;
 
     test.beforeAll(async ({ playwright }) => {
       apiContext = await playwright.request.newContext();
@@ -128,13 +130,13 @@ import { PortalLoginPage } from "../../../page_objects/portal_login_page";
         await expect(page7).toHaveURL(/administration\/docspace-settings.aspx\#sessionlifetime/);
       });
 
-      test.skip('Login history - temporarily disabled due to lack of payment', async ({ page }) => {
+      test('Login history', async ({ page }) => {
         await security.navigateToSettings();
         await security.navigateToLoginHistory();
         await expect(page.locator('text=Successful Login via API').first()).toHaveText('Successful Login via API', { timeout: 10000 });
       });
 
-      test.skip('Audit trail - temporarily disabled due to lack of payment', async ({ page }) => {
+      test('Audit trail', async ({ page }) => {
         await security.navigateToSettings();
         await security.navigateToAuditTrail();
         await expect(page.locator('text=Language Updated').first()).toHaveText('Language Updated', { timeout: 10000 });
