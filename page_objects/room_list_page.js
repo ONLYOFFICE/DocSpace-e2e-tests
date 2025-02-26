@@ -1,5 +1,6 @@
 import log from "loglevel";
 import { FileGenerator } from "../utils/file_generator.js";
+import config from "../config/config.js";
 
 export class RoomsListPage {
   constructor(page) {
@@ -26,6 +27,149 @@ export class RoomsListPage {
     this.createRoomButtonSelector =
       "button[id='rooms-shared_create-room-button']"; // rooms-shared_create-room-button
     this.createFileButtonSelector = "data-testid='icon-button'"; // rooms-shared_create-file-button
+    //Pub Room functionality
+    this.pubToggleButtonLocator = this.page
+      .getByTestId("toggle-button")
+      .locator("circle");
+    this.pubComboBoxLocator = this.page
+      .getByTestId("box")
+      .getByTestId("combobox");
+    this.ConnectButtonLocator = this.page.locator(
+      "#shared_third-party-storage_connect",
+    );
+
+    //Third party storage buttons
+    this.ownCloudButton = this.page.locator('[data-third-party-id="ownCloud"]');
+    this.nextCloudButton = this.page.locator(
+      '[data-third-party-id="Nextcloud"]',
+    );
+    this.webDavButton = this.page.locator('[data-third-party-id="WebDav"]');
+    this.kDriveButton = this.page.locator('[data-third-party-id="kDrive"]');
+    this.oneDriveButton = this.page.locator('[data-third-party-id="OneDrive"]');
+    this.dropboxButton = this.page.locator('[data-third-party-id="Dropbox"]');
+    this.boxButton = this.page.locator('[data-third-party-id="Box"]');
+
+    //Rooms choose
+    this.NewRoomButtonLocator = this.page.locator(
+      "#rooms-shared_create-room-button",
+    );
+    // Room type buttons by room-logo
+    this.publicRoomLocator = this.page.getByTestId("room-logo").nth(0);
+    this.formFillingRoomLocator = this.page.getByTestId("room-logo").nth(1);
+    this.collaborationRoomLocator = this.page.getByTestId("room-logo").nth(2);
+    this.virtualDataRoomLocator = this.page.getByTestId("room-logo").nth(3);
+    this.customRoomLocator = this.page.getByTestId("room-logo").nth(4);
+  }
+
+  async CreatePublicRoomFunc(connectorName = "") {
+    const roomName = `Test Public Room ${connectorName}`;
+    await this.NewRoomButtonLocator.click();
+    await this.publicRoomLocator.click();
+    const nameInput = this.page.getByRole("textbox", { name: "Name:" });
+    await nameInput.waitFor({ state: "visible", timeout: 5000 });
+    await nameInput.fill(roomName);
+    return roomName;
+  }
+
+  async ConnectNextcloud() {
+    await this.pubComboBoxLocator.click();
+    await this.nextCloudButton.click();
+    await this.ConnectButtonLocator.click();
+    await this.page.locator("#connection-url-input").click();
+    await this.page.locator("#connection-url-input").fill(config.NEXTCLOUD_URL);
+    await this.page.locator("#login-input").click();
+    await this.page.locator("#login-input").fill(config.NEXTCLOUD_LOGIN);
+    await this.page
+      .getByTestId("password-input")
+      .getByTestId("text-input")
+      .click();
+    await this.page
+      .getByTestId("password-input")
+      .getByTestId("text-input")
+      .fill(config.NEXTCLOUD_PASSWORD);
+    await this.page.getByRole("button", { name: "Save" }).click();
+  }
+
+  async BOX() {
+    await this.pubComboBoxLocator.click();
+    await this.boxButton.click();
+    const page1Promise = this.page.waitForEvent("popup");
+    await this.ConnectButtonLocator.click();
+    const page1 = await page1Promise;
+    await page1.waitForLoadState("networkidle");
+    await page1.waitForSelector("#login");
+    await page1.fill("#login", config.BOX_LOGIN);
+    await page1.fill("#password", config.BOX_PASS);
+    await page1.waitForSelector('input[type="submit"]');
+    await page1.locator('input[type="submit"]').click();
+    await page1.waitForLoadState("networkidle");
+    await page1.waitForSelector("#consent_accept_button", { timeout: 10000 });
+    await page1.locator("#consent_accept_button").click();
+  }
+
+  async Dropbox() {
+    await this.pubComboBoxLocator.click();
+    await this.dropboxButton.click();
+    const page1Promise = this.page.waitForEvent("popup");
+    await this.ConnectButtonLocator.click();
+    const page1 = await page1Promise;
+    await page1.waitForLoadState("networkidle");
+    await page1.locator('input[name="susi_email"]').fill(config.DROPBOX_LOGIN);
+    await page1.waitForTimeout(1000);
+    await page1.keyboard.press("Enter");
+    await page1
+      .locator('input[name="login_password"]')
+      .fill(config.DROPBOX_PASS);
+    await page1.getByTestId("login-form-submit-button").click();
+    await page1.waitForLoadState("networkidle");
+  }
+
+  async OneDrive() {
+    await this.pubComboBoxLocator.click();
+    await this.oneDriveButton.click();
+    const page1Promise = this.page.waitForEvent("popup");
+    await this.ConnectButtonLocator.click();
+    const page1 = await page1Promise;
+    await page1.waitForLoadState("networkidle");
+    // Enter email
+    await page1.waitForSelector('input[type="email"]');
+    await page1.locator('input[type="email"]').fill(config.ONEDRIVE_LOGIN);
+    await page1.click("#idSIButton9");
+    // Check if lightbox exists
+    const hasLightbox = await page1.locator("#lightbox-cover").isVisible();
+    if (hasLightbox) {
+      // If lightbox exists, enter password immediately
+      await page1.waitForSelector('input[type="password"]');
+      await page1.waitForLoadState("networkidle");
+      await page1
+        .locator('input[type="password"]')
+        .fill(config.ONEDRIVE_PASSWORD);
+      await page1.click("#idSIButton9");
+      await page1.waitForTimeout(1000);
+      await page1.waitForLoadState("networkidle");
+      await page1.keyboard.press("Enter");
+    } else {
+      // If not, follow the alternative path
+      await page1.waitForSelector("#idA_PWD_SwitchToCredPicker");
+      await page1.click("#idA_PWD_SwitchToCredPicker");
+      await page1.waitForSelector('input[type="password"]');
+      await page1
+        .locator('input[type="password"]')
+        .fill(config.ONEDRIVE_PASSWORD);
+      await page1.click("#idSIButton9");
+      await page1.waitForTimeout(1000);
+      await page1.keyboard.press("Enter");
+    }
+  }
+
+  async CreateButton() {
+    const createRoomButton = this.page.getByRole("button", {
+      name: "Create",
+      exact: true,
+    });
+    await createRoomButton.waitFor({ state: "visible", timeout: 5000 });
+    await createRoomButton.click();
+    return true;
   }
 
   async toggleThirdPartyStorage() {
@@ -171,8 +315,8 @@ export class RoomsListPage {
   }
   async VDRchange() {
     const roomName = "Test Virtual Data Room Func";
-    await this.page.getByTestId("button").click();
-    await this.page.getByTitle("Virtual Data Room").click();
+    await this.NewRoomButtonLocator.click();
+    await this.virtualDataRoomLocator.click();
     const nameInput = this.page.getByRole("textbox", { name: "Name:" });
     await nameInput.waitFor({ state: "visible", timeout: 5000 });
     await nameInput.fill(roomName);
@@ -190,206 +334,116 @@ export class RoomsListPage {
       .locator("div")
       .first()
       .click();
-    const createRoomButton = this.page.getByRole("button", {
-      name: "Create",
-      exact: true,
-    });
-    await createRoomButton.waitFor({ state: "visible", timeout: 5000 });
-    await createRoomButton.click();
+
+    // Click the Create button to create a room
+    await this.CreateButton();
+
+    // Wait for the file creation button to appear and click it
     const createFileButton = this.page.getByRole("button", {
       name: "Create a new file",
       exact: true,
     });
     await createFileButton.waitFor({ state: "visible", timeout: 10000 });
     await createFileButton.click();
-    const documentOption = this.page.getByRole("menuitem", {
-      name: "Document",
-    });
-    await documentOption.waitFor({ state: "visible", timeout: 5000 });
-    await documentOption.click();
-    const createDocButton = this.page.getByRole("button", {
-      name: "Create",
-      exact: true,
-    });
-    await createDocButton.waitFor({ state: "visible", timeout: 5000 });
-    const pagePromise = this.page.context().waitForEvent("page");
-    await createDocButton.click();
-    await pagePromise;
-    return true;
   }
+
   async CreateVDRroom() {
-    const roomName = "Test Virtual Data Room Func";
-    await this.page.getByTestId("button").click();
-    await this.page.getByTitle("Virtual Data Room").click();
+    await this.NewRoomButtonLocator.click();
+    await this.virtualDataRoomLocator.click();
     const nameInput = this.page.getByRole("textbox", { name: "Name:" });
     await nameInput.waitFor({ state: "visible", timeout: 5000 });
-    await nameInput.fill(roomName);
-    const createRoomButton = this.page.getByRole("button", {
-      name: "Create",
-      exact: true,
-    });
-    await createRoomButton.waitFor({ state: "visible", timeout: 5000 });
-    await createRoomButton.click();
-    return true;
+    await nameInput.fill("Test Virtual Data Room Func");
+    return await this.CreateButton();
   }
+
   async CreatePublicRoom() {
-    const roomName = "Test Public Room Func";
-    await this.page.getByTestId("button").click();
-    await this.page.getByTitle("Public room").click();
+    await this.NewRoomButtonLocator.click();
+    await this.publicRoomLocator.click();
     const nameInput = this.page.getByRole("textbox", { name: "Name:" });
     await nameInput.waitFor({ state: "visible", timeout: 5000 });
-    await nameInput.fill(roomName);
-    const createRoomButton = this.page.getByRole("button", {
-      name: "Create",
-      exact: true,
-    });
-    await createRoomButton.waitFor({ state: "visible", timeout: 5000 });
-    await createRoomButton.click();
-    return true;
+    await nameInput.fill("Test Public Room Func");
+    return await this.CreateButton();
   }
+
   async CreateCollaborationroom() {
-    const roomName = "Test Collaboration Room Func";
-    await this.page.getByTestId("button").click();
-    await this.page.getByTitle("Collaboration room").click();
+    await this.NewRoomButtonLocator.click();
+    await this.collaborationRoomLocator.click();
     const nameInput = this.page.getByRole("textbox", { name: "Name:" });
     await nameInput.waitFor({ state: "visible", timeout: 5000 });
-    await nameInput.fill(roomName);
-    const createRoomButton = this.page.getByRole("button", {
-      name: "Create",
-      exact: true,
-    });
-    await createRoomButton.waitFor({ state: "visible", timeout: 5000 });
-    await createRoomButton.click();
-    return true;
+    await nameInput.fill("Test Collaboration Room Func");
+    return await this.CreateButton();
   }
 
   async CreateCustomroom() {
-    const roomName = "Test Custom Room Func";
-    await this.page.getByTestId("button").click();
-    await this.page.getByTitle("Custom room").click();
+    await this.NewRoomButtonLocator.click();
+    await this.customRoomLocator.click();
     const nameInput = this.page.getByRole("textbox", { name: "Name:" });
     await nameInput.waitFor({ state: "visible", timeout: 5000 });
-    await nameInput.fill(roomName);
-    const createRoomButton = this.page.getByRole("button", {
-      name: "Create",
-      exact: true,
-    });
-    await createRoomButton.waitFor({ state: "visible", timeout: 5000 });
-    await createRoomButton.click();
-    return true;
+    await nameInput.fill("Test Custom Room Func");
+    return await this.CreateButton();
   }
 
   async CreateDocumentFiles() {
-    // Click the create button and wait for menu
-    const addButton = this.page.locator(
-      ".add-button > .sc-fqkvVR > .icon-button_svg > div > .injected-svg > path",
-    );
-    await addButton.waitFor({ state: "visible", timeout: 10000 });
-    await addButton.click();
-
-    // Wait for menu to be fully visible
-    await this.page.waitForTimeout(500);
-
-    // Select Document and ensure it's clickable
-    const menuItem = this.page.getByRole("menuitem").nth(0);
-    await menuItem.waitFor({ state: "visible", timeout: 10000 });
-    await this.page.waitForTimeout(500);
-    await menuItem.click();
-
-    // Wait for dialog to settle
-    await this.page.waitForTimeout(500);
-
-    // Click Create button
-    const createButton = this.page.locator(".modal-footer button").first();
-    await createButton.waitFor({ state: "visible", timeout: 10000 });
-    await createButton.click();
-
-    // Wait for new tab to open
-    await this.page.context().waitForEvent("page", { timeout: 10000 });
-    await this.page.waitForTimeout(500);
-
-    return true;
+    await this.page
+      .locator(
+        ".add-button > .sc-fqkvVR > .icon-button_svg > div > .injected-svg > path",
+      )
+      .click();
+    await this.page.getByRole("menuitem", { name: "Document" }).click();
+    await this.page
+      .getByRole("button", { name: "Create", exact: true })
+      .click();
+    const newPage = await this.page.context().waitForEvent("page");
+    return newPage;
   }
 
   async CreateSpreadsheet() {
-    // Click the create button
-    const addButton = this.page.locator(
-      ".add-button > .sc-fqkvVR > .icon-button_svg > div > .injected-svg > path",
-    );
-    await addButton.waitFor({ state: "visible" });
-    await addButton.click();
-
-    // Select Spreadsheet
-    const menuItem = this.page.getByRole("menuitem").nth(1);
-    await menuItem.waitFor({ state: "visible" });
-    await menuItem.click();
-
-    await this.page.waitForTimeout(500);
-
-    // Click Create button
-    const createButton = this.page.locator(".modal-footer button").first();
-    await createButton.waitFor({ state: "visible" });
-    await createButton.click();
-
-    // Wait for new tab to open
-    await this.page.context().waitForEvent("page", { timeout: 10000 });
-    await this.page.waitForTimeout(500);
-
+    await this.page
+      .locator(
+        ".add-button > .sc-fqkvVR > .icon-button_svg > div > .injected-svg > path",
+      )
+      .click();
+    await this.page.getByRole("menuitem").nth(1).click();
+    await this.page.locator(".modal-footer button").first().click();
+    await this.page.context().waitForEvent("page");
     return true;
   }
 
   async CreatePresentation() {
-    // Click the create button
-    const addButton = this.page.locator(
-      ".add-button > .sc-fqkvVR > .icon-button_svg > div > .injected-svg > path",
-    );
-    await addButton.waitFor({ state: "visible" });
-    await addButton.click();
-
-    // Select Presentation
-    const menuItem = this.page.getByRole("menuitem").nth(2);
-    await menuItem.waitFor({ state: "visible" });
-    await menuItem.click();
-
-    await this.page.waitForTimeout(500);
-
-    // Click Create button
-    const createButton = this.page.locator(".modal-footer button").first();
-    await createButton.waitFor({ state: "visible" });
-    await createButton.click();
-
-    // Wait for new tab to open
-    await this.page.context().waitForEvent("page", { timeout: 10000 });
-    await this.page.waitForTimeout(500);
-
+    await this.page
+      .locator(
+        ".add-button > .sc-fqkvVR > .icon-button_svg > div > .injected-svg > path",
+      )
+      .click();
+    await this.page.getByRole("menuitem").nth(2).click();
+    await this.page.locator(".modal-footer button").first().click();
+    await this.page.context().waitForEvent("page");
     return true;
   }
 
   async CreateFolder() {
-    // Click the create button
-    const addButton = this.page.locator(
-      ".add-button > .sc-fqkvVR > .icon-button_svg > div > .injected-svg > path",
-    );
-    await addButton.waitFor({ state: "visible" });
-    await addButton.click();
+    await this.page
+      .locator(
+        ".add-button > .sc-fqkvVR > .icon-button_svg > div > .injected-svg > path",
+      )
+      .click();
+    await this.page.getByRole("menuitem").nth(4).click();
+    await this.page
+      .getByRole("button", { name: "Create", exact: true })
+      .click();
+    return true;
+  }
 
-    await this.page.waitForTimeout(1000);
-
-    // Select Folder
-    const menuItem = this.page.getByRole("menuitem").nth(4);
-    await menuItem.waitFor({ state: "visible", timeout: 10000 });
-    await this.page.waitForTimeout(1000);
-    await menuItem.click();
-
-    await this.page.waitForTimeout(1000);
-
-    // Click Create button
-    const createButton = this.page.locator(".modal-footer button").first();
-    await createButton.waitFor({ state: "visible", timeout: 10000 });
-    await createButton.click();
-
-    await this.page.waitForTimeout(1000);
-
+  async CreatePDFform() {
+    await this.page
+      .locator(
+        ".add-button > .sc-fqkvVR > .icon-button_svg > div > .injected-svg > path",
+      )
+      .click();
+    await this.page.getByRole("menuitem").nth(5).click();
+    await this.page
+      .getByRole("button", { name: "Create", exact: true })
+      .click();
     return true;
   }
 
@@ -434,33 +488,6 @@ export class RoomsListPage {
 
     // Cleanup: remove temporary file
     await FileGenerator.cleanup(filePath);
-    return true;
-  }
-
-  async CreatePDFform() {
-    // Click the create button
-    const addButton = this.page.locator(
-      ".add-button > .sc-fqkvVR > .icon-button_svg > div > .injected-svg > path",
-    );
-    await addButton.waitFor({ state: "visible" });
-    await addButton.click();
-
-    // Select PDF Form
-    const menuItem = this.page.getByRole("menuitem").nth(4);
-    await menuItem.waitFor({ state: "visible" });
-    await menuItem.click();
-
-    await this.page.waitForTimeout(500);
-
-    // Click Create button
-    const createButton = this.page.locator(".modal-footer button").first();
-    await createButton.waitFor({ state: "visible" });
-    await createButton.click();
-
-    // Wait for new tab to open
-    await this.page.context().waitForEvent("page", { timeout: 10000 });
-    await this.page.waitForTimeout(500);
-
     return true;
   }
 }
