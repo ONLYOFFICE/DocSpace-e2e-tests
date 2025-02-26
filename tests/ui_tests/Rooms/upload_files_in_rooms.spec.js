@@ -1,6 +1,6 @@
 import { test } from "@playwright/test";
 import { PortalSetupApi } from "../../../api_library/portal_setup";
-import { RoomsListPage } from "../../../page_objects/room_list_page";
+import { RoomsListPage } from "../../../page_objects/Rooms/room_list_page";
 import { PortalLoginPage } from "../../../page_objects/portal_login_page";
 
 test.describe("Upload Files in Rooms Tests", () => {
@@ -31,13 +31,13 @@ test.describe("Upload Files in Rooms Tests", () => {
   async function testFileUploads(page) {
     // Upload different types of files
     await roomsListPage.UploadFile("pdf", { title: "Test PDF" });
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(1000);
     await roomsListPage.UploadFile("docx", { title: "Test Word Document" });
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(1000);
     await roomsListPage.UploadFile("xlsx", { title: "Test Excel Spreadsheet" });
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(1000);
     await roomsListPage.UploadFile("pptx", { title: "Test PowerPoint" });
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(1000);
   }
 
   test("Upload files in Custom Room", async ({ page }) => {

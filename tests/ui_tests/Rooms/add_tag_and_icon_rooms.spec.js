@@ -1,8 +1,8 @@
 import { test, expect } from "@playwright/test";
 import { PortalSetupApi } from "../../../api_library/portal_setup";
 import { RoomsApi } from "../../../api_library/files/rooms_api";
-import { ArchivePage } from "../../../page_objects/archive_page";
-import { RoomsListPage } from "../../../page_objects/room_list_page";
+import { ArchivePage } from "../../../page_objects/Rooms/archive_page";
+import { RoomsListPage } from "../../../page_objects/Rooms/room_list_page";
 import { PortalLoginPage } from "../../../page_objects/portal_login_page";
 
 test.describe("Create and Delete Rooms Tests", () => {
@@ -12,7 +12,7 @@ test.describe("Create and Delete Rooms Tests", () => {
   let roomsListPage;
   let portalLoginPage;
   let archivePage;
-  
+
   test.beforeAll(async ({ playwright }) => {
     apiContext = await playwright.request.newContext();
     portalSetup = new PortalSetupApi(apiContext);
@@ -28,7 +28,7 @@ test.describe("Create and Delete Rooms Tests", () => {
     portalLoginPage = new PortalLoginPage(page);
     await portalLoginPage.loginToPortal(portalSetup.portalDomain);
   });
-  
+
   test.afterAll(async () => {
     await portalSetup.deletePortal();
     await apiContext.dispose();
@@ -36,7 +36,7 @@ test.describe("Create and Delete Rooms Tests", () => {
 
   test.describe("Adding icons and tags to rooms", () => {
     test("adding icon and tag to Form Filling room", async ({ page }) => {
-      const originalTitle = "Form Filling Room"; 
+      const originalTitle = "Form Filling Room";
       const newTitle = "Form Filling Room";
       await roomsApi.createRoom(originalTitle, "form_filling");
       await roomsListPage.openRoomsList();
@@ -48,7 +48,7 @@ test.describe("Create and Delete Rooms Tests", () => {
     });
 
     test("Adding icon and tag to Collaboration room", async ({ page }) => {
-      const originalTitle = "Test Room - Collaboration"; 
+      const originalTitle = "Test Room - Collaboration";
       const newTitle = "Test Room - Collaboration";
       await roomsApi.createRoom(originalTitle, "collaboration");
       await roomsListPage.openRoomsList();
@@ -60,7 +60,7 @@ test.describe("Create and Delete Rooms Tests", () => {
     });
 
     test("Adding icon and tag to Custom room", async ({ page }) => {
-      const originalTitle = "Test Room - Custom"; 
+      const originalTitle = "Test Room - Custom";
       const newTitle = "Test Room - Custom";
       await roomsApi.createRoom(originalTitle, "custom");
       await roomsListPage.openRoomsList();
@@ -72,7 +72,7 @@ test.describe("Create and Delete Rooms Tests", () => {
     });
 
     test("Adding icon and tag to Public room", async ({ page }) => {
-      const originalTitle = "Test Room - Public"; 
+      const originalTitle = "Test Room - Public";
       const newTitle = "Test Room - Public";
       await roomsApi.createRoom(originalTitle, "public");
       await roomsListPage.openRoomsList();
@@ -84,7 +84,7 @@ test.describe("Create and Delete Rooms Tests", () => {
     });
 
     test("Adding icon and tag to Virtual Data room", async ({ page }) => {
-      const originalTitle = "Test Room - Virtual Data"; 
+      const originalTitle = "Test Room - Virtual Data";
       const newTitle = "Test Room - Virtual Data";
       await roomsApi.createRoom(originalTitle, "virtual_data");
       await roomsListPage.openRoomsList();
