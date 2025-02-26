@@ -35,7 +35,6 @@ test.describe("Storage management tests", () => {
   });
 
   test('Storage management link', async ({ page }) => {
-    test.setTimeout(60000);
     await storageManagement.navigateToSettings();
     await storageManagement.navigateToStorageManagement.click();
     const page1Promise = page.waitForEvent('popup');
