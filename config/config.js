@@ -41,6 +41,7 @@ const config = {
   MOBILE_USER_AGENT: process.env.MOBILE_USER_AGENT,
   IS_MOBILE: process.env.IS_MOBILE === "true",
   VIEW_PORT: process.env.VIEW_PORT,
+  DEVICE: process.env.DEVICE,
   MACHINEKEY: process.env.MACHINEKEY,
   PKEY: process.env.PKEY,
   BOX_LOGIN: process.env.BOX_LOGIN,
