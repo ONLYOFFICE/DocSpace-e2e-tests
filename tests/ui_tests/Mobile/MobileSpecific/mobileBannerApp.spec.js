@@ -12,7 +12,7 @@ test.describe("MobileBanner App Tests", () => {
   test.beforeAll(async ({ playwright }) => {
     apiContext = await playwright.request.newContext();
     portalSetup = new PortalSetupApi(apiContext);
-    const portalData = await portalSetup.setupPortal();
+    await portalSetup.setupPortal();
   });
 
   test.beforeEach(async ({ page }) => {
@@ -45,13 +45,23 @@ test.describe("MobileBanner App Tests", () => {
     const banner = page.locator(mobile.mobileBannerApp);
     await expect(banner).toBeVisible();
     await expect(banner).toHaveClass("smartbanner-container");
-    const view = page.locator(mobile.viewButtonBannerApp);
-    await view.click();
-    const currentUrl = page.url();
-    await expect(
-      page.getByText("ONLYOFFICE Documents", { exact: true }),
-    ).toBeVisible();
-    await page.goBack();
-    await expect(banner).not.toBeVisible();
+    const isIOS =
+      process.env.DEVICE.toLowerCase().includes("iphone") ||
+      process.env.DEVICE.toLowerCase().includes("ipad");
+    const appStoreLink = isIOS
+      ? "https://itunes.apple.com/US/app/id944896972"
+      : "http://play.google.com/store/apps/details?id=com.onlyoffice.documents";
+    await expect(mobile.viewButtonBannerApp).toHaveAttribute(
+      "href",
+      appStoreLink,
+    );
+    if (!isIOS) {
+      await mobile.viewButtonBannerApp.click();
+      await expect(
+        page.getByText("ONLYOFFICE Documents", { exact: true }),
+      ).toBeVisible();
+      await page.goBack();
+      await expect(banner).not.toBeVisible();
+    }
   });
 });

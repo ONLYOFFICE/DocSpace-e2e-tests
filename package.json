@@ -39,9 +39,14 @@
     "prettier": "^3.4.2"
   },
   "dependencies": {
+    "docx": "^9.2.0",
     "dotenv": "^16.4.7",
+    "fs-extra": "^11.3.0",
     "imapflow": "^1.0.181",
-    "loglevel": "^1.9.2"
+    "loglevel": "^1.9.2",
+    "pdfkit": "^0.16.0",
+    "pptxgenjs": "^3.12.0",
+    "xlsx": "^0.18.5"
   },
   "husky": {
     "hooks": {

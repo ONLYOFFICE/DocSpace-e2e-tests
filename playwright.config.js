@@ -13,7 +13,7 @@ export default defineConfig({
     trace: "on-first-retry", // Enables trace
     ...(config.IS_MOBILE
       ? {
-          ...devices["Pixel 5"],
+          ...devices[config.DEVICE],
         }
       : {}),
   },
