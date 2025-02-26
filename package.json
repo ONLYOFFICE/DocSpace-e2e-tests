@@ -50,9 +50,6 @@
     }
   },
   "lint-staged": {
-    "tests/ui_tests/Rooms/**/*.{js,jsx}": [
-      "eslint --fix",
-      "prettier --write"
-    ]
+    "*.js": "eslint --fix"
   }
 }
