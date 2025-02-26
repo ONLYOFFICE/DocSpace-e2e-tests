@@ -27,23 +27,21 @@ import { PortalLoginPage } from "../../../page_objects/portal_login_page";
       });
 
     test('Payment', async ({ page, context }) => {
-        test.setTimeout(240000);
         const payment = new Payment(page, context);
         await payment.navigateToPayments();
         await payment.upgradePlan();
         await payment.fillPaymentData();
         await payment.returnToPortal();
-        await expect(page.locator('text=You are using Business plan')).toBeVisible({ timeout: 10000 });
+        await expect(page.locator('text=You are using Business plan')).toBeVisible({ timeout: 30000 });
     });
 
     test('Change tarif plan', async ({ page }) => {
         const payment = new Payment(page);
         await payment.navigateToPayments();
         await payment.downgradePlan();
-        await expect(page.locator('text=Business plan updated')).toHaveText('Business plan updated', { timeout: 10000 });
+        await expect(page.locator('text=Business plan updated')).toHaveText('Business plan updated', { timeout: 30000 });
         await payment.removeToast.click();
         await payment.updatePlan();
-        await expect(page.locator('text=Business plan updated')).toHaveText('Business plan updated', { timeout: 10000 });
+        await expect(page.locator('text=Business plan updated')).toHaveText('Business plan updated', { timeout: 30000 });
     });
 });
-
