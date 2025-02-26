@@ -335,10 +335,10 @@ export class RoomsListPage {
       .first()
       .click();
 
-    // Нажимаем кнопку Create для создания комнаты
+    // Click the Create button to create a room
     await this.CreateButton();
 
-    // Ждем появления кнопки создания файла и нажимаем её
+    // Wait for the file creation button to appear and click it
     const createFileButton = this.page.getByRole("button", {
       name: "Create a new file",
       exact: true,

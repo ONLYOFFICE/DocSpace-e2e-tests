@@ -36,7 +36,7 @@ test.describe("Public Room: Third Party Storage Tests", () => {
       await roomsListPage.BOX();
       await roomsListPage.CreateButton();
       await roomsListPage.openRoomsList();
-      // Проверяем наличие тега Box в комнате
+      // Check for Box tag in the room
       await page.waitForSelector(roomsListPage.roomsListSelector);
       const boxTag = page
         .locator(`div[data-title="${roomName}"]`)

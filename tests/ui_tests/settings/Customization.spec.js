@@ -2,18 +2,25 @@ import { test, expect } from '@playwright/test';
 import { Customization } from "../../../page_objects/settings/customization";
 import { PortalSetupApi } from "../../../api_library/portal_setup";
 import { PortalLoginPage } from "../../../page_objects/portal_login_page";
+import { PaymentApi } from "../../../api_library/paymentApi/paymentApi";
 
     test.describe('Customization portal tests', () => {
         let apiContext;
         let portalSetup;
         let portalLoginPage;
         let customization;
+        let paymentApi;
 
-    test.beforeAll(async ({ playwright }) => {
-        apiContext = await playwright.request.newContext();
-        portalSetup = new PortalSetupApi(apiContext);
-        const portalData = await portalSetup.setupPortal();
-    });
+        test.beforeAll(async ({ playwright }) => {
+            apiContext = await playwright.request.newContext();
+            portalSetup = new PortalSetupApi(apiContext);
+            paymentApi = new PaymentApi(apiContext, portalSetup);
+            await portalSetup.setupPortal();
+            await portalSetup.authenticate();
+            const portalInfo = await paymentApi.getPortalInfo(portalSetup.portalDomain);
+            await paymentApi.makePortalPayment(portalInfo.tenantId, 10);
+            await paymentApi.refreshPaymentInfo(portalSetup.portalDomain);
+        });
 
 
     test.beforeEach(async ({ page }) => {
@@ -53,7 +60,7 @@ import { PortalLoginPage } from "../../../page_objects/portal_login_page";
         await expect(page.locator('text=Welcome Page settings have been successfully saved')).toHaveText('Welcome Page settings have been successfully saved', { timeout: 10000 });
     });
 
-    test.skip('Branding use as logo - temporarily disabled due to lack of payment', async ({ page }) => {
+    test('Branding use as logo', async ({ page }) => {
         await customization.navigateToSettings();
         await page.getByText('Branding').click();
         await customization.setBrandingText('AutoTesting');
