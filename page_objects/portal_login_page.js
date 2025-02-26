@@ -1,4 +1,5 @@
 import config from "../config/config";
+import { expect } from "@playwright/test";
 
 export class PortalLoginPage {
   constructor(page) {
@@ -20,13 +21,12 @@ export class PortalLoginPage {
     // Wait for navigation and network requests to complete
     await this.page.waitForLoadState("networkidle");
 
-    // Wait for the create room button to be visible
-    await this.page.waitForSelector(
-      "button[id='rooms-shared_create-room-button']",
-      {
-        timeout: 30000,
-        state: "visible",
-      },
+    // Wait for the Rooms header to be visible
+    await this.page.waitForSelector('[data-testid="heading"]', {
+      timeout: 10000,
+    });
+    await expect(this.page.locator('[data-testid="heading"]')).toHaveText(
+      "Rooms",
     );
   }
 }
