@@ -51,7 +51,10 @@ export class PaymentApi {
 
   async makePortalPayment(tenantId, quantity = 10) {
     const token = this.createToken();
-    const portalId = `docspace.io${tenantId}`;
+    const region = process.env.AWS_REGION;
+    const portalId = region === 'us-east-2' 
+      ? `docspace.io.ohio${tenantId}`
+      : `docspace.io${tenantId}`;
     
     const headers = {
       'Authorization': token,
@@ -92,7 +95,7 @@ export class PaymentApi {
     };
     
     const tariffResponse = await this.apiContext.get(
-      `https://${portalDomain}/api/2.0/portal/tariff`,
+      `https://${portalDomain}/api/2.0/portal/tariff?refresh=true`,
       {
         headers: headers,
         params: { refresh: true }
@@ -105,7 +108,7 @@ export class PaymentApi {
     }
 
     const quotaResponse = await this.apiContext.get(
-      `https://${portalDomain}/api/2.0/portal/payment/quota`,
+      `https://${portalDomain}/api/2.0/portal/payment/quota?refresh=true`,
       {
         headers: headers,
         params: { refresh: true }
