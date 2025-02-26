@@ -1,4 +1,5 @@
 import { ImapFlow } from "imapflow";
+import log from "../utils/logger";
 
 class MailChecker {
   /**
@@ -85,6 +86,96 @@ class MailChecker {
     } finally {
       lock.release();
       await this.disconnect();
+    }
+  }
+
+  /**
+   * Searches for an email with a specific subject and verifies that the email body contains
+   * the expected URL.
+   *
+   * This method follows these steps:
+   * 1. Connects to the email server and locks the INBOX.
+   * 2. Searches the last 5 emails (ignoring read/unread status).
+   * 3. Checks if an email with the given subject exists.
+   * 4. Extracts the email body and looks for the portal URL.
+   * 5. If the expected URL is found, the email is either marked as read or moved to the "checked" folder.
+   * 6. Returns the email details if found; otherwise, keeps searching until the timeout is reached.
+   *
+   * @param {Object} options - Search criteria.
+   * @param {string} options.subject - The subject of the email to search for (case-insensitive match).
+   * @param {string} options.portalName - The portal name that should appear in the email body (part of the URL).
+   * @param {number} [options.timeoutSeconds=300] - Time in seconds to wait for the email to arrive.
+   * @param {boolean} [options.moveOut=false] - If true, moves the email to the "checked" folder; otherwise, marks it as read.
+   * @returns {Object|null} - Returns an object containing email details if found, otherwise null.
+   */
+
+  async findEmailbySubjectWithPortalLink({
+    subject,
+    portalName,
+    timeoutSeconds = 300,
+    moveOut = false,
+  }) {
+    await this.connect();
+    log.debug("Connected to mail server.");
+
+    const lock = await this.imapClient.getMailboxLock("INBOX");
+    try {
+      if (moveOut) {
+        await this.ensureFolderExists(this.checkedFolder);
+      }
+
+      const startTime = Date.now();
+      let foundEmail = null;
+
+      while ((Date.now() - startTime) / 1000 < timeoutSeconds) {
+        const uids = await this.imapClient.search({ all: true });
+        const lastEmails = uids.slice(-5);
+
+        for (const uid of lastEmails) {
+          const message = await this.imapClient.fetchOne(uid, {
+            envelope: true,
+            source: true,
+          });
+
+          const emailSubject = message.envelope.subject || "";
+          const emailBody = message.source.toString();
+
+          log.debug(`Checking email - Subject: "${emailSubject}"`);
+
+          if (emailSubject.toUpperCase().includes(subject.toUpperCase())) {
+            const portalUrlMatch = emailBody.match(
+              /https:\/\/([\w-]+\.onlyoffice\.io)/,
+            );
+            if (portalUrlMatch) {
+              const extractedPortalUrl = portalUrlMatch[1].toLowerCase();
+              const expectedPortalName = portalName.toLowerCase();
+
+              if (extractedPortalUrl.includes(expectedPortalName)) {
+                log.debug(`Found email with portal URL: ${extractedPortalUrl}`);
+
+                if (moveOut) {
+                  await this.imapClient.messageMove(uid, this.checkedFolder);
+                } else {
+                  await this.imapClient.messageFlagsAdd(uid, ["\\Seen"]);
+                }
+
+                foundEmail = { uid, subject: emailSubject, body: emailBody };
+                break;
+              }
+            }
+          }
+        }
+
+        if (foundEmail) break;
+        log.debug("Email not found yet, retrying...");
+        await new Promise((resolve) => setTimeout(resolve, 5000));
+      }
+
+      return foundEmail;
+    } finally {
+      lock.release();
+      await this.disconnect();
+      log.debug("Disconnected from mail server.");
     }
   }
 }

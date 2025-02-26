@@ -5,20 +5,28 @@ import config from "../../config/config.js";
 
 test.describe("Portal Registration Email Test", () => {
   let apiContext;
-  //   let portalSetup;
+  let portalSetup;
 
   test.beforeAll(async ({ playwright }) => {
     apiContext = await playwright.request.newContext();
-    // portalSetup = new PortalSetupApi(apiContext);
+    portalSetup = new PortalSetupApi(apiContext);
+    await portalSetup.setupPortal();
   });
 
   test.afterAll(async () => {
-    // await portalSetup.deletePortal();
+    await portalSetup.authenticate();
+    await portalSetup.deletePortal();
     await apiContext.dispose();
   });
 
-  test("should receive welcome email after portal registration", async () => {
-    // await portalSetup.setupPortal();
+  test("should receive welcome email with correct portal name", async () => {
+    /**
+     * This test verifies that after portal registration, an email with the expected subject
+     * is received. Additionally, it checks that the email body
+     * contains the correct portal URL that was generated during the setup process.
+     */
+    const portalName = portalSetup.portalName;
+    await new Promise((resolve) => setTimeout(resolve, 9000));
 
     const mailChecker = new MailChecker({
       url: config.QA_MAIL_DOMAIN,
@@ -27,8 +35,9 @@ test.describe("Portal Registration Email Test", () => {
       checkedFolder: "checked",
     });
 
-    const email = await mailChecker.checkEmailBySubject({
+    const email = await mailChecker.findEmailbySubjectWithPortalLink({
       subject: "Welcome to ONLYOFFICE DocSpace!",
+      portalName,
       timeoutSeconds: 300,
       moveOut: true,
     });
