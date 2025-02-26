@@ -32,6 +32,8 @@ test.describe("VDR Watermark Tests", () => {
     await test.step("Create VDR and test watermark", async () => {
       await roomsListPage.VDRchange();
       await page.waitForTimeout(500);
+      await roomsListPage.CreateDocumentFiles();
+      await page.waitForTimeout(500);
     });
   });
 });

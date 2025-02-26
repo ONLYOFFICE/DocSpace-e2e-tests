@@ -41,6 +41,14 @@ const config = {
   MOBILE_USER_AGENT: process.env.MOBILE_USER_AGENT,
   IS_MOBILE: process.env.IS_MOBILE === "true",
   VIEW_PORT: process.env.VIEW_PORT,
+  BOX_LOGIN: process.env.BOX_LOGIN,
+  BOX_PASS: process.env.BOX_PASS,
+  BOX_ID: process.env.BOX_ID,
+  BOX_KEY: process.env.BOX_KEY,
+  ONEDRIVE_LOGIN: process.env.ONEDRIVE_LOGIN,
+  ONEDRIVE_PASSWORD: process.env.ONEDRIVE_PASSWORD,
+  DROPBOX_LOGIN: process.env.DROPBOX_LOGIN,
+  DROPBOX_PASS: process.env.DROPBOX_PASS,
 };
 
 export default config;
