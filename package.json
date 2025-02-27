@@ -22,6 +22,7 @@
     "test:silent": "LOG_LEVEL=silent npm test",
     "lint": "eslint",
     "lint-staged": "lint-staged",
+    "prettier": "prettier --write .",
     "prepare": "husky"
   },
   "keywords": [],
