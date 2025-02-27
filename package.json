@@ -20,7 +20,8 @@
     "test:info": "LOG_LEVEL=info npm test",
     "test:error": "LOG_LEVEL=error npm test",
     "test:silent": "LOG_LEVEL=silent npm test",
-    "lint": "npx eslint",
+    "lint": "eslint",
+    "lint-staged": "lint-staged",
     "prepare": "husky"
   },
   "keywords": [],
@@ -50,8 +51,8 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "npx lint-staged",
-      "pre-push": "npx lint-staged"
+      "pre-commit": "npm run lint-staged",
+      "pre-push": "npm run lint-staged"
     }
   },
   "lint-staged": {
