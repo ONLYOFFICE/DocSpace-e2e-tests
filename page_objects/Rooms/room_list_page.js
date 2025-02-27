@@ -307,7 +307,6 @@ export class RoomsListPage {
   }
 
   async UploadFile(fileType = "pdf", options = {}) {
-    console.log(`Generating ${fileType} file...`);
     // Generate file
     const fileName = `test_${fileType}_${Date.now()}`;
     const filePath = await FileGenerator.generateFile(fileType, {
@@ -317,7 +316,6 @@ export class RoomsListPage {
         options.content ||
         `This is an automatically generated ${fileType.toUpperCase()} file for testing purposes.`,
     });
-    console.log(`File generated at: ${filePath}`);
 
     await this.createFileButtonSelector.click();
     await this.page.waitForTimeout(500);
@@ -325,7 +323,6 @@ export class RoomsListPage {
     await this.page.getByRole("menuitem").nth(5).click();
     const fileChooser = await uploadPromise;
     await fileChooser.setFiles(filePath);
-    console.log(`File uploaded: ${fileName}.${fileType}`);
 
     // Wait for file to appear in the list
     await this.page.waitForSelector(`[data-title="${fileName}.${fileType}"]`, {
