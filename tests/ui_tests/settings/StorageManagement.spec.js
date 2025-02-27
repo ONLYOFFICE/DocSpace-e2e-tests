@@ -34,33 +34,57 @@ test.describe("Storage management tests", () => {
     await apiContext.dispose();
   });
 
-  test('Storage management link', async ({ page }) => {
+  test("Storage management link", async ({ page }) => {
     await storageManagement.navigateToSettings();
     await storageManagement.navigateToStorageManagement.click();
-    const page1Promise = page.waitForEvent('popup');
+    const page1Promise = page.waitForEvent("popup");
     await storageManagement.storageManagementGuideLink.click();
     const page1 = await page1Promise;
-    await page1.waitForURL('https://*.onlyoffice.com/administration/docspace-settings.aspx#StorageManagement_block');
-    await expect(page1).toHaveURL(/administration\/docspace-settings.aspx\#StorageManagement_block/);
+    await page1.waitForURL(
+      "https://*.onlyoffice.com/administration/docspace-settings.aspx#StorageManagement_block",
+    );
+    await expect(page1).toHaveURL(
+      /administration\/docspace-settings.aspx#StorageManagement_block/,
+    );
   });
 
-  test('Quota room - temporarily disabled due to lack of payment', async ({ page }) => {
+  test("Quota room - temporarily disabled due to lack of payment", async ({
+    page,
+  }) => {
     await storageManagement.navigateToSettings();
     await storageManagement.navigateToStorageManagement.click();
     await storageManagement.QuotaRoomActivate();
-    await expect(page.locator('text=Room quota has been successfully enabled.')).toHaveText('Room quota has been successfully enabled.', { timeout: 10000 });
+    await expect(
+      page.locator("text=Room quota has been successfully enabled."),
+    ).toHaveText("Room quota has been successfully enabled.", {
+      timeout: 10000,
+    });
     await storageManagement.removeToast.click();
     await storageManagement.onOffQuotaRoom.click();
-    await expect(page.locator('text=Room quota has been successfully disabled.')).toHaveText('Room quota has been successfully disabled.', { timeout: 10000 });
+    await expect(
+      page.locator("text=Room quota has been successfully disabled."),
+    ).toHaveText("Room quota has been successfully disabled.", {
+      timeout: 10000,
+    });
   });
 
-  test('Quota user - temporarily disabled due to lack of payment', async ({ page }) => {
+  test("Quota user - temporarily disabled due to lack of payment", async ({
+    page,
+  }) => {
     await storageManagement.navigateToSettings();
     await storageManagement.navigateToStorageManagement.click();
     await storageManagement.QuotaUserActivate();
-    await expect(page.locator('text=User quota has been successfully enabled.')).toHaveText('User quota has been successfully enabled.', { timeout: 10000 });
+    await expect(
+      page.locator("text=User quota has been successfully enabled."),
+    ).toHaveText("User quota has been successfully enabled.", {
+      timeout: 10000,
+    });
     await storageManagement.removeToast2.click();
     await storageManagement.onOffQuotaUser.click();
-    await expect(page.locator('text=User quota has been successfully disabled.')).toHaveText('User quota has been successfully disabled.', { timeout: 10000 });
+    await expect(
+      page.locator("text=User quota has been successfully disabled."),
+    ).toHaveText("User quota has been successfully disabled.", {
+      timeout: 10000,
+    });
   });
 });

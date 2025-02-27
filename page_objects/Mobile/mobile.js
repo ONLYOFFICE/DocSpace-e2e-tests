@@ -1,5 +1,3 @@
-import config from "../../config/config.js";
-
 export class MobilePage {
   constructor(page) {
     this.page = page;
