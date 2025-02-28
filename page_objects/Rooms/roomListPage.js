@@ -268,7 +268,7 @@ export class RoomsListPage {
 
   async CreateDocumentFiles() {
     await this.createFileButtonSelector.click();
-    await this.page.waitForTimeout(500);
+    await this.page.waitForTimeout(1000);
     await this.page.getByRole("menuitem").nth(0).click();
     await this.submitButtonSelector.click();
     return await this.page.context().waitForEvent("page");
@@ -276,7 +276,7 @@ export class RoomsListPage {
 
   async CreateSpreadsheet() {
     await this.createFileButtonSelector.click();
-    await this.page.waitForTimeout(500);
+    await this.page.waitForTimeout(1000);
     await this.page.getByRole("menuitem").nth(1).click();
     await this.submitButtonSelector.click();
     return await this.page.context().waitForEvent("page");
@@ -284,7 +284,7 @@ export class RoomsListPage {
 
   async CreatePresentation() {
     await this.createFileButtonSelector.click();
-    await this.page.waitForTimeout(500);
+    await this.page.waitForTimeout(1000);
     await this.page.getByRole("menuitem").nth(2).click();
     await this.submitButtonSelector.click();
     return await this.page.context().waitForEvent("page");
@@ -292,7 +292,7 @@ export class RoomsListPage {
 
   async CreateFolder() {
     await this.createFileButtonSelector.click();
-    await this.page.waitForTimeout(500);
+    await this.page.waitForTimeout(1000);
     await this.page.getByRole("menuitem").nth(4).click();
     await this.submitButtonSelector.click();
     return true;

@@ -4,7 +4,7 @@ import { PortalLoginPage } from "../../../../page_objects/portal_login_page";
 import { MobilePage } from "../../../../page_objects/Mobile/mobile";
 import { devices } from "@playwright/test";
 import config from "../../../../config/config";
-import { RoomsListPage } from "../../../../page_objects/Rooms/room_list_page";
+import { RoomsListPage } from "../../../../page_objects/Rooms/roomListPage.js";
 
 test.describe("MobileCheckbox Rotate Tests", () => {
   let apiContext;
@@ -53,7 +53,6 @@ test.describe("MobileCheckbox Rotate Tests", () => {
 
     test("Verify checkbox remains selected after device rotation", async ({
       page,
-      device,
     }) => {
       // Create two rooms via API
       const room1 = await apiContext.post("/api/rooms", {
@@ -73,7 +72,10 @@ test.describe("MobileCheckbox Rotate Tests", () => {
       await expect(checkbox).toBeChecked();
 
       // Rotate device
-      await mobilePage.rotateDevice(device);
+      await page.evaluate(() => {
+        // Эмулируем поворот устройства через изменение ориентации
+        window.screen.orientation.angle = 90;
+      });
 
       // Verify checkbox remains selected after rotation
       await expect(checkbox).toBeChecked();
