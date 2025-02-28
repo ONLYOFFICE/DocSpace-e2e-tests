@@ -1,8 +1,8 @@
 import { test, expect } from "@playwright/test";
 import { PortalSetupApi } from "../../../../api_library/portal_setup";
 import { RoomsApi } from "../../../../api_library/files/rooms_api";
-import { ArchivePage } from "../../../../page_objects/Rooms/archive_page";
-import { RoomsListPage } from "../../../../page_objects/Rooms/room_list_page";
+import { ArchivePage } from "../../../../page_objects/Rooms/archivePage";
+import { RoomsListPage } from "../../../../page_objects/Rooms/roomListPage";
 import { PortalLoginPage } from "../../../../page_objects/portal_login_page";
 
 test.describe("VDR Watermark Tests", () => {

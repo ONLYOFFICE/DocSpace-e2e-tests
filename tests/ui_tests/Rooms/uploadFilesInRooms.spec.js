@@ -1,6 +1,6 @@
 import { test } from "@playwright/test";
 import { PortalSetupApi } from "../../../api_library/portal_setup";
-import { RoomsListPage } from "../../../page_objects/Rooms/room_list_page";
+import { RoomsListPage } from "../../../page_objects/Rooms/roomListPage";
 import { PortalLoginPage } from "../../../page_objects/portal_login_page";
 
 test.describe("Upload Files in Rooms Tests", () => {

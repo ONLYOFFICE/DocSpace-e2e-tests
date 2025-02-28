@@ -1,8 +1,10 @@
 import config from "../../config/config.js";
+import { expect } from "@playwright/test";
 
 export class PublicRoomPage {
   constructor(page) {
     this.page = page;
+    this.roomsListSelector = "div[id='document_catalog-shared']";
     this.ownCloudButton = this.page.locator('[data-third-party-id="ownCloud"]');
     this.nextCloudButton = this.page.locator(
       '[data-third-party-id="Nextcloud"]',
@@ -12,10 +14,7 @@ export class PublicRoomPage {
     this.oneDriveButton = this.page.locator('[data-third-party-id="OneDrive"]');
     this.dropboxButton = this.page.locator('[data-third-party-id="Dropbox"]');
     this.boxButton = this.page.locator('[data-third-party-id="Box"]');
-    // Pub Room functionality
-    this.togglePublicRoomButton = this.page
-      .getByTestId("toggle-button")
-      .locator("circle");
+    // Public Room functionality
     this.publicRoomSettingsBox = this.page
       .getByTestId("box")
       .getByTestId("combobox");
@@ -24,22 +23,41 @@ export class PublicRoomPage {
     );
     this.pubToggleButtonLocator = this.page
       .getByTestId("toggle-button")
-      .locator("circle");
+      .locator("label");
     this.createModalSubmitButton = this.page.locator(
       "#shared_create-room-modal_submit",
     );
+    // Actions menu buttons
+    this.actionsButton = this.page.locator(
+      '[data-for="header_optional-button"]',
+    );
+    this.reconnectStorageButton = this.page.locator(
+      "#option_reconnect-storage",
+    );
+    this.editRoomButton = this.page.locator("#option_edit-room");
+    this.inviteUsersButton = this.page.locator("#option_invite-users-to-room");
+    this.copySharedLinkButton = this.page.locator("#option_copy-external-link");
+    this.roomInfoButton = this.page.locator("#option_room-info");
+    this.embeddingSettingButton = this.page.locator(
+      "#option_embedding-setting",
+    );
+    this.downloadButton = this.page.locator("#option_download");
+    this.changeRoomOwnerButton = this.page.locator("#option_change-room-owner");
+    this.archiveRoomButton = this.page.locator("#option_archive-room");
+    this.leaveRoomButton = this.page.locator("#option_leave-room");
+    // Other buttons
+    this.shareButton = this.page.locator("#share-public-room");
   }
 
   async CreateButton() {
     await this.createModalSubmitButton.waitFor({
       state: "visible",
-      timeout: 5000,
+      timeout: 15000,
     });
     return await this.createModalSubmitButton.click();
   }
 
   async ConnectNextcloud() {
-    await this.publicRoomSettingsBox.click();
     await this.nextCloudButton.click();
     await this.connectStorageButton.click();
     await this.page.locator("#connection-url-input").click();
@@ -127,5 +145,93 @@ export class PublicRoomPage {
       await page1.waitForTimeout(1000);
       await page1.keyboard.press("Enter");
     }
+  }
+
+  async shareRoomWithAllUsers() {
+    await this.actionsButton.click();
+    await this.copySharedLinkButton.click();
+  }
+
+  async getClipboardContent() {
+    // Request permission to access the clipboard
+    await this.page
+      .context()
+      .grantPermissions(["clipboard-read", "clipboard-write"]);
+    // Wait for a short pause to make sure the link is copied
+    await this.page.waitForTimeout(1000);
+    // Get the clipboard content
+    return await this.page.evaluate(() => navigator.clipboard.readText());
+  }
+
+  async openInIncognito(browser, sharedLink) {
+    // Create a new context in incognito mode with permissions
+    const incognitoContext = await browser.newContext({
+      incognito: true,
+      permissions: ["clipboard-read", "clipboard-write"],
+      viewport: { width: 1920, height: 1080 },
+    });
+    const incognitoPage = await incognitoContext.newPage();
+    // Go to the link
+    await incognitoPage.goto(sharedLink);
+    return { incognitoContext, incognitoPage };
+  }
+
+  async waitForFileInRoom(fileName) {
+    // Wait for file upload
+    await this.page.waitForTimeout(2000);
+    // Check if the file is visible
+    const fileLink = this.page.locator(`[data-title="${fileName}"]`);
+    await expect(fileLink).toBeVisible({ timeout: 30000 });
+    return fileLink;
+  }
+
+  async verifyDocumentInIncognito(incognitoPage, roomName, fileName) {
+    // Check the room title
+    const roomTitle = incognitoPage.getByText(roomName);
+    await expect(roomTitle).toBeVisible();
+    // Check if the file is visible
+    const fileLink = incognitoPage.locator(`[data-title="${fileName}"]`);
+    await expect(fileLink).toBeVisible({ timeout: 30000 });
+  }
+
+  async verifyStorageTagAndOpenRoom(roomName, storageTag) {
+    // Wait for the room to appear in the list
+    await this.page.waitForSelector(this.roomsListSelector);
+    // Check storage tag
+    const tag = this.page
+      .locator(`div[data-title="${roomName}"]`)
+      .first()
+      .locator(`[data-testid="tags"] .tag[data-tag="${storageTag}"]`);
+    await expect(tag).toBeVisible({ timeout: 5000 });
+    // Open room
+    await this.page.locator(`div[data-title="${roomName}"]`).first().click();
+  }
+
+  async uploadAndVerifyFile(browser, roomName, roomsListPage) {
+    // Upload file
+    const fileName = await roomsListPage.UploadFile("docx", {
+      title: "Test Document",
+      content: "This is a test document for public room",
+    });
+    // Wait for file to appear
+    await this.waitForFileInRoom(fileName);
+    await this.page.waitForTimeout(2000);
+    // Share room and get link
+    await this.shareRoomWithAllUsers();
+    const sharedLink = await this.getClipboardContent();
+    // Open and verify in incognito
+    const { incognitoContext, incognitoPage } = await this.openInIncognito(
+      browser,
+      sharedLink,
+    );
+    await this.verifyDocumentInIncognito(incognitoPage, roomName, fileName);
+    await incognitoContext.close();
+    return fileName;
+  }
+
+  async enableThirdPartyStorage() {
+    await this.page.waitForTimeout(1000);
+    await this.pubToggleButtonLocator.waitFor({ state: "visible" });
+    await this.pubToggleButtonLocator.click();
   }
 }
