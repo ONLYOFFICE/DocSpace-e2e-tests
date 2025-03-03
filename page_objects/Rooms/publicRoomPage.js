@@ -89,15 +89,15 @@ export class PublicRoomPage {
       });
       await this.createModalSubmitButton.click();
       await this.waitNetwork();
-      await this.page.waitForTimeout(2000); // give time for modal to close
+      await this.page.waitForTimeout(2000); // give time for modal window to close
     } catch (error) {
       console.log("Error in CreateButton:", error);
-      // Try alternative approach
+      // Try an alternative approach
       try {
         const submitButton = this.page
           .locator('button[type="submit"]')
           .filter({ hasText: "Create" });
-        await submitButton.waitFor({ state: "visible", timeout: 5000 });
+        await submitButton.waitFor({ state: "visible", timeout: 15000 });
         await submitButton.click();
         await this.waitNetwork();
       } catch (retryError) {
@@ -141,8 +141,9 @@ export class PublicRoomPage {
     await page1.waitForSelector('input[type="submit"]');
     await page1.locator('input[type="submit"]').click();
     await page1.waitForLoadState("domcontentloaded");
-    await page1.waitForSelector("#consent_accept_button", { timeout: 10000 });
-    await page1.locator("#consent_accept_button").click();
+    await page1
+      .locator('button[data-target-id="Button-grantAccessButtonLabel"]')
+      .click();
   }
 
   async Dropbox() {
