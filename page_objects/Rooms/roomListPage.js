@@ -6,6 +6,7 @@ export class RoomsListPage {
   constructor(page) {
     this.page = page;
     this.roomsListSelector = "div[id='document_catalog-shared']";
+    this.roomsList = this.page.locator(this.roomsListSelector);
     this.roomTitleSelector = (title) => `text=${title}`;
     this.contextMenuButtonSelector = (title) =>
       `div[data-title='${title}'] div[data-testid='context-menu-button']`;
@@ -72,10 +73,20 @@ export class RoomsListPage {
 
   // Open the rooms list
   async openRoomsList() {
-    await this.page.click(this.roomsListSelector);
+    try {
+      await this.page.waitForLoadState("networkidle");
+      await this.page.waitForSelector(this.roomsListSelector, {
+        state: "visible",
+        timeout: 10000,
+      });
+      await this.page.click(this.roomsListSelector);
+      await this.page.waitForLoadState("networkidle");
+    } catch (error) {
+      console.log("Error in openRoomsList:", error);
+      throw error;
+    }
   }
 
-  // Open the context menu for a specific room
   async openRoomContextMenu(roomTitle) {
     await this.page.click(this.contextMenuButtonSelector(roomTitle));
   }
