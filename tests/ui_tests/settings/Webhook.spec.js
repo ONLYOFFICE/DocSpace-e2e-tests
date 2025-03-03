@@ -65,6 +65,7 @@ test.describe("Webhook tests", () => {
     const page1Promise = page.waitForEvent("popup");
     await webhook.webhookGuideLink.click();
     const page1 = await page1Promise;
+    await page1.waitForLoadState("load");
     await page1.waitForURL(
       "https://*.onlyoffice.com/administration/docspace-webhooks.aspx",
     );

@@ -36,7 +36,7 @@ test.describe("Backup portal tests", () => {
   test("Backup link", async ({ page }) => {
     test.setTimeout(60000);
     await backup.navigateToSettings();
-    await backup.navigateTobackup.click();
+    await backup.navigateToBackup.click();
     await page.waitForTimeout(1000);
     const page1 = await backup.backupGuidePopup();
     await page1.waitForURL(
@@ -48,6 +48,7 @@ test.describe("Backup portal tests", () => {
   });
 
   test("Auto backup link", async ({ page }) => {
+    test.setTimeout(60000);
     await backup.navigateToSettings();
     await backup.navigateToAutoBackup();
     await page.waitForTimeout(1000);
@@ -107,7 +108,7 @@ test.describe("Backup portal tests", () => {
 
   test("Backup temporary storage", async ({ page }) => {
     await backup.navigateToSettings();
-    await backup.navigateTobackup.click();
+    await backup.navigateToBackup.click();
     await backup.createBackupButton.click();
     await expect(
       page.locator("text=The backup copy has been successfully created."),
@@ -115,8 +116,9 @@ test.describe("Backup portal tests", () => {
   });
 
   test("Backup room storage", async ({ page }) => {
+    test.setTimeout(60000);
     await backup.navigateToSettings();
-    await backup.navigateTobackup.click();
+    await backup.navigateToBackup.click();
     await backup.createBackupInRoom();
     await expect(
       page.locator("text=The backup copy has been successfully created."),
@@ -148,12 +150,12 @@ test.describe("Backup portal tests", () => {
 
   test("Backup in Third-Party resource NextCloud", async ({ page }) => {
     await backup.navigateToSettings();
-    await backup.navigateTobackup.click();
+    await backup.navigateToBackup.click();
     await backup.nextcloudBackup();
     await expect(
       page.locator("text=The backup copy has been successfully created."),
     ).toBeVisible({ timeout: 30000 });
-    await backup.disconnectNextcloud();
+    await backup.disconnectService();
   });
 
   test("Auto backup in Third-Party resource NextCloud", async ({ page }) => {
@@ -168,5 +170,66 @@ test.describe("Backup portal tests", () => {
     await expect(
       page.locator("text=Settings have been successfully updated"),
     ).toHaveText("Settings have been successfully updated", { timeout: 10000 });
+  });
+
+  test("Backup in Third-Party resource dropbox", async ({ page }) => {
+    test.setTimeout(120000);
+    await backup.navigateToSettings();
+    await backup.navigateToBackup.click();
+    await backup.Dropbox();
+    await backup.connectDropbox();
+    await backup.createBackupInService();
+    await expect(
+      page.locator("text=The backup copy has been successfully created."),
+    ).toBeVisible({ timeout: 30000 });
+    await backup.disconnectService();
+  });
+
+  test("Auto backup in Third-Party resource dropbox", async ({ page }) => {
+    test.setTimeout(120000);
+    await backup.navigateToSettings();
+    await backup.navigateToAutoBackup();
+    await backup.selectDropboxAutoBackup();
+    await backup.connectDropbox();
+    await backup.selectRoomForBackup();
+    await expect(
+      page.locator("text=Settings have been successfully updated"),
+    ).toHaveText("Settings have been successfully updated", { timeout: 10000 });
+    await backup.removeToast.click();
+    await backup.disconnectService();
+    await backup.disableAutoBackup();
+    await expect(
+      page.locator("text=Settings have been successfully updated"),
+    ).toHaveText("Settings have been successfully updated", { timeout: 10000 });
+  });
+
+  test("Backup in Third-Party resource box", async ({ page }) => {
+    test.setTimeout(60000);
+    await backup.navigateToSettings();
+    await backup.navigateToBackup.click();
+    await backup.selectThirdPartyResource.click();
+    await backup.connectBox();
+    await backup.createBackupInService();
+    await expect(
+      page.locator("text=The backup copy has been successfully created."),
+    ).toBeVisible({ timeout: 60000 });
+    await backup.disconnectService();
+  });
+
+  test("Auto backup in Third-Party resource box", async ({ page }) => {
+    await backup.navigateToSettings();
+    await backup.navigateToAutoBackup();
+    await backup.selectBoxAutoBackup();
+    await backup.connectBox();
+    await backup.selectRoomForBackup();
+    await expect(
+      page.locator("text=Settings have been successfully updated"),
+    ).toHaveText("Settings have been successfully updated", { timeout: 30000 });
+    await backup.removeToast.click();
+    await backup.disconnectService();
+    await backup.disableAutoBackup();
+    await expect(
+      page.locator("text=Settings have been successfully updated"),
+    ).toHaveText("Settings have been successfully updated", { timeout: 30000 });
   });
 });

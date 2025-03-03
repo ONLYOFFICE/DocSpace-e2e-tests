@@ -109,6 +109,7 @@ test.describe("Security tests", () => {
     const page1Promise = page.waitForEvent("popup");
     await security.passwordStrengthGuideLink.click();
     const page1 = await page1Promise;
+    await page1.waitForLoadState("load");
     await page1.waitForURL(
       "https://*.onlyoffice.com/administration/docspace-settings.aspx#passwordstrength",
     );
@@ -118,6 +119,7 @@ test.describe("Security tests", () => {
     const page2Promise = page.waitForEvent("popup");
     await security.twoFactorAuthenticationGuideLink.click();
     const page2 = await page2Promise;
+    await page2.waitForLoadState("load");
     await page2.waitForURL(
       "https://*.onlyoffice.com/administration/docspace-two-factor-authentication.aspx",
     );
@@ -127,6 +129,7 @@ test.describe("Security tests", () => {
     const page3Promise = page.waitForEvent("popup");
     await security.trustedDomainGuideLink.click();
     const page3 = await page3Promise;
+    await page3.waitForLoadState("load");
     await page3.waitForURL(
       "https://*.onlyoffice.com/administration/docspace-settings.aspx#TrustedDomain",
     );
@@ -136,6 +139,7 @@ test.describe("Security tests", () => {
     const page4Promise = page.waitForEvent("popup");
     await security.ipSecurityGuideLink.click();
     const page4 = await page4Promise;
+    await page4.waitForLoadState("load");
     await page4.waitForURL(
       "https://*.onlyoffice.com/administration/docspace-settings.aspx#ipsecurity",
     );
@@ -145,6 +149,7 @@ test.describe("Security tests", () => {
     const page5Promise = page.waitForEvent("popup");
     await security.bruteForceGuideLink.click();
     const page5 = await page5Promise;
+    await page5.waitForLoadState("load");
     await page5.waitForURL(
       "https://*.onlyoffice.com/administration/configuration.aspx#loginsettings",
     );
@@ -154,6 +159,7 @@ test.describe("Security tests", () => {
     const page6Promise = page.waitForEvent("popup");
     await security.adminMessageGuideLink.click();
     const page6 = await page6Promise;
+    await page6.waitForLoadState("load");
     await page6.waitForURL(
       "https://*.onlyoffice.com/administration/docspace-settings.aspx#administratormessage",
     );
@@ -163,6 +169,7 @@ test.describe("Security tests", () => {
     const page7Promise = page.waitForEvent("popup");
     await security.sessionLifetimeGuideLink.click();
     const page7 = await page7Promise;
+    await page7.waitForLoadState("load");
     await page7.getByText("Enable", { exact: true }).nth(1).click();
     await page7.waitForURL(
       "https://*.onlyoffice.com/administration/docspace-settings.aspx#sessionlifetime",

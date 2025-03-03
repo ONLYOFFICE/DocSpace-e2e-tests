@@ -32,6 +32,7 @@ test.describe("Developer tools link tests", () => {
     const page1Promise = page.waitForEvent("popup");
     await devToolsLink.clickLearnMoreButton();
     const page1 = await page1Promise;
+    await page1.waitForLoadState("load");
     await page1.waitForURL("https://*.onlyoffice.com/docspace/");
     await expect(page1).toHaveURL(/docspace/);
   });
@@ -44,11 +45,13 @@ test.describe("Developer tools link tests", () => {
     const page1Promise = page.waitForEvent("popup");
     await devToolsLink.zoomLink.click();
     const page1 = await page1Promise;
+    await page1.waitForLoadState("load");
     await page1.waitForURL("https://www.onlyoffice.com/office-for-zoom.aspx");
     await expect(page1).toHaveURL(/office-for-zoom.aspx/);
     const page2Promise = page.waitForEvent("popup");
     await devToolsLink.wordPressLink.click();
     const page2 = await page2Promise;
+    await page2.waitForLoadState("load");
     await page2.waitForURL(
       "https://www.onlyoffice.com/office-for-wordpress.aspx",
     );
@@ -56,6 +59,7 @@ test.describe("Developer tools link tests", () => {
     const page3Promise = page.waitForEvent("popup");
     await devToolsLink.drupalLink.click();
     const page3 = await page3Promise;
+    await page3.waitForLoadState("load");
     await page3.waitForURL("https://www.onlyoffice.com/office-for-drupal.aspx");
     await expect(page3).toHaveURL(/office-for-drupal.aspx/);
   });
@@ -68,6 +72,7 @@ test.describe("Developer tools link tests", () => {
     const page1Promise = page.waitForEvent("popup");
     await devToolsLink.apiLibraryLink.click();
     const page1 = await page1Promise;
+    await page1.waitForLoadState("load");
     await page1.waitForURL(
       "https://*.onlyoffice.com/docspace/javascript-sdk/get-started/basic-concepts/",
     );
@@ -77,6 +82,7 @@ test.describe("Developer tools link tests", () => {
     const page2Promise = page.waitForEvent("popup");
     await devToolsLink.allConnectorsLink.click();
     const page2 = await page2Promise;
+    await page2.waitForLoadState("load");
     await page2.waitForURL("https://www.onlyoffice.com/all-connectors.aspx");
     await expect(page2).toHaveURL(/all-connectors.aspx/);
   });
@@ -89,6 +95,7 @@ test.describe("Developer tools link tests", () => {
     const page1Promise = page.waitForEvent("popup");
     await devToolsLink.readInstructionsButton.click();
     const page1 = await page1Promise;
+    await page1.waitForLoadState("load");
     await page1.waitForURL(
       "https://*.onlyoffice.com/docspace/plugins-sdk/get-started/basic-concepts/",
     );
@@ -98,6 +105,7 @@ test.describe("Developer tools link tests", () => {
     await devToolsLink.markdownLink.click();
     const page2Promise = page.waitForEvent("popup");
     const page2 = await page2Promise;
+    await page2.waitForLoadState("load");
     await page2.waitForURL(
       "https://github.com/ONLYOFFICE/docspace-plugins/tree/master/markdown",
     );
@@ -107,6 +115,7 @@ test.describe("Developer tools link tests", () => {
     await devToolsLink.drawIoLink.click();
     const page3Promise = page.waitForEvent("popup");
     const page3 = await page3Promise;
+    await page3.waitForLoadState("load");
     await page3.waitForURL(
       "https://github.com/ONLYOFFICE/docspace-plugins/tree/master/draw.io",
     );
@@ -116,6 +125,7 @@ test.describe("Developer tools link tests", () => {
     await devToolsLink.speechToTextLink.click();
     const page4Promise = page.waitForEvent("popup");
     const page4 = await page4Promise;
+    await page4.waitForLoadState("load");
     await page4.waitForURL(
       "https://github.com/ONLYOFFICE/docspace-plugins/tree/master/speech-to-text",
     );
@@ -125,6 +135,7 @@ test.describe("Developer tools link tests", () => {
     await devToolsLink.pdfConverterLink.click();
     const page5Promise = page.waitForEvent("popup");
     const page5 = await page5Promise;
+    await page5.waitForLoadState("load");
     await page5.waitForURL(
       "https://github.com/ONLYOFFICE/docspace-plugins/tree/master/pdf-converter",
     );
