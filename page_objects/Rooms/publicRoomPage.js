@@ -83,45 +83,27 @@ export class PublicRoomPage {
   async CreateButton() {
     try {
       await this.waitNetwork();
-
-      // Попробуем несколько селекторов для кнопки создания
-      const selectors = [
-        "#shared_create-room-modal_submit",
-        'button[type="submit"]',
-        'button[data-testid="button"][type="submit"]',
-        "button.submit",
-        'button:has-text("Create")',
-      ];
-
-      for (const selector of selectors) {
-        try {
-          console.log(`Пробуем селектор: ${selector}`);
-          const button = this.page.locator(selector);
-          const isVisible = await button
-            .isVisible({ timeout: 1000 })
-            .catch(() => false);
-
-          if (isVisible) {
-            console.log(`Найдена кнопка по селектору: ${selector}`);
-            await button.click();
-            await this.waitNetwork();
-            await this.page.waitForTimeout(2000); // даем время на закрытие модального окна
-            return;
-          }
-        } catch (selectorError) {
-          console.log(`Ошибка с селектором ${selector}:`, selectorError);
-        }
-      }
-
-      // Если ни один селектор не сработал, попробуем найти по тексту
-      console.log("Пробуем найти кнопку по тексту...");
-      const createButton = this.page.getByRole("button", { name: "Create" });
-      await createButton.waitFor({ state: "visible", timeout: 10000 });
-      await createButton.click();
+      await this.createModalSubmitButton.waitFor({
+        state: "visible",
+        timeout: 1000,
+      });
+      await this.createModalSubmitButton.click();
       await this.waitNetwork();
+      await this.page.waitForTimeout(2000); // give time for modal to close
     } catch (error) {
-      console.log("Ошибка в CreateButton:", error);
-      throw error;
+      console.log("Error in CreateButton:", error);
+      // Try alternative approach
+      try {
+        const submitButton = this.page
+          .locator('button[type="submit"]')
+          .filter({ hasText: "Create" });
+        await submitButton.waitFor({ state: "visible", timeout: 5000 });
+        await submitButton.click();
+        await this.waitNetwork();
+      } catch (retryError) {
+        console.log("Error in CreateButton retry:", retryError);
+        throw retryError;
+      }
     }
   }
 
@@ -281,7 +263,7 @@ export class PublicRoomPage {
   async findAndOpenRoom(roomName) {
     try {
       await this.page.waitForLoadState("networkidle");
-      await this.page.waitForTimeout(2000); // Увеличиваем время ожидания
+      await this.page.waitForTimeout(2000); // Increase waiting time
 
       console.log(`Searching for room: ${roomName}`);
       const roomLocator = this.page
