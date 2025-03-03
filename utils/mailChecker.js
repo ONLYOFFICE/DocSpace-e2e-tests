@@ -178,6 +178,36 @@ class MailChecker {
       log.debug("Disconnected from mail server.");
     }
   }
+
+  /**
+   * Extracts the portal link from an email matching the given subject.
+   *
+   * This method searches for an email with the specified subject and portal name,
+   * then extracts the first occurrence of a valid HTTPS link from the email body.
+   *
+   * @param {Object} options - The options for email search.
+   * @param {string} options.subject - The subject of the email to search for (case-insensitive match).
+   * @param {string} options.portalName - The portal name that should appear in the email body.
+   * @param {number} [options.timeoutSeconds=300] - Maximum time in seconds to wait for the email to arrive.
+   * @param {boolean} [options.moveOut=true] - If true, moves the email to the "checked" folder; otherwise, marks it as read.
+   * @returns {Promise<string|null>} - Returns the extracted portal link if found, otherwise null.
+   */
+  async extractPortalLink({
+    subject,
+    portalName,
+    timeoutSeconds = 300,
+    moveOut = false,
+  }) {
+    const email = await this.findEmailbySubjectWithPortalLink({
+      subject,
+      portalName,
+      timeoutSeconds,
+      moveOut,
+    });
+    if (!email) return null;
+    const linkMatch = email.body.match(/https:\/\/test-portal[\w.-]+/);
+    return linkMatch ? linkMatch[0] : null;
+  }
 }
 
 export default MailChecker;
