@@ -31,6 +31,7 @@ test.describe("Plugins tests", () => {
     await plugins.navigateToPlugins();
     await plugins.clickMarkdownSettingsButton();
     const page1 = await plugins.guidePopup();
+    await page1.waitForLoadState("load");
     await page1.waitForURL(
       "https://github.com/ONLYOFFICE/docspace-plugins/tree/master/markdown",
     );
@@ -44,6 +45,7 @@ test.describe("Plugins tests", () => {
     await plugins.navigateToPlugins();
     await plugins.clickDrawIoSettingsButton();
     const page1 = await plugins.guidePopup();
+    await page1.waitForLoadState("load");
     await page1.waitForURL(
       "https://github.com/ONLYOFFICE/docspace-plugins/tree/master/draw.io",
     );
@@ -67,6 +69,7 @@ test.describe("Plugins tests", () => {
     await plugins.navigateToPlugins();
     await plugins.clickSpeechToTextSettingsButton();
     const page1 = await plugins.guidePopup();
+    await page1.waitForLoadState("load");
     await page1.waitForURL(
       "https://github.com/ONLYOFFICE/docspace-plugins/tree/master/speech-to-text",
     );
@@ -80,6 +83,7 @@ test.describe("Plugins tests", () => {
     await plugins.navigateToPlugins();
     await plugins.clickPdfConverterSettingsButton();
     const page1 = await plugins.guidePopup();
+    await page1.waitForLoadState("load");
     await page1.waitForURL(
       "https://github.com/ONLYOFFICE/docspace-plugins/tree/master/pdf-converter",
     );

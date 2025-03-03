@@ -6,8 +6,9 @@ export class Backup extends MainPage {
   constructor(page) {
     super(page);
     this.page = page;
+    this.page1 = null;
     this.integration = new Integration(page);
-    this.navigateTobackup = page.getByRole("link", { name: "Backup" });
+    this.navigateToBackup = page.getByRole("link", { name: "Backup" });
     this.backupGuideLink = page.getByTestId("link");
     this.autoBackupTub = page.getByText("Automatic backup");
     this.enableAutoBAckupSwitch = page.locator("circle");
@@ -25,9 +26,9 @@ export class Backup extends MainPage {
     this.numberCopyBox = page
       .getByTestId("combobox")
       .and(page.locator(".schedule-backup_combobox.max_copies"));
-    this.selectCopies = page.locator(
-      "div:nth-child(16) > .ScrollbarsCustom > .ScrollbarsCustom-Wrapper > .scroller > .ScrollbarsCustom-Content > div > div:nth-child(5)",
-    );
+    this.selectCopies = page
+      .getByTestId("drop-down-item")
+      .filter({ hasText: "6 - maximum number of backup copies" });
     this.saveButton = page.locator('#save[data-testid="button"]');
     this.saveButton2 = page.getByRole("button", { name: "Save" });
     this.cancelButton = page.getByRole("button", { name: "Cancel" });
@@ -91,9 +92,7 @@ export class Backup extends MainPage {
       .getByTestId("selector")
       .getByRole("paragraph")
       .filter({ hasText: "Documents" });
-    this.seveHerButton = page
-      .getByTestId("button")
-      .filter({ hasText: "Save here" });
+    this.saveHereButton = page.getByRole("button", { name: "Save here" });
     this.saveButtonAutoBackup = page.getByRole("button", {
       name: "Save",
       exact: true,
@@ -103,10 +102,13 @@ export class Backup extends MainPage {
       .getByRole("img");
     this.disconnectButton = page.getByText("Disconnect");
     this.okButton = page.getByRole("button", { name: "OK" }).nth(1);
+    this.selectDropbox = page
+      .getByTestId("drop-down-item")
+      .filter({ hasText: "Dropbox" });
   }
 
   async navigateToAutoBackup() {
-    await this.navigateTobackup.click();
+    await this.navigateToBackup.click();
     await this.autoBackupTub.click();
   }
 
@@ -114,6 +116,7 @@ export class Backup extends MainPage {
     const page1Promise = this.page.waitForEvent("popup");
     await this.backupGuideLink.click();
     const page1 = await page1Promise;
+    await page1.waitForLoadState("load");
     return page1;
   }
 
@@ -179,7 +182,7 @@ export class Backup extends MainPage {
   }
 
   async s3Backup() {
-    await this.navigateTobackup.click();
+    await this.navigateToBackup.click();
     await this.selectThirdPartyStorage.click();
     await this.bucketInput.fill("portals-manual");
     await this.regionCombobox.click();
@@ -258,7 +261,7 @@ export class Backup extends MainPage {
     await this.createCopyButton.click();
   }
 
-  async disconnectNextcloud() {
+  async disconnectService() {
     await this.actionMenuResource.click();
     await this.disconnectButton.click();
     await this.okButton.click();
@@ -279,7 +282,67 @@ export class Backup extends MainPage {
     await this.selectRoom.click();
     await this.page.waitForTimeout(2000);
     await this.selectNextCloudRepo.click();
-    await this.seveHerButton.click();
+    await this.saveHereButton.click();
     await this.saveButtonAutoBackup.click();
+  }
+
+  async Dropbox() {
+    await this.selectThirdPartyResource.click();
+    await this.page.waitForTimeout(500);
+    await this.resourceBox.click();
+    await this.page.waitForTimeout(500);
+    await this.selectDropbox.click();
+  }
+
+  async connectDropbox() {
+    const page1Promise = this.page.waitForEvent("popup");
+    await this.connectButton.click();
+    const page1 = await page1Promise;
+    await page1.locator('[name="susi_email"]').click();
+    await page1.locator('[name="susi_email"]').fill(config.DROPBOX_LOGIN);
+    await page1.getByRole("button", { name: "Continue", exact: true }).click();
+    await page1.locator('[name="login_password"]').click();
+    await page1.locator('[name="login_password"]').fill(config.DROPBOX_PASS);
+    await page1.getByTestId("login-form-submit-button").click();
+  }
+
+  async createBackupInService() {
+    await this.selectRoom.click();
+    await this.selectButton.click();
+    await this.createCopyButton.click();
+  }
+
+  async selectDropboxAutoBackup() {
+    await this.enableAutoBAckupSwitch.click();
+    await this.selectThirdPartyResource.click();
+    await this.page.waitForTimeout(500);
+    await this.resourceBox.first().click();
+    await this.page.waitForTimeout(500);
+    await this.selectDropbox.click();
+  }
+
+  async selectRoomForBackup() {
+    await this.selectRoom.click();
+    await this.saveHereButton.click();
+    await this.saveButtonAutoBackup.click();
+  }
+
+  async connectBox() {
+    const page1Promise = this.page.waitForEvent("popup");
+    await this.connectButton.click();
+    const page1 = await page1Promise;
+    await page1.waitForLoadState("domcontentloaded");
+    await page1.getByPlaceholder("Email").fill(config.BOX_LOGIN);
+    await page1.getByPlaceholder("Password").fill(config.BOX_PASS);
+    await page1.locator('input[name="login_submit"]').click();
+    await page1
+      .locator('button[data-target-id="Button-grantAccessButtonLabel"]')
+      .click();
+    await page1.waitForLoadState("domcontentloaded");
+  }
+
+  async selectBoxAutoBackup() {
+    await this.enableAutoBAckupSwitch.click();
+    await this.selectThirdPartyResource.click();
   }
 }

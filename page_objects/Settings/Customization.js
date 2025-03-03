@@ -103,6 +103,35 @@ export class Customization extends MainPage {
     await this.deleteThemeButton.click();
     await this.confirmDeleteButton.click();
   }
-}
 
+  async uploadPictures() {
+    await this.page
+      .locator("#logoUploader_1_light")
+      .setInputFiles("data/Space header/PNG.png");
+    await this.page
+      .locator("#logoUploader_1_dark")
+      .setInputFiles("data/Space header/JPG.jpg");
+    await this.page
+      .locator("#logoUploader_6_light")
+      .setInputFiles("data/Logo compack left menu/PNG.png");
+    await this.page
+      .locator("#logoUploader_6_dark")
+      .setInputFiles("data/Logo compack left menu/JPG.jpg");
+    await this.page
+      .locator("#logoUploader_2_light")
+      .setInputFiles("data/Login page and emails/PNG.png");
+    await this.page
+      .locator("#logoUploader_2_dark")
+      .setInputFiles("data/Login page and emails/JPG.jpg");
+    await this.page
+      .locator("#logoUploader_3_light")
+      .setInputFiles("data/Favicon/png.png");
+    await this.page
+      .locator("#logoUploader_4_light")
+      .setInputFiles("data/Editors header/png.png");
+    await this.page
+      .locator("#logoUploader_5_light")
+      .setInputFiles("data/Editors header/png.png");
+  }
+}
 export default Customization;

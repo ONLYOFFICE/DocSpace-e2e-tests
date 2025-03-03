@@ -133,6 +133,7 @@ test.describe("Integration tests", () => {
     const page1Promise = page.waitForEvent("popup");
     await integration.ldapLink.click();
     const page1 = await page1Promise;
+    await page1.waitForLoadState("load");
     await page1.waitForURL(
       "https://*.onlyoffice.com/administration/docspace-settings.aspx#LdapSettings_block",
     );
@@ -170,6 +171,7 @@ test.describe("Integration tests", () => {
     const page1Promise = page.waitForEvent("popup");
     await integration.smtpLink.click();
     const page1 = await page1Promise;
+    await page1.waitForLoadState("load");
     await page1.waitForURL(
       "https://*.onlyoffice.com/administration/docspace-settings.aspx#AdjustingIntegrationSettings_block",
     );
@@ -184,6 +186,7 @@ test.describe("Integration tests", () => {
     const page1Promise = page.waitForEvent("popup");
     await integration.thirdPartyLink.click();
     const page1 = await page1Promise;
+    await page1.waitForLoadState("load");
     await page1.waitForURL(
       "https://*.onlyoffice.com/administration/docspace-settings.aspx#AdjustingIntegrationSettings_block",
     );

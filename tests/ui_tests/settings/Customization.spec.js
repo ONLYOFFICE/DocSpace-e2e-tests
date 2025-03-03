@@ -83,6 +83,24 @@ test.describe("Customization portal tests", () => {
     ).toHaveText("Settings have been successfully updated", { timeout: 10000 });
   });
 
+  test("Branding upload pictures", async ({ page }) => {
+    await customization.navigateToSettings();
+    await page.getByText("Branding").click();
+    await customization.uploadPictures();
+    await customization.fieldContainerButton.click();
+    await customization.sectionWrapper.click();
+    await customization.saveButton.click();
+    await expect(
+      page.locator("text=Settings have been successfully updated"),
+    ).toHaveText("Settings have been successfully updated", { timeout: 10000 });
+    await customization.RemoveToast.click();
+    await page.waitForTimeout(1000);
+    await customization.restoreButton.click();
+    await expect(
+      page.locator("text=Settings have been successfully updated"),
+    ).toHaveText("Settings have been successfully updated", { timeout: 10000 });
+  });
+
   test("Appearance", async ({ page }) => {
     await customization.navigateToSettings();
     await customization.navigateToAppearance.click();
@@ -133,37 +151,41 @@ test.describe("Customization portal tests", () => {
     const page1Promise = page.waitForEvent("popup");
     await customization.docspaceLanguageGuideLink.click();
     const page1 = await page1Promise;
+    await page1.waitForLoadState("load");
     await page1.waitForURL(
       "https://*.onlyoffice.com/administration/docspace-settings.aspx#DocSpacelanguage",
     );
     await expect(page1).toHaveURL(
       /administration\/docspace-settings.aspx#DocSpacelanguage/,
     );
-    const page3Promise = page.waitForEvent("popup");
+    const page2Promise = page.waitForEvent("popup");
     await customization.docspaceTitleGuideLink.click();
-    const page3 = await page3Promise;
-    await page3.waitForURL(
+    const page2 = await page2Promise;
+    await page2.waitForLoadState("load");
+    await page2.waitForURL(
       "https://*.onlyoffice.com/administration/docspace-settings.aspx#DocSpacetitle",
     );
-    await expect(page3).toHaveURL(
+    await expect(page2).toHaveURL(
       /administration\/docspace-settings.aspx#DocSpacetitle/,
     );
-    const page4Promise = page.waitForEvent("popup");
+    const page3Promise = page.waitForEvent("popup");
     await customization.docspaceAlternativeUrlGuideLink.click();
-    const page4 = await page4Promise;
-    await page4.waitForURL(
+    const page3 = await page3Promise;
+    await page3.waitForLoadState("load");
+    await page3.waitForURL(
       "https://*.onlyoffice.com/administration/docspace-settings.aspx#alternativeurl",
     );
-    await expect(page4).toHaveURL(
+    await expect(page3).toHaveURL(
       /administration\/docspace-settings.aspx#alternativeurl/,
     );
-    const page5Promise = page.waitForEvent("popup");
+    const page4Promise = page.waitForEvent("popup");
     await customization.docspaceRenamingGuideLink.click();
-    const page5 = await page5Promise;
-    await page5.waitForURL(
+    const page4 = await page4Promise;
+    await page4.waitForLoadState("load");
+    await page4.waitForURL(
       "https://*.onlyoffice.com/administration/docspace-settings.aspx#DocSpacerenaming",
     );
-    await expect(page5).toHaveURL(
+    await expect(page4).toHaveURL(
       /administration\/docspace-settings.aspx#DocSpacerenaming/,
     );
   });
