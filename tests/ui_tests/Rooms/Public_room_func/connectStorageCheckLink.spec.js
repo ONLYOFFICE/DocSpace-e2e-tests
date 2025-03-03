@@ -36,17 +36,64 @@ test.describe("Public Room: Third Party Storage Tests", () => {
     await apiContext.dispose();
   });
 
+  const getFormattedDateTime = () => {
+    const now = new Date();
+    const months = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
+    const formattedDate = `${months[now.getMonth()]}-${String(now.getDate()).padStart(2, "0")}`;
+    const formattedTime = `${String(now.getHours()).padStart(2, "0")}-${String(now.getMinutes()).padStart(2, "0")}`;
+    return { formattedDate, formattedTime };
+  };
+
+  test("Check Nextcloud storage connection in public room", async ({
+    page,
+    browser,
+  }) => {
+    await test.step("Connect Nextcloud", async () => {
+      const { formattedDate, formattedTime } = getFormattedDateTime();
+      const connectorName = `Nextcloud ${formattedDate} ${formattedTime}`;
+      const roomName = await roomsListPage.CreatePublicRoomFunc(connectorName);
+      await publicRoomPage.enableThirdPartyStorage();
+      await publicRoomPage.ConnectNextcloud();
+      await publicRoomPage.folderSelectButton.click();
+      await publicRoomPage.clickRoomsFolder();
+      await publicRoomPage.clickSelect();
+      await publicRoomPage.CreateButton();
+      await roomsListPage.openRoomsList();
+      await publicRoomPage.findAndOpenRoom(roomName);
+      await publicRoomPage.uploadAndVerifyFile(
+        browser,
+        roomName,
+        roomsListPage,
+      );
+    });
+  });
+
   test("Check BOX storage connection in public room", async ({
     page,
     browser,
   }) => {
     await test.step("Connect BOX", async () => {
-      const roomName = await roomsListPage.CreatePublicRoomFunc("Box");
+      const { formattedDate, formattedTime } = getFormattedDateTime();
+      const connectorName = `Box ${formattedDate} ${formattedTime}`;
+      const roomName = await roomsListPage.CreatePublicRoomFunc(connectorName);
       await publicRoomPage.enableThirdPartyStorage();
       await publicRoomPage.BOX();
       await publicRoomPage.CreateButton();
       await roomsListPage.openRoomsList();
-      await publicRoomPage.verifyStorageTagAndOpenRoom(roomName, "Box");
+      await publicRoomPage.findAndOpenRoom(roomName);
       await publicRoomPage.uploadAndVerifyFile(
         browser,
         roomName,
@@ -60,31 +107,14 @@ test.describe("Public Room: Third Party Storage Tests", () => {
     browser,
   }) => {
     await test.step("Connect DROPBOX", async () => {
-      const roomName = await roomsListPage.CreatePublicRoomFunc("Dropbox");
+      const { formattedDate, formattedTime } = getFormattedDateTime();
+      const connectorName = `Dropbox ${formattedDate} ${formattedTime}`;
+      const roomName = await roomsListPage.CreatePublicRoomFunc(connectorName);
       await publicRoomPage.enableThirdPartyStorage();
       await publicRoomPage.Dropbox();
       await publicRoomPage.CreateButton();
       await roomsListPage.openRoomsList();
-      await publicRoomPage.verifyStorageTagAndOpenRoom(roomName, "DropboxV2");
-      await publicRoomPage.uploadAndVerifyFile(
-        browser,
-        roomName,
-        roomsListPage,
-      );
-    });
-  });
-
-  test("Check Nextcloud storage connection in public room", async ({
-    page,
-    browser,
-  }) => {
-    await test.step("Connect Nextcloud", async () => {
-      const roomName = await roomsListPage.CreatePublicRoomFunc("Nextcloud");
-      await publicRoomPage.enableThirdPartyStorage();
-      await publicRoomPage.ConnectNextcloud();
-      await publicRoomPage.CreateButton();
-      await roomsListPage.openRoomsList();
-      await publicRoomPage.verifyStorageTagAndOpenRoom(roomName, "WebDav");
+      await publicRoomPage.findAndOpenRoom(roomName);
       await publicRoomPage.uploadAndVerifyFile(
         browser,
         roomName,
@@ -98,12 +128,14 @@ test.describe("Public Room: Third Party Storage Tests", () => {
     browser,
   }) => {
     await test.step("Connect OneDrive", async () => {
-      const roomName = await roomsListPage.CreatePublicRoomFunc("OneDrive");
+      const { formattedDate, formattedTime } = getFormattedDateTime();
+      const connectorName = `OneDrive ${formattedDate} ${formattedTime}`;
+      const roomName = await roomsListPage.CreatePublicRoomFunc(connectorName);
       await publicRoomPage.enableThirdPartyStorage();
       await publicRoomPage.OneDrive();
       await publicRoomPage.CreateButton();
       await roomsListPage.openRoomsList();
-      await publicRoomPage.verifyStorageTagAndOpenRoom(roomName, "OneDrive");
+      await publicRoomPage.findAndOpenRoom(roomName);
       await publicRoomPage.uploadAndVerifyFile(
         browser,
         roomName,

@@ -5,7 +5,7 @@ export class PublicRoomPage {
   constructor(page) {
     this.page = page;
     this.roomsListSelector = "div[id='document_catalog-shared']";
-    this.ownCloudButton = this.page.locator('[data-third-party-id="ownCloud"]');
+    this.ownCloudButton = this.page.locator('[data-testid="icon-button"]');
     this.nextCloudButton = this.page.locator(
       '[data-third-party-id="Nextcloud"]',
     );
@@ -18,6 +18,7 @@ export class PublicRoomPage {
     this.publicRoomSettingsBox = this.page
       .getByTestId("box")
       .getByTestId("combobox");
+    this.storageCombobox = this.page.getByTestId("combobox");
     this.connectStorageButton = this.page.locator(
       "#shared_third-party-storage_connect",
     );
@@ -47,19 +48,71 @@ export class PublicRoomPage {
     this.leaveRoomButton = this.page.locator("#option_leave-room");
     // Other buttons
     this.shareButton = this.page.locator("#share-public-room");
+    this.folderSelectButton = this.page.locator(".folder-path-wrapper");
+    this.roomsFolderButton = this.page
+      .locator(".test-22")
+      .filter({ has: this.page.getByText("Rooms", { exact: true }) });
+    this.selectButton = this.page.locator(".accept-button");
+    this.selectorDialog = this.page.locator('[data-testid="selector"]');
+  }
+
+  async waitNetwork() {
+    await this.page.waitForLoadState("networkidle");
+  }
+
+  async clickRoomsFolder() {
+    try {
+      await this.roomsFolderButton.waitFor({ state: "visible" });
+      await this.roomsFolderButton.click({ force: true });
+    } catch {
+      try {
+        const roomsText = this.page
+          .locator('[data-testid="text"]')
+          .getByText("Rooms", { exact: true });
+        await roomsText.click({ force: true });
+      } catch {
+        const roomsSpan = this.page
+          .locator("span", { hasText: "Rooms" })
+          .filter({ hasText: /^Rooms$/ });
+        await roomsSpan.click({ force: true });
+      }
+    }
+    await this.waitNetwork();
   }
 
   async CreateButton() {
-    await this.createModalSubmitButton.waitFor({
-      state: "visible",
-      timeout: 15000,
-    });
-    return await this.createModalSubmitButton.click();
+    try {
+      await this.waitNetwork();
+      await this.createModalSubmitButton.waitFor({
+        state: "visible",
+        timeout: 1000,
+      });
+      await this.createModalSubmitButton.click();
+      await this.waitNetwork();
+      await this.page.waitForTimeout(2000); // give time for modal window to close
+    } catch (error) {
+      console.log("Error in CreateButton:", error);
+      // Try an alternative approach
+      try {
+        const submitButton = this.page
+          .locator('button[type="submit"]')
+          .filter({ hasText: "Create" });
+        await submitButton.waitFor({ state: "visible", timeout: 15000 });
+        await submitButton.click();
+        await this.waitNetwork();
+      } catch (retryError) {
+        console.log("Error in CreateButton retry:", retryError);
+        throw retryError;
+      }
+    }
   }
 
   async ConnectNextcloud() {
+    await this.storageCombobox.click();
+    await this.waitNetwork();
     await this.nextCloudButton.click();
     await this.connectStorageButton.click();
+    await this.waitNetwork();
     await this.page.locator("#connection-url-input").click();
     await this.page.locator("#connection-url-input").fill(config.NEXTCLOUD_URL);
     await this.page.locator("#login-input").click();
@@ -88,8 +141,9 @@ export class PublicRoomPage {
     await page1.waitForSelector('input[type="submit"]');
     await page1.locator('input[type="submit"]').click();
     await page1.waitForLoadState("domcontentloaded");
-    await page1.waitForSelector("#consent_accept_button", { timeout: 10000 });
-    await page1.locator("#consent_accept_button").click();
+    await page1
+      .locator('button[data-target-id="Button-grantAccessButtonLabel"]')
+      .click();
   }
 
   async Dropbox() {
@@ -207,6 +261,26 @@ export class PublicRoomPage {
     await this.page.locator(`div[data-title="${roomName}"]`).first().click();
   }
 
+  async findAndOpenRoom(roomName) {
+    try {
+      await this.page.waitForLoadState("networkidle");
+      await this.page.waitForTimeout(2000); // Increase waiting time
+
+      console.log(`Searching for room: ${roomName}`);
+      const roomLocator = this.page
+        .locator(`div[data-title="${roomName}"]`)
+        .first();
+      await roomLocator.waitFor({ state: "visible", timeout: 10000 });
+
+      console.log(`Found room: ${roomName}, clicking...`);
+      await roomLocator.click();
+      await this.page.waitForLoadState("networkidle");
+    } catch (error) {
+      console.log(`Error in findAndOpenRoom for ${roomName}:`, error);
+      throw error;
+    }
+  }
+
   async uploadAndVerifyFile(browser, roomName, roomsListPage) {
     // Upload file
     const fileName = await roomsListPage.UploadFile("docx", {
@@ -215,7 +289,7 @@ export class PublicRoomPage {
     });
     // Wait for file to appear
     await this.waitForFileInRoom(fileName);
-    await this.page.waitForTimeout(2000);
+    await this.waitNetwork();
     // Share room and get link
     await this.shareRoomWithAllUsers();
     const sharedLink = await this.getClipboardContent();
@@ -233,5 +307,11 @@ export class PublicRoomPage {
     await this.page.waitForTimeout(1000);
     await this.pubToggleButtonLocator.waitFor({ state: "visible" });
     await this.pubToggleButtonLocator.click();
+  }
+
+  async clickSelect() {
+    await this.selectButton.waitFor({ state: "visible" });
+    await this.page.waitForTimeout(2000);
+    await this.selectButton.click({ force: true });
   }
 }
