@@ -26,7 +26,10 @@ test.describe("Payment tests", () => {
     await apiContext.dispose();
   });
 
-  test("Payment", async ({ page, context }) => {
+  test.skip("Payment - pending cache reset from stripe", async ({
+    page,
+    context,
+  }) => {
     test.setTimeout(60000);
     const payment = new Payment(page, context);
     await payment.navigateToPayments();
@@ -38,7 +41,9 @@ test.describe("Payment tests", () => {
     });
   });
 
-  test("Change tarif plan", async ({ page }) => {
+  test.skip("Change tarif plan - pending cache reset from stripe", async ({
+    page,
+  }) => {
     const payment = new Payment(page);
     await payment.navigateToPayments();
     await payment.downgradePlan();
