@@ -40,10 +40,7 @@ test.describe("Mobile Hide Button tests", () => {
 
     // Rotate device if necessary
     if ((await page.evaluate(() => window.innerHeight)) < 1024) {
-      await page.setViewportSize({
-        width: device.viewport.height,
-        height: device.viewport.width,
-      });
+      await mobile.rotateDevice(device);
     }
     const hide = page.locator(mobile.hideLeftMenu);
     const show = page.locator(mobile.showLeftMenu);
@@ -70,10 +67,7 @@ test.describe("Mobile Hide Button tests", () => {
     }));
 
     if ((await page.evaluate(() => window.innerHeight)) < 1024) {
-      await page.setViewportSize({
-        width: device.viewport.height,
-        height: device.viewport.width,
-      });
+      await mobile.rotateDevice(device);
     }
     const hide = page.locator(mobile.hideLeftMenu);
     const show = page.locator(mobile.showLeftMenu);

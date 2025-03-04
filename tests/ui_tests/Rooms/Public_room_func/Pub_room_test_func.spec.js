@@ -4,7 +4,7 @@ import { RoomsApi } from "../../../../api_library/files/rooms_api";
 import { ArchivePage } from "../../../../page_objects/Rooms/archive_page";
 import { RoomsListPage } from "../../../../page_objects/Rooms/room_list_page";
 import { PortalLoginPage } from "../../../../page_objects/portal_login_page";
-import { PublicRoomPage } from "../../../../page_objects/Rooms/publick_room";
+import { PublicRoomPage } from "../../../../page_objects/Rooms/public_room";
 
 test.describe("Public Room: Third Party Storage Tests", () => {
   let portalSetup;
