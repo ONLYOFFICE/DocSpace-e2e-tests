@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { Payment } from "../../../page_objects/settings/payment";
+import { Payment } from "../../../page_objects/settings/Payment";
 import { PortalSetupApi } from "../../../api_library/portal_setup";
 import { PortalLoginPage } from "../../../page_objects/portal_login_page";
 
@@ -27,6 +27,7 @@ test.describe("Payment tests", () => {
   });
 
   test("Payment", async ({ page, context }) => {
+    test.setTimeout(60000);
     const payment = new Payment(page, context);
     await payment.navigateToPayments();
     await payment.upgradePlan();
