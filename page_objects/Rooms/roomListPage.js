@@ -32,8 +32,7 @@ export class RoomsListPage {
           .getByTestId("main-button-mobile")
           .getByRole("img")
           .locator("path")
-      : this.page.locator("#rooms-shared_create-room-button");
-
+      : this.page.locator("#rooms-shared_create-room-button"); // rooms-shared_create-room-button
     this.createModalSubmitButton = this.page.locator(
       "#shared_create-room-modal_submit",
     );
@@ -85,10 +84,20 @@ export class RoomsListPage {
       // For mobile, first click menu button, then click rooms list
       const mobileMenuButton = this.page.locator(this.mobileMenuButton).first();
       await mobileMenuButton.click();
-      await this.page.click("div[id='document_catalog-shared']");
-    } else {
-      // For desktop, directly click rooms list
-      await this.page.click("div[id='document_catalog-shared']");
+      await this.page.click(this.roomsListSelector);
+      return;
+    }
+    try {
+      await this.page.waitForLoadState("networkidle");
+      await this.page.waitForSelector(this.roomsListSelector, {
+        state: "visible",
+        timeout: 10000,
+      });
+      await this.page.click(this.roomsListSelector);
+      await this.page.waitForLoadState("networkidle");
+    } catch (error) {
+      console.log("Error in openRoomsList:", error);
+      throw error;
     }
   }
 
