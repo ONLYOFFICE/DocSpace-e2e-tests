@@ -4,8 +4,7 @@ import { PortalLoginPage } from "../../../../page_objects/portal_login_page";
 import { MobilePage } from "../../../../page_objects/Mobile/mobile";
 import { devices } from "@playwright/test";
 import config from "../../../../config/config";
-import { RoomsListPage } from "../../../../page_objects/Rooms/room_list_page";
-
+import { RoomsListPage } from "../../../../page_objects/Rooms/roomListPage.js";
 test.describe("MobileCheckbox Rotate Tests", () => {
   let apiContext;
   let portalSetup;
