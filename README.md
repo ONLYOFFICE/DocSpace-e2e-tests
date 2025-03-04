@@ -46,21 +46,21 @@ Run linting:
 ### Creating a New Branch
 
 1. Update your main branch:
-`git checkout main`
-`git pull origin main`
+   `git checkout main`
+   `git pull origin main`
 
 2. Create a new branch:
-`git switch -c your-branch-name`
+   `git switch -c your-branch-name`
 
 ### Working with Changes
 
 1. Make your changes and stage them:
-`git add .`
+   `git add .`
 
 2. Commit your changes with a descriptive message:
-`git commit -m "type: brief description of changes"`
+   `git commit -m "type: brief description of changes"`
 
 3. Push your branch:
-`git push origin your-branch-name`
+   `git push origin your-branch-name`
 
 4. Create a pull request

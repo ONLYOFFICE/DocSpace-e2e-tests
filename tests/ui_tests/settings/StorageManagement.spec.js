@@ -40,6 +40,7 @@ test.describe("Storage management tests", () => {
     const page1Promise = page.waitForEvent("popup");
     await storageManagement.storageManagementGuideLink.click();
     const page1 = await page1Promise;
+    await page1.waitForLoadState("load");
     await page1.waitForURL(
       "https://*.onlyoffice.com/administration/docspace-settings.aspx#StorageManagement_block",
     );
@@ -48,9 +49,7 @@ test.describe("Storage management tests", () => {
     );
   });
 
-  test("Quota room - temporarily disabled due to lack of payment", async ({
-    page,
-  }) => {
+  test("Quota room", async ({ page }) => {
     await storageManagement.navigateToSettings();
     await storageManagement.navigateToStorageManagement.click();
     await storageManagement.QuotaRoomActivate();
@@ -68,9 +67,7 @@ test.describe("Storage management tests", () => {
     });
   });
 
-  test("Quota user - temporarily disabled due to lack of payment", async ({
-    page,
-  }) => {
+  test("Quota user", async ({ page }) => {
     await storageManagement.navigateToSettings();
     await storageManagement.navigateToStorageManagement.click();
     await storageManagement.QuotaUserActivate();
