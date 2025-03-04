@@ -5,7 +5,6 @@ import { MobilePage } from "../../../../page_objects/Mobile/mobile";
 import { devices } from "@playwright/test";
 import config from "../../../../config/config";
 import { RoomsListPage } from "../../../../page_objects/Rooms/roomListPage.js";
-
 test.describe("MobileCheckbox Rotate Tests", () => {
   let apiContext;
   let portalSetup;
@@ -13,72 +12,42 @@ test.describe("MobileCheckbox Rotate Tests", () => {
   let mobilePage;
   let roomsListPage;
 
-  //   test.beforeAll(async ({ playwright }) => {
-  //     apiContext = await playwright.request.newContext();
-  //     portalSetup = new PortalSetupApi(apiContext);
-  //     await portalSetup.setupPortal();
-  //   });
+  test.beforeAll(async ({ playwright }) => {
+    apiContext = await playwright.request.newContext();
+    portalSetup = new PortalSetupApi(apiContext);
+    await portalSetup.setupPortal();
+  });
 
   test.beforeEach(async ({ page }) => {
+    mobilePage = new MobilePage(page);
     roomsListPage = new RoomsListPage(page);
     portalLoginPage = new PortalLoginPage(page);
-    await portalLoginPage.loginToPortal(
-      "test-portal-2025-02-20t07-44-46-567z.onlyoffice.io",
-    );
-    mobilePage = new MobilePage(page);
-    await roomsListPage.navigate();
+    await portalLoginPage.loginToPortal(portalSetup.portalDomain);
   });
 
-  //   test.afterAll(async () => {
-  //     await portalSetup.deletePortal();
-  //     await apiContext.dispose();
-  //   });
-
-  test("Checking a checkbox after rotating the device", async ({ page }) => {
-    // const checkbox = page.locator(mobile.checkbox);
-    // await expect(checkbox).toBeVisible();
-    // await expect(checkbox).toHaveClass("smartbanner-container");
+  test.afterAll(async () => {
+    await portalSetup.deletePortal();
+    await apiContext.dispose();
   });
 
-  test.describe("Checkbox selection after device rotation", () => {
-    let apiContext;
-    let roomsListPage;
-    let mobilePage;
-
-    test.beforeAll(async ({ browser }) => {
-      apiContext = await browser.newContext();
-    });
-
-    test.beforeEach(async ({ page }) => {});
-
-    test("Verify checkbox remains selected after device rotation", async ({
-      page,
-    }) => {
-      // Create two rooms via API
-      const room1 = await apiContext.post("/api/rooms", {
-        data: { name: "Test Room 1" },
-      });
-      const room2 = await apiContext.post("/api/rooms", {
-        data: { name: "Test Room 2" },
-      });
-
-      // Select checkbox for first room
-      const checkbox = page.locator(
-        `#room-${room1.data.id} input[type='checkbox']`,
-      );
-      await checkbox.check();
-
-      // Verify checkbox is selected
-      await expect(checkbox).toBeChecked();
-
-      // Rotate device
-      await page.evaluate(() => {
-        // Эмулируем поворот устройства через изменение ориентации
-        window.screen.orientation.angle = 90;
-      });
-
-      // Verify checkbox remains selected after rotation
-      await expect(checkbox).toBeChecked();
-    });
+  test("check select Room checkbox after rotate device", async ({ page }) => {
+    const device = devices[config.DEVICE];
+    await roomsListPage.CreatePublicRoomFunc("Room1");
+    await roomsListPage.CreateButton();
+    await roomsListPage.openRoomsList();
+    await roomsListPage.CreatePublicRoomFunc("Room2");
+    await roomsListPage.CreateButton();
+    await roomsListPage.openRoomsList();
+    await page.click(roomsListPage.checkboxSelector("Room1"));
+    await page.click(roomsListPage.checkboxSelector("Room2"));
+    await mobilePage.rotateDevice(device);
+    const room1Row = page
+      .locator(`div[data-title='Test Public Room Room1']`)
+      .first();
+    await expect(room1Row).toHaveClass(/draggable/, { timeout: 10000 });
+    const room2Row = page
+      .locator(`div[data-title='Test Public Room Room2']`)
+      .first();
+    await expect(room2Row).toHaveClass(/draggable/, { timeout: 10000 });
   });
 });

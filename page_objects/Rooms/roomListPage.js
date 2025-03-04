@@ -5,11 +5,15 @@ import config from "../../config/config.js";
 export class RoomsListPage {
   constructor(page) {
     this.page = page;
+    this.mobileMenuButton = "path";
     this.roomsListSelector = "div[id='document_catalog-shared']";
     this.roomsList = this.page.locator(this.roomsListSelector);
     this.roomTitleSelector = (title) => `text=${title}`;
     this.contextMenuButtonSelector = (title) =>
       `div[data-title='${title}'] div[data-testid='context-menu-button']`;
+    this.checkboxSelector = (title) =>
+      `div[data-title='Test Public Room ${title}']  div[data-testid='room-icon']`;
+    this.selectButtonSelector = '[id="option_select"]'; // Select button
     // edit room selectors
     this.editRoomButtonSelector = '[id="option_edit-room"]'; // Edit room button
     this.roomNameInputSelector = "input[id='shared_room-name']"; // Room name input
@@ -23,9 +27,12 @@ export class RoomsListPage {
     this.submitButton = "button[id='shared_move-to-archived-modal_submit']";
     this.toggleButton = "li[id='shared_third-party-storage-toggle']";
     this.roomtags = "div[data-testid='field-container']";
-    this.createRoomButtonSelector = this.page.locator(
-      "#rooms-shared_create-room-button",
-    ); // rooms-shared_create-room-button
+    this.createRoomButtonSelector = config.IS_MOBILE
+      ? this.page
+          .getByTestId("main-button-mobile")
+          .getByRole("img")
+          .locator("path")
+      : this.page.locator("#rooms-shared_create-room-button"); // rooms-shared_create-room-button
     this.createModalSubmitButton = this.page.locator(
       "#shared_create-room-modal_submit",
     );
@@ -73,6 +80,13 @@ export class RoomsListPage {
 
   // Open the rooms list
   async openRoomsList() {
+    if (config.IS_MOBILE) {
+      // For mobile, first click menu button, then click rooms list
+      const mobileMenuButton = this.page.locator(this.mobileMenuButton).first();
+      await mobileMenuButton.click();
+      await this.page.click(this.roomsListSelector);
+      return;
+    }
     try {
       await this.page.waitForLoadState("networkidle");
       await this.page.waitForSelector(this.roomsListSelector, {

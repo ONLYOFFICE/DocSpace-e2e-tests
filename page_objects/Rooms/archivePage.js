@@ -1,6 +1,9 @@
+import config from "../../config/config.js";
+
 export class ArchivePage {
   constructor(page) {
     this.page = page;
+    this.mobileMenuButton = "path";
     this.archiveListSelector = "div[id='document_catalog-archive']";
     this.roomTitleSelector = (title) => `div[data-title='${title}']`;
     this.contextMenuButtonSelector = (title) =>
@@ -19,7 +22,17 @@ export class ArchivePage {
 
   // Open the archive rooms list
   async openArchiveList() {
-    await this.page.click(this.archiveListSelector);
+    if (config.IS_MOBILE) {
+      // For mobile, first click menu button, then click ArchiveRoom list
+      const mobileMenuButton = this.page.locator(this.mobileMenuButton).first();
+      await this.page.waitForTimeout(9000);
+      //if (await mobileMenuButton.isVisible()) {
+      await mobileMenuButton.click();
+      // }
+      await this.page.click(this.archiveListSelector);
+    } else {
+      await this.page.click(this.archiveListSelector);
+    }
   }
   // Open the context menu for a specific room
   async openRoomContextMenu(roomTitle) {
