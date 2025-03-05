@@ -1,27 +1,36 @@
+import config from "../../config/config.js";
+
 export class ProfilePage {
   constructor(page) {
     this.page = page;
 
     // Navigation
     this.profileLink = "[data-testid='text']:has-text('admin-zero')";
-
+    this.mobileAvatarIcon = "[data-testid='avatar']"; //icon of current user in mobile view
+    this.mobileProfileLink = "(//*[@data-testid='link'])[1]";
     // Profile Edit
-    this.nameEditButton = "div.profile-block-field [data-testid='icon-button']";
+    this.nameEditButton = config.IS_MOBILE
+      ? "//div[@class='mobile-profile-row'][1]//*[name()='svg'][@class='injected-svg']" //if IS_MOBILE=true
+      : "div.profile-block-field [data-testid='icon-button']"; //if IS_MOBILE=false
     this.firstNameInput =
       "[data-testid='text-input'][placeholder='First name']";
     this.lastNameInput = "[data-testid='text-input'][placeholder='Last name']";
     this.saveButton = "[data-testid='button'][tabindex='3']";
-    this.changePasswordButton =
-      "div.profile-block-field.profile-block-password [data-testid='icon-button']";
+    this.changePasswordButton = config.IS_MOBILE
+      ? "div[class='mobile-profile-row']:nth-of-type(3) svg[role='img']" //if IS_MOBILE=true
+      : "div.profile-block-field.profile-block-password [data-testid='icon-button']"; //if IS_MOBILE=false
     this.sendPasswordChangeButton = "[data-testid='button']";
 
     // Language Selector
-    this.languageSelector =
-      "div.language-combo-box-wrapper [data-testid='combobox']";
-    this.germanLanguageOption =
-      "[data-testid='drop-down-item'] >> text=Deutsch";
-    this.englishLanguageOption =
-      "[data-testid='drop-down-item'] >> text=English";
+    this.languageSelector = config.IS_MOBILE
+      ? "div.mobile-language__wrapper-combo-box [data-testid='combobox']" //if IS_MOBILE=true
+      : "div.language-combo-box-wrapper [data-testid='combobox']"; //if IS_MOBILE=false
+    this.germanLanguageOption = config.IS_MOBILE
+      ? "(//div//span[@dir='auto'][normalize-space()='Deutsch (Deutschland)'])[2]" //if IS_MOBILE=true
+      : "[data-testid='drop-down-item'] >> text=Deutsch"; //if IS_MOBILE=false
+    this.englishLanguageOption = config.IS_MOBILE
+      ? "(//div//span[@dir='auto'][normalize-space()='English (United Kingdom)'])[2]" //if IS_MOBILE=true
+      : "[data-testid='drop-down-item'] >> text=English"; //if IS_MOBILE=false
 
     // Tabs
     this.loginTab = "div.sticky >> text=Login";
@@ -32,6 +41,11 @@ export class ProfilePage {
   }
 
   async navigateToProfile() {
+    if (config.IS_MOBILE) {
+      await this.page.click(this.mobileAvatarIcon);
+      await this.page.click(this.mobileProfileLink);
+      return;
+    }
     await this.page.click(this.profileLink);
   }
 
@@ -44,7 +58,7 @@ export class ProfilePage {
 
   async changePassword() {
     await this.page.click(this.changePasswordButton);
-    await this.page.locator(this.sendPasswordChangeButton).first().click();
+    await this.page.locator(this.sendPasswordChangeButton).nth(-2).click();
   }
 
   async changeLanguage() {

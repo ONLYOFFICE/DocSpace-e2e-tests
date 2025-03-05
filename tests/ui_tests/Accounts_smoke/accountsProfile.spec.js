@@ -2,6 +2,7 @@ import { test, expect } from "@playwright/test";
 import { PortalSetupApi } from "../../../api_library/portal_setup";
 import { PortalLoginPage } from "../../../page_objects/portal_login_page";
 import { ProfilePage } from "../../../page_objects/accounts/profilePage";
+import config from "../../../config/config";
 
 test.describe("Profile Smoke Tests", () => {
   let apiContext;
@@ -32,7 +33,9 @@ test.describe("Profile Smoke Tests", () => {
     const lastName = "upd-admin-zero";
     await profilePage.editName(firstName, lastName);
     const profileNameLocator = page.locator(
-      `.profile-block-field >> text=${firstName} ${lastName}`,
+      config.IS_MOBILE
+        ? `.mobile-profile-label-field >> text=${firstName} ${lastName}`
+        : `.profile-block-field >> text=${firstName} ${lastName}`,
     );
     await expect(profileNameLocator).toBeVisible();
   });
@@ -64,7 +67,9 @@ test.describe("Profile Smoke Tests", () => {
   test("check interface theme tab", async ({ page }) => {
     await profilePage.selectInterfaceThemeTabs();
     const interfaceThemeTabLocator = page.locator(
-      "div.card-header >> text=Dark theme",
+      config.IS_MOBILE
+        ? "div.mobile-themes-container >> text=Dark theme" //if IS_MOBILE=true
+        : "div.card-header >> text=Dark theme", //if IS_MOBILE=false
     );
     await expect(interfaceThemeTabLocator).toBeVisible();
   });
