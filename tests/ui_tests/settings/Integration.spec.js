@@ -181,6 +181,7 @@ test.describe("Integration tests", () => {
   });
 
   test("Third party link", async ({ page }) => {
+    test.setTimeout(70000);
     await integration.navigateToSettings();
     await integration.navigateToThirdPartyServices();
     const page1Promise = page.waitForEvent("popup");

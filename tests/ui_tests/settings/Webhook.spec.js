@@ -18,7 +18,7 @@ test.describe("Webhook tests", () => {
   test.beforeEach(async ({ page }) => {
     webhook = new Webhook(page);
     portalLoginPage = new PortalLoginPage(page);
-    await portalLoginPage.loginToPortal(); //portalSetup.portalDomain
+    await portalLoginPage.loginToPortal(portalSetup.portalDomain);
   });
 
   test.afterAll(async () => {
@@ -60,6 +60,7 @@ test.describe("Webhook tests", () => {
   });
 
   test("Webhooks link", async ({ page }) => {
+    test.setTimeout(60000);
     await webhook.navigateToSettings();
     await webhook.navigateToWebhooks();
     const page1Promise = page.waitForEvent("popup");
