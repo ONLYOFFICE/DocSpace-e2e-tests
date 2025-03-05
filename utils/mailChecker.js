@@ -205,8 +205,17 @@ class MailChecker {
       moveOut,
     });
     if (!email) return null;
-    const linkMatch = email.body.match(/https:\/\/test-portal[\w.-]+/);
+    const decodedBody = this.decodeQuotedPrintable(email.body);
+    const linkMatch = decodedBody.match(/https:\/\/[^\s/]+\/s\/[\w-]+/);
     return linkMatch ? linkMatch[0] : null;
+  }
+
+  decodeQuotedPrintable(encodedText) {
+    return encodedText
+      .replace(/=\r\n/g, "")
+      .replace(/=([A-Fa-f0-9]{2})/g, (match, p1) => {
+        return String.fromCharCode(parseInt(p1, 16));
+      });
   }
 }
 
