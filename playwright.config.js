@@ -6,7 +6,7 @@ export default defineConfig({
   testDir: "./tests",
   retries: 0,
   use: {
-    headless: false,
+    headless: true,
     screenshot: "only-on-failure",
     video: "off",
     browserName: "chromium", // You can change this to "firefox" or "webkit"
