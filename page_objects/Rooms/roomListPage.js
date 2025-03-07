@@ -36,9 +36,14 @@ export class RoomsListPage {
     this.createModalSubmitButton = this.page.locator(
       "#shared_create-room-modal_submit",
     );
-    this.createFileButtonSelector = this.page
-      .locator('div[class="add-button"][title="Actions"]')
-      .locator('div[data-testid="icon-button"][data-event="click focus"]'); // rooms-shared_create-file-button
+    this.createFileButtonSelector = config.IS_MOBILE
+      ? this.page
+          .getByTestId("main-button-mobile")
+          .getByRole("img")
+          .locator("path") //if mobile mode
+      : this.page
+          .locator('div[class="add-button"][title="Actions"]')
+          .locator('div[data-testid="icon-button"][data-event="click focus"]'); // rooms-shared_create-file-button
     this.submitButtonSelector = this.page.locator(
       '[data-testid="button"].submit',
     ); // Submit button in modal
