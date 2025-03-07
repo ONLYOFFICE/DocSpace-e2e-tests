@@ -2,6 +2,8 @@ import { test, expect } from "@playwright/test";
 import { DeletionPortal } from "../../../page_objects/settings/deletionPortal";
 import { PortalSetupApi } from "../../../api_library/portal_setup";
 import { PortalLoginPage } from "../../../page_objects/portal_login_page";
+import MailChecker from "../../../utils/mailChecker";
+import config from "../../../config/config.js";
 
 test.describe("DocSpace deletion tests", () => {
   let apiContext;
@@ -27,6 +29,7 @@ test.describe("DocSpace deletion tests", () => {
   });
 
   test("Delete portal", async ({ page }) => {
+    test.setTimeout(90000);
     await deletionportal.navigateToSettings();
     await deletionportal.navigateToDeletionPortal.click();
     await page.waitForTimeout(1000);
@@ -40,9 +43,37 @@ test.describe("DocSpace deletion tests", () => {
     ).toContainText("A link to confirm the operation has been sent to", {
       timeout: 10000,
     });
+
+    // Wait for email to arrive
+    await new Promise((resolve) => setTimeout(resolve, 15000));
+
+    // Create a MailChecker instance
+    const mailChecker = new MailChecker({
+      url: config.QA_MAIL_DOMAIN,
+      user: config.QA_MAIL_LOGIN,
+      pass: config.QA_MAIL_PASSWORD,
+    });
+
+    // Check for email with subject containing "Deletion of the" and "portal"
+    const email = await mailChecker.checkEmailBySubject({
+      subject: "Deletion of the",
+      timeoutSeconds: 30,
+      moveOut: false,
+    });
+
+    // Log the found email
+    if (email) {
+      console.log(
+        `Found portal deletion email with subject: "${email.subject}"`,
+      );
+    }
+
+    // Final verification
+    expect(email).toBeTruthy();
   });
 
   test("Deactivate portal", async ({ page }) => {
+    test.setTimeout(90000);
     await deletionportal.navigateToSettings();
     await deletionportal.navigateToDeletionPortal.click();
     await page.waitForTimeout(1000);
@@ -51,10 +82,37 @@ test.describe("DocSpace deletion tests", () => {
     await expect(
       page
         .getByTestId("text")
-        .filter({ hasText: "A link to confirm the" })
+        .filter({ hasText: "A link to confirm the operation has been sent to" })
         .first(),
     ).toContainText("A link to confirm the operation has been sent to", {
       timeout: 10000,
     });
+
+    // Wait for email to arrive
+    await new Promise((resolve) => setTimeout(resolve, 15000));
+
+    // Create a MailChecker instance
+    const mailChecker = new MailChecker({
+      url: config.QA_MAIL_DOMAIN,
+      user: config.QA_MAIL_LOGIN,
+      pass: config.QA_MAIL_PASSWORD,
+    });
+
+    // Check for email with subject containing "Deactivation of the" and "portal"
+    const email = await mailChecker.checkEmailBySubject({
+      subject: "Deactivation of the",
+      timeoutSeconds: 30,
+      moveOut: false,
+    });
+
+    // Log the found email
+    if (email) {
+      console.log(
+        `Found portal deactivation email with subject: "${email.subject}"`,
+      );
+    }
+
+    // Final verification
+    expect(email).toBeTruthy();
   });
 });
