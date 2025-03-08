@@ -1,8 +1,11 @@
 import { test, expect } from "@playwright/test";
-import { Customization } from "../../../page_objects/settings/customization";
+import { Customization } from "../../../page_objects/settings/Customization";
 import { PortalSetupApi } from "../../../api_library/portal_setup";
 import { PortalLoginPage } from "../../../page_objects/portal_login_page";
 import { PaymentApi } from "../../../api_library/paymentApi/paymentApi";
+import { ProfilePage } from "../../../page_objects/accounts/profilePage";
+import MailChecker from "../../../utils/mailChecker";
+import config from "../../../config/config.js";
 
 test.describe("Customization portal tests", () => {
   let apiContext;
@@ -41,7 +44,7 @@ test.describe("Customization portal tests", () => {
     await customization.settingsTitle.click();
     await customization.saveButton.click();
     await page.waitForTimeout(1000);
-    await customization.RemoveToast.click();
+    await customization.removeToast.click();
     await customization.changeLanguage("English (United Kingdom)");
     await customization.changeTimezone("(UTC) Europe/London");
     await customization.settingsTitle.click();
@@ -53,11 +56,9 @@ test.describe("Customization portal tests", () => {
 
   test("Welcom page settings", async ({ page }) => {
     await customization.navigateToSettings();
-    await customization.setTitle("DocSpace Autotest Portal");
-    await customization.settingsTitleWelcomePage.click();
-    await customization.saveButtonWelcomePage.click();
-    await customization.RemoveToast2.click();
-    await customization.restoreButton.click();
+    await customization.setTitle();
+    await customization.removeToast2.click();
+    await customization.restoreButton.nth(1).click();
     await expect(
       page.locator("text=Welcome Page settings have been successfully saved"),
     ).toHaveText("Welcome Page settings have been successfully saved", {
@@ -65,19 +66,25 @@ test.describe("Customization portal tests", () => {
     });
   });
 
-  test("Branding use as logo", async ({ page }) => {
+  test("Brand name", async ({ page }) => {
     await customization.navigateToSettings();
     await page.getByText("Branding").click();
-    await customization.setBrandingText("AutoTesting");
-    await customization.fieldContainerButton.click();
-    await customization.sectionWrapper.click();
-    await customization.saveButton.click();
+    await customization.brandName();
     await expect(
       page.locator("text=Settings have been successfully updated"),
     ).toHaveText("Settings have been successfully updated", { timeout: 10000 });
-    await customization.RemoveToast.click();
+  });
+
+  test("Generate logo from text", async ({ page }) => {
+    await customization.navigateToSettings();
+    await page.getByText("Branding").click();
+    await customization.generateLogo();
+    await expect(
+      page.locator("text=Settings have been successfully updated"),
+    ).toHaveText("Settings have been successfully updated", { timeout: 10000 });
+    await customization.removeToast.click();
     await page.waitForTimeout(1000);
-    await customization.restoreButton.click();
+    await customization.restoreButton.nth(1).click();
     await expect(
       page.locator("text=Settings have been successfully updated"),
     ).toHaveText("Settings have been successfully updated", { timeout: 10000 });
@@ -87,15 +94,12 @@ test.describe("Customization portal tests", () => {
     await customization.navigateToSettings();
     await page.getByText("Branding").click();
     await customization.uploadPictures();
-    await customization.fieldContainerButton.click();
-    await customization.sectionWrapper.click();
-    await customization.saveButton.click();
     await expect(
       page.locator("text=Settings have been successfully updated"),
     ).toHaveText("Settings have been successfully updated", { timeout: 10000 });
-    await customization.RemoveToast.click();
+    await customization.removeToast.click();
     await page.waitForTimeout(1000);
-    await customization.restoreButton.click();
+    await customization.restoreButton.nth(1).click();
     await expect(
       page.locator("text=Settings have been successfully updated"),
     ).toHaveText("Settings have been successfully updated", { timeout: 10000 });
@@ -109,14 +113,14 @@ test.describe("Customization portal tests", () => {
     await page.waitForTimeout(2000);
     await customization.selectTheme(5);
     await customization.darkThemeOption.click();
-    await customization.saveButtonAppearance.click();
+    await customization.saveButtonAppearance.first().click();
     await expect(
       page.locator("text=Settings have been successfully updated"),
     ).toHaveText("Settings have been successfully updated", { timeout: 10000 });
-    await customization.RemoveToast.click();
+    await customization.removeToast.click();
     await page.waitForTimeout(1000);
     await customization.selectTheme(2);
-    await customization.saveButtonAppearance.click();
+    await customization.saveButtonAppearance.first().click();
     await expect(
       page.locator("text=Settings have been successfully updated"),
     ).toHaveText("Settings have been successfully updated", { timeout: 10000 });
@@ -129,14 +133,14 @@ test.describe("Customization portal tests", () => {
     await expect(
       page.locator("text=Settings have been successfully updated"),
     ).toHaveText("Settings have been successfully updated", { timeout: 10000 });
-    await customization.RemoveToast.click();
+    await customization.removeToast.click();
     await customization.darkThemeOption.click();
-    await customization.saveButton.click();
+    await customization.saveButtonAppearance.first().click();
     await page.waitForTimeout(1000);
     await expect(
       page.locator("text=Settings have been successfully updated"),
     ).toHaveText("Settings have been successfully updated", { timeout: 10000 });
-    await customization.RemoveToast.click();
+    await customization.removeToast.click();
     await customization.deleteCustomTheme();
     await page.waitForTimeout(1000);
     await expect(
@@ -188,5 +192,117 @@ test.describe("Customization portal tests", () => {
     await expect(page4).toHaveURL(
       /administration\/docspace-settings.aspx#DocSpacerenaming/,
     );
+  });
+
+  test("Rename portal", async ({ page }) => {
+    test.setTimeout(90000);
+    await customization.navigateToSettings();
+    const { originalName, newName } = await customization.renamePortal();
+    await page.waitForURL(`https://${newName}.onlyoffice.io/**`, {
+      timeout: 30000,
+    });
+    await page.waitForLoadState("domcontentloaded");
+    await expect(page).toHaveURL(`https://${newName}.onlyoffice.io/`);
+
+    // Wait for email to arrive
+    await new Promise((resolve) => setTimeout(resolve, 15000));
+
+    // Create a MailChecker instance
+    const mailChecker = new MailChecker({
+      url: config.QA_MAIL_DOMAIN,
+      user: config.QA_MAIL_LOGIN,
+      pass: config.QA_MAIL_PASSWORD,
+    });
+
+    // Check for email with subject "Change of portal address"
+    const email = await mailChecker.checkEmailBySubject({
+      subject: "Change of portal address",
+      timeoutSeconds: 30,
+      moveOut: false,
+    });
+
+    // Log the found email
+    if (email) {
+      console.log(
+        `Found portal address change email with subject: "${email.subject}"`,
+      );
+    }
+
+    // Final verification
+    expect(email).toBeTruthy();
+
+    await customization.renamePortalBack(originalName);
+    await page.waitForURL(`https://${originalName}.onlyoffice.io/**`, {
+      timeout: 30000,
+    });
+    await page.waitForLoadState("domcontentloaded");
+    await expect(page).toHaveURL(`https://${originalName}.onlyoffice.io/`);
+  });
+
+  test("Configure deep link", async ({ page }) => {
+    await customization.navigateToSettings();
+    await customization.choseDeepLink();
+    await expect(
+      page.locator("text=Settings have been successfully updated"),
+    ).toHaveText("Settings have been successfully updated", { timeout: 10000 });
+    await customization.removeToast.click();
+    await page.waitForTimeout(1000);
+    await customization.webOnly.click({ force: true });
+    await customization.saveButton.nth(3).click();
+    await expect(
+      page.locator("text=Settings have been successfully updated"),
+    ).toHaveText("Settings have been successfully updated", { timeout: 10000 });
+    await customization.removeToast.click();
+    await page.waitForTimeout(1000);
+    await customization.webOrApp.click({ force: true });
+    await customization.saveButton.nth(3).click();
+    await expect(
+      page.locator("text=Settings have been successfully updated"),
+    ).toHaveText("Settings have been successfully updated", { timeout: 10000 });
+    await customization.removeToast.click();
+    await page.waitForTimeout(1000);
+  });
+
+  test("Brand name email verification", async ({ page }) => {
+    test.setTimeout(60000);
+    const profilePage = new ProfilePage(page);
+
+    // Set brand name to "autoTest"
+    await customization.navigateToSettings();
+    await page.getByText("Branding").click();
+    await customization.textInput.first().fill("autoTest");
+    await customization.saveButton.first().click();
+
+    // Request password change
+    await profilePage.navigateToProfile();
+    await profilePage.changePassword();
+
+    // Wait for email to arrive
+    await new Promise((resolve) => setTimeout(resolve, 15000));
+
+    // Create a MailChecker instance
+    const mailChecker = new MailChecker({
+      url: config.QA_MAIL_DOMAIN,
+      user: config.QA_MAIL_LOGIN,
+      pass: config.QA_MAIL_PASSWORD,
+    });
+
+    // Check for email with subject "Confirm changing your password" and sender "autoTest"
+    const email = await mailChecker.checkEmailBySenderAndSubject({
+      subject: "Confirm changing your password",
+      sender: "autoTest",
+      timeoutSeconds: 30,
+      moveOut: false,
+    });
+
+    // Log the found email
+    if (email) {
+      console.log(
+        `Found password change email from "${email.sender}" with subject: "${email.subject}"`,
+      );
+    }
+
+    // Final verification
+    expect(email).toBeTruthy();
   });
 });

@@ -3,6 +3,8 @@ import { Backup } from "../../../page_objects/settings/backup";
 import { PortalSetupApi } from "../../../api_library/portal_setup";
 import { PortalLoginPage } from "../../../page_objects/portal_login_page";
 import { PaymentApi } from "../../../api_library/paymentApi/paymentApi";
+import MailChecker from "../../../utils/mailChecker";
+import config from "../../../config/config.js";
 
 test.describe("Backup portal tests", () => {
   let apiContext;
@@ -107,12 +109,38 @@ test.describe("Backup portal tests", () => {
   });
 
   test("Backup temporary storage", async ({ page }) => {
+    test.setTimeout(60000);
     await backup.navigateToSettings();
     await backup.navigateToBackup.click();
     await backup.createBackupButton.click();
     await expect(
       page.locator("text=The backup copy has been successfully created."),
     ).toBeVisible({ timeout: 30000 });
+
+    // Wait for email to arrive
+    await new Promise((resolve) => setTimeout(resolve, 15000));
+
+    // Create a MailChecker instance
+    const mailChecker = new MailChecker({
+      url: config.QA_MAIL_DOMAIN,
+      user: config.QA_MAIL_LOGIN,
+      pass: config.QA_MAIL_PASSWORD,
+    });
+
+    // Check for email with subject containing "portal backup created"
+    const email = await mailChecker.checkEmailBySubject({
+      subject: "portal backup created",
+      timeoutSeconds: 30,
+      moveOut: false,
+    });
+
+    // Log the found email
+    if (email) {
+      console.log(`Found backup email with subject: "${email.subject}"`);
+    }
+
+    // Final verification
+    expect(email).toBeTruthy();
   });
 
   test("Backup room storage", async ({ page }) => {
