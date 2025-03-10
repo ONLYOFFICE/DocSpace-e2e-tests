@@ -3,10 +3,6 @@ import process from "node:process";
 
 dotenv.config();
 
-if (!process.env.TEST_DOMAIN) {
-  throw new Error("TEST_DOMAIN environment variable is not set.");
-}
-
 const config = {
   PORTAL_REGISTRATION_URL:
     process.env.PORTAL_REGISTRATION_URL ||
