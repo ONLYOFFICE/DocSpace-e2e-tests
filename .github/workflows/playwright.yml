@@ -7,7 +7,7 @@ on:
 jobs:
   sanity-check:
     name: "Sanity Check - Verify Registration Page Loads"
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     container:
       image: mcr.microsoft.com/playwright:v1.49.0-jammy
 
