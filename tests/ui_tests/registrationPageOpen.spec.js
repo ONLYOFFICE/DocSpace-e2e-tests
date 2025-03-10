@@ -1,5 +1,4 @@
 import { test, expect } from "@playwright/test";
-import config from "../../config/config.js";
 import { RegistrationPage } from "../../page_objects/site_registration_page.js";
 
 test("Verify registration page loads", async ({ page }) => {
