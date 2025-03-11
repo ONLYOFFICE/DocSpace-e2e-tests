@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { OAuth } from "../../../page_objects/settings/oauth";
+import { OAuth } from "../../../page_objects/settings/OAuth";
 import { PortalSetupApi } from "../../../api_library/portal_setup";
 import { PortalLoginPage } from "../../../page_objects/portal_login_page";
 
@@ -30,7 +30,6 @@ test.describe("OAuth tests", () => {
     await oAuth.navigateToSettings();
     await oAuth.navigateToOAuth();
     await oAuth.createOAuthApplication();
-    await page.waitForTimeout(2000);
     await expect(page.locator("text=Autotest")).toBeVisible({ timeout: 5000 });
   });
 
@@ -38,7 +37,6 @@ test.describe("OAuth tests", () => {
     await oAuth.navigateToSettings();
     await oAuth.navigateToOAuth();
     await oAuth.editOAuthApplication();
-    await page.waitForTimeout(2000);
     await expect(page.locator("text=AutotestRename")).toBeVisible({
       timeout: 10000,
     });

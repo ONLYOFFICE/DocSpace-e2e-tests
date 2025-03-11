@@ -18,6 +18,7 @@ class MailChecker {
         user: config.user,
         pass: config.pass,
       },
+      logger: false, // Suppress verbose IMAP logs
     });
   }
 

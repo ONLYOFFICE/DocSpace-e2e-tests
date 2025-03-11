@@ -7,13 +7,13 @@ export class DeletionPortal extends MainPage {
     this.navigateToDeletionPortal = page.getByRole("link", {
       name: "DocSpace Deletion",
     });
-    this.deleteButton = page.locator("button.delete-button");
+    this.deleteButton = page.locator(".delete-button");
     this.navigateToDeactivation = page.getByText("Deactivate DocSpace");
-    this.deactivateButton = page.locator("button.deactivate-button");
+    this.deactivateButton = page.locator(".deactivate-button");
   }
 
   async deletionPortal() {
-    await this.deleteButton.first().click();
+    await this.deleteButton.nth(0).click();
   }
 
   async deactivationPortal() {

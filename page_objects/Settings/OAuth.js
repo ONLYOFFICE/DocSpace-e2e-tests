@@ -22,17 +22,26 @@ export class OAuth extends MainPage {
     );
     this.oauthIconInput = page.locator('input[type="file"]');
     this.oauthPKCE = page
-      .locator("label")
-      .filter({ hasText: "Allow public client (PKCE)" })
-      .locator("rect");
+      .locator("label.Checkbox-module__label--NN27d")
+      .filter({ hasText: "Allow public client (PKCE)" });
     this.oauthAccessScopesArea = page.getByText(
       "Access scopes * ReadWriteProfileaccounts.self:read — View basic information",
     );
-    this.profileWritrCheckBox = page.locator(".checkbox > rect").nth(2);
-    this.contactsWriteCheckBox = page.locator(".checkbox > rect").nth(4);
-    this.filesAndFoldersWriteCheckBox = page.locator(".checkbox > rect").nth(6);
-    this.roomsWriteCheckBox = page.locator(".checkbox > rect").nth(8);
-    this.openIdCheckBox = page.locator(".checkbox > rect").nth(9);
+    this.profileWritrCheckBox = page
+      .locator("label.Checkbox-module__label--NN27d")
+      .nth(1);
+    this.contactsWriteCheckBox = page
+      .locator("label.Checkbox-module__label--NN27d")
+      .nth(3);
+    this.filesAndFoldersWriteCheckBox = page
+      .locator("label.Checkbox-module__label--NN27d")
+      .nth(5);
+    this.roomsWriteCheckBox = page
+      .locator("label.Checkbox-module__label--NN27d")
+      .nth(7);
+    this.openIdCheckBox = page
+      .locator("label.Checkbox-module__label--NN27d")
+      .nth(8);
     this.oauthPolicyUrlInput = page.locator('input[name="policy_url"]');
     this.oauthTermsOfServiceUrlInput = page.locator('input[name="terms_url"]');
     this.oauthSaveButton = page.getByRole("button", { name: "Save" });
@@ -65,7 +74,7 @@ export class OAuth extends MainPage {
     this.oauthDeleteApplication = page.getByRole("menuitem", {
       name: "Delete",
     });
-    this.oauthGuideLink = page.getByRole("link", { name: "OAuth 2.0 Guide" });
+    this.oauthGuideLink = page.locator('[data-testid="link"]');
   }
 
   async navigateToOAuth() {
