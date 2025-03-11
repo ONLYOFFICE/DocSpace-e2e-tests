@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { DevToolsLink } from "../../../page_objects/settings/devToolsLink";
+import { DevToolsLink } from "../../../page_objects/settings/DevToolsLink";
 import { PortalSetupApi } from "../../../api_library/portal_setup";
 import { PortalLoginPage } from "../../../page_objects/portal_login_page";
 

@@ -7,9 +7,7 @@ export class StorageManagement extends MainPage {
     this.navigateToStorageManagement = page.getByRole("link", {
       name: "Storage management",
     });
-    this.storageManagementGuideLink = page.getByRole("link", {
-      name: "Help Center.",
-    });
+    this.storageManagementGuideLink = page.locator("text=Help Center");
     this.onOffQuotaRoom = page
       .locator("label")
       .filter({ hasText: "Define quota per room" })

@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { Backup } from "../../../page_objects/settings/backup";
+import { Backup } from "../../../page_objects/settings/Backup";
 import { PortalSetupApi } from "../../../api_library/portal_setup";
 import { PortalLoginPage } from "../../../page_objects/portal_login_page";
 import { PaymentApi } from "../../../api_library/paymentApi/paymentApi";
@@ -39,7 +39,7 @@ test.describe("Backup portal tests", () => {
     test.setTimeout(60000);
     await backup.navigateToSettings();
     await backup.navigateToBackup.click();
-    await page.waitForTimeout(1000);
+    await page.waitForLoadState("networkidle");
     const page1 = await backup.backupGuidePopup();
     await page1.waitForURL(
       "https://*.onlyoffice.com/administration/docspace-settings.aspx#CreatingBackup_block",
@@ -53,7 +53,7 @@ test.describe("Backup portal tests", () => {
     test.setTimeout(60000);
     await backup.navigateToSettings();
     await backup.navigateToAutoBackup();
-    await page.waitForTimeout(1000);
+    await page.waitForLoadState("networkidle");
     const page1 = await backup.backupGuidePopup();
     await page1.waitForURL(
       "https://*.onlyoffice.com/administration/docspace-settings.aspx#AutoBackup",

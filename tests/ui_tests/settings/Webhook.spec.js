@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { Webhook } from "../../../page_objects/settings/webhook";
+import { Webhook } from "../../../page_objects/settings/Webhook";
 import { PortalSetupApi } from "../../../api_library/portal_setup";
 import { PortalLoginPage } from "../../../page_objects/portal_login_page";
 

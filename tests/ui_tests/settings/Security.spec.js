@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { Security } from "../../../page_objects/settings/security";
+import { Security } from "../../../page_objects/settings/Security";
 import { PortalSetupApi } from "../../../api_library/portal_setup";
 import { PortalLoginPage } from "../../../page_objects/portal_login_page";
 import { PaymentApi } from "../../../api_library/paymentApi/paymentApi";
@@ -33,7 +33,6 @@ test.describe("Security tests", () => {
     await security.navigateToSecurity.click();
     await security.updatePasswordStrength(17);
     await security.removeToast.click();
-    await page.waitForTimeout(1000);
     await security.updatePasswordStrength2(8);
     await expect(
       page.locator("text=Settings have been successfully updated"),
@@ -47,7 +46,6 @@ test.describe("Security tests", () => {
     await expect(
       page.locator("text=Settings have been successfully updated"),
     ).toHaveText("Settings have been successfully updated", { timeout: 10000 });
-    await page.waitForTimeout(1000);
     await security.removeToast.click();
     await security.customDomainsActivation();
     await expect(
@@ -65,7 +63,6 @@ test.describe("Security tests", () => {
     await security.navigateToSettings();
     await security.navigateToSecurity.click();
     await security.ipActivation();
-    await page.waitForTimeout(1000);
     await expect(
       page.locator("text=Settings have been successfully updated"),
     ).toHaveText("Settings have been successfully updated", { timeout: 10000 });
@@ -94,10 +91,10 @@ test.describe("Security tests", () => {
       page.locator("text=Settings have been successfully updated"),
     ).toHaveText("Settings have been successfully updated", { timeout: 10000 });
     await security.removeToast.click();
-    await page.waitForTimeout(1000);
+    //await page.waitForTimeout(1000);
     await security.adminMessageDeactivation();
     await expect(
-      page.locator("text=Settings have been successfully updated"),
+      page.locator("text=Settings have been successfully updated").nth(-1),
     ).toHaveText("Settings have been successfully updated", { timeout: 10000 });
   });
 
@@ -105,7 +102,7 @@ test.describe("Security tests", () => {
     test.setTimeout(60000);
     await security.navigateToSettings();
     await security.navigateToSecurity.click();
-    await page.waitForTimeout(2000);
+    await page.waitForTimeout(1000);
     const page1Promise = page.waitForEvent("popup");
     await security.passwordStrengthGuideLink.click();
     const page1 = await page1Promise;
@@ -206,7 +203,6 @@ test.describe("Security tests", () => {
       page.locator("text=Settings have been successfully updated"),
     ).toHaveText("Settings have been successfully updated", { timeout: 10000 });
     await security.removeToast.click();
-    await page.waitForTimeout(1000);
     await security.sessionLifetimeDeactivation();
     await expect(
       page.locator("text=Settings have been successfully updated"),

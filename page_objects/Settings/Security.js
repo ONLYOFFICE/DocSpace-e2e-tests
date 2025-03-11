@@ -13,24 +13,17 @@ export class Security extends MainPage {
     this.useSpecialCharacter = page
       .locator("label")
       .filter({ hasText: "Use special character" });
-    this.saveButton = page
-      .locator("div")
-      .filter({ hasText: /^SaveCancelYou have unsaved changes$/ })
-      .getByTestId("button")
-      .first();
+    this.saveButton = page.locator('[data-testid="save-button"]');
     this.anyDomains = page.locator("#any-domains");
     this.customDomains = page.locator("#custom-domains");
     this.disabledDomains = page.locator("#trusted-mail-disabled");
-    this.cancelButton = page
-      .locator("div")
-      .filter({ hasText: /^SaveCancelYou have unsaved changes$/ })
-      .getByTestId("button")
-      .nth(1);
+    this.cancelButton = page.locator('[data-testid="cancel-button"]');
     this.addDomainLink = page.getByText("Add trusted domain");
     this.trustDomainInput = page
       .locator("input.add-trusted-domain-input")
       .last();
-    this.delete = page.locator(".sc-beSSEr > g > path");
+    this.deleteDomain = page.locator(".add-trusted-domain-delete-icon");
+    this.deleteIp = page.locator(".add-allowed-ip-address-delete-icon");
     this.trustedDomainArea = page.getByText("SaveCancelYou have unsaved");
     this.apiEnable = page.locator("#ip-security-enable");
     this.addIpLink = page.getByText("Add allowed IP address");
@@ -53,9 +46,9 @@ export class Security extends MainPage {
     this.bruteForceSaveButton = page
       .locator(".sc-hfYvEh > .sc-hLwbiq > .buttons-flex > button")
       .first();
-    this.restoreToDefaultButton = page.getByRole("button", {
-      name: "Restore to default",
-    });
+    this.restoreToDefaultButton = page.locator(
+      ".brute-force-protection-cancel",
+    );
     this.removeToast = page.getByText(
       "Settings have been successfully updated",
     );
@@ -87,7 +80,7 @@ export class Security extends MainPage {
     await this.useCapitalLetter.click();
     await this.useDigits.click();
     await this.useSpecialCharacter.click();
-    await this.saveButton.click();
+    await this.saveButton.first().click();
   }
 
   async updatePasswordStrength2(value) {
@@ -98,83 +91,83 @@ export class Security extends MainPage {
     await this.useCapitalLetter.click();
     await this.useDigits.click();
     await this.useSpecialCharacter.click();
-    await this.saveButton.click();
+    await this.saveButton.first().click();
   }
 
   async anyDomainsActivation() {
     await this.anyDomains.click();
-    await this.cancelButton.click();
+    await this.cancelButton.nth(2).click();
     await this.customDomains.click();
-    await this.cancelButton.click();
+    await this.cancelButton.nth(2).click();
     await this.anyDomains.click();
-    await this.saveButton.click();
+    await this.saveButton.nth(2).click();
   }
 
   async customDomainsActivation() {
     await this.customDomains.click();
     await this.addDomainLink.click();
     await this.trustDomainInput.fill("gmail.com");
-    await this.saveButton.click();
+    await this.saveButton.nth(2).click();
   }
 
   async disableDomains() {
-    await this.delete.first().click();
+    await this.deleteDomain.first().click();
     await this.trustedDomainArea.click();
-    await this.saveButton.click();
+    await this.saveButton.nth(2).click();
     await this.addAtLeast1TrustedDomain.click();
     await this.disabledDomains.click();
-    await this.saveButton.click();
+    await this.saveButton.nth(2).click();
   }
 
   async ipActivation() {
     await this.apiEnable.click();
-    await this.cancelButton.click();
+    await this.cancelButton.nth(3).click();
     await this.apiEnable.click();
     await this.addIpLink.click();
     await this.ipInput.fill("155.155.155.155");
-    await this.saveButton.click();
+    await this.saveButton.nth(3).click();
   }
 
   async ipDeactivation() {
     await this.ipSecurityArea.click();
-    await this.delete.click();
-    await this.saveButton.click();
+    await this.deleteIp.click();
+    await this.saveButton.nth(3).click();
     await this.addAtLeast1AllowedIpAddress.click();
     await this.ipSecurityDisabled.click();
-    await this.saveButton.click();
+    await this.saveButton.nth(3).click();
   }
 
   async bruteForceActivation() {
     await this.numberOfAttempts.fill("2");
     await this.blickingTime.fill("30");
     await this.checkPeriod.fill("30");
-    await this.bruteForceArea.click();
-    await this.bruteForceSaveButton.click();
+    //await this.bruteForceArea.click();
+    await this.saveButton.nth(4).click();
   }
 
   async adminMessageActivation() {
     await this.adminMessageEnable.click();
-    await this.cancelButton.click();
+    await this.cancelButton.nth(5).click();
     await this.adminMessageEnable.click();
-    await this.saveButton.click();
+    await this.saveButton.nth(5).click();
   }
 
   async adminMessageDeactivation() {
     await this.adminMessageDisabled.click();
-    await this.saveButton.click();
+    await this.saveButton.nth(5).click();
   }
 
   async sessionLifetimeActivation() {
     await this.lifetimeEnable.click();
-    await this.cancelButton.click();
+    await this.cancelButton.nth(6).click();
     await this.lifetimeEnable.click();
     await this.lifetimeInput.fill("45");
-    await this.saveButton.click();
+    await this.saveButton.nth(6).click();
   }
 
   async sessionLifetimeDeactivation() {
     await this.lifetimeDisabled.click();
-    await this.saveButton.click();
+    await this.saveButton.nth(6).click();
   }
 
   async saveChanges() {

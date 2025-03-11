@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { StorageManagement } from "../../../page_objects/settings/storageManagement";
+import { StorageManagement } from "../../../page_objects/settings/StorageManagement";
 import { PortalSetupApi } from "../../../api_library/portal_setup";
 import { PaymentApi } from "../../../api_library/paymentApi/paymentApi";
 import { PortalLoginPage } from "../../../page_objects/portal_login_page";

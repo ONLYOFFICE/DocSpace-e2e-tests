@@ -91,12 +91,12 @@ export class Customization extends MainPage {
     await this.saveButton.first().click();
   }
 
-  async selectTheme(themeId) {
-    await this.page
-      .locator(`[id="\\3${themeId}"] div`)
-      .nth(1)
-      .first()
-      .click({ force: true });
+  async selectTheme() {
+    await this.page.locator('div[id="5"]').click();
+  }
+
+  async selectTheme2() {
+    await this.page.locator('div[id="2"]').click();
   }
 
   async createCustomTheme(accentColor, buttonsColor) {
@@ -170,11 +170,11 @@ export class Customization extends MainPage {
 
   async choseDeepLink() {
     await this.appOnly.click({ force: true });
-    await this.restoreButton.click();
+    await this.restoreButton.nth(3).click();
     await this.webOnly.click({ force: true });
-    await this.restoreButton.click();
+    await this.restoreButton.nth(3).click();
     await this.appOnly.click({ force: true });
-    await this.saveButton.click();
+    await this.saveButton.nth(3).click();
   }
 }
 export default Customization;

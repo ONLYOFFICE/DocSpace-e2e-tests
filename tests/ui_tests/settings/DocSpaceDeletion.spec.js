@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { DeletionPortal } from "../../../page_objects/settings/deletionPortal";
+import { DeletionPortal } from "../../../page_objects/settings/DeletionPortal";
 import { PortalSetupApi } from "../../../api_library/portal_setup";
 import { PortalLoginPage } from "../../../page_objects/portal_login_page";
 import MailChecker from "../../../utils/mailChecker";
@@ -34,11 +34,10 @@ test.describe("DocSpace deletion tests", () => {
     await deletionportal.navigateToDeletionPortal.click();
     await page.waitForTimeout(1000);
     await deletionportal.deletionPortal();
-    await page.waitForTimeout(1000);
     await expect(
       page
         .getByTestId("text")
-        .filter({ hasText: "A link to confirm the" })
+        .filter({ hasText: "A link to confirm the operation has been sent to" })
         .first(),
     ).toContainText("A link to confirm the operation has been sent to", {
       timeout: 10000,
@@ -61,13 +60,6 @@ test.describe("DocSpace deletion tests", () => {
       moveOut: false,
     });
 
-    // Log the found email
-    if (email) {
-      console.log(
-        `Found portal deletion email with subject: "${email.subject}"`,
-      );
-    }
-
     // Final verification
     expect(email).toBeTruthy();
   });
@@ -78,7 +70,6 @@ test.describe("DocSpace deletion tests", () => {
     await deletionportal.navigateToDeletionPortal.click();
     await page.waitForTimeout(1000);
     await deletionportal.deactivationPortal();
-    await page.waitForTimeout(1000);
     await expect(
       page
         .getByTestId("text")
@@ -104,13 +95,6 @@ test.describe("DocSpace deletion tests", () => {
       timeoutSeconds: 30,
       moveOut: false,
     });
-
-    // Log the found email
-    if (email) {
-      console.log(
-        `Found portal deactivation email with subject: "${email.subject}"`,
-      );
-    }
 
     // Final verification
     expect(email).toBeTruthy();

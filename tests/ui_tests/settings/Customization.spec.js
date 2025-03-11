@@ -38,12 +38,12 @@ test.describe("Customization portal tests", () => {
 
   test("Change lang&time", async ({ page }) => {
     await customization.navigateToSettings();
-    await page.waitForTimeout(1000);
+    //await page.waitForTimeout(1000);
     await customization.changeLanguage("English (United States)");
     await customization.changeTimezone("(UTC) Antarctica/Troll");
     await customization.settingsTitle.click();
     await customization.saveButton.click();
-    await page.waitForTimeout(1000);
+    //await page.waitForTimeout(1000);
     await customization.removeToast.click();
     await customization.changeLanguage("English (United Kingdom)");
     await customization.changeTimezone("(UTC) Europe/London");
@@ -83,7 +83,6 @@ test.describe("Customization portal tests", () => {
       page.locator("text=Settings have been successfully updated"),
     ).toHaveText("Settings have been successfully updated", { timeout: 10000 });
     await customization.removeToast.click();
-    await page.waitForTimeout(1000);
     await customization.restoreButton.nth(1).click();
     await expect(
       page.locator("text=Settings have been successfully updated"),
@@ -98,7 +97,6 @@ test.describe("Customization portal tests", () => {
       page.locator("text=Settings have been successfully updated"),
     ).toHaveText("Settings have been successfully updated", { timeout: 10000 });
     await customization.removeToast.click();
-    await page.waitForTimeout(1000);
     await customization.restoreButton.nth(1).click();
     await expect(
       page.locator("text=Settings have been successfully updated"),
@@ -108,18 +106,14 @@ test.describe("Customization portal tests", () => {
   test("Appearance", async ({ page }) => {
     await customization.navigateToSettings();
     await customization.navigateToAppearance.click();
-    await page.waitForTimeout(2000);
-    await customization.themeContainer.click();
-    await page.waitForTimeout(2000);
-    await customization.selectTheme(5);
+    await customization.selectTheme();
     await customization.darkThemeOption.click();
     await customization.saveButtonAppearance.first().click();
     await expect(
       page.locator("text=Settings have been successfully updated"),
     ).toHaveText("Settings have been successfully updated", { timeout: 10000 });
     await customization.removeToast.click();
-    await page.waitForTimeout(1000);
-    await customization.selectTheme(2);
+    await customization.selectTheme2();
     await customization.saveButtonAppearance.first().click();
     await expect(
       page.locator("text=Settings have been successfully updated"),
@@ -136,13 +130,11 @@ test.describe("Customization portal tests", () => {
     await customization.removeToast.click();
     await customization.darkThemeOption.click();
     await customization.saveButtonAppearance.first().click();
-    await page.waitForTimeout(1000);
     await expect(
       page.locator("text=Settings have been successfully updated"),
     ).toHaveText("Settings have been successfully updated", { timeout: 10000 });
     await customization.removeToast.click();
     await customization.deleteCustomTheme();
-    await page.waitForTimeout(1000);
     await expect(
       page.locator("text=Settings have been successfully updated"),
     ).toHaveText("Settings have been successfully updated", { timeout: 10000 });
@@ -151,7 +143,6 @@ test.describe("Customization portal tests", () => {
   test("General link", async ({ page }) => {
     test.setTimeout(120000);
     await customization.navigateToSettings();
-    await page.waitForTimeout(1000);
     const page1Promise = page.waitForEvent("popup");
     await customization.docspaceLanguageGuideLink.click();
     const page1 = await page1Promise;
@@ -246,7 +237,6 @@ test.describe("Customization portal tests", () => {
       page.locator("text=Settings have been successfully updated"),
     ).toHaveText("Settings have been successfully updated", { timeout: 10000 });
     await customization.removeToast.click();
-    await page.waitForTimeout(1000);
     await customization.webOnly.click({ force: true });
     await customization.saveButton.nth(3).click();
     await expect(
@@ -259,8 +249,6 @@ test.describe("Customization portal tests", () => {
     await expect(
       page.locator("text=Settings have been successfully updated"),
     ).toHaveText("Settings have been successfully updated", { timeout: 10000 });
-    await customization.removeToast.click();
-    await page.waitForTimeout(1000);
   });
 
   test("Brand name email verification", async ({ page }) => {
@@ -294,13 +282,6 @@ test.describe("Customization portal tests", () => {
       timeoutSeconds: 30,
       moveOut: false,
     });
-
-    // Log the found email
-    if (email) {
-      console.log(
-        `Found password change email from "${email.sender}" with subject: "${email.subject}"`,
-      );
-    }
 
     // Final verification
     expect(email).toBeTruthy();

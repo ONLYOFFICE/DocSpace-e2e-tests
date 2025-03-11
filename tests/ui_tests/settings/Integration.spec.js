@@ -129,7 +129,7 @@ test.describe("Integration tests", () => {
     test.setTimeout(60000);
     await integration.navigateToSettings();
     await integration.navigateToIntegration.click();
-    await page.waitForTimeout(2000);
+    await page.waitForTimeout(1000);
     const page1Promise = page.waitForEvent("popup");
     await integration.ldapLink.click();
     const page1 = await page1Promise;
@@ -151,7 +151,6 @@ test.describe("Integration tests", () => {
     ).toHaveText("Settings have been successfully updated", { timeout: 10000 });
     await integration.removeToast.click();
     await integration.smtpSendTestMail.click();
-    await page.waitForTimeout(2000);
     await expect(
       page.locator("text=Operation has been successfully completed."),
     ).toHaveText("Operation has been successfully completed.", {
@@ -159,7 +158,6 @@ test.describe("Integration tests", () => {
     });
     await integration.removeToast2.click();
     await integration.DefaultButton.click();
-    await page.waitForTimeout(1000);
     await expect(
       page.locator("text=Settings have been successfully updated"),
     ).toHaveText("Settings have been successfully updated", { timeout: 10000 });
