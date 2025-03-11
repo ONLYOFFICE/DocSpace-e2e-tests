@@ -91,7 +91,6 @@ test.describe("Security tests", () => {
       page.locator("text=Settings have been successfully updated"),
     ).toHaveText("Settings have been successfully updated", { timeout: 10000 });
     await security.removeToast.click();
-    //await page.waitForTimeout(1000);
     await security.adminMessageDeactivation();
     await expect(
       page.locator("text=Settings have been successfully updated").nth(-1),

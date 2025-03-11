@@ -38,17 +38,15 @@ test.describe("Customization portal tests", () => {
 
   test("Change lang&time", async ({ page }) => {
     await customization.navigateToSettings();
-    //await page.waitForTimeout(1000);
     await customization.changeLanguage("English (United States)");
     await customization.changeTimezone("(UTC) Antarctica/Troll");
     await customization.settingsTitle.click();
-    await customization.saveButton.click();
-    //await page.waitForTimeout(1000);
+    await customization.saveButton.first().click();
     await customization.removeToast.click();
     await customization.changeLanguage("English (United Kingdom)");
     await customization.changeTimezone("(UTC) Europe/London");
     await customization.settingsTitle.click();
-    await customization.saveButton.click();
+    await customization.saveButton.first().click();
     await expect(
       page.locator("text=Settings have been successfully updated"),
     ).toHaveText("Settings have been successfully updated", { timeout: 10000 });

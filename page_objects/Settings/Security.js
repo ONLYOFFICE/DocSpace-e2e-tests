@@ -141,7 +141,6 @@ export class Security extends MainPage {
     await this.numberOfAttempts.fill("2");
     await this.blickingTime.fill("30");
     await this.checkPeriod.fill("30");
-    //await this.bruteForceArea.click();
     await this.saveButton.nth(4).click();
   }
 
