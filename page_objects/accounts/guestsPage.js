@@ -41,7 +41,5 @@ export class GuestsPage {
     await this.page.locator(this.contextMenuButton).nth(0).click();
     await this.page.click(this.deleteMenuItem);
     await this.page.click(this.deleteButton);
-    //await this.page.waitForTimeout(4000);
-    //await this.page.click(this.dataReassignmentCloseButton);
   }
 }
