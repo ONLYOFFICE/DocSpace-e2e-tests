@@ -34,6 +34,9 @@ export class RoomsApi {
     const { response: room } = await response.json();
     log.info(`Room created: "${room.title}" (ID: ${room.id})`);
 
+    // Store the room ID as a property on the roomsApi object
+    this.roomId = room.id;
+
     return { room, statusCode: response.status() };
   }
 
@@ -137,5 +140,30 @@ export class RoomsApi {
     log.info(`File created successfully in room: ${responseBody.response.id}`);
 
     return responseBody.response;
+  }
+
+  async inviteGuestInRoom(roomId, email) {
+    const response = await this.apiContext.put(
+      `${this.baseURL}/files/rooms/${roomId}/share`,
+      {
+        headers: this.getAuthHeaders(),
+        data: {
+          invitations: [{ access: 2, email: email }],
+          notify: true,
+          message: "Invitation message",
+        },
+      },
+    );
+
+    if (!response.ok()) {
+      throw new Error(
+        `Failed to invite guest in room (${response.status()}): ${await response.text()}`,
+      );
+    }
+
+    const responseBody = await response.json();
+    log.info(`Guest invited successfully in room: ${roomId}`);
+
+    return responseBody;
   }
 }
