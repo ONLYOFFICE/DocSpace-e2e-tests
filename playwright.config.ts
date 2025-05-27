@@ -1,6 +1,7 @@
 import { defineConfig } from "@playwright/test";
 import { devices } from "@playwright/test";
-import config from "./config/config.js";
+
+import config from "./config";
 
 export default defineConfig({
   testDir: "./tests",
@@ -11,7 +12,7 @@ export default defineConfig({
     video: "off",
     browserName: "chromium", // You can change this to "firefox" or "webkit"
     trace: "on-first-retry", // Enables trace
-    ...(config.IS_MOBILE
+    ...(config.IS_MOBILE && config.DEVICE
       ? {
           ...devices[config.DEVICE],
         }

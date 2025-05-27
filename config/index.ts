@@ -3,7 +3,54 @@ import process from "node:process";
 
 dotenv.config();
 
-const config = {
+interface Config {
+  PORTAL_REGISTRATION_URL: string;
+  AWS_REGION?: string;
+  DOCSPACE_ADMIN_EMAIL?: string;
+  DOCSPACE_ADMIN_PASSWORD?: string;
+  DOCSPACE_USER_EMAIL?: string;
+  DOCSPACE_USER_PASSWORD?: string;
+  TEST_SITE_REGISTRATION_URL?: string;
+  FACEBOOK_ID?: string;
+  FACEBOOK_KEY?: string;
+  S3_ACCESS_KEY?: string;
+  S3_SECRET_KEY?: string;
+  LDAP_SERVER?: string;
+  LDAP_USER_DN?: string;
+  LDAP_USER_FILTER?: string;
+  LDAP_LOGIN?: string;
+  LDAP_PASSWORD?: string;
+  SMTP_HOST?: string;
+  SMTP_HOST_LOGIN?: string;
+  SMTP_HOST_PASSWORD?: string;
+  NEXTCLOUD_URL?: string;
+  NEXTCLOUD_LOGIN?: string;
+  NEXTCLOUD_PASSWORD?: string;
+  PDF_CONVERTER_KEY?: string;
+  SPEECH_TO_TEXT_KEY?: string;
+  QA_MAIL_DOMAIN?: string;
+  QA_MAIL_LOGIN?: string;
+  QA_MAIL_LOGIN_USER?: string;
+  QA_MAIL_PASSWORD?: string;
+  QA_MAIL_PASSWORD_USER?: string;
+  logLevel: string;
+  MOBILE_USER_AGENT?: string;
+  IS_MOBILE: boolean;
+  VIEW_PORT?: string;
+  DEVICE?: string;
+  MACHINEKEY?: string;
+  PKEY?: string;
+  BOX_LOGIN?: string;
+  BOX_PASS?: string;
+  BOX_ID?: string;
+  BOX_KEY?: string;
+  ONEDRIVE_LOGIN?: string;
+  ONEDRIVE_PASSWORD?: string;
+  DROPBOX_LOGIN?: string;
+  DROPBOX_PASS?: string;
+}
+
+const config: Config = {
   PORTAL_REGISTRATION_URL:
     process.env.PORTAL_REGISTRATION_URL ||
     `https://${process.env.TEST_DOMAIN}/apisystem/portal`,
