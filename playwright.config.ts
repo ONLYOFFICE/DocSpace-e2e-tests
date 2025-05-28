@@ -1,21 +1,51 @@
 import { defineConfig } from "@playwright/test";
 import { devices } from "@playwright/test";
 
-import config from "./config";
-
 export default defineConfig({
-  testDir: "./tests",
+  testDir: "./src/tests",
   retries: 0,
+  workers: 5,
+  // Directory for screenshots
+  outputDir: "./test-output",
+  // Proper snapshot path template with placeholders and file extension
+  snapshotPathTemplate: "./screenshots/{projectName}/{arg}{ext}",
+  reporter: [
+    [
+      "html",
+      {
+        outputFolder: "./playwright-report",
+        open: "never",
+      },
+    ],
+  ],
   use: {
     headless: true,
-    screenshot: "only-on-failure",
+    screenshot: { mode: "only-on-failure", fullPage: true },
     video: "off",
     browserName: "chromium", // You can change this to "firefox" or "webkit"
     trace: "on-first-retry", // Enables trace
-    ...(config.IS_MOBILE && config.DEVICE
-      ? {
-          ...devices[config.DEVICE],
-        }
-      : {}),
+    // ...(config.IS_MOBILE && config.DEVICE
+    //   ? {
+    //       ...devices[config.DEVICE],
+    //     }
+    //   : {}),
   },
+  projects: [
+    {
+      name: "chromium",
+      use: {
+        ...devices["Desktop Chrome"],
+        viewport: { width: 1440, height: 1024 },
+      },
+    },
+    /*     {
+      name: "firefox",
+      use: { ...devices["Desktop Firefox"] },
+    },
+
+    {
+      name: "webkit",
+      use: { ...devices["Desktop Safari"] },
+    },  */
+  ],
 });

@@ -11,3 +11,5 @@ traces/
 .DS_Store
 # Ignore Playwright browser cache
 playwright/.cache/
+playwright-report
+test-output

@@ -21,11 +21,32 @@ This project contains automated tests for ONLYOFFICE DocSpace using Playwright t
 
 ## Running Tests
 
+### Local Execution
+
 These commands will run tests locally on your machine:
 
 - Run all tests: `npm test`
 - Run UI tests only: `npm run test:ui`
 - Run API tests only: `npm run test:api`
+
+### Docker Execution
+
+You can also run tests in a Docker container to ensure consistent environments:
+
+- Build and run tests using Docker Compose:
+  ```bash
+  docker-compose up --build
+  ```
+
+- Run with specific test files:
+  ```bash
+  docker-compose run e2e-tests npx playwright test src/tests/site/login-page.spec.ts
+  ```
+
+- Open the HTML report after running tests:
+  ```bash
+  docker-compose run e2e-tests npx playwright show-report
+  ```
 
 ### Regional Testing
 
