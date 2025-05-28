@@ -29,14 +29,12 @@ test.describe("Files: My documents", () => {
     adFrame = new AdFrame(page);
 
     await login.loginToPortal();
+    await myDocuments.open();
+    await table.hideModified();
+    await adFrame.closeIframe();
   });
 
   test("Render", async ({ page }) => {
-    await myDocuments.open();
-
-    await table.hideModified();
-    await adFrame.closeIframe();
-
     await expect(page).toHaveScreenshot([
       "client",
       "files",
