@@ -5,6 +5,8 @@ export default defineConfig({
   testDir: "./src/tests",
   retries: 0,
   workers: 5,
+  // Ignore tests in the site directory
+  testIgnore: ["**/site/**/*.spec.ts"],
   // Directory for screenshots
   outputDir: "./test-output",
   // Proper snapshot path template with placeholders and file extension
