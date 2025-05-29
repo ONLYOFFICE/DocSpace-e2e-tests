@@ -17,6 +17,8 @@ class MyDocuments {
       waitUntil: "networkidle",
     });
   }
+
+  async clearTable() {}
 }
 
 export default MyDocuments;

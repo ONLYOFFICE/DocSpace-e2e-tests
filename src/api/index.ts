@@ -3,6 +3,7 @@ import { APIRequestContext } from "@playwright/test";
 import Apisystem from "./apisystem";
 import Auth from "./auth";
 import People from "./people";
+import File from "./file";
 
 class API {
   apiRequestContext: APIRequestContext;
@@ -13,12 +14,14 @@ class API {
   apisystem: Apisystem;
   auth: Auth;
   people: People;
+  file: File;
 
   constructor(apiRequestContext: APIRequestContext) {
     this.apiRequestContext = apiRequestContext;
     this.apisystem = new Apisystem(apiRequestContext);
     this.auth = new Auth(apiRequestContext, "");
     this.people = new People(apiRequestContext);
+    this.file = new File(apiRequestContext);
   }
 
   async setup() {
@@ -35,6 +38,9 @@ class API {
     this.people.setAuthToken(authToken);
     this.people.setPortalDomain(portal.tenant.domain);
     this.people.setAdminUserId(portal.tenant.ownerId);
+
+    this.file.setAuthToken(authToken);
+    this.file.setPortalDomain(portal.tenant.domain);
 
     await this.people.activateAdminUser();
   }

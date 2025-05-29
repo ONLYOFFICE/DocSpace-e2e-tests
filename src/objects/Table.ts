@@ -1,4 +1,8 @@
-import { Page } from "@playwright/test";
+import { expect, Page } from "@playwright/test";
+
+const DELETE_BUTTON = "#menu-delete";
+const DELETE_BUTTON_SUMBIT = "#delete-file-modal_submit";
+const TABLE_LIST_ITEM = ".table-list-item.window-item";
 
 class Table {
   page: Page;
@@ -34,6 +38,30 @@ class Table {
     }
 
     await this.hideSettings();
+  }
+
+  async selectAllRows() {
+    const rows = this.page.locator(TABLE_LIST_ITEM);
+    const countRows = await rows.count();
+
+    for (let i = 0; i < countRows; i++) {
+      await this.page.keyboard.down("Control"); // или 'Meta' на Mac
+      await rows.nth(i).click();
+      await this.page.keyboard.up("Control");
+    }
+
+    return countRows;
+  }
+
+  async deleteAllRows() {
+    const countRows = await this.selectAllRows();
+
+    if (countRows > 1) {
+      await this.page.locator(DELETE_BUTTON).click();
+      await this.page.locator(DELETE_BUTTON_SUMBIT).click();
+    }
+
+    await expect(this.page.locator(TABLE_LIST_ITEM)).toHaveCount(0);
   }
 }
 

@@ -20,6 +20,7 @@
     "test:error": "LOG_LEVEL=error npm test",
     "test:silent": "LOG_LEVEL=silent npm test",
     "build": "tsc",
+    "debug": "PWDEBUG=1 npx playwright test",
     "build:watch": "tsc --watch",
     "lint": "eslint ./src",
     "lint-staged": "lint-staged",
