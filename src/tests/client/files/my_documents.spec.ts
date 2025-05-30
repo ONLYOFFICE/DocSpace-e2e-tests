@@ -5,7 +5,8 @@ import Login from "../../../objects/Login";
 import MyDocuments from "../../../objects/MyDocuments";
 import Table from "../../../objects/Table";
 import AdFrame from "../../../objects/AdFrame";
-import EmptyView from "../../../objects/EmpyView";
+import FilesEmptyView from "../../../objects/FilesEmptyView";
+import AdBanner from "../../../objects/AdBanner";
 
 test.describe("Files: My documents", () => {
   let api: API;
@@ -13,7 +14,8 @@ test.describe("Files: My documents", () => {
   let myDocuments: MyDocuments;
   let table: Table;
   let adFrame: AdFrame;
-  let emptyView: EmptyView;
+  let filesEmptyView: FilesEmptyView;
+  let adBanner: AdBanner;
 
   test.beforeAll(async ({ playwright }) => {
     const apiContext = await playwright.request.newContext();
@@ -29,12 +31,14 @@ test.describe("Files: My documents", () => {
     myDocuments = new MyDocuments(page, api.portalDomain);
     table = new Table(page);
     adFrame = new AdFrame(page);
-    emptyView = new EmptyView(page);
+    adBanner = new AdBanner(page);
+    filesEmptyView = new FilesEmptyView(page);
 
     await login.loginToPortal();
     await myDocuments.open();
     await table.hideModified();
     await adFrame.closeIframe();
+    await adBanner.closeBanner();
   });
 
   test("Render", async ({ page }) => {
@@ -47,25 +51,26 @@ test.describe("Files: My documents", () => {
 
   test("EmptyScreen", async ({ page }) => {
     await table.deleteAllRows();
-    await emptyView.checkNoDocsTextExist();
-    await emptyView.checkAllDocActionModalsExist();
-    await page.getByText("Recently accessible via link").click();
-    await emptyView.checkNoFilesTextExist();
+    await filesEmptyView.checkNoDocsTextExist();
 
     await expect(page).toHaveScreenshot([
       "client",
       "files",
-      "my_documents_empty_screen_no_files.png",
+      "my_documents_empty_view.png",
     ]);
 
-    await emptyView.clickGotoDocumentsButton();
-    await emptyView.checkNoDocsTextExist();
+    await myDocuments.openAndValidateFileCreateModals();
+    await myDocuments.openRecentlyAccessibleTab();
+    await filesEmptyView.checkNoFilesTextExist();
 
     await expect(page).toHaveScreenshot([
       "client",
       "files",
-      "my_documents_empty_screen_no_docs.png",
+      "my_documents_empty_view_recent.png",
     ]);
+
+    await filesEmptyView.clickGotoDocumentsButton();
+    await filesEmptyView.checkNoDocsTextExist();
   });
 
   test.afterAll(async () => {

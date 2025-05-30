@@ -3,6 +3,9 @@ import { expect, Page } from "@playwright/test";
 const DELETE_BUTTON = "#menu-delete";
 const DELETE_BUTTON_SUMBIT = "#delete-file-modal_submit";
 const TABLE_LIST_ITEM = ".table-list-item.window-item";
+const SETTINGS_ICON = '[data-iconname*="settings.desc.react.svg"]';
+const MODIFIED_CHECKBOX =
+  ".table-container_settings-checkbox:has(span:text-is('Modified'))";
 
 class Table {
   page: Page;
@@ -12,9 +15,7 @@ class Table {
   }
 
   async openSettings() {
-    await this.page
-      .locator('[data-iconname*="settings.desc.react.svg"]')
-      .click();
+    await this.page.locator(SETTINGS_ICON).click();
   }
 
   async hideSettings() {
@@ -25,9 +26,7 @@ class Table {
     await this.openSettings();
 
     // Find the checkbox with "Modified" text
-    const modifiedCheckbox = this.page.locator(
-      ".table-container_settings-checkbox:has(span:text-is('Modified'))",
-    );
+    const modifiedCheckbox = this.page.locator(MODIFIED_CHECKBOX);
 
     // Check if it's currently checked
     const isChecked = await modifiedCheckbox.locator("input").isChecked();
@@ -40,12 +39,28 @@ class Table {
     await this.hideSettings();
   }
 
+  // locators
+
+  private get tableRows() {
+    return this.page.locator(TABLE_LIST_ITEM);
+  }
+
+  private get deleteButton() {
+    return this.page.locator(DELETE_BUTTON);
+  }
+
+  private get deleteButtonSubmit() {
+    return this.page.locator(DELETE_BUTTON_SUMBIT);
+  }
+
+  // methods
+
   async selectAllRows() {
-    const rows = this.page.locator(TABLE_LIST_ITEM);
+    const rows = this.tableRows;
     const countRows = await rows.count();
 
     for (let i = 0; i < countRows; i++) {
-      await this.page.keyboard.down("Control"); // или 'Meta' на Mac
+      await this.page.keyboard.down("Control"); // or 'Meta' on Mac
       await rows.nth(i).click();
       await this.page.keyboard.up("Control");
     }
@@ -57,11 +72,11 @@ class Table {
     const countRows = await this.selectAllRows();
 
     if (countRows > 1) {
-      await this.page.locator(DELETE_BUTTON).click();
-      await this.page.locator(DELETE_BUTTON_SUMBIT).click();
+      await this.deleteButton.click();
+      await this.deleteButtonSubmit.click();
     }
 
-    await expect(this.page.locator(TABLE_LIST_ITEM)).toHaveCount(0);
+    await expect(this.tableRows).toHaveCount(0);
   }
 }
 
