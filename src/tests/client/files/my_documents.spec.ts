@@ -8,6 +8,8 @@ import AdFrame from "../../../objects/AdFrame";
 import FilesEmptyView from "../../../objects/FilesEmptyView";
 import AdBanner from "../../../objects/AdBanner";
 import FilesCreateDropdown from "../../../objects/FilesCreateDropdown";
+import InfoPanel from "../../../objects/InfoPanel";
+import Screenshot from "../../../objects/Screenshot";
 
 test.describe("Files: My documents", () => {
   let api: API;
@@ -18,6 +20,8 @@ test.describe("Files: My documents", () => {
   let filesEmptyView: FilesEmptyView;
   let adBanner: AdBanner;
   let filesCreateDropdown: FilesCreateDropdown;
+  let infoPanel: InfoPanel;
+  let screenshot: Screenshot;
 
   test.beforeAll(async ({ playwright }) => {
     const apiContext = await playwright.request.newContext();
@@ -31,11 +35,13 @@ test.describe("Files: My documents", () => {
     console.log(api.portalDomain);
     login = new Login(page, api.portalDomain);
     myDocuments = new MyDocuments(page, api.portalDomain);
+    screenshot = new Screenshot(page, "my_documents", "files");
     table = new Table(page);
     adFrame = new AdFrame(page);
     adBanner = new AdBanner(page);
     filesEmptyView = new FilesEmptyView(page);
     filesCreateDropdown = new FilesCreateDropdown(page);
+    infoPanel = new InfoPanel(page);
 
     await login.loginToPortal();
     await myDocuments.open();
@@ -44,69 +50,52 @@ test.describe("Files: My documents", () => {
     await adBanner.closeBanner();
   });
 
-  test("Render", async ({ page }) => {
-    await expect(page).toHaveScreenshot([
-      "client",
-      "files",
-      "my_documents_render.png",
-    ]);
+  test("Render", async () => {
+    await screenshot.expectHaveScreenshot("render");
   });
 
-  test("EmptyScreen", async ({ page }) => {
+  test("EmptyScreen", async () => {
     await table.deleteAllRows();
     await filesEmptyView.checkNoDocsTextExist();
 
-    await expect(page).toHaveScreenshot([
-      "client",
-      "files",
-      "my_documents_empty_view.png",
-    ]);
+    await screenshot.expectHaveScreenshot("empty_view");
 
     await filesEmptyView.openAndValidateFileCreateModals();
 
     await myDocuments.openRecentlyAccessibleTab();
     await filesEmptyView.checkNoFilesTextExist();
 
-    await expect(page).toHaveScreenshot([
-      "client",
-      "files",
-      "my_documents_empty_view_recent.png",
-    ]);
+    await screenshot.expectHaveScreenshot("empty_view_recent");
 
     await filesEmptyView.clickGotoDocumentsButton();
     await filesEmptyView.checkNoDocsTextExist();
   });
 
-  test("FilesCreate", async ({ page }) => {
+  test("FilesCreate", async () => {
     await filesCreateDropdown.clickHeaderAddButton();
 
-    await expect(page).toHaveScreenshot([
-      "client",
-      "files",
-      "my_documents_view_dropdown.png",
-    ]);
+    await screenshot.expectHaveScreenshot("view_dropdown");
 
     await filesCreateDropdown.closeCreateDropdown();
     await filesCreateDropdown.openAndValidateFileCreateModals();
 
     await filesCreateDropdown.openCreateDropdownByMainButton();
 
-    await expect(page).toHaveScreenshot([
-      "client",
-      "files",
-      "my_documents_view_dropdown_action.png",
-    ]);
+    await screenshot.expectHaveScreenshot("view_dropdown_action");
 
     await filesCreateDropdown.closeCreateDropdown();
     await filesCreateDropdown.createFiles();
 
     await table.hideModified();
 
-    await expect(page).toHaveScreenshot([
-      "client",
-      "files",
-      "my_documents_view_created_files.png",
-    ]);
+    await screenshot.expectHaveScreenshot("view_created_files");
+  });
+
+  test("InfoPanel", async () => {
+    await myDocuments.openInfoPanel();
+    await infoPanel.checkNoItemTextExist();
+
+    await screenshot.expectHaveScreenshot("view_openned_info_panel");
   });
 
   test.afterAll(async () => {
