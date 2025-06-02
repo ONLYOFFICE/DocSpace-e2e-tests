@@ -23,6 +23,12 @@ class Table {
   }
 
   async hideModified() {
+    const countTableRows = await this.tableRows.count();
+
+    if (countTableRows === 0) {
+      return;
+    }
+
     await this.openSettings();
 
     // Find the checkbox with "Modified" text
@@ -39,8 +45,6 @@ class Table {
     await this.hideSettings();
   }
 
-  // locators
-
   private get tableRows() {
     return this.page.locator(TABLE_LIST_ITEM);
   }
@@ -52,8 +56,6 @@ class Table {
   private get deleteButtonSubmit() {
     return this.page.locator(DELETE_BUTTON_SUMBIT);
   }
-
-  // methods
 
   async selectAllRows() {
     const rows = this.tableRows;

@@ -1,6 +1,8 @@
 import { expect, Page } from "@playwright/test";
 
 const MODAL_DIALOG = "#modal-dialog";
+const CREATE_TEXT_INPUT = "#create-text-input";
+const CREATE_BUTTON = ".modal-footer button[type='submit']";
 
 class FilesCreateModal {
   page: Page;
@@ -13,12 +15,28 @@ class FilesCreateModal {
     return this.page.locator(MODAL_DIALOG);
   }
 
+  private get createTextInput() {
+    return this.page.locator(CREATE_TEXT_INPUT);
+  }
+
+  private get createButton() {
+    return this.page.locator(CREATE_BUTTON);
+  }
+
   async checkModalExist() {
     await expect(this.modal).toBeVisible();
   }
 
   async checkModalTitleExist(title: string) {
     await expect(this.modal.getByText(title)).toBeVisible();
+  }
+
+  async fillCreateTextInput(text: string) {
+    await this.createTextInput.fill(text);
+  }
+
+  async clickCreateButton() {
+    await this.createButton.click();
   }
 
   async closeModalByClickOutside() {

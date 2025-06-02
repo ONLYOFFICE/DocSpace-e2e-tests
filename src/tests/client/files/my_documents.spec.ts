@@ -7,6 +7,7 @@ import Table from "../../../objects/Table";
 import AdFrame from "../../../objects/AdFrame";
 import FilesEmptyView from "../../../objects/FilesEmptyView";
 import AdBanner from "../../../objects/AdBanner";
+import FilesCreateDropdown from "../../../objects/FilesCreateDropdown";
 
 test.describe("Files: My documents", () => {
   let api: API;
@@ -16,6 +17,7 @@ test.describe("Files: My documents", () => {
   let adFrame: AdFrame;
   let filesEmptyView: FilesEmptyView;
   let adBanner: AdBanner;
+  let filesCreateDropdown: FilesCreateDropdown;
 
   test.beforeAll(async ({ playwright }) => {
     const apiContext = await playwright.request.newContext();
@@ -33,6 +35,7 @@ test.describe("Files: My documents", () => {
     adFrame = new AdFrame(page);
     adBanner = new AdBanner(page);
     filesEmptyView = new FilesEmptyView(page);
+    filesCreateDropdown = new FilesCreateDropdown(page);
 
     await login.loginToPortal();
     await myDocuments.open();
@@ -59,7 +62,8 @@ test.describe("Files: My documents", () => {
       "my_documents_empty_view.png",
     ]);
 
-    await myDocuments.openAndValidateFileCreateModals();
+    await filesEmptyView.openAndValidateFileCreateModals();
+
     await myDocuments.openRecentlyAccessibleTab();
     await filesEmptyView.checkNoFilesTextExist();
 
@@ -71,6 +75,38 @@ test.describe("Files: My documents", () => {
 
     await filesEmptyView.clickGotoDocumentsButton();
     await filesEmptyView.checkNoDocsTextExist();
+  });
+
+  test("FilesCreate", async ({ page }) => {
+    await filesCreateDropdown.clickHeaderAddButton();
+
+    await expect(page).toHaveScreenshot([
+      "client",
+      "files",
+      "my_documents_view_dropdown.png",
+    ]);
+
+    await filesCreateDropdown.closeCreateDropdown();
+    await filesCreateDropdown.openAndValidateFileCreateModals();
+
+    await filesCreateDropdown.openCreateDropdownByMainButton();
+
+    await expect(page).toHaveScreenshot([
+      "client",
+      "files",
+      "my_documents_view_dropdown_action.png",
+    ]);
+
+    await filesCreateDropdown.closeCreateDropdown();
+    await filesCreateDropdown.createFiles();
+
+    await table.hideModified();
+
+    await expect(page).toHaveScreenshot([
+      "client",
+      "files",
+      "my_documents_view_created_files.png",
+    ]);
   });
 
   test.afterAll(async () => {
