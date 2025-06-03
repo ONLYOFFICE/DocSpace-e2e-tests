@@ -10,6 +10,7 @@ import AdBanner from "../../../objects/AdBanner";
 import FilesCreateDropdown from "../../../objects/FilesCreateDropdown";
 import InfoPanel from "../../../objects/InfoPanel";
 import Screenshot from "../../../objects/Screenshot";
+import ContextMenu from "../../../objects/ContextMenu";
 
 test.describe("Files: My documents", () => {
   let api: API;
@@ -22,6 +23,7 @@ test.describe("Files: My documents", () => {
   let filesCreateDropdown: FilesCreateDropdown;
   let infoPanel: InfoPanel;
   let screenshot: Screenshot;
+  let contextMenu: ContextMenu;
 
   test.beforeAll(async ({ playwright }) => {
     const apiContext = await playwright.request.newContext();
@@ -42,6 +44,7 @@ test.describe("Files: My documents", () => {
     filesEmptyView = new FilesEmptyView(page);
     filesCreateDropdown = new FilesCreateDropdown(page);
     infoPanel = new InfoPanel(page);
+    contextMenu = new ContextMenu(page);
 
     await login.loginToPortal();
     await myDocuments.open();
@@ -91,11 +94,64 @@ test.describe("Files: My documents", () => {
     await screenshot.expectHaveScreenshot("view_created_files");
   });
 
-  test("InfoPanel", async () => {
-    await myDocuments.openInfoPanel();
+  test("InfoPanel", async ({ page }) => {
+    await infoPanel.toggleInfoPanel();
     await infoPanel.checkNoItemTextExist();
+    await screenshot.expectHaveScreenshot("view_info_panel_empty");
 
-    await screenshot.expectHaveScreenshot("view_openned_info_panel");
+    await table.selectDocxFile();
+    await infoPanel.hideDatePropertiesDetails();
+    await infoPanel.checkDocxFileProperties();
+    await screenshot.expectHaveScreenshot("view_info_panel_file_details");
+
+    await infoPanel.openOptions();
+    await screenshot.expectHaveScreenshot(
+      "view_openned_info_panel_file_options",
+    );
+    await infoPanel.closeDropdown();
+
+    await infoPanel.openTab("History");
+    await infoPanel.checkHistoryExist("File created.");
+    await infoPanel.hideCreationTimeHistory();
+    await screenshot.expectHaveScreenshot("view_info_panel_file_history");
+
+    await infoPanel.openTab("Share");
+    await infoPanel.checkShareExist();
+    await infoPanel.createFirstSharedLink();
+    await infoPanel.createMoreSharedLink();
+    await screenshot.expectHaveScreenshot("view_info_panel_file_share");
+
+    await page.pause();
+    await table.selectAllRows();
+    await screenshot.expectHaveScreenshot(
+      "view_info_panel_multiselected_files",
+    );
+    await table.resetSelect();
+
+    await table.selectFolderByName("Folder");
+    await infoPanel.hideDatePropertiesDetails();
+    await infoPanel.checkFolderProperties();
+
+    await infoPanel.openOptions();
+    await screenshot.expectHaveScreenshot(
+      "view_openned_info_panel_folder_options",
+    );
+
+    await infoPanel.openTab("History");
+    await infoPanel.checkHistoryExist("Folder created.");
+
+    await table.openContextMenu();
+
+    await contextMenu.selectOption("Info");
+    await infoPanel.hideDatePropertiesDetails();
+    await infoPanel.checkDocxFileProperties();
+
+    await table.openContextMenu();
+
+    await contextMenu.selectOption("Share");
+    await infoPanel.checkShareExist();
+
+    await infoPanel.toggleInfoPanel();
   });
 
   test.afterAll(async () => {

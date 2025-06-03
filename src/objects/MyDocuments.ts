@@ -1,6 +1,4 @@
-import { expect, Page } from "@playwright/test";
-
-const TOGGLE_INFO_PANEL = "#info-panel-toggle--open";
+import { Page } from "@playwright/test";
 
 class MyDocuments {
   page: Page;
@@ -9,10 +7,6 @@ class MyDocuments {
   constructor(page: Page, portalDomain: string) {
     this.page = page;
     this.portalDomain = portalDomain;
-  }
-
-  private get toggleInfoPanel() {
-    return this.page.locator(TOGGLE_INFO_PANEL);
   }
 
   async open() {
@@ -25,10 +19,6 @@ class MyDocuments {
 
   async openRecentlyAccessibleTab() {
     await this.page.getByText("Recently accessible via link").click();
-  }
-
-  async openInfoPanel() {
-    await this.toggleInfoPanel.click();
   }
 }
 

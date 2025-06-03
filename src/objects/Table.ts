@@ -7,6 +7,8 @@ const SETTINGS_ICON = '[data-iconname*="settings.desc.react.svg"]';
 const MODIFIED_CHECKBOX =
   ".table-container_settings-checkbox:has(span:text-is('Modified'))";
 
+const DOCX_FILE_LINK = ".files-item a[title$='.docx']";
+
 class Table {
   page: Page;
 
@@ -14,12 +16,8 @@ class Table {
     this.page = page;
   }
 
-  async openSettings() {
+  async toggleSettings() {
     await this.page.locator(SETTINGS_ICON).click();
-  }
-
-  async hideSettings() {
-    await this.page.mouse.click(1, 1);
   }
 
   async hideModified() {
@@ -29,7 +27,7 @@ class Table {
       return;
     }
 
-    await this.openSettings();
+    await this.toggleSettings();
 
     // Find the checkbox with "Modified" text
     const modifiedCheckbox = this.page.locator(MODIFIED_CHECKBOX);
@@ -42,7 +40,7 @@ class Table {
       await modifiedCheckbox.click();
     }
 
-    await this.hideSettings();
+    await this.toggleSettings();
   }
 
   private get tableRows() {
@@ -61,6 +59,8 @@ class Table {
     const rows = this.tableRows;
     const countRows = await rows.count();
 
+    expect(countRows > 0).toBeTruthy();
+
     for (let i = 0; i < countRows; i++) {
       await this.page.keyboard.down("Control"); // or 'Meta' on Mac
       await rows.nth(i).click();
@@ -68,6 +68,35 @@ class Table {
     }
 
     return countRows;
+  }
+
+  async resetSelect() {
+    await this.page.keyboard.press("Escape");
+  }
+
+  async selectDocxFile() {
+    const docxFile = this.page.locator(TABLE_LIST_ITEM, {
+      has: this.page.locator(DOCX_FILE_LINK),
+    });
+    await expect(docxFile).toBeVisible();
+    await docxFile.click();
+  }
+
+  async selectFolderByName(name: string) {
+    const folder = this.page.locator(TABLE_LIST_ITEM, {
+      hasText: name,
+    });
+    await expect(folder).toBeVisible();
+    await folder.click();
+  }
+
+  async openContextMenu() {
+    const docxFile = this.page.locator(TABLE_LIST_ITEM, {
+      has: this.page.locator(DOCX_FILE_LINK),
+    });
+    await expect(docxFile).toBeVisible();
+
+    await docxFile.click({ button: "right" });
   }
 
   async deleteAllRows() {

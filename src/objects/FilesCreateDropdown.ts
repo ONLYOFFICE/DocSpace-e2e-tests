@@ -6,27 +6,20 @@ import {
 } from "../utils/constants/files";
 import FilesCreateModal from "./FilesCreateModal";
 import { maybeOpenPage } from "../utils";
+import ContextMenu from "./ContextMenu";
 
-const DROPDOWN_CREATE = ".p-contextmenu.p-component.p-contextmenu-enter-done";
-const DROPDOWN_CREATE_SUBMENU = ".p-submenu-list.p-contextmenusub-enter-done";
 const HEADER_ADD_BUTTON = "#header_add-button";
 const ACTIONS_MAIN_BUTTON = "#actions-main-button";
 
 class FilesCreateDropdown {
   page: Page;
   modal: FilesCreateModal;
+  dropdown: ContextMenu;
 
   constructor(page: Page) {
     this.page = page;
     this.modal = new FilesCreateModal(page);
-  }
-
-  private get dropDownCreate() {
-    return this.page.locator(DROPDOWN_CREATE);
-  }
-
-  private get dropDownCreateSubMenu() {
-    return this.page.locator(DROPDOWN_CREATE_SUBMENU);
+    this.dropdown = new ContextMenu(page);
   }
 
   private get headerAddButton() {
@@ -43,28 +36,30 @@ class FilesCreateDropdown {
 
   async openCreateDropdown() {
     await this.clickHeaderAddButton();
-    await expect(this.dropDownCreate).toBeVisible();
+    await expect(this.dropdown.contextMenu).toBeVisible();
   }
 
   async closeCreateDropdown() {
     await this.page.mouse.click(1, 1);
-    await expect(this.dropDownCreate).not.toBeVisible();
+    await expect(this.dropdown.contextMenu).not.toBeVisible();
   }
 
   async openCreateDropdownByMainButton() {
     await this.actionsMainButton.click();
-    await expect(this.dropDownCreate).toBeVisible();
+    await expect(this.dropdown.contextMenu).toBeVisible();
   }
 
   async selectCreateAction(actionText: string) {
     if (actionText === DOC_ACTIONS.CREATE_PDF_BLANK) {
-      await this.dropDownCreate.getByText("PDF Form").hover();
-      await expect(this.dropDownCreateSubMenu).toBeVisible();
-      await this.dropDownCreateSubMenu
+      await this.dropdown.contextMenu.getByText("PDF Form").hover();
+      await expect(this.dropdown.contextSubmenu).toBeVisible();
+      await this.dropdown.contextSubmenu
         .getByText(actionText, { exact: true })
         .click();
     } else {
-      await this.dropDownCreate.getByText(actionText, { exact: true }).click();
+      await this.dropdown.contextMenu
+        .getByText(actionText, { exact: true })
+        .click();
     }
   }
 
