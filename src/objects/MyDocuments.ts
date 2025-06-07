@@ -1,4 +1,4 @@
-import { Page } from "@playwright/test";
+import { expect, Page } from "@playwright/test";
 
 class MyDocuments {
   page: Page;
@@ -11,10 +11,8 @@ class MyDocuments {
 
   async open() {
     await this.page.goto(`https://${this.portalDomain}/rooms/personal`);
-
-    await this.page.waitForURL(/.*rooms\/personal.*/, {
-      waitUntil: "networkidle",
-    });
+    await this.page.waitForLoadState("load");
+    await expect(this.page).toHaveURL(/.*rooms\/personal.*/);
   }
 
   async openRecentlyAccessibleTab() {
