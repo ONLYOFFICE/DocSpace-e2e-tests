@@ -1,7 +1,7 @@
 import { expect, Page } from "@playwright/test";
 
 const CONTEXT_MENU = ".p-contextmenu.p-component.p-contextmenu-enter-done";
-const CONTEXT_SUBMENU = ".p-submenu-list.p-contextmenusub-enter-done";
+const CONTEXT_SUBMENU = ".p-submenu-list";
 const MENU_ITEM = "li.p-menuitem";
 
 class ContextMenu {

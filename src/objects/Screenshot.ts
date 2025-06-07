@@ -11,7 +11,12 @@ class Screenshot {
     this.typeEntity = typeEntity;
   }
 
-  async expectHaveScreenshot(subname: string) {
+  async expectHaveScreenshot(subname: string, safe: boolean = true) {
+    if (safe) {
+      await this.page.mouse.move(0, 0);
+      await this.page.waitForTimeout(100);
+    }
+
     await expect(this.page).toHaveScreenshot([
       "client",
       this.typeEntity,

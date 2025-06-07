@@ -45,6 +45,7 @@ class FilesCreateDropdown {
   }
 
   async openCreateDropdownByMainButton() {
+    await this.page.mouse.move(1, 1);
     await this.actionsMainButton.click();
     await expect(this.dropdown.contextMenu).toBeVisible();
   }
@@ -92,12 +93,18 @@ class FilesCreateDropdown {
     for (const actionText of listArticleDocActions) {
       await this.openCreateDropdownByMainButton();
       await this.selectCreateAction(actionText);
-
       await this.modal.fillCreateTextInput(actionText);
-      await this.modal.clickCreateButton();
 
-      const newPage = await maybeOpenPage(this.page.context());
-      await newPage?.close();
+      if (actionText !== "Folder") {
+        const [newPage] = await Promise.all([
+          this.page.context().waitForEvent("page", { timeout: 5000 }),
+          this.modal.clickCreateButton(),
+        ]).catch(() => [null]);
+
+        await newPage?.close();
+      } else {
+        await this.modal.clickCreateButton();
+      }
 
       await this.checkCreatedFileByActionExist(actionText);
     }

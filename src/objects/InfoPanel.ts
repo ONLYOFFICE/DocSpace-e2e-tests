@@ -89,7 +89,7 @@ class InfoPanel {
 
   async openOptions() {
     await this.infoOptionsIcon.click();
-    expect(this.dropdown.contextMenu).toBeVisible();
+    await expect(this.dropdown.contextMenu).toBeVisible();
   }
 
   async toggleInfoPanel() {
@@ -127,7 +127,7 @@ class InfoPanel {
 
   async closeDropdown() {
     await this.infoPanel.click({
-      position: { x: 0, y: 0 },
+      position: { x: 1, y: 1 },
     });
     await expect(this.dropdown.contextMenu).not.toBeVisible();
   }

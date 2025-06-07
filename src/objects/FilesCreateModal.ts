@@ -32,6 +32,7 @@ class FilesCreateModal {
   }
 
   async fillCreateTextInput(text: string) {
+    await expect(this.createTextInput).toBeVisible();
     await this.createTextInput.fill(text);
   }
 
