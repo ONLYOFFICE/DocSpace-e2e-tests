@@ -1,26 +1,30 @@
-import { expect, Page } from "@playwright/test";
+import { Page } from "@playwright/test";
 import BaseTable from "../common/BaseTable";
-import { ROOM_CREATE_TITLES } from "@/src/utils/constants/rooms";
+
+import BaseContenxtMenu from "../common/BaseContextMenu";
+
 const LAST_ACTIVITY_CHECKBOX =
   ".table-container_settings-checkbox:has(span:text-is('Last activity'))";
 const ROOMS_TABLE = "#table-container";
 
 class RoomsTable extends BaseTable {
+  contextMenu: BaseContenxtMenu;
+
   constructor(page: Page) {
     const tableLocator = page.locator(ROOMS_TABLE);
     super(tableLocator);
+    this.contextMenu = new BaseContenxtMenu(page);
   }
 
   async hideLastActivityColumn() {
     await this.hideTableColumn(this.page.locator(LAST_ACTIVITY_CHECKBOX));
   }
 
-  async openContextMenu() {
-    const publicRoomLocator = this.table.getByText(ROOM_CREATE_TITLES.PUBLIC, {
+  async openContextMenu(title: string) {
+    const roomLocator = this.table.getByText(title, {
       exact: true,
     });
-    await expect(publicRoomLocator).toBeVisible();
-    await this.openContextMenuRow(publicRoomLocator);
+    await this.openContextMenuRow(roomLocator);
   }
 }
 

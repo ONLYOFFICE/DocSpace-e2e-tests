@@ -77,25 +77,40 @@ test.describe("Rooms: My rooms", () => {
     await myRooms.roomsCreateDialog.openAndValidateRoomTypes(screenshot);
   });
 
-  test("CreateRoomWithCover", async () => {
-    await myRooms.roomsCreateDialog.openRoomType(ROOM_CREATE_TITLES.PUBLIC);
-    await myRooms.roomsCreateDialog.openRoomCover();
-    await screenshot.expectHaveScreenshot("view_room_cover");
-    await myRooms.roomsCreateDialog.createRoomWithCover();
-    await myRooms.checkCreatedRoomExist(ROOM_CREATE_TITLES.PUBLIC);
-    await myRooms.infoPanel.checkInfoPanelExist();
-    await screenshot.expectHaveScreenshot("view_created_room_with_cover");
-    await myRooms.infoPanel.toggleInfoPanel();
-    await myRooms.navigation.gotoBack();
-    await myRooms.checkRoomsHeadingExist();
-  });
-
   test("CreateRooms", async () => {
-    await myRooms.createRooms();
-    await myRooms.roomsTable.hideLastActivityColumn();
-    await screenshot.expectHaveScreenshot("view_created_rooms");
-    await myRooms.roomsTable.openContextMenu();
-    await screenshot.expectHaveScreenshot("view_opened_context_menu_room");
+    await test.step("CreateRoomWithCover", async () => {
+      await myRooms.roomsCreateDialog.openRoomType(ROOM_CREATE_TITLES.PUBLIC);
+      await myRooms.roomsCreateDialog.openRoomCover();
+      await screenshot.expectHaveScreenshot("view_room_cover");
+
+      await myRooms.roomsCreateDialog.createRoomWithCover();
+      await myRooms.checkCreatedRoomExist(ROOM_CREATE_TITLES.PUBLIC);
+      await screenshot.expectHaveScreenshot("view_created_room_with_cover");
+
+      await myRooms.backToRooms();
+      await myRooms.checkHeadingExist("Rooms");
+    });
+
+    await test.step("CreateTemlateOfTheRoom", async () => {
+      await myRooms.roomsTable.openContextMenu("room with cover");
+      await myRooms.roomsTable.contextMenu.clickOption("Save as template");
+      await screenshot.expectHaveScreenshot("view_save_as_template");
+      await myRooms.roomsCreateDialog.createRoomTemplate();
+      await myRooms.backToRooms();
+      await myRooms.checkHeadingExist("Templates");
+      await myRooms.infoPanel.toggleInfoPanel();
+      await myRooms.roomsTable.hideLastActivityColumn();
+      await screenshot.expectHaveScreenshot("view_created_template");
+      await myRooms.openRoomsTab();
+    });
+
+    await test.step("CreateOtherRooms", async () => {
+      await myRooms.createRooms();
+      await myRooms.roomsTable.hideLastActivityColumn();
+      await screenshot.expectHaveScreenshot("view_created_rooms");
+      await myRooms.roomsTable.openContextMenu(ROOM_CREATE_TITLES.PUBLIC);
+      await screenshot.expectHaveScreenshot("view_opened_context_menu_room");
+    });
   });
 
   test.afterAll(async () => {

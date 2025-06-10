@@ -47,12 +47,26 @@ class MyRooms {
     await expect(this.page).toHaveURL(/.*rooms\/shared.*/);
   }
 
+  async waitRoomsResponse() {
+    return this.page.waitForResponse((response) => {
+      return (
+        response.request().method() === "GET" &&
+        response.url().includes("/files/rooms?count") &&
+        response.status() === 200
+      );
+    });
+  }
+
   async openTemplatesTab() {
+    const response = this.waitRoomsResponse();
     await this.page.getByText("Templates").click();
+    await response;
   }
 
   async openRoomsTab() {
+    const response = this.waitRoomsResponse();
     await this.page.locator("span").filter({ hasText: "Rooms" }).click();
+    await response;
   }
 
   async checkCreatedRoomExist(roomType: TRoomCreateTitles) {
@@ -61,10 +75,16 @@ class MyRooms {
     ).toBeVisible();
   }
 
-  async checkRoomsHeadingExist() {
+  async checkHeadingExist(name: string) {
     await expect(
-      this.page.getByRole("heading", { name: "Rooms", level: 1 }),
+      this.page.getByRole("heading", { name, level: 1 }),
     ).toBeVisible();
+  }
+
+  async backToRooms() {
+    const response = this.waitRoomsResponse();
+    await this.navigation.gotoBack();
+    await response;
   }
 
   async createRooms() {
@@ -72,7 +92,6 @@ class MyRooms {
       if (roomType === ROOM_CREATE_TITLES.FROM_TEMPLATE) {
         continue;
       }
-      await this.page.waitForTimeout(1000);
       await this.navigation.openCreateDialog();
       await this.roomsCreateDialog.checkRoomDialogExist();
       await this.roomsCreateDialog.openRoomType(roomType);
@@ -85,14 +104,10 @@ class MyRooms {
         await this.page.mouse.click(1, 1);
       }
       await this.checkCreatedRoomExist(roomType);
-
-      await this.navigation.gotoBack();
-      await this.checkRoomsHeadingExist();
+      await this.backToRooms();
       await this.infoPanel.toggleInfoPanel();
     }
   }
 }
-
-// getByRole('img', { name: 'tips-preview' })
 
 export default MyRooms;

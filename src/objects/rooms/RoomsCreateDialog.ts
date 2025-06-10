@@ -6,7 +6,9 @@ import { expect, Page } from "@playwright/test";
 import Screenshot from "../common/Screenshot";
 
 const ROOM_DIALOG = "#modal-dialog";
-const ROOM_DIALOG_SUBMIT_BUTTON = "#shared_create-room-modal_submit";
+const ROOM_SUBMIT_BUTTON = "#shared_create-room-modal_submit";
+const ROOM_TEMPLATE_SUBMIT_BUTTON = "#create-room-template-modal_submit";
+("#create-room-template-modal_cancel");
 
 class RoomsCreateDialog {
   page: Page;
@@ -20,7 +22,11 @@ class RoomsCreateDialog {
   }
 
   private get roomDialogSubmitButton() {
-    return this.page.locator(ROOM_DIALOG_SUBMIT_BUTTON);
+    return this.page.locator(ROOM_SUBMIT_BUTTON);
+  }
+
+  private get roomTemplateSubmitButton() {
+    return this.page.locator(ROOM_TEMPLATE_SUBMIT_BUTTON);
   }
 
   private get roomDialogHeader() {
@@ -99,8 +105,18 @@ class RoomsCreateDialog {
     await this.page.getByLabel("Name:").fill(name);
   }
 
+  async fillTemplateName(name: string) {
+    await this.page.getByLabel("Template name:").fill(name);
+  }
+
   async clickRoomDialogSubmit() {
+    await expect(this.roomDialogSubmitButton).toBeVisible();
     await this.roomDialogSubmitButton.click();
+  }
+
+  async clickRoomTemplateSubmit() {
+    await expect(this.roomTemplateSubmitButton).toBeVisible();
+    await this.roomTemplateSubmitButton.click();
   }
 
   async createRoomWithCover() {
@@ -109,6 +125,11 @@ class RoomsCreateDialog {
     await this.saveCover();
     await this.fillRoomName("room with cover");
     await this.clickRoomDialogSubmit();
+  }
+
+  async createRoomTemplate() {
+    await this.fillTemplateName("room template");
+    await this.clickRoomTemplateSubmit();
   }
 }
 
