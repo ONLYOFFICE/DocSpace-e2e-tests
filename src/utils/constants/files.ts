@@ -1,13 +1,13 @@
 import { transformDocActions } from "..";
 
-export enum DOC_ACTIONS {
-  CREATE_DOCUMENT = "New document",
-  CREATE_SPREADSHEET = "New spreadsheet",
-  CREATE_PRESENTATION = "New presentation",
-  CREATE_PDF_FORM = "New PDF form",
-  CREATE_FOLDER = "New folder",
-  CREATE_PDF_BLANK = "Blank",
-}
+export const DOC_ACTIONS = {
+  CREATE_DOCUMENT: "New document",
+  CREATE_SPREADSHEET: "New spreadsheet",
+  CREATE_PRESENTATION: "New presentation",
+  CREATE_PDF_FORM: "New PDF form",
+  CREATE_FOLDER: "New folder",
+  CREATE_PDF_BLANK: "Blank",
+} as const;
 
 export const listDocActions = [
   DOC_ACTIONS.CREATE_DOCUMENT,

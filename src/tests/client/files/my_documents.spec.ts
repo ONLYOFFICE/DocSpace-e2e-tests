@@ -1,17 +1,17 @@
-import { test, expect, Page } from "@playwright/test";
+import { test, Page } from "@playwright/test";
 
-import API from "../../../api";
-import Login from "../../../objects/Login";
-import MyDocuments from "../../../objects/MyDocuments";
-import Table from "../../../objects/Table";
-import AdFrame from "../../../objects/AdFrame";
-import FilesEmptyView from "../../../objects/FilesEmptyView";
-import AdBanner from "../../../objects/AdBanner";
-import FilesCreateDropdown from "../../../objects/FilesCreateDropdown";
-import InfoPanel from "../../../objects/InfoPanel";
-import Screenshot from "../../../objects/Screenshot";
-import ContextMenu from "../../../objects/ContextMenu";
-import FilesFilter from "@/src/objects/FilesFilter";
+import FilesEmptyView from "@/src/objects/files/FilesEmptyView";
+import FilesFilter from "@/src/objects/files/FilesFilter";
+import API from "@/src/api";
+import MyDocuments from "@/src/objects/files/MyDocuments";
+import Login from "@/src/objects/common/Login";
+import AdFrame from "@/src/objects/common/AdFrame";
+import AdBanner from "@/src/objects/common/AdBanner";
+import InfoPanel from "@/src/objects/common/InfoPanel";
+import Screenshot from "@/src/objects/common/Screenshot";
+import FilesTable from "@/src/objects/files/FilesTable";
+import FilesNavigation from "@/src/objects/files/FilesNavigation";
+import FilesArticle from "@/src/objects/files/FilesArticle";
 
 test.describe("Files: My documents", () => {
   let api: API;
@@ -19,14 +19,14 @@ test.describe("Files: My documents", () => {
 
   let login: Login;
   let myDocuments: MyDocuments;
-  let table: Table;
+  let filesTable: FilesTable;
   let adFrame: AdFrame;
   let filesEmptyView: FilesEmptyView;
   let adBanner: AdBanner;
-  let filesCreateDropdown: FilesCreateDropdown;
+  let filesNavigation: FilesNavigation;
+  let filesArticle: FilesArticle;
   let infoPanel: InfoPanel;
   let screenshot: Screenshot;
-  let contextMenu: ContextMenu;
   let filesFilter: FilesFilter;
 
   test.beforeAll(async ({ playwright, browser }) => {
@@ -42,17 +42,18 @@ test.describe("Files: My documents", () => {
     screenshot = new Screenshot(page, "my_documents", "files");
     adFrame = new AdFrame(page);
     adBanner = new AdBanner(page);
-    table = new Table(page);
-    filesEmptyView = new FilesEmptyView(page);
-    filesCreateDropdown = new FilesCreateDropdown(page);
     infoPanel = new InfoPanel(page);
-    contextMenu = new ContextMenu(page);
+
+    filesTable = new FilesTable(page);
+    filesArticle = new FilesArticle(page);
+    filesEmptyView = new FilesEmptyView(page);
+    filesNavigation = new FilesNavigation(page);
     filesFilter = new FilesFilter(page);
 
     await login.loginToPortal();
     await myDocuments.open();
     await adFrame.closeIframe();
-    await table.hideModified();
+    await filesTable.hideModifiedColumn();
     await adBanner.closeBanner();
   });
 
@@ -61,7 +62,7 @@ test.describe("Files: My documents", () => {
   });
 
   test("EmptyScreen", async () => {
-    await table.deleteAllRows();
+    await filesTable.deleteAllRows();
     await filesEmptyView.checkNoDocsTextExist();
 
     await screenshot.expectHaveScreenshot("empty_view");
@@ -78,21 +79,18 @@ test.describe("Files: My documents", () => {
   });
 
   test("FilesCreate", async () => {
-    await filesCreateDropdown.clickHeaderAddButton();
-
+    await filesNavigation.openCreateDropdown();
     await screenshot.expectHaveScreenshot("view_dropdown");
+    await filesNavigation.closeCreateDropdown();
 
-    await filesCreateDropdown.closeCreateDropdown();
-    await filesCreateDropdown.openAndValidateFileCreateModals();
+    await filesNavigation.openAndValidateFileCreateModals();
 
-    await filesCreateDropdown.openCreateDropdownByMainButton();
-
+    await filesArticle.openMainDropdown();
     await screenshot.expectHaveScreenshot("view_dropdown_action");
+    await filesArticle.closeMainDropdown();
 
-    await filesCreateDropdown.closeCreateDropdown();
-    await filesCreateDropdown.createFiles();
-
-    await table.hideModified();
+    await filesArticle.createFiles();
+    await filesTable.hideModifiedColumn();
 
     await screenshot.expectHaveScreenshot("view_created_files");
   });
@@ -102,7 +100,7 @@ test.describe("Files: My documents", () => {
     await infoPanel.checkNoItemTextExist();
     await screenshot.expectHaveScreenshot("view_info_panel_empty");
 
-    await table.selectDocxFile();
+    await filesTable.selectDocxFile();
     await infoPanel.hideDatePropertiesDetails();
     await infoPanel.checkDocxFileProperties();
     await screenshot.expectHaveScreenshot("view_info_panel_file_details");
@@ -124,13 +122,13 @@ test.describe("Files: My documents", () => {
     await infoPanel.createMoreSharedLink();
     await screenshot.expectHaveScreenshot("view_info_panel_file_share");
 
-    await table.selectAllRows();
+    await filesTable.selectAllRows();
     await screenshot.expectHaveScreenshot(
       "view_info_panel_multiselected_files",
     );
-    await table.resetSelect();
+    await filesTable.resetSelect();
 
-    await table.selectFolderByName("Folder");
+    await filesTable.selectFolderByName("Folder");
     await infoPanel.hideDatePropertiesDetails();
     await infoPanel.checkFolderProperties();
 
@@ -142,15 +140,13 @@ test.describe("Files: My documents", () => {
     await infoPanel.openTab("History");
     await infoPanel.checkHistoryExist("Folder created.");
 
-    await table.openContextMenu();
-
-    await contextMenu.selectOption("Info");
+    await filesTable.openContextMenu();
+    await filesTable.contextMenu.clickOption("Info");
     await infoPanel.hideDatePropertiesDetails();
     await infoPanel.checkDocxFileProperties();
 
-    await table.openContextMenu();
-
-    await contextMenu.selectOption("Share");
+    await filesTable.openContextMenu();
+    await filesTable.contextMenu.clickOption("Share");
     await infoPanel.checkShareExist();
 
     await infoPanel.toggleInfoPanel();
