@@ -1,1 +1,6 @@
-export type TInfoPanelTabs = "History" | "Share" | "Details";
+export type TInfoPanelTabs =
+  | "History"
+  | "Share"
+  | "Details"
+  | "Accesses"
+  | "Contacts";

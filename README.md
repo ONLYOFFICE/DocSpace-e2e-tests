@@ -34,11 +34,13 @@ These commands will run tests locally on your machine:
 You can also run tests in a Docker container to ensure consistent environments:
 
 - Build and run tests using Docker Compose:
+
   ```bash
   docker-compose up --build
   ```
 
 - Run with specific test files:
+
   ```bash
   docker-compose run e2e-tests npx playwright test src/tests/site/login-page.spec.ts
   ```

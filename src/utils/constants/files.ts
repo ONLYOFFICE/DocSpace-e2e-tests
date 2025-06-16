@@ -1,5 +1,12 @@
 import { transformDocActions } from "..";
 
+export const initialDocNames = [
+  "ONLYOFFICE Sample Presentation",
+  "ONLYOFFICE Sample Spreadsheets",
+  "ONLYOFFICE Sample Document",
+  "ONLYOFFICE Sample Form",
+] as const;
+
 export const DOC_ACTIONS = {
   CREATE_DOCUMENT: "New document",
   CREATE_SPREADSHEET: "New spreadsheet",
