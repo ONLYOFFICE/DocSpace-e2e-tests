@@ -1,24 +1,18 @@
 import {
-  ROOM_CREATE_TITLES,
+  roomCreateTitles,
   TRoomCreateTitles,
 } from "@/src/utils/constants/rooms";
 import { expect, Page } from "@playwright/test";
 import Screenshot from "../common/Screenshot";
+import BaseDialog from "../common/BaseDialog";
 
-const ROOM_DIALOG = "#modal-dialog";
 const ROOM_SUBMIT_BUTTON = "#shared_create-room-modal_submit";
 const ROOM_TEMPLATE_SUBMIT_BUTTON = "#create-room-template-modal_submit";
-("#create-room-template-modal_cancel");
+const LOGO_NAME_CONTAINER = ".logo-name-container";
 
-class RoomsCreateDialog {
-  page: Page;
-
+class RoomsCreateDialog extends BaseDialog {
   constructor(page: Page) {
-    this.page = page;
-  }
-
-  private get roomDialog() {
-    return this.page.locator(ROOM_DIALOG);
+    super(page);
   }
 
   private get roomDialogSubmitButton() {
@@ -29,33 +23,20 @@ class RoomsCreateDialog {
     return this.page.locator(ROOM_TEMPLATE_SUBMIT_BUTTON);
   }
 
-  private get roomDialogHeader() {
-    return this.page.getByTestId("aside-header");
-  }
-
   private get roomIcon() {
-    return this.page.getByTestId("room-icon");
+    return this.page.locator(LOGO_NAME_CONTAINER).getByTestId("empty-icon");
   }
 
   private get roomIconDropdown() {
-    return this.roomIcon.getByTestId("dropdown");
+    return this.page.locator(LOGO_NAME_CONTAINER).getByTestId("dropdown");
   }
 
-  async checkRoomDialogExist() {
-    await expect(this.roomDialog).toBeVisible();
-  }
-
-  async close() {
-    await this.page.mouse.click(1, 1);
-    await expect(this.roomDialog).not.toBeVisible();
+  async checkRoomTypeExist(roomType: TRoomCreateTitles) {
+    await expect(this.dialog.getByTitle(roomType)).toBeVisible();
   }
 
   async openRoomType(title: TRoomCreateTitles) {
-    await this.roomDialog.getByTitle(title).click();
-  }
-
-  async clickBackArrow() {
-    await this.roomDialogHeader.getByTestId("icon-button-svg").first().click();
+    await this.dialog.getByTitle(title).click();
   }
 
   async openRoomIconDropdown() {
@@ -68,9 +49,16 @@ class RoomsCreateDialog {
   }
 
   async openRoomCover() {
-    await this.openRoomIconDropdown();
+    const isRoomIconDropdownVisible = await this.roomIconDropdown.isVisible();
+
+    if (!isRoomIconDropdownVisible) {
+      await this.openRoomIconDropdown();
+    }
     await this.clickCustomizeCover();
     await expect(this.page.getByText("Room cover")).toBeVisible();
+    await expect(
+      this.page.locator(".cover-icon-container svg").first(),
+    ).toBeVisible();
   }
 
   async selectCoverColor() {
@@ -85,13 +73,18 @@ class RoomsCreateDialog {
     await this.page.getByRole("button", { name: "Apply" }).click();
   }
 
+  async checkNoTemplatesFoundExist() {
+    await expect(this.dialog.getByText("No templates found")).toBeVisible();
+  }
+
   async openAndValidateRoomTypes(screenshot: Screenshot) {
-    for (const roomType of Object.values(ROOM_CREATE_TITLES)) {
+    for (const roomType of Object.values(roomCreateTitles)) {
       await this.openRoomType(roomType);
 
       let screenName = roomType.toLowerCase().replace(" ", "_");
 
-      if (roomType === ROOM_CREATE_TITLES.FROM_TEMPLATE) {
+      if (roomType === roomCreateTitles.fromTemplate) {
+        await this.checkNoTemplatesFoundExist();
         screenName += "_empty";
       }
 
@@ -102,16 +95,21 @@ class RoomsCreateDialog {
   }
 
   async fillRoomName(name: string) {
-    await this.page.getByLabel("Name:").fill(name);
+    await this.fillInput(
+      this.page.getByRole("textbox", { name: "Name:" }),
+      name,
+    );
   }
 
   async fillTemplateName(name: string) {
-    await this.page.getByLabel("Template name:").fill(name);
+    await this.fillInput(
+      this.page.getByRole("textbox", { name: "Template name:" }),
+      name,
+    );
   }
 
   async clickRoomDialogSubmit() {
-    await expect(this.roomDialogSubmitButton).toBeVisible();
-    await this.roomDialogSubmitButton.click();
+    await this.clickSubmitButton(this.roomDialogSubmitButton);
   }
 
   async clickRoomTemplateSubmit() {
@@ -119,11 +117,11 @@ class RoomsCreateDialog {
     await this.roomTemplateSubmitButton.click();
   }
 
-  async createRoomWithCover() {
+  async createRoomWithCover(roomName: string) {
     await this.selectCoverColor();
     await this.selectCoverIcon();
     await this.saveCover();
-    await this.fillRoomName("room with cover");
+    await this.fillRoomName(roomName);
     await this.clickRoomDialogSubmit();
   }
 

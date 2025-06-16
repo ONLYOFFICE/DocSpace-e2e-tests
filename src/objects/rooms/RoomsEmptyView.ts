@@ -26,7 +26,13 @@ class RoomsEmptyView {
     await expect(this.page.getByText("No templates here yet")).toBeVisible();
   }
 
-  async clickCreateNewRoom() {
+  async checkEmptyRoomExist(roomName: string) {
+    await expect(
+      this.page.getByRole("button", { name: `Welcome to the ${roomName}` }),
+    ).toBeVisible({ timeout: 10000 });
+  }
+
+  async openCreateDialog() {
     await this.createNewRoom.click();
   }
 }

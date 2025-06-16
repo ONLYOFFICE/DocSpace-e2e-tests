@@ -6,10 +6,27 @@ import InfoPanel from "../common/InfoPanel";
 import RoomsTable from "./RoomsTable";
 import RoomsTypesDropdown from "./RoomsTypeDropdown";
 import {
-  ROOM_CREATE_TITLES,
-  TRoomCreateTitles,
+  roomCreateTitles,
+  roomDialogSource,
+  TRoomDialogSource,
 } from "@/src/utils/constants/rooms";
 import RoomsArticle from "./RoomsArticle";
+import RoomsEditDialog from "./RoomsEditDialog";
+import RoomsChangeOwnerDialog from "./RoomsChangeOwnerDialog";
+import RoomsInviteDialog from "./RoomsInviteDialog";
+import RoomsAccessSettingsDialog from "./RoomsAccessSettingsDialog";
+import RoomsFilter from "./RoomsFilter";
+
+const navActions = {
+  moveToArchive: {
+    button: "#menu-archive",
+    submit: "#shared_move-to-archived-modal_submit",
+  },
+  delete: {
+    button: "#menu-delete",
+    submit: "#delete-file-modal_submit",
+  },
+} as const;
 
 class MyRooms {
   page: Page;
@@ -17,20 +34,23 @@ class MyRooms {
 
   roomsEmptyView: RoomsEmptyView;
   roomsCreateDialog: RoomsCreateDialog;
+  roomsChangeOwnerDialog: RoomsChangeOwnerDialog;
   navigation: BaseNavigation;
 
   infoPanel: InfoPanel;
   roomsTable: RoomsTable;
   roomsTypeDropdown: RoomsTypesDropdown;
   roomsArticle: RoomsArticle;
+  roomsEditDialog: RoomsEditDialog;
+  roomsInviteDialog: RoomsInviteDialog;
+  roomsAccessSettingsDialog: RoomsAccessSettingsDialog;
+  roomsFilter: RoomsFilter;
 
   constructor(page: Page, portalDomain: string) {
     this.page = page;
     this.portalDomain = portalDomain;
 
-    this.roomsEmptyView = new RoomsEmptyView(page);
-    this.roomsCreateDialog = new RoomsCreateDialog(page);
-    this.navigation = new BaseNavigation(page);
+    this.navigation = new BaseNavigation(page, navActions);
 
     this.infoPanel = new InfoPanel(page);
 
@@ -39,6 +59,11 @@ class MyRooms {
     this.roomsCreateDialog = new RoomsCreateDialog(page);
     this.roomsTypeDropdown = new RoomsTypesDropdown(page);
     this.roomsArticle = new RoomsArticle(page);
+    this.roomsEditDialog = new RoomsEditDialog(page);
+    this.roomsChangeOwnerDialog = new RoomsChangeOwnerDialog(page);
+    this.roomsInviteDialog = new RoomsInviteDialog(page);
+    this.roomsAccessSettingsDialog = new RoomsAccessSettingsDialog(page);
+    this.roomsFilter = new RoomsFilter(page);
   }
 
   async open() {
@@ -47,32 +72,16 @@ class MyRooms {
     await expect(this.page).toHaveURL(/.*rooms\/shared.*/);
   }
 
-  async waitRoomsResponse() {
-    return this.page.waitForResponse((response) => {
-      return (
-        response.request().method() === "GET" &&
-        response.url().includes("/files/rooms?count") &&
-        response.status() === 200
-      );
-    });
-  }
-
   async openTemplatesTab() {
-    const response = this.waitRoomsResponse();
     await this.page.getByText("Templates").click();
-    await response;
+    await this.page.waitForTimeout(500);
+    await this.roomsTable.checkTableExist();
   }
 
   async openRoomsTab() {
-    const response = this.waitRoomsResponse();
     await this.page.locator("span").filter({ hasText: "Rooms" }).click();
-    await response;
-  }
-
-  async checkCreatedRoomExist(roomType: TRoomCreateTitles) {
-    await expect(
-      this.page.getByRole("button", { name: `Welcome to the ${roomType}` }),
-    ).toBeVisible();
+    await this.page.waitForTimeout(500);
+    await this.roomsTable.checkTableExist();
   }
 
   async checkHeadingExist(name: string) {
@@ -82,31 +91,61 @@ class MyRooms {
   }
 
   async backToRooms() {
-    const response = this.waitRoomsResponse();
     await this.navigation.gotoBack();
-    await response;
+    await this.roomsTable.checkTableExist();
+  }
+
+  async openCreateRoomDialog(source: TRoomDialogSource) {
+    switch (source) {
+      case roomDialogSource.navigation:
+        await this.navigation.openCreateDialog();
+        break;
+      case roomDialogSource.emptyView:
+        await this.roomsEmptyView.openCreateDialog();
+        break;
+      case roomDialogSource.article:
+        await this.roomsArticle.openCreateDialog();
+        break;
+    }
+    await this.roomsCreateDialog.checkRoomTypeExist(roomCreateTitles.public);
   }
 
   async createRooms() {
-    for (const roomType of Object.values(ROOM_CREATE_TITLES)) {
-      if (roomType === ROOM_CREATE_TITLES.FROM_TEMPLATE) {
+    for (const roomType of Object.values(roomCreateTitles)) {
+      if (roomType === roomCreateTitles.fromTemplate) {
         continue;
       }
-      await this.navigation.openCreateDialog();
-      await this.roomsCreateDialog.checkRoomDialogExist();
+      await this.openCreateRoomDialog(roomDialogSource.navigation);
       await this.roomsCreateDialog.openRoomType(roomType);
-      await this.roomsCreateDialog.fillRoomName(roomType);
-      await this.roomsCreateDialog.clickRoomDialogSubmit();
+      await this.roomsCreateDialog.openRoomCover();
+      await this.roomsCreateDialog.createRoomWithCover(roomType);
 
-      if (roomType === ROOM_CREATE_TITLES.FORM_FILLING) {
-        const tipsModal = this.page.getByRole("img", { name: "tips-preview" });
-        await expect(tipsModal).toBeVisible();
+      if (roomType === roomCreateTitles.formFilling) {
+        const tipsModal = this.page.getByText(
+          "Welcome to the Form Filling Room!",
+        );
+        await expect(tipsModal).toBeVisible({ timeout: 10000 });
         await this.page.mouse.click(1, 1);
       }
-      await this.checkCreatedRoomExist(roomType);
+
+      await this.roomsEmptyView.checkEmptyRoomExist(roomType);
       await this.backToRooms();
-      await this.infoPanel.toggleInfoPanel();
     }
+  }
+
+  async moveAllRoomsToArchive() {
+    await this.roomsTable.selectAllRows();
+    await this.navigation.performAction(navActions.moveToArchive);
+  }
+
+  async moveToArchive() {
+    await expect(this.page.getByText("Move to Archive?")).toBeVisible();
+    await this.page.locator("#shared_move-to-archived-modal_submit").click();
+  }
+
+  async deleteAllRooms() {
+    await this.roomsTable.selectAllRows();
+    await this.navigation.performAction(navActions.delete);
   }
 }
 

@@ -1,6 +1,5 @@
 import { expect, Page } from "@playwright/test";
 import BaseArticle from "../common/BaseArticle";
-import { listArticleDocActions } from "@/src/utils/constants/files";
 
 class RoomsArticle extends BaseArticle {
   constructor(page: Page) {
@@ -11,7 +10,7 @@ class RoomsArticle extends BaseArticle {
     return this.articleContainer.getByRole("button", { name: "New room" });
   }
 
-  async clickNewRoomButton() {
+  async openCreateDialog() {
     await expect(this.newRoomButton).toBeVisible();
     await this.newRoomButton.click();
   }
