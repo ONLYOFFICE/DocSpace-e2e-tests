@@ -97,7 +97,7 @@ class BaseFilter {
     await expect(this.filterDialog).toBeVisible();
   }
 
-  async clickFilterTag(tagSelector: string) {
+  async selectFilterTag(tagSelector: string) {
     await this.page.locator(tagSelector).click();
     await expect(this.filterApplyButton).toBeEnabled();
   }

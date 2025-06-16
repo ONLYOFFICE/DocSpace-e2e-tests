@@ -201,12 +201,12 @@ test.describe("Files: My documents", () => {
     await myDocuments.filesFilter.openFilterDialog();
     await screenshot.expectHaveScreenshot("view_filter_dialog");
 
-    await myDocuments.filesFilter.clickFilterByFoldersTag();
+    await myDocuments.filesFilter.selectFilterByFolders();
     await myDocuments.filesFilter.applyFilter();
     await screenshot.expectHaveScreenshot("view_filtered_by_folders");
 
     await myDocuments.filesFilter.openFilterDialog();
-    await myDocuments.filesFilter.clickFilterByMediaTag();
+    await myDocuments.filesFilter.selectFilterByMedia();
     await myDocuments.filesFilter.applyFilter();
     await myDocuments.filesFilter.checkFilesEmptyViewExist();
     await screenshot.expectHaveScreenshot("view_filtered_by_media_empty");

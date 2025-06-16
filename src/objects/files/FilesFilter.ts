@@ -13,12 +13,12 @@ class FilesFilter extends BaseFilter {
     super(page);
   }
 
-  async clickFilterByFoldersTag() {
-    await this.clickFilterTag(FILES_FILTER.BY_FOLDERS);
+  async selectFilterByFolders() {
+    await this.selectFilterTag(FILES_FILTER.BY_FOLDERS);
   }
 
-  async clickFilterByMediaTag() {
-    await this.clickFilterTag(FILES_FILTER.BY_MEDIA);
+  async selectFilterByMedia() {
+    await this.selectFilterTag(FILES_FILTER.BY_MEDIA);
   }
 
   private get titleFolders() {

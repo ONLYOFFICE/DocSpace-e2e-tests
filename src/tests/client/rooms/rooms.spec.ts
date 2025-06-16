@@ -2,7 +2,7 @@ import { test, Page } from "@playwright/test";
 
 import API from "@/src/api";
 import Login from "@/src/objects/common/Login";
-import MyRooms from "@/src/objects/rooms/MyRooms";
+import MyRooms from "@/src/objects/rooms/Rooms";
 import AdFrame from "@/src/objects/common/AdFrame";
 import Screenshot from "@/src/objects/common/Screenshot";
 import {
@@ -16,7 +16,7 @@ import {
  * Test suite for My Rooms functionality
  * Tests various aspects of room management including creation, templates, and UI interactions
  */
-test.describe("Rooms: My rooms", () => {
+test.describe("Rooms", () => {
   let api: API;
   let page: Page;
 
@@ -35,7 +35,7 @@ test.describe("Rooms: My rooms", () => {
     page = await browser.newPage();
 
     login = new Login(page, api.portalDomain);
-    screenshot = new Screenshot(page, "my_rooms", "rooms");
+    screenshot = new Screenshot(page, "rooms", "rooms");
     adFrame = new AdFrame(page);
 
     myRooms = new MyRooms(page, api.portalDomain);
@@ -311,7 +311,7 @@ test.describe("Rooms: My rooms", () => {
   test("Filter", async () => {
     await myRooms.roomsFilter.openFilterDialog();
     await screenshot.expectHaveScreenshot("view_filter_dialog");
-    await myRooms.roomsFilter.clickFilterByPublic();
+    await myRooms.roomsFilter.selectFilterByPublic();
     await myRooms.roomsFilter.applyFilter();
     await screenshot.expectHaveScreenshot("view_filtered_by_public");
     await myRooms.roomsFilter.clearFilterByPublic();

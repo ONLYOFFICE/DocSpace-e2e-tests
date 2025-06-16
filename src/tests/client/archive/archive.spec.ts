@@ -2,14 +2,14 @@ import { test, Page } from "@playwright/test";
 
 import API from "@/src/api";
 import Login from "@/src/objects/common/Login";
-import MyRooms from "@/src/objects/rooms/MyRooms";
-import MyArchive from "@/src/objects/archive/MyArchive";
+import MyRooms from "@/src/objects/rooms/Rooms";
+import Archive from "@/src/objects/archive/Archive";
 import AdFrame from "@/src/objects/common/AdFrame";
 import Screenshot from "@/src/objects/common/Screenshot";
 import AdBanner from "@/src/objects/common/AdBanner";
 import { roomCreateTitles } from "@/src/utils/constants/rooms";
 
-test.describe("Archive: My archive", () => {
+test.describe("Archive", () => {
   let api: API;
   let page: Page;
 
@@ -18,7 +18,7 @@ test.describe("Archive: My archive", () => {
   let screenshot: Screenshot;
 
   let myRooms: MyRooms;
-  let myArchive: MyArchive;
+  let myArchive: Archive;
   let adBanner: AdBanner;
 
   test.beforeAll(async ({ playwright, browser }) => {
@@ -30,11 +30,11 @@ test.describe("Archive: My archive", () => {
     page = await browser.newPage();
 
     login = new Login(page, api.portalDomain);
-    screenshot = new Screenshot(page, "my_archive", "archive");
+    screenshot = new Screenshot(page, "archive", "archive");
     adFrame = new AdFrame(page);
 
     myRooms = new MyRooms(page, api.portalDomain);
-    myArchive = new MyArchive(page, api.portalDomain);
+    myArchive = new Archive(page, api.portalDomain);
     adBanner = new AdBanner(page);
 
     await login.loginToPortal();

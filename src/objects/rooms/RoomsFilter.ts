@@ -18,13 +18,14 @@ class RoomsFilter extends BaseFilter {
     await this.page.locator(ROOMS_SORT.BY_TYPE).click();
   }
 
-  async clickFilterByPublic() {
-    await this.clickFilterTag(ROOMS_FILTER.BY_PUBLIC);
+  async selectFilterByPublic() {
+    await this.selectFilterTag(ROOMS_FILTER.BY_PUBLIC);
   }
 
   async clearFilterByPublic() {
     await this.page.locator(".selected-item_label").first().click();
     await this.waitForGetResponse("/rooms");
+    await this.page.waitForTimeout(1000);
   }
 
   async fillRoomsSearchInputAndCheckRequest(searchValue: string) {

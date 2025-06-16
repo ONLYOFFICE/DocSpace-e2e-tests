@@ -2,8 +2,8 @@ import { expect, Page } from "@playwright/test";
 
 class Screenshot {
   page: Page;
-  typePage: string; // TODO union litteral type
-  typeEntity: string; // TODO union litteral type
+  typePage: string;
+  typeEntity: string;
 
   constructor(page: Page, typePage: string, typeEntity: string) {
     this.page = page;
