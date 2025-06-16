@@ -1,6 +1,7 @@
 import { expect, Page } from "@playwright/test";
 import ContextMenu from "./BaseContextMenu";
 import { TInfoPanelTabs } from "../../utils/types/common";
+import { TRoomCreateTitles } from "@/src/utils/constants/rooms";
 
 const NO_ITEM_TEXT = ".no-item-text";
 const INFO_OPTIONS_ICON = "#info-options";
@@ -77,9 +78,16 @@ class InfoPanel {
       .evaluate((el) => (el.style.display = "none"));
   }
 
-  async hideCreationTimeHistory() {
+  async hideCreationDateHistory() {
+    await this.historyList
+      .locator("div")
+      .first()
+      .evaluate((el) => {
+        el.style.display = "none";
+      }); // hide creation date
+
     await this.page.locator(CREATION_TIME_HISTORY).evaluateAll((elements) => {
-      elements.forEach((el) => (el.style.display = "none"));
+      elements.forEach((el) => (el.style.display = "none")); // hide creation time
     });
   }
 
@@ -100,13 +108,20 @@ class InfoPanel {
     await expect(this.dropdown.contextMenu).toBeVisible();
   }
 
-  async toggleInfoPanel() {
+  async close() {
     const isInfoPanelVisible = await this.infoPanel.isVisible();
-    await this.toggle.click();
 
     if (isInfoPanelVisible) {
+      await this.toggle.click();
       await this.checkInfoPanelNotExist();
-    } else {
+    }
+  }
+
+  async open() {
+    const isInfoPanelVisible = await this.infoPanel.isVisible();
+
+    if (!isInfoPanelVisible) {
+      await this.toggle.click();
       await this.checkInfoPanelExist();
     }
   }
@@ -133,6 +148,11 @@ class InfoPanel {
     await expect(folderType).toContainText("Folder");
   }
 
+  async checkRoomProperties(roomType: TRoomCreateTitles) {
+    const roomTypeProperty = this.infoPanel.locator(PROPERTY_TYPE);
+    await expect(roomTypeProperty).toContainText(roomType);
+  }
+
   async closeDropdown() {
     await this.infoPanel.click({
       position: { x: 1, y: 1 },
@@ -142,6 +162,11 @@ class InfoPanel {
 
   async checkShareExist() {
     await expect(this.sharedLinksWrapper).toBeVisible();
+  }
+
+  async checkAccessesExist() {
+    const membersTitle = this.infoPanel.getByText("Administration");
+    await expect(membersTitle).toBeVisible();
   }
 
   async createFirstSharedLink() {

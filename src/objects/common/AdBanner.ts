@@ -1,4 +1,4 @@
-import { Page } from "@playwright/test";
+import { Page, expect } from "@playwright/test";
 
 const AD_BANNER = "[data-testid='campaigns-banner']";
 const CLOSE_BUTTON = `${AD_BANNER} [data-testid='icon-button-svg']`;
@@ -19,13 +19,15 @@ class AdBanner {
   }
 
   async closeBanner() {
-    while (await this.adBanner.isVisible()) {
+    try {
       await this.closeButton.click();
-
-      // Small waitForTimeout for DOM to be updated
-      await this.page.waitForTimeout(200);
+      await expect(this.adBanner).not.toBeVisible({ timeout: 1000 });
+    } catch {
+      await this.closeBanner();
     }
   }
 }
+
+// Final check to ensure no banner is visible
 
 export default AdBanner;

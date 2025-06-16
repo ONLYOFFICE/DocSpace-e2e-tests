@@ -1,4 +1,4 @@
-import { expect, Page, Locator } from "@playwright/test";
+import { Page, Locator } from "@playwright/test";
 
 import config from "../../../config";
 
@@ -20,8 +20,9 @@ export class Login {
   }
 
   async loginToPortal() {
-    await this.page.goto(`https://${this.portalDomain}`);
-    await this.page.waitForLoadState("networkidle");
+    await this.page.goto(`https://${this.portalDomain}`, {
+      waitUntil: "networkidle",
+    });
     await this.emailInput.waitFor({ state: "visible" });
     await this.passwordInput.waitFor({ state: "visible" });
 
