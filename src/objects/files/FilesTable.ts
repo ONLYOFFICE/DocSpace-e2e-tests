@@ -1,6 +1,7 @@
 import { expect, Page } from "@playwright/test";
 import BaseTable from "../common/BaseTable";
-import BaseContenxtMenu from "../common/BaseContextMenu";
+import BaseContextMenu from "../common/BaseContextMenu";
+import { initialDocNames } from "@/src/utils/constants/files";
 
 const TABLE_LIST_ITEM = ".table-list-item.window-item";
 
@@ -11,13 +12,13 @@ const MODIFIED_CHECKBOX =
 const FILES_TABLE = "#table-container";
 
 class FilesTable extends BaseTable {
-  contextMenu: BaseContenxtMenu;
+  contextMenu: BaseContextMenu;
 
   constructor(page: Page) {
     const tableLocator = page.locator(FILES_TABLE);
     super(tableLocator);
 
-    this.contextMenu = new BaseContenxtMenu(page);
+    this.contextMenu = new BaseContextMenu(page);
   }
 
   private get docxFile() {
@@ -39,6 +40,15 @@ class FilesTable extends BaseTable {
 
   async openContextMenu() {
     await this.openContextMenuRow(this.docxFile);
+  }
+
+  async checkInitialDocsExist() {
+    await expect(this.table).toBeVisible();
+    const promises = initialDocNames.map((docName) =>
+      expect(this.table.getByText(docName)).toBeVisible(),
+    );
+
+    await Promise.all(promises);
   }
 
   async hideModifiedColumn() {

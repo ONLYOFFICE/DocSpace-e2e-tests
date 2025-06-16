@@ -4,13 +4,24 @@ import FilesCreateModal from "./FilesCreateModal";
 import BaseNavigation from "../common/BaseNavigation";
 import FilesCreateContextMenu from "./FilesCreateContextMenu";
 
+const navActions = {
+  moveToArchive: {
+    button: "#menu-archive",
+    submit: "#shared_move-to-archived-modal_submit",
+  },
+  delete: {
+    button: "#menu-delete",
+    submit: "#delete-file-modal_submit",
+  },
+} as const;
+
 class FilesNavigation extends BaseNavigation {
-  contenxtMenu: FilesCreateContextMenu;
+  contextMenu: FilesCreateContextMenu;
   modal: FilesCreateModal;
 
   constructor(page: Page) {
-    super(page);
-    this.contenxtMenu = new FilesCreateContextMenu(page);
+    super(page, navActions);
+    this.contextMenu = new FilesCreateContextMenu(page);
     this.modal = new FilesCreateModal(page);
   }
 
@@ -28,9 +39,17 @@ class FilesNavigation extends BaseNavigation {
   async openAndValidateFileCreateModals() {
     for (const actionText of listDocActions) {
       await this.openCreateDropdown();
-      await this.contenxtMenu.selectCreateAction(actionText);
+      await this.contextMenu.selectCreateAction(actionText);
       await this.validateCreateFileModal(actionText);
     }
+  }
+
+  async delete() {
+    await this.performAction(navActions.delete);
+  }
+
+  async selectCreateAction(actionText: string) {
+    await this.contextMenu.selectCreateAction(actionText);
   }
 }
 
