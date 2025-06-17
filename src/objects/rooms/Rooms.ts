@@ -29,8 +29,8 @@ const navActions = {
 } as const;
 
 class MyRooms {
-  page: Page;
-  portalDomain: string;
+  private page: Page;
+  private portalDomain: string;
 
   roomsEmptyView: RoomsEmptyView;
   roomsCreateDialog: RoomsCreateDialog;

@@ -8,8 +8,8 @@ import FilesFilter from "./FilesFilter";
 import FilesEmptyView from "./FilesEmptyView";
 
 class MyDocuments {
-  page: Page;
-  portalDomain: string;
+  private page: Page;
+  private portalDomain: string;
 
   filesArticle: FilesArticle;
   filesCreateContextMenu: FilesCreateContextMenu;
@@ -35,9 +35,8 @@ class MyDocuments {
   }
 
   async open() {
-    await this.page.goto(`https://${this.portalDomain}/rooms/personal`, {
-      waitUntil: "domcontentloaded",
-    });
+    await this.page.goto(`https://${this.portalDomain}/rooms/personal`);
+    await this.page.waitForLoadState("load");
     await expect(this.page).toHaveURL(/.*rooms\/personal.*/);
   }
 
@@ -48,6 +47,7 @@ class MyDocuments {
   async deleteAllDocs() {
     await this.filesTable.selectAllRows();
     await this.filesNavigation.delete();
+    await this.filesEmptyView.checkNoDocsTextExist();
   }
 }
 

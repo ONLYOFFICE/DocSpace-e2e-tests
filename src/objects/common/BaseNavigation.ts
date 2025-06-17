@@ -5,25 +5,8 @@ const HEADER_ADD_BUTTON = "#header_add-button";
 const BACK_ARROW_ICON =
   ".navigation-arrow-container [data-testid='icon-button']";
 
-// const MOVE_ARCHIVE_BUTTON = "#menu-archive";
-// const MOVE_ARCHIVE_BUTTON_SUBMIT = "#shared_move-to-archived-modal_submit";
-
-// const DELETE_BUTTON = "#menu-delete";
-// const DELETE_BUTTON_SUBMIT = "#delete-file-modal_submit";
-
-// const actions = {
-//   moveToArchive: {
-//     button: MOVE_ARCHIVE_BUTTON,
-//     submit: MOVE_ARCHIVE_BUTTON_SUBMIT,
-//   },
-//   delete: {
-//     button: DELETE_BUTTON,
-//     submit: DELETE_BUTTON_SUBMIT,
-//   },
-// } as const;
-
 type TAction = {
-  button?: string;
+  button: string;
   submit?: string;
 };
 type TActions = Record<string, TAction>;
@@ -67,14 +50,14 @@ class BaseNavigation {
     await this.contextMenu.close();
   }
 
+  async openContextMenu() {
+    await this.page.locator("#header_optional-button").click();
+  }
+
   async performAction(action: TAction) {
-    if (action?.button) {
-      const actionButton = this.page.locator(action.button);
-      await expect(actionButton).toBeVisible();
-      await actionButton.click();
-    } else {
-      throw new Error(`Action ${action} not found`);
-    }
+    const actionButton = this.page.locator(action.button);
+    await expect(actionButton).toBeVisible();
+    await actionButton.click();
 
     if (action?.submit) {
       const actionButtonSubmit = this.page.locator(action.submit);

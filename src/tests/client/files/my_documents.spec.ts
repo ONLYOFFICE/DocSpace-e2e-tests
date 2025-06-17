@@ -55,8 +55,6 @@ test.describe("Files: My documents", () => {
    */
   test("EmptyScreen", async () => {
     await myDocuments.deleteAllDocs();
-    await myDocuments.filesEmptyView.checkNoDocsTextExist();
-
     await screenshot.expectHaveScreenshot("empty_view");
 
     await myDocuments.filesEmptyView.openAndValidateFileCreateModals();
