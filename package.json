@@ -6,25 +6,10 @@
     "test": "tests"
   },
   "scripts": {
-    "test": "npx playwright test",
-    "test:eu": "AWS_REGION=eu-central-1 npx playwright test",
-    "test:us": "AWS_REGION=us-east-2 npx playwright test",
-    "test:prod": "PORTAL_REGISTRATION_URL=https://$DOCSPACE_DOMAIN/apisystem/portal npx playwright test",
-    "test:prod:eu": "PORTAL_REGISTRATION_URL=https://$DOCSPACE_DOMAIN/apisystem/portal AWS_REGION=eu-central-1 npx playwright test",
-    "test:prod:us": "PORTAL_REGISTRATION_URL=https://$DOCSPACE_DOMAIN/apisystem/portal AWS_REGION=us-west-2 npx playwright test",
-    "test:ui": "playwright test tests/ui_tests",
-    "test:api": "playwright test tests/api_tests",
-    "test:ui:headed": "playwright test tests/ui_tests --headed",
-    "test:debug": "LOG_LEVEL=debug npm test",
-    "test:info": "LOG_LEVEL=info npm test",
-    "test:error": "LOG_LEVEL=error npm test",
-    "test:silent": "LOG_LEVEL=silent npm test",
-    "build": "tsc",
-    "build:watch": "tsc --watch",
-    "lint": "eslint ./src",
-    "lint-staged": "lint-staged",
-    "prettier": "prettier --write .",
-    "prepare": "husky"
+    "docker:build": "docker-compose build",
+    "docker:start": "docker-compose run --rm tests-local npx playwright test",
+    "lint": "eslint \"./src/**/*.{ts,js}\"",
+    "lint:fix": "eslint \"./src/**/*.{ts,js}\" --fix"
   },
   "keywords": [],
   "author": "",
@@ -55,14 +40,5 @@
     "pdfkit": "^0.16.0",
     "pptxgenjs": "^3.12.0",
     "xlsx": "^0.18.5"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "npm run lint-staged",
-      "pre-push": "npm run lint-staged"
-    }
-  },
-  "lint-staged": {
-    "*.{js,ts}": "eslint --fix"
   }
 }

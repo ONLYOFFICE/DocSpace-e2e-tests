@@ -21,7 +21,7 @@ export default defineConfig({
     ],
   ],
   use: {
-    headless: false,
+    headless: true,
     screenshot: { mode: "only-on-failure", fullPage: true },
     video: "off",
     browserName: "chromium", // You can change this to "firefox" or "webkit"

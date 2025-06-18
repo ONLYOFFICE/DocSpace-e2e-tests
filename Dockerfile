@@ -1,21 +1,12 @@
-FROM mcr.microsoft.com/playwright:v1.49.0-jammy
+FROM node:22-bookworm-slim
 
 WORKDIR /app
 
-# Copy package files
-COPY package.json package-lock.json ./
+COPY  package-lock.json .
+COPY  package.json  .
 
-# Install dependencies
 RUN npm ci
+RUN npx playwright install chromium --with-deps
 
-# Copy the rest of the application
 COPY . .
 
-# Install Playwright browsers
-RUN npx playwright install chromium
-
-# Set environment variables
-ENV CI=true
-
-# Command to run tests
-CMD ["npx", "playwright", "test"]

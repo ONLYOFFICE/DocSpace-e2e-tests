@@ -1,17 +1,11 @@
-version: "3"
-
 services:
-  e2e-tests:
+  tests-ci:
+    image: e2e-tests
     build:
-      context: .
       dockerfile: Dockerfile
+  tests-local:
+    image: e2e-tests
     volumes:
-      # Mount the project directory to enable live reloading
-      - .:/app
-      # Mount these to preserve test results and screenshots between runs
-      - ./test-output:/app/test-output
+      - ./__tests__:/app/__tests__
+      - ./playwright.config.ts:/app/playwright.config.ts
       - ./playwright-report:/app/playwright-report
-      - ./screenshots:/app/screenshots
-    environment:
-      # Add any environment variables your tests might need
-      - CI=true
