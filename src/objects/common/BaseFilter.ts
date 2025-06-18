@@ -125,9 +125,10 @@ class BaseFilter {
     searchValue: string,
     expectedUrlPart: string,
   ) {
+    const promise = this.waitForGetResponse(expectedUrlPart);
     await this.searchInput.fill(searchValue);
     await expect(this.searchInput).toHaveValue(searchValue);
-    await this.waitForGetResponse(expectedUrlPart);
+    await promise;
   }
 
   async clearSearchText() {

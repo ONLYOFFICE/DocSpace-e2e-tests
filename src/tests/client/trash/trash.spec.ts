@@ -2,9 +2,7 @@ import { test, Page } from "@playwright/test";
 
 import API from "@/src/api";
 import Login from "@/src/objects/common/Login";
-import AdFrame from "@/src/objects/common/AdFrame";
 import Screenshot from "@/src/objects/common/Screenshot";
-import AdBanner from "@/src/objects/common/AdBanner";
 import MyDocuments from "@/src/objects/files/MyDocuments";
 import Trash from "@/src/objects/trash/Trash";
 import { roomCreateTitles } from "@/src/utils/constants/rooms";
@@ -14,12 +12,10 @@ test.describe("Trash", () => {
   let page: Page;
 
   let login: Login;
-  let adFrame: AdFrame;
   let screenshot: Screenshot;
 
   let myDocuments: MyDocuments;
   let trash: Trash;
-  let adBanner: AdBanner;
 
   test.beforeAll(async ({ playwright, browser }) => {
     const apiContext = await playwright.request.newContext();
@@ -29,19 +25,23 @@ test.describe("Trash", () => {
 
     page = await browser.newPage();
 
+    await page.addInitScript(() => {
+      globalThis.localStorage?.setItem("integrationUITests", "true");
+    });
+
     login = new Login(page, api.portalDomain);
     myDocuments = new MyDocuments(page, api.portalDomain);
     trash = new Trash(page);
-    screenshot = new Screenshot(page, "trash", "trash");
-    adFrame = new AdFrame(page);
-    adBanner = new AdBanner(page);
+    screenshot = new Screenshot(page, "trash");
 
     await login.loginToPortal();
-    await adFrame.closeIframe();
     await myDocuments.open();
     await myDocuments.deleteAllDocs();
     await trash.open();
-    await adBanner.closeBanner();
+  });
+
+  test.beforeEach(async ({}, testInfo) => {
+    await screenshot.setCurrentTestInfo(testInfo);
   });
 
   /**
@@ -102,7 +102,6 @@ test.describe("Trash", () => {
     await screenshot.expectHaveScreenshot(
       "empty_restore_selector_rooms_dropdown",
     );
-
     await trash.trashSelector.selectCreateRoomType(roomCreateTitles.public);
     await trash.trashSelector.fillNewItemName(roomCreateTitles.public);
     await screenshot.expectHaveScreenshot(

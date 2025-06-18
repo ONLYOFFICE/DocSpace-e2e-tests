@@ -31,7 +31,7 @@ class RoomsTable extends BaseTable {
   }
 
   async openContextMenu(title: string) {
-    const roomLocator = this.table.getByText(title, {
+    const roomLocator = this.table.getByText(title.trim(), {
       exact: true,
     });
     await this.openContextMenuRow(roomLocator);

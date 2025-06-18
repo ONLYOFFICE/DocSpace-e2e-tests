@@ -57,8 +57,25 @@ class BaseTable {
     await row.click();
   }
 
+  async checkRowExist(title: string) {
+    const row = this.tableRows.filter({ hasText: title });
+    await expect(row).toBeVisible();
+  }
+
   async resetSelect() {
     await this.page.keyboard.press("Escape");
+  }
+
+  async openFooterContextMenu() {
+    const box = await this.table.boundingBox();
+    if (!box) {
+      throw new Error("Table not found");
+    }
+
+    const clickX = box.x;
+    const clickY = box.y + box.height + 50;
+
+    await this.page.mouse.click(clickX, clickY, { button: "right" });
   }
 }
 

@@ -3,8 +3,6 @@ import { test, Page } from "@playwright/test";
 import API from "@/src/api";
 import MyDocuments from "@/src/objects/files/MyDocuments";
 import Login from "@/src/objects/common/Login";
-import AdFrame from "@/src/objects/common/AdFrame";
-import AdBanner from "@/src/objects/common/AdBanner";
 import Screenshot from "@/src/objects/common/Screenshot";
 
 test.describe("Files: My documents", () => {
@@ -12,8 +10,6 @@ test.describe("Files: My documents", () => {
   let page: Page;
   let login: Login;
   let myDocuments: MyDocuments;
-  let adFrame: AdFrame;
-  let adBanner: AdBanner;
   let screenshot: Screenshot;
 
   test.beforeAll(async ({ playwright, browser }) => {
@@ -24,17 +20,20 @@ test.describe("Files: My documents", () => {
 
     page = await browser.newPage();
 
+    await page.addInitScript(() => {
+      globalThis.localStorage?.setItem("integrationUITests", "true");
+    });
+
     login = new Login(page, api.portalDomain);
     myDocuments = new MyDocuments(page, api.portalDomain);
-    screenshot = new Screenshot(page, "my_documents", "files");
-    adFrame = new AdFrame(page);
-    adBanner = new AdBanner(page);
+    screenshot = new Screenshot(page, "files");
 
     await login.loginToPortal();
-    await adFrame.closeIframe();
     await myDocuments.open();
-    await adBanner.closeBanner();
-    await myDocuments.filesTable.hideModifiedColumn();
+  });
+
+  test.beforeEach(async ({}, testInfo) => {
+    await screenshot.setCurrentTestInfo(testInfo);
   });
 
   /**
@@ -42,6 +41,7 @@ test.describe("Files: My documents", () => {
    * Verifies that the documents table is displayed correctly with proper column visibility
    */
   test("Render", async () => {
+    await myDocuments.filesTable.hideModifiedColumn();
     await screenshot.expectHaveScreenshot("render");
   });
 

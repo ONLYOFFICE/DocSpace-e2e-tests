@@ -32,7 +32,7 @@ export class Login {
     await this.loginButton.click();
 
     await this.page.waitForURL(/.*rooms\/shared\/filter.*/, {
-      waitUntil: "load",
+      waitUntil: "networkidle",
     });
   }
 }

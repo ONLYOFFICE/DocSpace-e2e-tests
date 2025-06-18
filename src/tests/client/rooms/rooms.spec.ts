@@ -3,7 +3,6 @@ import { test, Page } from "@playwright/test";
 import API from "@/src/api";
 import Login from "@/src/objects/common/Login";
 import MyRooms from "@/src/objects/rooms/Rooms";
-import AdFrame from "@/src/objects/common/AdFrame";
 import Screenshot from "@/src/objects/common/Screenshot";
 import {
   roomContextMenuOption,
@@ -21,7 +20,6 @@ test.describe("Rooms", () => {
   let page: Page;
 
   let login: Login;
-  let adFrame: AdFrame;
   let screenshot: Screenshot;
 
   let myRooms: MyRooms;
@@ -34,15 +32,26 @@ test.describe("Rooms", () => {
 
     page = await browser.newPage();
 
+    await page.addInitScript(() => {
+      globalThis.localStorage?.setItem("integrationUITests", "true");
+    });
+
     login = new Login(page, api.portalDomain);
-    screenshot = new Screenshot(page, "rooms", "rooms");
-    adFrame = new AdFrame(page);
+    screenshot = new Screenshot(page, "rooms");
 
     myRooms = new MyRooms(page, api.portalDomain);
 
     await login.loginToPortal();
     await myRooms.open();
-    await adFrame.closeIframe();
+  });
+
+  test.beforeEach(async ({}, testInfo) => {
+    await screenshot.setCurrentTestInfo(testInfo);
+  });
+
+  test("Render", async () => {
+    await myRooms.roomsEmptyView.checkNoRoomsExist();
+    await screenshot.expectHaveScreenshot();
   });
 
   /**
@@ -50,6 +59,7 @@ test.describe("Rooms", () => {
    * Verifies that the dialog can be opened from navigation, empty view, and article
    */
   test("OpenCreateDialog", async () => {
+    await myRooms.roomsEmptyView.checkNoRoomsExist();
     await test.step("FromNavigation", async () => {
       await myRooms.openCreateRoomDialog(roomDialogSource.navigation);
       await myRooms.roomsCreateDialog.close();
@@ -57,7 +67,7 @@ test.describe("Rooms", () => {
 
     await test.step("FromEmptyView", async () => {
       await myRooms.openCreateRoomDialog(roomDialogSource.emptyView);
-      await screenshot.expectHaveScreenshot("view_create_room_dialog");
+      await screenshot.expectHaveScreenshot("view_dialog");
       await myRooms.roomsCreateDialog.close();
     });
 
@@ -73,7 +83,7 @@ test.describe("Rooms", () => {
   test("RoomTypesDropdown", async () => {
     await myRooms.roomsCreateDialog.openRoomType(roomCreateTitles.formFilling);
     await myRooms.roomsTypeDropdown.openRoomTypeDropdown();
-    await screenshot.expectHaveScreenshot("view_room_type_dropdown");
+    await screenshot.expectHaveScreenshot();
 
     await myRooms.roomsTypeDropdown.selectRoomTypeByTitle(
       roomCreateTitles.public,
@@ -94,10 +104,10 @@ test.describe("Rooms", () => {
     await test.step("CommonRooms", async () => {
       await myRooms.roomsCreateDialog.openRoomType(roomCreateTitles.public);
       await myRooms.roomsCreateDialog.openRoomIconDropdown();
-      await screenshot.expectHaveScreenshot("view_room_icon_dropdown");
+      await screenshot.expectHaveScreenshot("room_icon_dropdown");
 
       await myRooms.roomsCreateDialog.openRoomCover();
-      await screenshot.expectHaveScreenshot("view_room_cover");
+      await screenshot.expectHaveScreenshot("room_cover");
       await page.mouse.dblclick(1, 1); // close all dialogs
 
       await myRooms.createRooms();
@@ -107,12 +117,12 @@ test.describe("Rooms", () => {
 
     await test.step("TemplateOfTheRoom", async () => {
       await myRooms.roomsTable.openContextMenu(roomCreateTitles.public);
-      await screenshot.expectHaveScreenshot("view_opened_context_menu_room");
+      await screenshot.expectHaveScreenshot("opened_context_menu_room");
 
       await myRooms.roomsTable.clickContextMenuOption(
         roomContextMenuOption.saveAsTemplate,
       );
-      await screenshot.expectHaveScreenshot("view_save_as_template");
+      await screenshot.expectHaveScreenshot("save_as_template");
 
       await myRooms.roomsCreateDialog.createRoomTemplate();
       await myRooms.roomsEmptyView.checkEmptyRoomExist(roomCreateTitles.public);
@@ -120,7 +130,7 @@ test.describe("Rooms", () => {
       await myRooms.checkHeadingExist("Templates");
       await myRooms.infoPanel.close();
       await myRooms.roomsTable.hideLastActivityColumn();
-      await screenshot.expectHaveScreenshot("view_created_template");
+      await screenshot.expectHaveScreenshot("created_template");
     });
 
     await test.step("RoomFromTemplate", async () => {
@@ -135,7 +145,7 @@ test.describe("Rooms", () => {
 
     await myRooms.backToRooms();
     await myRooms.infoPanel.close();
-    await screenshot.expectHaveScreenshot("view_created_rooms");
+    await screenshot.expectHaveScreenshot("created_rooms");
   });
 
   /**
@@ -147,10 +157,10 @@ test.describe("Rooms", () => {
     await myRooms.roomsTable.clickContextMenuOption(
       roomContextMenuOption.inviteContacts,
     );
-    await myRooms.roomsInviteDialog.checkInviteTitleExist();
-    await myRooms.roomsInviteDialog.openAccessSelector();
-    await screenshot.expectHaveScreenshot("view_invite_dialog");
-    await myRooms.roomsInviteDialog.close();
+    await myRooms.inviteDialog.checkInviteTitleExist();
+    await myRooms.inviteDialog.openAccessSelector();
+    await screenshot.expectHaveScreenshot("invite_dialog");
+    await myRooms.inviteDialog.close();
   });
 
   test("ChangeTheRoomOwner", async () => {
@@ -159,7 +169,7 @@ test.describe("Rooms", () => {
       roomContextMenuOption.changeTheRoomOwner,
     );
     await myRooms.roomsChangeOwnerDialog.checkNoMembersFoundExist();
-    await screenshot.expectHaveScreenshot("view_change_room_owner_no_members");
+    await screenshot.expectHaveScreenshot("no_members");
     await myRooms.roomsChangeOwnerDialog.close();
   });
 
@@ -180,7 +190,7 @@ test.describe("Rooms", () => {
       roomContextMenuOption.editRoom,
     );
     await myRooms.roomsEditDialog.checkDialogExist();
-    await screenshot.expectHaveScreenshot("view_opened_edit_room_dialog");
+    await screenshot.expectHaveScreenshot("opened_edit_room_dialog");
     await myRooms.roomsEditDialog.fillRoomName("Edited room");
     await myRooms.roomsEditDialog.clickSaveButton();
     await myRooms.roomsTable.checkRoomExist("Edited room");
@@ -212,7 +222,7 @@ test.describe("Rooms", () => {
       templateContextMenuOption.accessSettings,
     );
     await myRooms.roomsAccessSettingsDialog.checkAccessSettingsTitleExist();
-    await screenshot.expectHaveScreenshot("view_access_settings");
+    await screenshot.expectHaveScreenshot();
     await myRooms.roomsAccessSettingsDialog.close();
   });
 
@@ -230,48 +240,40 @@ test.describe("Rooms", () => {
   test("InfoPanel", async () => {
     await myRooms.infoPanel.open();
     await myRooms.infoPanel.checkNoItemTextExist();
-    await screenshot.expectHaveScreenshot("view_info_panel_empty");
+    await screenshot.expectHaveScreenshot("empty");
 
     await myRooms.roomsTable.selectRow("room template");
     await myRooms.infoPanel.openTab("Details");
     await myRooms.infoPanel.hideDatePropertiesDetails();
     await myRooms.infoPanel.checkRoomProperties(roomCreateTitles.public);
-    await screenshot.expectHaveScreenshot(
-      "view_info_panel_template_room_details",
-    );
+    await screenshot.expectHaveScreenshot("template_details");
 
     await myRooms.infoPanel.openOptions();
-    await screenshot.expectHaveScreenshot(
-      "view_opened_info_panel_template_room_options",
-    );
+    await screenshot.expectHaveScreenshot("template_opened_options");
     await myRooms.infoPanel.closeDropdown();
 
     await myRooms.infoPanel.openTab("Accesses");
     await myRooms.infoPanel.checkAccessesExist();
-    await screenshot.expectHaveScreenshot(
-      "view_info_panel_template_room_accesses",
-    );
+    await screenshot.expectHaveScreenshot("template_accesses");
 
     await myRooms.openRoomsTab();
     await myRooms.roomsTable.selectRow(roomCreateTitles.public);
     await myRooms.infoPanel.openTab("Details");
     await myRooms.infoPanel.hideDatePropertiesDetails();
     await myRooms.infoPanel.checkRoomProperties(roomCreateTitles.public);
-    await screenshot.expectHaveScreenshot("view_info_panel_room_details");
+    await screenshot.expectHaveScreenshot("room_details");
 
     await myRooms.infoPanel.openOptions();
-    await screenshot.expectHaveScreenshot(
-      "view_opened_info_panel_room_options",
-    );
+    await screenshot.expectHaveScreenshot("room_options");
     await myRooms.infoPanel.closeDropdown();
 
     await myRooms.infoPanel.openTab("History");
     await myRooms.infoPanel.checkHistoryExist("room created");
     await myRooms.infoPanel.hideCreationDateHistory();
-    await screenshot.expectHaveScreenshot("view_info_panel_room_history");
+    await screenshot.expectHaveScreenshot("room_history");
 
     await myRooms.infoPanel.openTab("Contacts");
-    await screenshot.expectHaveScreenshot("view_info_panel_room_contacts");
+    await screenshot.expectHaveScreenshot("room_contacts");
     await myRooms.infoPanel.close();
   });
 
@@ -295,9 +297,9 @@ test.describe("Rooms", () => {
    */
   test("Sort", async () => {
     await myRooms.roomsFilter.openDropdownSortBy();
-    await screenshot.expectHaveScreenshot("view_dropdown_sort_by");
+    await screenshot.expectHaveScreenshot("dropdown_sort_by");
     await myRooms.roomsFilter.clickSortByType();
-    await screenshot.expectHaveScreenshot("view_sorted_by_type");
+    await screenshot.expectHaveScreenshot("sorted_by_type");
   });
 
   /**
@@ -310,10 +312,10 @@ test.describe("Rooms", () => {
    */
   test("Filter", async () => {
     await myRooms.roomsFilter.openFilterDialog();
-    await screenshot.expectHaveScreenshot("view_filter_dialog");
+    await screenshot.expectHaveScreenshot("filter_dialog");
     await myRooms.roomsFilter.selectFilterByPublic();
     await myRooms.roomsFilter.applyFilter();
-    await screenshot.expectHaveScreenshot("view_filtered_by_public");
+    await screenshot.expectHaveScreenshot("filtered_by_public");
     await myRooms.roomsFilter.clearFilterByPublic();
   });
 
@@ -331,13 +333,13 @@ test.describe("Rooms", () => {
       roomCreateTitles.collaboration,
     );
     await myRooms.roomsTable.checkRoomExist(roomCreateTitles.collaboration);
-    await screenshot.expectHaveScreenshot("view_search_collaboration_room");
+    await screenshot.expectHaveScreenshot("collaboration_room");
     await myRooms.roomsFilter.clearSearchText();
     await myRooms.roomsFilter.fillRoomsSearchInputAndCheckRequest(
       "empty view search",
     );
     await myRooms.roomsFilter.checkEmptyViewExist();
-    await screenshot.expectHaveScreenshot("view_search_empty");
+    await screenshot.expectHaveScreenshot("empty");
     await myRooms.roomsFilter.clearSearchText();
     await myRooms.roomsTable.checkRoomExist(roomCreateTitles.public);
   });
@@ -353,14 +355,13 @@ test.describe("Rooms", () => {
     await test.step("Rooms", async () => {
       await myRooms.moveAllRoomsToArchive();
       await myRooms.roomsEmptyView.checkNoRoomsExist();
-      await screenshot.expectHaveScreenshot("empty_rooms_view");
     });
 
     await test.step("Templates", async () => {
       await myRooms.openTemplatesTab();
       await myRooms.deleteAllRooms();
       await myRooms.roomsEmptyView.checkNoTemplatesExist();
-      await screenshot.expectHaveScreenshot("empty_templates_view");
+      await screenshot.expectHaveScreenshot("templates");
     });
   });
 

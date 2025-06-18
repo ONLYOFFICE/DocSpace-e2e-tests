@@ -4,22 +4,18 @@ import API from "@/src/api";
 import Login from "@/src/objects/common/Login";
 import MyRooms from "@/src/objects/rooms/Rooms";
 import Archive from "@/src/objects/archive/Archive";
-import AdFrame from "@/src/objects/common/AdFrame";
 import Screenshot from "@/src/objects/common/Screenshot";
-import AdBanner from "@/src/objects/common/AdBanner";
 import { roomCreateTitles } from "@/src/utils/constants/rooms";
 
-test.describe("Archive", () => {
+test.describe("BArchive", () => {
   let api: API;
   let page: Page;
 
   let login: Login;
-  let adFrame: AdFrame;
   let screenshot: Screenshot;
 
   let myRooms: MyRooms;
   let myArchive: Archive;
-  let adBanner: AdBanner;
 
   test.beforeAll(async ({ playwright, browser }) => {
     const apiContext = await playwright.request.newContext();
@@ -29,19 +25,24 @@ test.describe("Archive", () => {
 
     page = await browser.newPage();
 
+    await page.addInitScript(() => {
+      globalThis.localStorage?.setItem("integrationUITests", "true");
+    });
+
     login = new Login(page, api.portalDomain);
-    screenshot = new Screenshot(page, "archive", "archive");
-    adFrame = new AdFrame(page);
+    screenshot = new Screenshot(page, "archive");
 
     myRooms = new MyRooms(page, api.portalDomain);
     myArchive = new Archive(page, api.portalDomain);
-    adBanner = new AdBanner(page);
 
     await login.loginToPortal();
     await myRooms.open();
-    await adFrame.closeIframe();
     await myRooms.createRooms();
     await myRooms.moveAllRoomsToArchive();
+  });
+
+  test.beforeEach(async ({}, testInfo) => {
+    await screenshot.setCurrentTestInfo(testInfo);
   });
 
   /**
@@ -51,10 +52,9 @@ test.describe("Archive", () => {
    */
   test("Render", async () => {
     await myArchive.open();
-    await adBanner.closeBanner();
     await myArchive.hideLastActivityColumn();
     await myArchive.sortByName();
-    await screenshot.expectHaveScreenshot("rooms_render");
+    await screenshot.expectHaveScreenshot("rooms");
   });
 
   /**
@@ -65,7 +65,7 @@ test.describe("Archive", () => {
     await myArchive.archiveTable.openContextMenuRow(
       myArchive.archiveTable.tableRows.first(),
     );
-    await screenshot.expectHaveScreenshot("context_menu");
+    await screenshot.expectHaveScreenshot("from_table_row");
   });
 
   /**
@@ -82,9 +82,9 @@ test.describe("Archive", () => {
     await myArchive.infoPanel.openTab("History");
     await myArchive.infoPanel.checkHistoryExist("Room moved to Archive");
     await myArchive.infoPanel.hideCreationDateHistory();
-    await screenshot.expectHaveScreenshot("info_panel_history");
+    await screenshot.expectHaveScreenshot("history");
     await myArchive.infoPanel.openOptions();
-    await screenshot.expectHaveScreenshot("info_panel_options");
+    await screenshot.expectHaveScreenshot("options");
   });
 
   /**
