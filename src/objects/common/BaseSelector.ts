@@ -1,6 +1,8 @@
 import { TRoomCreateTitles } from "@/src/utils/constants/rooms";
 import { expect, Page } from "@playwright/test";
 
+const NEW_SELECTOR_ITEM_INPUT_SELECTOR = "input.input-component.not-selectable";
+
 class BaseSelector {
   page: Page;
 
@@ -12,10 +14,6 @@ class BaseSelector {
     return this.page.getByTestId("selector");
   }
 
-  protected get selectorBody() {
-    return this.selector.locator(".selector-body-scroll");
-  }
-
   private get selectorAddButton() {
     return this.page.getByTestId("selector-add-button");
   }
@@ -24,10 +22,14 @@ class BaseSelector {
     return this.page.locator(".empty-folder_container-links").first();
   }
 
+  private get newSelectorItemInput() {
+    return this.selector.locator(
+      `${NEW_SELECTOR_ITEM_INPUT_SELECTOR}:not([placeholder="Search"])`,
+    );
+  }
+
   private get newSelectorItem() {
-    return this.selectorBody
-      .locator("input.input-component.not-selectable")
-      .locator("..");
+    return this.newSelectorItemInput.locator("..");
   }
 
   async checkSelectorExist() {
@@ -96,7 +98,8 @@ class BaseSelector {
   }
 
   async fillNewItemName(name: string) {
-    await this.newSelectorItem.getByRole("textbox").fill(name);
+    await expect(this.newSelectorItemInput).toBeVisible();
+    await this.newSelectorItemInput.fill(name);
   }
 
   async createNewFolder(folderName?: string) {

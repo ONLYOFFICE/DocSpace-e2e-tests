@@ -44,7 +44,7 @@ class InfoPanel {
     return this.page.locator(TOGGLE_INFO_PANEL);
   }
 
-  private get infoPanel() {
+  protected get infoPanel() {
     return this.page.locator(INFO_PANEL);
   }
 

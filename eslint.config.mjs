@@ -32,6 +32,7 @@ export default [
       // Add TypeScript-specific rules here
       "@typescript-eslint/explicit-function-return-type": "off",
       "@typescript-eslint/no-explicit-any": "warn",
+      "no-empty-pattern": ["error", { allowObjectPatternsAsParameters: true }],
     },
   },
 ];

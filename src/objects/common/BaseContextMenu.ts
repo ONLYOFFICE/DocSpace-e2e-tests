@@ -49,6 +49,12 @@ class BaseContextMenu {
     const item = await this.getMenuItem(root, text);
     await item.click();
   }
+
+  async clickSubmenuOption(parentText: string, childText: string) {
+    await this.hoverOption(parentText);
+    const child = await this.getMenuItem(this.contextSubmenu, childText);
+    await child.click();
+  }
 }
 
 export default BaseContextMenu;

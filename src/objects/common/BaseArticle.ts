@@ -1,30 +1,28 @@
-import { expect, Page } from "@playwright/test";
+import { expect, Locator, Page } from "@playwright/test";
 
 const ACTIONS_BUTTON = "#actions-main-button";
 const ARTICLE_CONTAINER = "#article-container";
 
 class BaseArticle {
   page: Page;
+  mainButton: Locator;
 
-  constructor(page: Page) {
+  constructor(page: Page, mainButton?: Locator) {
     this.page = page;
+    this.mainButton = mainButton || this.page.locator(ACTIONS_BUTTON);
   }
 
   get articleContainer() {
     return this.page.locator(ARTICLE_CONTAINER);
   }
 
-  private get articleActionsButton() {
-    return this.page.locator(ACTIONS_BUTTON);
-  }
-
   async checkArticleActionsButtonExist() {
-    await expect(this.articleActionsButton).toBeVisible();
+    await expect(this.mainButton).toBeVisible();
   }
 
   async clickArticleMainButton() {
     await this.checkArticleActionsButtonExist();
-    await this.articleActionsButton.click();
+    await this.mainButton.click();
   }
 }
 

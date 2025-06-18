@@ -36,8 +36,7 @@ class BaseNavigation {
     await this.contextMenu.checkContextMenuExists();
   }
 
-  async openCreateDialog() {
-    await expect(this.headerAddButton).toBeVisible();
+  async clickAddButton() {
     await this.headerAddButton.click();
   }
 
@@ -52,6 +51,7 @@ class BaseNavigation {
 
   async openContextMenu() {
     await this.page.locator("#header_optional-button").click();
+    await this.contextMenu.checkContextMenuExists();
   }
 
   async performAction(action: TAction) {

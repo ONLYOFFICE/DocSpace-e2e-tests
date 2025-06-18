@@ -13,9 +13,9 @@ import {
 import RoomsArticle from "./RoomsArticle";
 import RoomsEditDialog from "./RoomsEditDialog";
 import RoomsChangeOwnerDialog from "./RoomsChangeOwnerDialog";
-import RoomsInviteDialog from "./RoomsInviteDialog";
 import RoomsAccessSettingsDialog from "./RoomsAccessSettingsDialog";
 import RoomsFilter from "./RoomsFilter";
+import BaseInviteDialog from "../common/BaseInviteDialog";
 
 const navActions = {
   moveToArchive: {
@@ -42,9 +42,9 @@ class MyRooms {
   roomsTypeDropdown: RoomsTypesDropdown;
   roomsArticle: RoomsArticle;
   roomsEditDialog: RoomsEditDialog;
-  roomsInviteDialog: RoomsInviteDialog;
   roomsAccessSettingsDialog: RoomsAccessSettingsDialog;
   roomsFilter: RoomsFilter;
+  inviteDialog: BaseInviteDialog;
 
   constructor(page: Page, portalDomain: string) {
     this.page = page;
@@ -61,15 +61,17 @@ class MyRooms {
     this.roomsArticle = new RoomsArticle(page);
     this.roomsEditDialog = new RoomsEditDialog(page);
     this.roomsChangeOwnerDialog = new RoomsChangeOwnerDialog(page);
-    this.roomsInviteDialog = new RoomsInviteDialog(page);
     this.roomsAccessSettingsDialog = new RoomsAccessSettingsDialog(page);
     this.roomsFilter = new RoomsFilter(page);
+    this.inviteDialog = new BaseInviteDialog(page);
   }
 
   async open() {
-    await this.page.goto(`https://${this.portalDomain}/rooms/shared`);
-    await this.page.waitForLoadState("load");
+    await this.page.goto(`https://${this.portalDomain}/rooms/shared`, {
+      waitUntil: "load",
+    });
     await expect(this.page).toHaveURL(/.*rooms\/shared.*/);
+    await this.roomsEmptyView.checkNoRoomsExist();
   }
 
   async openTemplatesTab() {
@@ -98,7 +100,7 @@ class MyRooms {
   async openCreateRoomDialog(source: TRoomDialogSource) {
     switch (source) {
       case roomDialogSource.navigation:
-        await this.navigation.openCreateDialog();
+        await this.navigation.clickAddButton();
         break;
       case roomDialogSource.emptyView:
         await this.roomsEmptyView.openCreateDialog();
