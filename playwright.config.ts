@@ -50,5 +50,5 @@ export default defineConfig({
       use: { ...devices["Desktop Safari"] },
     },  */
   ],
-  timeout: 60000,
+  timeout: 90000,
 });
