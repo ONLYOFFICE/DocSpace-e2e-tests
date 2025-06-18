@@ -4,7 +4,7 @@ import { devices } from "@playwright/test";
 export default defineConfig({
   testDir: "./src/tests",
   retries: 0,
-  workers: 5,
+  workers: 1,
   // Ignore tests in the site directory
   testIgnore: ["**/site/**/*.spec.ts"],
   // Directory for screenshots
@@ -20,18 +20,6 @@ export default defineConfig({
       },
     ],
   ],
-  use: {
-    headless: true,
-    screenshot: { mode: "only-on-failure", fullPage: true },
-    video: "off",
-    browserName: "chromium", // You can change this to "firefox" or "webkit"
-    trace: "on-first-retry", // Enables trace
-    // ...(config.IS_MOBILE && config.DEVICE
-    //   ? {
-    //       ...devices[config.DEVICE],
-    //     }
-    //   : {}),
-  },
   projects: [
     {
       name: "chromium",
