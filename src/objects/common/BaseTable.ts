@@ -2,6 +2,7 @@ import { expect, Locator, Page } from "@playwright/test";
 
 const TABLE_LIST_ITEM = ".table-list-item.window-item";
 const SETTINGS_ICON = '[data-iconname*="settings.desc.react.svg"]';
+import { UAParser } from "ua-parser-js";
 
 class BaseTable {
   protected table: Locator;
@@ -43,10 +44,15 @@ class BaseTable {
     await expect(rows.first()).toBeVisible();
     const count = await rows.count();
 
+    const userAgent = await this.page.evaluate(() => navigator.userAgent);
+    const ua = UAParser(userAgent);
+    const isMac = ua.os.name === "Mac OS";
+    const modifier = isMac ? "Meta" : "Control";
+
     for (let i = 0; i < count; i++) {
-      await this.page.keyboard.down("Control");
+      await this.page.keyboard.down(modifier);
       await rows.nth(i).click();
-      await this.page.keyboard.up("Control");
+      await this.page.keyboard.up(modifier);
     }
 
     return count;
