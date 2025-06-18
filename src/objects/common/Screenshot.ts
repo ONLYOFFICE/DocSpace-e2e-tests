@@ -44,26 +44,8 @@ class Screenshot {
 
     let screenshotName = `${test.index}_${test.counter}_${testName}`;
 
-    // Clean up comment to avoid duplicating parts of the title and remove generic words like "view"
     if (comment) {
-      // 1. Split the comment into tokens by underscore and lowercase them for comparison.
-      const commentTokens = comment.split(/_+/).map((t) => t.toLowerCase());
-
-      // 2. Tokenise the test name so we can remove duplicates.
-      const testTokens = new Set(testName.split(/_+/));
-
-      // 3. Remove generic "view" token and any tokens already present in the test name.
-      const filteredTokens = commentTokens.filter((token) => {
-        if (!token) return false;
-        if (token === "view") return false;
-        return !testTokens.has(token);
-      });
-
-      const cleanedComment = filteredTokens.join("_");
-
-      if (cleanedComment) {
-        screenshotName += `_${cleanedComment}`;
-      }
+      screenshotName += `_${comment}`;
     }
 
     return screenshotName;
