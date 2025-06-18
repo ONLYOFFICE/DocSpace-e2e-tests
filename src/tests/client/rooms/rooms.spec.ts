@@ -1,0 +1,285 @@
+import { test, Page } from "@playwright/test";
+
+import API from "@/src/api";
+import Login from "@/src/objects/common/Login";
+import MyRooms from "@/src/objects/rooms/Rooms";
+import Screenshot from "@/src/objects/common/Screenshot";
+import {
+  roomContextMenuOption,
+  roomCreateTitles,
+  roomDialogSource,
+  templateContextMenuOption,
+} from "@/src/utils/constants/rooms";
+
+/**
+ * Test suite for My Rooms functionality
+ * Tests various aspects of room management including creation, templates, and UI interactions
+ */
+test.describe("Rooms", () => {
+  let api: API;
+  let page: Page;
+
+  let login: Login;
+  let screenshot: Screenshot;
+
+  let myRooms: MyRooms;
+
+  test.beforeAll(async ({ playwright, browser }) => {
+    const apiContext = await playwright.request.newContext();
+    api = new API(apiContext);
+    await api.setup();
+    console.log(api.portalDomain);
+
+    page = await browser.newPage();
+
+    await page.addInitScript(() => {
+      globalThis.localStorage?.setItem("integrationUITests", "true");
+    });
+
+    login = new Login(page, api.portalDomain);
+    screenshot = new Screenshot(page, "rooms");
+
+    myRooms = new MyRooms(page, api.portalDomain);
+
+    await login.loginToPortal();
+    await myRooms.open();
+  });
+
+  test.beforeEach(async ({}, testInfo) => {
+    await screenshot.setCurrentTestInfo(testInfo);
+  });
+
+  test("Render", async () => {
+    await myRooms.roomsEmptyView.checkNoRoomsExist();
+    await screenshot.expectHaveScreenshot();
+
+    // OpenCreateDialog
+    await myRooms.roomsEmptyView.checkNoRoomsExist();
+
+    // FromNavigation
+    await myRooms.openCreateRoomDialog(roomDialogSource.navigation);
+    await myRooms.roomsCreateDialog.close();
+
+    // FromEmptyView
+    await myRooms.openCreateRoomDialog(roomDialogSource.emptyView);
+    await screenshot.expectHaveScreenshot("view_dialog");
+    await myRooms.roomsCreateDialog.close();
+
+    // FromArticle
+    await myRooms.openCreateRoomDialog(roomDialogSource.article);
+
+    // RoomTypesDropdown
+    await myRooms.roomsCreateDialog.openRoomType(roomCreateTitles.formFilling);
+    await myRooms.roomsTypeDropdown.openRoomTypeDropdown();
+    await screenshot.expectHaveScreenshot();
+
+    await myRooms.roomsTypeDropdown.selectRoomTypeByTitle(
+      roomCreateTitles.public,
+    );
+    await myRooms.roomsCreateDialog.clickBackArrow();
+
+    await myRooms.roomsCreateDialog.openAndValidateRoomTypes(screenshot);
+
+    // Create CommonRooms
+    await myRooms.roomsCreateDialog.openRoomType(roomCreateTitles.public);
+    await myRooms.roomsCreateDialog.openRoomIconDropdown();
+    await screenshot.expectHaveScreenshot("room_icon_dropdown");
+
+    await myRooms.roomsCreateDialog.openRoomCover();
+    await screenshot.expectHaveScreenshot("room_cover");
+    await page.mouse.dblclick(1, 1); // close all dialogs
+
+    await myRooms.createRooms();
+    await myRooms.infoPanel.close();
+    await myRooms.roomsTable.hideLastActivityColumn();
+
+    // Create TemplateOfTheRoom
+    await myRooms.roomsTable.openContextMenu(roomCreateTitles.public);
+    await screenshot.expectHaveScreenshot("opened_context_menu_room");
+
+    await myRooms.roomsTable.clickContextMenuOption(
+      roomContextMenuOption.saveAsTemplate,
+    );
+    await screenshot.expectHaveScreenshot("save_as_template");
+
+    await myRooms.roomsCreateDialog.createRoomTemplate();
+    await myRooms.roomsEmptyView.checkEmptyRoomExist(roomCreateTitles.public);
+    await myRooms.backToRooms();
+    await myRooms.checkHeadingExist("Templates");
+    await myRooms.infoPanel.close();
+    await myRooms.roomsTable.hideLastActivityColumn();
+    await screenshot.expectHaveScreenshot("created_template");
+
+    // Create RoomFromTemplate
+    await myRooms.roomsTable.openContextMenu(roomCreateTitles.public);
+    await myRooms.roomsTable.clickContextMenuOption(
+      templateContextMenuOption.createRoom,
+    );
+    await myRooms.roomsCreateDialog.checkDialogExist();
+    await myRooms.roomsCreateDialog.clickRoomDialogSubmit();
+    await myRooms.roomsEmptyView.checkEmptyRoomExist(roomCreateTitles.public);
+
+    await myRooms.backToRooms();
+    await myRooms.infoPanel.close();
+    await screenshot.expectHaveScreenshot("created_rooms");
+
+    // InviteContacts
+    await myRooms.roomsTable.openContextMenu(roomCreateTitles.public);
+    await myRooms.roomsTable.clickContextMenuOption(
+      roomContextMenuOption.inviteContacts,
+    );
+    await myRooms.inviteDialog.checkInviteTitleExist();
+    await myRooms.inviteDialog.openAccessSelector();
+    await screenshot.expectHaveScreenshot("invite_dialog");
+    await myRooms.inviteDialog.close();
+
+    // ChangeTheRoomOwner
+    await myRooms.roomsTable.openContextMenu(roomCreateTitles.public);
+    await myRooms.roomsTable.clickContextMenuOption(
+      roomContextMenuOption.changeTheRoomOwner,
+    );
+    await myRooms.roomsChangeOwnerDialog.checkNoMembersFoundExist();
+    await screenshot.expectHaveScreenshot("no_members");
+    await myRooms.roomsChangeOwnerDialog.close();
+
+    // EditRoom
+    await myRooms.roomsTable.openContextMenu(roomCreateTitles.public);
+    await myRooms.roomsTable.clickContextMenuOption(
+      roomContextMenuOption.disableNotifications,
+    );
+
+    await myRooms.roomsTable.openContextMenu(roomCreateTitles.public);
+    await myRooms.roomsTable.clickContextMenuOption(
+      roomContextMenuOption.pinToTop,
+    );
+    await myRooms.roomsTable.checkRoomPinnedToTopExist();
+
+    await myRooms.roomsTable.openContextMenu(roomCreateTitles.custom);
+    await myRooms.roomsTable.clickContextMenuOption(
+      roomContextMenuOption.editRoom,
+    );
+    await myRooms.roomsEditDialog.checkDialogExist();
+    await screenshot.expectHaveScreenshot("opened_edit_room_dialog");
+    await myRooms.roomsEditDialog.fillRoomName("Edited room");
+    await myRooms.roomsEditDialog.clickSaveButton();
+    await myRooms.roomsTable.checkRoomExist("Edited room");
+
+    // DuplicateRoom
+    await myRooms.roomsTable.openContextMenu(roomCreateTitles.public);
+    await myRooms.roomsTable.clickContextMenuOption(
+      roomContextMenuOption.duplicate,
+    );
+    await myRooms.roomsTable.checkRoomExist(roomCreateTitles.public + " (1)");
+
+    //MoveToArchive
+    await myRooms.roomsTable.openContextMenu(roomCreateTitles.public + " (1)");
+    await myRooms.roomsTable.clickContextMenuOption(
+      roomContextMenuOption.moveToArchive,
+    );
+    await myRooms.moveToArchive();
+    await myRooms.roomsTable.checkRoomNotExist(
+      roomCreateTitles.public + " (1)",
+    );
+
+    // AccessSettings
+    await myRooms.openTemplatesTab();
+    await myRooms.roomsTable.openContextMenu("room template");
+    await myRooms.roomsTable.clickContextMenuOption(
+      templateContextMenuOption.accessSettings,
+    );
+    await myRooms.roomsAccessSettingsDialog.checkAccessSettingsTitleExist();
+    await screenshot.expectHaveScreenshot();
+    await myRooms.roomsAccessSettingsDialog.close();
+
+    // InfoPanel
+    await myRooms.infoPanel.open();
+    await myRooms.infoPanel.checkNoItemTextExist();
+    await screenshot.expectHaveScreenshot("empty");
+
+    await myRooms.roomsTable.selectRow("room template");
+    await myRooms.infoPanel.openTab("Details");
+    await myRooms.infoPanel.hideDatePropertiesDetails();
+    await myRooms.infoPanel.checkRoomProperties(roomCreateTitles.public);
+    await screenshot.expectHaveScreenshot("template_details");
+
+    await myRooms.infoPanel.openOptions();
+    await screenshot.expectHaveScreenshot("template_opened_options");
+    await myRooms.infoPanel.closeDropdown();
+
+    await myRooms.infoPanel.openTab("Accesses");
+    await myRooms.infoPanel.checkAccessesExist();
+    await screenshot.expectHaveScreenshot("template_accesses");
+
+    await myRooms.openRoomsTab();
+    await myRooms.roomsTable.selectRow(roomCreateTitles.public);
+    await myRooms.infoPanel.openTab("Details");
+    await myRooms.infoPanel.hideDatePropertiesDetails();
+    await myRooms.infoPanel.checkRoomProperties(roomCreateTitles.public);
+    await screenshot.expectHaveScreenshot("room_details");
+
+    await myRooms.infoPanel.openOptions();
+    await screenshot.expectHaveScreenshot("room_options");
+    await myRooms.infoPanel.closeDropdown();
+
+    await myRooms.infoPanel.openTab("History");
+    await myRooms.infoPanel.checkHistoryExist("room created");
+    await myRooms.infoPanel.hideCreationDateHistory();
+    await screenshot.expectHaveScreenshot("room_history");
+
+    await myRooms.infoPanel.openTab("Contacts");
+    await screenshot.expectHaveScreenshot("room_contacts");
+    await myRooms.infoPanel.close();
+
+    // View
+    await myRooms.roomsFilter.switchToThumbnailView();
+    await screenshot.expectHaveScreenshot("view_thumbnail");
+    await myRooms.roomsFilter.switchToCompactView();
+
+    // Sort
+    await myRooms.roomsFilter.openDropdownSortBy();
+    await screenshot.expectHaveScreenshot("dropdown_sort_by");
+    await myRooms.roomsFilter.clickSortByType();
+    await screenshot.expectHaveScreenshot("sorted_by_type");
+
+    // Filter
+    await myRooms.roomsFilter.openFilterDialog();
+    await screenshot.expectHaveScreenshot("filter_dialog");
+    await myRooms.roomsFilter.selectFilterByPublic();
+    await myRooms.roomsFilter.applyFilter();
+    await screenshot.expectHaveScreenshot("filtered_by_public");
+    await myRooms.roomsFilter.clearFilterByPublic();
+
+    // Search
+
+    // ALERT: Bug on backend, wait until it's fixed
+    // await myRooms.roomsFilter.fillRoomsSearchInputAndCheckRequest(
+    //   roomCreateTitles.collaboration,
+    // );
+    // await myRooms.roomsTable.checkRoomExist(roomCreateTitles.collaboration);
+    // await screenshot.expectHaveScreenshot("collaboration_room");
+    // await myRooms.roomsFilter.clearSearchText();
+
+    await myRooms.roomsFilter.fillRoomsSearchInputAndCheckRequest(
+      "empty view search",
+    );
+    await myRooms.roomsFilter.checkEmptyViewExist();
+    await screenshot.expectHaveScreenshot("empty");
+    await myRooms.roomsFilter.clearSearchText();
+    await myRooms.roomsTable.checkRoomExist(roomCreateTitles.public);
+
+    // EmptyView
+    // Rooms
+    await myRooms.moveAllRoomsToArchive();
+    await myRooms.roomsEmptyView.checkNoRoomsExist();
+
+    // Templates
+    await myRooms.openTemplatesTab();
+    await myRooms.deleteAllRooms();
+    await myRooms.roomsEmptyView.checkNoTemplatesExist();
+    await screenshot.expectHaveScreenshot("templates");
+  });
+
+  test.afterAll(async () => {
+    await api.cleanup();
+  });
+});

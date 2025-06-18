@@ -1,0 +1,11 @@
+services:
+  tests-ci:
+    image: e2e-tests
+    build:
+      dockerfile: Dockerfile
+  tests-local:
+    image: e2e-tests
+    volumes:
+      - ./screenshots:/app/screenshots
+      - ./playwright.config.ts:/app/playwright.config.ts
+      - ./playwright-report:/app/playwright-report
