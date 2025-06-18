@@ -50,9 +50,10 @@ test.describe("Trash", () => {
    * and column visibility settings
    */
   test("Render", async () => {
+    // Render
     await screenshot.expectHaveScreenshot("render");
-  });
-  test("ContextMenu", async () => {
+
+    // ContextMenu
     await trash.navigation.openContextMenu();
     await screenshot.expectHaveScreenshot("header_context_menu");
 
@@ -63,25 +64,21 @@ test.describe("Trash", () => {
 
     await trash.trashTable.toggleSettings();
     await screenshot.expectHaveScreenshot("table_settings");
-  });
 
-  test("OpenEmptyTrashDialog", async () => {
+    // OpenEmptyTrashDialog
     await trash.openEmptyTrashDialog("header");
     await trash.openEmptyTrashDialog("table");
-  });
 
-  test("Sort", async () => {
+    // Sort
     await trash.filter.sortButton.click();
     await screenshot.expectHaveScreenshot("sort");
-  });
 
-  test("Filter", async () => {
+    // Filter
     await trash.filter.filterButton.click();
     await screenshot.expectHaveScreenshot("filter");
     await page.mouse.click(1, 1);
-  });
 
-  test("InfoPanel", async () => {
+    // InfoPanel
     await trash.trashTable.tableRows.first().click();
     await trash.infoPanel.open();
     await trash.infoPanel.hideDatePropertiesDetails();
@@ -89,9 +86,8 @@ test.describe("Trash", () => {
     await trash.infoPanel.openOptions();
     await screenshot.expectHaveScreenshot("info_panel_options");
     await trash.infoPanel.close();
-  });
 
-  test("RestoreSelector", async () => {
+    // RestoreSelector
     await trash.openRestoreSelector();
     await screenshot.expectHaveScreenshot("restore_selector");
 
@@ -116,15 +112,13 @@ test.describe("Trash", () => {
     await screenshot.expectHaveScreenshot("restore_selector_empty_documents");
     await trash.trashSelector.createNewFolder();
     await screenshot.expectHaveScreenshot("restore_selector_folder_created");
-  });
 
-  test("Restore", async () => {
+    // Restore
     await trash.trashSelector.restore();
     await trash.trashEmptyView.checkNoDocsTextExist();
     await screenshot.expectHaveScreenshot("empty_view");
-  });
 
-  test("ActionRequiredDialog", async () => {
+    // ActionRequiredDialog
     await myDocuments.open();
     await myDocuments.deleteAllDocs();
     await trash.open();
@@ -135,9 +129,8 @@ test.describe("Trash", () => {
     await trash.checkActionRequiredDialogExist();
     await trash.closeActionRequiredDialog();
     await trash.trashSelector.close();
-  });
 
-  test("DeleteForever", async () => {
+    // DeleteForever
     await trash.deleteForever();
   });
 

@@ -38,6 +38,7 @@ test.describe("Contacts", () => {
   });
 
   test("Render", async () => {
+    // Render
     await contacts.table.checkRowExist(ADMIN_OWNER_NAME);
     await screenshot.expectHaveScreenshot("view_members");
 
@@ -48,9 +49,8 @@ test.describe("Contacts", () => {
     await contacts.openTab("Guests");
     await contacts.checkEmptyGuestsExist();
     await screenshot.expectHaveScreenshot("view_guests");
-  });
 
-  test("RenderActionsMenu", async () => {
+    // RenderActionsMenu
     await contacts.openTab("Members");
     await contacts.openSubmenu("article");
     await screenshot.expectHaveScreenshot("article_actions_menu");
@@ -61,9 +61,8 @@ test.describe("Contacts", () => {
 
     await contacts.openSubmenu("table");
     await screenshot.expectHaveScreenshot("table_actions_menu");
-  });
 
-  test("InfoPanel", async () => {
+    // InfoPanel
     await contacts.infoPanel.open();
     await contacts.table.selectRow(ADMIN_OWNER_NAME);
     await contacts.infoPanel.hideRegistrationDate();
