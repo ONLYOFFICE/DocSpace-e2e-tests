@@ -46,7 +46,7 @@ class BaseTable {
 
     const userAgent = await this.page.evaluate(() => navigator.userAgent);
     const ua = UAParser(userAgent);
-    const isMac = ua.os.name === "Mac OS";
+    const isMac = ua.os.name?.includes("Mac");
     const modifier = isMac ? "Meta" : "Control";
 
     for (let i = 0; i < count; i++) {
