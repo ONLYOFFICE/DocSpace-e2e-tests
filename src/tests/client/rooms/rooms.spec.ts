@@ -231,7 +231,7 @@ test.describe("Rooms", () => {
       await screenshot.expectHaveScreenshot(
         "info_panel_template_options_opened",
       );
-      await myRooms.infoPanel.closeDropdown();
+      await myRooms.infoPanel.closeMenu();
 
       await myRooms.infoPanel.openTab("Accesses");
       await myRooms.infoPanel.checkAccessesExist();
@@ -249,7 +249,7 @@ test.describe("Rooms", () => {
 
       await myRooms.infoPanel.openOptions();
       await screenshot.expectHaveScreenshot("info_panel_room_options_opened");
-      await myRooms.infoPanel.closeDropdown();
+      await myRooms.infoPanel.closeMenu();
 
       await myRooms.infoPanel.openTab("History");
       await myRooms.infoPanel.checkHistoryExist("room created");

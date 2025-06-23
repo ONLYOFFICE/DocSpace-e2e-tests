@@ -4,7 +4,7 @@ import { devices } from "@playwright/test";
 export default defineConfig({
   testDir: "./src/tests",
   retries: 0,
-  workers: 5,
+  workers: 1,
 
   // Ignore tests in the site directory
   testIgnore: ["**/site/**/*.spec.ts"],
@@ -25,7 +25,7 @@ export default defineConfig({
     {
       name: "chromium",
       use: {
-        headless: false,
+        headless: true,
         ...devices["Desktop Chrome"],
         viewport: { width: 1440, height: 1024 },
       },
@@ -40,5 +40,5 @@ export default defineConfig({
       use: { ...devices["Desktop Safari"] },
     },  */
   ],
-  timeout: 90000,
+  timeout: 120000,
 });

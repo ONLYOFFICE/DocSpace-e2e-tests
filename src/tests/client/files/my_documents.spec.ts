@@ -90,7 +90,7 @@ test.describe("Files: My documents", () => {
 
       await myDocuments.infoPanel.openOptions();
       await screenshot.expectHaveScreenshot("info_panel_file_options_opened");
-      await myDocuments.infoPanel.closeDropdown();
+      await myDocuments.infoPanel.closeMenu();
 
       await myDocuments.infoPanel.openTab("History");
       await myDocuments.infoPanel.checkHistoryExist("File created.");

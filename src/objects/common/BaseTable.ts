@@ -85,6 +85,11 @@ class BaseTable {
   }
   async selectRow(title: string) {
     const row = await this.getRowByTitle(title);
+
+    if (await row.getByRole("checkbox", { checked: true }).isVisible()) {
+      return;
+    }
+
     await expect(row).toBeVisible();
     await row.click();
   }

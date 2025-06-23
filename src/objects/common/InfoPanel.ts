@@ -25,11 +25,13 @@ const CREATE_SHARED_LINKS_ICON = "[data-tooltip-id='file-links-tooltip']";
 
 class InfoPanel {
   page: Page;
+  protected contextMenu: ContextMenu;
   protected dropdown: ContextMenu;
 
   constructor(page: Page) {
     this.page = page;
-    this.dropdown = new ContextMenu(page);
+    this.contextMenu = new ContextMenu(page);
+    this.dropdown = new ContextMenu(page, true);
   }
 
   private get noItemText() {
@@ -103,9 +105,13 @@ class InfoPanel {
     await expect(this.infoPanel).not.toBeVisible();
   }
 
-  async openOptions() {
+  async openOptions(isDropdown: boolean = false) {
     await this.infoOptionsIcon.click();
-    await expect(this.dropdown.menu).toBeVisible();
+    if (isDropdown) {
+      await expect(this.dropdown.menu).toBeVisible();
+    } else {
+      await expect(this.contextMenu.menu).toBeVisible();
+    }
   }
 
   async close() {
@@ -153,11 +159,15 @@ class InfoPanel {
     await expect(roomTypeProperty).toContainText(roomType);
   }
 
-  async closeDropdown() {
+  async closeMenu(isDropdown: boolean = false) {
     await this.infoPanel.click({
       position: { x: 1, y: 1 },
     });
-    await expect(this.dropdown.menu).not.toBeVisible();
+    if (isDropdown) {
+      await expect(this.dropdown.menu).not.toBeVisible();
+    } else {
+      await expect(this.contextMenu.menu).not.toBeVisible();
+    }
   }
 
   async checkShareExist() {

@@ -135,6 +135,16 @@ class BaseFilter {
     await expect(this.searchInput).toHaveValue("");
   }
 
+  async removeFilter(filterName: string) {
+    const filter = this.page
+      .locator(".filter-input_selected-row")
+      .getByText(filterName);
+
+    await expect(filter).toBeVisible();
+    await filter.click();
+    await expect(filter).not.toBeVisible();
+  }
+
   async checkEmptyView(expectedText: string) {
     await expect(this.emptyViewContainer.getByText(expectedText)).toBeVisible();
   }

@@ -7,25 +7,70 @@ const navActions = {
     button: "#menu-invite",
     submit: "#send-inite-again-modal_submit",
   },
-  delete: {
+  disable: {
     button: "#menu-disable",
     submit: "#change-user-status-modal_submit",
+  },
+  enable: {
+    button: "#menu-enable",
+    submit: "#change-user-status-modal_submit",
+  },
+  delete: {
+    button: "#menu-delete",
+    submit: ".modal-footer .delete-button",
+  },
+  changeType: {
+    button: "#menu-change-type",
+  },
+  createGroup: {
+    button: "#create_group",
+  },
+  deleteGroup: {
+    button: "#menu-delete",
+    submit: "#group-modal_delete",
   },
 } as const;
 
 class ContactsNavigation extends BaseNavigation {
-  contextMenu: BaseContextMenu;
-
+  dropdownMenu: BaseContextMenu;
   constructor(page: Page) {
     super(page, navActions);
-    this.contextMenu = new BaseContextMenu(page);
+    this.dropdownMenu = new BaseContextMenu(page, true);
   }
 
   private async ensureHeaderMenuOpen() {
-    const isVisible = await this.contextMenu.contextMenu.isVisible();
+    const isVisible = await this.contextMenu.menu.isVisible();
     if (!isVisible) {
       await this.openHeaderMenu();
     }
+  }
+
+  async disable() {
+    await this.performAction(navActions.disable);
+  }
+
+  async enable() {
+    await this.performAction(navActions.enable);
+  }
+
+  async deleteGroup() {
+    await this.performAction(navActions.deleteGroup);
+  }
+
+  async openDialog(action: keyof typeof navActions) {
+    await this.performAction({ button: navActions[action].button });
+  }
+
+  async openChangeTypeDropdown() {
+    await this.performAction({ button: navActions.changeType.button });
+  }
+
+  async openCreateGroupDialog() {
+    await this.openCreateDropdown();
+    await this.contextMenu.clickOption({
+      type: "id",
+      value: "create_group",
+    });
   }
 
   async delete() {
