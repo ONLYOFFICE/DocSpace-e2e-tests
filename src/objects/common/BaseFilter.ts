@@ -22,7 +22,6 @@ export const SEARCH = {
 
 export const EMPTY_VIEW = {
   CONTAINER: "[data-testid='empty-view']",
-  CLEAR_BUTTON: "#empty-view-filter",
 } as const;
 
 class BaseFilter {
@@ -69,7 +68,7 @@ class BaseFilter {
   }
 
   get emptyViewClearButton() {
-    return this.page.locator(EMPTY_VIEW.CLEAR_BUTTON);
+    return this.page.locator('a:has-text("Clear filter")');
   }
 
   async switchToThumbnailView() {

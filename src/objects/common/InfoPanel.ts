@@ -25,7 +25,7 @@ const CREATE_SHARED_LINKS_ICON = "[data-tooltip-id='file-links-tooltip']";
 
 class InfoPanel {
   page: Page;
-  private dropdown: ContextMenu;
+  protected dropdown: ContextMenu;
 
   constructor(page: Page) {
     this.page = page;
@@ -105,7 +105,7 @@ class InfoPanel {
 
   async openOptions() {
     await this.infoOptionsIcon.click();
-    await expect(this.dropdown.contextMenu).toBeVisible();
+    await expect(this.dropdown.menu).toBeVisible();
   }
 
   async close() {
@@ -157,7 +157,7 @@ class InfoPanel {
     await this.infoPanel.click({
       position: { x: 1, y: 1 },
     });
-    await expect(this.dropdown.contextMenu).not.toBeVisible();
+    await expect(this.dropdown.menu).not.toBeVisible();
   }
 
   async checkShareExist() {
