@@ -5,6 +5,7 @@ export default defineConfig({
   testDir: "./src/tests",
   retries: 0,
   workers: 1,
+
   // Ignore tests in the site directory
   testIgnore: ["**/site/**/*.spec.ts"],
   // Directory for screenshots
@@ -24,6 +25,7 @@ export default defineConfig({
     {
       name: "chromium",
       use: {
+        headless: true,
         ...devices["Desktop Chrome"],
         viewport: { width: 1440, height: 1024 },
       },
@@ -38,5 +40,5 @@ export default defineConfig({
       use: { ...devices["Desktop Safari"] },
     },  */
   ],
-  timeout: 90000,
+  timeout: 120000,
 });

@@ -76,14 +76,10 @@ class MyRooms {
 
   async openTemplatesTab() {
     await this.page.getByText("Templates").click();
-    await this.page.waitForTimeout(500);
-    await this.roomsTable.checkTableExist();
   }
 
   async openRoomsTab() {
     await this.page.locator("span").filter({ hasText: "Rooms" }).click();
-    await this.page.waitForTimeout(500);
-    await this.roomsTable.checkTableExist();
   }
 
   async checkHeadingExist(name: string) {

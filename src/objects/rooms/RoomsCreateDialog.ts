@@ -1,5 +1,6 @@
 import {
   roomCreateTitles,
+  roomTemplateTitles,
   TRoomCreateTitles,
 } from "@/src/utils/constants/rooms";
 import { expect, Page } from "@playwright/test";
@@ -125,9 +126,14 @@ class RoomsCreateDialog extends BaseDialog {
     await this.clickRoomDialogSubmit();
   }
 
-  async createRoomTemplate() {
-    await this.fillTemplateName("room template");
+  async createPublicRoomTemplate() {
+    await this.fillTemplateName(roomTemplateTitles.roomTemplate);
     await this.clickRoomTemplateSubmit();
+  }
+
+  async createPublicRoomFromTemplate() {
+    await this.fillTemplateName(roomTemplateTitles.fromTemplate);
+    await this.clickRoomDialogSubmit();
   }
 }
 

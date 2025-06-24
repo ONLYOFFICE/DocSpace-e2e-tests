@@ -10,7 +10,7 @@ class BaseSelector {
     this.page = page;
   }
 
-  protected get selector() {
+  get selector() {
     return this.page.getByTestId("selector");
   }
 
@@ -44,8 +44,20 @@ class BaseSelector {
     await this.selector.getByText("DocSpace", { exact: true }).click();
   }
 
-  async gotoBack() {
-    await this.selector.getByText("Back", { exact: true }).click();
+  async gotoBack(source: "empty" | "header") {
+    switch (source) {
+      case "empty":
+        await this.selector.getByText("Back", { exact: true }).click();
+        break;
+      case "header":
+        await this.selector
+          .getByTestId("aside-header")
+          .locator(".icon-button_svg")
+          .click();
+        break;
+      default:
+        break;
+    }
   }
 
   async checkEmptyContainerExist() {
@@ -71,8 +83,21 @@ class BaseSelector {
     await expect(this.newSelectorItem).not.toBeVisible();
   }
 
-  async selectItemByName(name: string) {
-    await this.selector.getByText(name, { exact: true }).click();
+  async getItemByName(name: string) {
+    const item = this.selector
+      .locator(`[data-testid^="selector-item-"]`)
+      .filter({ hasText: name });
+    await expect(item).toBeVisible();
+    return item;
+  }
+
+  async selectItemByText(text: string, doubleClick = false) {
+    const item = await this.getItemByName(text);
+    if (doubleClick) {
+      await item.dblclick();
+    } else {
+      await item.click();
+    }
   }
 
   async selectFirstItem() {

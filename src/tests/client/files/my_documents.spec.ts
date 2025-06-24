@@ -41,131 +41,137 @@ test.describe("Files: My documents", () => {
    * Verifies that the documents table is displayed correctly with proper column visibility
    */
   test("Render", async () => {
-    // Render
-    await myDocuments.filesTable.hideModifiedColumn();
-    await screenshot.expectHaveScreenshot();
+    await test.step("Render", async () => {
+      await myDocuments.filesTable.hideModifiedColumn();
+      await screenshot.expectHaveScreenshot("render");
+    });
 
-    // EmptyScreen
-    await myDocuments.deleteAllDocs();
-    await screenshot.expectHaveScreenshot("empty_view");
+    await test.step("EmptyScreen", async () => {
+      await myDocuments.deleteAllDocs();
+      await screenshot.expectHaveScreenshot("empty_screen_view");
 
-    await myDocuments.filesEmptyView.openAndValidateFileCreateModals();
+      await myDocuments.filesEmptyView.openAndValidateFileCreateModals();
 
-    await myDocuments.openRecentlyAccessibleTab();
-    await myDocuments.filesEmptyView.checkNoFilesTextExist();
+      await myDocuments.openRecentlyAccessibleTab();
+      await myDocuments.filesEmptyView.checkNoFilesTextExist();
 
-    await screenshot.expectHaveScreenshot("empty_view_recent");
+      await screenshot.expectHaveScreenshot("empty_screen_recent");
 
-    await myDocuments.filesEmptyView.clickGotoDocumentsButton();
-    await myDocuments.filesEmptyView.checkNoDocsTextExist();
+      await myDocuments.filesEmptyView.clickGotoDocumentsButton();
+      await myDocuments.filesEmptyView.checkNoDocsTextExist();
+    });
 
-    // FilesCreate
-    await myDocuments.filesNavigation.openCreateDropdown();
-    await screenshot.expectHaveScreenshot("dropdown");
-    await myDocuments.filesNavigation.closeCreateDropdown();
+    await test.step("FilesCreate", async () => {
+      await myDocuments.filesNavigation.openCreateDropdown();
+      await screenshot.expectHaveScreenshot("files_create_dropdown");
+      await myDocuments.filesNavigation.closeCreateDropdown();
 
-    await myDocuments.filesNavigation.openAndValidateFileCreateModals();
+      await myDocuments.filesNavigation.openAndValidateFileCreateModals();
 
-    await myDocuments.filesArticle.openMainDropdown();
-    await screenshot.expectHaveScreenshot("dropdown_action");
-    await myDocuments.filesArticle.closeMainDropdown();
+      await myDocuments.filesArticle.openMainDropdown();
+      await screenshot.expectHaveScreenshot("files_create_dropdown_action");
+      await myDocuments.filesArticle.closeMainDropdown();
 
-    await myDocuments.filesArticle.createFiles();
-    await myDocuments.filesTable.hideModifiedColumn();
+      await myDocuments.filesArticle.createFiles();
+      await myDocuments.filesTable.hideModifiedColumn();
 
-    await screenshot.expectHaveScreenshot("created_files");
+      await screenshot.expectHaveScreenshot("files_create_created_files");
+    });
 
-    // InfoPanel
-    await myDocuments.infoPanel.open();
-    await myDocuments.infoPanel.checkNoItemTextExist();
-    await screenshot.expectHaveScreenshot("empty");
+    await test.step("InfoPanel", async () => {
+      await myDocuments.infoPanel.open();
+      await myDocuments.infoPanel.checkNoItemTextExist();
+      await screenshot.expectHaveScreenshot("info_panel_empty");
 
-    await myDocuments.filesTable.selectDocxFile();
-    await myDocuments.infoPanel.hideDatePropertiesDetails();
-    await myDocuments.infoPanel.checkDocxFileProperties();
-    await screenshot.expectHaveScreenshot("file_details");
+      await myDocuments.filesTable.selectDocxFile();
+      await myDocuments.infoPanel.hideDatePropertiesDetails();
+      await myDocuments.infoPanel.checkDocxFileProperties();
+      await screenshot.expectHaveScreenshot("info_panel_file_details");
 
-    await myDocuments.infoPanel.openOptions();
-    await screenshot.expectHaveScreenshot(
-      "view_opened_info_panel_file_options",
-    );
-    await myDocuments.infoPanel.closeDropdown();
+      await myDocuments.infoPanel.openOptions();
+      await screenshot.expectHaveScreenshot("info_panel_file_options_opened");
+      await myDocuments.infoPanel.closeMenu();
 
-    await myDocuments.infoPanel.openTab("History");
-    await myDocuments.infoPanel.checkHistoryExist("File created.");
-    await myDocuments.infoPanel.hideCreationDateHistory();
-    await screenshot.expectHaveScreenshot("file_history");
+      await myDocuments.infoPanel.openTab("History");
+      await myDocuments.infoPanel.checkHistoryExist("File created.");
+      await myDocuments.infoPanel.hideCreationDateHistory();
+      await screenshot.expectHaveScreenshot("info_panel_file_history");
 
-    await myDocuments.infoPanel.openTab("Share");
-    await myDocuments.infoPanel.checkShareExist();
-    await myDocuments.infoPanel.createFirstSharedLink();
-    await myDocuments.infoPanel.createMoreSharedLink();
-    await screenshot.expectHaveScreenshot("ile_share");
+      await myDocuments.infoPanel.openTab("Share");
+      await myDocuments.infoPanel.checkShareExist();
+      await myDocuments.infoPanel.createFirstSharedLink();
+      await myDocuments.infoPanel.createMoreSharedLink();
+      await screenshot.expectHaveScreenshot("info_panel_file_share");
 
-    await myDocuments.filesTable.selectAllRows();
-    await screenshot.expectHaveScreenshot("multi-selected_files");
-    await myDocuments.filesTable.resetSelect();
+      await myDocuments.filesTable.selectAllRows();
+      await screenshot.expectHaveScreenshot("info_panel_multi_selected_files");
+      await myDocuments.filesTable.resetSelect();
 
-    await myDocuments.filesTable.selectFolderByName("Folder");
-    await myDocuments.infoPanel.hideDatePropertiesDetails();
-    await myDocuments.infoPanel.checkFolderProperties();
+      await myDocuments.filesTable.selectFolderByName("Folder");
+      await myDocuments.infoPanel.hideDatePropertiesDetails();
+      await myDocuments.infoPanel.checkFolderProperties();
 
-    await myDocuments.infoPanel.openOptions();
-    await screenshot.expectHaveScreenshot("folder_options");
+      await myDocuments.infoPanel.openOptions();
+      await screenshot.expectHaveScreenshot("info_panel_folder_options");
 
-    await myDocuments.infoPanel.openTab("History");
-    await myDocuments.infoPanel.checkHistoryExist("Folder created.");
+      await myDocuments.infoPanel.openTab("History");
+      await myDocuments.infoPanel.checkHistoryExist("Folder created.");
 
-    await myDocuments.filesTable.openContextMenu();
-    await myDocuments.filesTable.contextMenu.clickOption("Info");
-    await myDocuments.infoPanel.hideDatePropertiesDetails();
-    await myDocuments.infoPanel.checkDocxFileProperties();
+      await myDocuments.filesTable.openContextMenu();
+      await myDocuments.filesTable.contextMenu.clickOption("Info");
+      await myDocuments.infoPanel.hideDatePropertiesDetails();
+      await myDocuments.infoPanel.checkDocxFileProperties();
 
-    await myDocuments.filesTable.openContextMenu();
-    await myDocuments.filesTable.contextMenu.clickOption("Share");
-    await myDocuments.infoPanel.checkShareExist();
+      await myDocuments.filesTable.openContextMenu();
+      await myDocuments.filesTable.contextMenu.clickOption("Share");
+      await myDocuments.infoPanel.checkShareExist();
 
-    await myDocuments.infoPanel.close();
+      await myDocuments.infoPanel.close();
+    });
 
-    // View
-    await myDocuments.filesFilter.switchToDocumentsThumbnailView();
-    await screenshot.expectHaveScreenshot("view_thumbnail");
-    await myDocuments.filesFilter.switchToDocumentsCompactView();
+    await test.step("View", async () => {
+      await myDocuments.filesFilter.switchToDocumentsThumbnailView();
+      await screenshot.expectHaveScreenshot("view_thumbnail");
+      await myDocuments.filesFilter.switchToDocumentsCompactView();
+    });
 
-    // Sort
-    await myDocuments.filesFilter.openDropdownSortBy();
-    await screenshot.expectHaveScreenshot("dropdown_sort_by");
-    await myDocuments.filesFilter.clickSortBySize();
-    await screenshot.expectHaveScreenshot("sorted_by_size");
+    await test.step("Sort", async () => {
+      await myDocuments.filesFilter.openDropdownSortBy();
+      await screenshot.expectHaveScreenshot("sort_dropdown_by");
+      await myDocuments.filesFilter.clickSortBySize();
+      await screenshot.expectHaveScreenshot("sort_by_size");
+    });
 
-    // Filter
-    await myDocuments.filesFilter.openFilterDialog();
-    await screenshot.expectHaveScreenshot("opened_dialog");
+    await test.step("Filter", async () => {
+      await myDocuments.filesFilter.openFilterDialog();
+      await screenshot.expectHaveScreenshot("filter_opened_dialog");
 
-    await myDocuments.filesFilter.selectFilterByFolders();
-    await myDocuments.filesFilter.applyFilter();
-    await screenshot.expectHaveScreenshot("filtered_by_folders");
+      await myDocuments.filesFilter.selectFilterByFolders();
+      await myDocuments.filesFilter.applyFilter();
+      await screenshot.expectHaveScreenshot("filter_by_folders");
 
-    await myDocuments.filesFilter.openFilterDialog();
-    await myDocuments.filesFilter.selectFilterByMedia();
-    await myDocuments.filesFilter.applyFilter();
-    await myDocuments.filesFilter.checkFilesEmptyViewExist();
-    await screenshot.expectHaveScreenshot("filtered_by_media_empty");
+      await myDocuments.filesFilter.openFilterDialog();
+      await myDocuments.filesFilter.selectFilterByMedia();
+      await myDocuments.filesFilter.applyFilter();
+      await myDocuments.filesFilter.checkFilesEmptyViewExist();
+      await screenshot.expectHaveScreenshot("filter_by_media_empty");
 
-    await myDocuments.filesFilter.clearFilter();
+      await myDocuments.filesFilter.clearFilter();
+    });
 
-    // Search
-    await myDocuments.filesFilter.fillFilesSearchInputAndCheckRequest(
-      "Document",
-    );
-    await screenshot.expectHaveScreenshot("search_docx_file");
+    await test.step("Search", async () => {
+      await myDocuments.filesFilter.fillFilesSearchInputAndCheckRequest(
+        "Document",
+      );
+      await screenshot.expectHaveScreenshot("search_docx_file");
 
-    await myDocuments.filesFilter.clearSearchText();
-    await myDocuments.filesFilter.fillFilesSearchInputAndCheckRequest(
-      "empty view search",
-    );
-    await myDocuments.filesFilter.checkFilesEmptyViewExist();
-    await screenshot.expectHaveScreenshot("search_empty");
+      await myDocuments.filesFilter.clearSearchText();
+      await myDocuments.filesFilter.fillFilesSearchInputAndCheckRequest(
+        "empty view search",
+      );
+      await myDocuments.filesFilter.checkFilesEmptyViewExist();
+      await screenshot.expectHaveScreenshot("search_empty");
+    });
   });
 
   test.afterAll(async () => {

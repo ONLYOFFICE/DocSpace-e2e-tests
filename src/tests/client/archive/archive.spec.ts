@@ -51,42 +51,48 @@ test.describe("Archive", () => {
    * and column visibility settings
    */
   test("Render", async () => {
-    await myArchive.open();
-    await myArchive.hideLastActivityColumn();
-    await myArchive.sortByName();
-    await screenshot.expectHaveScreenshot("rooms");
+    await test.step("Render", async () => {
+      await myArchive.open();
+      await myArchive.hideLastActivityColumn();
+      await myArchive.sortByName();
+      await screenshot.expectHaveScreenshot("render_rooms");
+    });
 
-    // Context menu
-    await myArchive.archiveTable.openContextMenuRow(
-      myArchive.archiveTable.tableRows.first(),
-    );
-    await screenshot.expectHaveScreenshot("from_table_row");
+    await test.step("ContextMenu", async () => {
+      await myArchive.archiveTable.openContextMenuRow(
+        myArchive.archiveTable.tableRows.first(),
+      );
+      await screenshot.expectHaveScreenshot("context_menu_from_table_row");
+    });
 
-    // Info panel
-    await myArchive.infoPanel.open();
-    await myArchive.infoPanel.checkInfoPanelExist();
-    await myArchive.archiveTable.selectRow(roomCreateTitles.public);
-    await myArchive.infoPanel.openTab("History");
-    await myArchive.infoPanel.checkHistoryExist("Room moved to Archive");
-    await myArchive.infoPanel.hideCreationDateHistory();
-    await screenshot.expectHaveScreenshot("history");
-    await myArchive.infoPanel.openOptions();
-    await screenshot.expectHaveScreenshot("options");
+    await test.step("InfoPanel", async () => {
+      await myArchive.infoPanel.open();
+      await myArchive.infoPanel.checkInfoPanelExist();
+      await myArchive.archiveTable.selectRow(roomCreateTitles.public);
+      await myArchive.infoPanel.openTab("History");
+      await myArchive.infoPanel.checkHistoryExist("Room moved to Archive");
+      await myArchive.infoPanel.hideCreationDateHistory();
+      await screenshot.expectHaveScreenshot("info_panel_history");
+      await myArchive.infoPanel.openOptions();
+      await screenshot.expectHaveScreenshot("info_panel_options");
+    });
 
-    // Restore rooms
-    await myArchive.archiveTable.selectAllRows();
-    await myArchive.restoreRooms();
-    await myArchive.archiveEmptyView.checkNoArchivedRoomsExist();
-    await screenshot.expectHaveScreenshot("rooms_restore");
+    await test.step("RestoreRooms", async () => {
+      await myArchive.archiveTable.selectAllRows();
+      await myArchive.restoreRooms();
+      await myArchive.archiveEmptyView.checkNoArchivedRoomsExist();
+      await screenshot.expectHaveScreenshot("restore_rooms_restored");
+    });
 
-    // Delete rooms
-    await myArchive.archiveEmptyView.gotoRooms();
-    await myRooms.roomsTable.checkRoomExist(roomCreateTitles.public);
-    await myRooms.moveAllRoomsToArchive();
-    await myArchive.open();
-    await myArchive.archiveTable.selectAllRows();
-    await myArchive.deleteRooms();
-    await myArchive.archiveEmptyView.checkNoArchivedRoomsExist();
+    await test.step("DeleteRooms", async () => {
+      await myArchive.archiveEmptyView.gotoRooms();
+      await myRooms.roomsTable.checkRowExist(roomCreateTitles.public);
+      await myRooms.moveAllRoomsToArchive();
+      await myArchive.open();
+      await myArchive.archiveTable.selectAllRows();
+      await myArchive.deleteRooms();
+      await myArchive.archiveEmptyView.checkNoArchivedRoomsExist();
+    });
   });
 
   test.afterAll(async () => {

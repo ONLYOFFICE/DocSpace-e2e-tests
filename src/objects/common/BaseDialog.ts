@@ -17,8 +17,10 @@ class BaseDialog {
     await expect(this.dialog).toBeVisible();
   }
 
-  async checkDialogTitleExist(title: string) {
-    await expect(this.dialogHeader.getByText(title)).toBeVisible();
+  async checkDialogTitleExist(title: string, timeout = 5000) {
+    await expect(this.dialogHeader.getByText(title)).toBeVisible({
+      timeout,
+    });
   }
 
   async clickBackArrow() {
@@ -31,10 +33,11 @@ class BaseDialog {
   }
 
   protected async clickSubmitButton(buttonLocator: Locator) {
+    await expect(buttonLocator).toBeVisible();
     await buttonLocator.click();
   }
 
-  async fillInput(inputLocator: Locator, text: string) {
+  protected async fillInput(inputLocator: Locator, text: string) {
     await expect(inputLocator).toBeVisible();
     await inputLocator.fill(text);
   }

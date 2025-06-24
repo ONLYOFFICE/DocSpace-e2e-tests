@@ -13,8 +13,8 @@ type TActions = Record<string, TAction>;
 
 class BaseNavigation {
   contextMenu: ContextMenu;
-  page: Page;
-  actions: TActions;
+  protected page: Page;
+  protected actions: TActions;
 
   constructor(page: Page, actions: TActions) {
     this.page = page;
@@ -30,6 +30,10 @@ class BaseNavigation {
     return this.page.locator(BACK_ARROW_ICON);
   }
 
+  private get selectAllCheckbox() {
+    return this.page.locator("#menu-checkbox_selected-all-file");
+  }
+
   async openCreateDropdown() {
     await expect(this.headerAddButton).toBeVisible();
     await this.headerAddButton.click();
@@ -38,6 +42,11 @@ class BaseNavigation {
 
   async clickAddButton() {
     await this.headerAddButton.click();
+  }
+
+  async clickSelectAllCheckbox() {
+    await expect(this.selectAllCheckbox).toBeVisible();
+    await this.selectAllCheckbox.click();
   }
 
   async gotoBack() {

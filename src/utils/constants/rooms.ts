@@ -7,6 +7,11 @@ export const roomCreateTitles = {
   fromTemplate: "From template",
 } as const;
 
+export const roomTemplateTitles = {
+  fromTemplate: "Created from template of the public room",
+  roomTemplate: "Template of the public room",
+} as const;
+
 export const roomDialogSource = {
   navigation: "navigation",
   emptyView: "emptyView",
