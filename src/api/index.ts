@@ -42,12 +42,6 @@ class API {
     this.people.setAuthToken(authToken);
     this.people.setPortalDomain(this.portalDomain);
 
-    if (!this.adminUserId) {
-      const self = await this.people.self();
-
-      this.adminUserId = self.id;
-    }
-
     this.people.setAdminUserId(this.adminUserId);
 
     this.file.setAuthToken(authToken);
