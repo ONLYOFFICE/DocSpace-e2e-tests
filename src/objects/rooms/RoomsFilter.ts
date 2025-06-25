@@ -23,9 +23,8 @@ class RoomsFilter extends BaseFilter {
   }
 
   async clearFilterByPublic() {
-    const promise = this.waitForGetResponse("/rooms");
     await this.page.locator(".selected-item_label").first().click();
-    await promise;
+    await this.waitForGetResponse("/rooms");
   }
 
   async fillRoomsSearchInputAndCheckRequest(searchValue: string) {

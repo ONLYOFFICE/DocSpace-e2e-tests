@@ -297,12 +297,14 @@ test.describe("Rooms", () => {
       await myRooms.roomsFilter.checkEmptyViewExist();
       await screenshot.expectHaveScreenshot("search_empty");
       await myRooms.roomsFilter.clearSearchText();
+
       await myRooms.roomsTable.checkRowExist(roomCreateTitles.public);
     });
 
     await test.step("EmptyView", async () => {
       // Rooms
       await myRooms.moveAllRoomsToArchive();
+
       await myRooms.roomsEmptyView.checkNoRoomsExist();
 
       // Templates
