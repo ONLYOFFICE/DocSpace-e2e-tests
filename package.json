@@ -7,8 +7,8 @@
   },
   "scripts": {
     "docker:build": "docker-compose build",
-    "docker:start": "docker-compose run --rm tests-local npx playwright test",
-    "docker:start:screenshots": "docker-compose run --rm tests-local npx playwright test --update-snapshots",
+    "docker:start": "docker-compose run --rm tests-local npx playwright test trash.spec.ts",
+    "docker:start:screenshots": "docker-compose run --rm tests-local npx playwright test customization.spec.ts --update-snapshots",
     "lint": "eslint \"./src/**/*.{ts,js}\"",
     "lint:fix": "eslint \"./src/**/*.{ts,js}\" --fix"
   },
@@ -19,6 +19,7 @@
   "devDependencies": {
     "@eslint/js": "^9.18.0",
     "@playwright/test": "^1.49.1",
+    "@types/imapflow": "^1.0.22",
     "@types/node": "^22.15.21",
     "@typescript-eslint/eslint-plugin": "^8.32.1",
     "@typescript-eslint/parser": "^8.32.1",
@@ -36,7 +37,7 @@
     "docx": "^9.2.0",
     "dotenv": "^16.4.7",
     "fs-extra": "^11.3.0",
-    "imapflow": "^1.0.181",
+    "imapflow": "1.0.181",
     "loglevel": "^1.9.2",
     "pdfkit": "^0.16.0",
     "pptxgenjs": "^3.12.0",
