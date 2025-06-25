@@ -38,7 +38,7 @@ test.describe(() => {
 
     login = new Login(page, api.portalDomain);
     contacts = new Contacts(page, api.portalDomain);
-    screenshot = new Screenshot(page, "contacts");
+    screenshot = new Screenshot(page, { screenshotDir: "contacts" });
     await login.loginToPortal();
     await contacts.open();
   });

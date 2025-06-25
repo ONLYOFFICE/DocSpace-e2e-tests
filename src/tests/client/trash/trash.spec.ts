@@ -32,7 +32,7 @@ test.describe("Trash", () => {
     login = new Login(page, api.portalDomain);
     myDocuments = new MyDocuments(page, api.portalDomain);
     trash = new Trash(page);
-    screenshot = new Screenshot(page, "trash");
+    screenshot = new Screenshot(page, { screenshotDir: "trash" });
 
     await login.loginToPortal();
     await myDocuments.open();

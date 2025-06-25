@@ -21,6 +21,14 @@ class Apisystem {
     this.authToken = authToken;
   }
 
+  setPortalDomain(portalDomain: string) {
+    this.portalDomain = portalDomain;
+  }
+
+  setPortalName(portalName: string) {
+    this.portalName = portalName;
+  }
+
   async createPortal(portalNamePrefix = "test-portal") {
     this.portalName = `${portalNamePrefix}-${new Date()
       .toISOString()

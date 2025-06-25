@@ -1,20 +1,53 @@
 import { expect, Page, TestInfo } from "@playwright/test";
 
+type ScreenshotOptions = {
+  screenshotDir: string;
+  maxAttempts?: number;
+  fullPage?: boolean;
+};
+
 class Screenshot {
   page: Page;
-  screenshotDir: string;
-  maxAttempts: number;
+  options: ScreenshotOptions = {
+    screenshotDir: "",
+  };
   private tests = new Map<string, { index: number; counter: number }>();
   private currentTestInfo: TestInfo | null = null;
 
-  constructor(page: Page, screenshotDir: string, maxAttempts: number = 3) {
+  constructor(page: Page, options: ScreenshotOptions) {
     this.page = page;
-    this.screenshotDir = screenshotDir;
-    this.maxAttempts = maxAttempts;
+
+    this.options = {
+      ...options,
+      maxAttempts: options.maxAttempts ?? 3,
+      fullPage: options.fullPage ?? false,
+    };
   }
 
   async setCurrentTestInfo(testInfo: TestInfo) {
     this.currentTestInfo = testInfo;
+  }
+
+  private async getPageSize() {
+    const initialViewport = this.page.viewportSize()!;
+
+    const pageBody = await this.page
+      .locator(".scroll-wrapper [data-testid='scroll-body']")
+      .nth(2)
+      .boundingBox();
+
+    const height = Math.ceil(pageBody?.height ?? initialViewport.height);
+    const width = initialViewport.width;
+
+    return {
+      height,
+      width,
+    };
+  }
+
+  private async setViewportSize() {
+    const { height, width } = await this.getPageSize();
+    await this.page.setViewportSize({ height, width });
   }
 
   private getScreenshotName(comment: string) {
@@ -53,9 +86,13 @@ class Screenshot {
       await this.page.waitForTimeout(100);
     }
 
+    if (this.options.fullPage) {
+      await this.setViewportSize();
+    }
+
     const screenshotName = this.getScreenshotName(comment);
 
-    await this.tryScreenshot(this.maxAttempts, screenshotName);
+    await this.tryScreenshot(this.options.maxAttempts!, screenshotName);
   }
 
   private async tryScreenshot(maxAttempts: number, screenshotName: string) {
@@ -64,13 +101,13 @@ class Screenshot {
       try {
         await expect(this.page).toHaveScreenshot([
           "client",
-          this.screenshotDir,
+          this.options.screenshotDir,
           `${screenshotName}.png`,
         ]);
         return;
       } catch (err) {
         console.log(
-          `${this.screenshotDir} - ${screenshotName} - ${err} - Attempt ${attempt} of ${maxAttempts - 1}`,
+          `${this.options.screenshotDir} - ${screenshotName} - ${err} - Attempt ${attempt} of ${maxAttempts - 1}`,
         );
         lastError = err;
         if (attempt < maxAttempts) {
@@ -79,7 +116,7 @@ class Screenshot {
       }
     }
     throw new Error(
-      `Failed to take a screenshot ${this.screenshotDir} - ${screenshotName} after ${maxAttempts} attempts: ${lastError}`,
+      `Failed to take a screenshot ${this.options.screenshotDir} - ${screenshotName} after ${maxAttempts} attempts: ${lastError}`,
     );
   }
 }

@@ -28,6 +28,4 @@ class AdBanner {
   }
 }
 
-// Final check to ensure no banner is visible
-
 export default AdBanner;

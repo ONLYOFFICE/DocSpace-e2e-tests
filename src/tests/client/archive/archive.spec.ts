@@ -30,7 +30,7 @@ test.describe("Archive", () => {
     });
 
     login = new Login(page, api.portalDomain);
-    screenshot = new Screenshot(page, "archive");
+    screenshot = new Screenshot(page, { screenshotDir: "archive" });
 
     myRooms = new MyRooms(page, api.portalDomain);
     myArchive = new Archive(page, api.portalDomain);

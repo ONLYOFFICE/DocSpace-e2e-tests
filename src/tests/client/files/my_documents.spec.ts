@@ -26,7 +26,7 @@ test.describe("Files: My documents", () => {
 
     login = new Login(page, api.portalDomain);
     myDocuments = new MyDocuments(page, api.portalDomain);
-    screenshot = new Screenshot(page, "files");
+    screenshot = new Screenshot(page, { screenshotDir: "files" });
 
     await login.loginToPortal();
     await myDocuments.open();
