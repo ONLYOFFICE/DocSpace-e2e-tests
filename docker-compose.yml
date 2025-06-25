@@ -9,3 +9,4 @@ services:
       - ./screenshots:/app/screenshots
       - ./playwright.config.ts:/app/playwright.config.ts
       - ./playwright-report:/app/playwright-report
+      - ./test-output:/app/test-output

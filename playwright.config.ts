@@ -28,6 +28,7 @@ export default defineConfig({
         headless: true,
         ...devices["Desktop Chrome"],
         viewport: { width: 1440, height: 1024 },
+        screenshot: "only-on-failure",
       },
     },
     /*     {

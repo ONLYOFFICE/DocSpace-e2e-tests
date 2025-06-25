@@ -59,7 +59,7 @@ class Contacts {
   }
 
   async open() {
-    await this.page.goto(`https://${this.portalDomain}/accounts/people`, {
+    await this.page.goto(`${this.portalDomain}/accounts/people`, {
       waitUntil: "load",
     });
     await expect(this.page).toHaveURL(/.*accounts\/people.*/);

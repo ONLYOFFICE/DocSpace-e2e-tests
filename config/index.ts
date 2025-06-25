@@ -5,12 +5,14 @@ dotenv.config();
 
 interface Config {
   PORTAL_REGISTRATION_URL: string;
+
+  DOCSPACE_STANDALONE: boolean;
+  DOCSPACE_LOCAL: boolean;
+
   DOCSPACE_ADMIN_EMAIL: string;
   DOCSPACE_ADMIN_PASSWORD: string;
 
   // AWS_REGION?: string;
-  // DOCSPACE_ADMIN_EMAIL?: string;
-  // DOCSPACE_ADMIN_PASSWORD?: string;
   // DOCSPACE_USER_EMAIL?: string;
   // DOCSPACE_USER_PASSWORD?: string;
   // TEST_SITE_REGISTRATION_URL?: string;
@@ -57,6 +59,10 @@ const config: Config = {
   PORTAL_REGISTRATION_URL:
     process.env.PORTAL_REGISTRATION_URL ??
     `https://onlyoffice.io/apisystem/portal`,
+
+  DOCSPACE_STANDALONE: process.env.DOCSPACE_STANDALONE === "true",
+  DOCSPACE_LOCAL: process.env.DOCSPACE_LOCAL === "true",
+
   DOCSPACE_ADMIN_EMAIL:
     process.env.DOCSPACE_ADMIN_EMAIL ?? "integration-test-email@gmail.com",
   DOCSPACE_ADMIN_PASSWORD: process.env.DOCSPACE_ADMIN_PASSWORD ?? "test1234",

@@ -1,5 +1,7 @@
 import { APIRequestContext } from "@playwright/test";
 
+import config from "@/config";
+
 import Apisystem from "./apisystem";
 import Auth from "./auth";
 import People from "./people";
@@ -27,20 +29,29 @@ class API {
   async setup() {
     const portal = await this.apisystem.createPortal("integration-test-portal");
 
-    this.portalDomain = portal.tenant.domain;
+    this.portalDomain = config.DOCSPACE_LOCAL
+      ? `http://${portal.tenant.domain}`
+      : `https://${portal.tenant.domain}`;
     this.adminUserId = portal.tenant.ownerId;
 
-    this.auth.setPortalDomain(portal.tenant.domain);
+    this.auth.setPortalDomain(this.portalDomain);
 
     const authToken = await this.auth.authenticate();
 
     this.apisystem.setAuthToken(authToken);
     this.people.setAuthToken(authToken);
-    this.people.setPortalDomain(portal.tenant.domain);
-    this.people.setAdminUserId(portal.tenant.ownerId);
+    this.people.setPortalDomain(this.portalDomain);
+
+    if (!this.adminUserId) {
+      const self = await this.people.self();
+
+      this.adminUserId = self.id;
+    }
+
+    this.people.setAdminUserId(this.adminUserId);
 
     this.file.setAuthToken(authToken);
-    this.file.setPortalDomain(portal.tenant.domain);
+    this.file.setPortalDomain(this.portalDomain);
 
     await this.people.activateAdminUser();
   }

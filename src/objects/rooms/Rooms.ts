@@ -67,7 +67,7 @@ class MyRooms {
   }
 
   async open() {
-    await this.page.goto(`https://${this.portalDomain}/rooms/shared`, {
+    await this.page.goto(`${this.portalDomain}/rooms/shared`, {
       waitUntil: "load",
     });
     await expect(this.page).toHaveURL(/.*rooms\/shared.*/);

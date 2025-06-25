@@ -27,7 +27,7 @@ class People {
 
   async activateAdminUser() {
     const response = await this.apiContext.put(
-      `https://${this.portalDomain}/api/2.0/people/activationstatus/Activated`,
+      `${this.portalDomain}/api/2.0/people/activationstatus/Activated`,
       {
         headers: { Authorization: `Bearer ${this.authToken}` },
         data: { userIds: [this.adminUserId] },
@@ -42,6 +42,24 @@ class People {
     }
 
     return body;
+  }
+
+  async self() {
+    const response = await this.apiContext.get(
+      `${this.portalDomain}/api/2.0/people/@self`,
+      {
+        headers: { Authorization: `Bearer ${this.authToken}` },
+      },
+    );
+
+    const body = await response.json();
+    if (!response.ok()) {
+      throw new Error(
+        `Failed to get self: ${response.status()} - ${body.error || body.message}`,
+      );
+    }
+
+    return body.response;
   }
 }
 

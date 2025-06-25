@@ -67,7 +67,7 @@ class RoomsCreateDialog extends BaseDialog {
   }
 
   async selectCoverIcon() {
-    await this.page.locator(".cover-icon-container div").first().click();
+    await this.page.locator("#cover-icon-suitcase").first().click();
   }
 
   async saveCover() {

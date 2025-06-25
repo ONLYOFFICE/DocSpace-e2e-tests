@@ -28,7 +28,6 @@ test.describe(() => {
     const apiContext = await playwright.request.newContext();
     api = new API(apiContext);
     await api.setup();
-    console.log(api.portalDomain);
 
     page = await browser.newPage();
 

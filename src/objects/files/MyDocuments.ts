@@ -35,7 +35,7 @@ class MyDocuments {
   }
 
   async open() {
-    await this.page.goto(`https://${this.portalDomain}/rooms/personal`);
+    await this.page.goto(`${this.portalDomain}/rooms/personal`);
     await this.page.waitForLoadState("load");
     await expect(this.page).toHaveURL(/.*rooms\/personal.*/);
   }
