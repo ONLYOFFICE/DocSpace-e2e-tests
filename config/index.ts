@@ -9,6 +9,8 @@ interface Config {
   DOCSPACE_STANDALONE: boolean;
   DOCSPACE_LOCAL: boolean;
 
+  DOCSPACE_AUTH_TOKEN?: string;
+
   DOCSPACE_ADMIN_EMAIL: string;
   DOCSPACE_ADMIN_PASSWORD: string;
 
@@ -62,6 +64,8 @@ const config: Config = {
 
   DOCSPACE_STANDALONE: process.env.DOCSPACE_STANDALONE === "true",
   DOCSPACE_LOCAL: process.env.DOCSPACE_LOCAL === "true",
+
+  DOCSPACE_AUTH_TOKEN: process.env.DOCSPACE_AUTH_TOKEN,
 
   DOCSPACE_ADMIN_EMAIL:
     process.env.DOCSPACE_ADMIN_EMAIL ?? "integration-test-email@gmail.com",

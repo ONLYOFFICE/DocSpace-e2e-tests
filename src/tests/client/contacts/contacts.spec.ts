@@ -250,6 +250,7 @@ test.describe(() => {
       await contacts.selectAllContacts();
       await contacts.navigation.enable();
       await contacts.table.checkEnabledUserExist(userEmails.roomAdmin);
+      await contacts.dialog.close();
     });
 
     await test.step("CreateGroup", async () => {

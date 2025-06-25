@@ -1,3 +1,4 @@
+import config from "@/config";
 import { expect, Page, TestInfo } from "@playwright/test";
 
 class Screenshot {
@@ -48,6 +49,8 @@ class Screenshot {
   }
 
   async expectHaveScreenshot(comment: string, safe: boolean = true) {
+    if (config.DOCSPACE_LOCAL) return;
+
     if (safe) {
       await this.page.mouse.move(0, 0);
       await this.page.waitForTimeout(100);

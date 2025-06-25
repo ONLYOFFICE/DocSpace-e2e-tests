@@ -26,6 +26,10 @@ class Apisystem {
       .toISOString()
       .replace(/[:.]/g, "-")}`;
 
+    const headers: { [key: string]: string } | undefined = config.DOCSPACE_LOCAL
+      ? { Authorization: config.DOCSPACE_AUTH_TOKEN! }
+      : undefined;
+
     const response = await this.apiContext.post(
       `${config.PORTAL_REGISTRATION_URL}/register`,
       {
@@ -37,6 +41,7 @@ class Apisystem {
           password: config.DOCSPACE_ADMIN_PASSWORD,
           language: "en",
         },
+        headers,
       },
     );
 
@@ -48,18 +53,25 @@ class Apisystem {
       );
     }
 
-    this.portalDomain = body.tenant.domain;
+    this.portalDomain = config.DOCSPACE_LOCAL
+      ? `http://${body.tenant.domain}`
+      : `https://${body.tenant.domain}`;
     this.adminUserId = body.tenant.ownerId;
 
     return body;
   }
 
   async deletePortal() {
+    const domain = this.portalDomain.replace(
+      this.portalDomain.split(".")[0],
+      "",
+    );
+
     const deleteUrl = `${this.portalDomain}/api/2.0/portal/deleteportalimmediately`;
 
     await this.apiContext.delete(deleteUrl, {
       headers: { Authorization: `Bearer ${this.authToken}` },
-      data: { reference: `${this.portalName}.onlyoffice.io` },
+      data: { reference: `${this.portalName}${domain}` },
     });
   }
 }
