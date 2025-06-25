@@ -61,8 +61,11 @@ test.describe("Trash", () => {
         trash.trashTable.tableRows.first(),
       );
       await screenshot.expectHaveScreenshot("context_menu_table");
+      await trash.navigation.closeCreateDropdown();
 
-      await trash.trashTable.toggleSettings();
+      await page.waitForTimeout(100);
+
+      await trash.trashTable.openSettings();
       await screenshot.expectHaveScreenshot("context_menu_table_settings");
     });
 

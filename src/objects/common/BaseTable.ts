@@ -68,9 +68,9 @@ class BaseTable {
     const count = await rows.count();
 
     for (let i = 0; i < count; i++) {
-      await this.page.keyboard.down("Control");
+      await this.page.keyboard.down("Meta");
       await rows.nth(i).click();
-      await this.page.keyboard.up("Control");
+      await this.page.keyboard.up("Meta");
     }
 
     return count;

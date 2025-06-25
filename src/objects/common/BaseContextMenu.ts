@@ -30,7 +30,7 @@ class BaseContextMenu {
   }
 
   async close() {
-    this.page.mouse.click(1, 1);
+    await this.page.mouse.click(1, 1);
     await expect(this.menu).not.toBeVisible();
   }
 
