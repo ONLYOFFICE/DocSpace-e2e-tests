@@ -34,7 +34,7 @@ class Trash {
     this.page = page;
 
     this.navigation = new BaseNavigation(page, navActions);
-    this.trashTable = new BaseTable(page.locator("#table-container"));
+    this.trashTable = new BaseTable(page);
     this.trashEmptyView = new TrashEmptyView(page);
     this.dialog = new BaseDialog(page);
     this.trashSelector = new TrashSelector(page);

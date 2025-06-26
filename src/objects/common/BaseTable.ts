@@ -1,19 +1,24 @@
 import { expect, Locator, Page } from "@playwright/test";
 
+const TABLE_CONTAINER = "#table-container";
 const TABLE_LIST_ITEM = ".table-list-item.window-item";
 const SETTINGS_ICON = '[data-iconname*="settings.desc.react.svg"]';
 const TABLE_SETTING_CONTAINER = ".table-container_settings";
+
+export type TBaseTableLocators = {
+  table?: Locator;
+  tableRows?: Locator;
+};
+
 class BaseTable {
-  protected table: Locator;
-  protected page: Page;
+  page: Page;
+  table: Locator;
+  tableRows: Locator;
 
-  constructor(table: Locator) {
-    this.table = table;
-    this.page = table.page();
-  }
-
-  get tableRows() {
-    return this.table.locator(TABLE_LIST_ITEM);
+  constructor(page: Page, locators?: TBaseTableLocators) {
+    this.page = page;
+    this.table = locators?.table || this.page.locator(TABLE_CONTAINER);
+    this.tableRows = locators?.tableRows || this.page.locator(TABLE_LIST_ITEM);
   }
 
   get tableSettings() {
