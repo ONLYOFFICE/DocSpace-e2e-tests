@@ -3,8 +3,8 @@ import { devices } from "@playwright/test";
 
 export default defineConfig({
   testDir: "./src/tests",
-  retries: 0,
-  workers: 1,
+  retries: 1,
+  workers: 5,
 
   // Ignore tests in the site directory
   testIgnore: ["**/site/**/*.spec.ts"],
