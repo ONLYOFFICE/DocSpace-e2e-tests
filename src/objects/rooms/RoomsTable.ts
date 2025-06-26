@@ -25,7 +25,9 @@ class RoomsTable extends BaseTable {
   }
 
   async checkRoomPinnedToTopExist() {
-    await expect(this.table.locator(TABLE_ITEM_PINNED_TO_TOP)).toBeVisible();
+    await expect(
+      this.tableContainer.locator(TABLE_ITEM_PINNED_TO_TOP),
+    ).toBeVisible();
   }
 
   async clickContextMenuOption(

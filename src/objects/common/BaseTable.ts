@@ -6,18 +6,19 @@ const SETTINGS_ICON = '[data-iconname*="settings.desc.react.svg"]';
 const TABLE_SETTING_CONTAINER = ".table-container_settings";
 
 export type TBaseTableLocators = {
-  table?: Locator;
+  tableContainer?: Locator;
   tableRows?: Locator;
 };
 
 class BaseTable {
   page: Page;
-  table: Locator;
+  tableContainer: Locator;
   tableRows: Locator;
 
   constructor(page: Page, locators?: TBaseTableLocators) {
     this.page = page;
-    this.table = locators?.table || this.page.locator(TABLE_CONTAINER);
+    this.tableContainer =
+      locators?.tableContainer || this.page.locator(TABLE_CONTAINER);
     this.tableRows = locators?.tableRows || this.page.locator(TABLE_LIST_ITEM);
   }
 
@@ -28,7 +29,7 @@ class BaseTable {
   async openSettings() {
     const isSettingsVisible = await this.tableSettings.isVisible();
     if (!isSettingsVisible) {
-      await this.table.locator(SETTINGS_ICON).click();
+      await this.tableContainer.locator(SETTINGS_ICON).click();
     }
   }
 
@@ -40,7 +41,7 @@ class BaseTable {
   }
 
   async toggleSettings() {
-    await this.table.locator(SETTINGS_ICON).click();
+    await this.tableContainer.locator(SETTINGS_ICON).click();
   }
 
   async hideTableColumn(checkboxLocator: Locator) {
@@ -64,7 +65,7 @@ class BaseTable {
   }
 
   async checkTableExist() {
-    await expect(this.table).toBeVisible();
+    await expect(this.tableContainer).toBeVisible();
   }
 
   async selectAllRows() {
@@ -114,7 +115,7 @@ class BaseTable {
   }
 
   async openFooterContextMenu() {
-    const box = await this.table.boundingBox();
+    const box = await this.tableContainer.boundingBox();
     if (!box) {
       throw new Error("Table not found");
     }

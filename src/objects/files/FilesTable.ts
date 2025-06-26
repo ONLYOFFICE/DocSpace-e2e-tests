@@ -39,9 +39,9 @@ class FilesTable extends BaseTable {
   }
 
   async checkInitialDocsExist() {
-    await expect(this.table).toBeVisible();
+    await expect(this.tableContainer).toBeVisible();
     const promises = initialDocNames.map((docName) =>
-      expect(this.table.getByText(docName)).toBeVisible(),
+      expect(this.tableContainer.getByText(docName)).toBeVisible(),
     );
 
     await Promise.all(promises);
