@@ -4,7 +4,7 @@ import { devices } from "@playwright/test";
 export default defineConfig({
   testDir: "./src/tests",
   retries: 0,
-  workers: 5,
+  workers: 1,
 
   // Ignore tests in the site directory
   testIgnore: ["**/site/**/*.spec.ts"],
@@ -20,6 +20,7 @@ export default defineConfig({
         open: "never",
       },
     ],
+    ["junit", { outputFile: "./playwright-report/test-results.xml" }],
   ],
   projects: [
     {
@@ -28,6 +29,7 @@ export default defineConfig({
         headless: true,
         ...devices["Desktop Chrome"],
         viewport: { width: 1440, height: 1024 },
+        screenshot: "only-on-failure",
       },
     },
     /*     {
