@@ -40,5 +40,8 @@ export default defineConfig({
       use: { ...devices["Desktop Safari"] },
     },  */
   ],
-  timeout: 120000,
+  expect: {
+    timeout: 10000, // default timeout for expect assertions (toBeVisible, toHaveText, etc.)
+  },
+  timeout: 120000, // default timeout for test execution
 });

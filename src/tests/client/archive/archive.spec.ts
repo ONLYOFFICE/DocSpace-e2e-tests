@@ -36,22 +36,15 @@ test.describe("Archive", () => {
     myArchive = new Archive(page, api.portalDomain);
 
     await login.loginToPortal();
-    await myRooms.open();
-    await myRooms.createRooms();
-    await myRooms.moveAllRoomsToArchive();
   });
 
-  test.beforeEach(async ({}, testInfo) => {
-    await screenshot.setCurrentTestInfo(testInfo);
-  });
-
-  /**
-   * Tests the initial rendering of the archive page
-   * Verifies that the archive table is displayed correctly with proper sorting
-   * and column visibility settings
-   */
   test("Render", async () => {
     await test.step("Render", async () => {
+      await myRooms.open();
+      await myRooms.createRooms();
+      await myRooms.moveAllRoomsToArchive();
+      await myRooms.roomsEmptyView.checkNoRoomsExist();
+
       await myArchive.open();
       await myArchive.hideLastActivityColumn();
       await myArchive.sortByName();
@@ -88,6 +81,7 @@ test.describe("Archive", () => {
       await myArchive.archiveEmptyView.gotoRooms();
       await myRooms.roomsTable.checkRowExist(roomCreateTitles.public);
       await myRooms.moveAllRoomsToArchive();
+      await myRooms.roomsEmptyView.checkNoRoomsExist();
       await myArchive.open();
       await myArchive.archiveTable.selectAllRows();
       await myArchive.deleteRooms();
