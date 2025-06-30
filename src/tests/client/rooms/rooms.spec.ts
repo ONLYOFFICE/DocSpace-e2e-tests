@@ -46,10 +46,6 @@ test.describe("Rooms", () => {
     await myRooms.open();
   });
 
-  test.beforeEach(async ({}, testInfo) => {
-    await screenshot.setCurrentTestInfo(testInfo);
-  });
-
   test("Render", async () => {
     await test.step("Render", async () => {
       await myRooms.roomsEmptyView.checkNoRoomsExist();

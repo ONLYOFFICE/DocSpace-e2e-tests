@@ -48,10 +48,6 @@ test.describe("Customization", () => {
     await customization.open();
   });
 
-  test.beforeEach(async ({}, testInfo) => {
-    await screenshot.setCurrentTestInfo(testInfo);
-  });
-
   test("Customization full flow", async () => {
     await test.step("Change lang&time", async () => {
       await customization.changeLanguage("English (United States)");

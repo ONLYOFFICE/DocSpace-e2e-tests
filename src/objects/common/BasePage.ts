@@ -1,26 +1,36 @@
 import { Locator, Page } from "@playwright/test";
 import BaseArticle from "./BaseArticle";
+import BaseToast from "./BaseToats";
 
 export default class BasePage {
   protected page: Page;
   protected article: BaseArticle;
-  protected optionsButton: Locator;
-  protected settingsMenuItem: Locator;
-  protected paymentsMenuItem: Locator;
+  protected toast: BaseToast;
 
   constructor(page: Page) {
     this.page = page;
     this.article = new BaseArticle(page);
+    this.toast = new BaseToast(page);
+  }
 
-    this.optionsButton = page.locator(
-      '[data-testid="icon-button"].option-button-icon',
-    );
-    this.settingsMenuItem = page
+  protected get optionsButton(): Locator {
+    return this.page.locator('[data-testid="icon-button"].option-button-icon');
+  }
+
+  protected get settingsMenuItem(): Locator {
+    return this.page
       .locator("li.p-menuitem a.p-menuitem-link")
       .filter({ hasText: "Settings" });
-    this.paymentsMenuItem = page
+  }
+
+  protected get paymentsMenuItem(): Locator {
+    return this.page
       .locator("li.p-menuitem a.p-menuitem-link")
       .filter({ hasText: "Payments" });
+  }
+
+  async removeToast() {
+    await this.toast.removeToast();
   }
 
   async navigateToSettings() {

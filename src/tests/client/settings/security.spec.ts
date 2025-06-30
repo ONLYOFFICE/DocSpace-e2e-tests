@@ -1,0 +1,188 @@
+import { test, expect, Page } from "@playwright/test";
+import Security from "@/src/objects/settings/customization/Security";
+import Login from "@/src/objects/common/Login";
+import { PaymentApi } from "@/src/api/payment";
+import API from "@/src/api";
+import Screenshot from "@/src/objects/common/Screenshot";
+
+test.describe("Security tests", () => {
+  let api: API;
+  let paymentApi: PaymentApi;
+  let page: Page;
+
+  let login: Login;
+  let screenshot: Screenshot;
+
+  let security: Security;
+
+  test.beforeAll(async ({ playwright, browser }) => {
+    const apiContext = await playwright.request.newContext();
+    api = new API(apiContext);
+    await api.setup();
+    console.log(api.portalDomain);
+
+    page = await browser.newPage();
+
+    await page.addInitScript(() => {
+      globalThis.localStorage?.setItem("integrationUITests", "true");
+    });
+
+    screenshot = new Screenshot(page, {
+      screenshotDir: "security",
+      fullPage: true,
+    });
+
+    login = new Login(page, api.portalDomain);
+    await login.loginToPortal();
+
+    security = new Security(page);
+
+    paymentApi = new PaymentApi(apiContext, api.apisystem);
+    const portalInfo = await paymentApi.getPortalInfo(api.portalDomain);
+    await paymentApi.makePortalPayment(portalInfo.tenantId, 10);
+    await paymentApi.refreshPaymentInfo(api.portalDomain);
+    await security.open();
+  });
+
+  test("All security scenarios", async () => {
+    await test.step("Password strength", async () => {
+      await security.updatePasswordStrength(17);
+      await security.removeToast();
+      await security.updatePasswordStrength(8);
+      await security.removeToast();
+    });
+
+    await test.step("Trusted mail domain", async () => {
+      await security.anyDomainsActivation();
+
+      await security.removeToast();
+      await security.customDomainsActivation();
+      await security.removeToast();
+      await page.waitForTimeout(1000);
+      await security.disableDomains();
+      await security.removeToast();
+    });
+
+    await test.step("Ip security", async () => {
+      await security.ipActivation();
+      await security.removeToast();
+      await security.ipDeactivation();
+      await security.removeToast();
+    });
+
+    await test.step("Brute force", async () => {
+      await security.bruteForceActivation();
+      await security.removeToast();
+      await security.restoreToDefaultButton.click();
+      const input = page.getByPlaceholder("Enter number");
+      await expect(input).toHaveValue("5");
+    });
+
+    await test.step("Administrator message", async () => {
+      await security.adminMessageActivation();
+      await security.removeToast();
+      await security.adminMessageDeactivation();
+      await security.removeToast();
+    });
+
+    await test.step("Security link", async () => {
+      await page.waitForTimeout(1000);
+      const page1Promise = page.waitForEvent("popup");
+      await security.passwordStrengthGuideLink.click();
+      const page1 = await page1Promise;
+      await page1.waitForURL(
+        "https://*.onlyoffice.com/docspace/configuration#passwordstrength",
+      );
+      await expect(page1).toHaveURL(/docspace\/configuration#passwordstrength/);
+      await page1.close();
+      const page2Promise = page.waitForEvent("popup");
+      await security.twoFactorAuthenticationGuideLink.click();
+      const page2 = await page2Promise;
+      await page2.waitForURL(
+        "https://*.onlyoffice.com/docspace/configuration/docspace-two-factor-authentication.aspx",
+      );
+      await expect(page2).toHaveURL(
+        /docspace\/configuration\/docspace-two-factor-authentication.aspx/,
+      );
+      await page2.close();
+      const page3Promise = page.waitForEvent("popup");
+      await security.trustedDomainGuideLink.click();
+      const page3 = await page3Promise;
+      await page3.waitForURL(
+        "https://*.onlyoffice.com/docspace/configuration#TrustedDomain",
+      );
+      await expect(page3).toHaveURL(/docspace\/configuration#TrustedDomain/);
+      await page3.close();
+
+      // Invalid link on learn more
+      // const page4Promise = page.waitForEvent("popup");
+      // await security.ipSecurityGuideLink.click();
+      // const page4 = await page4Promise;
+      // await page4.waitForLoadState("load");
+      // await page4.waitForURL(
+      //   "https://*.onlyoffice.com/administration/docspace-settings.aspx#ipsecurity",
+      // );
+      // await expect(page4).toHaveURL(
+      //   /administration\/docspace-settings.aspx#ipsecurity/,
+      // );
+
+      const page5Promise = page.waitForEvent("popup");
+      await security.bruteForceGuideLink.click();
+      const page5 = await page5Promise;
+      await page5.waitForURL(
+        "https://*.onlyoffice.com/workspace/administration/configuration.aspx#loginsettings",
+      );
+      await expect(page5).toHaveURL(
+        /workspace\/administration\/configuration.aspx#loginsettings/,
+      );
+      await page5.close();
+
+      const page6Promise = page.waitForEvent("popup");
+      await security.adminMessageGuideLink.click();
+      const page6 = await page6Promise;
+      await page6.waitForURL(
+        "https://*.onlyoffice.com/docspace/configuration#administratormessage",
+      );
+      await expect(page6).toHaveURL(
+        /docspace\/configuration#administratormessage/,
+      );
+      await page6.close();
+
+      const page7Promise = page.waitForEvent("popup");
+      await security.sessionLifetimeGuideLink.click();
+      const page7 = await page7Promise;
+      await page7.waitForURL(
+        "https://*.onlyoffice.com/docspace/configuration#sessionlifetime",
+      );
+      await expect(page7).toHaveURL(/docspace\/configuration#sessionlifetime/);
+      await page7.close();
+    });
+
+    await test.step("DocSpace access settings", async () => {
+      await screenshot.expectHaveScreenshot("docspace_access_settings_view");
+    });
+
+    await test.step("Login history", async () => {
+      await security.openTab("Login History");
+      await security.hideDateCells();
+      await expect(
+        page.locator("text=Successful Login via API").first(),
+      ).toHaveText("Successful Login via API", { timeout: 10000 });
+      await screenshot.expectHaveScreenshot("login_history_view");
+    });
+
+    await test.step("Audit trail", async () => {
+      await security.openTab("Audit Trail");
+      await security.hideDateCells();
+      await expect(page.locator("text=Language Updated").first()).toHaveText(
+        "Language Updated",
+        { timeout: 10000 },
+      );
+      await screenshot.expectHaveScreenshot("audit_trail_view");
+    });
+  });
+
+  test.afterAll(async () => {
+    await api.cleanup();
+  });
+});

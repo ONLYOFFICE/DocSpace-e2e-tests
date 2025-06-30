@@ -40,15 +40,6 @@ test.describe("Trash", () => {
     await trash.open();
   });
 
-  test.beforeEach(async ({}, testInfo) => {
-    await screenshot.setCurrentTestInfo(testInfo);
-  });
-
-  /**
-   * Tests the initial rendering of the archive page
-   * Verifies that the archive table is displayed correctly with proper sorting
-   * and column visibility settings
-   */
   test("Render", async () => {
     await test.step("Render", async () => {
       await screenshot.expectHaveScreenshot("render");

@@ -1,4 +1,4 @@
-import { expect, Page, TestInfo } from "@playwright/test";
+import { expect, Page } from "@playwright/test";
 
 type ScreenshotOptions = {
   screenshotDir: string;
@@ -11,8 +11,7 @@ class Screenshot {
   options: ScreenshotOptions = {
     screenshotDir: "",
   };
-  private tests = new Map<string, { index: number; counter: number }>();
-  private currentTestInfo: TestInfo | null = null;
+  private counter: number = 0;
 
   constructor(page: Page, options: ScreenshotOptions) {
     this.page = page;
@@ -24,17 +23,15 @@ class Screenshot {
     };
   }
 
-  async setCurrentTestInfo(testInfo: TestInfo) {
-    this.currentTestInfo = testInfo;
-  }
-
   private async getPageSize() {
     const initialViewport = this.page.viewportSize()!;
 
     const pageBody = await this.page
-      .locator(".scroll-wrapper [data-testid='scroll-body']")
+      .locator("[data-testid='scroll-body']")
       .nth(2)
       .boundingBox();
+
+    console.log(pageBody);
 
     const height = Math.ceil(pageBody?.height ?? initialViewport.height);
     const width = initialViewport.width;
@@ -51,33 +48,8 @@ class Screenshot {
   }
 
   private getScreenshotName(comment: string) {
-    if (!this.currentTestInfo) {
-      throw new Error("Current test info is not set");
-    }
-
-    const rawTitle = this.currentTestInfo.title.trim();
-
-    // 1. Replace spaces and hyphens with underscores for safety
-    let snake = rawTitle.replace(/[\s-]+/g, "_");
-
-    // 2. Insert underscore before every capital letter that is preceded by another capital followed by a lowercase letter
-    //    or by a lowercase/digit — this covers PascalCase and camelCase words.
-    snake = snake
-      .replace(/([a-z0-9])([A-Z])/g, "$1_$2")
-      .replace(/([A-Z])([A-Z][a-z])/g, "$1_$2");
-
-    const testName = snake.toLowerCase();
-
-    let test = this.tests.get(testName);
-
-    if (!test) {
-      test = { index: this.tests.size + 1, counter: 0 };
-      this.tests.set(testName, test);
-    }
-
-    test.counter += 1;
-
-    return `${test.counter}_${comment}`;
+    this.counter += 1;
+    return `${this.counter}_${comment}`;
   }
 
   async expectHaveScreenshot(comment: string, safe: boolean = true) {

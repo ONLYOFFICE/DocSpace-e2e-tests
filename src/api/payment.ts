@@ -63,39 +63,43 @@ export class PaymentApi {
   }
 
   async makePortalPayment(tenantId: string, quantity = 10) {
-    const token = this.createToken();
-    const region = process.env.AWS_REGION;
-    const portalId =
-      region === "us-east-2"
-        ? `docspace.io.ohio${tenantId}`
-        : `docspace.io${tenantId}`;
+    try {
+      const token = this.createToken();
+      const region = process.env.AWS_REGION;
+      const portalId =
+        region === "us-east-2"
+          ? `docspace.io.ohio${tenantId}`
+          : `docspace.io${tenantId}`;
 
-    const headers = {
-      Authorization: token,
-      "Content-Type": "application/json",
-      Accept: "application/json",
-    };
+      const headers = {
+        Authorization: token,
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      };
 
-    const data = {
-      portalId: portalId,
-      customerEmail: config.DOCSPACE_ADMIN_EMAIL,
-      quantity: quantity,
-    };
+      const data = {
+        portalId: portalId,
+        customerEmail: config.DOCSPACE_ADMIN_EMAIL,
+        quantity: quantity,
+      };
 
-    const response = await this.apiContext.post(
-      "https://payments.teamlab.info/api/license/setdspsaaspaid",
-      {
-        headers: headers,
-        data: data,
-      },
-    );
+      const response = await this.apiContext.post(
+        "https://payments.teamlab.info/api/license/setdspsaaspaid",
+        {
+          headers: headers,
+          data: data,
+        },
+      );
 
-    if (!response.ok()) {
-      const error = await response.json();
-      throw new Error(`Payment failed: ${error.message || "Unknown error"}`);
+      if (!response.ok()) {
+        const error = await response.json();
+        throw new Error(`Payment failed: ${error.message || "Unknown error"}`);
+      }
+
+      return response.json();
+    } catch (error) {
+      console.log(error);
     }
-
-    return response.json();
   }
 
   async refreshPaymentInfo(portalDomain: string) {

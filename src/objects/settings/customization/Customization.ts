@@ -1,10 +1,14 @@
 import BasePage from "@/src/objects/common/BasePage";
 import navItems from "@/src/utils/constants/settings";
-import { expect, Page } from "@playwright/test";
+import BaseToast from "../../common/BaseToats";
+import { Page } from "@playwright/test";
 
 class Customization extends BasePage {
+  protected toast: BaseToast;
+
   constructor(page: Page) {
     super(page);
+    this.toast = new BaseToast(page);
   }
 
   get languageSelector() {
@@ -115,13 +119,6 @@ class Customization extends BasePage {
     await this.page.locator("#textInputContainerDNSSettings").evaluate((el) => {
       (el as HTMLElement).style.display = "none";
     });
-  }
-
-  async removeToast() {
-    const toast = this.page.locator("#toast-container").getByRole("alert");
-    await expect(toast).toBeVisible();
-    await toast.click();
-    await expect(toast).not.toBeVisible();
   }
 
   async open() {

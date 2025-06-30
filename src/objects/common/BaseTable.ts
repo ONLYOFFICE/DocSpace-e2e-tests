@@ -20,6 +20,8 @@ class BaseTable {
     this.tableContainer =
       locators?.tableContainer || this.page.locator(TABLE_CONTAINER);
     this.tableRows = locators?.tableRows || this.page.locator(TABLE_LIST_ITEM);
+
+    console.log(this.tableRows);
   }
 
   get tableSettings() {
@@ -73,13 +75,24 @@ class BaseTable {
     await expect(rows.first()).toBeVisible();
     const count = await rows.count();
 
-    for (let i = 0; i < count; i++) {
+    await this.mapTableRows(async (row) => {
       await this.page.keyboard.down("Control");
-      await rows.nth(i).click();
+      await row.click();
       await this.page.keyboard.up("Control");
-    }
+    });
 
-    return count;
+    return count; // TODO: REMOVE IT FROM HERE IN THE FEATURE, FALLBACK
+  }
+
+  async mapTableRows(
+    callback: (row: Locator, index: number) => Promise<void> | void,
+  ) {
+    const rows = this.tableRows;
+    const count = await rows.count();
+
+    for (let i = 0; i < count; i++) {
+      await callback(rows.nth(i), i);
+    }
   }
 
   async getRowByTitle(title: string) {

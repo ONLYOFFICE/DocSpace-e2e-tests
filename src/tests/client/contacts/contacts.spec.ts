@@ -43,10 +43,6 @@ test.describe(() => {
     await contacts.open();
   });
 
-  test.beforeEach(async ({}, testInfo) => {
-    await screenshot.setCurrentTestInfo(testInfo);
-  });
-
   test("Contacts", async () => {
     await test.step("EmptyView", async () => {
       await contacts.table.checkRowExist(ADMIN_OWNER_NAME);
