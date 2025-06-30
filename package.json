@@ -6,6 +6,7 @@
     "test": "tests"
   },
   "scripts": {
+    "start": "node scripts/playwright-test-runner.js",
     "docker:build": "docker-compose build",
     "docker:start": "docker-compose run --rm tests-local npx playwright test",
     "docker:start:screenshots": "docker-compose run --rm tests-local npx playwright test --update-snapshots",
@@ -30,10 +31,12 @@
     "husky": "^9.1.7",
     "lint-staged": "^15.4.3",
     "prettier": "^3.4.2",
+    "ts-node": "^10.9.2",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.32.1"
   },
   "dependencies": {
+    "@inquirer/prompts": "^7.5.3",
     "docx": "^9.2.0",
     "dotenv": "^16.4.7",
     "fs-extra": "^11.3.0",
