@@ -31,8 +31,6 @@ class Screenshot {
       .nth(2)
       .boundingBox();
 
-    console.log(pageBody);
-
     const height = Math.ceil(pageBody?.height ?? initialViewport.height);
     const width = initialViewport.width;
 

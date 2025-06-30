@@ -128,41 +128,33 @@ test.describe("Customization", () => {
       await customization.docspaceLanguageGuideLink.click();
       const page1 = await page1Promise;
       await page1.waitForURL(
-        "https://*.onlyoffice.com/administration/docspace-settings.aspx#DocSpacelanguage",
+        "https://*.onlyoffice.com/docspace/configuration#DocSpacelanguage",
       );
-      await expect(page1).toHaveURL(
-        /administration\/docspace-settings.aspx#DocSpacelanguage/,
-      );
+      await expect(page1).toHaveURL(/docspace\/configuration#DocSpacelanguage/);
       await page1.close();
       const page2Promise = page.waitForEvent("popup");
       await customization.docspaceTitleGuideLink.click();
       const page2 = await page2Promise;
       await page2.waitForURL(
-        "https://*.onlyoffice.com/administration/docspace-settings.aspx#DocSpacetitle",
+        "https://*.onlyoffice.com/docspace/configuration#DocSpacetitle",
       );
-      await expect(page2).toHaveURL(
-        /administration\/docspace-settings.aspx#DocSpacetitle/,
-      );
+      await expect(page2).toHaveURL(/docspace\/configuration#DocSpacetitle/);
       await page2.close();
       const page3Promise = page.waitForEvent("popup");
       await customization.docspaceAlternativeUrlGuideLink.click();
       const page3 = await page3Promise;
       await page3.waitForURL(
-        "https://*.onlyoffice.com/administration/docspace-settings.aspx#alternativeurl",
+        "https://*.onlyoffice.com/docspace/configuration#alternativeurl",
       );
-      await expect(page3).toHaveURL(
-        /administration\/docspace-settings.aspx#alternativeurl/,
-      );
+      await expect(page3).toHaveURL(/docspace\/configuration#alternativeurl/);
       await page3.close();
       const page4Promise = page.waitForEvent("popup");
       await customization.docspaceRenamingGuideLink.click();
       const page4 = await page4Promise;
       await page4.waitForURL(
-        "https://*.onlyoffice.com/administration/docspace-settings.aspx#DocSpacerenaming",
+        "https://*.onlyoffice.com/docspace/configuration#DocSpacerenaming",
       );
-      await expect(page4).toHaveURL(
-        /administration\/docspace-settings.aspx#DocSpacerenaming/,
-      );
+      await expect(page4).toHaveURL(/docspace\/configuration#DocSpacerenaming/);
       await page4.close();
     });
 
@@ -180,6 +172,8 @@ test.describe("Customization", () => {
       );
       await page.waitForLoadState("domcontentloaded");
 
+      console.log("Portal renamed successfully, wait for email");
+
       // Wait for email to arrive
       await new Promise((resolve) => setTimeout(resolve, 15000));
 
@@ -196,6 +190,8 @@ test.describe("Customization", () => {
         timeoutSeconds: 30,
         moveOut: false,
       });
+
+      console.log("Email:", email);
 
       // Log the found email
       if (email) {
