@@ -43,7 +43,6 @@ test.describe("Rooms", () => {
     myRooms = new MyRooms(page, api.portalDomain);
 
     await login.loginToPortal();
-    await myRooms.open();
   });
 
   test("Render", async () => {

@@ -40,7 +40,7 @@ test.describe("Archive", () => {
 
   test("Render", async () => {
     await test.step("Render", async () => {
-      await myRooms.open();
+      await myRooms.roomsEmptyView.checkNoRoomsExist();
       await myRooms.createRooms();
       await myRooms.moveAllRoomsToArchive();
       await myRooms.roomsEmptyView.checkNoRoomsExist();
