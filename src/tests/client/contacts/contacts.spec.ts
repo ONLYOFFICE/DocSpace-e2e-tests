@@ -367,6 +367,7 @@ test.describe(() => {
       await contacts.filter.removeFilter("Me");
       await contacts.table.openContextMenu(userEmails.guest);
       await screenshot.expectHaveScreenshot("guests_context_menu");
+      await contacts.closeMenu();
 
       await contacts.table.openSettings();
       await screenshot.expectHaveScreenshot("guests_table_settings");
