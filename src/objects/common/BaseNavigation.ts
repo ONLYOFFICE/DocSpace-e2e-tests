@@ -1,6 +1,7 @@
 import { expect, Page } from "@playwright/test";
 import ContextMenu from "./BaseContextMenu";
 
+const CLOSE_BUTTON = "[data-testid='aside-header'] [data-testid='icon-button-svg']";
 const HEADER_ADD_BUTTON = "#header_add-button";
 const BACK_ARROW_ICON =
   ".navigation-arrow-container [data-testid='icon-button']";
@@ -30,6 +31,10 @@ class BaseNavigation {
     return this.page.locator(BACK_ARROW_ICON);
   }
 
+  private get closeButton() {
+    return this.page.locator(CLOSE_BUTTON);
+  }
+
   private get selectAllCheckbox() {
     return this.page.locator("#menu-checkbox_selected-all-file");
   }
@@ -56,6 +61,11 @@ class BaseNavigation {
 
   async closeCreateDropdown() {
     await this.contextMenu.close();
+  }
+
+  async closePanel() {
+    await expect(this.closeButton).toBeVisible();
+    await this.closeButton.click();
   }
 
   async openContextMenu() {
