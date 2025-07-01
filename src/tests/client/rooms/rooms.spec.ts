@@ -130,6 +130,7 @@ test.describe("Rooms", () => {
       await myRooms.roomsEmptyView.checkEmptyRoomExist(roomCreateTitles.public);
 
       await myRooms.backToRooms();
+      await myRooms.roomsTable.checkRowExist(roomTemplateTitles.fromTemplate);
       await myRooms.infoPanel.close();
       await screenshot.expectHaveScreenshot(
         "create_room_from_template_created",

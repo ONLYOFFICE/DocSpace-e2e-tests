@@ -10,7 +10,6 @@ import BaseDialog from "../common/BaseDialog";
 const ROOM_SUBMIT_BUTTON = "#shared_create-room-modal_submit";
 const ROOM_TEMPLATE_SUBMIT_BUTTON = "#create-room-template-modal_submit";
 const LOGO_NAME_CONTAINER = ".logo-name-container";
-
 class RoomsCreateDialog extends BaseDialog {
   constructor(page: Page) {
     super(page);
@@ -22,6 +21,10 @@ class RoomsCreateDialog extends BaseDialog {
 
   private get roomTemplateSubmitButton() {
     return this.page.locator(ROOM_TEMPLATE_SUBMIT_BUTTON);
+  }
+
+  private get roomTypeDropdownButton() {
+    return this.page.getByTestId("room-type-dropdown-button");
   }
 
   private get roomIcon() {
@@ -37,7 +40,20 @@ class RoomsCreateDialog extends BaseDialog {
   }
 
   async openRoomType(title: TRoomCreateTitles) {
-    await this.dialog.getByTitle(title).click();
+    if (title !== roomCreateTitles.fromTemplate) {
+      await this.dialog.getByTitle(title).click();
+      await expect(this.roomTypeDropdownButton).toBeVisible();
+    } else {
+      const promise = this.page.waitForResponse((response) => {
+        return (
+          response.url().includes("files/rooms?count") &&
+          response.request().method() === "GET" &&
+          response.status() === 200
+        );
+      });
+      await this.dialog.getByTitle(title).click();
+      await promise;
+    }
   }
 
   async openRoomIconDropdown() {
