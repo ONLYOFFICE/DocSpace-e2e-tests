@@ -13,3 +13,7 @@ traces/
 playwright/.cache/
 playwright-report
 test-output
+
+
+scripts/last-run.json
+

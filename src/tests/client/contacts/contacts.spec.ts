@@ -38,13 +38,9 @@ test.describe(() => {
 
     login = new Login(page, api.portalDomain);
     contacts = new Contacts(page, api.portalDomain);
-    screenshot = new Screenshot(page, "contacts");
+    screenshot = new Screenshot(page, { screenshotDir: "contacts" });
     await login.loginToPortal();
     await contacts.open();
-  });
-
-  test.beforeEach(async ({}, testInfo) => {
-    await screenshot.setCurrentTestInfo(testInfo);
   });
 
   test("Contacts", async () => {
@@ -122,7 +118,6 @@ test.describe(() => {
       );
       await contacts.inviteDialog.close();
 
-      // AlERT:  further tests is unstable because of the “Warning” window that appears
       await contacts.inviteUsers();
       await screenshot.expectHaveScreenshot("invite_users_success");
     });
@@ -138,9 +133,6 @@ test.describe(() => {
 
       await contacts.table.selectRow(userEmails.roomAdmin);
       await contacts.navigation.disable();
-
-      // Temporary plug
-      await contacts.checkWarningDialog();
 
       await contacts.table.checkDisabledUserExist(userEmails.roomAdmin);
       await screenshot.expectHaveScreenshot("disable_users_success");
@@ -371,6 +363,7 @@ test.describe(() => {
       await contacts.filter.removeFilter("Me");
       await contacts.table.openContextMenu(userEmails.guest);
       await screenshot.expectHaveScreenshot("guests_context_menu");
+      await contacts.closeMenu();
 
       await contacts.table.openSettings();
       await screenshot.expectHaveScreenshot("guests_table_settings");

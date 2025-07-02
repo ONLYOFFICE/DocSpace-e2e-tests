@@ -24,7 +24,12 @@ class RoomsFilter extends BaseFilter {
 
   async clearFilterByPublic() {
     const promise = this.waitForGetResponse("/rooms");
-    await this.page.locator(".selected-item_label").first().click();
+    const filterByPublicTag = this.page
+      .locator(".selected-item_label")
+      .filter({ hasText: "Public room" });
+
+    await filterByPublicTag.click();
+    await filterByPublicTag.waitFor({ state: "detached" });
     await promise;
   }
 

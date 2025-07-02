@@ -9,7 +9,6 @@ import {
 
 const LAST_ACTIVITY_CHECKBOX =
   ".table-container_settings-checkbox:has(span:text-is('Last activity'))";
-const ROOMS_TABLE = "#table-container";
 
 const TABLE_ITEM_PINNED_TO_TOP = ".icons-group.is-pinned";
 
@@ -17,8 +16,7 @@ class RoomsTable extends BaseTable {
   contextMenu: BaseContextMenu;
 
   constructor(page: Page) {
-    const tableLocator = page.locator(ROOMS_TABLE);
-    super(tableLocator);
+    super(page);
     this.contextMenu = new BaseContextMenu(page);
   }
 
@@ -27,7 +25,9 @@ class RoomsTable extends BaseTable {
   }
 
   async checkRoomPinnedToTopExist() {
-    await expect(this.table.locator(TABLE_ITEM_PINNED_TO_TOP)).toBeVisible();
+    await expect(
+      this.tableContainer.locator(TABLE_ITEM_PINNED_TO_TOP),
+    ).toBeVisible();
   }
 
   async clickContextMenuOption(

@@ -30,8 +30,16 @@ class BaseContextMenu {
   }
 
   async close() {
-    this.page.mouse.click(1, 1);
-    await expect(this.menu).not.toBeVisible();
+    await this.page.mouse.click(1, 1);
+    await this.page.waitForTimeout(100);
+
+    await this.page.waitForFunction(
+      () =>
+        // eslint-disable-next-line no-undef
+        document.querySelectorAll(
+          ".p-contextmenu.p-component.p-contextmenu-enter-done",
+        ).length === 0,
+    );
   }
 
   private async getMenuItem(

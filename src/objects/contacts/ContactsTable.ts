@@ -12,7 +12,7 @@ import BaseContextMenu from "../common/BaseContextMenu";
 class ContactsTable extends BaseTable {
   contextMenu: BaseContextMenu;
   constructor(page: Page) {
-    super(page.locator("#table-container"));
+    super(page);
     this.contextMenu = new BaseContextMenu(page);
   }
 
@@ -26,7 +26,7 @@ class ContactsTable extends BaseTable {
       has: this.page.locator(".paid-badge"),
     });
     const count = await countPaidUsers.count();
-    return count - 1; // without current user
+    return count;
   }
 
   async checkDisabledUserExist(value: string) {

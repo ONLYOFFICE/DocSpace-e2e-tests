@@ -1,19 +1,25 @@
 import { expect, Locator, Page } from "@playwright/test";
 
+const TABLE_CONTAINER = "#table-container";
 const TABLE_LIST_ITEM = ".table-list-item.window-item";
 const SETTINGS_ICON = '[data-iconname*="settings.desc.react.svg"]';
 const TABLE_SETTING_CONTAINER = ".table-container_settings";
+
+export type TBaseTableLocators = {
+  tableContainer?: Locator;
+  tableRows?: Locator;
+};
+
 class BaseTable {
-  protected table: Locator;
-  protected page: Page;
+  page: Page;
+  tableContainer: Locator;
+  tableRows: Locator;
 
-  constructor(table: Locator) {
-    this.table = table;
-    this.page = table.page();
-  }
-
-  get tableRows() {
-    return this.table.locator(TABLE_LIST_ITEM);
+  constructor(page: Page, locators?: TBaseTableLocators) {
+    this.page = page;
+    this.tableContainer =
+      locators?.tableContainer || this.page.locator(TABLE_CONTAINER);
+    this.tableRows = locators?.tableRows || this.page.locator(TABLE_LIST_ITEM);
   }
 
   get tableSettings() {
@@ -23,7 +29,7 @@ class BaseTable {
   async openSettings() {
     const isSettingsVisible = await this.tableSettings.isVisible();
     if (!isSettingsVisible) {
-      await this.table.locator(SETTINGS_ICON).click();
+      await this.tableContainer.locator(SETTINGS_ICON).click();
     }
   }
 
@@ -35,7 +41,7 @@ class BaseTable {
   }
 
   async toggleSettings() {
-    await this.table.locator(SETTINGS_ICON).click();
+    await this.tableContainer.locator(SETTINGS_ICON).click();
   }
 
   async hideTableColumn(checkboxLocator: Locator) {
@@ -59,7 +65,7 @@ class BaseTable {
   }
 
   async checkTableExist() {
-    await expect(this.table).toBeVisible();
+    await expect(this.tableContainer).toBeVisible();
   }
 
   async selectAllRows() {
@@ -67,13 +73,24 @@ class BaseTable {
     await expect(rows.first()).toBeVisible();
     const count = await rows.count();
 
-    for (let i = 0; i < count; i++) {
+    await this.mapTableRows(async (row) => {
       await this.page.keyboard.down("Control");
-      await rows.nth(i).click();
+      await row.click();
       await this.page.keyboard.up("Control");
-    }
+    });
 
-    return count;
+    return count; // TODO: REMOVE IT FROM HERE IN THE FEATURE, FALLBACK
+  }
+
+  async mapTableRows(
+    callback: (row: Locator, index: number) => Promise<void> | void,
+  ) {
+    const rows = this.tableRows;
+    const count = await rows.count();
+
+    for (let i = 0; i < count; i++) {
+      await callback(rows.nth(i), i);
+    }
   }
 
   async getRowByTitle(title: string) {
@@ -109,7 +126,7 @@ class BaseTable {
   }
 
   async openFooterContextMenu() {
-    const box = await this.table.boundingBox();
+    const box = await this.tableContainer.boundingBox();
     if (!box) {
       throw new Error("Table not found");
     }

@@ -40,7 +40,7 @@ class MyArchive {
     this.portalDomain = portalDomain;
 
     this.navigation = new BaseNavigation(page, navActions);
-    this.archiveTable = new BaseTable(page.locator("#table-container"));
+    this.archiveTable = new BaseTable(page);
     this.archiveEmptyView = new ArchiveEmptyView(page);
     this.baseFilter = new BaseFilter(page);
     this.infoPanel = new InfoPanel(page);

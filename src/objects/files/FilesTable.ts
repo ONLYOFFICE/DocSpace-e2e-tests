@@ -9,15 +9,11 @@ const DOCX_FILE_LINK = ".files-item a[title$='.docx']";
 const MODIFIED_CHECKBOX =
   ".table-container_settings-checkbox:has(span:text-is('Modified'))";
 
-const FILES_TABLE = "#table-container";
-
 class FilesTable extends BaseTable {
   contextMenu: BaseContextMenu;
 
   constructor(page: Page) {
-    const tableLocator = page.locator(FILES_TABLE);
-    super(tableLocator);
-
+    super(page);
     this.contextMenu = new BaseContextMenu(page);
   }
 
@@ -43,9 +39,9 @@ class FilesTable extends BaseTable {
   }
 
   async checkInitialDocsExist() {
-    await expect(this.table).toBeVisible();
+    await expect(this.tableContainer).toBeVisible();
     const promises = initialDocNames.map((docName) =>
-      expect(this.table.getByText(docName)).toBeVisible(),
+      expect(this.tableContainer.getByText(docName)).toBeVisible(),
     );
 
     await Promise.all(promises);

@@ -16,6 +16,15 @@ class BaseArticle {
     return this.page.locator(ARTICLE_CONTAINER);
   }
 
+  get articleNavItems() {
+    return this.articleContainer.getByTestId("article-item");
+  }
+
+  async navigate(title: string) {
+    await this.articleNavItems.filter({ hasText: title }).click();
+    await this.page.waitForLoadState("domcontentloaded");
+  }
+
   async checkArticleActionsButtonExist() {
     await expect(this.mainButton).toBeVisible();
   }

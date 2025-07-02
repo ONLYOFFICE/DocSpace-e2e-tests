@@ -38,16 +38,11 @@ test.describe("Rooms", () => {
     });
 
     login = new Login(page, api.portalDomain);
-    screenshot = new Screenshot(page, "rooms");
+    screenshot = new Screenshot(page, { screenshotDir: "rooms" });
 
     myRooms = new MyRooms(page, api.portalDomain);
 
     await login.loginToPortal();
-    await myRooms.open();
-  });
-
-  test.beforeEach(async ({}, testInfo) => {
-    await screenshot.setCurrentTestInfo(testInfo);
   });
 
   test("Render", async () => {
@@ -134,6 +129,7 @@ test.describe("Rooms", () => {
       await myRooms.roomsEmptyView.checkEmptyRoomExist(roomCreateTitles.public);
 
       await myRooms.backToRooms();
+      await myRooms.roomsTable.checkRowExist(roomTemplateTitles.fromTemplate);
       await myRooms.infoPanel.close();
       await screenshot.expectHaveScreenshot(
         "create_room_from_template_created",

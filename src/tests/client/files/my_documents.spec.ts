@@ -26,20 +26,12 @@ test.describe("Files: My documents", () => {
 
     login = new Login(page, api.portalDomain);
     myDocuments = new MyDocuments(page, api.portalDomain);
-    screenshot = new Screenshot(page, "files");
+    screenshot = new Screenshot(page, { screenshotDir: "files" });
 
     await login.loginToPortal();
     await myDocuments.open();
   });
 
-  test.beforeEach(async ({}, testInfo) => {
-    await screenshot.setCurrentTestInfo(testInfo);
-  });
-
-  /**
-   * Tests the initial rendering of the documents page
-   * Verifies that the documents table is displayed correctly with proper column visibility
-   */
   test("Render", async () => {
     await test.step("Render", async () => {
       await myDocuments.filesTable.hideModifiedColumn();

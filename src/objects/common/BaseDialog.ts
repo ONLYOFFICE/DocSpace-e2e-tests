@@ -17,10 +17,8 @@ class BaseDialog {
     await expect(this.dialog).toBeVisible();
   }
 
-  async checkDialogTitleExist(title: string, timeout = 5000) {
-    await expect(this.dialogHeader.getByText(title)).toBeVisible({
-      timeout,
-    });
+  async checkDialogTitleExist(title: string) {
+    await expect(this.dialogHeader.getByText(title)).toBeVisible();
   }
 
   async clickBackArrow() {
@@ -29,7 +27,7 @@ class BaseDialog {
 
   async close() {
     await this.page.mouse.click(1, 1);
-    await expect(this.dialog).not.toBeVisible();
+    await this.dialog.waitFor({ state: "detached" });
   }
 
   protected async clickSubmitButton(buttonLocator: Locator) {
