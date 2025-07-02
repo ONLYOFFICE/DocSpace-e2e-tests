@@ -156,6 +156,7 @@ class MailChecker {
 
           // Find email with the required subject
           for (const { uid, message } of emailsWithDates) {
+            console.log("Checking email:", uid, message);
             const envelope: MessageEnvelopeObject | undefined =
               message?.envelope;
             if (!envelope) continue;
