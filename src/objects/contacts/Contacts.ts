@@ -128,7 +128,7 @@ class Contacts {
   // Temporary plug
   async checkWarningDialog() {
     try {
-      await this.dialog.checkDialogTitleExist("Warning", 3000);
+      await this.dialog.checkDialogTitleExist("Warning");
       await this.dialog.close();
     } catch {
       console.log("No warning dialog");
@@ -153,8 +153,11 @@ class Contacts {
     const data: TInviteResponseData = await responseData.json();
     this.userIds[userEmail] = data.response.id;
 
-    // Temporary plug
-    await this.checkWarningDialog();
+    const countPaidUsers = await this.table.getCountPaidUsers();
+
+    if (countPaidUsers === 2) {
+      await this.checkWarningDialog();
+    }
   }
 
   async openChangeContactTypeDialog(user: string, menuItem: MenuItemSelector) {
