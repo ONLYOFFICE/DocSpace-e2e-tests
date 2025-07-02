@@ -31,7 +31,7 @@ class BaseContextMenu {
 
   async close() {
     await this.page.mouse.click(1, 1);
-    await expect(this.menu).not.toBeVisible();
+    await this.menu.waitFor({ state: "detached" });
   }
 
   private async getMenuItem(
