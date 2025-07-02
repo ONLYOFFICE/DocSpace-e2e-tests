@@ -1,7 +1,7 @@
 import BasePage from "@/src/objects/common/BasePage";
 import navItems from "@/src/utils/constants/settings";
 import BaseToast from "../../common/BaseToats";
-import { Page } from "@playwright/test";
+import { expect, Page } from "@playwright/test";
 
 class Customization extends BasePage {
   protected toast: BaseToast;
@@ -115,6 +115,14 @@ class Customization extends BasePage {
     return this.page.locator('#provide-a-choice input[type="radio"]');
   }
 
+  get customThemes() {
+    return this.page.locator(".custom-themes");
+  }
+
+  get customTheme() {
+    return this.customThemes.locator(".check-img");
+  }
+
   async hideDnsSettingsInput() {
     await this.page.locator("#textInputContainerDNSSettings").evaluate((el) => {
       (el as HTMLElement).style.display = "none";
@@ -180,6 +188,14 @@ class Customization extends BasePage {
   async deleteCustomTheme() {
     await this.deleteThemeButton.click();
     await this.confirmDeleteButton.click();
+  }
+
+  async getCountCustomTheme() {
+    return this.customTheme.count();
+  }
+
+  async checkCustomThemeNotExist() {
+    await expect(this.customTheme).toHaveCount(0);
   }
 
   async uploadPictures() {
