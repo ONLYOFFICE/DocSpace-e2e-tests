@@ -20,8 +20,6 @@ class BaseTable {
     this.tableContainer =
       locators?.tableContainer || this.page.locator(TABLE_CONTAINER);
     this.tableRows = locators?.tableRows || this.page.locator(TABLE_LIST_ITEM);
-
-    console.log(this.tableRows);
   }
 
   get tableSettings() {
