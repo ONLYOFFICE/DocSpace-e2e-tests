@@ -125,14 +125,9 @@ class Contacts {
     }
   }
 
-  // Temporary plug
   async checkWarningDialog() {
-    try {
-      await this.dialog.checkDialogTitleExist("Warning");
-      await this.dialog.close();
-    } catch {
-      console.log("No warning dialog");
-    }
+    await this.dialog.checkDialogTitleExist("Warning");
+    await this.dialog.close();
   }
 
   async inviteUser(userEmail: TUserEmail, userType: TContactType) {

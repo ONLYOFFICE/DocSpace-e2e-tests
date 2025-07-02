@@ -118,7 +118,6 @@ test.describe(() => {
       );
       await contacts.inviteDialog.close();
 
-      // AlERT:  further tests is unstable because of the “Warning” window that appears
       await contacts.inviteUsers();
       await screenshot.expectHaveScreenshot("invite_users_success");
     });
