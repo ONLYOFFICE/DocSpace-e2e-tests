@@ -135,9 +135,6 @@ test.describe(() => {
       await contacts.table.selectRow(userEmails.roomAdmin);
       await contacts.navigation.disable();
 
-      // Temporary plug
-      await contacts.checkWarningDialog();
-
       await contacts.table.checkDisabledUserExist(userEmails.roomAdmin);
       await screenshot.expectHaveScreenshot("disable_users_success");
     });
