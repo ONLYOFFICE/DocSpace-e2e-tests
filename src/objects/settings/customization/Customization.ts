@@ -199,7 +199,7 @@ class Customization extends BasePage {
     await upload("#logoUploader_6_dark", "data/left_menu/JPG.jpg");
     await upload("#logoUploader_2_light", "data/login_page/PNG.png");
     await upload("#logoUploader_2_dark", "data/login_page/JPG.jpg");
-    await upload("#logoUploader_3_light", "data/Favicon/png.png");
+    await upload("#logoUploader_3_light", "data/favicon/png.png");
     await upload("#logoUploader_4_light", "data/editor_header/png.png");
     await upload("#logoUploader_5_light", "data/editor_header/png.png");
 

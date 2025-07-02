@@ -3,9 +3,15 @@ services:
     image: e2e-tests
     build:
       dockerfile: Dockerfile
+    volumes:
+      - ./playwright-report:/app/playwright-report
+      - ./test-output:/app/test-output
   tests-local:
     image: e2e-tests
+    build:
+      dockerfile: Dockerfile
     volumes:
       - ./screenshots:/app/screenshots
       - ./playwright.config.ts:/app/playwright.config.ts
       - ./playwright-report:/app/playwright-report
+      - ./test-output:/app/test-output

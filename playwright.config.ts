@@ -20,6 +20,7 @@ export default defineConfig({
         open: "never",
       },
     ],
+    ["junit", { outputFile: "./playwright-report/test-results.xml" }],
   ],
   projects: [
     {
@@ -28,6 +29,7 @@ export default defineConfig({
         headless: true,
         ...devices["Desktop Chrome"],
         viewport: { width: 1440, height: 1024 },
+        screenshot: "only-on-failure",
       },
     },
     /*     {
