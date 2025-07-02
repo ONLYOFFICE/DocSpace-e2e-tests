@@ -21,6 +21,7 @@ export default defineConfig({
       },
     ],
     ["junit", { outputFile: "./playwright-report/test-results.xml" }],
+    ["junit", { outputFile: "./playwright-report/test-results.json" }],
   ],
   projects: [
     {
