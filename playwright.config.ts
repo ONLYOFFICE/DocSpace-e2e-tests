@@ -22,6 +22,10 @@ export default defineConfig({
     ],
     ["junit", { outputFile: "./playwright-report/test-results.xml" }],
   ],
+  use: {
+    trace: "retain-on-failure",
+  },
+
   projects: [
     {
       name: "chromium",
