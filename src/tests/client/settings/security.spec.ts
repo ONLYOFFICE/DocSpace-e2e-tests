@@ -1,9 +1,9 @@
 import { test, expect, Page } from "@playwright/test";
-import Security from "@/src/objects/settings/customization/Security";
 import Login from "@/src/objects/common/Login";
 import { PaymentApi } from "@/src/api/payment";
 import API from "@/src/api";
 import Screenshot from "@/src/objects/common/Screenshot";
+import Security from "@/src/objects/settings/security/Security";
 
 test.describe("Security tests", () => {
   let api: API;
