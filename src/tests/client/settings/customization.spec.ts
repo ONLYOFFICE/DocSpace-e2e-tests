@@ -110,7 +110,15 @@ test.describe("Customization", () => {
     await test.step("Custom appereance", async () => {
       await customization.createCustomTheme("##0EEDE9", "#931073");
       await customization.removeToast();
-      throw new Error("some error");
+      await screenshot.expectHaveScreenshot("custom_appearance_theme_1");
+      await customization.darkThemeOption.click();
+      await customization.saveButtonAppearance.first().click();
+      await customization.removeToast();
+      await screenshot.expectHaveScreenshot("custom_appearance_theme_2");
+      await customization.deleteCustomTheme();
+      await customization.removeToast();
+      await customization.checkCustomThemeNotExist();
+      await screenshot.expectHaveScreenshot("custom_appearance_deleted_theme");
     });
 
     await test.step("General link", async () => {
