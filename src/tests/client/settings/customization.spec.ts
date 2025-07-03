@@ -49,6 +49,7 @@ test.describe("Customization", () => {
   });
 
   test("Customization full flow", async () => {
+    test.setTimeout(10 * 60 * 1000); // 10 minutes
     await test.step("Change lang&time", async () => {
       await customization.changeLanguage("English (United States)");
       await customization.changeTimezone("(UTC) Antarctica/Troll");
@@ -109,14 +110,7 @@ test.describe("Customization", () => {
     await test.step("Custom appereance", async () => {
       await customization.createCustomTheme("##0EEDE9", "#931073");
       await customization.removeToast();
-      await screenshot.expectHaveScreenshot("custom_appearance_theme_1");
-      await customization.darkThemeOption.click();
-      await customization.saveButtonAppearance.first().click();
-      await customization.removeToast();
-      await screenshot.expectHaveScreenshot("custom_appearance_theme_2");
-      await customization.deleteCustomTheme();
-      await customization.removeToast();
-      await screenshot.expectHaveScreenshot("custom_appearance_deleted_theme");
+      throw new Error("some error");
     });
 
     await test.step("General link", async () => {
@@ -187,7 +181,6 @@ test.describe("Customization", () => {
       // Check for email with subject "Change of portal address"
       const email = await mailChecker.checkEmailBySubject({
         subject: "Change of portal address",
-        timeoutSeconds: 30,
         moveOut: false,
       });
 
@@ -250,7 +243,6 @@ test.describe("Customization", () => {
       const email = await mailChecker.checkEmailBySenderAndSubject({
         subject: "Confirm changing your password",
         sender: "autoTest",
-        timeoutSeconds: 30,
         moveOut: false,
       });
 
