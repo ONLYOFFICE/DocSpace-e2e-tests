@@ -190,10 +190,6 @@ class Customization extends BasePage {
     await this.confirmDeleteButton.click();
   }
 
-  async getCountCustomTheme() {
-    return this.customTheme.count();
-  }
-
   async checkCustomThemeNotExist() {
     await expect(this.customTheme).toHaveCount(0);
   }

@@ -116,11 +116,8 @@ test.describe("Customization", () => {
       await customization.saveButtonAppearance.first().click();
       await customization.removeToast();
       await screenshot.expectHaveScreenshot("custom_appearance_theme_2");
-      const count = await customization.getCountCustomTheme();
-      console.log(count);
       await customization.deleteCustomTheme();
       await customization.removeToast();
-      await customization.checkCustomThemeNotExist();
       await customization.checkCustomThemeNotExist();
       await screenshot.expectHaveScreenshot("custom_appearance_deleted_theme");
     });
