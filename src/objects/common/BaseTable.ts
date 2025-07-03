@@ -10,6 +10,13 @@ export type TBaseTableLocators = {
   tableRows?: Locator;
 };
 
+/* eslint-disable no-unused-vars */
+type TMapTableRowsCallback = (
+  row: Locator,
+  index: number,
+) => Promise<void> | void;
+/* eslint-enable no-unused-vars */
+
 class BaseTable {
   page: Page;
   tableContainer: Locator;
@@ -84,9 +91,7 @@ class BaseTable {
     return count; // TODO: REMOVE IT FROM HERE IN THE FEATURE, FALLBACK
   }
 
-  async mapTableRows(
-    callback: (row: Locator, index: number) => Promise<void> | void,
-  ) {
+  async mapTableRows(callback: TMapTableRowsCallback) {
     const rows = this.tableRows;
     const count = await rows.count();
 

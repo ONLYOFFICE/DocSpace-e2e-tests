@@ -1,6 +1,6 @@
 import { Locator, Page } from "@playwright/test";
 import BaseArticle from "./BaseArticle";
-import BaseToast from "./BaseToats";
+import BaseToast from "./BaseToast";
 
 export default class BasePage {
   protected page: Page;
@@ -29,8 +29,8 @@ export default class BasePage {
       .filter({ hasText: "Payments" });
   }
 
-  async removeToast() {
-    await this.toast.removeToast();
+  async removeToast(message?: string) {
+    await this.toast.removeToast(message);
   }
 
   async navigateToSettings() {
