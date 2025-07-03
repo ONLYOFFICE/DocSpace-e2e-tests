@@ -1,6 +1,31 @@
 import { defineConfig } from "@playwright/test";
 import { devices } from "@playwright/test";
 
+const rpConfig = {
+  // required fields
+  apiKey:
+    "playwright-test_7e7Z-fQoQxyU2tnFoPJvwenhJH5fmubP_Tw-WhfMDtAMOMG4uN7rNwlot_sFP0DS",
+  endpoint: "https://reports.onlyoffice.com/api/v2",
+  project: "Test",
+  launch: "Integration tests",
+  // optional fields
+  attributes: [
+    {
+      key: "agent",
+      value: "playwright",
+    },
+    {
+      value: "demo",
+    },
+  ],
+  description: "This is an example launch with playwright tests",
+  restClientConfig: {
+    timeout: 0,
+  },
+  includeTestSteps: true,
+  skippedIssue: false,
+};
+
 export default defineConfig({
   testDir: "./src/tests",
   retries: 0,
@@ -21,6 +46,7 @@ export default defineConfig({
       },
     ],
     ["junit", { outputFile: "./playwright-report/test-results.xml" }],
+    ["@reportportal/agent-js-playwright", rpConfig],
   ],
   projects: [
     {
