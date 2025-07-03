@@ -178,18 +178,15 @@ test.describe("Customization", () => {
       );
       await page.waitForLoadState("domcontentloaded");
 
-      // ISSUE UNSTABLE EMAIL
-      // console.log("Portal renamed successfully, wait for email");
+      // Wait for email to arrive
+      await new Promise((resolve) => setTimeout(resolve, 15000));
 
-      // // Wait for email to arrive
-      // await new Promise((resolve) => setTimeout(resolve, 15000));
-
-      // // Create a MailChecker instance
-      // const mailChecker = new MailChecker({
-      //   url: config.QA_MAIL_DOMAIN ?? "",
-      //   user: config.QA_MAIL_LOGIN ?? "",
-      //   pass: config.QA_MAIL_PASSWORD ?? "",
-      // });
+      // Create a MailChecker instance
+      const mailChecker = new MailChecker({
+        url: config.QA_MAIL_DOMAIN ?? "",
+        user: config.QA_MAIL_LOGIN ?? "",
+        pass: config.QA_MAIL_PASSWORD ?? "",
+      });
 
       // Check for email with subject "Change of portal address"
       const email = await mailChecker.checkEmailBySubject({
@@ -197,17 +194,15 @@ test.describe("Customization", () => {
         moveOut: false,
       });
 
-      // console.log("Email:", email);
+      // Log the found email
+      if (email) {
+        console.log(
+          `Found portal address change email with subject: "${email.subject}"`,
+        );
+      }
 
-      // // Log the found email
-      // if (email) {
-      //   console.log(
-      //     `Found portal address change email with subject: "${email.subject}"`,
-      //   );
-      // }
-
-      // // Final verification
-      // expect(email).toBeTruthy();
+      // Final verification
+      expect(email).toBeTruthy();
 
       await customization.renamePortalBack(originalName);
       api.apisystem.setPortalDomain(`${originalName}.onlyoffice.io`);

@@ -174,14 +174,6 @@ class Customization extends BasePage {
     await this.page.locator('div[id="2"]').click();
   }
 
-  get customThemes() {
-    return this.page.locator(".custom-themes");
-  }
-
-  get customTheme() {
-    return this.customThemes.locator(".check-img");
-  }
-
   async createCustomTheme(accentColor: string, buttonsColor: string) {
     await this.themeAdd.click();
     await this.accentColorInput.click();
@@ -228,10 +220,6 @@ class Customization extends BasePage {
     await upload("#logoUploader_5_light", "data/editor_header/png.png");
 
     await this.saveButton.nth(1).click();
-  }
-
-  async checkCustomThemeNotExist() {
-    await expect(this.customTheme).toHaveCount(0);
   }
 
   async renamePortal() {
