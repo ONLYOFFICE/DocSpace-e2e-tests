@@ -114,17 +114,17 @@ test.describe("Security tests", () => {
       await expect(page3).toHaveURL(/docspace\/configuration#TrustedDomain/);
       await page3.close();
 
-      // Invalid link on learn more
-      // const page4Promise = page.waitForEvent("popup");
-      // await security.ipSecurityGuideLink.click();
-      // const page4 = await page4Promise;
-      // await page4.waitForLoadState("load");
-      // await page4.waitForURL(
-      //   "https://*.onlyoffice.com/administration/docspace-settings.aspx#ipsecurity",
-      // );
-      // await expect(page4).toHaveURL(
-      //   /administration\/docspace-settings.aspx#ipsecurity/,
-      // );
+      const page4Promise = page.waitForEvent("popup");
+      await security.ipSecurityGuideLink.click();
+      const page4 = await page4Promise;
+      await page4.waitForLoadState("load");
+      await page4.waitForURL(
+        "https://*.onlyoffice.com/docspace/configuration/docspace-security-settings.aspx#limiteddevelopertoolsaccess_block",
+      );
+      await expect(page4).toHaveURL(
+        /docspace\/configuration\/docspace-security-settings.aspx#limiteddevelopertoolsaccess_block/,
+      );
+      await page4.close();
 
       const page5Promise = page.waitForEvent("popup");
       await security.bruteForceGuideLink.click();

@@ -115,6 +115,14 @@ class Customization extends BasePage {
     return this.page.locator('#provide-a-choice input[type="radio"]');
   }
 
+  get customThemes() {
+    return this.page.locator(".custom-themes");
+  }
+
+  get customTheme() {
+    return this.customThemes.locator(".check-img");
+  }
+
   async hideDnsSettingsInput() {
     await this.page.locator("#textInputContainerDNSSettings").evaluate((el) => {
       (el as HTMLElement).style.display = "none";
@@ -190,6 +198,14 @@ class Customization extends BasePage {
     await this.confirmDeleteButton.click();
   }
 
+  async getCountCustomTheme() {
+    return this.customTheme.count();
+  }
+
+  async checkCustomThemeNotExist() {
+    await expect(this.customTheme).toHaveCount(0);
+  }
+
   async uploadPictures() {
     const upload = async (selector: string, filePath: string) => {
       await Promise.all([
@@ -207,7 +223,7 @@ class Customization extends BasePage {
     await upload("#logoUploader_6_dark", "data/left_menu/JPG.jpg");
     await upload("#logoUploader_2_light", "data/login_page/PNG.png");
     await upload("#logoUploader_2_dark", "data/login_page/JPG.jpg");
-    await upload("#logoUploader_3_light", "data/Favicon/png.png");
+    await upload("#logoUploader_3_light", "data/favicon/png.png");
     await upload("#logoUploader_4_light", "data/editor_header/png.png");
     await upload("#logoUploader_5_light", "data/editor_header/png.png");
 

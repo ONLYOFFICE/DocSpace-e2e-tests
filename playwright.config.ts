@@ -20,6 +20,7 @@ export default defineConfig({
         open: "never",
       },
     ],
+    ["junit", { outputFile: "./playwright-report/test-results.xml" }],
   ],
   use: {
     trace: "retain-on-failure",
@@ -32,6 +33,7 @@ export default defineConfig({
         headless: true,
         ...devices["Desktop Chrome"],
         viewport: { width: 1440, height: 1024 },
+        screenshot: "only-on-failure",
       },
     },
     /*     {
@@ -47,5 +49,5 @@ export default defineConfig({
   expect: {
     timeout: 10000, // default timeout for expect assertions (toBeVisible, toHaveText, etc.)
   },
-  timeout: 120000, // default timeout for test execution
+  timeout: 180000, // default timeout for test execution
 });

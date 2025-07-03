@@ -26,7 +26,7 @@ class ContactsTable extends BaseTable {
       has: this.page.locator(".paid-badge"),
     });
     const count = await countPaidUsers.count();
-    return count - 1; // without current user
+    return count;
   }
 
   async checkDisabledUserExist(value: string) {
