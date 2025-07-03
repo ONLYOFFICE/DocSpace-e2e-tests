@@ -63,7 +63,7 @@ test.describe("Customization", () => {
       await customization.removeToast();
     });
 
-    await test.step("Welcom page settings", async () => {
+    await test.step("Welcome page settings", async () => {
       await customization.setTitle();
       await customization.removeToast();
       await customization.restoreButton.nth(1).click();
@@ -108,7 +108,6 @@ test.describe("Customization", () => {
     });
 
     await test.step("Custom appereance", async () => {
-      await page.pause();
       await customization.createCustomTheme("##0EEDE9", "#931073");
       await customization.removeToast();
       await screenshot.expectHaveScreenshot("custom_appearance_theme_1");
@@ -216,7 +215,7 @@ test.describe("Customization", () => {
       await customization.removeToast();
       await customization.webOnly.click({ force: true });
       await customization.saveButton.nth(3).click();
-      await customization.removeToast();
+      await customization.removeToast("some error");
       await customization.webOrApp.click({ force: true });
       await customization.saveButton.nth(3).click();
       await customization.removeToast();
