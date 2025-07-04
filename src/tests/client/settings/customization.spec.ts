@@ -243,5 +243,6 @@ test.describe("Customization", () => {
 
   test.afterAll(async () => {
     await api.cleanup();
+    await page.close();
   });
 });
