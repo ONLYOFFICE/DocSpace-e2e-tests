@@ -65,7 +65,7 @@ class Screenshot {
     playwrightOptions?: PlaywrightScreenshotOptions,
   ) {
     if (safe) {
-      await this.page.mouse.move(1, 1);
+      await this.page.mouse.move(0, 0);
     }
 
     const originalViewport = this.page.viewportSize();
