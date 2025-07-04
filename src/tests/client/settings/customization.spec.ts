@@ -200,7 +200,6 @@ test.describe("Customization", () => {
       await customization.removeToast(toastMessages.settingsUpdated);
       await customization.webOnly.click({ force: true });
       await customization.saveButton.nth(3).click();
-      await customization.removeToast(toastMessages.settingsUpdated);
       await customization.webOrApp.click({ force: true });
       await customization.saveButton.nth(3).click();
       await customization.removeToast(toastMessages.settingsUpdated);
