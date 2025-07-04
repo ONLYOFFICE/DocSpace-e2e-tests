@@ -48,6 +48,10 @@ export default defineConfig({
     ["junit", { outputFile: "./playwright-report/test-results.xml" }],
     ["@reportportal/agent-js-playwright", rpConfig],
   ],
+  use: {
+    trace: "retain-on-failure",
+  },
+
   projects: [
     {
       name: "chromium",
