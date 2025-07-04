@@ -60,7 +60,6 @@ class Screenshot {
   async expectHaveScreenshot(comment: string, safe: boolean = true) {
     if (safe) {
       await this.page.mouse.move(0, 0);
-      await this.page.waitForTimeout(100);
     }
 
     if (this.options.fullPage) {
