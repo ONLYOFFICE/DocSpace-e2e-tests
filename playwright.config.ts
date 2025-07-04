@@ -3,11 +3,10 @@ import { devices } from "@playwright/test";
 
 const rpConfig = {
   // required fields
-  apiKey:
-    "playwright-test_7e7Z-fQoQxyU2tnFoPJvwenhJH5fmubP_Tw-WhfMDtAMOMG4uN7rNwlot_sFP0DS",
-  endpoint: "https://reports.onlyoffice.com/api/v2",
-  project: "Test",
-  launch: "Integration tests",
+  apiKey: process.env.RP_API_KEY,
+  endpoint: process.env.RP_ENDPOINT,
+  project: process.env.RP_PROJECT,
+  launch: process.env.RP_LAUNCH,
   // optional fields
   attributes: [
     {
@@ -25,6 +24,12 @@ const rpConfig = {
   includeTestSteps: true,
   skippedIssue: false,
 };
+
+const rpReporter: [string, Record<string, unknown>][] = [];
+
+if (process.env.RP_API_KEY) {
+  rpReporter.push(["@reportportal/agent-js-playwright", rpConfig]);
+}
 
 export default defineConfig({
   testDir: "./src/tests",
@@ -46,7 +51,7 @@ export default defineConfig({
       },
     ],
     ["junit", { outputFile: "./playwright-report/test-results.xml" }],
-    ["@reportportal/agent-js-playwright", rpConfig],
+    ...rpReporter,
   ],
   use: {
     trace: "retain-on-failure",
