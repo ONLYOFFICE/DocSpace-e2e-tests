@@ -20,6 +20,7 @@
   "devDependencies": {
     "@eslint/js": "^9.18.0",
     "@playwright/test": "^1.49.1",
+    "@reportportal/agent-js-playwright": "^5.1.11",
     "@types/imapflow": "^1.0.22",
     "@types/node": "^22.15.21",
     "@typescript-eslint/eslint-plugin": "^8.32.1",

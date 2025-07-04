@@ -1,6 +1,36 @@
 import { defineConfig } from "@playwright/test";
 import { devices } from "@playwright/test";
 
+const rpConfig = {
+  // required fields
+  apiKey: process.env.RP_API_KEY,
+  endpoint: process.env.RP_ENDPOINT,
+  project: process.env.RP_PROJECT,
+  launch: process.env.RP_LAUNCH,
+  // optional fields
+  attributes: [
+    {
+      key: "agent",
+      value: "playwright",
+    },
+    {
+      value: "demo",
+    },
+  ],
+  description: "This is an example launch with playwright tests",
+  restClientConfig: {
+    timeout: 0,
+  },
+  includeTestSteps: true,
+  skippedIssue: false,
+};
+
+const rpReporter: [string, Record<string, unknown>][] = [];
+
+if (process.env.RP_API_KEY) {
+  rpReporter.push(["@reportportal/agent-js-playwright", rpConfig]);
+}
+
 export default defineConfig({
   testDir: "./src/tests",
   retries: 0,
@@ -21,6 +51,7 @@ export default defineConfig({
       },
     ],
     ["junit", { outputFile: "./playwright-report/test-results.xml" }],
+    ...rpReporter,
   ],
   use: {
     trace: "retain-on-failure",
