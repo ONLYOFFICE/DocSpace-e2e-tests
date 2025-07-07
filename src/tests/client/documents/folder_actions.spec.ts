@@ -2,6 +2,8 @@ import { test, expect, Page } from "@playwright/test";
 
 import API from "@/src/api";
 import Folder from "@/src/objects/files/Folder";
+import Rooms from "@/src/objects/rooms/Rooms";
+import { roomCreateTitles } from "@/src/utils/constants/rooms";
 import Login from "@/src/objects/common/Login";
 import Screenshot from "@/src/objects/common/Screenshot";
 import { DOC_ACTIONS } from "@/src/utils/constants/files";
@@ -11,10 +13,13 @@ test.describe("Folder Actiions", () => {
   let page: Page;
   let login: Login;
   let folder: Folder;
+  let myRooms: Rooms;
   let screenshot: Screenshot;
 
-  const folderName = `TestFolder`;
-  const renamedFolder = `${folderName}-renamed`;
+  const baseFolder= `BaseTestFolder`;
+  const folderToMove = `TestFolderToMove`;
+  const folderToCopy = `TestFolderToCopy`;
+  const renamedFolder = `${baseFolder}-renamed`;
 
   test.beforeAll(async ({ playwright, browser }) => {
     const apiContext = await playwright.request.newContext();
@@ -29,6 +34,7 @@ test.describe("Folder Actiions", () => {
     login = new Login(page, api.portalDomain);
     folder = new Folder(page, api.portalDomain);
     screenshot = new Screenshot(page, "folder_actions");
+    myRooms = new Rooms(page, api.portalDomain)
 
     await login.loginToPortal();
     await folder.open();
@@ -44,37 +50,82 @@ test.describe("Folder Actiions", () => {
       await folder.filesNavigation.selectCreateAction(DOC_ACTIONS.CREATE_FOLDER);
       await folder.filesNavigation.modal.checkModalExist();
       await folder.filesNavigation.modal.checkModalTitleExist("New folder");
-      await folder.filesNavigation.modal.fillCreateTextInput(folderName);
+      await folder.filesNavigation.modal.fillCreateTextInput(baseFolder);
       await folder.filesNavigation.modal.clickCreateButton();
-      await folder.filesTable.openContextMenuForItem(folderName);
+      await folder.filesTable.openContextMenuForItem(baseFolder);
       await folder.filesTable.contextMenu.clickOption("Select");
       await screenshot.expectHaveScreenshot("folder_selected");
   });
   
     await test.step("OpenFolder", async () => {
-      await folder.filesTable.openContextMenuForItem(folderName);
+      await folder.filesTable.openContextMenuForItem(baseFolder);
       await folder.filesTable.contextMenu.clickOption("Open")
       await screenshot.expectHaveScreenshot("empty_folder_opened")
       await folder.filesNavigation.gotoBack();
     });
 
     await test.step("Share", async () => {
-      await folder.filesTable.openContextMenuForItem(folderName);
+      const roomNameShared = `${baseFolder}-shared-room`
+      await folder.filesTable.openContextMenuForItem(baseFolder);
       await folder.filesTable.contextMenu.clickOption("Share")
       await screenshot.expectHaveScreenshot("share_folder_modal_opened")
       await folder.folderShareModal.clickCreateRoom();
       await screenshot.expectHaveScreenshot("share_folder_choose_room_type")
-      await folder.filesNavigation.closePanel();
+      await folder.createRoomFromFolder(roomCreateTitles.public, roomNameShared)
+
+      await myRooms.openWithoutEmptyCheck();
+      await myRooms.roomsTable.hideLastActivityColumn();
+      await myRooms.roomsTable.checkRowExist(roomNameShared);
     });
 
-      await test.step("RenameFolder", async () => {
-      await folder.filesTable.openContextMenuForItem(folderName);
+    await test.step("CreateRoom", async () => {
+    await folder.open();
+      await folder.filesTable.openContextMenuForItem(baseFolder);
+      await folder.filesTable.contextMenu.clickOption("Create room")
+      await screenshot.expectHaveScreenshot("choose_room_type")
+      await folder.createRoomFromFolder(roomCreateTitles.public)
+      await screenshot.expectHaveScreenshot("public_room_from_folder_created")
+
+      await myRooms.openWithoutEmptyCheck();
+      await myRooms.roomsTable.hideLastActivityColumn();
+      await myRooms.roomsTable.checkRowExist(`${baseFolder}`);
+    });
+
+    await test.step("Move", async () => {
+      await folder.open();
+      await folder.createNew(folderToMove);
+
+      await folder.filesTable.openContextMenuForItem(folderToMove);
+      await folder.filesTable.contextMenu.clickSubmenuOption("Move or copy", "Move to", );
+      await screenshot.expectHaveScreenshot("select_panel_opened");
+      await folder.filesSelectPanel.selectItemByText(baseFolder);
+      await folder.filesSelectPanel.confirmSelection();
+      await folder.expectFolderNotVisible(folderToMove);
+    });
+
+    await test.step("Copy", async () => {
+      await folder.createNew(folderToCopy);
+      
+      await folder.filesTable.openContextMenuForItem(folderToCopy);
+      await folder.filesTable.contextMenu.clickSubmenuOption("Move or copy", "Copy", );
+      await screenshot.expectHaveScreenshot("select_panel_opened");
+      await folder.filesSelectPanel.selectItemByText(baseFolder);
+      await folder.filesSelectPanel.confirmSelection();
+
+      await folder.filesTable.openContextMenuForItem(baseFolder);
+      await folder.filesTable.contextMenu.clickOption("Open")
+      await folder.expectFolderVisible(folderToCopy);
+    });
+
+    await test.step("RenameFolder", async () => {
+      await folder.open();
+      await folder.filesTable.openContextMenuForItem(baseFolder);
       await folder.filesTable.contextMenu.clickOption("Rename")
       await folder.filesNavigation.modal.checkModalExist();
       await screenshot.expectHaveScreenshot("folder_rename_modal")
       await folder.filesNavigation.modal.fillCreateTextInput(renamedFolder);
       await folder.filesNavigation.modal.clickCreateButton();
-      await folder.expectFolderRenamed(folderName, renamedFolder);
+      await folder.expectFolderRenamed(baseFolder, renamedFolder);
     });
 
     await test.step("Delete", async () => {
@@ -83,7 +134,6 @@ test.describe("Folder Actiions", () => {
       await screenshot.expectHaveScreenshot("delete_folder_modal")
       await folder.folderDeleteModal.clickDeleteFolder();
       await folder.expectFolderNotVisible(renamedFolder);
-      await screenshot.expectHaveScreenshot("folder_deleted");
     });
 
   });

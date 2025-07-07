@@ -74,6 +74,13 @@ class MyRooms {
     await this.roomsEmptyView.checkNoRoomsExist();
   }
 
+  async openWithoutEmptyCheck() {
+    await this.page.goto(`https://${this.portalDomain}/rooms/shared`, {
+      waitUntil: "load",
+    });
+    await expect(this.page).toHaveURL(/.*rooms\/shared.*/);
+  }
+
   async openTemplatesTab() {
     await this.page.getByText("Templates").click();
   }
