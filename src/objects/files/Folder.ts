@@ -1,23 +1,35 @@
 import { expect, Page } from "@playwright/test";
 import FilesNavigation from "./FilesNavigation";
 import FilesTable from "./FilesTable";
+import BaseContextMenu from "../common/BaseContextMenu";
 import FolderShareModal from "./FolderShareModal";
 import FolderDeleteModal from "./FolderDeleteModal";
+import FilesSelectPanel from "./FilesSelectPanel";
+import RoomsCreateDialog from "@/src/objects/rooms/RoomsCreateDialog";
+import { TRoomCreateTitles } from "@/src/utils/constants/rooms";
+import { DOC_ACTIONS } from "@/src/utils/constants/files";
 
-export default class Folder {
-  readonly filesNavigation: FilesNavigation;
-  readonly filesTable: FilesTable;
-  readonly folderShareModal: FolderShareModal;
-  readonly folderDeleteModal: FolderDeleteModal;
+class Folder {
+  private page: Page;
+  private portalDomain: string;
 
-  constructor(
-    public page: Page,
-    public portalDomain: string,
-  ) {
-    this.filesNavigation   = new FilesNavigation(page);
-    this.filesTable        = new FilesTable(page);
-    this.folderShareModal  = new FolderShareModal(page);
+  filesNavigation: FilesNavigation;
+  filesTable: FilesTable;
+  folderShareModal: FolderShareModal;
+  folderDeleteModal: FolderDeleteModal;
+  roomsCreateDialog: RoomsCreateDialog;
+  filesSelectPanel: FilesSelectPanel;
+
+  constructor(page: Page, portalDomain: string) {
+    this.page = page;
+    this.portalDomain = portalDomain;
+
+    this.filesNavigation = new FilesNavigation(page);
+    this.filesTable = new FilesTable(page);
+    this.folderShareModal = new FolderShareModal(page);
     this.folderDeleteModal = new FolderDeleteModal(page);
+    this.roomsCreateDialog = new RoomsCreateDialog(page);
+    this.filesSelectPanel = new FilesSelectPanel(page);
   }
 
   async open() {
@@ -32,12 +44,34 @@ export default class Folder {
   }
 
   async expectFolderNotVisible(name: string) {
-    const locator = this.page.getByText(name, { exact: true });
-    await locator.waitFor({ state: "detached", timeout: 10_000 });
+    const row = await this.filesTable.getRowByTitle(name);
+    await expect(row).toHaveCount(0, { timeout: 10_000 });
   }
 
   async expectFolderRenamed(oldName: string, newName: string) {
     await this.expectFolderNotVisible(oldName);
     await this.expectFolderVisible(newName);
   }
+
+  async createRoomFromFolder(
+    roomType: TRoomCreateTitles,
+    roomName?: string
+  ) {
+    await this.roomsCreateDialog.openRoomType(roomType);
+    if (roomName) {
+      await this.roomsCreateDialog.fillRoomName(roomName);
+    }
+    await this.roomsCreateDialog.clickRoomDialogSubmit();
+  }
+
+  async createNew(name: string) {
+    await this.filesNavigation.openCreateDropdown();
+    await this.filesNavigation.selectCreateAction(DOC_ACTIONS.CREATE_FOLDER);
+    await this.filesNavigation.modal.checkModalExist();
+    await this.filesNavigation.modal.fillCreateTextInput(name);
+    await this.filesNavigation.modal.clickCreateButton();
+    await this.expectFolderVisible(name);
+  }
 }
+
+export default Folder;
