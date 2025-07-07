@@ -1,6 +1,10 @@
 import { defineConfig } from "@playwright/test";
 import { devices } from "@playwright/test";
 
+import dotenv from "dotenv";
+
+dotenv.config();
+
 const rpConfig = {
   // required fields
   apiKey: process.env.RP_API_KEY,
