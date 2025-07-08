@@ -1,6 +1,6 @@
 import BasePage from "@/src/objects/common/BasePage";
 import navItems from "@/src/utils/constants/settings";
-import BaseToast from "../../common/BaseToats";
+import BaseToast from "../../common/BaseToast";
 import { expect, Page } from "@playwright/test";
 
 class Customization extends BasePage {
@@ -188,10 +188,6 @@ class Customization extends BasePage {
   async deleteCustomTheme() {
     await this.deleteThemeButton.click();
     await this.confirmDeleteButton.click();
-  }
-
-  async getCountCustomTheme() {
-    return this.customTheme.count();
   }
 
   async checkCustomThemeNotExist() {

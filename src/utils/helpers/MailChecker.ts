@@ -200,7 +200,7 @@ class MailChecker {
   async checkEmailBySenderAndSubject({
     subject,
     sender,
-    timeoutSeconds = 300,
+    timeoutSeconds = 600,
     moveOut = false,
   }: CheckEmailBySenderAndSubjectOptions): Promise<EmailResult | null> {
     try {

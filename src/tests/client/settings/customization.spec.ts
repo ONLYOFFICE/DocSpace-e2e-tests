@@ -49,7 +49,11 @@ test.describe("Customization", () => {
   });
 
   test("Customization full flow", async () => {
+<<<<<<< HEAD
     // test.setTimeout(10 * 60 * 1000); // 10 minutes
+=======
+    test.setTimeout(10 * 60 * 1000); // 10 minutes
+>>>>>>> 3742b5e14c8ace4afe655f086a7aa0cac815d15d
     await test.step("Change lang&time", async () => {
       await customization.changeLanguage("English (United States)");
       await customization.changeTimezone("(UTC) Antarctica/Troll");
@@ -63,7 +67,7 @@ test.describe("Customization", () => {
       await customization.removeToast();
     });
 
-    await test.step("Welcom page settings", async () => {
+    await test.step("Welcome page settings", async () => {
       await customization.setTitle();
       await customization.removeToast();
       await customization.restoreButton.nth(1).click();
@@ -115,7 +119,6 @@ test.describe("Customization", () => {
       await customization.saveButtonAppearance.first().click();
       await customization.removeToast();
       await screenshot.expectHaveScreenshot("custom_appearance_theme_2");
-      const count = await customization.getCountCustomTheme();
       await customization.deleteCustomTheme();
       await customization.removeToast();
       await customization.checkCustomThemeNotExist();
@@ -175,35 +178,43 @@ test.describe("Customization", () => {
       );
       await page.waitForLoadState("domcontentloaded");
 
+<<<<<<< HEAD
       console.log("Portal renamed successfully, wait for email");
+=======
+      // Wait for email to arrive
+      await new Promise((resolve) => setTimeout(resolve, 15000));
+>>>>>>> 3742b5e14c8ace4afe655f086a7aa0cac815d15d
 
-      // // Wait for email to arrive
-      // await new Promise((resolve) => setTimeout(resolve, 15000));
+      // Create a MailChecker instance
+      const mailChecker = new MailChecker({
+        url: config.QA_MAIL_DOMAIN ?? "",
+        user: config.QA_MAIL_LOGIN ?? "",
+        pass: config.QA_MAIL_PASSWORD ?? "",
+      });
 
-      // // Create a MailChecker instance
-      // const mailChecker = new MailChecker({
-      //   url: config.QA_MAIL_DOMAIN ?? "",
-      //   user: config.QA_MAIL_LOGIN ?? "",
-      //   pass: config.QA_MAIL_PASSWORD ?? "",
-      // });
+      // Check for email with subject "Change of portal address"
+      const email = await mailChecker.checkEmailBySubject({
+        subject: "Change of portal address",
+        moveOut: false,
+      });
 
+<<<<<<< HEAD
       // // Check for email with subject "Change of portal address"
       // const email = await mailChecker.checkEmailBySubject({
       //   subject: "Change of portal address",
       //   moveOut: false,
       // });
+=======
+      // Log the found email
+      if (email) {
+        console.log(
+          `Found portal address change email with subject: "${email.subject}"`,
+        );
+      }
+>>>>>>> 3742b5e14c8ace4afe655f086a7aa0cac815d15d
 
-      // console.log("Email:", email);
-
-      // // Log the found email
-      // if (email) {
-      //   console.log(
-      //     `Found portal address change email with subject: "${email.subject}"`,
-      //   );
-      // }
-
-      // // Final verification
-      // expect(email).toBeTruthy();
+      // Final verification
+      expect(email).toBeTruthy();
 
       await customization.renamePortalBack(originalName);
       api.apisystem.setPortalDomain(`${originalName}.onlyoffice.io`);
@@ -248,12 +259,21 @@ test.describe("Customization", () => {
       //   pass: config.QA_MAIL_PASSWORD ?? "",
       // });
 
+<<<<<<< HEAD
       // // Check for email with subject "Confirm changing your password" and sender "autoTest"
       // const email = await mailChecker.checkEmailBySenderAndSubject({
       //   subject: "Confirm changing your password",
       //   sender: "autoTest",
       //   moveOut: false,
       // });
+=======
+      // Check for email with subject "Confirm changing your password" and sender "autoTest"
+      const email = await mailChecker.checkEmailBySenderAndSubject({
+        subject: "Confirm changing your password",
+        sender: "autoTest",
+        moveOut: false,
+      });
+>>>>>>> 3742b5e14c8ace4afe655f086a7aa0cac815d15d
 
       // // Final verification
       // expect(email).toBeTruthy();
