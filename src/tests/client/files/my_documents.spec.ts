@@ -168,5 +168,6 @@ test.describe("Files: My documents", () => {
 
   test.afterAll(async () => {
     await api.cleanup();
+    await page.close();
   });
 });
