@@ -1,10 +1,10 @@
 import { expect, Page } from "@playwright/test";
 import FilesNavigation from "./FilesNavigation";
 import FilesTable from "./FilesTable";
-import BaseContextMenu from "../common/BaseContextMenu";
 import FolderShareModal from "./FolderShareModal";
 import FolderDeleteModal from "./FolderDeleteModal";
 import FilesSelectPanel from "./FilesSelectPanel";
+import InfoPanel from "../common/InfoPanel";
 import RoomsCreateDialog from "@/src/objects/rooms/RoomsCreateDialog";
 import { TRoomCreateTitles } from "@/src/utils/constants/rooms";
 import { DOC_ACTIONS } from "@/src/utils/constants/files";
@@ -19,6 +19,7 @@ class Folder {
   folderDeleteModal: FolderDeleteModal;
   roomsCreateDialog: RoomsCreateDialog;
   filesSelectPanel: FilesSelectPanel;
+  infoPanel: InfoPanel;
 
   constructor(page: Page, portalDomain: string) {
     this.page = page;
@@ -30,6 +31,7 @@ class Folder {
     this.folderDeleteModal = new FolderDeleteModal(page);
     this.roomsCreateDialog = new RoomsCreateDialog(page);
     this.filesSelectPanel = new FilesSelectPanel(page);
+    this.infoPanel = new InfoPanel(page);
   }
 
   async open() {
@@ -53,10 +55,7 @@ class Folder {
     await this.expectFolderVisible(newName);
   }
 
-  async createRoomFromFolder(
-    roomType: TRoomCreateTitles,
-    roomName?: string
-  ) {
+  async createRoomFromFolder(roomType: TRoomCreateTitles, roomName?: string) {
     await this.roomsCreateDialog.openRoomType(roomType);
     if (roomName) {
       await this.roomsCreateDialog.fillRoomName(roomName);

@@ -37,12 +37,12 @@ class FilesTable extends BaseTable {
   async openContextMenu() {
     await this.openContextMenuRow(this.docxFile);
   }
-  
+
   async openContextMenuForItem(name: string) {
     const item = this.page.locator(TABLE_LIST_ITEM, { hasText: name });
     await expect(item).toBeVisible();
     await this.openContextMenuRow(item);
-}
+  }
 
   async checkInitialDocsExist() {
     await expect(this.tableContainer).toBeVisible();

@@ -1,7 +1,8 @@
 import { expect, Page } from "@playwright/test";
 import ContextMenu from "./BaseContextMenu";
 
-const CLOSE_BUTTON = "[data-testid='aside-header'] [data-testid='icon-button-svg']";
+const CLOSE_BUTTON =
+  "[data-testid='aside-header'] [data-testid='icon-button-svg']";
 const HEADER_ADD_BUTTON = "#header_add-button";
 const BACK_ARROW_ICON =
   ".navigation-arrow-container [data-testid='icon-button']";
