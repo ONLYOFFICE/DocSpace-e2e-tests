@@ -71,15 +71,25 @@ export default defineConfig({
         screenshot: "only-on-failure",
       },
     },
-    /*     {
+    {
       name: "firefox",
-      use: { ...devices["Desktop Firefox"] },
+      use: {
+        ...devices["Desktop Firefox"],
+        viewport: { width: 1440, height: 1024 },
+        screenshot: "only-on-failure",
+        headless: true,
+      },
     },
 
-    {
-      name: "webkit",
-      use: { ...devices["Desktop Safari"] },
-    },  */
+    // {
+    //   name: "webkit",
+    //   use: {
+    //     ...devices["Desktop Safari"],
+    //     headless: true,
+    //     screenshot: "only-on-failure",
+    //     viewport: { width: 1440, height: 1024 },
+    //   },
+    // },
   ],
   expect: {
     timeout: 10000, // default timeout for expect assertions (toBeVisible, toHaveText, etc.)

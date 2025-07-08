@@ -418,5 +418,6 @@ test.describe(() => {
 
   test.afterAll(async () => {
     await api.cleanup();
+    await page.close();
   });
 });

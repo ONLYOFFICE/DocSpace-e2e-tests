@@ -1,3 +1,4 @@
+import { mapInitialDocNames } from "@/src/utils/constants/files";
 import { test, Page } from "@playwright/test";
 
 import API from "@/src/api";
@@ -42,6 +43,9 @@ test.describe("Trash", () => {
 
   test("Render", async () => {
     await test.step("Render", async () => {
+      await trash.trashTable.checkRowExist(
+        mapInitialDocNames.ONLYOFFICE_SAMPLE_DOCUMENT,
+      );
       await screenshot.expectHaveScreenshot("render");
     });
 
@@ -135,5 +139,6 @@ test.describe("Trash", () => {
 
   test.afterAll(async () => {
     await api.cleanup();
+    await page.close();
   });
 });

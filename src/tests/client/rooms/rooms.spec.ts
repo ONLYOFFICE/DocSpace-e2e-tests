@@ -313,5 +313,6 @@ test.describe("Rooms", () => {
 
   test.afterAll(async () => {
     await api.cleanup();
+    await page.close();
   });
 });
