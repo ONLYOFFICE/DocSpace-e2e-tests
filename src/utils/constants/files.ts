@@ -3,7 +3,7 @@ import { transformDocActions } from "..";
 export const initialDocNames = [
   "ONLYOFFICE Presentation Sample",
   "ONLYOFFICE Spreadsheet Sample",
-  "ONLYOFFICE Sample Document",
+  "ONLYOFFICE Resume Sample",
   "ONLYOFFICE Document Sample",
 ] as const;
 
