@@ -69,10 +69,10 @@ class BaseSelector {
   async select(type: "documents" | "rooms") {
     switch (type) {
       case "documents":
-        await this.selector.getByTestId("selector-item-0").click();
+        await this.selectItemByIndex(0);
         break;
       case "rooms":
-        await this.selector.getByTestId("selector-item-1").click();
+        await this.selectItemByIndex(1);
         break;
     }
   }
@@ -93,6 +93,7 @@ class BaseSelector {
 
   async selectItemByText(text: string, doubleClick = false) {
     const item = await this.getItemByName(text);
+
     if (doubleClick) {
       await item.dblclick();
     } else {
@@ -100,8 +101,18 @@ class BaseSelector {
     }
   }
 
-  async selectFirstItem() {
-    await this.selector.getByTestId("selector-item-1").click();
+  async selectItemByIndex(index: number, doubleClick = false) {
+    if (index < 0) {
+      throw new Error("Index must be a non-negative number");
+    }
+
+    const item = this.selector.getByTestId(`selector-item-${index}`);
+
+    if (doubleClick) {
+      await item.dblclick();
+    } else {
+      await item.click();
+    }
   }
 
   async createNewItem() {
