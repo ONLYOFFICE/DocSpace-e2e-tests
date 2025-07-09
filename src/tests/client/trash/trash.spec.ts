@@ -7,7 +7,6 @@ import Screenshot from "@/src/objects/common/Screenshot";
 import MyDocuments from "@/src/objects/files/MyDocuments";
 import Trash from "@/src/objects/trash/Trash";
 import { roomCreateTitles } from "@/src/utils/constants/rooms";
-import { mapInitialDocNames } from "@/src/utils/constants/files";
 
 test.describe("Trash", () => {
   let api: API;

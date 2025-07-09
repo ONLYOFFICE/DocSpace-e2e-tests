@@ -60,7 +60,7 @@ test.describe("Customization", () => {
       await customization.removeToast();
     });
 
-    await test.step("Welcom page settings", async () => {
+    await test.step("Welcome page settings", async () => {
       await customization.setTitle();
       await customization.removeToast();
       await customization.restoreButton.nth(1).click();
