@@ -5,7 +5,7 @@ import MyDocuments from "@/src/objects/files/MyDocuments";
 import Login from "@/src/objects/common/Login";
 import Screenshot from "@/src/objects/common/Screenshot";
 
-test.describe("Files: My documents", () => {
+test.describe("My documents: Base", () => {
   let api: API;
   let page: Page;
   let login: Login;

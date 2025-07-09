@@ -23,6 +23,7 @@ const SHARED_LINKS_WRAPPER = "[data-testid='shared-links']";
 const SHARED_LINKS_AVATAR =
   "[data-testid='avatar'] [data-has-username='false']";
 const CREATE_SHARED_LINKS_ICON = "[data-tooltip-id='file-links-tooltip']";
+const ROOM_ICON = ".item-icon [data-testid='room-icon']";
 
 class InfoPanel {
   page: Page;
@@ -92,6 +93,11 @@ class InfoPanel {
     await this.page.locator(CREATION_TIME_HISTORY).evaluateAll((elements) => {
       elements.forEach((el) => (el.style.display = "none")); // hide creation time
     });
+  }
+  async hideRoomIcon() {
+    const icon = this.page.locator(ROOM_ICON).last();
+    await icon.waitFor({ state: "visible", timeout: 5_000 });
+    await icon.evaluate((el) => (el.style.display = "none"));
   }
 
   async checkNoItemTextExist() {
