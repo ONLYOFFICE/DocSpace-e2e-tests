@@ -48,20 +48,7 @@ export abstract class BaseMenu {
   }
 
   protected async scrollUntilVisible(item: Locator, container: Locator) {
-    if (await item.isVisible()) {
-      return;
-    }
-
-    // Scroll to the top of the container
-    await container.evaluate((el) => {
-      const scroller = el.querySelector("[data-testid='scroller']");
-      if (scroller) {
-        scroller.scrollTop = 0;
-      }
-    });
-
-    const maxScrolls = 100;
-
+    const maxScrolls = 10;
     for (let i = 0; i < maxScrolls; i++) {
       if (await item.isVisible()) {
         return;
@@ -97,16 +84,11 @@ export abstract class BaseMenu {
   }
 
   async close() {
-    await expect(async () => {
-      await this.page.mouse.click(1, 1);
-      await expect(this.menu).not.toBeVisible({
-        timeout: 500,
-      });
-    }).toPass();
+    await this.page.mouse.click(1, 1);
+    await this.page.waitForTimeout(100);
+    await expect(this.menu).not.toBeVisible();
   }
-  async checkMenuExists(timeout?: number) {
-    await expect(this.menu).toBeVisible({
-      timeout,
-    });
+  async checkMenuExists() {
+    await expect(this.menu).toBeVisible();
   }
 }
