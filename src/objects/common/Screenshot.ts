@@ -2,6 +2,7 @@ import { expect, Page } from "@playwright/test";
 
 type ScreenshotOptions = {
   screenshotDir: string;
+  suiteName?: string;
   maxAttempts?: number;
   fullPage?: boolean;
 };
@@ -12,6 +13,7 @@ class Screenshot {
     screenshotDir: "",
   };
   private counter: number = 0;
+  private suiteName?: string;
 
   constructor(page: Page, options: ScreenshotOptions) {
     this.page = page;
@@ -21,6 +23,7 @@ class Screenshot {
       maxAttempts: options.maxAttempts ?? 3,
       fullPage: options.fullPage ?? false,
     };
+    this.suiteName = options.suiteName;
   }
 
   private async getPageSize() {
@@ -47,6 +50,9 @@ class Screenshot {
 
   private getScreenshotName(comment: string) {
     this.counter += 1;
+    if (this.suiteName) {
+      return `${this.suiteName}_${this.counter}_${comment}`;
+    }
     return `${this.counter}_${comment}`;
   }
 
