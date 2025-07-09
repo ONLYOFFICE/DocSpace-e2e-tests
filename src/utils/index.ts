@@ -13,6 +13,12 @@ export const transformDocActions = (docActions: TListDocActions) => {
 };
 
 export async function waitUntilReady(page: Page) {
+  try {
+    await page.waitForLoadState("networkidle", { timeout: 15000 });
+  } catch (error) {
+    console.log("networkidle timeout:", error);
+  }
+
   await page.evaluate(async () => {
     await document.fonts.ready;
 
