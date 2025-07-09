@@ -34,7 +34,7 @@ test.describe("Folder Actiions", () => {
     login = new Login(page, api.portalDomain);
     folder = new Folder(page, api.portalDomain);
     screenshot = new Screenshot(page, {
-      screenshotDir: "folder",
+      screenshotDir: "files",
       suiteName: "folder_actions",
     });
     myRooms = new Rooms(page, api.portalDomain);
