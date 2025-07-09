@@ -47,6 +47,7 @@ test.describe("Customization", () => {
   });
 
   test("Customization full flow", async () => {
+    // test.setTimeout(10 * 60 * 1000); // 10 minutes
     await test.step("Change lang&time", async () => {
       await customization.changeLanguage("English (United States)");
       await customization.changeTimezone("(UTC) Antarctica/Troll");
@@ -171,11 +172,7 @@ test.describe("Customization", () => {
       );
       await page.waitForLoadState("domcontentloaded");
 
-      // ISSUE UNSTABLE EMAIL
-      // console.log("Portal renamed successfully, wait for email");
-
-      // // Wait for email to arrive
-      // await new Promise((resolve) => setTimeout(resolve, 15000));
+      console.log("Portal renamed successfully, wait for email");
 
       // // Create a MailChecker instance
       // const mailChecker = new MailChecker({
@@ -187,13 +184,15 @@ test.describe("Customization", () => {
       // // Check for email with subject "Change of portal address"
       // const email = await mailChecker.checkEmailBySubject({
       //   subject: "Change of portal address",
-      //   timeoutSeconds: 30,
       //   moveOut: false,
       // });
 
-      // console.log("Email:", email);
-
-      // // Log the found email
+      // // Check for email with subject "Change of portal address"
+      // const email = await mailChecker.checkEmailBySubject({
+      //   subject: "Change of portal address",
+      //   moveOut: false,
+      // });
+      // Log the found email
       // if (email) {
       //   console.log(
       //     `Found portal address change email with subject: "${email.subject}"`,
@@ -250,7 +249,12 @@ test.describe("Customization", () => {
       // const email = await mailChecker.checkEmailBySenderAndSubject({
       //   subject: "Confirm changing your password",
       //   sender: "autoTest",
-      //   timeoutSeconds: 30,
+      //   moveOut: false,
+      // });
+      // Check for email with subject "Confirm changing your password" and sender "autoTest"
+      // const email = await mailChecker.checkEmailBySenderAndSubject({
+      //   subject: "Confirm changing your password",
+      //   sender: "autoTest",
       //   moveOut: false,
       // });
 
@@ -261,5 +265,6 @@ test.describe("Customization", () => {
 
   test.afterAll(async () => {
     await api.cleanup();
+    await page.close();
   });
 });

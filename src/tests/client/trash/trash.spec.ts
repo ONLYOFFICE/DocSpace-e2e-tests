@@ -1,3 +1,4 @@
+import { mapInitialDocNames } from "@/src/utils/constants/files";
 import { test, Page } from "@playwright/test";
 
 import API from "@/src/api";
