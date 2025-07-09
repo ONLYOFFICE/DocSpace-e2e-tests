@@ -15,12 +15,13 @@ import {
   TUserEmail,
   userEmails,
 } from "@/src/utils/constants/contacts";
-import BaseContextMenu, { MenuItemSelector } from "../common/BaseContextMenu";
+import { BaseContextMenu } from "../common/BaseContextMenu";
 import ContactsInfoPanel from "./ContactsInfoPanel";
 import ContactsInviteDialog from "./ContactsInviteDialog";
 import ContactsTable from "./ContactsTable";
 import ContactsReassignmentDialog from "./ContactsReassignmentDialog";
 import ContactsGroupDialog from "./ContactsGroupDialog";
+import { TMenuItem } from "../common/BaseMenu";
 
 class Contacts {
   private page: Page;
@@ -155,10 +156,10 @@ class Contacts {
     }
   }
 
-  async openChangeContactTypeDialog(user: string, menuItem: MenuItemSelector) {
+  async openChangeContactTypeDialog(user: string, menuItem: TMenuItem) {
     await this.table.selectRow(user);
     await this.navigation.openChangeTypeDropdown();
-    await this.navigation.dropdownMenu.clickOption(menuItem);
+    await this.navigation.dropdown.clickOption(menuItem);
     await this.dialog.checkDialogTitleExist("Change contact type");
   }
 
