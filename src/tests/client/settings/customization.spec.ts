@@ -46,7 +46,7 @@ test.describe("Customization", () => {
       await customization.removeToast(toastMessages.settingsUpdated);
     });
 
-    await test.step("Welcom page settings", async () => {
+    await test.step("Welcome page settings", async () => {
       await customization.setTitle();
       await customization.removeToast(toastMessages.welcomePageSaved);
       await customization.restoreButton.nth(1).click();
