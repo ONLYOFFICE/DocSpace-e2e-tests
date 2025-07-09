@@ -34,7 +34,7 @@ test.describe("Folder Actiions", () => {
     login = new Login(page, api.portalDomain);
     folder = new Folder(page, api.portalDomain);
     screenshot = new Screenshot(page, {
-      screenshotDir: "files",
+      screenshotDir: "folder",
       suiteName: "folder_actions",
     });
     myRooms = new Rooms(page, api.portalDomain);
@@ -143,5 +143,6 @@ test.describe("Folder Actiions", () => {
   });
   test.afterAll(async () => {
     await api.cleanup();
+    await page.close();
   });
 });
