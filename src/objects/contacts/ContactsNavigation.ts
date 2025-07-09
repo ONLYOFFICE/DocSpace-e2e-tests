@@ -1,6 +1,5 @@
 import { Page } from "@playwright/test";
 import BaseNavigation from "../common/BaseNavigation";
-import { BaseDropdown } from "../common/BaseDropdown";
 
 export const navActions = {
   invite: {
@@ -32,16 +31,12 @@ export const navActions = {
 } as const;
 
 class ContactsNavigation extends BaseNavigation {
-  dropdown: BaseDropdown;
   constructor(page: Page) {
     super(page, navActions);
-    this.dropdown = new BaseDropdown(page, {
-      menu: page.getByText("DocSpace adminPaidRoom"),
-    });
   }
 
   private async ensureHeaderMenuOpen() {
-    const isVisible = await this.dropdown.menu.isVisible();
+    const isVisible = await this.contextMenu.menu.isVisible();
     if (!isVisible) {
       await this.openHeaderMenu();
     }
