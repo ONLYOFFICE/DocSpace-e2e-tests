@@ -1,6 +1,6 @@
 import { Page } from "@playwright/test";
 import BasePage from "@/src/objects/common/BasePage";
-import { navItems, toastMessages } from "@/src/utils/constants/settings";
+import { navItems } from "@/src/utils/constants/settings";
 import BaseTable, { TBaseTableLocators } from "../../common/BaseTable";
 
 class Security extends BasePage {
