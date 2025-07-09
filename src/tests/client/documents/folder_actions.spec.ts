@@ -8,7 +8,7 @@ import Login from "@/src/objects/common/Login";
 import Screenshot from "@/src/objects/common/Screenshot";
 import { DOC_ACTIONS } from "@/src/utils/constants/files";
 
-test.describe("Folder Actiions", () => {
+test.describe("Folder", () => {
   let api: API;
   let page: Page;
   let login: Login;
@@ -59,6 +59,13 @@ test.describe("Folder Actiions", () => {
       await screenshot.expectHaveScreenshot("folder_selected");
     });
 
+    await test.step("OpenFolder", async () => {
+      await folder.filesTable.openContextMenuForItem(baseFolder);
+      await folder.filesTable.contextMenu.clickOption("Open");
+      await screenshot.expectHaveScreenshot("empty_folder_opened");
+      await folder.filesNavigation.gotoBack();
+    });
+
     await test.step("Share", async () => {
       const roomNameShared = `${baseFolder}-shared-room`;
       await folder.filesTable.openContextMenuForItem(baseFolder);
@@ -70,6 +77,8 @@ test.describe("Folder Actiions", () => {
         roomCreateTitles.public,
         roomNameShared,
       );
+      await folder.infoPanel.hideRoomIcon();
+      await screenshot.expectHaveScreenshot("room_from_shared_folder_created");
 
       await myRooms.openWithoutEmptyCheck();
       await myRooms.roomsTable.hideLastActivityColumn();
@@ -99,7 +108,8 @@ test.describe("Folder Actiions", () => {
         "Move or copy",
         "Move to",
       );
-      await screenshot.expectHaveScreenshot("select_panel_opened");
+      await folder.filesSelectPanel.checkFileSelectPanelExist();
+      await screenshot.expectHaveScreenshot("copy_select_panel_opened");
       await folder.filesSelectPanel.selectItemByText(baseFolder);
       await folder.filesSelectPanel.confirmSelection();
       await folder.expectFolderNotVisible(folderToMove);
@@ -113,7 +123,8 @@ test.describe("Folder Actiions", () => {
         "Move or copy",
         "Copy",
       );
-      await screenshot.expectHaveScreenshot("select_panel_opened");
+      await folder.filesSelectPanel.checkFileSelectPanelExist();
+      await screenshot.expectHaveScreenshot("move_select_panel_opened");
       await folder.filesSelectPanel.selectItemByText(baseFolder);
       await folder.filesSelectPanel.confirmSelection();
 

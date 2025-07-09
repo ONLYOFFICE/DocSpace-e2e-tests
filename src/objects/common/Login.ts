@@ -21,7 +21,7 @@ export class Login {
 
   async loginToPortal() {
     await this.page.goto(`https://${this.portalDomain}`, {
-      waitUntil: "networkidle",
+      waitUntil: "load",
     });
     await this.emailInput.waitFor({ state: "visible" });
     await this.passwordInput.waitFor({ state: "visible" });

@@ -1,4 +1,4 @@
-import { Page } from "@playwright/test";
+import { expect, Page } from "@playwright/test";
 import BaseSelector from "../common/BaseSelector";
 
 class FilesSelectPanel extends BaseSelector {
@@ -12,6 +12,10 @@ class FilesSelectPanel extends BaseSelector {
 
   async confirmSelection() {
     await this.confirmButton.click();
+  }
+
+  async checkFileSelectPanelExist() {
+    await expect(this.selector.getByTestId("selector-item-1")).toBeVisible();
   }
 }
 
