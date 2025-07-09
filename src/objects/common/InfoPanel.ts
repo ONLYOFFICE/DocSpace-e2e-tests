@@ -1,7 +1,8 @@
 import { expect, Page } from "@playwright/test";
-import ContextMenu from "./BaseContextMenu";
+import { BaseContextMenu } from "./BaseContextMenu";
 import { TInfoPanelTabs } from "../../utils/types/common";
 import { TRoomCreateTitles } from "@/src/utils/constants/rooms";
+import { BaseDropdown } from "./BaseDropdown";
 
 const NO_ITEM_TEXT = ".no-item-text";
 const INFO_OPTIONS_ICON = "#info-options";
@@ -26,13 +27,13 @@ const ROOM_ICON = ".item-icon [data-testid='room-icon']";
 
 class InfoPanel {
   page: Page;
-  protected contextMenu: ContextMenu;
-  protected dropdown: ContextMenu;
+  protected contextMenu: BaseContextMenu;
+  protected dropdown: BaseDropdown;
 
   constructor(page: Page) {
     this.page = page;
-    this.contextMenu = new ContextMenu(page);
-    this.dropdown = new ContextMenu(page, true);
+    this.contextMenu = new BaseContextMenu(page);
+    this.dropdown = new BaseDropdown(page);
   }
 
   private get noItemText() {

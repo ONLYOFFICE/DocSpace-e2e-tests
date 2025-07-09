@@ -1,5 +1,5 @@
 import { expect, Page } from "@playwright/test";
-import ContextMenu from "./BaseContextMenu";
+import { BaseContextMenu } from "./BaseContextMenu";
 
 const CLOSE_BUTTON =
   "[data-testid='aside-header'] [data-testid='icon-button-svg']";
@@ -14,14 +14,14 @@ type TAction = {
 type TActions = Record<string, TAction>;
 
 class BaseNavigation {
-  contextMenu: ContextMenu;
+  contextMenu: BaseContextMenu;
   protected page: Page;
   protected actions: TActions;
 
   constructor(page: Page, actions: TActions) {
     this.page = page;
     this.actions = actions;
-    this.contextMenu = new ContextMenu(page);
+    this.contextMenu = new BaseContextMenu(page);
   }
 
   private get headerAddButton() {
@@ -43,7 +43,7 @@ class BaseNavigation {
   async openCreateDropdown() {
     await expect(this.headerAddButton).toBeVisible();
     await this.headerAddButton.click();
-    await this.contextMenu.checkContextMenuExists();
+    await this.contextMenu.checkMenuExists();
   }
 
   async clickAddButton() {
@@ -71,7 +71,7 @@ class BaseNavigation {
 
   async openContextMenu() {
     await this.page.locator("#header_optional-button").click();
-    await this.contextMenu.checkContextMenuExists();
+    await this.contextMenu.checkMenuExists();
   }
 
   async performAction(action: TAction) {
