@@ -13,7 +13,7 @@ export class BackupLocators {
   get backupGuideLink() {
     return this.page.getByTestId("link");
   }
-  get autoBackupTab() {
+  get autoBackupTub() {
     return this.page.getByText("Automatic backup");
   }
   get autoBackupSwitch() {
@@ -75,7 +75,7 @@ export class BackupLocators {
   get saveButton() {
     return this.page.locator('#save[data-testid="button"]');
   }
-  get saveAutoBackupButton() {
+  get saveButton2() {
     return this.autoBackupButtons.getByRole("button", { name: "Save" });
   }
   get cancelButton() {
@@ -145,7 +145,7 @@ export class BackupLocators {
     return this.page.getByTestId("drop-down-item").getByText("Nextcloud");
   }
   get connectButton() {
-    return this.page.getByTestId("connect-button");
+    return this.page.getByTestId("button").filter({ hasText: "Connect" });
   }
   get connectionUrlInput() {
     return this.page.locator("#connection-url-input");
@@ -174,7 +174,9 @@ export class BackupLocators {
   get disconnectButton() {
     return this.page.getByText("Disconnect");
   }
-
+  get okButton() {
+    return this.page.getByRole("button", { name: "OK" }).nth(1);
+  }
   get selectDropbox() {
     return this.page
       .getByTestId("drop-down-item")
