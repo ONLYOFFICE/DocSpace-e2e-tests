@@ -60,7 +60,7 @@ class BaseNavigation {
     await this.backArrowIcon.click();
   }
 
-  async closeCreateDropdown() {
+  async closeContextMenu() {
     await this.contextMenu.close();
   }
 

@@ -47,7 +47,6 @@ test.describe("Customization", () => {
   });
 
   test("Customization full flow", async () => {
-    // test.setTimeout(10 * 60 * 1000); // 10 minutes
     await test.step("Change lang&time", async () => {
       await customization.changeLanguage("English (United States)");
       await customization.changeTimezone("(UTC) Antarctica/Troll");
@@ -61,7 +60,7 @@ test.describe("Customization", () => {
       await customization.removeToast();
     });
 
-    await test.step("Welcome page settings", async () => {
+    await test.step("Welcom page settings", async () => {
       await customization.setTitle();
       await customization.removeToast();
       await customization.restoreButton.nth(1).click();
@@ -172,7 +171,11 @@ test.describe("Customization", () => {
       );
       await page.waitForLoadState("domcontentloaded");
 
-      console.log("Portal renamed successfully, wait for email");
+      // ISSUE UNSTABLE EMAIL
+      // console.log("Portal renamed successfully, wait for email");
+
+      // // Wait for email to arrive
+      // await new Promise((resolve) => setTimeout(resolve, 15000));
 
       // // Create a MailChecker instance
       // const mailChecker = new MailChecker({
@@ -184,21 +187,21 @@ test.describe("Customization", () => {
       // // Check for email with subject "Change of portal address"
       // const email = await mailChecker.checkEmailBySubject({
       //   subject: "Change of portal address",
+      //   timeoutSeconds: 30,
       //   moveOut: false,
       // });
 
-      // // Check for email with subject "Change of portal address"
-      // const email = await mailChecker.checkEmailBySubject({
-      //   subject: "Change of portal address",
-      //   moveOut: false,
-      // });
-      // Log the found email
+      // console.log("Email:", email);
+
+      // // Log the found email
       // if (email) {
       //   console.log(
       //     `Found portal address change email with subject: "${email.subject}"`,
       //   );
       // }
 
+      // // Final verification
+      // expect(email).toBeTruthy();
       // // Final verification
       // expect(email).toBeTruthy();
 
@@ -237,7 +240,15 @@ test.describe("Customization", () => {
 
       // // Wait for email to arrive
       // await new Promise((resolve) => setTimeout(resolve, 15000));
+      // // Wait for email to arrive
+      // await new Promise((resolve) => setTimeout(resolve, 15000));
 
+      // // Create a MailChecker instance
+      // const mailChecker = new MailChecker({
+      //   url: config.QA_MAIL_DOMAIN ?? "",
+      //   user: config.QA_MAIL_LOGIN ?? "",
+      //   pass: config.QA_MAIL_PASSWORD ?? "",
+      // });
       // // Create a MailChecker instance
       // const mailChecker = new MailChecker({
       //   url: config.QA_MAIL_DOMAIN ?? "",
@@ -249,15 +260,12 @@ test.describe("Customization", () => {
       // const email = await mailChecker.checkEmailBySenderAndSubject({
       //   subject: "Confirm changing your password",
       //   sender: "autoTest",
-      //   moveOut: false,
-      // });
-      // Check for email with subject "Confirm changing your password" and sender "autoTest"
-      // const email = await mailChecker.checkEmailBySenderAndSubject({
-      //   subject: "Confirm changing your password",
-      //   sender: "autoTest",
+      //   timeoutSeconds: 30,
       //   moveOut: false,
       // });
 
+      // // Final verification
+      // expect(email).toBeTruthy();
       // // Final verification
       // expect(email).toBeTruthy();
     });
@@ -265,6 +273,5 @@ test.describe("Customization", () => {
 
   test.afterAll(async () => {
     await api.cleanup();
-    await page.close();
   });
 });
