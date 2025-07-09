@@ -38,7 +38,7 @@ if (process.env.RP_API_KEY) {
 export default defineConfig({
   testDir: "./src/tests",
   retries: 0,
-  workers: 1,
+  workers: 3,
 
   // Ignore tests in the site directory
   testIgnore: ["**/site/**/*.spec.ts"],
@@ -92,7 +92,7 @@ export default defineConfig({
     // },
   ],
   expect: {
-    timeout: 10000, // default timeout for expect assertions (toBeVisible, toHaveText, etc.)
+    timeout: 20000, // default timeout for expect assertions (toBeVisible, toHaveText, etc.)
   },
   timeout: 180000, // default timeout for test execution
 });

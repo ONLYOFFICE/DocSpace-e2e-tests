@@ -23,6 +23,9 @@ export default [
   {
     files: ["**/*.ts"],
     languageOptions: {
+      globals: {
+        document: "readonly",
+      },
       parser: tseslint.parser,
       parserOptions: {
         project: "./tsconfig.json",
