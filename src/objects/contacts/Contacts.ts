@@ -22,6 +22,7 @@ import ContactsTable from "./ContactsTable";
 import ContactsReassignmentDialog from "./ContactsReassignmentDialog";
 import ContactsGroupDialog from "./ContactsGroupDialog";
 import { TMenuItem } from "../common/BaseMenu";
+import { BaseDropdown } from "../common/BaseDropdown";
 
 class Contacts {
   private page: Page;
@@ -42,6 +43,7 @@ class Contacts {
   table: ContactsTable;
   reassignmentDialog: ContactsReassignmentDialog;
   groupDialog: ContactsGroupDialog;
+  changeContactTypeDropdown: BaseDropdown;
 
   constructor(page: Page, portalDomain: string) {
     this.page = page;
@@ -57,6 +59,9 @@ class Contacts {
     this.inviteDialog = new ContactsInviteDialog(page);
     this.reassignmentDialog = new ContactsReassignmentDialog(page);
     this.groupDialog = new ContactsGroupDialog(page);
+    this.changeContactTypeDropdown = new BaseDropdown(page, {
+      menu: this.page.getByText("DocSpace adminPaidRoom"),
+    });
   }
 
   async open() {
@@ -159,7 +164,7 @@ class Contacts {
   async openChangeContactTypeDialog(user: string, menuItem: TMenuItem) {
     await this.table.selectRow(user);
     await this.navigation.openChangeTypeDropdown();
-    await this.navigation.dropdown.clickOption(menuItem);
+    await this.changeContactTypeDropdown.clickOption(menuItem);
     await this.dialog.checkDialogTitleExist("Change contact type");
   }
 
