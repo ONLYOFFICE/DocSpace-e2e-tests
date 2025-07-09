@@ -1,4 +1,5 @@
-import { expect, Page, PageScreenshotOptions } from "@playwright/test";
+import { expect, Page } from "@playwright/test";
+import { waitUntilReady } from "@/src/utils";
 
 type ScreenshotOptions = {
   screenshotDir: string;
@@ -68,7 +69,7 @@ class Screenshot {
       await this.page.mouse.move(0, 0);
     }
 
-    const originalViewport = this.page.viewportSize();
+    await waitUntilReady(this.page);
 
     if (this.options.fullPage) {
       await this.setViewportSize();
