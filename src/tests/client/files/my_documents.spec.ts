@@ -56,7 +56,7 @@ test.describe("Files: My documents", () => {
     await test.step("FilesCreate", async () => {
       await myDocuments.filesNavigation.openCreateDropdown();
       await screenshot.expectHaveScreenshot("files_create_dropdown");
-      await myDocuments.filesNavigation.closeCreateDropdown();
+      await myDocuments.filesNavigation.closeContextMenu();
 
       await myDocuments.filesNavigation.openAndValidateFileCreateModals();
 

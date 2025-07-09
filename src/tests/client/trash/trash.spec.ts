@@ -103,11 +103,12 @@ test.describe("Trash", () => {
       await trash.trashSelector.fillNewItemName(roomCreateTitles.public);
       await screenshot.expectHaveScreenshot("restore_selector_rooms_new_item");
       await trash.trashSelector.acceptCreate();
-      await trash.trashSelector.selectFirstItem();
+      await trash.trashSelector.selectItemByIndex(1);
       await trash.trashSelector.checkEmptyContainerExist();
 
       await trash.trashSelector.gotoRoot();
       await trash.trashSelector.select("documents");
+      await trash.trashSelector.checkEmptyContainerExist();
       await screenshot.expectHaveScreenshot("restore_selector_empty_documents");
       await trash.trashSelector.createNewFolder();
       await screenshot.expectHaveScreenshot("restore_selector_folder_created");

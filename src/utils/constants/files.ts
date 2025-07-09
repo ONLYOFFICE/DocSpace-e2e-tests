@@ -1,11 +1,13 @@
 import { transformDocActions } from "..";
 
-export const initialDocNames = [
-  "ONLYOFFICE Sample Presentation",
-  "ONLYOFFICE Sample Spreadsheets",
-  "ONLYOFFICE Sample Document",
-  "ONLYOFFICE Sample Form",
-] as const;
+export const mapInitialDocNames = {
+  ONLYOFFICE_SAMPLE_PRESENTATION: "ONLYOFFICE Presentation Sample",
+  ONLYOFFICE_SAMPLE_SPREADSHEETS: "ONLYOFFICE Spreadsheet Sample",
+  ONLYOFFICE_SAMPLE_DOCUMENT: "ONLYOFFICE Document Sample",
+  ONLYOFFICE_SAMPLE_FORM: "ONLYOFFICE Resume Sample",
+} as const;
+
+export const initialDocNames = Object.values(mapInitialDocNames);
 
 export const DOC_ACTIONS = {
   CREATE_DOCUMENT: "New document",

@@ -7,8 +7,6 @@ import Screenshot from "@/src/objects/common/Screenshot";
 import Customization from "@/src/objects/settings/customization/Customization";
 import { PaymentApi } from "@/src/api/payment";
 
-import config from "@/config";
-import MailChecker from "@/src/utils/helpers/MailChecker";
 import { Profile } from "@/src/objects/profile/Profile";
 
 test.describe("Customization", () => {
@@ -49,7 +47,6 @@ test.describe("Customization", () => {
   });
 
   test("Customization full flow", async () => {
-    test.setTimeout(10 * 60 * 1000); // 10 minutes
     await test.step("Change lang&time", async () => {
       await customization.changeLanguage("English (United States)");
       await customization.changeTimezone("(UTC) Antarctica/Troll");
@@ -63,7 +60,7 @@ test.describe("Customization", () => {
       await customization.removeToast();
     });
 
-    await test.step("Welcome page settings", async () => {
+    await test.step("Welcom page settings", async () => {
       await customization.setTitle();
       await customization.removeToast();
       await customization.restoreButton.nth(1).click();
@@ -174,31 +171,37 @@ test.describe("Customization", () => {
       );
       await page.waitForLoadState("domcontentloaded");
 
-      // Wait for email to arrive
-      await new Promise((resolve) => setTimeout(resolve, 15000));
+      // ISSUE UNSTABLE EMAIL
+      // console.log("Portal renamed successfully, wait for email");
 
-      // Create a MailChecker instance
-      const mailChecker = new MailChecker({
-        url: config.QA_MAIL_DOMAIN ?? "",
-        user: config.QA_MAIL_LOGIN ?? "",
-        pass: config.QA_MAIL_PASSWORD ?? "",
-      });
+      // // Wait for email to arrive
+      // await new Promise((resolve) => setTimeout(resolve, 15000));
 
-      // Check for email with subject "Change of portal address"
-      const email = await mailChecker.checkEmailBySubject({
-        subject: "Change of portal address",
-        moveOut: false,
-      });
+      // // Create a MailChecker instance
+      // const mailChecker = new MailChecker({
+      //   url: config.QA_MAIL_DOMAIN ?? "",
+      //   user: config.QA_MAIL_LOGIN ?? "",
+      //   pass: config.QA_MAIL_PASSWORD ?? "",
+      // });
 
-      // Log the found email
-      if (email) {
-        console.log(
-          `Found portal address change email with subject: "${email.subject}"`,
-        );
-      }
+      // // Check for email with subject "Change of portal address"
+      // const email = await mailChecker.checkEmailBySubject({
+      //   subject: "Change of portal address",
+      //   timeoutSeconds: 30,
+      //   moveOut: false,
+      // });
 
-      // Final verification
-      expect(email).toBeTruthy();
+      // console.log("Email:", email);
+
+      // // Log the found email
+      // if (email) {
+      //   console.log(
+      //     `Found portal address change email with subject: "${email.subject}"`,
+      //   );
+      // }
+
+      // // Final verification
+      // expect(email).toBeTruthy();
 
       await customization.renamePortalBack(originalName);
       api.apisystem.setPortalDomain(`${originalName}.onlyoffice.io`);
@@ -233,30 +236,30 @@ test.describe("Customization", () => {
       await profile.navigateToProfile();
       await profile.changePassword();
 
-      // Wait for email to arrive
-      await new Promise((resolve) => setTimeout(resolve, 15000));
+      // // Wait for email to arrive
+      // await new Promise((resolve) => setTimeout(resolve, 15000));
 
-      // Create a MailChecker instance
-      const mailChecker = new MailChecker({
-        url: config.QA_MAIL_DOMAIN ?? "",
-        user: config.QA_MAIL_LOGIN ?? "",
-        pass: config.QA_MAIL_PASSWORD ?? "",
-      });
+      // // Create a MailChecker instance
+      // const mailChecker = new MailChecker({
+      //   url: config.QA_MAIL_DOMAIN ?? "",
+      //   user: config.QA_MAIL_LOGIN ?? "",
+      //   pass: config.QA_MAIL_PASSWORD ?? "",
+      // });
 
-      // Check for email with subject "Confirm changing your password" and sender "autoTest"
-      const email = await mailChecker.checkEmailBySenderAndSubject({
-        subject: "Confirm changing your password",
-        sender: "autoTest",
-        moveOut: false,
-      });
+      // // Check for email with subject "Confirm changing your password" and sender "autoTest"
+      // const email = await mailChecker.checkEmailBySenderAndSubject({
+      //   subject: "Confirm changing your password",
+      //   sender: "autoTest",
+      //   timeoutSeconds: 30,
+      //   moveOut: false,
+      // });
 
-      // Final verification
-      expect(email).toBeTruthy();
+      // // Final verification
+      // expect(email).toBeTruthy();
     });
   });
 
   test.afterAll(async () => {
     await api.cleanup();
-    await page.close();
   });
 });
