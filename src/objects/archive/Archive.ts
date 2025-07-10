@@ -47,8 +47,9 @@ class MyArchive {
   }
 
   async open() {
-    await this.page.goto(`https://${this.portalDomain}/rooms/archived`);
-    await this.page.waitForLoadState("load");
+    await this.page.goto(`https://${this.portalDomain}/rooms/archived`, {
+      waitUntil: "domcontentloaded",
+    });
     await expect(this.page).toHaveURL(/.*rooms\/archived.*/);
   }
 
