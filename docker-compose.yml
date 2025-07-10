@@ -2,6 +2,7 @@ services:
   tests-ci:
     image: e2e-tests
     build:
+      context: .
       dockerfile: Dockerfile
     volumes:
       - ./playwright-report:/app/playwright-report
@@ -9,6 +10,7 @@ services:
   tests-local:
     image: e2e-tests
     build:
+      context: .
       dockerfile: Dockerfile
     volumes:
       - ./screenshots:/app/screenshots
