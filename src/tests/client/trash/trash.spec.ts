@@ -1,36 +1,18 @@
 import { mapInitialDocNames } from "@/src/utils/constants/files";
-import { test, Page } from "@playwright/test";
 
-import API from "@/src/api";
-import Login from "@/src/objects/common/Login";
 import Screenshot from "@/src/objects/common/Screenshot";
 import MyDocuments from "@/src/objects/files/MyDocuments";
 import Trash from "@/src/objects/trash/Trash";
 import { roomCreateTitles } from "@/src/utils/constants/rooms";
+import { test } from "@/src/fixtures";
 
 test.describe("Trash", () => {
-  let api: API;
-  let page: Page;
-
-  let login: Login;
   let screenshot: Screenshot;
 
   let myDocuments: MyDocuments;
   let trash: Trash;
 
-  test.beforeAll(async ({ playwright, browser }) => {
-    const apiContext = await playwright.request.newContext();
-    api = new API(apiContext);
-    await api.setup();
-    console.log(api.portalDomain);
-
-    page = await browser.newPage();
-
-    await page.addInitScript(() => {
-      globalThis.localStorage?.setItem("integrationUITests", "true");
-    });
-
-    login = new Login(page, api.portalDomain);
+  test.beforeEach(async ({ page, api, login }) => {
     myDocuments = new MyDocuments(page, api.portalDomain);
     trash = new Trash(page);
     screenshot = new Screenshot(page, { screenshotDir: "trash" });
@@ -41,7 +23,7 @@ test.describe("Trash", () => {
     await trash.open();
   });
 
-  test("Render", async () => {
+  test("Render", async ({ page }) => {
     await test.step("Render", async () => {
       await trash.trashTable.checkRowExist(
         mapInitialDocNames.ONLYOFFICE_SAMPLE_DOCUMENT,
@@ -136,10 +118,5 @@ test.describe("Trash", () => {
     await test.step("DeleteForever", async () => {
       await trash.deleteForever();
     });
-  });
-
-  test.afterAll(async () => {
-    await api.cleanup();
-    await page.close();
   });
 });

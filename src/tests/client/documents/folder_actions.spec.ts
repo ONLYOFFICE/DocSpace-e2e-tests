@@ -1,17 +1,12 @@
-import { test, Page } from "@playwright/test";
-
-import API from "@/src/api";
 import Folder from "@/src/objects/files/Folder";
 import Rooms from "@/src/objects/rooms/Rooms";
 import { roomCreateTitles } from "@/src/utils/constants/rooms";
 import Login from "@/src/objects/common/Login";
 import Screenshot from "@/src/objects/common/Screenshot";
 import { DOC_ACTIONS } from "@/src/utils/constants/files";
+import { test } from "@/src/fixtures";
 
 test.describe("Folder", () => {
-  let api: API;
-  let page: Page;
-  let login: Login;
   let folder: Folder;
   let myRooms: Rooms;
   let screenshot: Screenshot;
@@ -21,16 +16,7 @@ test.describe("Folder", () => {
   const folderToCopy = `TestFolderToCopy`;
   const renamedFolder = `${baseFolder}-renamed`;
 
-  test.beforeAll(async ({ playwright, browser }) => {
-    const apiContext = await playwright.request.newContext();
-    api = new API(apiContext);
-    await api.setup();
-
-    page = await browser.newPage();
-    await page.addInitScript(() => {
-      globalThis.localStorage?.setItem("integrationUITests", "true");
-    });
-
+  test.beforeEach(async ({ page, api, login }) => {
     login = new Login(page, api.portalDomain);
     folder = new Folder(page, api.portalDomain);
     screenshot = new Screenshot(page, {
@@ -151,9 +137,5 @@ test.describe("Folder", () => {
       await folder.folderDeleteModal.clickDeleteFolder();
       await folder.expectFolderNotVisible(renamedFolder);
     });
-  });
-  test.afterAll(async () => {
-    await api.cleanup();
-    await page.close();
   });
 });
