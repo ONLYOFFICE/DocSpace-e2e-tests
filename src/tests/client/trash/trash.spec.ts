@@ -1,9 +1,10 @@
-import { docSort, mapInitialDocNames } from "@/src/utils/constants/files";
+import { mapInitialDocNames } from "@/src/utils/constants/files";
 
 import Screenshot from "@/src/objects/common/Screenshot";
 import MyDocuments from "@/src/objects/files/MyDocuments";
 import Trash from "@/src/objects/trash/Trash";
 import { roomCreateTitles } from "@/src/utils/constants/rooms";
+import { test } from "@/src/fixtures";
 
 test.describe("Trash", () => {
   let screenshot: Screenshot;
@@ -11,6 +12,7 @@ test.describe("Trash", () => {
   let myDocuments: MyDocuments;
   let trash: Trash;
 
+  test.beforeEach(async ({ page, api, login }) => {
   test.beforeEach(async ({ page, api, login }) => {
     myDocuments = new MyDocuments(page, api.portalDomain);
     trash = new Trash(page);
@@ -22,6 +24,7 @@ test.describe("Trash", () => {
     await trash.open();
   });
 
+  test("Render", async ({ page }) => {
   test("Render", async ({ page }) => {
     await test.step("Render", async () => {
       await myDocuments.filesFilter.applySort(docSort.name);

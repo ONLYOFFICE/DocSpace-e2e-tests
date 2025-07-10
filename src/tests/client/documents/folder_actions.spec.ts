@@ -4,6 +4,7 @@ import { roomCreateTitles } from "@/src/utils/constants/rooms";
 import Screenshot from "@/src/objects/common/Screenshot";
 import { DOC_ACTIONS } from "@/src/utils/constants/files";
 import { test } from "@/src/fixtures";
+import { test } from "@/src/fixtures";
 
 test.describe("Folder", () => {
   let folder: Folder;
@@ -16,6 +17,7 @@ test.describe("Folder", () => {
   const renamedFolder = `${baseFolder}-renamed`;
 
   test.beforeEach(async ({ page, api, login }) => {
+    login = new Login(page, api.portalDomain);
     folder = new Folder(page, api.portalDomain);
     screenshot = new Screenshot(page, {
       screenshotDir: "files",

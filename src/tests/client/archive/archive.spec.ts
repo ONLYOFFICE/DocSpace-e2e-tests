@@ -1,7 +1,7 @@
 import MyRooms from "@/src/objects/rooms/Rooms";
 import Archive from "@/src/objects/archive/Archive";
 import Screenshot from "@/src/objects/common/Screenshot";
-import { roomCreateTitles, roomSort } from "@/src/utils/constants/rooms";
+import { roomCreateTitles } from "@/src/utils/constants/rooms";
 import { test } from "@/src/fixtures";
 
 test.describe("Archive", () => {
@@ -10,6 +10,10 @@ test.describe("Archive", () => {
   let myRooms: MyRooms;
   let myArchive: Archive;
 
+  test.beforeEach(async ({ page, api, login }) => {
+    screenshot = new Screenshot(page, {
+      screenshotDir: "archive",
+    });
   test.beforeEach(async ({ page, api, login }) => {
     screenshot = new Screenshot(page, {
       screenshotDir: "archive",

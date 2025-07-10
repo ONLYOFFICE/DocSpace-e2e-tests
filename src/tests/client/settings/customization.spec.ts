@@ -5,9 +5,6 @@ import { PaymentApi } from "@/src/api/payment";
 import { Profile } from "@/src/objects/profile/Profile";
 import { test } from "@/src/fixtures";
 import { expect } from "@playwright/test";
-import { toastMessages } from "@/src/utils/constants/settings";
-// import MailChecker from "@/src/utils/helpers/MailChecker";
-// import config from "@/config";
 
 test.describe("Customization", () => {
   let paymentApi: PaymentApi;
@@ -15,6 +12,8 @@ test.describe("Customization", () => {
   let screenshot: Screenshot;
   let customization: Customization;
 
+  test.beforeEach(async ({ page, api, login }) => {
+    paymentApi = new PaymentApi(api.apiRequestContext, api.apisystem);
   test.beforeEach(async ({ page, api, login }) => {
     paymentApi = new PaymentApi(api.apiRequestContext, api.apisystem);
 
@@ -32,7 +31,8 @@ test.describe("Customization", () => {
     await customization.open();
   });
 
-  test("Customization full flow", async () => {
+  test("Customization full flow", async ({ api, page }) => {
+    // test.setTimeout(10 * 60 * 1000); // 10 minutes
     await test.step("Change lang&time", async () => {
       await customization.changeLanguage("English (United States)");
       await customization.changeTimezone("(UTC) Antarctica/Troll");
@@ -257,9 +257,5 @@ test.describe("Customization", () => {
       // // Final verification
       // expect(email).toBeTruthy();
     });
-  });
-
-  test.afterAll(async () => {
-    await api.cleanup();
   });
 });

@@ -10,20 +10,17 @@ import {
 } from "@/src/utils/constants/rooms";
 import { test } from "@/src/fixtures";
 import { Page } from "@playwright/test";
+import { test } from "@/src/fixtures";
+import { Page } from "@playwright/test";
 
 test.describe("Rooms", () => {
   let screenshot: Screenshot;
   let myRooms: MyRooms;
   let page: Page;
 
-  const duplicateRoomName = roomCreateTitles.public + " (1)";
-
   test.beforeEach(async ({ page: fixturePage, api, login }) => {
     page = fixturePage;
-    screenshot = new Screenshot(page, {
-      screenshotDir: "rooms",
-      suiteName: "rooms",
-    });
+    screenshot = new Screenshot(page, { screenshotDir: "rooms" });
     myRooms = new MyRooms(page, api.portalDomain);
 
     await login.loginToPortal();
