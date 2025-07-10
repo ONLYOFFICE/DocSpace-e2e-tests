@@ -1,4 +1,4 @@
-import { Page } from "@playwright/test";
+import { expect, Page } from "@playwright/test";
 import FilesArticle from "./FilesArticle";
 import FilesCreateContextMenu from "./FilesCreateContextMenu";
 import FilesNavigation from "./FilesNavigation";
@@ -38,6 +38,7 @@ class MyDocuments extends BasePage {
 
   async open() {
     await this.page.goto(`https://${this.portalDomain}/rooms/personal`);
+    await expect(this.page).toHaveURL(/.*rooms\/personal.*/);
     await this.page.waitForLoadState("load");
   }
 
