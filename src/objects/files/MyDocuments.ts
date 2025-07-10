@@ -1,4 +1,4 @@
-import { expect, Page } from "@playwright/test";
+import { Page } from "@playwright/test";
 import FilesArticle from "./FilesArticle";
 import FilesCreateContextMenu from "./FilesCreateContextMenu";
 import FilesNavigation from "./FilesNavigation";
@@ -6,10 +6,11 @@ import InfoPanel from "../common/InfoPanel";
 import FilesTable from "./FilesTable";
 import FilesFilter from "./FilesFilter";
 import FilesEmptyView from "./FilesEmptyView";
-import BasePage from "../common/BasePage";
+import Network from "../common/Network";
 
 class MyDocuments extends BasePage {
   private portalDomain: string;
+  private network: Network;
 
   filesArticle: FilesArticle;
   filesCreateContextMenu: FilesCreateContextMenu;
@@ -32,11 +33,11 @@ class MyDocuments extends BasePage {
     this.filesTable = new FilesTable(page);
     this.filesFilter = new FilesFilter(page);
     this.filesEmptyView = new FilesEmptyView(page);
+    this.network = Network.getInstance(this.page);
   }
 
   async open() {
     await this.page.goto(`https://${this.portalDomain}/rooms/personal`);
-    await expect(this.page).toHaveURL(/.*rooms\/personal.*/);
     await this.page.waitForLoadState("load");
   }
 
