@@ -23,6 +23,7 @@ import ContactsReassignmentDialog from "./ContactsReassignmentDialog";
 import ContactsGroupDialog from "./ContactsGroupDialog";
 import { TMenuItem } from "../common/BaseMenu";
 import { BaseDropdown } from "../common/BaseDropdown";
+import Network from "../common/Network";
 
 class Contacts {
   private page: Page;
@@ -44,6 +45,7 @@ class Contacts {
   reassignmentDialog: ContactsReassignmentDialog;
   groupDialog: ContactsGroupDialog;
   changeContactTypeDropdown: BaseDropdown;
+  network: Network;
 
   constructor(page: Page, portalDomain: string) {
     this.page = page;
@@ -62,6 +64,7 @@ class Contacts {
     this.changeContactTypeDropdown = new BaseDropdown(page, {
       menu: this.page.getByText("DocSpace adminPaidRoom"),
     });
+    this.network = Network.getInstance(page);
   }
 
   async open() {
