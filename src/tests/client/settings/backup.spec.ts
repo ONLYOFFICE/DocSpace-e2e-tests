@@ -1,7 +1,4 @@
-import { test, Page } from "@playwright/test";
 import { Backup } from "@/src/objects/settings/backup/Backup";
-import API from "@/src/api";
-import Login from "@/src/objects/common/Login";
 import { PaymentApi } from "@/src/api/payment";
 import Screenshot from "@/src/objects/common/Screenshot";
 
@@ -10,33 +7,20 @@ import {
   mapThirdPartyResource,
   navItems,
 } from "@/src/utils/constants/settings";
+import { test } from "@/src/fixtures";
 
 test.describe("Backup portal tests", () => {
-  let api: API;
   let paymentApi: PaymentApi;
-  let page: Page;
   let backup: Backup;
-
-  let login: Login;
   let screenshot: Screenshot;
 
-  test.beforeAll(async ({ playwright, browser }) => {
-    const apiContext = await playwright.request.newContext();
-    api = new API(apiContext);
-    paymentApi = new PaymentApi(apiContext, api.apisystem);
-    await api.setup();
-    page = await browser.newPage();
-    console.log(api.portalDomain);
+  test.beforeEach(async ({ page, api, login }) => {
+    paymentApi = new PaymentApi(api.apiRequestContext, api.apisystem);
 
     const portalInfo = await paymentApi.getPortalInfo(api.portalDomain);
     await paymentApi.makePortalPayment(portalInfo.tenantId, 10);
     await paymentApi.refreshPaymentInfo(api.portalDomain);
 
-    await page.addInitScript(() => {
-      globalThis.localStorage?.setItem("integrationUITests", "true");
-    });
-
-    login = new Login(page, api.portalDomain);
     screenshot = new Screenshot(page, {
       screenshotDir: "backup",
     });
@@ -46,7 +30,7 @@ test.describe("Backup portal tests", () => {
     await backup.open();
   });
 
-  test("Backup flows", async () => {
+  test("Backup flows", async ({ page }) => {
     test.setTimeout(180000);
 
     await test.step("Render", async () => {
@@ -314,10 +298,5 @@ test.describe("Backup portal tests", () => {
       await backup.locators.saveButton2.click();
       await backup.removeAllToast();
     });
-  });
-
-  test.afterAll(async () => {
-    await api.cleanup();
-    await page.close();
   });
 });

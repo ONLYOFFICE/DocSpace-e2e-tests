@@ -1,30 +1,12 @@
-import { test, Page } from "@playwright/test";
-
-import API from "@/src/api";
 import MyDocuments from "@/src/objects/files/MyDocuments";
-import Login from "@/src/objects/common/Login";
 import Screenshot from "@/src/objects/common/Screenshot";
+import { test } from "@/src/fixtures";
 
 test.describe("My documents: Base", () => {
-  let api: API;
-  let page: Page;
-  let login: Login;
   let myDocuments: MyDocuments;
   let screenshot: Screenshot;
 
-  test.beforeAll(async ({ playwright, browser }) => {
-    const apiContext = await playwright.request.newContext();
-    api = new API(apiContext);
-    await api.setup();
-    console.log(api.portalDomain);
-
-    page = await browser.newPage();
-
-    await page.addInitScript(() => {
-      globalThis.localStorage?.setItem("integrationUITests", "true");
-    });
-
-    login = new Login(page, api.portalDomain);
+  test.beforeEach(async ({ page, api, login }) => {
     myDocuments = new MyDocuments(page, api.portalDomain);
     screenshot = new Screenshot(page, { screenshotDir: "files" });
 
@@ -164,10 +146,5 @@ test.describe("My documents: Base", () => {
       await myDocuments.filesFilter.checkFilesEmptyViewExist();
       await screenshot.expectHaveScreenshot("search_empty");
     });
-  });
-
-  test.afterAll(async () => {
-    await api.cleanup();
-    await page.close();
   });
 });

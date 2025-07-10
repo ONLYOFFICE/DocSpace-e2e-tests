@@ -1,41 +1,24 @@
-import { test, Page, expect } from "@playwright/test";
-
-import API from "@/src/api";
-import Login from "@/src/objects/common/Login";
-
 import Screenshot from "@/src/objects/common/Screenshot";
 import Customization from "@/src/objects/settings/customization/Customization";
 import { PaymentApi } from "@/src/api/payment";
 
 import { Profile } from "@/src/objects/profile/Profile";
+import { test } from "@/src/fixtures";
+import { expect } from "@playwright/test";
 
 test.describe("Customization", () => {
-  let api: API;
   let paymentApi: PaymentApi;
-  let page: Page;
 
-  let login: Login;
   let screenshot: Screenshot;
   let customization: Customization;
 
-  test.beforeAll(async ({ playwright, browser }) => {
-    const apiContext = await playwright.request.newContext();
-    api = new API(apiContext);
-    paymentApi = new PaymentApi(apiContext, api.apisystem);
-    await api.setup();
-    console.log(api.portalDomain);
+  test.beforeEach(async ({ page, api, login }) => {
+    paymentApi = new PaymentApi(api.apiRequestContext, api.apisystem);
 
     const portalInfo = await paymentApi.getPortalInfo(api.portalDomain);
     await paymentApi.makePortalPayment(portalInfo.tenantId, 10);
     await paymentApi.refreshPaymentInfo(api.portalDomain);
 
-    page = await browser.newPage();
-
-    await page.addInitScript(() => {
-      globalThis.localStorage?.setItem("integrationUITests", "true");
-    });
-
-    login = new Login(page, api.portalDomain);
     screenshot = new Screenshot(page, {
       screenshotDir: "customization",
       fullPage: true,
@@ -46,7 +29,7 @@ test.describe("Customization", () => {
     await customization.open();
   });
 
-  test("Customization full flow", async () => {
+  test("Customization full flow", async ({ api, page }) => {
     // test.setTimeout(10 * 60 * 1000); // 10 minutes
     await test.step("Change lang&time", async () => {
       await customization.changeLanguage("English (United States)");
@@ -261,10 +244,5 @@ test.describe("Customization", () => {
       // // Final verification
       // expect(email).toBeTruthy();
     });
-  });
-
-  test.afterAll(async () => {
-    await api.cleanup();
-    await page.close();
   });
 });

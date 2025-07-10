@@ -1,50 +1,32 @@
-import { test, expect, Page } from "@playwright/test";
-import Login from "@/src/objects/common/Login";
 import { PaymentApi } from "@/src/api/payment";
-import API from "@/src/api";
 import Screenshot from "@/src/objects/common/Screenshot";
 import Security from "@/src/objects/settings/security/Security";
+import { test } from "@/src/fixtures";
+import { expect } from "@playwright/test";
 
 test.describe("Security tests", () => {
-  let api: API;
   let paymentApi: PaymentApi;
-  let page: Page;
-
-  let login: Login;
   let screenshot: Screenshot;
 
   let security: Security;
 
-  test.beforeAll(async ({ playwright, browser }) => {
-    const apiContext = await playwright.request.newContext();
-    api = new API(apiContext);
-    await api.setup();
-    console.log(api.portalDomain);
-
-    page = await browser.newPage();
-
-    await page.addInitScript(() => {
-      globalThis.localStorage?.setItem("integrationUITests", "true");
-    });
+  test.beforeEach(async ({ page, api, login }) => {
+    paymentApi = new PaymentApi(api.apiRequestContext, api.apisystem);
+    const portalInfo = await paymentApi.getPortalInfo(api.portalDomain);
+    await paymentApi.makePortalPayment(portalInfo.tenantId, 10);
+    await paymentApi.refreshPaymentInfo(api.portalDomain);
 
     screenshot = new Screenshot(page, {
       screenshotDir: "security",
       fullPage: true,
     });
-
-    login = new Login(page, api.portalDomain);
-    await login.loginToPortal();
-
     security = new Security(page);
 
-    paymentApi = new PaymentApi(apiContext, api.apisystem);
-    const portalInfo = await paymentApi.getPortalInfo(api.portalDomain);
-    await paymentApi.makePortalPayment(portalInfo.tenantId, 10);
-    await paymentApi.refreshPaymentInfo(api.portalDomain);
+    await login.loginToPortal();
     await security.open();
   });
 
-  test("All security scenarios", async () => {
+  test("All security scenarios", async ({ page }) => {
     await test.step("Password strength", async () => {
       await security.updatePasswordStrength(17);
       await security.removeToast();
@@ -180,10 +162,5 @@ test.describe("Security tests", () => {
       );
       await screenshot.expectHaveScreenshot("audit_trail_view");
     });
-  });
-
-  test.afterAll(async () => {
-    await api.cleanup();
-    await page.close();
   });
 });

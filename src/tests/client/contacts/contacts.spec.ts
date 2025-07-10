@@ -1,7 +1,4 @@
-import { test, Page } from "@playwright/test";
-
-import API from "@/src/api";
-import Login from "@/src/objects/common/Login";
+import { test } from "@/src/fixtures";
 import Screenshot from "@/src/objects/common/Screenshot";
 import Contacts from "@/src/objects/contacts/Contacts";
 import {
@@ -17,26 +14,10 @@ import {
 } from "@/src/utils/constants/contacts";
 
 test.describe(() => {
-  let api: API;
-  let page: Page;
-
-  let login: Login;
   let screenshot: Screenshot;
   let contacts: Contacts;
 
-  test.beforeAll(async ({ playwright, browser }) => {
-    const apiContext = await playwright.request.newContext();
-    api = new API(apiContext);
-    await api.setup();
-    console.log(api.portalDomain);
-
-    page = await browser.newPage();
-
-    await page.addInitScript(() => {
-      globalThis.localStorage?.setItem("integrationUITests", "true");
-    });
-
-    login = new Login(page, api.portalDomain);
+  test.beforeEach(async ({ page, api, login }) => {
     contacts = new Contacts(page, api.portalDomain);
     screenshot = new Screenshot(page, { screenshotDir: "contacts" });
     await login.loginToPortal();
@@ -414,10 +395,5 @@ test.describe(() => {
       await contacts.table.checkRowExist(userEmails.guest);
       await screenshot.expectHaveScreenshot("guests_filter_search");
     });
-  });
-
-  test.afterAll(async () => {
-    await api.cleanup();
-    await page.close();
   });
 });

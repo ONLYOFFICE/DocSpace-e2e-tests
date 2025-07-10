@@ -1,7 +1,3 @@
-import { test, Page } from "@playwright/test";
-
-import API from "@/src/api";
-import Login from "@/src/objects/common/Login";
 import MyRooms from "@/src/objects/rooms/Rooms";
 import Screenshot from "@/src/objects/common/Screenshot";
 import {
@@ -11,35 +7,17 @@ import {
   roomTemplateTitles,
   templateContextMenuOption,
 } from "@/src/utils/constants/rooms";
+import { test } from "@/src/fixtures";
+import { Page } from "@playwright/test";
 
-/**
- * Test suite for My Rooms functionality
- * Tests various aspects of room management including creation, templates, and UI interactions
- */
 test.describe("Rooms", () => {
-  let api: API;
+  let screenshot: Screenshot;
+  let myRooms: MyRooms;
   let page: Page;
 
-  let login: Login;
-  let screenshot: Screenshot;
-
-  let myRooms: MyRooms;
-
-  test.beforeAll(async ({ playwright, browser }) => {
-    const apiContext = await playwright.request.newContext();
-    api = new API(apiContext);
-    await api.setup();
-    console.log(api.portalDomain);
-
-    page = await browser.newPage();
-
-    await page.addInitScript(() => {
-      globalThis.localStorage?.setItem("integrationUITests", "true");
-    });
-
-    login = new Login(page, api.portalDomain);
+  test.beforeEach(async ({ page: fixturePage, api, login }) => {
+    page = fixturePage;
     screenshot = new Screenshot(page, { screenshotDir: "rooms" });
-
     myRooms = new MyRooms(page, api.portalDomain);
 
     await login.loginToPortal();
@@ -309,10 +287,5 @@ test.describe("Rooms", () => {
       await myRooms.roomsEmptyView.checkNoTemplatesExist();
       await screenshot.expectHaveScreenshot("empty_view_templates");
     });
-  });
-
-  test.afterAll(async () => {
-    await api.cleanup();
-    await page.close();
   });
 });
