@@ -76,17 +76,13 @@ class BaseTable {
   }
 
   async selectAllRows() {
-    const rows = this.tableRows;
-    await expect(rows.first()).toBeVisible();
-    const count = await rows.count();
-
+    const firstRow = this.tableRows.first();
+    await expect(firstRow).toBeVisible();
+    await firstRow.click();
+    await this.page.keyboard.press("Control+a");
     await this.mapTableRows(async (row) => {
-      await this.page.keyboard.down("Control");
-      await row.click();
-      await this.page.keyboard.up("Control");
+      await this.expectRowIsChecked(row);
     });
-
-    return count; // TODO: REMOVE IT FROM HERE IN THE FEATURE, FALLBACK
   }
 
   async mapTableRows(callback: TMapTableRowsCallback) {
@@ -105,6 +101,11 @@ class BaseTable {
       }),
     });
   }
+
+  async expectRowIsChecked(row: Locator) {
+    await expect(row.getByRole("checkbox", { checked: true })).toBeVisible();
+  }
+
   async selectRow(title: string) {
     const row = await this.getRowByTitle(title);
 
