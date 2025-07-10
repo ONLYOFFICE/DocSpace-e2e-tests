@@ -1,5 +1,6 @@
 import { Page } from "@playwright/test";
 import { TListDocActions } from "./types/files";
+import Network from "../objects/common/Network";
 
 export const transformDocActions = (docActions: TListDocActions) => {
   return docActions.map((actionText) => {
@@ -13,12 +14,8 @@ export const transformDocActions = (docActions: TListDocActions) => {
 };
 
 export async function waitUntilReady(page: Page) {
-  try {
-    await page.waitForLoadState("networkidle", { timeout: 15000 });
-  } catch (error) {
-    console.log("networkidle timeout:", error);
-  }
-
+  const network = Network.getInstance(page);
+  await network.waitForNetworkIdle();
   await page.evaluate(async () => {
     await document.fonts.ready;
 
