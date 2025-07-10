@@ -1,11 +1,13 @@
 import { test as base, Page } from "@playwright/test";
 import API from "@/src/api";
 import Login from "@/src/objects/common/Login";
+import Network from "../objects/common/Network";
 
 type TestFixtures = {
   api: API;
   page: Page;
   login: Login;
+  network: Network;
 };
 
 // Extend the base Playwright test with our fixtures
