@@ -140,7 +140,9 @@ class InfoPanel {
   }
 
   async openTab(tabName: TInfoPanelTabs) {
-    await this.infoPanelTabs.getByText(tabName).click();
+    const tab = this.page.getByTestId(tabName);
+    await expect(tab).toBeVisible();
+    await tab.click();
   }
 
   async checkHistoryExist(title: string) {
