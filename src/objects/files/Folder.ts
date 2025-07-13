@@ -8,12 +8,9 @@ import InfoPanel from "../common/InfoPanel";
 import RoomsCreateDialog from "@/src/objects/rooms/RoomsCreateDialog";
 import { TRoomCreateTitles } from "@/src/utils/constants/rooms";
 import { DOC_ACTIONS } from "@/src/utils/constants/files";
-import Network from "../common/Network";
-
-class Folder {
-  private page: Page;
+import BasePage from "../common/BasePage";
+class Folder extends BasePage {
   private portalDomain: string;
-  private network: Network;
 
   filesNavigation: FilesNavigation;
   filesTable: FilesTable;
@@ -24,7 +21,7 @@ class Folder {
   infoPanel: InfoPanel;
 
   constructor(page: Page, portalDomain: string) {
-    this.page = page;
+    super(page);
     this.portalDomain = portalDomain;
 
     this.filesNavigation = new FilesNavigation(page);
@@ -34,8 +31,6 @@ class Folder {
     this.roomsCreateDialog = new RoomsCreateDialog(page);
     this.filesSelectPanel = new FilesSelectPanel(page);
     this.infoPanel = new InfoPanel(page);
-
-    this.network = Network.getInstance(page);
   }
 
   async open() {

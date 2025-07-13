@@ -1,7 +1,6 @@
 import Folder from "@/src/objects/files/Folder";
 import Rooms from "@/src/objects/rooms/Rooms";
 import { roomCreateTitles } from "@/src/utils/constants/rooms";
-import Login from "@/src/objects/common/Login";
 import Screenshot from "@/src/objects/common/Screenshot";
 import { DOC_ACTIONS } from "@/src/utils/constants/files";
 import { test } from "@/src/fixtures";
@@ -17,7 +16,6 @@ test.describe("Folder", () => {
   const renamedFolder = `${baseFolder}-renamed`;
 
   test.beforeEach(async ({ page, api, login }) => {
-    login = new Login(page, api.portalDomain);
     folder = new Folder(page, api.portalDomain);
     screenshot = new Screenshot(page, {
       screenshotDir: "files",
@@ -127,6 +125,9 @@ test.describe("Folder", () => {
       await screenshot.expectHaveScreenshot("folder_rename_modal");
       await folder.filesNavigation.modal.fillCreateTextInput(renamedFolder);
       await folder.filesNavigation.modal.clickCreateButton();
+      await folder.removeToast(
+        `The folder '${baseFolder}' is renamed to '${renamedFolder}'`,
+      );
       await folder.expectFolderRenamed(baseFolder, renamedFolder);
     });
 
@@ -135,6 +136,9 @@ test.describe("Folder", () => {
       await folder.filesTable.contextMenu.clickOption("Delete");
       await screenshot.expectHaveScreenshot("delete_folder_modal");
       await folder.folderDeleteModal.clickDeleteFolder();
+      await folder.removeToast(
+        `The folder ${renamedFolder} successfully moved to Trash`,
+      );
       await folder.expectFolderNotVisible(renamedFolder);
     });
   });
