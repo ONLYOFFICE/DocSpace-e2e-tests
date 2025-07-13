@@ -17,7 +17,6 @@ test.describe("Folder", () => {
   const renamedFolder = `${baseFolder}-renamed`;
 
   test.beforeEach(async ({ page, api, login }) => {
-    login = new Login(page, api.portalDomain);
     folder = new Folder(page, api.portalDomain);
     screenshot = new Screenshot(page, {
       screenshotDir: "files",
