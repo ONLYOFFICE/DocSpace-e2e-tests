@@ -31,7 +31,6 @@ test.describe("Customization", () => {
   });
 
   test("Customization full flow", async ({ api, page }) => {
-    // test.setTimeout(10 * 60 * 1000); // 10 minutes
     await test.step("Change lang&time", async () => {
       await customization.changeLanguage("English (United States)");
       await customization.changeTimezone("(UTC) Antarctica/Troll");
