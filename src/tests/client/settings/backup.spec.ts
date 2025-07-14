@@ -120,6 +120,12 @@ test.describe("Backup portal tests", () => {
       await backup.locators.selectButton.click();
       await backup.locators.createCopyButton.click();
       await backup.removeToast(toastMessages.backCopyCreated);
+      await backup.openActionMenuResource();
+      await screenshot.expectHaveScreenshot(
+        "backup_third_party_resource_action_menu",
+      );
+      await backup.openDisconnectServiceDialog();
+      await backup.confirmDisconnectService();
     });
 
     await test.step("Backup in Third-Party resource box", async () => {
@@ -127,12 +133,7 @@ test.describe("Backup portal tests", () => {
       await backup.selectThirdPartyResource(mapThirdPartyResource.box);
       await backup.connectBox();
       await backup.createBackupInService();
-      await backup.openActionMenuResource();
-      await screenshot.expectHaveScreenshot(
-        "backup_third_party_resource_action_menu",
-      );
-      await backup.openDisconnectServiceDialog();
-      await backup.confirmDisconnectService();
+      await backup.disconnectService();
     });
 
     await test.step("Backup in Third-Party storage S3", async () => {
@@ -183,6 +184,7 @@ test.describe("Backup portal tests", () => {
     });
 
     await test.step("Every week auto backup", async () => {
+      await backup.enableAutoBackup();
       await backup.backupRoom();
 
       await backup.openScheduleSelector();
@@ -199,6 +201,7 @@ test.describe("Backup portal tests", () => {
     });
 
     await test.step("Every month auto backup", async () => {
+      await backup.enableAutoBackup();
       await backup.backupRoom();
 
       await backup.openScheduleSelector();
@@ -210,9 +213,12 @@ test.describe("Backup portal tests", () => {
 
       await backup.setBackupTimeAndCopies();
       await backup.saveAutoSavePeriod();
+      await backup.disableAutoBackup();
     });
 
     await test.step("Auto backup in Third-Party resource NextCloud", async () => {
+      await backup.openTab("Automatic backup");
+      await backup.enableAutoBackup();
       await backup.selectBackupMethod(mapBackupMethodsIds.thirdPartyResource);
       await screenshot.expectHaveScreenshot("auto_backup_third_party_resource");
 
@@ -235,23 +241,27 @@ test.describe("Backup portal tests", () => {
       await backup.locators.saveHereButton.click();
       await backup.locators.saveButtonAutoBackup.click();
       await backup.removeToast(toastMessages.settingsUpdated);
-    });
-
-    await test.step("Auto backup in Third-Party resource box", async () => {
       await backup.openActionMenuResource();
       await screenshot.expectHaveScreenshot(
         "auto_backup_third_party_resource_action_menu",
       );
       await backup.openDisconnectServiceDialog();
       await backup.confirmDisconnectService();
+      await backup.disableAutoBackup();
+    });
 
+    await test.step("Auto backup in Third-Party resource box", async () => {
+      await backup.enableAutoBackup();
+      await backup.selectBackupMethod(mapBackupMethodsIds.thirdPartyResource);
+      await backup.openThirdPartyDropdown();
       await screenshot.expectHaveScreenshot(
         "auto_backup_third_party_resource_dropdown",
       );
-      await backup.openThirdPartyDropdown();
       await backup.selectThirdPartyResource(mapThirdPartyResource.box);
       await backup.connectBox();
       await backup.selectRoomForBackup();
+      await backup.disconnectService();
+      await backup.disableAutoBackup();
     });
 
     // ISSUE: CAPTCHA OR INFINITE LOADING

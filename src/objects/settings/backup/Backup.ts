@@ -236,6 +236,7 @@ export class Backup extends BasePage {
 
   async openActionMenuResource() {
     await this.locators.actionMenuResource.click();
+    await this.page.waitForTimeout(500); // temp plug
   }
 
   async performActionOnResource(action: "Disconnect" | "Reconnect") {
@@ -308,8 +309,7 @@ export class Backup extends BasePage {
     await this.selector.selectItemByIndex(0, true);
     await this.locators.saveHereButton.click();
     await this.locators.saveButtonAutoBackup.click();
-    // FIXME: Change this on "removeSettingsUpdatedToast" when it is fixed
-    await this.toast.removeAllToast();
+    await this.removeToast(toastMessages.settingsUpdated);
   }
 
   async connectBox() {
