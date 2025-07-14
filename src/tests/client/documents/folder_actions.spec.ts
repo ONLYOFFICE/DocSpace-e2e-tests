@@ -96,6 +96,9 @@ test.describe("Folder", () => {
       await screenshot.expectHaveScreenshot("copy_select_panel_opened");
       await folder.filesSelectPanel.selectItemByText(baseFolder);
       await folder.filesSelectPanel.confirmSelection();
+      await folder.removeToast(
+        `The folder ${folderToMove} successfully moved to Documents`,
+      );
       await folder.expectFolderNotVisible(folderToMove);
     });
 
