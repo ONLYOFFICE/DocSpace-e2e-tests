@@ -38,7 +38,7 @@ if (process.env.RP_API_KEY) {
 export default defineConfig({
   testDir: "./src/tests",
   retries: 0,
-  workers: 2,
+  workers: 1,
 
   // Ignore tests in the site directory
   testIgnore: ["**/site/**/*.spec.ts"],
@@ -71,15 +71,15 @@ export default defineConfig({
         screenshot: "only-on-failure",
       },
     },
-    // {
-    //   name: "firefox",
-    //   use: {
-    //     ...devices["Desktop Firefox"],
-    //     viewport: { width: 1440, height: 1024 },
-    //     screenshot: "only-on-failure",
-    //     headless: true,
-    //   },
-    // },
+    {
+      name: "firefox",
+      use: {
+        ...devices["Desktop Firefox"],
+        viewport: { width: 1440, height: 1024 },
+        screenshot: "only-on-failure",
+        headless: true,
+      },
+    },
 
     // {
     //   name: "webkit",
