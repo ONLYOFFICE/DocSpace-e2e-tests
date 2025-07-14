@@ -112,7 +112,7 @@ test.describe("My documents: Base", () => {
     await test.step("Sort", async () => {
       await myDocuments.filesFilter.openDropdownSortBy();
       await screenshot.expectHaveScreenshot("sort_dropdown_by");
-      await myDocuments.filesFilter.clickSortBySize();
+      await myDocuments.filesFilter.selectSortByName();
       await screenshot.expectHaveScreenshot("sort_by_size");
     });
 

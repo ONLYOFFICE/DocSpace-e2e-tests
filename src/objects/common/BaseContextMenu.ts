@@ -4,12 +4,6 @@ import { BaseMenu } from "./BaseMenu";
 const CONTEXT_MENU = ".p-contextmenu.p-component.p-contextmenu-enter-done";
 const CONTEXT_SUBMENU = ".p-submenu-list";
 
-export type TMenuItemSelector = {
-  type: "text" | "id" | "data-testid" | "class";
-  value: string;
-  exact?: boolean;
-};
-
 export type TContextMenuLocators = {
   menu: Locator;
   submenu?: Locator;

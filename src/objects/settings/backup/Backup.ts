@@ -6,14 +6,16 @@ import {
   TBackupMethodsIds,
   TThirdPartyResource,
   TThirdPartyStorage,
+  toastMessages,
 } from "@/src/utils/constants/settings";
 import { BackupLocators } from "./Locators";
-import SettingsPage from "../objects/SettingsPage";
 import { BaseDropdown } from "../../common/BaseDropdown";
 import { Integration } from "../integration/Integration";
 import BaseSelector from "../../common/BaseSelector";
+import BasePage from "../../common/BasePage";
+import { waitForGetAuthServiceResponse } from "../api";
 
-export class Backup extends SettingsPage {
+export class Backup extends BasePage {
   locators: BackupLocators;
   selector: BaseSelector;
   regionDropdown: BaseDropdown;
@@ -111,7 +113,7 @@ export class Backup extends SettingsPage {
     }
     await this.locators.autoBackupSwitch.click();
     await this.locators.saveButton2.click();
-    await this.removeSettingsUpdatedToast();
+    await this.removeToast(toastMessages.settingsUpdated);
   }
 
   async selectDocuments() {
@@ -148,7 +150,7 @@ export class Backup extends SettingsPage {
 
   async saveAutoSavePeriod() {
     await this.locators.saveButton2.click();
-    await this.removeSettingsUpdatedToast();
+    await this.removeToast(toastMessages.settingsUpdated);
   }
 
   async setBackupTimeAndCopies() {
@@ -156,6 +158,11 @@ export class Backup extends SettingsPage {
     await this.selectTime();
     await this.openNumberCopySelector();
     await this.selectNumberCopy();
+  }
+
+  async expectConnectButtonNotToBeDisabled() {
+    await expect(this.locators.connectButton).toBeVisible();
+    await expect(this.locators.connectButton).not.toBeDisabled();
   }
 
   async openDaySelector() {
@@ -181,12 +188,16 @@ export class Backup extends SettingsPage {
     await this.locators.forwardDocuments.click();
     await this.locators.selectButton.click();
     await this.locators.createCopyButton.click();
+    await this.removeToast(toastMessages.backCopyCreated);
   }
 
   async activateAWSS3() {
-    await this.integration.navigateToThirdPartyServices();
+    await this.navigateToArticle(navItems.integration);
+    const response = waitForGetAuthServiceResponse(this.page);
+    await this.page.getByTestId("Third-party services").click();
+    await response;
     await this.integration.activateAWSS3();
-    await this.removeUpdatedSuccessfullyToast();
+    await this.removeToast(toastMessages.updatedSuccessfully);
   }
 
   async selectBackupMethod(method: TBackupMethodsIds) {
@@ -234,12 +245,15 @@ export class Backup extends SettingsPage {
   async openDisconnectServiceDialog() {
     await this.performActionOnResource("Disconnect");
     await expect(
-      this.page.getByText("Disconnect cloud", { exact: true }).first(),
+      this.page.getByText("Disconnect cloud", { exact: true }).nth(1),
     ).toBeVisible();
   }
 
   async confirmDisconnectService() {
     await this.page.getByLabel("OK").nth(1).click();
+    await expect(
+      this.page.getByText("Disconnect cloud", { exact: true }).nth(1),
+    ).toBeHidden();
   }
 
   async disconnectService() {
@@ -250,9 +264,7 @@ export class Backup extends SettingsPage {
 
   async Dropbox() {
     await this.selectBackupMethod(mapBackupMethodsIds.thirdPartyResource);
-    await this.page.waitForTimeout(500);
     await this.openThirdPartyDropdown();
-    await this.page.waitForTimeout(500);
     await this.locators.selectDropbox.click();
   }
 
@@ -266,9 +278,14 @@ export class Backup extends SettingsPage {
     const page1 = await page1Promise;
     await page1.locator('[name="susi_email"]').click();
     await page1.locator('[name="susi_email"]').fill(config.DROPBOX_LOGIN);
+    await expect(page1.locator('[name="susi_email"]')).toHaveValue(
+      config.DROPBOX_LOGIN,
+    );
     await page1.getByRole("button", { name: "Continue", exact: true }).click();
-    await page1.locator('[name="login_password"]').click();
     await page1.locator('[name="login_password"]').fill(config.DROPBOX_PASS);
+    await expect(page1.locator('[name="login_password"]')).toHaveValue(
+      config.DROPBOX_PASS,
+    );
     await page1.getByTestId("login-form-submit-button").click();
   }
 
@@ -276,12 +293,12 @@ export class Backup extends SettingsPage {
     await this.openRoomSelector();
     await this.locators.selectButton.click();
     await this.locators.createCopyButton.click();
+    await this.removeToast(toastMessages.backCopyCreated);
   }
 
   async selectDropboxAutoBackup() {
     await this.enableAutoBackup();
     await this.selectBackupMethod(mapBackupMethodsIds.thirdPartyResource);
-    await this.page.waitForTimeout(500);
     await this.openThirdPartyDropdown();
     await this.locators.selectDropbox.click();
   }
@@ -303,9 +320,13 @@ export class Backup extends SettingsPage {
     const page1Promise = this.page.waitForEvent("popup");
     await this.locators.connectButton.click();
     const page1 = await page1Promise;
-    await page1.waitForLoadState("domcontentloaded");
+    await page1.waitForLoadState("load");
     await page1.getByPlaceholder("Email").fill(config.BOX_LOGIN);
+    await expect(page1.getByPlaceholder("Email")).toHaveValue(config.BOX_LOGIN);
     await page1.getByPlaceholder("Password").fill(config.BOX_PASS);
+    await expect(page1.getByPlaceholder("Password")).toHaveValue(
+      config.BOX_PASS,
+    );
     await page1.locator('input[name="login_submit"]').click();
     await page1
       .locator('button[data-target-id="Button-grantAccessButtonLabel"]')

@@ -20,10 +20,6 @@ const navActions = {
 const LAST_ACTIVITY_CHECKBOX =
   ".table-container_settings-checkbox:has(span:text-is('Last activity'))";
 
-const ARCHIVE_SORT = {
-  BY_NAME: "#sort-by_name",
-};
-
 class MyArchive {
   page: Page;
   portalDomain: string;
@@ -59,11 +55,6 @@ class MyArchive {
 
   async deleteRooms() {
     await this.navigation.performAction(navActions.delete);
-  }
-
-  async sortByName() {
-    await this.baseFilter.openDropdownSortBy();
-    await this.page.locator(ARCHIVE_SORT.BY_NAME).click();
   }
 
   async hideLastActivityColumn() {

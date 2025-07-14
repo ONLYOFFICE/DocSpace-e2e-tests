@@ -10,12 +10,10 @@ export type TBaseTableLocators = {
   tableRows?: Locator;
 };
 
-/* eslint-disable no-unused-vars */
 type TMapTableRowsCallback = (
   row: Locator,
   index: number,
 ) => Promise<void> | void;
-/* eslint-enable no-unused-vars */
 
 class BaseTable {
   page: Page;
@@ -45,10 +43,6 @@ class BaseTable {
     if (isSettingsVisible) {
       await this.page.mouse.click(1, 1);
     }
-  }
-
-  async toggleSettings() {
-    await this.tableContainer.locator(SETTINGS_ICON).click();
   }
 
   async hideTableColumn(checkboxLocator: Locator) {

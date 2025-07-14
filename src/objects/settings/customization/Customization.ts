@@ -1,14 +1,16 @@
 import BasePage from "@/src/objects/common/BasePage";
 import { navItems } from "@/src/utils/constants/settings";
 import { expect, Page } from "@playwright/test";
-import BaseToast from "../../common/BaseToast";
+import { BaseDropdown } from "@/src/objects/common/BaseDropdown";
 
 class Customization extends BasePage {
-  protected toast: BaseToast;
+  protected dropdown: BaseDropdown;
 
   constructor(page: Page) {
     super(page);
-    this.toast = new BaseToast(page);
+    this.dropdown = new BaseDropdown(page, {
+      menu: this.page.getByRole("listbox"),
+    });
   }
 
   get languageSelector() {
@@ -80,12 +82,6 @@ class Customization extends BasePage {
     return this.page.getByTestId("link").nth(3);
   }
 
-  get removeToast2() {
-    return this.page.getByText(
-      "Welcome Page settings have been successfully saved",
-    );
-  }
-
   get approveNewColorSheme() {
     return this.page.getByRole("button", { name: "Save" }).nth(1);
   }
@@ -106,13 +102,13 @@ class Customization extends BasePage {
     return this.page.getByLabel("Continue");
   }
   get webOnly() {
-    return this.page.locator('#by-web input[type="radio"]');
+    return this.page.locator("#by-web");
   }
   get appOnly() {
-    return this.page.locator('#by-app input[type="radio"]');
+    return this.page.locator("#by-app");
   }
   get webOrApp() {
-    return this.page.locator('#provide-a-choice input[type="radio"]');
+    return this.page.locator("#provide-a-choice");
   }
 
   get customThemes() {
@@ -123,31 +119,72 @@ class Customization extends BasePage {
     return this.customThemes.locator(".check-img");
   }
 
+  get categoryDescription() {
+    return this.page.locator(".category-description");
+  }
+
+  get settingsBlock() {
+    return this.page.locator(".settings-block");
+  }
+
+  get saveCancelReminder() {
+    return this.page.getByTestId("save-cancel-reminder");
+  }
+
   async hideDnsSettingsInput() {
     await this.page.locator("#textInputContainerDNSSettings").evaluate((el) => {
       (el as HTMLElement).style.display = "none";
     });
   }
 
+  private async checkGeneralExist() {
+    await expect(this.categoryDescription).toHaveText(
+      /This subsection allows .*/,
+    );
+  }
+
+  private async checkBrandingExist() {
+    await expect(
+      this.page.locator('.header-container:has-text("Logo settings")'),
+    ).toBeVisible();
+  }
+
+  private async checkAppearanceExist() {
+    await expect(this.themeContainer).toBeVisible();
+  }
+
   async open() {
     await this.navigateToSettings();
     await this.navigateToArticle(navItems.customization);
+    await this.checkGeneralExist();
   }
 
   async openTab(tab: "General" | "Branding" | "Appearance") {
     await this.page.getByText(tab, { exact: true }).click();
+
+    switch (tab) {
+      case "General":
+        await this.checkGeneralExist();
+        break;
+      case "Branding":
+        await this.checkBrandingExist();
+        break;
+      case "Appearance":
+        await this.checkAppearanceExist();
+        break;
+      default:
+        throw new Error("Invalid tab");
+    }
   }
 
   async changeLanguage(language: string) {
     await this.languageSelector.click();
-    await this.page.waitForSelector(`text=${language}`);
-    await this.page.locator(`text=${language}`).first().click();
+    await this.dropdown.clickOption(language);
   }
 
   async changeTimezone(timezone: string) {
     await this.timezoneSelector.click();
-    await this.page.waitForSelector(`text=${timezone}`);
-    await this.page.locator(`text=${timezone}`).first().click();
+    await this.dropdown.clickOption(timezone);
   }
 
   async setTitle() {
@@ -163,6 +200,7 @@ class Customization extends BasePage {
 
   async brandName() {
     await this.textInput.first().fill("AutoTesting");
+    await expect(this.saveCancelReminder).toBeVisible();
     await this.saveButton.first().click();
   }
 
@@ -241,11 +279,11 @@ class Customization extends BasePage {
   }
 
   async choseDeepLink() {
-    await this.appOnly.click({ force: true });
+    await this.appOnly.click();
     await this.restoreButton.nth(3).click();
-    await this.webOnly.click({ force: true });
+    await this.webOnly.click();
     await this.restoreButton.nth(3).click();
-    await this.appOnly.click({ force: true });
+    await this.appOnly.click();
     await this.saveButton.nth(3).click();
   }
 }

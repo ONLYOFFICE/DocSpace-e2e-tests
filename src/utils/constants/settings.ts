@@ -2,7 +2,7 @@ const navItems = {
   customization: "Customization",
   security: "Security",
   backup: "Backup",
-  storageManagement: "Storage Management",
+  integration: "Integration",
 } as const;
 
 const mapBackupMethodsIds = {
@@ -32,6 +32,14 @@ const mapThirdPartyStorage = {
 type TThirdPartyStorage =
   (typeof mapThirdPartyStorage)[keyof typeof mapThirdPartyStorage];
 
+const toastMessages = {
+  backCopyCreated: "The backup copy has been successfully created.",
+  settingsUpdated: "Settings have been successfully updated",
+  operationCompleted: "Operation has been successfully completed.",
+  updatedSuccessfully: "Updated successfully",
+  welcomePageSaved: "Welcome Page settings have been successfully saved",
+} as const;
+
 export {
   navItems,
   TBackupMethodsIds,
@@ -40,4 +48,5 @@ export {
   mapThirdPartyResource,
   TThirdPartyStorage,
   mapThirdPartyStorage,
+  toastMessages,
 };
