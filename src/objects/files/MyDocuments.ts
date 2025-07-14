@@ -6,11 +6,10 @@ import InfoPanel from "../common/InfoPanel";
 import FilesTable from "./FilesTable";
 import FilesFilter from "./FilesFilter";
 import FilesEmptyView from "./FilesEmptyView";
-import Network from "../common/Network";
+import BasePage from "../common/BasePage";
 
 class MyDocuments extends BasePage {
   private portalDomain: string;
-  private network: Network;
 
   filesArticle: FilesArticle;
   filesCreateContextMenu: FilesCreateContextMenu;
@@ -33,7 +32,6 @@ class MyDocuments extends BasePage {
     this.filesTable = new FilesTable(page);
     this.filesFilter = new FilesFilter(page);
     this.filesEmptyView = new FilesEmptyView(page);
-    this.network = Network.getInstance(this.page);
   }
 
   async open() {

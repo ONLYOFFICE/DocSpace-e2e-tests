@@ -108,6 +108,7 @@ export default class Network {
     }
   };
 
+  // ALERT NOT STABLE FOR SPA
   /**
    * Waits for all active network requests to complete
    * @param options Wait options

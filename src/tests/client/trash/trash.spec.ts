@@ -1,4 +1,4 @@
-import { mapInitialDocNames } from "@/src/utils/constants/files";
+import { docSort, mapInitialDocNames } from "@/src/utils/constants/files";
 
 import Screenshot from "@/src/objects/common/Screenshot";
 import MyDocuments from "@/src/objects/files/MyDocuments";

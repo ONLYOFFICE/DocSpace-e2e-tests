@@ -2,7 +2,7 @@ import BasePage from "@/src/objects/common/BasePage";
 import { navItems } from "@/src/utils/constants/settings";
 import { navItems } from "@/src/utils/constants/settings";
 import { expect, Page } from "@playwright/test";
-import BaseToast from "../../common/BaseToast";
+import { BaseDropdown } from "@/src/objects/common/BaseDropdown";
 
 class Customization extends BasePage {
   protected dropdown: BaseDropdown;

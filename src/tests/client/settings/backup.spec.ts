@@ -6,6 +6,7 @@ import {
   mapBackupMethodsIds,
   mapThirdPartyResource,
   navItems,
+  toastMessages,
 } from "@/src/utils/constants/settings";
 import { test } from "@/src/fixtures";
 
@@ -31,8 +32,6 @@ test.describe("Backup portal tests", () => {
   });
 
   test("Backup flows", async ({ page }) => {
-    test.setTimeout(180000);
-
     await test.step("Render", async () => {
       await screenshot.expectHaveScreenshot("render_data_backup");
     });
@@ -43,8 +42,7 @@ test.describe("Backup portal tests", () => {
 
     await test.step("Backup temporary storage", async () => {
       await backup.locators.createBackupButton.click();
-      // await backup.removeToast("The backup copy has been successfully created."); // note: toast is not visible
-      await page.waitForTimeout(2000); // plug
+      await backup.removeToast(toastMessages.backCopyCreated);
       // // Wait for email to arrive
       // await new Promise((resolve) => setTimeout(resolve, 15000));
 
@@ -82,16 +80,12 @@ test.describe("Backup portal tests", () => {
       await backup.selectBackupMethod(mapBackupMethodsIds.backupRoom);
       await screenshot.expectHaveScreenshot("backup_room");
       await backup.openRoomSelector();
-      // await screenshot.expectHaveScreenshot("backup_room_selector");
       await backup.locators.forwardDocSpace.click();
       await backup.locators.forwardDocuments.click();
       await backup.locators.selectButton.click();
       await screenshot.expectHaveScreenshot("backup_room_storage_selected");
       await backup.locators.createCopyButton.click();
-      await page.waitForTimeout(2000); // plug
-      // await backup.removeToast(
-      //   "The backup copy has been successfully created.",
-      // ); // note: toast is not visible
+      await backup.removeToast(toastMessages.backCopyCreated);
     });
 
     // // ISSUE: CAPTCHA OR INFINITE LOADING
@@ -103,11 +97,11 @@ test.describe("Backup portal tests", () => {
     //   await backup.connectDropbox();
     //   await screenshot.expectHaveScreenshot("dropbox");
     //   await backup.createBackupInService();
-    //   // await backup.removeSettingsUpdatedToast();
     // });
 
     await test.step("Backup in Third-Party resource NextCloud", async () => {
       await backup.selectBackupMethod(mapBackupMethodsIds.thirdPartyResource);
+      await backup.expectConnectButtonNotToBeDisabled();
       await screenshot.expectHaveScreenshot("backup_third_party_resource");
       await backup.openThirdPartyDropdown();
       await screenshot.expectHaveScreenshot(
@@ -122,15 +116,10 @@ test.describe("Backup portal tests", () => {
       );
       await backup.locators.saveButton.click();
       await backup.openRoomSelector();
-      // issue: sometimes blurred text in selector
-      // await screenshot.expectHaveScreenshot(
-      //   "backup_third_party_resource_select",
-      // );
       await backup.locators.selectNextCloudRepo.click();
       await backup.locators.selectButton.click();
       await backup.locators.createCopyButton.click();
-      await page.waitForTimeout(2000); // plug
-      // await backup.removeSettingsUpdatedToast(); // note: toast is not visible
+      await backup.removeToast(toastMessages.backCopyCreated);
     });
 
     await test.step("Backup in Third-Party resource box", async () => {
@@ -138,8 +127,6 @@ test.describe("Backup portal tests", () => {
       await backup.selectThirdPartyResource(mapThirdPartyResource.box);
       await backup.connectBox();
       await backup.createBackupInService();
-      await page.waitForTimeout(10000); // plug
-      // await backup.removeToast();
       await backup.openActionMenuResource();
       await screenshot.expectHaveScreenshot(
         "backup_third_party_resource_action_menu",
@@ -163,8 +150,7 @@ test.describe("Backup portal tests", () => {
         "US East (N. Virginia) (us-east-1)",
       );
       await backup.locators.createCopyButton.click();
-      await page.waitForTimeout(5000); // plug
-      // await backup.removeSettingsUpdatedToast();
+      await backup.removeToast(toastMessages.backCopyCreated);
     });
 
     await test.step("Auto backup link", async () => {
@@ -178,8 +164,6 @@ test.describe("Backup portal tests", () => {
       await screenshot.expectHaveScreenshot("auto_backup_enabled");
 
       await backup.openRoomSelector();
-      // issue: sometimes blurred text in selector
-      // await screenshot.expectHaveScreenshot("auto_backup_room_selector");
       await backup.selectDocuments();
 
       await backup.openTimeSelector();
@@ -246,15 +230,11 @@ test.describe("Backup portal tests", () => {
 
       await backup.locators.saveButton.click();
       await backup.openRoomSelector();
-      // issue: sometimes blurred text in selector
-      // await screenshot.expectHaveScreenshot(
-      //   "auto_backup_third_party_resource_select",
-      // );
 
       await backup.locators.selectNextCloudRepo.click();
       await backup.locators.saveHereButton.click();
       await backup.locators.saveButtonAutoBackup.click();
-      await backup.removeSettingsUpdatedToast();
+      await backup.removeToast(toastMessages.settingsUpdated);
     });
 
     await test.step("Auto backup in Third-Party resource box", async () => {
@@ -268,10 +248,13 @@ test.describe("Backup portal tests", () => {
       await screenshot.expectHaveScreenshot(
         "auto_backup_third_party_resource_dropdown",
       );
+      await backup.openThirdPartyDropdown();
+      await backup.selectThirdPartyResource(mapThirdPartyResource.box);
       await backup.connectBox();
       await backup.selectRoomForBackup();
     });
 
+    // ISSUE: CAPTCHA OR INFINITE LOADING
     // await test.step("Auto backup in Third-Party resource dropbox", async () => {
     //   await backup.openTab("Automatic backup");
     //   await backup.selectDropboxAutoBackup();

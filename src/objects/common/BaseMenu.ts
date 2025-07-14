@@ -48,7 +48,20 @@ export abstract class BaseMenu {
   }
 
   protected async scrollUntilVisible(item: Locator, container: Locator) {
-    const maxScrolls = 10;
+    if (await item.isVisible()) {
+      return;
+    }
+
+    // Scroll to the top of the container
+    await container.evaluate((el) => {
+      const scroller = el.querySelector("[data-testid='scroller']");
+      if (scroller) {
+        scroller.scrollTop = 0;
+      }
+    });
+
+    const maxScrolls = 100;
+
     for (let i = 0; i < maxScrolls; i++) {
       if (await item.isVisible()) {
         return;

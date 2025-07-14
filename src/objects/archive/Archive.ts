@@ -22,7 +22,8 @@ const navActions = {
 const LAST_ACTIVITY_CHECKBOX =
   ".table-container_settings-checkbox:has(span:text-is('Last activity'))";
 
-class MyArchive extends BasePage {
+class MyArchive {
+  page: Page;
   portalDomain: string;
 
   navigation: BaseNavigation;
@@ -59,7 +60,6 @@ class MyArchive extends BasePage {
   async deleteRooms() {
     await this.archiveTable.selectAllRows();
     await this.navigation.performAction(navActions.delete);
-    await this.removeToast(archiveToastMessages.removed);
   }
 
   async hideLastActivityColumn() {

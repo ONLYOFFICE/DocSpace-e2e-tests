@@ -5,6 +5,7 @@ import { PaymentApi } from "@/src/api/payment";
 import { Profile } from "@/src/objects/profile/Profile";
 import { test } from "@/src/fixtures";
 import { expect } from "@playwright/test";
+import { toastMessages } from "@/src/utils/constants/settings";
 
 test.describe("Customization", () => {
   let paymentApi: PaymentApi;
@@ -157,11 +158,10 @@ test.describe("Customization", () => {
       );
       await page.waitForLoadState("domcontentloaded");
 
-      // ISSUE UNSTABLE EMAIL
-      // console.log("Portal renamed successfully, wait for email");
+      console.log("Portal renamed successfully, wait for email");
 
       // // Wait for email to arrive
-      // await new Promise((resolve) => setTimeout(resolve, 15000));
+      // await new Promise((resolve) => setTimeout(resolve, 10000));
 
       // // Create a MailChecker instance
       // const mailChecker = new MailChecker({
@@ -178,9 +178,6 @@ test.describe("Customization", () => {
       //   timeoutSeconds: 60,
       // });
 
-      // console.log("Email:", email);
-
-      // // Log the found email
       // if (email) {
       //   console.log(
       //     `Found portal address change email with subject: "${email.subject}"`,
@@ -207,7 +204,7 @@ test.describe("Customization", () => {
       await customization.removeToast(toastMessages.settingsUpdated);
       await customization.webOnly.click({ force: true });
       await customization.saveButton.nth(3).click();
-      await customization.removeToast();
+      await customization.removeToast(toastMessages.settingsUpdated);
       await customization.webOrApp.click({ force: true });
       await customization.saveButton.nth(3).click();
       await customization.removeToast(toastMessages.settingsUpdated);
@@ -248,7 +245,6 @@ test.describe("Customization", () => {
       // const email = await mailChecker.checkEmailBySenderAndSubject({
       //   subject: "Confirm changing your password",
       //   sender: "autoTest",
-      //   timeoutSeconds: 30,
       //   moveOut: false,
       // });
 

@@ -41,17 +41,6 @@ class ContactsNavigation extends BaseNavigation {
       await this.openHeaderMenu();
     }
   }
-  async disable() {
-    await this.performAction(navActions.disable);
-  }
-
-  async enable() {
-    await this.performAction(navActions.enable);
-  }
-
-  async deleteGroup() {
-    await this.performAction(navActions.deleteGroup);
-  }
 
   async openDialog(action: keyof typeof navActions) {
     await this.performAction({ button: navActions[action].button });

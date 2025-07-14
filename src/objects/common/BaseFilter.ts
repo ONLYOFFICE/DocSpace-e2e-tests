@@ -8,6 +8,7 @@ export const VIEW_SWITCH = {
 export const SORT = {
   BUTTON: "#sort-by-button",
   SORT_OPTION: ".option-item",
+  SORT_OPTION: ".option-item",
 } as const;
 
 export const FILTER = {
@@ -96,6 +97,13 @@ class BaseFilter {
   protected async applySort(option: string) {
     await this.openDropdownSortBy();
     await this.selectSortOptionByText(option);
+  protected async selectSortOptionByText(text: string) {
+    await this.page.locator(SORT.SORT_OPTION).filter({ hasText: text }).click();
+  }
+
+  protected async applySort(option: string) {
+    await this.openDropdownSortBy();
+    await this.selectSortOptionByText(option);
   }
 
   async openFilterDialog() {
@@ -109,12 +117,8 @@ class BaseFilter {
   }
 
   protected async applyFilter() {
+  protected async applyFilter() {
     await this.filterApplyButton.click();
-    await expect(this.filterDialog).not.toBeVisible();
-  }
-
-  async cancelFilter() {
-    await this.filterCancelButton.click();
     await expect(this.filterDialog).not.toBeVisible();
   }
 
@@ -129,7 +133,15 @@ class BaseFilter {
 
   protected async fillSearchInputAndCheckRequest(searchValue: string) {
     const promise = this.page.waitForResponse((response) => {
+  protected async fillSearchInputAndCheckRequest(searchValue: string) {
+    const promise = this.page.waitForResponse((response) => {
       return (
+        response
+          .url()
+          .toLowerCase()
+          .includes(
+            `filtervalue=${encodeURIComponent(searchValue.toLowerCase())}`,
+          ) && response.request().method() === "GET"
         response
           .url()
           .toLowerCase()
@@ -144,10 +156,12 @@ class BaseFilter {
   }
 
   protected async clearSearchText() {
+  protected async clearSearchText() {
     await this.searchInput.clear();
     await expect(this.searchInput).toHaveValue("");
   }
 
+  protected async removeFilter(filterName: string) {
   protected async removeFilter(filterName: string) {
     const filter = this.page
       .locator(".filter-input_selected-row")

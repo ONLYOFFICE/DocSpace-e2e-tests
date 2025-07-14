@@ -7,7 +7,8 @@ import TrashEmptyView from "./TrashEmptyView";
 import BaseDialog from "../common/BaseDialog";
 import BaseFilter from "../common/BaseFilter";
 import InfoPanel from "../common/InfoPanel";
-import Network from "../common/Network";
+import BasePage from "../common/BasePage";
+import { toastMessages } from "@/src/utils/constants/trash";
 
 const navActions = {
   restore: {
@@ -28,7 +29,6 @@ class Trash extends BasePage {
   trashSelector: TrashSelector;
   filter: BaseFilter;
   infoPanel: InfoPanel;
-  network: Network;
 
   constructor(page: Page) {
     super(page);
@@ -40,8 +40,6 @@ class Trash extends BasePage {
     this.trashSelector = new TrashSelector(page);
     this.filter = new BaseFilter(page);
     this.infoPanel = new InfoPanel(page);
-
-    this.network = Network.getInstance(page);
   }
 
   async open() {
