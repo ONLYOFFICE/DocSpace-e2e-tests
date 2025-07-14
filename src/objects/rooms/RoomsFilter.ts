@@ -1,29 +1,49 @@
 import { Page } from "@playwright/test";
 import BaseFilter from "../common/BaseFilter";
+import { roomSort, TRoomSort } from "@/src/utils/constants/rooms";
+import { waitForGetRoomsResponse } from "./api";
 
 const ROOMS_FILTER = {
   BY_PUBLIC: "#filter_type-public",
 } as const;
-
-const ROOMS_SORT = {
-  BY_TYPE: "#sort-by_room-type",
-};
 
 class RoomsFilter extends BaseFilter {
   constructor(page: Page) {
     super(page);
   }
 
-  async clickSortByType() {
-    await this.page.locator(ROOMS_SORT.BY_TYPE).click();
+  async selectSortByType() {
+    const promise = waitForGetRoomsResponse(this.page);
+    await this.selectSortOptionByText(roomSort.type);
+    await promise;
+  }
+
+  async applyRoomsSort(option: TRoomSort) {
+    const promise = waitForGetRoomsResponse(this.page);
+    await this.applySort(option);
+    await promise;
   }
 
   async selectFilterByPublic() {
+    const promise = waitForGetRoomsResponse(this.page);
     await this.selectFilterTag(ROOMS_FILTER.BY_PUBLIC);
+    await promise;
+  }
+
+  async applyFilter() {
+    const promise = waitForGetRoomsResponse(this.page);
+    await super.applyFilter();
+    await promise;
+  }
+
+  async clearSearchText() {
+    const promise = waitForGetRoomsResponse(this.page);
+    await super.clearSearchText();
+    await promise;
   }
 
   async clearFilterByPublic() {
-    const promise = this.waitForGetResponse("/rooms");
+    const promise = waitForGetRoomsResponse(this.page);
     const filterByPublicTag = this.page
       .locator(".selected-item_label")
       .filter({ hasText: "Public room" });
@@ -34,10 +54,7 @@ class RoomsFilter extends BaseFilter {
   }
 
   async fillRoomsSearchInputAndCheckRequest(searchValue: string) {
-    await this.fillSearchInputAndCheckRequest(
-      searchValue,
-      `filterValue=${encodeURIComponent(searchValue)}`,
-    );
+    await this.fillSearchInputAndCheckRequest(searchValue);
   }
 
   async checkEmptyViewExist() {
