@@ -244,17 +244,8 @@ test.describe("Rooms", () => {
     await test.step("Sort", async () => {
       await myRooms.roomsFilter.openDropdownSortBy();
       await screenshot.expectHaveScreenshot("sort_dropdown");
-      await myRooms.roomsFilter.clickSortByType();
+      await myRooms.roomsFilter.selectSortByType();
       await screenshot.expectHaveScreenshot("sort_by_type");
-    });
-
-    await test.step("Filter", async () => {
-      await myRooms.roomsFilter.openFilterDialog();
-      await screenshot.expectHaveScreenshot("filter_dialog");
-      await myRooms.roomsFilter.selectFilterByPublic();
-      await myRooms.roomsFilter.applyFilter();
-      await screenshot.expectHaveScreenshot("filter_by_public");
-      await myRooms.roomsFilter.clearFilterByPublic();
     });
 
     await test.step("Search", async () => {

@@ -79,7 +79,11 @@ class BaseSelector {
 
   async acceptCreate() {
     await expect(this.newSelectorItem).toBeVisible();
-    await this.newSelectorItem.getByRole("img").nth(1).click();
+    // TODO ACCEPT BUTTON BY TEST ID;
+    await this.page
+      .locator(".Selector-module__inputWrapper--PcjcU")
+      .first()
+      .click();
     await expect(this.newSelectorItem).not.toBeVisible();
   }
 

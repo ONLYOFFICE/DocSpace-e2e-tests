@@ -1,7 +1,7 @@
 import { Page } from "@playwright/test";
 import BaseNavigation from "../common/BaseNavigation";
 
-const navActions = {
+export const navActions = {
   invite: {
     button: "#menu-invite",
     submit: "#send-inite-again-modal_submit",
@@ -41,17 +41,6 @@ class ContactsNavigation extends BaseNavigation {
       await this.openHeaderMenu();
     }
   }
-  async disable() {
-    await this.performAction(navActions.disable);
-  }
-
-  async enable() {
-    await this.performAction(navActions.enable);
-  }
-
-  async deleteGroup() {
-    await this.performAction(navActions.deleteGroup);
-  }
 
   async openDialog(action: keyof typeof navActions) {
     await this.performAction({ button: navActions[action].button });
@@ -67,10 +56,6 @@ class ContactsNavigation extends BaseNavigation {
       type: "id",
       value: "create_group",
     });
-  }
-
-  async delete() {
-    await this.performAction(navActions.delete);
   }
 
   async clickHeaderSubmenuOption(parentText: string, childText: string) {

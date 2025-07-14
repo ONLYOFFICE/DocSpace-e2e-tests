@@ -6,12 +6,10 @@ import InfoPanel from "../common/InfoPanel";
 import FilesTable from "./FilesTable";
 import FilesFilter from "./FilesFilter";
 import FilesEmptyView from "./FilesEmptyView";
-import Network from "../common/Network";
+import BasePage from "../common/BasePage";
 
-class MyDocuments {
-  private page: Page;
+class MyDocuments extends BasePage {
   private portalDomain: string;
-  private network: Network;
 
   filesArticle: FilesArticle;
   filesCreateContextMenu: FilesCreateContextMenu;
@@ -23,7 +21,7 @@ class MyDocuments {
   infoPanel: InfoPanel;
 
   constructor(page: Page, portalDomain: string) {
-    this.page = page;
+    super(page);
     this.portalDomain = portalDomain;
 
     this.infoPanel = new InfoPanel(page);
@@ -34,7 +32,6 @@ class MyDocuments {
     this.filesTable = new FilesTable(page);
     this.filesFilter = new FilesFilter(page);
     this.filesEmptyView = new FilesEmptyView(page);
-    this.network = Network.getInstance(this.page);
   }
 
   async open() {
@@ -50,6 +47,7 @@ class MyDocuments {
   async deleteAllDocs() {
     await this.filesTable.selectAllRows();
     await this.filesNavigation.delete();
+    await this.removeToast("successfully moved to Trash");
     await this.filesEmptyView.checkNoDocsTextExist();
   }
 }

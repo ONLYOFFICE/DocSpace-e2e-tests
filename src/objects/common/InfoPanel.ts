@@ -3,6 +3,7 @@ import { BaseContextMenu } from "./BaseContextMenu";
 import { TInfoPanelTabs } from "../../utils/types/common";
 import { TRoomCreateTitles } from "@/src/utils/constants/rooms";
 import { BaseDropdown } from "./BaseDropdown";
+import BaseToast from "./BaseToast";
 
 const NO_ITEM_TEXT = ".no-item-text";
 const INFO_OPTIONS_ICON = "#info-options";
@@ -26,14 +27,16 @@ const CREATE_SHARED_LINKS_ICON = "[data-tooltip-id='file-links-tooltip']";
 const ROOM_ICON = ".item-icon [data-testid='room-icon']";
 
 class InfoPanel {
-  page: Page;
+  protected page: Page;
   protected contextMenu: BaseContextMenu;
   protected dropdown: BaseDropdown;
+  protected toast: BaseToast;
 
   constructor(page: Page) {
     this.page = page;
     this.contextMenu = new BaseContextMenu(page);
     this.dropdown = new BaseDropdown(page);
+    this.toast = new BaseToast(page);
   }
 
   private get noItemText() {
@@ -188,11 +191,18 @@ class InfoPanel {
     await expect(membersTitle).toBeVisible();
   }
 
+  async removeSharedLinkCreatedToast() {
+    await this.toast.removeToast(
+      "Anyone with this link can read only. The link is valid for unlimited.",
+    );
+  }
+
   async createFirstSharedLink() {
     await expect(this.sharedLinksAvatar).toHaveCount(0);
     const createAndCopy = this.sharedLinksWrapper.getByText("Create and copy");
     await expect(createAndCopy).toBeVisible();
     await createAndCopy.click();
+    await this.removeSharedLinkCreatedToast();
     await expect(this.sharedLinksAvatar).toHaveCount(1);
   }
 

@@ -74,6 +74,7 @@ test.describe("Security tests", () => {
       const page1 = await page1Promise;
       await page1.waitForURL(
         "https://*.onlyoffice.com/docspace/configuration#passwordstrength",
+        { waitUntil: "load" },
       );
       await expect(page1).toHaveURL(/docspace\/configuration#passwordstrength/);
       await page1.close();
@@ -82,6 +83,7 @@ test.describe("Security tests", () => {
       const page2 = await page2Promise;
       await page2.waitForURL(
         "https://*.onlyoffice.com/docspace/configuration/docspace-two-factor-authentication.aspx",
+        { waitUntil: "load" },
       );
       await expect(page2).toHaveURL(
         /docspace\/configuration\/docspace-two-factor-authentication.aspx/,
@@ -92,6 +94,7 @@ test.describe("Security tests", () => {
       const page3 = await page3Promise;
       await page3.waitForURL(
         "https://*.onlyoffice.com/docspace/configuration#TrustedDomain",
+        { waitUntil: "load" },
       );
       await expect(page3).toHaveURL(/docspace\/configuration#TrustedDomain/);
       await page3.close();
@@ -99,9 +102,9 @@ test.describe("Security tests", () => {
       const page4Promise = page.waitForEvent("popup");
       await security.ipSecurityGuideLink.click();
       const page4 = await page4Promise;
-      await page4.waitForLoadState("load");
       await page4.waitForURL(
         "https://*.onlyoffice.com/docspace/configuration/docspace-security-settings.aspx#limiteddevelopertoolsaccess_block",
+        { waitUntil: "load" },
       );
       await expect(page4).toHaveURL(
         /docspace\/configuration\/docspace-security-settings.aspx#limiteddevelopertoolsaccess_block/,
@@ -113,6 +116,7 @@ test.describe("Security tests", () => {
       const page5 = await page5Promise;
       await page5.waitForURL(
         "https://*.onlyoffice.com/workspace/administration/configuration.aspx#loginsettings",
+        { waitUntil: "load" },
       );
       await expect(page5).toHaveURL(
         /workspace\/administration\/configuration.aspx#loginsettings/,
@@ -124,6 +128,7 @@ test.describe("Security tests", () => {
       const page6 = await page6Promise;
       await page6.waitForURL(
         "https://*.onlyoffice.com/docspace/configuration#administratormessage",
+        { waitUntil: "load" },
       );
       await expect(page6).toHaveURL(
         /docspace\/configuration#administratormessage/,
@@ -135,6 +140,7 @@ test.describe("Security tests", () => {
       const page7 = await page7Promise;
       await page7.waitForURL(
         "https://*.onlyoffice.com/docspace/configuration#sessionlifetime",
+        { waitUntil: "load" },
       );
       await expect(page7).toHaveURL(/docspace\/configuration#sessionlifetime/);
       await page7.close();

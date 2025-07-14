@@ -36,6 +36,17 @@ export const templateContextMenuOption = {
   accessSettings: "Access settings",
 } as const;
 
+export const roomSort = {
+  name: "Name",
+  type: "Type",
+  tags: "Size",
+  owner: "Owner",
+  lastActivity: "Last activity date",
+  storage: "Storage",
+} as const;
+
+export type TRoomSort = (typeof roomSort)[keyof typeof roomSort];
+
 export type TRoomContextMenuOption =
   (typeof roomContextMenuOption)[keyof typeof roomContextMenuOption];
 

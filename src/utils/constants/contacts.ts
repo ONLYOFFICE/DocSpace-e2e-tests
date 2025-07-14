@@ -94,9 +94,36 @@ export type TMembersContextMenuOption =
 export type TOwnerContextMenuOption =
   (typeof ownerContextMenuOption)[keyof typeof ownerContextMenuOption];
 
+export type TContactsContextMenuOption =
+  | TMembersContextMenuOption
+  | TGroupsContextMenuOption
+  | TGuestsContextMenuOption
+  | TOwnerContextMenuOption;
+
 export type TInviteResponseData = {
   response: {
     email: string;
     id: string;
   };
 };
+
+export const contactSort = {
+  name: "Name",
+  type: "Type",
+  group: "Group",
+  email: "Email",
+  storage: "Storage",
+} as const;
+
+export type TContactSort = (typeof contactSort)[keyof typeof contactSort];
+
+export const toastMessages = {
+  changesSaved: "Changes saved successfully",
+  userStatusChanged: "The user status was successfully changed",
+  userTypeChanged: "The user type was successfully changed",
+  usersInvited: "Users invited",
+  groupDeleted: "Group was deleted successfully",
+  guestDeleted: "Guest was deleted successfully",
+  guestTypeChanged: "The guest type was successfully changed",
+  guestStatusChanged: "The guest status was successfully changed",
+} as const;

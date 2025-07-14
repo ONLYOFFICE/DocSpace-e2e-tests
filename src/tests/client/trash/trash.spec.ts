@@ -1,4 +1,4 @@
-import { mapInitialDocNames } from "@/src/utils/constants/files";
+import { docSort, mapInitialDocNames } from "@/src/utils/constants/files";
 
 import Screenshot from "@/src/objects/common/Screenshot";
 import MyDocuments from "@/src/objects/files/MyDocuments";
@@ -25,6 +25,7 @@ test.describe("Trash", () => {
 
   test("Render", async ({ page }) => {
     await test.step("Render", async () => {
+      await myDocuments.filesFilter.applySort(docSort.name);
       await trash.trashTable.checkRowExist(
         mapInitialDocNames.ONLYOFFICE_SAMPLE_DOCUMENT,
       );
@@ -40,8 +41,9 @@ test.describe("Trash", () => {
       );
       await screenshot.expectHaveScreenshot("context_menu_table");
 
-      await trash.trashTable.toggleSettings();
+      await trash.trashTable.openSettings();
       await screenshot.expectHaveScreenshot("context_menu_table_settings");
+      await trash.trashTable.closeSettings();
     });
 
     await test.step("OpenEmptyTrashDialog", async () => {

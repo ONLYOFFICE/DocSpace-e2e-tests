@@ -85,7 +85,7 @@ class Screenshot {
         return;
       } catch (err) {
         console.log(
-          `${this.options.screenshotDir} - ${screenshotName} - ${err} - Attempt ${attempt} of ${maxAttempts - 1}`,
+          `${this.options.screenshotDir} - ${screenshotName} - ${err} - Attempt ${attempt} of ${maxAttempts}`,
         );
         lastError = err;
         if (attempt < maxAttempts) {

@@ -7,7 +7,8 @@ import TrashEmptyView from "./TrashEmptyView";
 import BaseDialog from "../common/BaseDialog";
 import BaseFilter from "../common/BaseFilter";
 import InfoPanel from "../common/InfoPanel";
-import Network from "../common/Network";
+import BasePage from "../common/BasePage";
+import { toastMessages } from "@/src/utils/constants/trash";
 
 const navActions = {
   restore: {
@@ -19,9 +20,7 @@ const navActions = {
   },
 } as const;
 
-class Trash {
-  private page: Page;
-
+class Trash extends BasePage {
   navigation: BaseNavigation;
   trashTable: BaseTable;
   trashEmptyView: TrashEmptyView;
@@ -30,10 +29,9 @@ class Trash {
   trashSelector: TrashSelector;
   filter: BaseFilter;
   infoPanel: InfoPanel;
-  network: Network;
 
   constructor(page: Page) {
-    this.page = page;
+    super(page);
 
     this.navigation = new BaseNavigation(page, navActions);
     this.trashTable = new BaseTable(page);
@@ -42,8 +40,6 @@ class Trash {
     this.trashSelector = new TrashSelector(page);
     this.filter = new BaseFilter(page);
     this.infoPanel = new InfoPanel(page);
-
-    this.network = Network.getInstance(page);
   }
 
   async open() {
@@ -61,6 +57,7 @@ class Trash {
   async deleteForever() {
     await this.trashTable.selectAllRows();
     await this.navigation.performAction(navActions.delete);
+    await this.removeToast(toastMessages.deleted);
     await this.trashEmptyView.checkNoDocsTextExist();
   }
 
@@ -96,14 +93,9 @@ class Trash {
     await this.navigation.performAction({
       button: "#header_option_restore-all",
     });
+    await this.removeToast(toastMessages.restored);
     await this.trashSelector.checkSelectorExist();
   }
-
-  // async hideLastActivityColumn() {
-  //   await this.archiveTable.hideTableColumn(
-  //     this.page.locator(LAST_ACTIVITY_CHECKBOX),
-  //   );
-  // }
 }
 
 export default Trash;
