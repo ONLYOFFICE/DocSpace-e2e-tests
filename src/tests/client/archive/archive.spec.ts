@@ -54,7 +54,6 @@ test.describe("Archive", () => {
     });
 
     await test.step("RestoreRooms", async () => {
-      await myArchive.archiveTable.selectAllRows();
       await myArchive.restoreRooms();
       await myArchive.archiveEmptyView.checkNoArchivedRoomsExist();
       await screenshot.expectHaveScreenshot("restore_rooms_restored");
@@ -66,7 +65,6 @@ test.describe("Archive", () => {
       await myRooms.moveAllRoomsToArchive();
       await myRooms.roomsEmptyView.checkNoRoomsExist();
       await myArchive.open();
-      await myArchive.archiveTable.selectAllRows();
       await myArchive.deleteRooms();
       await myArchive.archiveEmptyView.checkNoArchivedRoomsExist();
     });
