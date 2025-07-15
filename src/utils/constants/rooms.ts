@@ -45,6 +45,21 @@ export const roomSort = {
   storage: "Storage",
 } as const;
 
+export const roomToastMessages = {
+  pinned: "Room pinned",
+  notifyDisabled: "Room notifications disabled",
+  notifyEnabled: "Room notifications enabled",
+  roomsArchived: "The rooms are archived",
+  selectedTemplatesDeleted: "Selected room templates have been deleted",
+
+  duplicate: (folderName: string) =>
+    `The folder ${folderName} successfully duplicated`,
+  roomArchived: (roomName: string) => `The room '${roomName}' is archived`,
+  templateSaved: (roomName: string) => `Room template «${roomName}» saved`,
+  baseOnTemplateCreated: (roomName: string) =>
+    `Room based on the template «${roomName}» created.`,
+};
+
 export type TRoomSort = (typeof roomSort)[keyof typeof roomSort];
 
 export type TRoomContextMenuOption =
