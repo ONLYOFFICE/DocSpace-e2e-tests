@@ -29,32 +29,22 @@ test.describe("Security tests", () => {
   test("All security scenarios", async ({ page }) => {
     await test.step("Password strength", async () => {
       await security.updatePasswordStrength(17);
-      await security.removeToast();
       await security.updatePasswordStrength(8);
-      await security.removeToast();
     });
 
     await test.step("Trusted mail domain", async () => {
       await security.anyDomainsActivation();
-
-      await security.removeToast();
       await security.customDomainsActivation();
-      await security.removeToast();
-      await page.waitForTimeout(1000);
       await security.disableDomains();
-      await security.removeToast();
     });
 
     await test.step("Ip security", async () => {
       await security.ipActivation();
-      await security.removeToast();
       await security.ipDeactivation();
-      await security.removeToast();
     });
 
     await test.step("Brute force", async () => {
       await security.bruteForceActivation();
-      await security.removeToast();
       await security.restoreToDefaultButton.click();
       const input = page.getByPlaceholder("Enter number");
       await expect(input).toHaveValue("5");
@@ -62,13 +52,10 @@ test.describe("Security tests", () => {
 
     await test.step("Administrator message", async () => {
       await security.adminMessageActivation();
-      await security.removeToast();
       await security.adminMessageDeactivation();
-      await security.removeToast();
     });
 
     await test.step("Security link", async () => {
-      await page.waitForTimeout(1000);
       const page1Promise = page.waitForEvent("popup");
       await security.passwordStrengthGuideLink.click();
       const page1 = await page1Promise;

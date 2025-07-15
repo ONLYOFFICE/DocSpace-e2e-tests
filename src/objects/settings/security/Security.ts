@@ -1,6 +1,6 @@
 import { Page } from "@playwright/test";
 import BasePage from "@/src/objects/common/BasePage";
-import { navItems } from "@/src/utils/constants/settings";
+import { navItems, toastMessages } from "@/src/utils/constants/settings";
 import BaseTable, { TBaseTableLocators } from "../../common/BaseTable";
 
 class Security extends BasePage {
@@ -80,12 +80,7 @@ class Security extends BasePage {
   get ipSecurityDisabled() {
     return this.page.locator("#ip-security-disabled path");
   }
-  get addAtLeast1TrustedDomain() {
-    return this.page.getByText("Add at least 1 trusted domain.");
-  }
-  get addAtLeast1AllowedIpAddress() {
-    return this.page.getByText("Add at least 1 allowed IP address.");
-  }
+
   get numberOfAttempts() {
     return this.page.getByPlaceholder("Enter number");
   }
@@ -94,14 +89,6 @@ class Security extends BasePage {
   }
   get checkPeriod() {
     return this.page.getByTestId("text-input").nth(2);
-  }
-  get bruteForceArea() {
-    return this.page.locator(".sc-hfYvEh");
-  }
-  get bruteForceSaveButton() {
-    return this.page
-      .locator(".sc-hfYvEh > .sc-hLwbiq > .buttons-flex > button")
-      .first();
   }
   get restoreToDefaultButton() {
     return this.page.locator(".brute-force-protection-cancel");
@@ -164,6 +151,7 @@ class Security extends BasePage {
     await this.useDigits.click();
     await this.useSpecialCharacter.click();
     await this.saveButton.first().click();
+    await this.removeToast(toastMessages.settingsUpdated);
   }
 
   async anyDomainsActivation() {
@@ -173,6 +161,7 @@ class Security extends BasePage {
     await this.cancelButton.nth(2).click();
     await this.anyDomains.click();
     await this.saveButton.nth(2).click();
+    await this.removeToast(toastMessages.settingsUpdated);
   }
 
   async customDomainsActivation() {
@@ -180,15 +169,17 @@ class Security extends BasePage {
     await this.addDomainLink.click();
     await this.trustDomainInput.fill("gmail.com");
     await this.saveButton.nth(2).click();
+    await this.removeToast(toastMessages.settingsUpdated);
   }
 
   async disableDomains() {
     await this.deleteDomain.first().click();
     await this.trustedDomainArea.click();
     await this.saveButton.nth(2).click();
-    await this.addAtLeast1TrustedDomain.click();
+    await this.removeToast(toastMessages.addTrustedDomain);
     await this.disabledDomains.click();
     await this.saveButton.nth(2).click();
+    await this.removeToast(toastMessages.settingsUpdated);
   }
 
   async ipActivation() {
@@ -198,15 +189,17 @@ class Security extends BasePage {
     await this.addIpLink.click();
     await this.ipInput.fill("155.155.155.155");
     await this.saveButton.nth(5).click();
+    await this.removeToast(toastMessages.settingsUpdated);
   }
 
   async ipDeactivation() {
     await this.ipSecurityArea.click();
     await this.deleteIp.click();
     await this.saveButton.nth(5).click();
-    await this.addAtLeast1AllowedIpAddress.click();
+    await this.removeToast(toastMessages.addAllowedIp);
     await this.ipSecurityDisabled.click();
     await this.saveButton.nth(5).click();
+    await this.removeToast(toastMessages.settingsUpdated);
   }
 
   async bruteForceActivation() {
@@ -214,6 +207,7 @@ class Security extends BasePage {
     await this.blickingTime.fill("30");
     await this.checkPeriod.fill("30");
     await this.saveButton.nth(6).click();
+    await this.removeToast(toastMessages.settingsUpdated);
   }
 
   async adminMessageActivation() {
@@ -221,11 +215,13 @@ class Security extends BasePage {
     await this.cancelButton.nth(7).click();
     await this.adminMessageEnable.click();
     await this.saveButton.nth(7).click();
+    await this.removeToast(toastMessages.settingsUpdated);
   }
 
   async adminMessageDeactivation() {
     await this.adminMessageDisabled.click();
     await this.saveButton.nth(7).click();
+    await this.removeToast(toastMessages.settingsUpdated);
   }
 
   async sessionLifetimeActivation() {
