@@ -38,6 +38,8 @@ const toastMessages = {
   operationCompleted: "Operation has been successfully completed.",
   updatedSuccessfully: "Updated successfully",
   welcomePageSaved: "Welcome Page settings have been successfully saved",
+  addTrustedDomain: "Add at least 1 trusted domain.",
+  addAllowedIp: "Add at least 1 allowed IP address.",
 } as const;
 
 export {
