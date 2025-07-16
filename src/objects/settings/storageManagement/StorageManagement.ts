@@ -1,5 +1,5 @@
 import BasePage from "@/src/objects/common/BasePage";
-import { navItems } from "@/src/utils/constants/settings";
+import navItems from "@/src/utils/constants/settings";
 import BaseToast from "../../common/BaseToast";
 import { expect, Page } from "@playwright/test";
 
@@ -11,77 +11,67 @@ class StorageManagement extends BasePage {
     this.toast = new BaseToast(page);
   }
 
+  get navigateToStorageManagement() {
+    return this.page.locator('#portal-settings_catalog-portal-storageManagement').click();
+  }
+
   get storageManagementGuideLink() {
-    return this.page.getByTestId('help_center_link');
+    return this.page.locator('[data-testid="link"]');
   }
 
   get portalCreationDate() {
-    return this.page.getByTestId('portal_created_date');
+    return this.page.locator('[data-testid="text"]:has-text("Portal Created date")');
   }
 
   get recalculateDate() {
-    return this.page.getByTestId('last_recalculate_date');
+    return this.page.locator('[data-testid="text"]:has-text("Last update")');
   }
 
   get onOffQuotaRoom() {
-    return this.page.getByTestId('quota_room_button');
+    return this.page.locator('label').filter({ hasText: 'Define quota per room' }).locator('circle');
   }
 
   get onOffQuotaUser() {
-    return this.page.getByTestId('quota_user_button');
+    return this.page.locator('label').filter({ hasText: 'Define quota per user' }).locator('circle');
   }
 
   get comboboxRoom() {
-    return this.page.getByTestId('quota_room_form_size_combo_box');
+    return this.page.getByTestId('combobox').locator('div').first();
   }
 
   get comboboxUser() {
-    return this.page.getByTestId('quota_user_form_size_combo_box');
-  }
-
-  get selectByte() {
-    return this.page.getByTestId('drop_down_item_0');
+    return this.page.getByTestId('combobox').locator('div').last();
   }
 
   get selectKB() {
-    return this.page.getByTestId('drop_down_item_1');
+    return this.page.locator('[data-testid="drop-down-item"]:has-text("KB")');
   }
 
   get selectMB() {
-    return this.page.getByTestId('drop_down_item_2');
+    return this.page.locator('[data-testid="drop-down-item"]:has-text("MB")');
   }
 
   get selectGB() {
-    return this.page.getByTestId('drop_down_item_3');
+    return this.page.locator('[data-testid="drop-down-item"]:has-text("GB")');
   }
 
   get selectTB() {
-    return this.page.getByTestId('drop_down_item_4');
+    return this.page.locator('[data-testid="drop-down-item"]:has-text("TB")');
   }
 
-  get cancelButtonRoom() {
-    return this.page.getByTestId('quota_room_form_cancel_button');
+  get cancelButton() {
+    return this.page.locator('[data-testid="cancel-button"]');
   }
 
-  get cancelButtonUser() {
-    return this.page.getByTestId('quota_user_form_cancel_button');
+  get saveButton() {
+    return this.page.locator('[data-testid="save-button"]');
   }
 
-  get saveButtonRoom() {
-    return this.page.getByTestId('quota_room_form_save_button');
+  get textInput() {
+    return this.page.locator('[data-testid="text-input"]');
   }
 
-  get saveButtonUser() {
-    return this.page.getByTestId('quota_user_form_save_button');
-  }
 
-  get textInputRoom() {
-    return this.page.getByTestId('quota_room_form_input');
-  }
-
-  get textInputUser() {
-    return this.page.getByTestId('quota_user_form_input');
-  }
 
   async open() {
     await this.navigateToSettings();
@@ -89,7 +79,7 @@ class StorageManagement extends BasePage {
   }
 
   async checkStorageManagementRender() {
-    await expect(this.page.getByText('Disk space used')).toBeVisible();
+    await expect(this.page.getByTestId('text').getByText('Disk space used')).toBeVisible();
   }
 
   async hideDate() {
@@ -105,10 +95,10 @@ class StorageManagement extends BasePage {
     await this.selectGB.click();
     await this.comboboxRoom.click();
     await this.selectTB.click();
-    await this.cancelButtonRoom.click();
+    await this.cancelButton.click();
     await this.onOffQuotaRoom.click();
-    await this.textInputRoom.fill('500');
-    await this.saveButtonRoom.click();
+    await this.textInput.fill('500');
+    await this.saveButton.click();
   }
 
   async QuotaUserActivate() {
@@ -119,10 +109,10 @@ class StorageManagement extends BasePage {
     await this.selectGB.nth(1).click();
     await this.comboboxUser.click();
     await this.selectTB.nth(1).click();
-    await this.cancelButtonUser.click();
+    await this.cancelButton.nth(1).click();
     await this.onOffQuotaUser.click();
-    await this.textInputUser.fill('500');
-    await this.saveButtonUser.click();
+    await this.textInput.nth(1).fill('500');
+    await this.saveButton.nth(1).click();
   }
 
 }
