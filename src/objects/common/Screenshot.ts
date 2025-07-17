@@ -64,6 +64,8 @@ class Screenshot {
 
     await waitUntilReady(this.page);
 
+    const originalViewport = this.page.viewportSize();
+
     if (this.options.fullPage) {
       await this.setViewportSize();
     }
@@ -71,6 +73,10 @@ class Screenshot {
     const screenshotName = this.getScreenshotName(comment);
 
     await this.tryScreenshot(this.options.maxAttempts!, screenshotName);
+
+    if (this.options.fullPage && originalViewport) {
+      await this.page.setViewportSize(originalViewport);
+    }
   }
 
   private async tryScreenshot(maxAttempts: number, screenshotName: string) {
