@@ -32,12 +32,28 @@ const mapThirdPartyStorage = {
 type TThirdPartyStorage =
   (typeof mapThirdPartyStorage)[keyof typeof mapThirdPartyStorage];
 
+const integrationTabs = {
+  ldap: "LDAP Settings",
+  sso: "Single Sign-On",
+  plugins: "Plugins",
+  thirdPartyServices: "Third-party services",
+  smtp: "SMTP Settings",
+} as const;
+
+type TIntegrationTabs = (typeof integrationTabs)[keyof typeof integrationTabs];
+
 const toastMessages = {
   backCopyCreated: "The backup copy has been successfully created.",
+
   settingsUpdated: "Settings have been successfully updated",
   operationCompleted: "Operation has been successfully completed.",
   updatedSuccessfully: "Updated successfully",
+  deactivatedSuccessfully: "Deactivated successfully",
   welcomePageSaved: "Welcome Page settings have been successfully saved",
+
+  pluginEnabled: "Plugin enabled",
+  pluginDisabled: "Plugin disabled",
+
   addTrustedDomain: "Add at least 1 trusted domain.",
   addAllowedIp: "Add at least 1 allowed IP address.",
 } as const;
@@ -51,4 +67,6 @@ export {
   TThirdPartyStorage,
   mapThirdPartyStorage,
   toastMessages,
+  integrationTabs,
+  TIntegrationTabs,
 };
