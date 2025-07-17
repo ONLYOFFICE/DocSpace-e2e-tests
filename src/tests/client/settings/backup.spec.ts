@@ -82,6 +82,7 @@ test.describe("Backup portal tests", () => {
       await backup.openRoomSelector();
       await backup.locators.forwardDocSpace.click();
       await backup.locators.forwardDocuments.click();
+      await backup.selector.checkSelectorExist();
       await backup.locators.selectButton.click();
       await screenshot.expectHaveScreenshot("backup_room_storage_selected");
       await backup.locators.createCopyButton.click();
