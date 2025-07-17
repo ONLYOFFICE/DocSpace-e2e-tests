@@ -7,13 +7,13 @@ import {
   TThirdPartyResource,
   TThirdPartyStorage,
   toastMessages,
+  integrationTabs,
 } from "@/src/utils/constants/settings";
 import { BackupLocators } from "./Locators";
 import { BaseDropdown } from "../../common/BaseDropdown";
 import { Integration } from "../integration/Integration";
 import BaseSelector from "../../common/BaseSelector";
 import BasePage from "../../common/BasePage";
-import { waitForGetAuthServiceResponse } from "../api";
 
 export class Backup extends BasePage {
   locators: BackupLocators;
@@ -73,7 +73,7 @@ export class Backup extends BasePage {
 
   async navigateToAutoBackup() {
     await this.navigateToArticle(navItems.backup);
-    await this.locators.autoBackupTub.click();
+    await this.locators.autoBackupTab.click();
   }
 
   async openBackupGuide(hash: "CreatingBackup_block" | "AutoBackup") {
@@ -193,11 +193,8 @@ export class Backup extends BasePage {
 
   async activateAWSS3() {
     await this.navigateToArticle(navItems.integration);
-    const response = waitForGetAuthServiceResponse(this.page);
-    await this.page.getByTestId("Third-party services").click();
-    await response;
+    await this.integration.openTab(integrationTabs.thirdPartyServices);
     await this.integration.activateAWSS3();
-    await this.removeToast(toastMessages.updatedSuccessfully);
   }
 
   async selectBackupMethod(method: TBackupMethodsIds) {
