@@ -6,6 +6,8 @@ import { Profile } from "@/src/objects/profile/Profile";
 import { test } from "@/src/fixtures";
 import { expect } from "@playwright/test";
 import { toastMessages } from "@/src/utils/constants/settings";
+// import MailChecker from "@/src/utils/helpers/MailChecker";
+// import config from "@/config";
 
 test.describe("Customization", () => {
   let paymentApi: PaymentApi;
@@ -155,7 +157,7 @@ test.describe("Customization", () => {
       );
       await page.waitForLoadState("domcontentloaded");
 
-      console.log("Portal renamed successfully, wait for email");
+      // console.log("Portal renamed successfully, wait for email");
 
       // // Wait for email to arrive
       // await new Promise((resolve) => setTimeout(resolve, 10000));
@@ -221,16 +223,8 @@ test.describe("Customization", () => {
       await profile.changePassword();
 
       // // Wait for email to arrive
-      // await new Promise((resolve) => setTimeout(resolve, 15000));
-      // // Wait for email to arrive
-      // await new Promise((resolve) => setTimeout(resolve, 15000));
+      // await new Promise((resolve) => setTimeout(resolve, 10000));
 
-      // // Create a MailChecker instance
-      // const mailChecker = new MailChecker({
-      //   url: config.QA_MAIL_DOMAIN ?? "",
-      //   user: config.QA_MAIL_LOGIN ?? "",
-      //   pass: config.QA_MAIL_PASSWORD ?? "",
-      // });
       // // Create a MailChecker instance
       // const mailChecker = new MailChecker({
       //   url: config.QA_MAIL_DOMAIN ?? "",
