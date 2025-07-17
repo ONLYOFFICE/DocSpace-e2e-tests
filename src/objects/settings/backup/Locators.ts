@@ -13,7 +13,7 @@ export class BackupLocators {
   get backupGuideLink() {
     return this.page.getByTestId("link");
   }
-  get autoBackupTub() {
+  get autoBackupTab() {
     return this.page.getByText("Automatic backup");
   }
   get autoBackupSwitch() {
@@ -174,9 +174,7 @@ export class BackupLocators {
   get disconnectButton() {
     return this.page.getByText("Disconnect");
   }
-  get okButton() {
-    return this.page.getByRole("button", { name: "OK" }).nth(1);
-  }
+
   get selectDropbox() {
     return this.page
       .getByTestId("drop-down-item")
