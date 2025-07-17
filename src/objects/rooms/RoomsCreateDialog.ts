@@ -168,6 +168,140 @@ class RoomsCreateDialog extends BaseDialog {
     await this.fillTemplateName(roomTemplateTitles.fromTemplate);
     await this.clickRoomDialogSubmit();
   }
+  
+  
+
+  async toggleAutomaticIndexing(enable: boolean) {
+    const block = this.page.locator('.virtual-data-room-block_header', { hasText: "Automatic indexing" });
+    const checkbox = block.locator('[data-testid="toggle-button-input"]');
+    const label = block.locator('[data-testid="toggle-button-container"]');
+    const isChecked = await checkbox.isChecked();
+    if (isChecked !== enable) {
+      await label.click();
+    }
+    await expect(checkbox).toBeChecked({ checked: enable });
+  }
+
+  async toggleRestrictCopyAndDownload(enable: boolean) {
+    const block = this.page.locator('.virtual-data-room-block_header', { hasText: "Restrict copy and download" });
+    const checkbox = block.locator('[data-testid="toggle-button-input"]');
+    const label = block.locator('[data-testid="toggle-button-container"]');
+    const isChecked = await checkbox.isChecked();
+    if (isChecked !== enable) {
+      await label.click();
+    }
+    await expect(checkbox).toBeChecked({ checked: enable });
+  }
+
+  async toggleFileLifetime(enable: boolean) {
+    const block = this.page.locator('.virtual-data-room-block_header', { hasText: "File lifetime" });
+    const checkbox = block.locator('[data-testid="toggle-button-input"]');
+    const label = block.locator('[data-testid="toggle-button-container"]');
+    const isChecked = await checkbox.isChecked();
+    if (isChecked !== enable) {
+      await label.click();
+    }
+    await expect(checkbox).toBeChecked({ checked: enable });
+  }
+
+  async setFileLifetimeDays(days: number) {
+    const input = this.page
+      .locator('.virtual-data-room-block')
+      .filter({ hasText: "File lifetime" })
+      .locator('[data-testid="text-input"]');
+    await input.fill(days.toString());
+    await expect(input).toHaveValue(days.toString());
+  }
+
+  async selectFileLifetimeUnit(unit: string) {
+    
+    const comboBox = this.page
+      .locator('.virtual-data-room-block')
+      .filter({ hasText: "File lifetime" })
+      .locator('[data-testid="combobox"]')
+      .first();
+  
+    await comboBox.click();
+    
+    await this.page.locator(`role=option[name="${unit}"]`).click();
+    
+    await expect(comboBox).toContainText(unit);
+  }
+
+  async selectFileLifetimeAction(action: string) {
+    
+    const comboBox = this.page
+      .locator('.virtual-data-room-block')
+      .filter({ hasText: "File lifetime" })
+      .locator('[data-testid="combobox"]')
+      .nth(1);
+  
+    await comboBox.click();
+    await this.page.locator(`role=option[name="${action}"]`).click();
+    await expect(comboBox).toContainText(action);
+  }
+  
+  async toggleWatermarks(enable: boolean) {
+  const block = this.page.locator('.virtual-data-room-block_header', { hasText: "Add watermarks to documents" });
+  const checkbox = block.locator('[data-testid="toggle-button-input"]');
+  const label = block.locator('[data-testid="toggle-button-container"]');
+  const isChecked = await checkbox.isChecked();
+  if (isChecked !== enable) {
+    await label.click();
+  }
+  await expect(checkbox).toBeChecked({ checked: enable });
+}
+
+  async selectWatermarkType(type: "Viewer info" | "Image") {
+    const block = this.page.locator('.virtual-data-room-block').filter({ hasText: "Add watermarks to documents" });
+    
+    await block.locator('[data-testid="radio-button"]', { hasText: type }).click();
+    
+    const radio = block.locator('[data-testid="radio-button"]', { hasText: type }).locator('input[type="radio"]');
+    await expect(radio).toBeChecked();
+  }
+  
+  async selectWatermarkElements(elements: string[]) {
+    const block = this.page.locator('.virtual-data-room-block').filter({ hasText: "Add watermarks to documents" });
+    for (const el of elements) {
+      const tab = block.locator(`[data-testid="${el}"]`);
+      await tab.click();
+      await expect(tab).toHaveClass(/Tabs-module__selected--ZS8Ss/); 
+    }
+  }
+  
+  async setWatermarkStaticText(text: string) {
+    const block = this.page.locator('.virtual-data-room-block').filter({ hasText: "Add watermarks to documents" });
+    const input = block.locator('input[data-testid="text-input"]');
+    await input.fill(text);
+    await expect(input).toHaveValue(text);
+  }
+
+  async selectWatermarkPosition(position: string) {
+    const block = this.page.locator('.virtual-data-room-block').filter({ hasText: "Add watermarks to documents" });
+    const combo = block.locator('[data-testid="combobox"]');
+    await combo.click();
+    
+    const item = this.page.locator('[data-testid="drop-down-item"]', { hasText: position });
+    await item.click();
+    await expect(combo).toContainText(position);
+  }
+
+  async setRoomCoverColor(colorIndex = 1) {
+  
+    await this.page.locator('[data-testid="icon-button-svg"]').click();
+    await this.page.getByText('Customize cover').click();
+  
+    const colorButtons = this.page.locator('.colors-container > div[color]');
+    await colorButtons.nth(colorIndex).click();
+    //await this.page.locator('.colors-container > div[color="#FF6680"]').click();
+  
+    
+    await this.page.getByRole('button', { name: /apply/i }).click();
+  }
+  
+
+
 }
 
 export default RoomsCreateDialog;
