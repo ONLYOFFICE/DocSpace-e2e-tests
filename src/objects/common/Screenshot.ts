@@ -71,13 +71,15 @@ class Screenshot {
 
     await waitUntilReady(this.page);
 
+    const originalViewport = this.page.viewportSize();
+
     if (this.options.fullPage) {
       await this.setViewportSize();
     }
 
     const screenshotName = this.getScreenshotName(comment);
 
-    await this.tryScreenshot(screenshotName, playwrightOptions);
+    await this.tryScreenshot(this.options.maxAttempts!, screenshotName);
 
     if (this.options.fullPage && originalViewport) {
       await this.page.setViewportSize(originalViewport);
