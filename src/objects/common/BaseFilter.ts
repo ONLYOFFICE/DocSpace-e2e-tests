@@ -45,6 +45,10 @@ class BaseFilter {
   get sortButton() {
     return this.page.locator(SORT.BUTTON);
   }
+ 
+  get sortBySizeOption() {
+    return this.page.locator(SORT.BY_SIZE);
+  }
 
   get filterButton() {
     return this.page.locator(FILTER.BUTTON);
@@ -122,7 +126,12 @@ class BaseFilter {
     await expect(this.filterDialog).not.toBeVisible();
   }
 
-  protected async clearFilter() {
+  async cancelFilter() {
+    await this.filterCancelButton.click();
+    await expect(this.filterDialog).not.toBeVisible();
+  }
+
+  async clearFilter() {
     await this.emptyViewClearButton.click();
     await expect(this.emptyViewContainer).not.toBeVisible();
   }

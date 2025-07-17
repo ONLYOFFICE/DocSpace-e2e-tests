@@ -12,6 +12,7 @@ const ROOM_SUBMIT_BUTTON = "#shared_create-room-modal_submit";
 const ROOM_TEMPLATE_SUBMIT_BUTTON = "#create-room-template-modal_submit";
 const LOGO_NAME_CONTAINER = ".logo-name-container";
 const TAG_NAME_INPUT = "#shared_tags-input";
+const TAG_NAME_INPUT = "#shared_tags-input";
 class RoomsCreateDialog extends BaseDialog {
   constructor(page: Page) {
     super(page);
@@ -122,14 +123,15 @@ class RoomsCreateDialog extends BaseDialog {
   }
 
   async fillTag(tagName: string) {
-    await this.fillInput(this.page.locator(TAG_NAME_INPUT), tagName);
+    await this.fillInput(
+      this.page.locator(TAG_NAME_INPUT),
+      tagName,
+    );
   }
 
   async createTag(tagName: string) {
     await this.fillTag(tagName);
-    await this.page
-      .getByRole("option", { name: `Create tag “${tagName}”` })
-      .click();
+    await this.page.getByRole('option', { name: `Create tag “${tagName}”` }).click();
   }
 
   async createTags(count: number) {
@@ -139,7 +141,7 @@ class RoomsCreateDialog extends BaseDialog {
   }
 
   async closeTag(tagName: string) {
-    await this.page.getByLabel(tagName).locator("path").click();
+    await this.page.getByLabel(tagName).locator('path').click();
   }
 
   async clickRoomDialogSubmit() {
