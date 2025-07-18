@@ -1,4 +1,4 @@
-import { expect, Page } from "@playwright/test";
+import { expect, Page, PageScreenshotOptions } from "@playwright/test";
 import { waitUntilReady } from "@/src/utils";
 
 type ScreenshotOptions = {
@@ -8,6 +8,8 @@ type ScreenshotOptions = {
   fullPage?: boolean;
   clientName?: string;
 };
+
+type PlaywrightScreenshotOptions = Omit<PageScreenshotOptions, "fullPage">;
 
 type PlaywrightScreenshotOptions = Omit<PageScreenshotOptions, "fullPage">;
 
@@ -65,11 +67,11 @@ class Screenshot {
     safe: boolean = true,
     playwrightOptions?: PlaywrightScreenshotOptions,
   ) {
-    if (safe) {
-      await this.page.mouse.move(0, 0);
-    }
-
     await waitUntilReady(this.page);
+
+    if (safe) {
+      await this.page.mouse.move(1, 1);
+    }
 
     const originalViewport = this.page.viewportSize();
 
@@ -79,7 +81,7 @@ class Screenshot {
 
     const screenshotName = this.getScreenshotName(comment);
 
-    await this.tryScreenshot(this.options.maxAttempts!, screenshotName);
+    await this.tryScreenshot(screenshotName, playwrightOptions);
 
     if (this.options.fullPage && originalViewport) {
       await this.page.setViewportSize(originalViewport);
@@ -91,15 +93,16 @@ class Screenshot {
     playwrightOptions?: PlaywrightScreenshotOptions,
   ) {
     const maxAttempts = this.options.maxAttempts!;
+  private async tryScreenshot(
+    screenshotName: string,
+    playwrightOptions?: PlaywrightScreenshotOptions,
+  ) {
+    const maxAttempts = this.options.maxAttempts!;
     let lastError;
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
       try {
         await expect(this.page).toHaveScreenshot(
-          [
-            this.options.clientName ?? "client",
-            this.options.screenshotDir,
-            `${screenshotName}.png`,
-          ],
+          ["client", this.options.screenshotDir, `${screenshotName}.png`],
           playwrightOptions,
         );
         return;
