@@ -5,7 +5,7 @@ import { Plugins } from "@/src/objects/settings/integration/Plugins";
 import { integrationTabs } from "@/src/utils/constants/settings";
 import Screenshot from "@/src/objects/common/Screenshot";
 
-test.describe("Integration tests - Plugins", () => {
+test.describe("Integration tests", () => {
   let paymentApi: PaymentApi;
 
   let screenshot: Screenshot | undefined;
@@ -29,7 +29,7 @@ test.describe("Integration tests - Plugins", () => {
     await integration.open();
     await integration.openTab(integrationTabs.plugins);
   });
-  test("Plugins", async () => {
+  test("Integration", async () => {
     await test.step("Markdown link", async () => {
       await plugins.openMarkdownSettings(screenshot);
       const page1 = await plugins.guidePopup();
