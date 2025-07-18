@@ -1,9 +1,9 @@
-// import Screenshot from "@/src/objects/common/Screenshot";
 import { Integration } from "@/src/objects/settings/integration/Integration";
 import { PaymentApi } from "@/src/api/payment";
 import { test } from "@/src/fixtures";
 import { integrationTabs, toastMessages } from "@/src/utils/constants/settings";
 import Screenshot from "@/src/objects/common/Screenshot";
+import { waitForGetSsoV2Response } from "@/src/objects/settings/integration/api";
 
 test.describe("Integration tests", () => {
   let paymentApi: PaymentApi;
@@ -22,7 +22,7 @@ test.describe("Integration tests", () => {
       screenshotDir: "integration",
       fullPage: true,
     });
-    integration = new Integration(page, screenshot);
+    integration = new Integration(page);
 
     await login.loginToPortal();
     await integration.open();
@@ -30,7 +30,7 @@ test.describe("Integration tests", () => {
   test("Integration", async ({ page }) => {
     await test.step("Ldap", async () => {
       await integration.open();
-      await integration.activateLdap();
+      await integration.activateLdap(screenshot);
     });
 
     await test.step("Manual sync", async () => {
@@ -38,27 +38,27 @@ test.describe("Integration tests", () => {
     });
 
     await test.step("Auto sync every hour", async () => {
-      await integration.everyHour();
+      await integration.everyHour(screenshot);
       await integration.enableAutoSyncLDAP();
     });
 
     await test.step("Auto sync every day", async () => {
-      await integration.everyDay();
+      await integration.everyDay(screenshot);
       await integration.enableAutoSyncLDAP();
     });
 
     await test.step("Auto sync every week", async () => {
-      await integration.everyWeek();
+      await integration.everyWeek(screenshot);
       await integration.enableAutoSyncLDAP();
     });
 
     await test.step("Auto sync every month", async () => {
-      await integration.everyMonth();
+      await integration.everyMonth(screenshot);
       await integration.enableAutoSyncLDAP();
     });
 
     await test.step("Auto sync every year", async () => {
-      await integration.everyYear();
+      await integration.everyYear(screenshot);
       await integration.enableAutoSyncLDAP();
     });
 
@@ -78,7 +78,7 @@ test.describe("Integration tests", () => {
 
     await test.step("Smtp", async () => {
       await integration.openTab(integrationTabs.smtp);
-      await integration.activateSMTP();
+      await integration.activateSMTP(screenshot);
       await integration.smtpSendTestMail.click();
       await integration.removeToast(toastMessages.operationCompleted);
       await integration.defaultButton.click();
@@ -107,30 +107,28 @@ test.describe("Integration tests", () => {
     });
 
     await test.step("Facebook enable", async () => {
-      await integration.activateFacebook();
+      await integration.activateFacebook(screenshot);
       await integration.deactivateFacebook();
     });
 
     await test.step("AWSS3 enable", async () => {
-      await integration.activateAWSS3();
+      await integration.activateAWSS3(screenshot);
       await integration.deactivateAWSS3();
     });
 
     await test.step("Google Cloud enable", async () => {
-      await integration.activateGoogleCloud();
+      await integration.activateGoogleCloud(screenshot);
     });
 
     await test.step("Rackspace enable", async () => {
-      await integration.activateRackspace();
+      await integration.activateRackspace(screenshot);
     });
 
     await test.step("Sso enable", async () => {
+      const promise = waitForGetSsoV2Response(page);
       await integration.openTab(integrationTabs.sso);
+      await promise;
       await integration.activateSso();
-    });
-
-    await test.step("Plugins", async () => {
-      await integration.openTab(integrationTabs.plugins);
     });
   });
 });

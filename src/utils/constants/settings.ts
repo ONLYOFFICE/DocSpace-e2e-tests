@@ -53,6 +53,7 @@ const toastMessages = {
 
   pluginEnabled: "Plugin enabled",
   pluginDisabled: "Plugin disabled",
+  tokenSaved: "Token is saved",
 
   addTrustedDomain: "Add at least 1 trusted domain.",
   addAllowedIp: "Add at least 1 allowed IP address.",
