@@ -237,7 +237,7 @@ class Customization extends BasePage {
       await Promise.all([
         this.page.waitForResponse(
           (res) =>
-            res.url().includes("logoUploader.ashx") && res.status() === 200,
+            res.url().includes("userPhotos/temp") && res.status() === 200,
         ),
         this.page.locator(selector).setInputFiles(filePath),
       ]);
@@ -251,7 +251,7 @@ class Customization extends BasePage {
     await upload("#logoUploader_2_dark", "data/login_page/JPG.jpg");
     await upload("#logoUploader_3_light", "data/favicon/png.png");
     await upload("#logoUploader_4_light", "data/editor_header/png.png");
-    await upload("#logoUploader_5_light", "data/editor_header/png.png");
+    await upload("#logoUploader_5_light", "data/editor_header/jpg.jpg");
 
     await this.saveButton.nth(1).click();
   }
