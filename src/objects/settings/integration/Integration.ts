@@ -526,11 +526,12 @@ export class Integration extends BasePage {
     await this.smtpSenderDisplayName.fill("Autotest");
     await this.smtpSenderEmail.fill(config.SMTP_HOST_LOGIN);
     await this.smtpSSLEnable.click();
+    const promise = waitForGetSmptResponse(this.page);
     await this.saveButton.click();
+    await promise;
     await this.removeToast(toastMessages.settingsUpdated);
     await screenshot?.expectHaveScreenshot("smtp_saved");
   }
-
   async activateFacebook(screenshot?: Screenshot) {
     if (!config.FACEBOOK_ID || !config.FACEBOOK_KEY) {
       throw new Error("Facebook configuration is not provided");
