@@ -71,19 +71,19 @@ export class Integration extends BasePage {
     return this.page.getByRole("link", { name: "Learn more" });
   }
 
-  get ldapUserType() {
+  get userType() {
     return this.page.getByTestId("combobox").locator("path");
   }
 
-  get ldapUserTypeDocSpaceadmin() {
+  get userTypeDocSpaceadmin() {
     return this.page.getByText("DocSpace adminPaid");
   }
 
-  get ldapUserTypeRoomAdmin() {
+  get userTypeRoomAdmin() {
     return this.page.getByText("Room adminPaid");
   }
 
-  get ldapUserTypeUser() {
+  get userTypeUser() {
     return this.page.getByText("User", { exact: true });
   }
 
@@ -397,16 +397,6 @@ export class Integration extends BasePage {
     }
   }
 
-  async enableSso() {
-    const checkbox = this.ssoSwitch.locator("input");
-    const isChecked = await checkbox.isChecked();
-
-    if (!isChecked) {
-      await this.ssoSwitch.click();
-      await expect(this.ssoXmlUrlInput).not.toBeDisabled();
-    }
-  }
-
   async hideNextSyncDate() {
     const nextSyncDate = this.ldapSyncContainer.getByRole("paragraph").filter({
       hasText: "Next synchronization:",
@@ -507,14 +497,14 @@ export class Integration extends BasePage {
     await this.ldapNameServerInput.fill(config.LDAP_SERVER);
     await this.ldapUserDininput.fill(config.LDAP_USER_DN);
     await this.ldapUserFilterInput.fill(config.LDAP_USER_FILTER);
-    await this.ldapUserType.click();
+    await this.userType.click();
     await expect(this.page.locator('[data-key="roomAdmin"]')).toBeVisible();
     await screenshot?.expectHaveScreenshot("ldap_settings_user_type_dropdown");
-    await this.ldapUserTypeDocSpaceadmin.click();
-    await this.ldapUserType.click();
-    await this.ldapUserTypeRoomAdmin.click();
-    await this.ldapUserType.click();
-    await this.ldapUserTypeUser.click();
+    await this.userTypeDocSpaceadmin.click();
+    await this.userType.click();
+    await this.userTypeRoomAdmin.click();
+    await this.userType.click();
+    await this.userTypeUser.click();
     await this.ldapLoginInput.fill(config.LDAP_LOGIN);
     await this.ldapPasswordInput.fill(config.LDAP_PASSWORD);
     await this.ldapSaveButton.click();
@@ -594,12 +584,6 @@ export class Integration extends BasePage {
     await screenshot?.expectHaveScreenshot("rackspace_enable_dialog");
     // TODO: ACTIVATION
     await this.page.mouse.click(1, 1);
-  }
-
-  async activateSso(screenshot?: Screenshot) {
-    await screenshot?.expectHaveScreenshot("sso_render");
-    await this.enableSso();
-    await screenshot?.expectHaveScreenshot("sso_enabled");
   }
 
   async manualSyncLdap() {

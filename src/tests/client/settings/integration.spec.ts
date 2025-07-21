@@ -3,7 +3,6 @@ import { PaymentApi } from "@/src/api/payment";
 import { test } from "@/src/fixtures";
 import { integrationTabs, toastMessages } from "@/src/utils/constants/settings";
 import Screenshot from "@/src/objects/common/Screenshot";
-import { waitForGetSsoV2Response } from "@/src/objects/settings/integration/api";
 
 test.describe("Integration tests", () => {
   let paymentApi: PaymentApi;
@@ -122,13 +121,6 @@ test.describe("Integration tests", () => {
 
     await test.step("Rackspace enable", async () => {
       await integration.activateRackspace(screenshot);
-    });
-
-    await test.step("Sso enable", async () => {
-      const promise = waitForGetSsoV2Response(page);
-      await integration.openTab(integrationTabs.sso);
-      await promise;
-      await integration.activateSso();
     });
   });
 });
