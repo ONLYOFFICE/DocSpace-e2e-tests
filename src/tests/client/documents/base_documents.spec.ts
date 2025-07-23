@@ -131,6 +131,7 @@ test.describe("My documents: Base", () => {
       await screenshot.expectHaveScreenshot("filter_by_media_empty");
 
       await myDocuments.filesFilter.clearFilter();
+      await myDocuments.filesTable.checkRowExist("Folder");
     });
 
     await test.step("Search", async () => {
@@ -140,6 +141,7 @@ test.describe("My documents: Base", () => {
       await screenshot.expectHaveScreenshot("search_docx_file");
 
       await myDocuments.filesFilter.clearSearchText();
+      await myDocuments.filesTable.checkRowExist("Folder");
       await myDocuments.filesFilter.fillFilesSearchInputAndCheckRequest(
         "empty view search",
       );

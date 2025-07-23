@@ -291,6 +291,7 @@ test.describe("Rooms", () => {
       await myRooms.roomsTable.checkRowExist(roomCreateTitles.collaboration);
       await screenshot.expectHaveScreenshot("search_collaboration_room");
       await myRooms.roomsFilter.clearSearchText();
+      await myRooms.roomsTable.checkRowExist(roomCreateTitles.public);
 
       await myRooms.roomsFilter.fillRoomsSearchInputAndCheckRequest(
         "empty view search",
