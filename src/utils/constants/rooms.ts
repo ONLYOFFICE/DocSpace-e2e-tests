@@ -36,6 +36,27 @@ export const templateContextMenuOption = {
   accessSettings: "Access settings",
 } as const;
 
+export const formFillingRoomContextMenuOption = {
+  ...roomContextMenuOption,
+  startTour: "Take a short tour"
+} as const;
+
+export const formFillingRoomDropdownActions = {
+  UPLOAD_PDF_FORM: {
+    label: "Upload PDF form",
+    submenu: {
+      fromDocSpace: "From DocSpace",
+      fromDevice: "From device",
+    },
+  },
+  CHOOSE_FROM_TEMPLATE: "Choose from Templates",
+  CREATE_FOLDER: "Create new Folder",
+  
+} as const;
+
+export type TFormFillingRoomContextMenuOption =
+  (typeof formFillingRoomContextMenuOption)[keyof typeof formFillingRoomContextMenuOption];
+
 export type TRoomContextMenuOption =
   (typeof roomContextMenuOption)[keyof typeof roomContextMenuOption];
 
@@ -47,3 +68,12 @@ export type TRoomDialogSource =
 
 export type TRoomCreateTitles =
   (typeof roomCreateTitles)[keyof typeof roomCreateTitles];
+
+export const tourSteps = {
+    welcome: "Welcome to the Form Filling Room!",
+    firstStep: "Starting the form filling process",
+    secondStep: "Quick sharing",
+    thirdStep: "Submitting the responses",
+    fourthStep: "Convenient analyzing of the collected responses",
+    fifthStep: "Easy form uploading"
+  };

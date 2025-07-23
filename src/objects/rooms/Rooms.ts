@@ -152,6 +152,12 @@ class MyRooms {
     await this.roomsTable.selectAllRows();
     await this.navigation.performAction(navActions.delete);
   }
+  async createFormFillingRoom() {
+    await this.roomsArticle.openCreateDialog();
+    await this.roomsCreateDialog.openRoomType(roomCreateTitles.formFilling);
+    await this.roomsCreateDialog.openRoomCover();
+    await this.roomsCreateDialog.createRoomWithCover(roomCreateTitles.formFilling);
+  }
 }
 
 export default MyRooms;
