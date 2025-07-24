@@ -80,6 +80,10 @@ const toastMessages = {
   certificateExists: "Certificate with same action type already exists",
   invalidBinding:
     "Invalid binding: SSO urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
+
+  //payments
+  walletToppedUp: "Wallet has been successfully topped up",
+  planUpdated: "Business plan updated",
 } as const;
 
 export {
