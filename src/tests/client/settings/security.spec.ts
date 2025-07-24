@@ -61,7 +61,6 @@ test.describe("Security tests", () => {
       const page1 = await page1Promise;
       await page1.waitForURL(
         "https://*.onlyoffice.com/docspace/configuration#passwordstrength",
-        { waitUntil: "load" },
       );
       await page1.close();
       const page2Promise = page.waitForEvent("popup");
@@ -69,7 +68,6 @@ test.describe("Security tests", () => {
       const page2 = await page2Promise;
       await page2.waitForURL(
         "https://*.onlyoffice.com/docspace/configuration/docspace-two-factor-authentication.aspx",
-        { waitUntil: "load" },
       );
       await page2.close();
       const page3Promise = page.waitForEvent("popup");
@@ -77,7 +75,6 @@ test.describe("Security tests", () => {
       const page3 = await page3Promise;
       await page3.waitForURL(
         "https://*.onlyoffice.com/docspace/configuration#TrustedDomain",
-        { waitUntil: "load" },
       );
       await page3.close();
 
@@ -86,7 +83,6 @@ test.describe("Security tests", () => {
       const page4 = await page4Promise;
       await page4.waitForURL(
         "https://*.onlyoffice.com/docspace/configuration/docspace-security-settings.aspx#limiteddevelopertoolsaccess_block",
-        { waitUntil: "load" },
       );
       await page4.close();
 
@@ -95,7 +91,6 @@ test.describe("Security tests", () => {
       const page5 = await page5Promise;
       await page5.waitForURL(
         "https://*.onlyoffice.com/workspace/administration/configuration.aspx#loginsettings",
-        { waitUntil: "load" },
       );
       await page5.close();
 
@@ -104,7 +99,6 @@ test.describe("Security tests", () => {
       const page6 = await page6Promise;
       await page6.waitForURL(
         "https://*.onlyoffice.com/docspace/configuration#administratormessage",
-        { waitUntil: "load" },
       );
       await page6.close();
 
@@ -113,7 +107,6 @@ test.describe("Security tests", () => {
       const page7 = await page7Promise;
       await page7.waitForURL(
         "https://*.onlyoffice.com/docspace/configuration#sessionlifetime",
-        { waitUntil: "load" },
       );
       await page7.close();
     });
