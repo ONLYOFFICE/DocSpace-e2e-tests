@@ -97,11 +97,16 @@ export abstract class BaseMenu {
   }
 
   async close() {
-    await this.page.mouse.click(1, 1);
-    await this.page.waitForTimeout(100);
-    await expect(this.menu).not.toBeVisible();
+    await expect(async () => {
+      await this.page.mouse.click(1, 1);
+      await expect(this.menu).not.toBeVisible({
+        timeout: 500,
+      });
+    }).toPass();
   }
-  async checkMenuExists() {
-    await expect(this.menu).toBeVisible();
+  async checkMenuExists(timeout?: number) {
+    await expect(this.menu).toBeVisible({
+      timeout,
+    });
   }
 }
