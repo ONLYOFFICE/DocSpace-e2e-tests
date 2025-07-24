@@ -47,11 +47,4 @@ export default class BasePage {
   async navigateToArticle(title: string) {
     await this.article.navigate(title);
   }
-
-  async navigateToPayments() {
-    await this.optionsButton.waitFor({ state: "visible", timeout: 10000 });
-    await this.optionsButton.click();
-    await this.page.waitForLoadState("load");
-    await this.paymentsMenuItem.click();
-  }
 }
