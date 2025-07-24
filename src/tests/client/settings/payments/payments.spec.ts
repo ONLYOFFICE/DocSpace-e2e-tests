@@ -24,33 +24,49 @@ test.describe("Payments", () => {
       await payments.openTab(paymentsTab.wallet);
       await screenshot.expectHaveScreenshot("payment_free_wallet");
 
-      await payments.topUpBalanceButton.click();
-      await payments.checkDialogTopUpWalletExist();
+      await payments.openTopUpBalanceDialog();
       await screenshot.expectHaveScreenshot("payment_free_top_up_wallet");
       await payments.dialog.close();
 
       await payments.openTab(paymentsTab.tariffPlan);
-      const stripePage = await payments.upgradePlan();
+      const stripePage = await payments.upgradePlan(10);
       await payments.fillPaymentData(stripePage);
       await screenshot.expectHaveScreenshot("payment_business_plan");
+      await page.reload();
     });
 
-    await test.step("Stripe customer portal", async () => {
-      // TODO: fix
-      // const page1Promise = page.waitForEvent("popup");
-      // await payments.stripeCustomerPortalLink.click({ force: true });
-      // const page1 = await page1Promise;
-      // await page1.waitForURL("https://billing.stripe.com/p/session");
-      // await page1.close();
-      // await payments.openTab(paymentsTab.wallet);
-      // const page2Promise = page.waitForEvent("popup");
-      // await payments.stripeCustomerPortalLink.click({ force: true });
-      // const page2 = await page2Promise;
-      // await page2.waitForURL("https://billing.stripe.com/p/session");
-      // await page2.close();
+    await test.step("Stripe customer portal link", async () => {
+      const page1Promise = page.waitForEvent("popup");
+      await payments.stripeCustomerPortalLink.click({ force: true });
+      const page1 = await page1Promise;
+      await page1.waitForURL("https://billing.stripe.com/p/session/*");
+
+      await page1.close();
+
+      await payments.openTab(paymentsTab.wallet);
+      const page2Promise = page.waitForEvent("popup");
+      await payments.stripeCustomerPortalLink.click({ force: true });
+      const page2 = await page2Promise;
+      await page2.waitForURL("https://billing.stripe.com/p/session/*");
+      await page2.close();
+    });
+
+    await test.step("Configure DocSpace settings link", async () => {
+      const page1Promise = page.context().waitForEvent("page");
+      await payments.configureDocSpaceLink.click({
+        modifiers: ["ControlOrMeta"],
+      });
+      const page1 = await page1Promise;
+
+      // https://testnew-helpcenter.onlyoffice.com/docspace/configuration#configuring_docspace_settings_block
+      await page1.waitForURL(
+        "https://*.onlyoffice.com/docspace/configuration#configuring_docspace_settings_block",
+      );
+      await page1.close();
     });
 
     await test.step("Change tarif plan", async () => {
+      await payments.openTab(paymentsTab.tariffPlan);
       await payments.downgradePlan();
       await payments.updatePlan();
 
@@ -62,10 +78,22 @@ test.describe("Payments", () => {
       await screenshot.expectHaveScreenshot("payment_change_tarif_plan_max");
     });
 
-    await test.step("Send request", async () => {});
+    await test.step("Send request", async () => {
+      await payments.openSendRequestDialog();
+      await payments.sendRequest();
+      await screenshot.expectHaveScreenshot("send_request_failed");
+
+      await payments.fillRequestData();
+      await screenshot.expectHaveScreenshot("send_request_filled_fields");
+      await payments.sendRequest();
+      await payments.removeToast(
+        "Your message was successfully sent. You will be contacted by the Sales Department.",
+      );
+    });
 
     await test.step(" Top up balance", async () => {
       await payments.openTab(paymentsTab.wallet);
+      await page.pause();
     });
   });
 });
