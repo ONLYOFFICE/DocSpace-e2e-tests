@@ -6,7 +6,6 @@ import {
   TPaymentsTab,
 } from "@/src/utils/constants/settings";
 import BaseDialog from "../../common/BaseDialog";
-
 export class Payments extends BasePage {
   portalUrl: string;
   dialog: BaseDialog;
@@ -19,10 +18,6 @@ export class Payments extends BasePage {
 
   get numberOfadmins() {
     return this.page.getByTestId("text-input");
-  }
-
-  get upgradeNowButton() {
-    return this.page.getByTestId("button");
   }
 
   get minusButton() {
@@ -68,7 +63,105 @@ export class Payments extends BasePage {
     return this.page.locator(".payer-info_account-link");
   }
 
-  async checkDialogTopUpWalletExist() {
+  get configureDocSpaceLink() {
+    return this.page
+      .getByRole("link", {
+        name: "Learn more",
+      })
+      .nth(0);
+  }
+
+  get currentTariffCount() {
+    return this.page.locator(".current-tariff_count").nth(1);
+  }
+
+  get requestNameInput() {
+    return this.page.locator("#your-name");
+  }
+
+  get requestEmailInput() {
+    return this.page.locator("#registration-email");
+  }
+
+  get requestDetailsInput() {
+    return this.page.locator("#request-details");
+  }
+
+  get reguestSendButton() {
+    return this.page.locator(".send-button");
+  }
+
+  get goToStipeLink() {
+    return this.page.getByRole("link", {
+      name: "Go to Stripe",
+    });
+  }
+
+  get plus10Button() {
+    return this.page.getByTestId("+$10");
+  }
+  get plus20Button() {
+    return this.page.getByTestId("+$20");
+  }
+  get plus30Button() {
+    return this.page.getByTestId("+$30");
+  }
+  get plus50Button() {
+    return this.page.getByTestId("+$50");
+  }
+  get plus100Button() {
+    return this.page.getByTestId("+$100");
+  }
+
+  get amountTopUpInput() {
+    return this.page.getByPlaceholder("Enter an integer amount...");
+  }
+
+  get topUpButton() {
+    return this.page.getByRole("button", {
+      name: "Top up",
+    });
+  }
+
+  get automaticPaymentsSwitch() {
+    return this.page.getByTestId("toggle-button-input");
+  }
+
+  get balanceGoesBelowInput() {
+    return this.page.getByTestId("text-input").nth(1);
+  }
+
+  get creditBackUpToInput() {
+    return this.page.getByTestId("text-input").nth(2);
+  }
+
+  get editAutoTopUpButton() {
+    return this.page.getByRole("button", {
+      name: "Edit",
+    });
+  }
+
+  async openSendRequestDialog() {
+    await this.approveButton.click();
+    await expect(this.requestNameInput).toBeVisible();
+  }
+
+  async fillRequestData() {
+    await this.requestNameInput.fill(
+      "Auto test auto test auto test auto test auto test auto test",
+    );
+    await this.requestEmailInput.fill("autotestautotest@example.com");
+    await this.requestDetailsInput.fill(
+      "autotestautotest autotestautotest autotestautotest autotestautotest autotestautotest autotestautotest autotestautotest autotestautotest autotestautotest autotestautotest",
+    );
+  }
+
+  async sendRequest() {
+    await this.reguestSendButton.click();
+  }
+
+  async openTopUpBalanceDialog() {
+    await this.topUpBalanceButton.click();
     this.dialog.checkDialogTitleExist("Top up wallet");
   }
 
@@ -105,11 +198,10 @@ export class Payments extends BasePage {
     }
   }
 
-  async upgradePlan() {
-    await this.numberOfadmins.fill("10");
-    await this.page.waitForTimeout(2000);
+  async upgradePlan(adminsCount: number) {
+    await this.numberOfadmins.fill(adminsCount.toString());
     const page1Promise = this.page.waitForEvent("popup");
-    await this.upgradeNowButton.click();
+    await this.approveButton.click();
     const page1 = await page1Promise;
     await page1.waitForLoadState();
     return page1;
@@ -143,13 +235,34 @@ export class Payments extends BasePage {
     await stripePage.locator("#shippingAdministrativeArea").selectOption("CA");
     await stripePage.locator("#phoneNumber").fill("(800) 555-4545");
 
-    // Check if accordion header exists before clicking
     await stripePage.getByTestId("card-accordion-item").click();
 
-    await stripePage.locator("#cardNumber").fill("4242 4242 4242 4242");
-    await stripePage.locator("#cardExpiry").fill("01 / 30");
-    await stripePage.locator("#cardCvc").fill("123");
-    await stripePage.getByTestId("hosted-payment-submit-button").click();
+    await expect(async () => {
+      const cardNumberInput = stripePage.locator("#cardNumber");
+      const cardNumberValue = "4242 4242 4242 4242";
+      await cardNumberInput.fill(cardNumberValue);
+      expect(cardNumberInput).toHaveValue(cardNumberValue, {
+        timeout: 500,
+      });
+
+      const cardExpiryInput = stripePage.locator("#cardExpiry");
+      const cardExpiryValue = "01 / 30";
+      await cardExpiryInput.fill(cardExpiryValue);
+      expect(cardExpiryInput).toHaveValue(cardExpiryValue, {
+        timeout: 500,
+      });
+
+      const cardCvcInput = stripePage.locator("#cardCvc");
+      const cardCvcValue = "123";
+      await cardCvcInput.fill(cardCvcValue);
+      expect(cardCvcInput).toHaveValue(cardCvcValue, {
+        timeout: 500,
+      });
+
+      await stripePage.getByTestId("hosted-payment-submit-button").click();
+    }).toPass({
+      timeout: 5000,
+    });
 
     const returnUrl = new URL(
       "/portal-settings/payments/portal-payments?complete=true",
@@ -162,21 +275,23 @@ export class Payments extends BasePage {
     await stripePage.close();
   }
 
+  async expectNumberOfAdminsCount(adminsCount: number) {
+    await expect(this.currentTariffCount).toHaveText(`1/${adminsCount}`);
+  }
+
   async downgradePlan() {
     await this.minusButton.click();
     await this.approveButton.click();
-    await expect(this.numberOfAdminsSlider).toBeDisabled();
-    await expect(this.numberOfAdminsSlider).not.toBeDisabled();
-    // not stable
+    await this.expectNumberOfAdminsCount(9);
+    // TODO: unstable
     // await this.removeToast("Business plan updated");
   }
 
   async updatePlan() {
     await this.plusButton.click();
     await this.approveButton.click();
-    await expect(this.numberOfAdminsSlider).toBeDisabled();
-    await expect(this.numberOfAdminsSlider).not.toBeDisabled();
-    // not stable
+    await this.expectNumberOfAdminsCount(10);
+    // TODO: unstable
     // await this.removeToast("Business plan updated");
   }
 }
