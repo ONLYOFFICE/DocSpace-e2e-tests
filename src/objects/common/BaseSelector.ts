@@ -60,6 +60,10 @@ class BaseSelector {
     }
   }
 
+  async checkSelectorAddButtonExist() {
+    await expect(this.selectorAddButton).toBeVisible();
+  }
+
   async checkEmptyContainerExist() {
     await expect(
       this.selector.getByText("No files and folders here yet"),
