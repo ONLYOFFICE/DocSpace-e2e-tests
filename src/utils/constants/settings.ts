@@ -3,6 +3,7 @@ const navItems = {
   security: "Security",
   backup: "Backup",
   integration: "Integration",
+  payments: "Payments",
 } as const;
 
 const mapBackupMethodsIds = {
@@ -50,6 +51,13 @@ const certificateType = {
 
 type TCertificateType = (typeof certificateType)[keyof typeof certificateType];
 
+const paymentsTab = {
+  tariffPlan: "Tariff plan",
+  wallet: "Wallet",
+};
+
+type TPaymentsTab = (typeof paymentsTab)[keyof typeof paymentsTab];
+
 const toastMessages = {
   // backup
   backCopyCreated: "The backup copy has been successfully created.",
@@ -87,4 +95,6 @@ export {
   TIntegrationTabs,
   certificateType,
   TCertificateType,
+  paymentsTab,
+  TPaymentsTab,
 };
