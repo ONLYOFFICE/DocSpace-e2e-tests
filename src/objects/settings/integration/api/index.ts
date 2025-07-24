@@ -1,3 +1,4 @@
+import { waitForAllResponses } from "@/src/utils";
 import { Page } from "@playwright/test";
 
 export const waitForGetSsoV2Response = (page: Page) => {
@@ -38,20 +39,5 @@ export const waitForSystemWebPluginsIconsResponse = async (page: Page) => {
     "systemwebplugins/root/draw.io",
   ];
 
-  // Create a promise for each SVG path
-  const promises = svgPaths.map((path) =>
-    page
-      .waitForResponse(
-        (response) =>
-          response.url().includes(path) && response.status() === 200,
-        { timeout: 10000 }, // 10 second timeout
-      )
-      .catch((err) => {
-        console.warn(`Failed to load SVG: ${path}`, err); // Use path instead of logo
-        // Return resolved promise to continue even if one SVG fails
-        return Promise.resolve();
-      }),
-  );
-
-  return Promise.all(promises);
+  return waitForAllResponses(page, svgPaths);
 };
