@@ -112,13 +112,14 @@ export class Backup extends BasePage {
       return;
     }
     await this.locators.autoBackupSwitch.click();
-    await this.locators.saveButton2.click();
+    await this.locators.saveAutoBackupButton.click();
     await this.removeToast(toastMessages.settingsUpdated);
   }
 
   async selectDocuments() {
     await this.locators.forwardDocSpace.click();
     await this.locators.forwardDocuments.click();
+    await this.selector.checkSelectorAddButtonExist();
     await this.locators.selectButton.click();
   }
 
@@ -149,7 +150,7 @@ export class Backup extends BasePage {
   }
 
   async saveAutoSavePeriod() {
-    await this.locators.saveButton2.click();
+    await this.locators.saveAutoBackupButton.click();
     await this.removeToast(toastMessages.settingsUpdated);
   }
 
