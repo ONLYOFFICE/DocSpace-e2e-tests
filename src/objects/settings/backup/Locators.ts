@@ -75,7 +75,7 @@ export class BackupLocators {
   get saveButton() {
     return this.page.locator('#save[data-testid="button"]');
   }
-  get saveButton2() {
+  get saveAutoBackupButton() {
     return this.autoBackupButtons.getByRole("button", { name: "Save" });
   }
   get cancelButton() {

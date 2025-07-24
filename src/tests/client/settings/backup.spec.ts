@@ -80,10 +80,7 @@ test.describe("Backup portal tests", () => {
       await backup.selectBackupMethod(mapBackupMethodsIds.backupRoom);
       await screenshot.expectHaveScreenshot("backup_room");
       await backup.openRoomSelector();
-      await backup.locators.forwardDocSpace.click();
-      await backup.locators.forwardDocuments.click();
-      await backup.selector.checkSelectorExist();
-      await backup.locators.selectButton.click();
+      await backup.selectDocuments();
       await screenshot.expectHaveScreenshot("backup_room_storage_selected");
       await backup.locators.createCopyButton.click();
       await backup.removeToast(toastMessages.backCopyCreated);
@@ -289,7 +286,7 @@ test.describe("Backup portal tests", () => {
       await backup.regionDropdown.clickOption(
         "US East (N. Virginia) (us-east-1)",
       );
-      await backup.locators.saveButton2.click();
+      await backup.locators.saveAutoBackupButton.click();
       await backup.removeAllToast();
     });
   });
