@@ -1,22 +1,38 @@
 import { Page, Locator } from "@playwright/test";
-
+import BasePage from "./BasePage";
 import config from "../../../config";
 
-export class Login {
-  page: Page;
-
+export class Login extends BasePage {
   portalDomain: string;
 
   emailInput: Locator;
   passwordInput: Locator;
   loginButton: Locator;
+  socialButton: Locator;
+  socialPanelCloseButton: Locator;
+  forgotPasswordLink: Locator;
+  forgotPasswordEmailInput: Locator;
+  forgotPasswordSendButton: Locator;
 
   constructor(page: Page, portalDomain: string) {
-    this.page = page;
+    super(page);
     this.portalDomain = portalDomain;
     this.emailInput = page.locator("#login_username");
     this.passwordInput = page.locator("#login_password");
     this.loginButton = page.locator("#login_submit");
+    this.socialButton = page.getByTestId('social-button');
+    this.socialPanelCloseButton = page.getByTestId('icon-button-svg').locator('path');
+    this.forgotPasswordLink = page.getByText('Forgot your password?');
+    this.forgotPasswordEmailInput = page.locator('#forgot-password-modal_email');
+    this.forgotPasswordSendButton = page.getByRole('button', { name: /Send/i });
+  }
+
+  async openSocialPanel(index = 3) {
+    await this.socialButton.nth(index).click();
+  }
+
+  async closeSocialPanel() {
+    await this.socialPanelCloseButton.click();
   }
 
   async loginToPortal() {
@@ -36,6 +52,14 @@ export class Login {
     });
     await this.page.waitForTimeout(3000);
   }
+
+  async resetPassword(email: string) {
+    await this.forgotPasswordLink.click();
+    await this.forgotPasswordEmailInput.waitFor({ state: 'visible' });
+    await this.forgotPasswordEmailInput.fill(email);
+    await this.forgotPasswordSendButton.click();
+  }
 }
+
 
 export default Login;
