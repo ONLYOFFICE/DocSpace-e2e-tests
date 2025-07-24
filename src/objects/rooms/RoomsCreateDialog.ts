@@ -275,12 +275,10 @@ class RoomsCreateDialog extends BaseDialog {
     await this.page.locator('[data-testid="icon-button-svg"]').click();
     await this.page.getByText('Customize cover').click();
   
-    const colorButtons = this.page.locator('.colors-container > div[color]');
+    const colorButtons = this.page.locator('.colors-container > div .circle');
     await colorButtons.nth(colorIndex).click();
-    //await this.page.locator('.colors-container > div[color="#FF6680"]').click();
-  
-    
-    await this.page.getByRole('button', { name: /apply/i }).click();
+
+  await this.page.getByRole('button', { name: /apply/i }).click();
   }
   
 

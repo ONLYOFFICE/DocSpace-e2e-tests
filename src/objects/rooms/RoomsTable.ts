@@ -35,6 +35,11 @@ class RoomsTable extends BaseTable {
   ) {
     await this.contextMenu.clickOption(option);
   }
+
+  async openRoomByName(roomName: string) {
+    await this.page.getByRole("link", { name: roomName }).click();
+  await this.page.waitForURL(/rooms\/shared\/filter\?folder=/);
+  }
 }
 
 export default RoomsTable;
