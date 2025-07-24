@@ -4,7 +4,7 @@ import { roomCreateTitles } from "@/src/utils/constants/rooms";
 import Screenshot from "@/src/objects/common/Screenshot";
 import { DOC_ACTIONS } from "@/src/utils/constants/files";
 import { test } from "@/src/fixtures";
-import { test } from "@/src/fixtures";
+import { waitForGetFilesResponse } from "@/src/objects/files/api";
 
 test.describe("Folder", () => {
   let folder: Folder;
@@ -28,7 +28,7 @@ test.describe("Folder", () => {
     await folder.open();
   });
 
-  test("Folder actions", async () => {
+  test("Folder actions", async ({ page }) => {
     await test.step("Select", async () => {
       await folder.filesNavigation.openCreateDropdown();
       await folder.filesNavigation.selectCreateAction(
@@ -96,7 +96,9 @@ test.describe("Folder", () => {
       await folder.filesSelectPanel.checkFileSelectPanelExist();
       await screenshot.expectHaveScreenshot("copy_select_panel_opened");
       await folder.filesSelectPanel.selectItemByText(baseFolder);
+      const promise = waitForGetFilesResponse(page);
       await folder.filesSelectPanel.confirmSelection();
+      await promise;
       await folder.removeToast(
         `The folder ${folderToMove} successfully moved to Documents`,
       );
