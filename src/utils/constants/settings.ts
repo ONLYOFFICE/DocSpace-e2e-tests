@@ -58,6 +58,15 @@ const paymentsTab = {
 
 type TPaymentsTab = (typeof paymentsTab)[keyof typeof paymentsTab];
 
+const transactionHistoryFilter = {
+  allTransactions: "All transactions",
+  credit: "Credit",
+  debit: "Debit",
+} as const;
+
+type TTransactionHistoryFilter =
+  (typeof transactionHistoryFilter)[keyof typeof transactionHistoryFilter];
+
 const toastMessages = {
   // backup
   backCopyCreated: "The backup copy has been successfully created.",
@@ -84,6 +93,8 @@ const toastMessages = {
   //payments
   walletToppedUp: "Wallet has been successfully topped up",
   planUpdated: "Business plan updated",
+  requestSent:
+    "Your message was successfully sent. You will be contacted by the Sales Department.",
 } as const;
 
 export {
@@ -101,4 +112,6 @@ export {
   TCertificateType,
   paymentsTab,
   TPaymentsTab,
+  transactionHistoryFilter,
+  TTransactionHistoryFilter,
 };
