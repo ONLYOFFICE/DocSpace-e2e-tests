@@ -185,7 +185,7 @@ test.describe("Rooms", () => {
       await myRooms.roomsTable.clickContextMenuOption(
         roomContextMenuOption.editRoom,
       );
-      await myRooms.roomsEditDialog.checkDialogExist();
+      await myRooms.roomsEditDialog.checkDialogTitleExist();
       await screenshot.expectHaveScreenshot("edit_room_dialog");
       await myRooms.roomsEditDialog.fillRoomName("Edited room");
       await myRooms.roomsEditDialog.clickSaveButton();
