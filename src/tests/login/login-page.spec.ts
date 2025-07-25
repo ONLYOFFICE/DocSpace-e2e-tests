@@ -24,48 +24,53 @@ test.describe(() => {
       globalThis.localStorage?.setItem("integrationUITests", "true");
     });
 
-    screenshot = new Screenshot(page, { screenshotDir: "login_page" });
+    screenshot = new Screenshot(page, {
+      screenshotDir: "login_page",
+      clientName: "login",
+    });
     login = new Login(page, portalDomain);
   });
 
   test("Login page", async () => {
     await test.step("OpenLoginPage", async () => {
-        await page.goto(`https://${portalDomain}/login`, { waitUntil: "networkidle" });
-        await screenshot.expectHaveScreenshot("login_page");
+      await page.goto(`https://${portalDomain}/login`, {
+        waitUntil: "networkidle",
+      });
+      await screenshot.expectHaveScreenshot("login_page");
     });
 
     await test.step("EmptyLoginData", async () => {
-        await login.emailInput.waitFor({ state: "visible" });
-        await login.passwordInput.waitFor({ state: "visible" });
-      
-        await login.loginButton.click();
-        await screenshot.expectHaveScreenshot("empty_login_data");
+      await login.emailInput.waitFor({ state: "visible" });
+      await login.passwordInput.waitFor({ state: "visible" });
+
+      await login.loginButton.click();
+      await screenshot.expectHaveScreenshot("empty_login_data");
     });
 
     await test.step("ForgotPassword", async () => {
       await login.resetPassword(config.DOCSPACE_ADMIN_EMAIL);
-      await login.removeToast(`If a user with the ${config.DOCSPACE_ADMIN_EMAIL} email exists, the password change instruction has been sent to this email address.`);
+      await login.removeToast(
+        `If a user with the ${config.DOCSPACE_ADMIN_EMAIL} email exists, the password change instruction has been sent to this email address.`,
+      );
     });
 
     await test.step("WrongLoginData", async () => {
-        await login.emailInput.waitFor({ state: "visible" });
-        await login.passwordInput.waitFor({ state: "visible" });
-      
-        await login.emailInput.fill("wronguser@example.com");
-        await login.passwordInput.fill("wrongpassword123");
-      
-        await login.loginButton.click();
-        await screenshot.expectHaveScreenshot("wrong_login_data");
+      await login.emailInput.waitFor({ state: "visible" });
+      await login.passwordInput.waitFor({ state: "visible" });
+
+      await login.emailInput.fill("wronguser@example.com");
+      await login.passwordInput.fill("wrongpassword123");
+
+      await login.loginButton.click();
+      await screenshot.expectHaveScreenshot("wrong_login_data");
     });
 
     await test.step("OpenPanelWithSocialNetworks", async () => {
-        await login.openSocialPanel();
-        await screenshot.expectHaveScreenshot("social_panel_opened");
-        await login.closeSocialPanel();
-        await screenshot.expectHaveScreenshot("social_panel_closed");
+      await login.openSocialPanel();
+      await screenshot.expectHaveScreenshot("social_panel_opened");
+      await login.closeSocialPanel();
+      await screenshot.expectHaveScreenshot("social_panel_closed");
     });
-
-    
   });
 
   test.afterAll(async () => {
