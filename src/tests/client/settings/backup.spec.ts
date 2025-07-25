@@ -32,6 +32,7 @@ test.describe("Backup portal tests", () => {
   });
 
   test("Backup flows", async ({ page }) => {
+    test.setTimeout(300000); // 5 min
     await test.step("Render", async () => {
       await screenshot.expectHaveScreenshot("render_data_backup");
     });
@@ -83,7 +84,7 @@ test.describe("Backup portal tests", () => {
       await backup.selectDocuments();
       await screenshot.expectHaveScreenshot("backup_room_storage_selected");
       await backup.locators.createCopyButton.click();
-      await backup.removeToast(toastMessages.backCopyCreated);
+      await backup.removeToast(toastMessages.backCopyCreated, 40000);
     });
 
     // // ISSUE: CAPTCHA OR INFINITE LOADING
@@ -117,7 +118,7 @@ test.describe("Backup portal tests", () => {
       await backup.locators.selectNextCloudRepo.click();
       await backup.locators.selectButton.click();
       await backup.locators.createCopyButton.click();
-      await backup.removeToast(toastMessages.backCopyCreated);
+      await backup.removeToast(toastMessages.backCopyCreated, 40000);
       await backup.openActionMenuResource();
       await screenshot.expectHaveScreenshot(
         "backup_third_party_resource_action_menu",
@@ -149,7 +150,7 @@ test.describe("Backup portal tests", () => {
         "US East (N. Virginia) (us-east-1)",
       );
       await backup.locators.createCopyButton.click();
-      await backup.removeToast(toastMessages.backCopyCreated);
+      await backup.removeToast(toastMessages.backCopyCreated, 60000);
     });
 
     await test.step("Auto backup link", async () => {

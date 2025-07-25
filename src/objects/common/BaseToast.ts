@@ -20,8 +20,8 @@ class BaseToast {
     }
   }
 
-  async removeToast(text?: string) {
-    await expect(this.toast).toBeVisible();
+  async removeToast(text?: string, timeout?: number) {
+    await expect(this.toast).toBeVisible({ timeout });
     if (text) {
       await expect(this.toast).toContainText(text);
     }

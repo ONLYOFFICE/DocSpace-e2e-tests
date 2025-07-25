@@ -29,8 +29,8 @@ export default class BasePage {
       .filter({ hasText: "Payments" });
   }
 
-  async removeToast(message?: string) {
-    await this.toast.removeToast(message);
+  async removeToast(message?: string, timeout?: number) {
+    await this.toast.removeToast(message, timeout);
   }
 
   async removeAllToast() {
