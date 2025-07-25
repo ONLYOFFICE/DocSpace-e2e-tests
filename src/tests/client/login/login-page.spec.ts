@@ -24,14 +24,14 @@ test.describe(() => {
       globalThis.localStorage?.setItem("integrationUITests", "true");
     });
 
-    screenshot = new Screenshot(page, { screenshotDir: "login-page" });
+    screenshot = new Screenshot(page, { screenshotDir: "login_page" });
     login = new Login(page, portalDomain);
   });
 
   test("Login page", async () => {
     await test.step("OpenLoginPage", async () => {
         await page.goto(`https://${portalDomain}/login`, { waitUntil: "networkidle" });
-        await screenshot.expectHaveScreenshot("login-page");
+        await screenshot.expectHaveScreenshot("login_page");
     });
 
     await test.step("EmptyLoginData", async () => {
@@ -39,7 +39,7 @@ test.describe(() => {
         await login.passwordInput.waitFor({ state: "visible" });
       
         await login.loginButton.click();
-        await screenshot.expectHaveScreenshot("empty-login-data");
+        await screenshot.expectHaveScreenshot("empty_login_data");
     });
 
     await test.step("ForgotPassword", async () => {
@@ -55,14 +55,14 @@ test.describe(() => {
         await login.passwordInput.fill("wrongpassword123");
       
         await login.loginButton.click();
-        await screenshot.expectHaveScreenshot("wrong-login-data");
+        await screenshot.expectHaveScreenshot("wrong_login_data");
     });
 
     await test.step("OpenPanelWithSocialNetworks", async () => {
         await login.openSocialPanel();
-        await screenshot.expectHaveScreenshot("social-panel-opened");
+        await screenshot.expectHaveScreenshot("social_panel_opened");
         await login.closeSocialPanel();
-        await screenshot.expectHaveScreenshot("social-panel-closed");
+        await screenshot.expectHaveScreenshot("social_panel_closed");
     });
 
     
