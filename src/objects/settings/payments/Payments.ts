@@ -3,17 +3,22 @@ import BasePage from "../../common/BasePage";
 import {
   navItems,
   paymentsTab,
+  toastMessages,
   TPaymentsTab,
+  TTransactionHistoryFilter,
 } from "@/src/utils/constants/settings";
 import BaseDialog from "../../common/BaseDialog";
+import BaseTable from "../../common/BaseTable";
 export class Payments extends BasePage {
   portalUrl: string;
   dialog: BaseDialog;
+  table: BaseTable;
 
   constructor(page: Page) {
     super(page);
     this.portalUrl = page.url();
     this.dialog = new BaseDialog(page);
+    this.table = new BaseTable(page);
   }
 
   get numberOfadmins() {
@@ -39,10 +44,6 @@ export class Payments extends BasePage {
       name: "Top up balance",
     });
   }
-
-  // get removeToast() {
-  //   return this.page.getByText("Business plan updated");
-  // }
 
   get businessPlanUpdated() {
     return this.page.getByText("You are using Business plan");
@@ -91,26 +92,46 @@ export class Payments extends BasePage {
     return this.page.locator(".send-button");
   }
 
-  get goToStipeLink() {
-    return this.page.getByRole("link", {
-      name: "Go to Stripe",
+  get goToStripeLink() {
+    return this.page.getByText("Go to the Stripe", {
+      exact: true,
+    });
+  }
+
+  get saveAutomaticPaymentsButton() {
+    return this.page.getByRole("button", {
+      name: "Save",
     });
   }
 
   get plus10Button() {
-    return this.page.getByTestId("+$10");
+    return this.page.getByTestId("+US$10");
   }
   get plus20Button() {
-    return this.page.getByTestId("+$20");
+    return this.page.getByTestId("+US$20");
   }
   get plus30Button() {
-    return this.page.getByTestId("+$30");
+    return this.page.getByTestId("+US$30");
   }
   get plus50Button() {
-    return this.page.getByTestId("+$50");
+    return this.page.getByTestId("+US$50");
   }
   get plus100Button() {
-    return this.page.getByTestId("+$100");
+    return this.page.getByTestId("+US$100");
+  }
+
+  get datePickerFromButton() {
+    return this.page
+      .getByTestId("date-picker")
+      .nth(0)
+      .getByTestId("selected-label");
+  }
+
+  get datePickerToButton() {
+    return this.page
+      .getByTestId("date-picker")
+      .nth(1)
+      .getByTestId("selected-label");
   }
 
   get amountTopUpInput() {
@@ -120,19 +141,24 @@ export class Payments extends BasePage {
   get topUpButton() {
     return this.page.getByRole("button", {
       name: "Top up",
+      exact: true,
     });
   }
 
   get automaticPaymentsSwitch() {
-    return this.page.getByTestId("toggle-button-input");
+    return this.page.getByTestId("toggle-button-container").nth(0);
+  }
+
+  get automaticPaymentsBlock() {
+    return this.page.getByText(/Automatically top up my card */).locator("..");
   }
 
   get balanceGoesBelowInput() {
-    return this.page.getByTestId("text-input").nth(1);
+    return this.automaticPaymentsBlock.getByTestId("text-input").nth(0);
   }
 
   get creditBackUpToInput() {
-    return this.page.getByTestId("text-input").nth(2);
+    return this.automaticPaymentsBlock.getByTestId("text-input").nth(1);
   }
 
   get editAutoTopUpButton() {
@@ -141,9 +167,98 @@ export class Payments extends BasePage {
     });
   }
 
+  get editAutoTopUpLink() {
+    return this.page.locator('a:has-text("Edit")');
+  }
+
+  get transactionHistorySelectorButton() {
+    return this.page.locator("[data-test-id='combo-button']").nth(0);
+  }
+
+  get calendar() {
+    return this.page.getByTestId("calendar");
+  }
+
+  get emptyViewText() {
+    return this.page.getByText("No findings found", {
+      exact: true,
+    });
+  }
+
+  get downloadReportButton() {
+    return this.page.getByRole("button", {
+      name: "Download report",
+    });
+  }
+
+  async enableAutomaticPayments() {
+    await this.automaticPaymentsSwitch.click();
+    await expect(this.automaticPaymentsSwitch.locator("input")).toBeChecked();
+    await expect(this.balanceGoesBelowInput).toBeVisible();
+  }
+
+  async saveAutomaticPayments() {
+    await this.saveAutomaticPaymentsButton.click();
+  }
+
+  async checkWalletRefilledDialogExist() {
+    await this.dialog.checkDialogTitleExist("Wallet refilled");
+  }
+
+  async hideDates() {
+    await this.table.checkTableExist();
+
+    await this.table.mapTableRows(async (row) => {
+      await row
+        .locator(".table-container_cell")
+        .nth(0)
+        .evaluate((cell: HTMLDivElement) => {
+          cell.textContent = "*hidden*";
+        }); // date cell;
+    });
+
+    await this.datePickerFromButton.evaluate((el: HTMLDivElement) => {
+      el.textContent = "*hidden*";
+    });
+    await this.datePickerToButton.evaluate((el: HTMLDivElement) => {
+      el.textContent = "*hidden*";
+    });
+  }
+
+  async fillAmountTopUp(amount: number) {
+    await this.plus10Button.click();
+    await expect(this.amountTopUpInput).toHaveValue("10");
+    await this.plus20Button.click();
+    await expect(this.amountTopUpInput).toHaveValue("30");
+    await this.plus30Button.click();
+    await expect(this.amountTopUpInput).toHaveValue("60");
+    await this.plus50Button.click();
+    await expect(this.amountTopUpInput).toHaveValue("110");
+    await this.plus100Button.click();
+    await expect(this.amountTopUpInput).toHaveValue("210");
+    await this.amountTopUpInput.fill(amount.toString());
+    await expect(this.amountTopUpInput).toHaveValue(amount.toString());
+  }
+
+  async fillAutomaticPaymentsData(
+    balanceGoesBelow: number,
+    creditBackUpTo: number,
+  ) {
+    await this.balanceGoesBelowInput.fill(balanceGoesBelow.toString());
+    await this.creditBackUpToInput.fill(creditBackUpTo.toString());
+  }
+
   async openSendRequestDialog() {
     await this.approveButton.click();
     await expect(this.requestNameInput).toBeVisible();
+  }
+
+  async downloadReport() {
+    const page1Promise = this.page.waitForEvent("popup");
+    await this.downloadReportButton.click();
+    const page1 = await page1Promise;
+    await page1.waitForURL("https://*.onlyoffice.io/doceditor?*");
+    await page1.close();
   }
 
   async fillRequestData() {
@@ -165,6 +280,15 @@ export class Payments extends BasePage {
     this.dialog.checkDialogTitleExist("Top up wallet");
   }
 
+  async openTransactionHistoryFilter() {
+    await this.transactionHistorySelectorButton.click();
+    await expect(this.transactionHistorySelectorButton).toBeVisible();
+  }
+
+  async selectTransactionHistoryFilter(filter: TTransactionHistoryFilter) {
+    await this.page.getByRole("option", { name: filter }).click();
+  }
+
   async checkTariffPlanExist() {
     await expect(this.priceCalculationContainer).toBeVisible();
   }
@@ -175,6 +299,14 @@ export class Payments extends BasePage {
         exact: true,
       }),
     ).toBeVisible();
+  }
+
+  async checkCalendar() {
+    await this.datePickerFromButton.click();
+    await expect(this.calendar).toBeVisible();
+
+    await this.datePickerToButton.click();
+    await expect(this.calendar).toBeVisible();
   }
 
   async open() {
@@ -241,21 +373,21 @@ export class Payments extends BasePage {
       const cardNumberInput = stripePage.locator("#cardNumber");
       const cardNumberValue = "4242 4242 4242 4242";
       await cardNumberInput.fill(cardNumberValue);
-      expect(cardNumberInput).toHaveValue(cardNumberValue, {
+      await expect(cardNumberInput).toHaveValue(cardNumberValue, {
         timeout: 500,
       });
 
       const cardExpiryInput = stripePage.locator("#cardExpiry");
       const cardExpiryValue = "01 / 30";
       await cardExpiryInput.fill(cardExpiryValue);
-      expect(cardExpiryInput).toHaveValue(cardExpiryValue, {
+      await expect(cardExpiryInput).toHaveValue(cardExpiryValue, {
         timeout: 500,
       });
 
       const cardCvcInput = stripePage.locator("#cardCvc");
       const cardCvcValue = "123";
       await cardCvcInput.fill(cardCvcValue);
-      expect(cardCvcInput).toHaveValue(cardCvcValue, {
+      await expect(cardCvcInput).toHaveValue(cardCvcValue, {
         timeout: 500,
       });
 
@@ -283,15 +415,13 @@ export class Payments extends BasePage {
     await this.minusButton.click();
     await this.approveButton.click();
     await this.expectNumberOfAdminsCount(9);
-    // TODO: unstable
-    // await this.removeToast("Business plan updated");
+    await this.removeToast(toastMessages.planUpdated);
   }
 
   async updatePlan() {
     await this.plusButton.click();
     await this.approveButton.click();
     await this.expectNumberOfAdminsCount(10);
-    // TODO: unstable
-    // await this.removeToast("Business plan updated");
+    await this.removeToast(toastMessages.planUpdated);
   }
 }

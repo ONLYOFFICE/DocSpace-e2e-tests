@@ -37,10 +37,6 @@ export default class BasePage {
     await this.toast.removeAllToast();
   }
 
-  async removeAllToast() {
-    await this.toast.removeAllToast();
-  }
-
   async navigateToSettings() {
     await this.optionsButton.waitFor({ state: "visible", timeout: 10000 });
     await this.optionsButton.click();
