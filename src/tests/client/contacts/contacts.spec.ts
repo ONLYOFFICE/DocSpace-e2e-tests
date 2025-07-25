@@ -221,7 +221,7 @@ test.describe(() => {
       );
       await contacts.reassignmentDialog.checkReassignmentTitleExist();
       await contacts.reassignmentDialog.clickChooseFromList();
-      await screenshot.expectHaveScreenshot("ReassignData_ChooseFromList");
+      await screenshot.expectHaveScreenshot("reassign_data_choose_from_list");
       await contacts.reassignmentDialog.clickCancel();
       await contacts.reassignmentDialog.close();
     });
