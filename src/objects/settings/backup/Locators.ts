@@ -145,7 +145,7 @@ export class BackupLocators {
     return this.page.getByTestId("drop-down-item").getByText("Nextcloud");
   }
   get connectButton() {
-    return this.page.getByTestId("button").filter({ hasText: "Connect" });
+    return this.page.getByTestId("connect-button");
   }
   get connectionUrlInput() {
     return this.page.locator("#connection-url-input");
