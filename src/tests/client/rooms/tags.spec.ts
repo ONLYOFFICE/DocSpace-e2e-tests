@@ -49,6 +49,7 @@ test.describe("Tags", () => {
       await myRooms.roomsCreateDialog.openRoomType(
         roomCreateTitles.collaboration,
       );
+      await page.waitForTimeout(500);
       await myRooms.roomsCreateDialog.openRoomIconDropdown();
       await myRooms.roomsCreateDialog.openRoomCover();
       await myRooms.roomsCreateDialog.selectCoverColor();
