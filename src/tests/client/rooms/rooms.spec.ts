@@ -38,7 +38,10 @@ test.describe("Rooms", () => {
     });
 
     login = new Login(page, api.portalDomain);
-    screenshot = new Screenshot(page, { screenshotDir: "rooms" });
+    screenshot = new Screenshot(page, {
+      screenshotDir: "rooms",
+      suiteName: "rooms",
+    });
 
     myRooms = new MyRooms(page, api.portalDomain);
 
