@@ -122,15 +122,14 @@ class RoomsCreateDialog extends BaseDialog {
   }
 
   async fillTag(tagName: string) {
-    await this.fillInput(
-      this.page.locator(TAG_NAME_INPUT),
-      tagName,
-    );
+    await this.fillInput(this.page.locator(TAG_NAME_INPUT), tagName);
   }
 
   async createTag(tagName: string) {
     await this.fillTag(tagName);
-    await this.page.getByRole('option', { name: `Create tag “${tagName}”` }).click();
+    await this.page
+      .getByRole("option", { name: `Create tag “${tagName}”` })
+      .click();
   }
 
   async createTags(count: number) {
@@ -140,7 +139,7 @@ class RoomsCreateDialog extends BaseDialog {
   }
 
   async closeTag(tagName: string) {
-    await this.page.getByLabel(tagName).locator('path').click();
+    await this.page.getByLabel(tagName).locator("path").click();
   }
 
   async clickRoomDialogSubmit() {
