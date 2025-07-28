@@ -105,6 +105,7 @@ class BaseTable {
       }),
     });
   }
+
   async selectRow(title: string) {
     const row = await this.getRowByTitle(title);
 
