@@ -43,6 +43,7 @@ export class Login extends BasePage {
     await this.page.goto(`https://${this.portalDomain}`, {
       waitUntil: "load",
     });
+
     await this.emailInput.waitFor({ state: "visible" });
     await this.passwordInput.waitFor({ state: "visible" });
 
@@ -59,7 +60,18 @@ export class Login extends BasePage {
         },
       );
 
-      await this.loginButton.click();
+      await Promise.all([
+        this.page.waitForRequest(
+          (request) => {
+            return (
+              request.url().includes("api/2.0/authentication") &&
+              request.method() === "POST"
+            );
+          },
+          { timeout: 1000 },
+        ),
+        this.loginButton.click(),
+      ]);
     }).toPass();
 
     await this.page.waitForURL(/.*rooms\/shared\/filter.*/, {
