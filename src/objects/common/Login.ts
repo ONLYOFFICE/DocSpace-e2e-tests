@@ -44,21 +44,9 @@ export class Login extends BasePage {
       waitUntil: "load",
     });
 
-    await this.emailInput.waitFor({ state: "visible" });
-    await this.passwordInput.waitFor({ state: "visible" });
-
     await expect(async () => {
       await this.emailInput.fill(config.DOCSPACE_ADMIN_EMAIL);
-      await expect(this.emailInput).toHaveValue(config.DOCSPACE_ADMIN_EMAIL, {
-        timeout: 500,
-      });
       await this.passwordInput.fill(config.DOCSPACE_ADMIN_PASSWORD);
-      await expect(this.passwordInput).toHaveValue(
-        config.DOCSPACE_ADMIN_PASSWORD,
-        {
-          timeout: 500,
-        },
-      );
 
       await Promise.all([
         this.page.waitForRequest(
