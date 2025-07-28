@@ -5,6 +5,7 @@ type ScreenshotOptions = {
   suiteName?: string;
   maxAttempts?: number;
   fullPage?: boolean;
+  clientName?: string;
 };
 
 class Screenshot {
@@ -76,7 +77,7 @@ class Screenshot {
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
       try {
         await expect(this.page).toHaveScreenshot([
-          "client",
+          this.options.clientName ?? "client",
           this.options.screenshotDir,
           `${screenshotName}.png`,
         ]);
