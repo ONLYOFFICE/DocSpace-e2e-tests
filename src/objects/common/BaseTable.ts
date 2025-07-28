@@ -21,12 +21,14 @@ class BaseTable {
   page: Page;
   tableContainer: Locator;
   tableRows: Locator;
+  rowClickPosition: { x: number; y: number };
 
   constructor(page: Page, locators?: TBaseTableLocators) {
     this.page = page;
     this.tableContainer =
       locators?.tableContainer || this.page.locator(TABLE_CONTAINER);
     this.tableRows = locators?.tableRows || this.page.locator(TABLE_LIST_ITEM);
+    this.rowClickPosition = { x: 50, y: 10 };
   }
 
   get tableSettings() {
@@ -63,12 +65,12 @@ class BaseTable {
   async openContextMenu(title: string) {
     await this.checkRowExist(title);
     const row = await this.getRowByTitle(title);
-    await row.click({ button: "right" });
+    await row.click({ button: "right", position: this.rowClickPosition });
   }
 
   async openContextMenuRow(row: Locator) {
     await row.waitFor({ state: "visible", timeout: 10000 });
-    await row.click({ button: "right" });
+    await row.click({ button: "right", position: this.rowClickPosition });
   }
 
   async checkTableExist() {
@@ -82,7 +84,7 @@ class BaseTable {
 
     await this.mapTableRows(async (row) => {
       await this.page.keyboard.down("Control");
-      await row.click();
+      await row.click({ position: this.rowClickPosition });
       await this.page.keyboard.up("Control");
     });
 
@@ -105,6 +107,13 @@ class BaseTable {
       }),
     });
   }
+
+  async selectRowByIndex(index: number) {
+    const row = this.tableRows.nth(index);
+    await expect(row).toBeVisible();
+    await row.click({ position: this.rowClickPosition });
+  }
+
   async selectRow(title: string) {
     const row = await this.getRowByTitle(title);
 
@@ -113,7 +122,7 @@ class BaseTable {
     }
 
     await expect(row).toBeVisible();
-    await row.click();
+    await row.click({ position: this.rowClickPosition });
   }
 
   async checkRowExist(title: string) {
