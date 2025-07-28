@@ -24,6 +24,10 @@ class RoomsTable extends BaseTable {
     await this.hideTableColumn(this.page.locator(LAST_ACTIVITY_CHECKBOX));
   }
 
+  async clickTag(tagValue: string) {
+    await this.page.locator(`[data-tag="${tagValue}"]`).click();
+  }
+
   async checkRoomPinnedToTopExist() {
     await expect(
       this.tableContainer.locator(TABLE_ITEM_PINNED_TO_TOP),
