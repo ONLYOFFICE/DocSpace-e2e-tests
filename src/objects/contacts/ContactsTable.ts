@@ -50,6 +50,20 @@ class ContactsTable extends BaseTable {
     await this.contextMenu.clickOption(option);
   }
 
+  async selectRow(title: string) {
+    const row = await this.getRowByTitle(title);
+    await expect(row).toBeVisible();
+    const avatar = row.getByTestId("avatar");
+    await avatar.click({ force: true });
+  }
+
+  async selectRowByIndex(index: number) {
+    const row = this.tableRows.nth(index);
+    await expect(row).toBeVisible();
+    const avatar = row.getByTestId("avatar");
+    await avatar.click({ force: true });
+  }
+
   async checkEnabledUserExist(value: string) {
     const disabledBadge = await this.getDisabledBadge(value);
     await expect(disabledBadge).not.toBeVisible();
