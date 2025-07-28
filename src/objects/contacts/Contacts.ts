@@ -273,7 +273,7 @@ class Contacts extends BasePage {
   }
 
   async selectAllContacts() {
-    await this.table.selectRowByIndex(1);
+    await this.table.selectRowByIndex(1); // second row
     await this.navigation.clickSelectAllCheckbox();
   }
 
