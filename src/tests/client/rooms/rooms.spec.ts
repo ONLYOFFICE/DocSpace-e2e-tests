@@ -14,13 +14,25 @@ import { Page } from "@playwright/test";
 test.describe("Rooms", () => {
   let screenshot: Screenshot;
   let myRooms: MyRooms;
-  let page: Page;
 
-  const duplicateRoomName = roomCreateTitles.public + " (1)";
+  test.beforeAll(async ({ playwright, browser }) => {
+    const apiContext = await playwright.request.newContext();
+    api = new API(apiContext);
+    await api.setup();
+    console.log(api.portalDomain);
 
-  test.beforeEach(async ({ page: fixturePage, api, login }) => {
-    page = fixturePage;
-    screenshot = new Screenshot(page, { screenshotDir: "rooms" });
+    page = await browser.newPage();
+
+    await page.addInitScript(() => {
+      globalThis.localStorage?.setItem("integrationUITests", "true");
+    });
+
+    login = new Login(page, api.portalDomain);
+    screenshot = new Screenshot(page, {
+      screenshotDir: "rooms",
+      suiteName: "rooms",
+    });
+
     myRooms = new MyRooms(page, api.portalDomain);
 
     await login.loginToPortal();
