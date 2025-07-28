@@ -27,11 +27,15 @@ class ContactsReassignmentDialog extends BaseInviteDialog {
   }
 
   async clickChooseFromList() {
-    await this.dialog.getByText(reassignDialogActions.chooseFromList, { exact: true }).click();
+    await this.dialog
+      .getByText(reassignDialogActions.chooseFromList, { exact: true })
+      .click();
   }
 
   async clickCancel() {
-    await this.dialog.getByText(reassignDialogActions.cancel, { exact: true }).click();
+    await this.dialog
+      .getByText(reassignDialogActions.cancel, { exact: true })
+      .click();
   }
 }
 

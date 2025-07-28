@@ -209,7 +209,7 @@ class Contacts {
   }
 
   async selectAllContacts() {
-    await this.table.selectRowByIndex(1); // second row
+    await this.table.selectRowByIndex(1);
     await this.navigation.clickSelectAllCheckbox();
   }
 
