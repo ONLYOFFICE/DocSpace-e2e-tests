@@ -34,7 +34,7 @@ test.describe(() => {
   test("Login page", async () => {
     await test.step("OpenLoginPage", async () => {
       await page.goto(`https://${portalDomain}/login`, {
-        waitUntil: "networkidle",
+        waitUntil: "load",
       });
       await screenshot.expectHaveScreenshot("login_page");
     });
