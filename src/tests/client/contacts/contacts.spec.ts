@@ -191,11 +191,23 @@ test.describe(() => {
       await contacts.dialog.close();
     });
 
-    await test.step("Delete", async () => {
+    await test.step("ReassignData_ChooseFromList", async () => {
       await contacts.table.selectRow(userEmails.user);
       await contacts.disableUser();
       await contacts.table.checkDisabledUserExist(userEmails.user);
 
+      await contacts.table.openContextMenu(userEmails.user);
+      await contacts.table.clickContextMenuOption(
+        membersContextMenuOption.reassign,
+      );
+      await contacts.reassignmentDialog.checkReassignmentTitleExist();
+      await contacts.reassignmentDialog.clickChooseFromList();
+      await screenshot.expectHaveScreenshot("reassign_data_choose_from_list");
+      await contacts.reassignmentDialog.clickCancel();
+      await contacts.reassignmentDialog.close();
+    });
+
+    await test.step("Delete", async () => {
       await contacts.table.openContextMenu(userEmails.user);
       await contacts.table.clickContextMenuOption(
         membersContextMenuOption.delete,

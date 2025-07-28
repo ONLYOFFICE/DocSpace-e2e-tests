@@ -20,7 +20,10 @@ test.describe("Rooms", () => {
 
   test.beforeEach(async ({ page: fixturePage, api, login }) => {
     page = fixturePage;
-    screenshot = new Screenshot(page, { screenshotDir: "rooms" });
+    screenshot = new Screenshot(page, {
+      screenshotDir: "rooms",
+      suiteName: "rooms",
+    });
     myRooms = new MyRooms(page, api.portalDomain);
 
     await login.loginToPortal();

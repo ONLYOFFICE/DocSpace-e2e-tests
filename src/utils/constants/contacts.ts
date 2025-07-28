@@ -61,6 +61,16 @@ export const membersContextMenuOption = {
   info: "Info",
 } as const;
 
+export const reassignDialogActions = {
+  chooseFromList: "Choose from list",
+  moreAboutDataTransfer: "More about data transfer",
+  confirm: "Reassign",
+  cancel: "Cancel",
+} as const;
+
+export type TReassignDialogAction =
+  (typeof reassignDialogActions)[keyof typeof reassignDialogActions];
+
 export const groupsContextMenuOption = {
   editGroup: "Edit group",
   info: "Info",
