@@ -7,7 +7,7 @@ import {
   TMembersContextMenuOption,
   TOwnerContextMenuOption,
 } from "@/src/utils/constants/contacts";
-import BaseContextMenu from "../common/BaseContextMenu";
+import { BaseContextMenu } from "../common/BaseContextMenu";
 
 class ContactsTable extends BaseTable {
   contextMenu: BaseContextMenu;

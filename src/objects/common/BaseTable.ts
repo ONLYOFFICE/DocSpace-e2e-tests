@@ -10,12 +10,10 @@ export type TBaseTableLocators = {
   tableRows?: Locator;
 };
 
-/* eslint-disable no-unused-vars */
 type TMapTableRowsCallback = (
   row: Locator,
   index: number,
 ) => Promise<void> | void;
-/* eslint-enable no-unused-vars */
 
 class BaseTable {
   page: Page;
@@ -47,10 +45,6 @@ class BaseTable {
     }
   }
 
-  async toggleSettings() {
-    await this.tableContainer.locator(SETTINGS_ICON).click();
-  }
-
   async hideTableColumn(checkboxLocator: Locator) {
     await this.openSettings();
 
@@ -76,17 +70,13 @@ class BaseTable {
   }
 
   async selectAllRows() {
-    const rows = this.tableRows;
-    await expect(rows.first()).toBeVisible();
-    const count = await rows.count();
-
+    const firstRow = this.tableRows.first();
+    await expect(firstRow).toBeVisible();
+    await firstRow.click();
+    await this.page.keyboard.press("Control+a");
     await this.mapTableRows(async (row) => {
-      await this.page.keyboard.down("Control");
-      await row.click();
-      await this.page.keyboard.up("Control");
+      await this.expectRowIsChecked(row);
     });
-
-    return count; // TODO: REMOVE IT FROM HERE IN THE FEATURE, FALLBACK
   }
 
   async mapTableRows(callback: TMapTableRowsCallback) {
@@ -104,6 +94,10 @@ class BaseTable {
         exact: true,
       }),
     });
+  }
+
+  async expectRowIsChecked(row: Locator) {
+    await expect(row.getByRole("checkbox", { checked: true })).toBeVisible();
   }
 
   async selectRow(title: string) {

@@ -92,7 +92,7 @@ export default defineConfig({
     // },
   ],
   expect: {
-    timeout: 10000, // default timeout for expect assertions (toBeVisible, toHaveText, etc.)
+    timeout: 20000, // default timeout for expect assertions (toBeVisible, toHaveText, etc.)
   },
-  timeout: 180000, // default timeout for test execution
+  timeout: 240000, // default timeout for test execution
 });

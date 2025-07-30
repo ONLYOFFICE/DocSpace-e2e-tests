@@ -1,7 +1,7 @@
 import { expect, Page } from "@playwright/test";
 import BaseTable from "../common/BaseTable";
 
-import BaseContextMenu from "../common/BaseContextMenu";
+import { BaseContextMenu } from "../common/BaseContextMenu";
 import {
   TRoomContextMenuOption,
   TTemplateContextMenuOption,

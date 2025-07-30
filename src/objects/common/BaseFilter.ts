@@ -7,7 +7,7 @@ export const VIEW_SWITCH = {
 
 export const SORT = {
   BUTTON: "#sort-by-button",
-  BY_SIZE: "#sort-by_size",
+  SORT_OPTION: ".option-item",
 } as const;
 
 export const FILTER = {
@@ -43,10 +43,6 @@ class BaseFilter {
 
   get sortButton() {
     return this.page.locator(SORT.BUTTON);
-  }
- 
-  get sortBySizeOption() {
-    return this.page.locator(SORT.BY_SIZE);
   }
 
   get filterButton() {
@@ -93,8 +89,13 @@ class BaseFilter {
     await this.sortButton.click();
   }
 
-  async clickSortBySize() {
-    await this.sortBySizeOption.click();
+  protected async selectSortOptionByText(text: string) {
+    await this.page.locator(SORT.SORT_OPTION).filter({ hasText: text }).click();
+  }
+
+  protected async applySort(option: string) {
+    await this.openDropdownSortBy();
+    await this.selectSortOptionByText(option);
   }
 
   async openFilterDialog() {
@@ -107,7 +108,7 @@ class BaseFilter {
     await expect(this.filterApplyButton).toBeEnabled();
   }
 
-  async applyFilter() {
+  protected async applyFilter() {
     await this.filterApplyButton.click();
     await expect(this.filterDialog).not.toBeVisible();
   }
@@ -117,7 +118,7 @@ class BaseFilter {
     await expect(this.filterDialog).not.toBeVisible();
   }
 
-  async clearFilter() {
+  protected async clearFilter() {
     await this.emptyViewClearButton.click();
     await expect(this.emptyViewContainer).not.toBeVisible();
   }
@@ -126,31 +127,28 @@ class BaseFilter {
     await expect(this.filterDialog).toBeVisible();
   }
 
-  async waitForGetResponse(expectedUrlPart: string) {
-    await this.page.waitForResponse((response) => {
+  protected async fillSearchInputAndCheckRequest(searchValue: string) {
+    const promise = this.page.waitForResponse((response) => {
       return (
-        response.request().method() === "GET" &&
-        response.url().includes(expectedUrlPart)
+        response
+          .url()
+          .toLowerCase()
+          .includes(
+            `filtervalue=${encodeURIComponent(searchValue.toLowerCase())}`,
+          ) && response.request().method() === "GET"
       );
     });
-  }
-
-  async fillSearchInputAndCheckRequest(
-    searchValue: string,
-    expectedUrlPart: string,
-  ) {
-    const promise = this.waitForGetResponse(expectedUrlPart);
     await this.searchInput.fill(searchValue);
     await expect(this.searchInput).toHaveValue(searchValue);
     await promise;
   }
 
-  async clearSearchText() {
+  protected async clearSearchText() {
     await this.searchInput.clear();
     await expect(this.searchInput).toHaveValue("");
   }
 
-  async removeFilter(filterName: string) {
+  protected async removeFilter(filterName: string) {
     const filter = this.page
       .locator(".filter-input_selected-row")
       .getByText(filterName);
