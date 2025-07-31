@@ -1,11 +1,12 @@
 import { expect, Page, PageScreenshotOptions } from "@playwright/test";
+import { waitUntilReady } from "@/src/utils";
 
 type ScreenshotOptions = {
   screenshotDir: string;
   suiteName?: string;
   maxAttempts?: number;
   fullPage?: boolean;
-  maxDiffPixels?: number;
+  clientName?: string;
 };
 
 type PlaywrightScreenshotOptions = Omit<PageScreenshotOptions, "fullPage">;
@@ -27,7 +28,6 @@ class Screenshot {
       ...options,
       maxAttempts: options.maxAttempts ?? 3,
       fullPage: options.fullPage ?? false,
-      maxDiffPixels: options.maxDiffPixels ?? 5,
     };
     this.suiteName = options.suiteName;
   }
@@ -67,9 +67,14 @@ class Screenshot {
     safe: boolean = true,
     playwrightOptions?: PlaywrightScreenshotOptions,
   ) {
+    await waitUntilReady(this.page);
+
     if (safe) {
       await this.page.mouse.move(1, 1);
+      await this.page.mouse.move(1, 1);
     }
+
+    const originalViewport = this.page.viewportSize();
 
     const originalViewport = this.page.viewportSize();
 
@@ -79,6 +84,11 @@ class Screenshot {
 
     const screenshotName = this.getScreenshotName(comment);
 
+    await this.tryScreenshot(screenshotName, playwrightOptions);
+
+    if (this.options.fullPage && originalViewport) {
+      await this.page.setViewportSize(originalViewport);
+    }
     await this.tryScreenshot(screenshotName, playwrightOptions);
 
     if (this.options.fullPage && originalViewport) {
@@ -99,18 +109,18 @@ class Screenshot {
     let lastError;
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
       try {
-        await expect(this.page).toHaveScreenshot([
-          "client",
-          this.options.screenshotDir,
-          `${screenshotName}.png`,
-        ],
-        {
-          maxDiffPixels: this.options.maxDiffPixels,
-        }
-      );
+        await expect(this.page).toHaveScreenshot(
+          [
+            this.options.clientName ?? "client",
+            this.options.screenshotDir,
+            `${screenshotName}.png`,
+          ],
+          playwrightOptions,
+        );
         return;
       } catch (err) {
         console.log(
+          `${this.options.screenshotDir} - ${screenshotName} - ${err} - Attempt ${attempt} of ${maxAttempts}`,
           `${this.options.screenshotDir} - ${screenshotName} - ${err} - Attempt ${attempt} of ${maxAttempts}`,
         );
         lastError = err;

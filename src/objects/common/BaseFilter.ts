@@ -17,6 +17,8 @@ export const FILTER = {
   APPLY_BUTTON: "#filter_apply-button",
   CANCEL_BUTTON: "#filter_cancel-button",
   CLEAR_BUTTON: ".additional-icons-container",
+  CANCEL_BUTTON: "#filter_cancel-button",
+  CLEAR_BUTTON: ".additional-icons-container",
 } as const;
 
 export const SEARCH = {
@@ -45,10 +47,6 @@ class BaseFilter {
   get sortButton() {
     return this.page.locator(SORT.BUTTON);
   }
- 
-  get sortBySizeOption() {
-    return this.page.locator(SORT.BY_SIZE);
-  }
 
   get filterButton() {
     return this.page.locator(FILTER.BUTTON);
@@ -60,6 +58,10 @@ class BaseFilter {
 
   get filterApplyButton() {
     return this.page.locator(FILTER.APPLY_BUTTON);
+  }
+
+  get filterCancelButton() {
+    return this.page.locator(FILTER.CANCEL_BUTTON);
   }
 
   get filterCancelButton() {
@@ -131,9 +133,13 @@ class BaseFilter {
     await expect(this.filterDialog).not.toBeVisible();
   }
 
-  async clearFilter() {
+  protected async clearFilter() {
     await this.emptyViewClearButton.click();
     await expect(this.emptyViewContainer).not.toBeVisible();
+  }
+  async clearFilterDialog() {
+    await this.page.locator(FILTER.CLEAR_BUTTON).click();
+    await expect(this.filterDialog).toBeVisible();
   }
   async clearFilterDialog() {
     await this.page.locator(FILTER.CLEAR_BUTTON).click();

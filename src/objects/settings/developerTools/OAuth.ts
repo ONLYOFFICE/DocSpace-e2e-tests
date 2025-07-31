@@ -1,6 +1,6 @@
 import { expect, Page } from "@playwright/test";
 import BasePage from "@/src/objects/common/BasePage";
-import navItems from "@/src/utils/constants/settings";
+import { navItems } from "@/src/utils/constants/settings";
 import BaseTable, { TBaseTableLocators } from "../../common/BaseTable";
 
 class OAuth extends BasePage {

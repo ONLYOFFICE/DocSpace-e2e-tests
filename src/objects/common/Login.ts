@@ -8,6 +8,11 @@ export class Login extends BasePage {
   emailInput: Locator;
   passwordInput: Locator;
   loginButton: Locator;
+  socialButton: Locator;
+  socialPanelCloseButton: Locator;
+  forgotPasswordLink: Locator;
+  forgotPasswordEmailInput: Locator;
+  forgotPasswordSendButton: Locator;
 
   constructor(page: Page, portalDomain: string) {
     super(page);
