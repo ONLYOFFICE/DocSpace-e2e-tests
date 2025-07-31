@@ -14,6 +14,7 @@ const PROPERTY_FILE_EXTENSION = "#File\\ extension";
 const PROPERTY_TYPE = "#Type";
 const PROPERTY_DATE_MODIFIED = "#Date\\ modified";
 const PROPERTY_CREATION_DATE = "#Creation\\ date";
+const PROPERTY_SIZE = "#Size";
 
 const HISTORY_LIST = "#history-list-info-panel";
 const CREATION_TIME_HISTORY = "p.date";
@@ -155,6 +156,24 @@ class InfoPanel {
     await expect(fileType).toContainText("Document");
   }
 
+  async getSizeProperty() {
+    const size = this.infoPanel.locator(PROPERTY_SIZE);
+    return await size.textContent();
+  }
+  async getSizeInBytes(): Promise<number> {
+    const size = await this.getSizeProperty();
+    if (!size) {
+      throw new Error('Размер файла не найден!');
+    }
+    const sizeStr = size.replace(/^Size\s*/i, '').trim();
+    const match = sizeStr.match(/([\d.]+)\s*(KB|MB|B)/i);
+    if (!match) return 0;
+    let [_, num, unit] = match;
+    let sizeNum = parseFloat(num);
+    if (/MB/i.test(unit)) sizeNum *= 1024 * 1024;
+    else if (/KB/i.test(unit)) sizeNum *= 1024;
+    return sizeNum;
+  }
   async checkFolderProperties() {
     const folderType = this.infoPanel.locator(PROPERTY_TYPE);
     await expect(folderType).toContainText("Folder");

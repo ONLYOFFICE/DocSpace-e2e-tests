@@ -19,7 +19,6 @@ import FilesTable from "../files/FilesTable";
 
 const navActions = {
 } as const;
-const MODIFIED_CHECKBOX = ".table-container_settings-checkbox:has(span:text-is('Modified'))";
 
 class FormFillingRoom {
   private page: Page;
@@ -42,6 +41,41 @@ class FormFillingRoom {
   filesTable: FilesTable;
   toast: BaseToast;
     constructor(page: Page) {
+      this.page = page;
+      this.navigation = new BaseNavigation(page, navActions);
+      this.infoPanel = new InfoPanel(page);
+      this.roomEmptyView = new RoomEmptyView(page);
+      this.roomsTable = new RoomsTable(page);
+      this.roomsEmptyView = new RoomsEmptyView(page);
+      this.roomsCreateDialog = new RoomsCreateDialog(page);
+      this.roomsTypeDropdown = new RoomsTypesDropdown(page);
+      this.roomsArticle = new RoomsArticle(page);
+      this.roomsEditDialog = new RoomsEditDialog(page);
+      this.roomsChangeOwnerDialog = new RoomsChangeOwnerDialog(page);
+      this.roomsAccessSettingsDialog = new RoomsAccessSettingsDialog(page);
+      this.roomsFilter = new RoomsFilter(page);
+      this.inviteDialog = new BaseInviteDialog(page);
+      this.selector = new BaseSelector(page);
+      this.selectPanel = new RoomsSelectPanel(page);
+      this.filesTable = new FilesTable(page);
+      this.toast = new BaseToast(page);
+      }
+
+  async openAndClosePdfForm(fileName: string) {
+    await this.filesTable.openContextMenuForItem(fileName);    
+    await this.filesTable.contextMenu.clickOption("Fill");
+    
+    const [filledPage] = await Promise.all([
+      this.page.context().waitForEvent("page", { timeout: 5000 }),
+    ]).catch(() => [null]);
+        
+    if (filledPage) {
+      await filledPage.waitForLoadState("networkidle");
+      await filledPage?.close();
+    }
+  }
+
+  setPage(page: Page) {
     this.page = page;
     this.navigation = new BaseNavigation(page, navActions);
     this.infoPanel = new InfoPanel(page);
@@ -61,11 +95,11 @@ class FormFillingRoom {
     this.filesTable = new FilesTable(page);
     this.toast = new BaseToast(page);
   }
-  private get modifiedCheckbox() {
-    return this.page.locator(MODIFIED_CHECKBOX);
-  }
-  async hideModifiedColumn() {
-    await this.roomsTable.hideTableColumn(this.modifiedCheckbox);
+
+  async gotoFolder(folderName: string) {
+    await this.page.waitForSelector(".title-block");
+    await this.filesTable.openContextMenuForItem(folderName);    
+    await this.filesTable.contextMenu.clickOption("Open");
   }
 }
 export default FormFillingRoom;

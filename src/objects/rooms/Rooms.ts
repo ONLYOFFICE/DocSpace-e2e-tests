@@ -158,6 +158,12 @@ class MyRooms {
     await this.roomsCreateDialog.openRoomCover();
     await this.roomsCreateDialog.createRoomWithCover(roomCreateTitles.formFilling);
   }
+
+  async openRoom(roomName: string) {
+    await this.roomsTable.openContextMenuForItem(roomName);
+    await this.roomsTable.contextMenu.clickOption("Open");
+  }
+
 }
 
 export default MyRooms;
