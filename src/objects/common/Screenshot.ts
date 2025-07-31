@@ -5,7 +5,7 @@ type ScreenshotOptions = {
   suiteName?: string;
   maxAttempts?: number;
   fullPage?: boolean;
-  clientName?: string;
+  maxDiffPixels?: number;
 };
 
 type PlaywrightScreenshotOptions = Omit<PageScreenshotOptions, "fullPage">;
@@ -27,6 +27,7 @@ class Screenshot {
       ...options,
       maxAttempts: options.maxAttempts ?? 3,
       fullPage: options.fullPage ?? false,
+      maxDiffPixels: options.maxDiffPixels ?? 5,
     };
     this.suiteName = options.suiteName;
   }
@@ -98,10 +99,15 @@ class Screenshot {
     let lastError;
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
       try {
-        await expect(this.page).toHaveScreenshot(
-          ["client", this.options.screenshotDir, `${screenshotName}.png`],
-          playwrightOptions,
-        );
+        await expect(this.page).toHaveScreenshot([
+          "client",
+          this.options.screenshotDir,
+          `${screenshotName}.png`,
+        ],
+        {
+          maxDiffPixels: this.options.maxDiffPixels,
+        }
+      );
         return;
       } catch (err) {
         console.log(

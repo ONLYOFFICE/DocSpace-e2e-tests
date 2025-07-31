@@ -1,6 +1,6 @@
 import { expect, Page } from "@playwright/test";
 import BasePage from "@/src/objects/common/BasePage";
-import { navItems } from "@/src/utils/constants/settings";
+import navItems from "@/src/utils/constants/settings";
 import BaseTable, { TBaseTableLocators } from "../../common/BaseTable";
 
 class OAuth extends BasePage {
@@ -17,43 +17,43 @@ class OAuth extends BasePage {
   }
 
   get tabOAuth() {
-    return this.page.getByTestId('oauth_tab');
+    return this.page.locator('[data-testid="OAuth 2.0"]');
   }
 
   get oauthGuideLink() {
-    return this.page.getByTestId('oauth_guide_link');
+    return this.page.locator('[data-testid="link"]').getByText("OAuth 2.0 Guide");
   }
 
   get newApplicationButton() {
-    return this.page.getByTestId('register_new_app_button');
+    return this.page.locator('[data-testid="register_new_app_button"]');
   }
 
   get oauthNameInput() {
-    return this.page.getByTestId('app_name_input_group_input');
+    return this.page.locator('input[data-testid="app_name_input_group_input"]');
   }
 
   get oauthWebsiteUrlInput() {
-    return this.page.getByTestId('app_website_url_input_group_input');
+    return this.page.locator('input[data-testid="app_website_url_input_group_input"]');
   }
 
   get oauthDescriptionInput() {
-    return this.page.getByTestId('description_textarea_group');
+    return this.page.locator('textarea[data-testid="description_textarea_group"]');
   }
 
   get oauthRedirectUriInput() {
-    return this.page.getByTestId('redirect_uris_input');
+    return this.page.locator('input[data-testid="redirect_uris_input"]');
   }
 
   get oauthApproveRedirectUriInput() {
-    return this.page.getByTestId('redirect_uris_add_button');
+    return this.page.locator('[data-testid="redirect_uris_add_button"]');
   }
 
   get oauthAllowedOriginsInput() {
-    return this.page.getByTestId('allowed_origins_input');
+    return this.page.locator('input[data-testid="allowed_origins_input"]');
   }
 
   get oauthApproveAllowedOriginsInput() {
-    return this.page.getByTestId('allowed_origins_add_button');
+    return this.page.locator('[data-testid="allowed_origins_add_button"]');
   }
 
   get oauthIconInput() {
@@ -61,161 +61,161 @@ class OAuth extends BasePage {
   }
 
   get oauthPKCE() {
-    return this.page.getByTestId('allow_pkce_checkbox');
+    return this.page.locator('[data-testid="allow_pkce_checkbox"]');
   }
 
   get profileWritrCheckBox() {
-    return this.page.getByTestId('profiles_write_checkbox');
+    return this.page.locator('[data-testid="profiles_write_checkbox"]');
   }
 
   get contactsWriteCheckBox() {
-    return this.page.getByTestId('accounts_write_checkbox');
+    return this.page.locator('[data-testid="accounts_write_checkbox"]');
   }
 
   get filesAndFoldersWriteCheckBox() {
-    return this.page.getByTestId('rooms_write_checkbox');
+    return this.page.locator('[data-testid="rooms_write_checkbox"]');
   }
 
   get roomsWriteCheckBox() {
-    return this.page.getByTestId('files_write_checkbox');
+    return this.page.locator('[data-testid="files_write_checkbox"]');
   }
 
   get openIdCheckBox() {
-    return this.page.getByTestId('openid_read_checkbox');
+    return this.page.locator('[data-testid="openid_read_checkbox"]');
   }
 
   get oauthPolicyUrlInput() {
-    return this.page.getByTestId('policy_url_input_group_input');
+    return this.page.locator('input[data-testid="policy_url_input_group_input"]');
   }
 
   get oauthTermsOfServiceUrlInput() {
-    return this.page.getByTestId('terms_url_input_group_input');
+    return this.page.locator('input[data-testid="terms_url_input_group_input"]');
   }
 
   get oauthSaveButton() {
-    return this.page.getByTestId('oauth_save_button');
+    return this.page.locator('[data-testid="oauth_save_button"]');
   }
 
   get applicationModifiedDate() {
-    return this.page.getByTestId('app_modified_date_cell');
+    return this.page.locator('[data-testid="app_modified_date_cell"]');
   }
 
   get InfoPanelDate() {
-    return this.page.getByTestId('client_info_modified');
+    return this.page.locator('[data-testid="client_info_modified"]');
   }
 
   get oauthActionMenu() {
-    return this.page.getByTestId('context-menu-button');
+    return this.page.locator('[data-testid="context-menu-button"]');
   }
 
   get oauthEditApplication() {
-    return this.page.getByTestId('oauth_edit_option');
+    return this.page.locator('[data-testid="oauth_edit_option"]');
   }
 
   get oauthDisableApplication() {
-    return this.page.getByTestId('oauth_disable_option');
+    return this.page.locator('[data-testid="oauth_disable_option"]');
   }
 
   get oauthEnableApplication() {
-    return this.page.getByTestId('enable');
+    return this.page.locator('[data-testid="enable"]');
   }
 
   get oauthOKButton() {
-    return this.page.getByTestId('disable_app_ok_button');
+    return this.page.locator('[data-testid="disable_app_ok_button"]');
   }
 
   get oauthOpenInfoPanel() {
-    return this.page.getByTestId('oauth_info_option');
+    return this.page.locator('[data-testid="oauth_info_option"]');
   }
 
   get oauthInfoPanelActionMenu() {
-    return this.page.getByTestId('client_info_context_menu_button');
+    return this.page.locator('[data-testid="client_info_context_menu_button"]');
   }
 
   get websiteUrlInfoPanel() {
-    return this.page.getByTestId('client_info_website_link');
+    return this.page.locator('[data-testid="client_info_website_link"]');
   }
 
   get privacyPolicyUrlInfoPanel() {
-    return this.page.getByTestId('client_info_policy_link');
+    return this.page.locator('[data-testid="client_info_policy_link"]');
   }
 
   get termsOfServiceUrlInfoPanel() {
-    return this.page.getByTestId('client_info_terms_link');
+    return this.page.locator('[data-testid="client_info_terms_link"]');
   }
 
   get openScopes() {
-    return this.page.getByTestId('tag_container');
+    return this.page.locator('[data-testid="tag"]');
   }
 
   get backdrop() {
-    return this.page.getByTestId('backdrop');
+    return this.page.locator('[data-testid="backdrop"]');
   }
 
   get closeInfoPanel() {
-    return this.page.getByTestId('aside_header_close_icon_button').getByRole('img');
+    return this.page.getByTestId('aside-header').getByRole('img');
   }
 
   get generateToken() {
-    return this.page.getByTestId('oauth_generate_token_option');
+    return this.page.locator('[data-testid="oauth_generate_token_option"]');
   }
 
   get generateTokenButton() {
-    return this.page.getByTestId('generate_token_button');
+    return this.page.locator('[data-testid="generate_token_button"]');
   }
 
   get hideEmail() {
-    return this.page.getByTestId('generate_token_email_link');
+    return this.page.locator('[data-testid="generate_token_email_link"]');
   }
 
   get hideTokenInput() {
-    return this.page.getByTestId('generate_token_input');
+    return this.page.locator('[data-testid="generate_token_input"]');
   }
 
   get hideTokenDate() {
-    return this.page.getByTestId('generate_token_dates');
+    return this.page.locator('[data-testid="generate_token_dates"]');
   }
 
   get copyTokenButton() {
-    return this.page.getByTestId('copy_generate_token_button');
+    return this.page.locator('[data-testid="copy_generate_token_button"]');
   }
 
   get revokeToken() {
-    return this.page.getByTestId('oauth_revoke_token_option');
+    return this.page.locator('[data-testid="oauth_revoke_token_option"]');
   }
 
   get tokenInput() {
-    return this.page.getByTestId('revoke_token_input');
+    return this.page.locator('[data-testid="revoke_token_input"]');
   }
 
   get revokeTokenButton() {
-    return this.page.getByTestId('revoke_token_button');
+    return this.page.locator('[data-testid="revoke_token_button"]');
   }
 
   get deleteApplication() {
-    return this.page.getByTestId('oauth_delete_option');
+    return this.page.locator('[data-testid="oauth_delete_option"]');
   }
 
   get deleteApplicationOKButton() {
-    return this.page.getByTestId('delete_app_ok_button');
+    return this.page.locator('[data-testid="delete_app_ok_button"]');
   }
 
   get generatedToken() {
-    return this.page.getByTestId('generate_token_input');
+    return this.page.locator('[data-testid="generate_token_input"]');
   }
 
-    async open() {
+  async open() {
     await this.navigateToSettings();
     await this.article.navigate(navItems.developerTools);
     await this.tabOAuth.click();
   }
 
   async checkUseOAuth() {
-    await expect(this.page.getByTestId('register_new_app_button')).toBeVisible();
+    await expect(this.page.getByTestId('text').getByText("Use OAuth 2.0 to access the ONLYOFFICE DocSpace API")).toBeVisible();
     }
 
   async checkOauthUrls() {
-    await expect(this.page.locator('#sectionScroll')).toContainText('OAuth URLs');
+    await expect(this.page.getByTestId('text').getByText("OAuth URLs")).toBeVisible();
     }
     
   async hideDate() {
@@ -328,6 +328,7 @@ class OAuth extends BasePage {
     await this.oauthActionMenu.click();
     await this.deleteApplication.click();
   }
+
 }
 
 export default OAuth;

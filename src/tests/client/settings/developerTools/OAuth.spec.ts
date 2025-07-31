@@ -1,26 +1,42 @@
-import { expect } from "@playwright/test";
-import { test } from "@/src/fixtures";
+import { test, expect, Page } from "@playwright/test";
+import Login from "@/src/objects/common/Login";
+import API from "@/src/api";
 import Screenshot from "@/src/objects/common/Screenshot";
 import OAuth from "@/src/objects/settings/developerTools/OAuth";
 
 test.describe("OAuth tests", () => {
+  let api: API;
+  let page: Page;
+  let login: Login;
   let screenshot: Screenshot;
   let oauth: OAuth;
 
-  test.beforeEach(async ({ page, login }) => {
-   
+  test.beforeAll(async ({ playwright, browser }) => {
+    const apiContext = await playwright.request.newContext();
+    api = new API(apiContext);
+    await api.setup();
+    console.log(api.portalDomain);
+
+    page = await browser.newPage();
+
+    await page.addInitScript(() => {
+      globalThis.localStorage?.setItem("integrationUITests", "true");
+    });
+
     screenshot = new Screenshot(page, {
       screenshotDir: "oauth",
-      fullPage: false,
+      fullPage: true,
     });
+
+    login = new Login(page, api.portalDomain);
+    await login.loginToPortal();
 
     oauth = new OAuth(page);
 
-    await login.loginToPortal();
     await oauth.open();
   });
 
-  test("Render oauth", async ({ page }) => {
+  test("Render oauth", async () => {
     await test.step("Render oauth", async () => {
       await oauth.checkUseOAuth();
       await screenshot.expectHaveScreenshot("render_oauth");
@@ -59,6 +75,7 @@ test.describe("OAuth tests", () => {
 
     await test.step("Action menu render", async () => {
       await oauth.oauthActionMenu.click();
+      await oauth.hideDate();
       await screenshot.expectHaveScreenshot("oauth_action_menu_render");
     })
 
@@ -151,4 +168,10 @@ test.describe("OAuth tests", () => {
       expect(response.status()).toBe(200);
     })
   });
+
+  test.afterAll(async () => {
+    await api.cleanup();
+    await page.close();
+  });
 });
+
