@@ -1,5 +1,6 @@
 import { expect, Page } from "@playwright/test";
 import BaseInviteDialog from "../common/BaseInviteDialog";
+import { reassignDialogActions } from "@/src/utils/constants/contacts";
 
 class ContactsReassignmentDialog extends BaseInviteDialog {
   constructor(page: Page) {
@@ -23,6 +24,18 @@ class ContactsReassignmentDialog extends BaseInviteDialog {
     const progressBar = this.dialog.getByTestId("progress-bar");
     await expect(progressBar).toBeVisible();
     await expect(progressBar).toHaveAttribute("data-progress", "100");
+  }
+
+  async clickChooseFromList() {
+    await this.dialog
+      .getByText(reassignDialogActions.chooseFromList, { exact: true })
+      .click();
+  }
+
+  async clickCancel() {
+    await this.dialog
+      .getByText(reassignDialogActions.cancel, { exact: true })
+      .click();
   }
 }
 

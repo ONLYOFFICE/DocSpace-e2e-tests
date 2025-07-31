@@ -1,8 +1,7 @@
 import { Page } from "@playwright/test";
 import BaseNavigation from "../common/BaseNavigation";
-import BaseContextMenu from "../common/BaseContextMenu";
 
-const navActions = {
+export const navActions = {
   invite: {
     button: "#menu-invite",
     submit: "#send-inite-again-modal_submit",
@@ -32,10 +31,8 @@ const navActions = {
 } as const;
 
 class ContactsNavigation extends BaseNavigation {
-  dropdownMenu: BaseContextMenu;
   constructor(page: Page) {
     super(page, navActions);
-    this.dropdownMenu = new BaseContextMenu(page, true);
   }
 
   private async ensureHeaderMenuOpen() {
@@ -43,18 +40,6 @@ class ContactsNavigation extends BaseNavigation {
     if (!isVisible) {
       await this.openHeaderMenu();
     }
-  }
-
-  async disable() {
-    await this.performAction(navActions.disable);
-  }
-
-  async enable() {
-    await this.performAction(navActions.enable);
-  }
-
-  async deleteGroup() {
-    await this.performAction(navActions.deleteGroup);
   }
 
   async openDialog(action: keyof typeof navActions) {
@@ -71,10 +56,6 @@ class ContactsNavigation extends BaseNavigation {
       type: "id",
       value: "create_group",
     });
-  }
-
-  async delete() {
-    await this.performAction(navActions.delete);
   }
 
   async clickHeaderSubmenuOption(parentText: string, childText: string) {

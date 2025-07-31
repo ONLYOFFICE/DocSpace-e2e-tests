@@ -16,7 +16,7 @@ class FilesArticle extends BaseArticle {
 
   async openMainDropdown() {
     await this.clickArticleMainButton();
-    await this.contextMenu.checkContextMenuExists();
+    await this.contextMenu.checkMenuExists();
   }
 
   async closeMainDropdown() {

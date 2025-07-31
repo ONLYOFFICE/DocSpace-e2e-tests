@@ -1,38 +1,40 @@
+import { waitForGetPeopleResponse } from "./api/index";
 import { expect, Page } from "@playwright/test";
 
 import BaseDialog from "../common/BaseDialog";
-import BaseFilter from "../common/BaseFilter";
 import ContactsArticle from "./ContactsArticle";
-import ContactsNavigation from "./ContactsNavigation";
+import ContactsNavigation, { navActions } from "./ContactsNavigation";
 import {
   ADMIN_OWNER_NAME,
   contactsActionsMenu,
   GROUP_NAME,
   groupsContextMenuOption,
+  membersContextMenuOption,
   ownerContextMenuOption,
+  TContactsContextMenuOption,
   TContactType,
-  TInviteResponseData,
+  toastMessages,
   TUserEmail,
   userEmails,
 } from "@/src/utils/constants/contacts";
-import BaseContextMenu, { MenuItemSelector } from "../common/BaseContextMenu";
+import { BaseContextMenu } from "../common/BaseContextMenu";
 import ContactsInfoPanel from "./ContactsInfoPanel";
 import ContactsInviteDialog from "./ContactsInviteDialog";
 import ContactsTable from "./ContactsTable";
 import ContactsReassignmentDialog from "./ContactsReassignmentDialog";
 import ContactsGroupDialog from "./ContactsGroupDialog";
+import { TMenuItem } from "../common/BaseMenu";
+import { BaseDropdown } from "../common/BaseDropdown";
+import BasePage from "../common/BasePage";
+import ContactsFilter from "./ContactsFilter";
 
-class Contacts {
-  private page: Page;
+class Contacts extends BasePage {
   private portalDomain: string;
-  private userIds: Record<TUserEmail, string> = {} as Record<
-    TUserEmail,
-    string
-  >;
 
   private contextMenu: BaseContextMenu;
   dialog: BaseDialog;
-  filter: BaseFilter;
+  peopleFilter: ContactsFilter;
+  groupsFilter: ContactsFilter;
 
   article: ContactsArticle;
   navigation: ContactsNavigation;
@@ -41,14 +43,16 @@ class Contacts {
   table: ContactsTable;
   reassignmentDialog: ContactsReassignmentDialog;
   groupDialog: ContactsGroupDialog;
+  changeContactTypeDropdown: BaseDropdown;
 
   constructor(page: Page, portalDomain: string) {
-    this.page = page;
+    super(page);
     this.portalDomain = portalDomain;
 
     this.table = new ContactsTable(page);
     this.dialog = new BaseDialog(page);
-    this.filter = new BaseFilter(page);
+    this.peopleFilter = new ContactsFilter(page);
+    this.groupsFilter = new ContactsFilter(page, true);
     this.infoPanel = new ContactsInfoPanel(page);
     this.article = new ContactsArticle(page);
     this.navigation = new ContactsNavigation(page);
@@ -56,6 +60,9 @@ class Contacts {
     this.inviteDialog = new ContactsInviteDialog(page);
     this.reassignmentDialog = new ContactsReassignmentDialog(page);
     this.groupDialog = new ContactsGroupDialog(page);
+    this.changeContactTypeDropdown = new BaseDropdown(page, {
+      menu: this.page.getByText("DocSpace adminPaidRoom"),
+    });
   }
 
   async open() {
@@ -65,16 +72,91 @@ class Contacts {
     await expect(this.page).toHaveURL(/.*accounts\/people.*/);
   }
 
+  private async performContactAction(
+    actionType: keyof typeof navActions,
+    source: "header" | "table" = "header",
+    contextMenuOption: TContactsContextMenuOption,
+    toastMessage: string,
+  ) {
+    switch (source) {
+      case "header":
+        await this.navigation.performAction(navActions[actionType]);
+        break;
+      case "table":
+        await this.table.clickContextMenuOption(contextMenuOption);
+        await this.page.locator(navActions[actionType].button).click();
+        break;
+    }
+    await this.removeToast(toastMessage);
+  }
+
+  async deleteUser(source: "header" | "table" = "header") {
+    await this.performContactAction(
+      "delete",
+      source,
+      membersContextMenuOption.delete,
+      toastMessages.changesSaved,
+    );
+  }
+
+  async disableUser(source: "header" | "table" = "header") {
+    await this.performContactAction(
+      "disable",
+      source,
+      membersContextMenuOption.disable,
+      toastMessages.userStatusChanged,
+    );
+  }
+
+  async enableUser(source: "header" | "table" = "header") {
+    await this.performContactAction(
+      "enable",
+      source,
+      membersContextMenuOption.enable,
+      toastMessages.userStatusChanged,
+    );
+  }
+
+  async deleteGroup(source: "header" | "table" = "header") {
+    await this.performContactAction(
+      "deleteGroup",
+      source,
+      groupsContextMenuOption.delete,
+      toastMessages.groupDeleted,
+    );
+  }
+
+  async deleteGuest(source: "header" | "table" = "header") {
+    await this.performContactAction(
+      "delete",
+      source,
+      membersContextMenuOption.delete,
+      toastMessages.guestDeleted,
+    );
+  }
+
+  async enableGuest(source: "header" | "table" = "header") {
+    await this.performContactAction(
+      "enable",
+      source,
+      membersContextMenuOption.enable,
+      toastMessages.guestStatusChanged,
+    );
+  }
+
+  async disableGuest(source: "header" | "table" = "header") {
+    await this.performContactAction(
+      "disable",
+      source,
+      membersContextMenuOption.disable,
+      toastMessages.guestStatusChanged,
+    );
+  }
+
   async openTab(tab: "Members" | "Groups" | "Guests") {
     const tabLocator = this.page.locator("span").filter({ hasText: tab });
     await expect(tabLocator).toBeVisible();
     await tabLocator.click();
-    await this.page.waitForResponse(
-      (response) =>
-        response.url().includes("/settings") &&
-        response.status() === 200 &&
-        response.request().method() === "GET",
-    );
   }
 
   async openSubmenu(source: "header" | "table" | "article") {
@@ -96,25 +178,10 @@ class Contacts {
     }
   }
 
-  async waitForInviteResponse(userEmail: string) {
-    return this.page.waitForResponse(async (response) => {
-      if (
-        response.url().includes("people") &&
-        response.status() === 200 &&
-        response.request().method() === "GET"
-      ) {
-        const data: TInviteResponseData = await response.json();
-        if (!data.response) return false;
-        try {
-          return data.response.email === userEmail;
-        } catch {
-          return false;
-        }
-      }
-      return false;
-    });
+  async checkWarningDialog() {
+    await this.dialog.checkDialogTitleExist("Warning");
+    await this.dialog.close();
   }
-
   async inviteUsers() {
     for (const [access, value] of Object.entries(
       contactsActionsMenu.invite.submenu,
@@ -123,11 +190,6 @@ class Contacts {
       const userEmail = userEmails[access as keyof typeof userEmails];
       await this.inviteUser(userEmail, value);
     }
-  }
-
-  async checkWarningDialog() {
-    await this.dialog.checkDialogTitleExist("Warning");
-    await this.dialog.close();
   }
 
   async inviteUser(userEmail: TUserEmail, userType: TContactType) {
@@ -141,24 +203,23 @@ class Contacts {
     await this.inviteDialog.checkUserExist(userEmail);
     await this.inviteDialog.clickAddUserToInviteList(userEmail);
     await this.inviteDialog.checkAddedUserExist(userEmail);
-    const response = this.waitForInviteResponse(userEmail);
+    const promise = waitForGetPeopleResponse(this.page);
     await this.inviteDialog.submitInviteDialog();
+    await promise;
     await this.table.checkRowExist(userEmail);
-    const responseData = await response;
-    const data: TInviteResponseData = await responseData.json();
-    this.userIds[userEmail] = data.response.id;
 
     const countPaidUsers = await this.table.getCountPaidUsers();
 
     if (countPaidUsers === 2) {
       await this.checkWarningDialog();
     }
+    await this.removeToast(toastMessages.usersInvited);
   }
 
-  async openChangeContactTypeDialog(user: string, menuItem: MenuItemSelector) {
+  async openChangeContactTypeDialog(user: string, menuItem: TMenuItem) {
     await this.table.selectRow(user);
     await this.navigation.openChangeTypeDropdown();
-    await this.navigation.dropdownMenu.clickOption(menuItem);
+    await this.changeContactTypeDropdown.clickOption(menuItem);
     await this.dialog.checkDialogTitleExist("Change contact type");
   }
 
@@ -206,10 +267,11 @@ class Contacts {
 
   async submitChangeContactTypeDialog() {
     await this.page.locator("#change-user-type-modal_submit").click();
+    await this.removeToast(toastMessages.userTypeChanged);
   }
 
   async selectAllContacts() {
-    await this.table.tableRows.nth(1).click(); // second row
+    await this.table.selectRowByIndex(1);
     await this.navigation.clickSelectAllCheckbox();
   }
 

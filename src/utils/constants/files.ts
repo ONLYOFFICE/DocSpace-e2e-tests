@@ -26,4 +26,12 @@ export const listDocActions = [
   DOC_ACTIONS.CREATE_PDF_BLANK,
 ] as const;
 
+export const docSort = {
+  name: "Name",
+  modified: "Last modified date",
+  size: "Size",
+} as const;
+
+export type TDocSort = (typeof docSort)[keyof typeof docSort];
+
 export const listArticleDocActions = transformDocActions(listDocActions);

@@ -1,9 +1,11 @@
 import { expect, Page } from "@playwright/test";
 import BaseFilter from "../common/BaseFilter";
+import { docSort, TDocSort } from "@/src/utils/constants/files";
+import { waitForGetFilesResponse } from "./api";
 
-const FILES_FILTER = {
-  BY_FOLDERS: "#filter_type-folders",
-  BY_MEDIA: "#filter_type-media",
+const filesFilter = {
+  byFolders: "#filter_type-folders",
+  byMedia: "#filter_type-media",
 } as const;
 
 const TITLE_FOLDERS = "#folder-tile-heading";
@@ -13,12 +15,41 @@ class FilesFilter extends BaseFilter {
     super(page);
   }
 
+  async applySort(option: TDocSort) {
+    const promise = waitForGetFilesResponse(this.page);
+    await super.applySort(option);
+    await promise;
+  }
+
+  async selectSortByName() {
+    const promise = waitForGetFilesResponse(this.page);
+    await super.selectSortOptionByText(docSort.name);
+    await promise;
+  }
+
   async selectFilterByFolders() {
-    await this.selectFilterTag(FILES_FILTER.BY_FOLDERS);
+    await super.selectFilterTag(filesFilter.byFolders);
   }
 
   async selectFilterByMedia() {
-    await this.selectFilterTag(FILES_FILTER.BY_MEDIA);
+    await super.selectFilterTag(filesFilter.byMedia);
+  }
+
+  async applyFilter() {
+    const promise = waitForGetFilesResponse(this.page);
+    await super.applyFilter();
+    await promise;
+  }
+  async clearFilter() {
+    const promise = waitForGetFilesResponse(this.page);
+    await super.clearFilter();
+    await promise;
+  }
+
+  async clearSearchText() {
+    const promise = waitForGetFilesResponse(this.page);
+    await super.clearSearchText();
+    await promise;
   }
 
   private get titleFolders() {
@@ -26,23 +57,20 @@ class FilesFilter extends BaseFilter {
   }
 
   async fillFilesSearchInputAndCheckRequest(searchValue: string) {
-    await this.fillSearchInputAndCheckRequest(
-      searchValue,
-      `filterValue=${encodeURIComponent(searchValue)}`,
-    );
+    await super.fillSearchInputAndCheckRequest(searchValue);
   }
 
   async switchToDocumentsCompactView() {
-    await this.switchToCompactView();
+    await super.switchToCompactView();
   }
 
   async switchToDocumentsThumbnailView() {
-    await this.switchToThumbnailView();
+    await super.switchToThumbnailView();
     await expect(this.titleFolders).toBeVisible();
   }
 
   async checkFilesEmptyViewExist() {
-    await this.checkEmptyView("No findings");
+    await super.checkEmptyView("No findings");
   }
 }
 

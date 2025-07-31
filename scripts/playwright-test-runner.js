@@ -57,7 +57,7 @@ const getTestSelectAnswer = async (lastRun) => {
   if (lastRun) {
     const dockerInfo = lastRun.useDocker ? " [Docker]" : "";
     testChoices.unshift({
-      name: `🔁 Repeat previous run (${lastRun.answer}${lastRun.playwrightFlags?.length ? " " + lastRun.playwrightFlags.join(" ") : ""}${dockerInfo})`,
+      name: `🔁 Repeat previous run (${lastRun.answer}${lastRun.playwrightFlags.join(" ")}${dockerInfo})`,
       value: "last",
     });
   }
@@ -113,7 +113,9 @@ const getPlaywrightFlags = async (skip, isDockerEnv) => {
 };
 
 function runPlaywrightLocal(playwrightArgs) {
-  const child = spawn("npx", ["playwright", "test", ...playwrightArgs], {
+  const localArgs = ["playwright", "test", ...playwrightArgs];
+
+  const child = spawn("npx", localArgs, {
     stdio: "inherit",
     shell: process.platform === "win32",
   });
@@ -140,6 +142,34 @@ function runPlaywrightDocker(playwrightArgs) {
   });
 }
 
+const lastAnswerVariant = (lastRun) => {
+  if (lastRun.useDocker) {
+    runPlaywrightDocker([
+      lastRun.answer === "all" ? "" : lastRun.answer,
+      ...(lastRun?.playwrightFlags || []),
+    ]);
+  } else {
+    runPlaywrightLocal([
+      lastRun.answer === "all" ? "" : lastRun.answer,
+      ...(lastRun?.playwrightFlags || []),
+    ]);
+  }
+};
+
+const newAnswerVariant = (
+  isDockerEnv,
+  playwrightFlags,
+  runFunction,
+  lastRunPath,
+  answer,
+) => {
+  console.log(
+    `Run: ${isDockerEnv ? "docker-compose run --rm tests-local" : ""} npx playwright test ${playwrightFlags.join(" ")}`,
+  );
+  runFunction([answer === "all" ? "" : answer, ...playwrightFlags]);
+  writeLastRun(lastRunPath, answer, playwrightFlags, isDockerEnv);
+};
+
 const run = async () => {
   process.on("uncaughtException", (error) => {
     if (error instanceof Error && error.name === "ExitPromptError") {
@@ -156,44 +186,26 @@ const run = async () => {
   const lastRun = readLastRun(lastRunPath);
   const answer = await getTestSelectAnswer(lastRun);
 
+  const isLastRun = answer === "last";
+
   // Skip environment and flag selection if repeating last run
-  const isDockerEnv =
-    answer === "last" ? lastRun.useDocker : await getRunEnvironment(false);
-  const playwrightFlags = await getPlaywrightFlags(
-    answer === "last",
-    isDockerEnv,
-  );
+  const isDockerEnv = isLastRun
+    ? lastRun.useDocker
+    : await getRunEnvironment(false);
+  const playwrightFlags = await getPlaywrightFlags(isLastRun, isDockerEnv);
 
   const runFunction = isDockerEnv ? runPlaywrightDocker : runPlaywrightLocal;
 
-  switch (answer) {
-    case "all":
-      console.log(
-        `Run: ${isDockerEnv ? "docker-compose run --rm tests-local" : ""} npx playwright test ${playwrightFlags.join(" ")}`,
-      );
-      runFunction([...playwrightFlags]);
-      writeLastRun(lastRunPath, answer, playwrightFlags, isDockerEnv);
-      break;
-    case "last":
-      if (lastRun.useDocker) {
-        runPlaywrightDocker([
-          lastRun.answer,
-          ...(lastRun?.playwrightFlags || []),
-        ]);
-      } else {
-        runPlaywrightLocal([
-          lastRun.answer,
-          ...(lastRun?.playwrightFlags || []),
-        ]);
-      }
-      break;
-    default:
-      console.log(
-        `Run: ${isDockerEnv ? "docker-compose run --rm tests-local" : ""} npx playwright test ${answer} ${playwrightFlags.join(" ")}`,
-      );
-      runFunction([answer, ...playwrightFlags]);
-      writeLastRun(lastRunPath, answer, playwrightFlags, isDockerEnv);
-      break;
+  if (isLastRun) {
+    lastAnswerVariant(lastRun);
+  } else {
+    newAnswerVariant(
+      isDockerEnv,
+      playwrightFlags,
+      runFunction,
+      lastRunPath,
+      answer,
+    );
   }
 };
 

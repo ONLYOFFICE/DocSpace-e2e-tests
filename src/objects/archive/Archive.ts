@@ -5,6 +5,8 @@ import InfoPanel from "../common/InfoPanel";
 import BaseTable from "../common/BaseTable";
 import ArchiveEmptyView from "./ArchiveEmptyView";
 import BaseFilter from "../common/BaseFilter";
+import BasePage from "../common/BasePage";
+import { archiveToastMessages } from "@/src/utils/constants/archive";
 
 const navActions = {
   restore: {
@@ -20,12 +22,7 @@ const navActions = {
 const LAST_ACTIVITY_CHECKBOX =
   ".table-container_settings-checkbox:has(span:text-is('Last activity'))";
 
-const ARCHIVE_SORT = {
-  BY_NAME: "#sort-by_name",
-};
-
-class MyArchive {
-  page: Page;
+class MyArchive extends BasePage {
   portalDomain: string;
 
   navigation: BaseNavigation;
@@ -36,7 +33,7 @@ class MyArchive {
   infoPanel: InfoPanel;
 
   constructor(page: Page, portalDomain: string) {
-    this.page = page;
+    super(page);
     this.portalDomain = portalDomain;
 
     this.navigation = new BaseNavigation(page, navActions);
@@ -47,22 +44,22 @@ class MyArchive {
   }
 
   async open() {
-    await this.page.goto(`https://${this.portalDomain}/rooms/archived`);
-    await this.page.waitForLoadState("load");
+    await this.page.goto(`https://${this.portalDomain}/rooms/archived`, {
+      waitUntil: "load",
+    });
     await expect(this.page).toHaveURL(/.*rooms\/archived.*/);
   }
 
   async restoreRooms() {
+    await this.archiveTable.selectAllRows();
     await this.navigation.performAction(navActions.restore);
+    await this.removeToast(archiveToastMessages.unarchived);
   }
 
   async deleteRooms() {
+    await this.archiveTable.selectAllRows();
     await this.navigation.performAction(navActions.delete);
-  }
-
-  async sortByName() {
-    await this.baseFilter.openDropdownSortBy();
-    await this.page.locator(ARCHIVE_SORT.BY_NAME).click();
+    await this.removeToast(archiveToastMessages.removed);
   }
 
   async hideLastActivityColumn() {

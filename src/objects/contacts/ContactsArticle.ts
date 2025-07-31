@@ -1,6 +1,6 @@
 import { Page } from "@playwright/test";
 import BaseArticle from "../common/BaseArticle";
-import BaseContextMenu from "../common/BaseContextMenu";
+import { BaseContextMenu } from "../common/BaseContextMenu";
 
 class ContactsArticle extends BaseArticle {
   contextMenu: BaseContextMenu;
@@ -13,7 +13,7 @@ class ContactsArticle extends BaseArticle {
 
   async openArticleMenu() {
     await this.clickArticleMainButton();
-    await this.contextMenu.checkContextMenuExists();
+    await this.contextMenu.checkMenuExists();
   }
 
   async openInviteSubmenu() {

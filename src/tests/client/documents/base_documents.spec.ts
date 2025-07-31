@@ -1,30 +1,12 @@
-import { test, Page } from "@playwright/test";
-
-import API from "@/src/api";
 import MyDocuments from "@/src/objects/files/MyDocuments";
-import Login from "@/src/objects/common/Login";
 import Screenshot from "@/src/objects/common/Screenshot";
+import { test } from "@/src/fixtures";
 
 test.describe("My documents: Base", () => {
-  let api: API;
-  let page: Page;
-  let login: Login;
   let myDocuments: MyDocuments;
   let screenshot: Screenshot;
 
-  test.beforeAll(async ({ playwright, browser }) => {
-    const apiContext = await playwright.request.newContext();
-    api = new API(apiContext);
-    await api.setup();
-    console.log(api.portalDomain);
-
-    page = await browser.newPage();
-
-    await page.addInitScript(() => {
-      globalThis.localStorage?.setItem("integrationUITests", "true");
-    });
-
-    login = new Login(page, api.portalDomain);
+  test.beforeEach(async ({ page, api, login }) => {
     myDocuments = new MyDocuments(page, api.portalDomain);
     screenshot = new Screenshot(page, { screenshotDir: "files" });
 
@@ -56,7 +38,7 @@ test.describe("My documents: Base", () => {
     await test.step("FilesCreate", async () => {
       await myDocuments.filesNavigation.openCreateDropdown();
       await screenshot.expectHaveScreenshot("files_create_dropdown");
-      await myDocuments.filesNavigation.closeCreateDropdown();
+      await myDocuments.filesNavigation.closeContextMenu();
 
       await myDocuments.filesNavigation.openAndValidateFileCreateModals();
 
@@ -130,7 +112,7 @@ test.describe("My documents: Base", () => {
     await test.step("Sort", async () => {
       await myDocuments.filesFilter.openDropdownSortBy();
       await screenshot.expectHaveScreenshot("sort_dropdown_by");
-      await myDocuments.filesFilter.clickSortBySize();
+      await myDocuments.filesFilter.selectSortByName();
       await screenshot.expectHaveScreenshot("sort_by_size");
     });
 
@@ -149,6 +131,7 @@ test.describe("My documents: Base", () => {
       await screenshot.expectHaveScreenshot("filter_by_media_empty");
 
       await myDocuments.filesFilter.clearFilter();
+      await myDocuments.filesTable.checkRowExist("Folder");
     });
 
     await test.step("Search", async () => {
@@ -158,16 +141,12 @@ test.describe("My documents: Base", () => {
       await screenshot.expectHaveScreenshot("search_docx_file");
 
       await myDocuments.filesFilter.clearSearchText();
+      await myDocuments.filesTable.checkRowExist("Folder");
       await myDocuments.filesFilter.fillFilesSearchInputAndCheckRequest(
         "empty view search",
       );
       await myDocuments.filesFilter.checkFilesEmptyViewExist();
       await screenshot.expectHaveScreenshot("search_empty");
     });
-  });
-
-  test.afterAll(async () => {
-    await api.cleanup();
-    await page.close();
   });
 });

@@ -1,6 +1,6 @@
 import { expect, Page } from "@playwright/test";
 import BaseTable from "../common/BaseTable";
-import BaseContextMenu from "../common/BaseContextMenu";
+import { BaseContextMenu } from "../common/BaseContextMenu";
 import { initialDocNames } from "@/src/utils/constants/files";
 
 const TABLE_LIST_ITEM = ".table-list-item.window-item";

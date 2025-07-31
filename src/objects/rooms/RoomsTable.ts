@@ -1,7 +1,7 @@
 import { expect, Page } from "@playwright/test";
 import BaseTable from "../common/BaseTable";
 
-import BaseContextMenu from "../common/BaseContextMenu";
+import { BaseContextMenu } from "../common/BaseContextMenu";
 import {
   TRoomContextMenuOption,
   TTemplateContextMenuOption,
@@ -22,6 +22,10 @@ class RoomsTable extends BaseTable {
 
   async hideLastActivityColumn() {
     await this.hideTableColumn(this.page.locator(LAST_ACTIVITY_CHECKBOX));
+  }
+
+  async clickTag(tagValue: string) {
+    await this.page.locator(`[data-tag="${tagValue}"]`).click();
   }
 
   async checkRoomPinnedToTopExist() {

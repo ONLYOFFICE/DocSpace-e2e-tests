@@ -30,9 +30,10 @@ class Apisystem {
   }
 
   async createPortal(portalNamePrefix = "test-portal") {
-    this.portalName = `${portalNamePrefix}-${new Date()
-      .toISOString()
-      .replace(/[:.]/g, "-")}`;
+    const datePrefix = new Date().toISOString().replace(/[:.]/g, "-");
+    const randomPrefix = Math.random().toString(36).slice(2, 8);
+
+    this.portalName = `${portalNamePrefix}-${randomPrefix}-${datePrefix}`;
 
     const response = await this.apiContext.post(
       `${config.PORTAL_REGISTRATION_URL}/register`,

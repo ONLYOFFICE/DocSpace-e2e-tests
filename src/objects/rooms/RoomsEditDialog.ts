@@ -1,6 +1,10 @@
 import BaseDialog from "../common/BaseDialog";
 
 class RoomsEditDialog extends BaseDialog {
+  async checkDialogTitleExist() {
+    await super.checkDialogTitleExist("Room editing");
+  }
+
   async fillRoomName(name: string) {
     await this.fillInput(
       this.page.getByRole("textbox", { name: "Name:" }),

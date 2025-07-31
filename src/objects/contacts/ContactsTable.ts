@@ -7,7 +7,7 @@ import {
   TMembersContextMenuOption,
   TOwnerContextMenuOption,
 } from "@/src/utils/constants/contacts";
-import BaseContextMenu from "../common/BaseContextMenu";
+import { BaseContextMenu } from "../common/BaseContextMenu";
 
 class ContactsTable extends BaseTable {
   contextMenu: BaseContextMenu;
@@ -48,6 +48,20 @@ class ContactsTable extends BaseTable {
       | TOwnerContextMenuOption,
   ) {
     await this.contextMenu.clickOption(option);
+  }
+
+  async selectRow(title: string) {
+    const row = await this.getRowByTitle(title);
+    await expect(row).toBeVisible();
+    const avatar = row.getByTestId("avatar");
+    await avatar.click({ force: true });
+  }
+
+  async selectRowByIndex(index: number) {
+    const row = this.tableRows.nth(index);
+    await expect(row).toBeVisible();
+    const avatar = row.getByTestId("avatar");
+    await avatar.click({ force: true });
   }
 
   async checkEnabledUserExist(value: string) {
