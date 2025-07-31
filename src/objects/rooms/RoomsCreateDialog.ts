@@ -270,13 +270,13 @@ class RoomsCreateDialog extends BaseDialog {
     await expect(combo).toContainText(position);
   }
 
-  async setRoomCoverColor(colorIndex = 1) {
+  async setRoomCoverColor(colorIndex = '.sc-dwalKd.kOQVrm') {
   
-    await this.page.locator('[data-testid="icon-button-svg"]').click();
+    await this.page.getByTestId('modal').getByTestId('room-icon').getByTestId('icon-button-svg').getByRole('img').click();
     await this.page.getByText('Customize cover').click();
   
-    const colorButtons = this.page.locator('.colors-container > div .circle');
-    await colorButtons.nth(colorIndex).click();
+    //const colorButtons = this.page.locator('.colors-container > div .circle');
+    await this.page.locator(colorIndex).click();
 
   await this.page.getByRole('button', { name: /apply/i }).click();
   }
