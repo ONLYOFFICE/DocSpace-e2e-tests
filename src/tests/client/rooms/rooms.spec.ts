@@ -6,33 +6,27 @@ import {
   roomDialogSource,
   roomTemplateTitles,
   roomToastMessages,
+  roomToastMessages,
   templateContextMenuOption,
 } from "@/src/utils/constants/rooms";
+import { test } from "@/src/fixtures";
+import { Page } from "@playwright/test";
 import { test } from "@/src/fixtures";
 import { Page } from "@playwright/test";
 
 test.describe("Rooms", () => {
   let screenshot: Screenshot;
   let myRooms: MyRooms;
+  let page: Page;
 
-  test.beforeAll(async ({ playwright, browser }) => {
-    const apiContext = await playwright.request.newContext();
-    api = new API(apiContext);
-    await api.setup();
-    console.log(api.portalDomain);
+  const duplicateRoomName = roomCreateTitles.public + " (1)";
 
-    page = await browser.newPage();
-
-    await page.addInitScript(() => {
-      globalThis.localStorage?.setItem("integrationUITests", "true");
-    });
-
-    login = new Login(page, api.portalDomain);
+  test.beforeEach(async ({ page: fixturePage, api, login }) => {
+    page = fixturePage;
     screenshot = new Screenshot(page, {
       screenshotDir: "rooms",
       suiteName: "rooms",
     });
-
     myRooms = new MyRooms(page, api.portalDomain);
 
     await login.loginToPortal();
@@ -127,6 +121,9 @@ test.describe("Rooms", () => {
       await myRooms.removeToast(
         roomToastMessages.templateSaved(roomTemplateTitles.roomTemplate),
       );
+      await myRooms.removeToast(
+        roomToastMessages.templateSaved(roomTemplateTitles.roomTemplate),
+      );
       await myRooms.roomsEmptyView.checkEmptyRoomExist(roomCreateTitles.public);
       await myRooms.backToRooms();
       await myRooms.roomsTable.checkRowExist(roomTemplateTitles.roomTemplate);
@@ -143,6 +140,11 @@ test.describe("Rooms", () => {
         templateContextMenuOption.createRoom,
       );
       await myRooms.roomsCreateDialog.createPublicRoomFromTemplate();
+      await myRooms.removeToast(
+        roomToastMessages.baseOnTemplateCreated(
+          roomTemplateTitles.fromTemplate,
+        ),
+      );
       await myRooms.removeToast(
         roomToastMessages.baseOnTemplateCreated(
           roomTemplateTitles.fromTemplate,
@@ -185,11 +187,13 @@ test.describe("Rooms", () => {
         roomContextMenuOption.disableNotifications,
       );
       await myRooms.removeToast(roomToastMessages.notifyDisabled);
+      await myRooms.removeToast(roomToastMessages.notifyDisabled);
 
       await myRooms.roomsTable.openContextMenu(roomCreateTitles.public);
       await myRooms.roomsTable.clickContextMenuOption(
         roomContextMenuOption.pinToTop,
       );
+      await myRooms.removeToast(roomToastMessages.pinned);
       await myRooms.removeToast(roomToastMessages.pinned);
       await myRooms.roomsTable.checkRoomPinnedToTopExist();
 
@@ -197,6 +201,7 @@ test.describe("Rooms", () => {
       await myRooms.roomsTable.clickContextMenuOption(
         roomContextMenuOption.editRoom,
       );
+      await myRooms.roomsEditDialog.checkDialogTitleExist();
       await myRooms.roomsEditDialog.checkDialogTitleExist();
       await screenshot.expectHaveScreenshot("edit_room_dialog");
       await myRooms.roomsEditDialog.fillRoomName("Edited room");
@@ -213,9 +218,14 @@ test.describe("Rooms", () => {
         roomToastMessages.duplicate(roomCreateTitles.public),
       );
       await myRooms.roomsTable.checkRowExist(duplicateRoomName);
+      await myRooms.removeToast(
+        roomToastMessages.duplicate(roomCreateTitles.public),
+      );
+      await myRooms.roomsTable.checkRowExist(duplicateRoomName);
     });
 
     await test.step("MoveToArchive", async () => {
+      await myRooms.roomsTable.openContextMenu(duplicateRoomName);
       await myRooms.roomsTable.openContextMenu(duplicateRoomName);
       await myRooms.roomsTable.clickContextMenuOption(
         roomContextMenuOption.moveToArchive,
@@ -223,7 +233,10 @@ test.describe("Rooms", () => {
       await myRooms.moveToArchive();
       await myRooms.removeToast(
         roomToastMessages.roomArchived(duplicateRoomName),
+      await myRooms.removeToast(
+        roomToastMessages.roomArchived(duplicateRoomName),
       );
+      await myRooms.roomsTable.checkRowNotExist(duplicateRoomName);
       await myRooms.roomsTable.checkRowNotExist(duplicateRoomName);
     });
 
@@ -293,10 +306,18 @@ test.describe("Rooms", () => {
       await myRooms.roomsFilter.openDropdownSortBy();
       await screenshot.expectHaveScreenshot("sort_dropdown");
       await myRooms.roomsFilter.selectSortByType();
+      await myRooms.roomsFilter.selectSortByType();
       await screenshot.expectHaveScreenshot("sort_by_type");
     });
 
     await test.step("Search", async () => {
+      await myRooms.roomsFilter.fillRoomsSearchInputAndCheckRequest(
+        roomCreateTitles.collaboration,
+      );
+      await myRooms.roomsTable.checkRowExist(roomCreateTitles.collaboration);
+      await screenshot.expectHaveScreenshot("search_collaboration_room");
+      await myRooms.roomsFilter.clearSearchText();
+      await myRooms.roomsTable.checkRowExist(roomCreateTitles.public);
       await myRooms.roomsFilter.fillRoomsSearchInputAndCheckRequest(
         roomCreateTitles.collaboration,
       );
