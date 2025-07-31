@@ -1,36 +1,19 @@
-import { test, Page } from "@playwright/test";
-
-import API from "@/src/api";
-import Login from "@/src/objects/common/Login";
 import MyRooms from "@/src/objects/rooms/Rooms";
 import Archive from "@/src/objects/archive/Archive";
 import Screenshot from "@/src/objects/common/Screenshot";
-import { roomCreateTitles } from "@/src/utils/constants/rooms";
+import { roomCreateTitles, roomSort } from "@/src/utils/constants/rooms";
+import { test } from "@/src/fixtures";
 
 test.describe("Archive", () => {
-  let api: API;
-  let page: Page;
-
-  let login: Login;
   let screenshot: Screenshot;
 
   let myRooms: MyRooms;
   let myArchive: Archive;
 
-  test.beforeAll(async ({ playwright, browser }) => {
-    const apiContext = await playwright.request.newContext();
-    api = new API(apiContext);
-    await api.setup();
-    console.log(api.portalDomain);
-
-    page = await browser.newPage();
-
-    await page.addInitScript(() => {
-      globalThis.localStorage?.setItem("integrationUITests", "true");
+  test.beforeEach(async ({ page, api, login }) => {
+    screenshot = new Screenshot(page, {
+      screenshotDir: "archive",
     });
-
-    login = new Login(page, api.portalDomain);
-    screenshot = new Screenshot(page, { screenshotDir: "archive" });
 
     myRooms = new MyRooms(page, api.portalDomain);
     myArchive = new Archive(page, api.portalDomain);
@@ -47,7 +30,7 @@ test.describe("Archive", () => {
 
       await myArchive.open();
       await myArchive.hideLastActivityColumn();
-      await myArchive.sortByName();
+      await myRooms.roomsFilter.applyRoomsSort(roomSort.name);
       await screenshot.expectHaveScreenshot("render_rooms");
     });
 
@@ -71,7 +54,6 @@ test.describe("Archive", () => {
     });
 
     await test.step("RestoreRooms", async () => {
-      await myArchive.archiveTable.selectAllRows();
       await myArchive.restoreRooms();
       await myArchive.archiveEmptyView.checkNoArchivedRoomsExist();
       await screenshot.expectHaveScreenshot("restore_rooms_restored");
@@ -83,14 +65,8 @@ test.describe("Archive", () => {
       await myRooms.moveAllRoomsToArchive();
       await myRooms.roomsEmptyView.checkNoRoomsExist();
       await myArchive.open();
-      await myArchive.archiveTable.selectAllRows();
       await myArchive.deleteRooms();
       await myArchive.archiveEmptyView.checkNoArchivedRoomsExist();
     });
-  });
-
-  test.afterAll(async () => {
-    await api.cleanup();
-    await page.close();
   });
 });

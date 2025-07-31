@@ -61,6 +61,16 @@ export const membersContextMenuOption = {
   info: "Info",
 } as const;
 
+export const reassignDialogActions = {
+  chooseFromList: "Choose from list",
+  moreAboutDataTransfer: "More about data transfer",
+  confirm: "Reassign",
+  cancel: "Cancel",
+} as const;
+
+export type TReassignDialogAction =
+  (typeof reassignDialogActions)[keyof typeof reassignDialogActions];
+
 export const groupsContextMenuOption = {
   editGroup: "Edit group",
   info: "Info",
@@ -94,9 +104,36 @@ export type TMembersContextMenuOption =
 export type TOwnerContextMenuOption =
   (typeof ownerContextMenuOption)[keyof typeof ownerContextMenuOption];
 
+export type TContactsContextMenuOption =
+  | TMembersContextMenuOption
+  | TGroupsContextMenuOption
+  | TGuestsContextMenuOption
+  | TOwnerContextMenuOption;
+
 export type TInviteResponseData = {
   response: {
     email: string;
     id: string;
   };
 };
+
+export const contactSort = {
+  name: "Name",
+  type: "Type",
+  group: "Group",
+  email: "Email",
+  storage: "Storage",
+} as const;
+
+export type TContactSort = (typeof contactSort)[keyof typeof contactSort];
+
+export const toastMessages = {
+  changesSaved: "Changes saved successfully",
+  userStatusChanged: "The user status was successfully changed",
+  userTypeChanged: "The user type was successfully changed",
+  usersInvited: "Users invited",
+  groupDeleted: "Group was deleted successfully",
+  guestDeleted: "Guest was deleted successfully",
+  guestTypeChanged: "The guest type was successfully changed",
+  guestStatusChanged: "The guest status was successfully changed",
+} as const;

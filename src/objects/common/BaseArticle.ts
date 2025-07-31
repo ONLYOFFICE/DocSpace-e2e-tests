@@ -22,7 +22,7 @@ class BaseArticle {
 
   async navigate(title: string) {
     await this.articleNavItems.filter({ hasText: title }).click();
-    await this.page.waitForLoadState("domcontentloaded");
+    await this.page.waitForLoadState("load");
   }
 
   async checkArticleActionsButtonExist() {
