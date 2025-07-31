@@ -29,25 +29,22 @@ export default class BasePage {
       .filter({ hasText: "Payments" });
   }
 
-  async removeToast(message?: string) {
-    await this.toast.removeToast(message);
+  async removeToast(message?: string, timeout?: number) {
+    await this.toast.removeToast(message, timeout);
+  }
+
+  async removeAllToast() {
+    await this.toast.removeAllToast();
   }
 
   async navigateToSettings() {
     await this.optionsButton.waitFor({ state: "visible", timeout: 10000 });
     await this.optionsButton.click();
-    await this.page.waitForLoadState("domcontentloaded");
+    await this.page.waitForLoadState("load");
     await this.settingsMenuItem.click();
   }
 
   async navigateToArticle(title: string) {
     await this.article.navigate(title);
-  }
-
-  async navigateToPayments() {
-    await this.optionsButton.waitFor({ state: "visible", timeout: 10000 });
-    await this.optionsButton.click();
-    await this.page.waitForLoadState("domcontentloaded");
-    await this.paymentsMenuItem.click();
   }
 }

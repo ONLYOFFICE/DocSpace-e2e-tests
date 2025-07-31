@@ -6,10 +6,12 @@ import {
 import { expect, Page } from "@playwright/test";
 import Screenshot from "../common/Screenshot";
 import BaseDialog from "../common/BaseDialog";
+import { waitForGetRoomsResponse } from "./api";
 
 const ROOM_SUBMIT_BUTTON = "#shared_create-room-modal_submit";
 const ROOM_TEMPLATE_SUBMIT_BUTTON = "#create-room-template-modal_submit";
 const LOGO_NAME_CONTAINER = ".logo-name-container";
+const TAG_NAME_INPUT = "#shared_tags-input";
 class RoomsCreateDialog extends BaseDialog {
   constructor(page: Page) {
     super(page);
@@ -44,13 +46,7 @@ class RoomsCreateDialog extends BaseDialog {
       await this.dialog.getByTitle(title).click();
       await expect(this.roomTypeDropdownButton).toBeVisible();
     } else {
-      const promise = this.page.waitForResponse((response) => {
-        return (
-          response.url().includes("files/rooms?count") &&
-          response.request().method() === "GET" &&
-          response.status() === 200
-        );
-      });
+      const promise = waitForGetRoomsResponse(this.page);
       await this.dialog.getByTitle(title).click();
       await promise;
     }
@@ -123,6 +119,27 @@ class RoomsCreateDialog extends BaseDialog {
       this.page.getByRole("textbox", { name: "Template name:" }),
       name,
     );
+  }
+
+  async fillTag(tagName: string) {
+    await this.fillInput(this.page.locator(TAG_NAME_INPUT), tagName);
+  }
+
+  async createTag(tagName: string) {
+    await this.fillTag(tagName);
+    await this.page
+      .getByRole("option", { name: `Create tag “${tagName}”` })
+      .click();
+  }
+
+  async createTags(count: number) {
+    for (let i = 1; i <= count; i++) {
+      await this.createTag(`tagName${i}`);
+    }
+  }
+
+  async closeTag(tagName: string) {
+    await this.page.getByLabel(tagName).locator("path").click();
   }
 
   async clickRoomDialogSubmit() {

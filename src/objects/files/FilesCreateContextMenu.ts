@@ -1,7 +1,7 @@
 import { Page } from "@playwright/test";
 import { DOC_ACTIONS } from "../../utils/constants/files";
 import FilesCreateModal from "./FilesCreateModal";
-import BaseContextMenu from "../common/BaseContextMenu";
+import { BaseContextMenu } from "../common/BaseContextMenu";
 
 class FilesCreateContextMenu extends BaseContextMenu {
   modal: FilesCreateModal;

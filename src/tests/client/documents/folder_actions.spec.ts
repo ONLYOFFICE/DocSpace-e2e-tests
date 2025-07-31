@@ -1,17 +1,11 @@
-import { test, Page } from "@playwright/test";
-
-import API from "@/src/api";
 import Folder from "@/src/objects/files/Folder";
 import Rooms from "@/src/objects/rooms/Rooms";
 import { roomCreateTitles } from "@/src/utils/constants/rooms";
-import Login from "@/src/objects/common/Login";
 import Screenshot from "@/src/objects/common/Screenshot";
 import { DOC_ACTIONS } from "@/src/utils/constants/files";
+import { test } from "@/src/fixtures";
 
 test.describe("Folder", () => {
-  let api: API;
-  let page: Page;
-  let login: Login;
   let folder: Folder;
   let myRooms: Rooms;
   let screenshot: Screenshot;
@@ -21,17 +15,7 @@ test.describe("Folder", () => {
   const folderToCopy = `TestFolderToCopy`;
   const renamedFolder = `${baseFolder}-renamed`;
 
-  test.beforeAll(async ({ playwright, browser }) => {
-    const apiContext = await playwright.request.newContext();
-    api = new API(apiContext);
-    await api.setup();
-
-    page = await browser.newPage();
-    await page.addInitScript(() => {
-      globalThis.localStorage?.setItem("integrationUITests", "true");
-    });
-
-    login = new Login(page, api.portalDomain);
+  test.beforeEach(async ({ page, api, login }) => {
     folder = new Folder(page, api.portalDomain);
     screenshot = new Screenshot(page, {
       screenshotDir: "files",
@@ -112,6 +96,9 @@ test.describe("Folder", () => {
       await screenshot.expectHaveScreenshot("copy_select_panel_opened");
       await folder.filesSelectPanel.selectItemByText(baseFolder);
       await folder.filesSelectPanel.confirmSelection();
+      await folder.removeToast(
+        `The folder ${folderToMove} successfully moved to Documents`,
+      );
       await folder.expectFolderNotVisible(folderToMove);
     });
 
@@ -141,6 +128,9 @@ test.describe("Folder", () => {
       await screenshot.expectHaveScreenshot("folder_rename_modal");
       await folder.filesNavigation.modal.fillCreateTextInput(renamedFolder);
       await folder.filesNavigation.modal.clickCreateButton();
+      await folder.removeToast(
+        `The folder '${baseFolder}' is renamed to '${renamedFolder}'`,
+      );
       await folder.expectFolderRenamed(baseFolder, renamedFolder);
     });
 
@@ -149,11 +139,10 @@ test.describe("Folder", () => {
       await folder.filesTable.contextMenu.clickOption("Delete");
       await screenshot.expectHaveScreenshot("delete_folder_modal");
       await folder.folderDeleteModal.clickDeleteFolder();
+      await folder.removeToast(
+        `The folder ${renamedFolder} successfully moved to Trash`,
+      );
       await folder.expectFolderNotVisible(renamedFolder);
     });
-  });
-  test.afterAll(async () => {
-    await api.cleanup();
-    await page.close();
   });
 });

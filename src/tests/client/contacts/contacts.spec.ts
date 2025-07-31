@@ -1,7 +1,4 @@
-import { test, Page } from "@playwright/test";
-
-import API from "@/src/api";
-import Login from "@/src/objects/common/Login";
+import { test } from "@/src/fixtures";
 import Screenshot from "@/src/objects/common/Screenshot";
 import Contacts from "@/src/objects/contacts/Contacts";
 import {
@@ -17,26 +14,10 @@ import {
 } from "@/src/utils/constants/contacts";
 
 test.describe(() => {
-  let api: API;
-  let page: Page;
-
-  let login: Login;
   let screenshot: Screenshot;
   let contacts: Contacts;
 
-  test.beforeAll(async ({ playwright, browser }) => {
-    const apiContext = await playwright.request.newContext();
-    api = new API(apiContext);
-    await api.setup();
-    console.log(api.portalDomain);
-
-    page = await browser.newPage();
-
-    await page.addInitScript(() => {
-      globalThis.localStorage?.setItem("integrationUITests", "true");
-    });
-
-    login = new Login(page, api.portalDomain);
+  test.beforeEach(async ({ page, api, login }) => {
     contacts = new Contacts(page, api.portalDomain);
     screenshot = new Screenshot(page, { screenshotDir: "contacts" });
     await login.loginToPortal();
@@ -132,7 +113,7 @@ test.describe(() => {
       await contacts.dialog.close();
 
       await contacts.table.selectRow(userEmails.roomAdmin);
-      await contacts.navigation.disable();
+      await contacts.disableUser();
 
       await contacts.table.checkDisabledUserExist(userEmails.roomAdmin);
       await screenshot.expectHaveScreenshot("disable_users_success");
@@ -210,11 +191,23 @@ test.describe(() => {
       await contacts.dialog.close();
     });
 
-    await test.step("Delete", async () => {
+    await test.step("ReassignData_ChooseFromList", async () => {
       await contacts.table.selectRow(userEmails.user);
-      await contacts.navigation.disable();
+      await contacts.disableUser();
       await contacts.table.checkDisabledUserExist(userEmails.user);
 
+      await contacts.table.openContextMenu(userEmails.user);
+      await contacts.table.clickContextMenuOption(
+        membersContextMenuOption.reassign,
+      );
+      await contacts.reassignmentDialog.checkReassignmentTitleExist();
+      await contacts.reassignmentDialog.clickChooseFromList();
+      await screenshot.expectHaveScreenshot("reassign_data_choose_from_list");
+      await contacts.reassignmentDialog.clickCancel();
+      await contacts.reassignmentDialog.close();
+    });
+
+    await test.step("Delete", async () => {
       await contacts.table.openContextMenu(userEmails.user);
       await contacts.table.clickContextMenuOption(
         membersContextMenuOption.delete,
@@ -224,7 +217,7 @@ test.describe(() => {
       await contacts.dialog.close();
 
       await contacts.table.selectRow(userEmails.user);
-      await contacts.navigation.delete();
+      await contacts.deleteUser();
       await contacts.reassignmentDialog.checkReassignmentTitleExist();
       await contacts.reassignmentDialog.checkAllDataTransfered();
       await screenshot.expectHaveScreenshot("delete_success");
@@ -241,7 +234,7 @@ test.describe(() => {
       await contacts.dialog.close();
 
       await contacts.selectAllContacts();
-      await contacts.navigation.enable();
+      await contacts.enableUser();
       await contacts.table.checkEnabledUserExist(userEmails.roomAdmin);
     });
 
@@ -276,25 +269,23 @@ test.describe(() => {
       await screenshot.expectHaveScreenshot("members_info_panel_options");
       await contacts.infoPanel.close();
 
-      await contacts.filter.openDropdownSortBy();
+      await contacts.peopleFilter.openDropdownSortBy();
       await screenshot.expectHaveScreenshot("members_table_sort_by");
 
-      await contacts.filter.openFilterDialog();
+      await contacts.peopleFilter.openFilterDialog();
       await screenshot.expectHaveScreenshot("members_filter_dialog");
       await contacts.dialog.close();
 
-      await contacts.filter.fillSearchInputAndCheckRequest(
+      await contacts.peopleFilter.fillSearchContactsInputAndCheckRequest(
         ADMIN_OWNER_NAME,
-        "people",
       );
       await screenshot.expectHaveScreenshot("members_filter_search");
 
-      await contacts.filter.fillSearchInputAndCheckRequest(
+      await contacts.peopleFilter.fillSearchContactsInputAndCheckRequest(
         "empty_search",
-        "people",
       );
       await screenshot.expectHaveScreenshot("members_filter_empty_search");
-      await contacts.filter.clearFilter();
+      await contacts.peopleFilter.clearFilter();
       await contacts.table.checkRowExist(ADMIN_OWNER_NAME);
     });
 
@@ -330,22 +321,24 @@ test.describe(() => {
       await screenshot.expectHaveScreenshot("groups_info_panel_options");
       await contacts.infoPanel.close();
 
-      await contacts.filter.openDropdownSortBy();
+      await contacts.groupsFilter.openDropdownSortBy();
       await screenshot.expectHaveScreenshot("groups_table_sort_by");
 
-      await contacts.filter.openFilterDialog();
+      await contacts.groupsFilter.openFilterDialog();
       await screenshot.expectHaveScreenshot("groups_table_filter_dialog");
       await contacts.dialog.close();
 
-      await contacts.filter.fillSearchInputAndCheckRequest(GROUP_NAME, "group");
+      await contacts.groupsFilter.fillSearchContactsInputAndCheckRequest(
+        GROUP_NAME,
+      );
       await screenshot.expectHaveScreenshot("groups_table_filter_search");
 
-      await contacts.filter.fillSearchInputAndCheckRequest(
+      await contacts.groupsFilter.fillSearchContactsInputAndCheckRequest(
         "empty_search",
-        "group",
       );
+      await contacts.table.checkRowNotExist(GROUP_NAME);
       await screenshot.expectHaveScreenshot("groups_filter_empty_search");
-      await contacts.filter.clearFilter();
+      await contacts.groupsFilter.clearFilter();
       await contacts.table.checkRowExist(GROUP_NAME);
 
       await contacts.openDeleteGroupDialog();
@@ -353,14 +346,14 @@ test.describe(() => {
       await contacts.dialog.close();
 
       await contacts.table.selectRow(GROUP_NAME);
-      await contacts.navigation.deleteGroup();
+      await contacts.deleteGroup();
       await contacts.table.checkRowNotExist(GROUP_NAME);
     });
 
     await test.step("Guests", async () => {
       await contacts.openTab("Guests");
 
-      await contacts.filter.removeFilter("Me");
+      await contacts.peopleFilter.removeFilter("Me");
       await contacts.table.openContextMenu(userEmails.guest);
       await screenshot.expectHaveScreenshot("guests_context_menu");
       await contacts.closeMenu();
@@ -386,38 +379,31 @@ test.describe(() => {
       await screenshot.expectHaveScreenshot("guests_info_panel_options");
       await contacts.infoPanel.close();
 
-      await contacts.navigation.disable();
+      await contacts.disableGuest();
       await contacts.table.checkDisabledUserExist(userEmails.guest);
 
       await contacts.table.selectRow(userEmails.guest);
-      await contacts.navigation.enable();
+      await contacts.enableGuest();
       await contacts.table.checkEnabledUserExist(userEmails.guest);
 
-      await contacts.filter.openDropdownSortBy();
+      await contacts.peopleFilter.openDropdownSortBy();
       await screenshot.expectHaveScreenshot("guests_sort_by");
 
-      await contacts.filter.openFilterDialog();
+      await contacts.peopleFilter.openFilterDialog();
       await screenshot.expectHaveScreenshot("guests_filter_dialog");
       await contacts.dialog.close();
 
-      await contacts.filter.fillSearchInputAndCheckRequest(
+      await contacts.peopleFilter.fillSearchContactsInputAndCheckRequest(
         "empty_search",
-        "people",
       );
       await contacts.table.checkRowNotExist(userEmails.guest);
       await screenshot.expectHaveScreenshot("guests_filter_empty_search");
 
-      await contacts.filter.fillSearchInputAndCheckRequest(
+      await contacts.peopleFilter.fillSearchContactsInputAndCheckRequest(
         userEmails.guest,
-        "people",
       );
       await contacts.table.checkRowExist(userEmails.guest);
       await screenshot.expectHaveScreenshot("guests_filter_search");
     });
-  });
-
-  test.afterAll(async () => {
-    await api.cleanup();
-    await page.close();
   });
 });

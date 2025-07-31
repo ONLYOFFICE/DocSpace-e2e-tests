@@ -174,4 +174,3 @@ test.describe("OAuth tests", () => {
     await page.close();
   });
 });
-

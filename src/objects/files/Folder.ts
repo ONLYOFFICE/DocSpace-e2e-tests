@@ -8,9 +8,8 @@ import InfoPanel from "../common/InfoPanel";
 import RoomsCreateDialog from "@/src/objects/rooms/RoomsCreateDialog";
 import { TRoomCreateTitles } from "@/src/utils/constants/rooms";
 import { DOC_ACTIONS } from "@/src/utils/constants/files";
-
-class Folder {
-  private page: Page;
+import BasePage from "../common/BasePage";
+class Folder extends BasePage {
   private portalDomain: string;
 
   filesNavigation: FilesNavigation;
@@ -22,7 +21,7 @@ class Folder {
   infoPanel: InfoPanel;
 
   constructor(page: Page, portalDomain: string) {
-    this.page = page;
+    super(page);
     this.portalDomain = portalDomain;
 
     this.filesNavigation = new FilesNavigation(page);
@@ -35,8 +34,9 @@ class Folder {
   }
 
   async open() {
-    await this.page.goto(`https://${this.portalDomain}/rooms/personal`);
-    await this.page.waitForLoadState("load");
+    await this.page.goto(`https://${this.portalDomain}/rooms/personal`, {
+      waitUntil: "load",
+    });
     await expect(this.page).toHaveURL(/.*rooms\/personal.*/);
   }
 
