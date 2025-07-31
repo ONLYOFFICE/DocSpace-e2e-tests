@@ -5,6 +5,7 @@ type ScreenshotOptions = {
   suiteName?: string;
   maxAttempts?: number;
   fullPage?: boolean;
+  maxDiffPixels?: number;
 };
 
 class Screenshot {
@@ -22,6 +23,7 @@ class Screenshot {
       ...options,
       maxAttempts: options.maxAttempts ?? 3,
       fullPage: options.fullPage ?? false,
+      maxDiffPixels: options.maxDiffPixels ?? 5,
     };
     this.suiteName = options.suiteName;
   }
@@ -79,7 +81,11 @@ class Screenshot {
           "client",
           this.options.screenshotDir,
           `${screenshotName}.png`,
-        ]);
+        ],
+        {
+          maxDiffPixels: this.options.maxDiffPixels,
+        }
+      );
         return;
       } catch (err) {
         console.log(
