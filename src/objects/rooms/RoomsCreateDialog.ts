@@ -53,7 +53,11 @@ class RoomsCreateDialog extends BaseDialog {
   }
 
   async openRoomIconDropdown() {
-    await this.roomIcon.click();
+    await this.page.getByTestId('modal')
+      .getByTestId('room-icon')
+      .getByTestId('icon-button-svg')
+      .getByRole('img')
+      .click();
     await expect(this.roomIconDropdown).toBeVisible();
   }
 
@@ -63,14 +67,14 @@ class RoomsCreateDialog extends BaseDialog {
 
   async openRoomCover() {
     const isRoomIconDropdownVisible = await this.roomIconDropdown.isVisible();
-
+  
     if (!isRoomIconDropdownVisible) {
       await this.openRoomIconDropdown();
     }
     await this.clickCustomizeCover();
     await expect(this.page.getByText("Room cover")).toBeVisible();
     await expect(
-      this.page.locator(".cover-icon-container svg").first(),
+      this.page.locator(".cover-icon-container svg").first()
     ).toBeVisible();
   }
 
@@ -168,6 +172,26 @@ class RoomsCreateDialog extends BaseDialog {
     await this.fillTemplateName(roomTemplateTitles.fromTemplate);
     await this.clickRoomDialogSubmit();
   }
+
+  async setRoomCoverColor(colorIndex = '#6191F2') {
+    
+    await this.openRoomCover();
+    await this.page.locator(`.colors-container [color=${colorIndex}]`).click();
+    await this.saveCover();
+  }
+
+  async setRoomCoverIcon(iconIndex = '#cover-icon-umbrella') {
+    await this.openRoomCover();
+    await this.page.locator(iconIndex).click();
+    await this.saveCover();
+  }
+
+  async setRoomCoverWithoutIcon() {
+    await this.openRoomCover();
+    await this.page.getByText('Without icon').click();
+    await this.saveCover();
+  }
+
 }
 
 export default RoomsCreateDialog;
