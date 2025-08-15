@@ -38,6 +38,13 @@ test.describe("Security tests", () => {
       await security.disableDomains();
     });
 
+    await test.step("Invitation settings", async () => {
+      await security.disableInviteMembers();
+      await security.disableAllowGuests();
+      await security.enableInviteMembers();
+      await security.enableAllowGuests();
+    });
+
     await test.step("Ip security", async () => {
       await security.ipActivation();
       await security.ipDeactivation();
@@ -57,21 +64,23 @@ test.describe("Security tests", () => {
 
     await test.step("Security link", async () => {
       const page1Promise = page.waitForEvent("popup");
-      await security.passwordStrengthGuideLink.click();
+      await page
+        .locator('[data-testid="password_strength_learn_more"]')
+        .click();
       const page1 = await page1Promise;
       await page1.waitForURL(
         "https://*.onlyoffice.com/docspace/configuration#passwordstrength",
       );
       await page1.close();
       const page2Promise = page.waitForEvent("popup");
-      await security.twoFactorAuthenticationGuideLink.click();
+      await page.locator('[data-testid="tfa_learn_more"]').click();
       const page2 = await page2Promise;
       await page2.waitForURL(
         "https://*.onlyoffice.com/docspace/configuration/docspace-two-factor-authentication.aspx",
       );
       await page2.close();
       const page3Promise = page.waitForEvent("popup");
-      await security.trustedDomainGuideLink.click();
+      await page.locator('[data-testid="trusted_mail_learn_more"]').click();
       const page3 = await page3Promise;
       await page3.waitForURL(
         "https://*.onlyoffice.com/docspace/configuration#TrustedDomain",
@@ -79,7 +88,9 @@ test.describe("Security tests", () => {
       await page3.close();
 
       const page4Promise = page.waitForEvent("popup");
-      await security.ipSecurityGuideLink.click();
+      await page
+        .locator('[data-testid="developer_tools_access_learn_more"]')
+        .click();
       const page4 = await page4Promise;
       await page4.waitForURL(
         "https://*.onlyoffice.com/docspace/configuration/docspace-security-settings.aspx#limiteddevelopertoolsaccess_block",
@@ -87,28 +98,40 @@ test.describe("Security tests", () => {
       await page4.close();
 
       const page5Promise = page.waitForEvent("popup");
-      await security.bruteForceGuideLink.click();
+      await page.locator('[data-testid="ip_security_learn_more"]').click();
       const page5 = await page5Promise;
       await page5.waitForURL(
-        "https://*.onlyoffice.com/workspace/administration/configuration.aspx#loginsettings",
+        "https://helpcenter.onlyoffice.com/docspace/configuration#ipsecurity",
       );
       await page5.close();
 
       const page6Promise = page.waitForEvent("popup");
-      await security.adminMessageGuideLink.click();
+      await page
+        .locator('[data-testid="brute_force_protection_learn_more"]')
+        .click();
       const page6 = await page6Promise;
       await page6.waitForURL(
-        "https://*.onlyoffice.com/docspace/configuration#administratormessage",
+        "https://*.onlyoffice.com/workspace/administration/configuration.aspx#loginsettings",
       );
       await page6.close();
 
       const page7Promise = page.waitForEvent("popup");
-      await security.sessionLifetimeGuideLink.click();
+      await page
+        .locator('[data-testid="administrator_message_learn_more"]')
+        .click();
       const page7 = await page7Promise;
       await page7.waitForURL(
-        "https://*.onlyoffice.com/docspace/configuration#sessionlifetime",
+        "https://*.onlyoffice.com/docspace/configuration#administratormessage",
       );
       await page7.close();
+
+      const page8Promise = page.waitForEvent("popup");
+      await page.locator('[data-testid="session_lifetime_learn_more"]').click();
+      const page8 = await page8Promise;
+      await page8.waitForURL(
+        "https://*.onlyoffice.com/docspace/configuration#sessionlifetime",
+      );
+      await page8.close();
     });
 
     await test.step("DocSpace access settings", async () => {

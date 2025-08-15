@@ -18,15 +18,11 @@ export default class BasePage {
   }
 
   protected get settingsMenuItem(): Locator {
-    return this.page
-      .locator("li.p-menuitem a.p-menuitem-link")
-      .filter({ hasText: "Settings" });
+    return this.page.locator('[data-testid="user-menu-settings"]');
   }
 
   protected get paymentsMenuItem(): Locator {
-    return this.page
-      .locator("li.p-menuitem a.p-menuitem-link")
-      .filter({ hasText: "Payments" });
+    return this.page.locator('[data-testid="user-menu-payments"]');
   }
 
   async removeToast(message?: string, timeout?: number) {

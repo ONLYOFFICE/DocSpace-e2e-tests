@@ -17,32 +17,28 @@ class Security extends BasePage {
   }
 
   get passwordStrengthInput() {
-    return this.page.getByTestId("slider");
+    return this.page.locator('[data-testid="password_strength_slider"]');
   }
   get useCapitalLetter() {
-    return this.page
-      .locator("label")
-      .filter({ hasText: "Use capital letters" });
+    return this.page.locator('[data-testid="password_strength_upper_case"]');
   }
   get useDigits() {
-    return this.page.locator("label").filter({ hasText: "Use digits" });
+    return this.page.locator('[data-testid="password_strength_digits"]');
   }
   get useSpecialCharacter() {
-    return this.page
-      .locator("label")
-      .filter({ hasText: "Use special character" });
+    return this.page.locator('[data-testid="password_strength_special"]');
   }
   get saveButton() {
     return this.page.locator('[data-testid="save-button"]');
   }
   get anyDomains() {
-    return this.page.locator("#any-domains");
+    return this.page.locator('[data-testid="trusted_mail_any_domains"]');
   }
   get customDomains() {
-    return this.page.locator("#custom-domains");
+    return this.page.locator('[data-testid="trusted_mail_custom_domains"]');
   }
   get disabledDomains() {
-    return this.page.locator("#trusted-mail-disabled");
+    return this.page.locator('[data-testid="trusted_mail_disabled"]');
   }
   get cancelButton() {
     return this.page.locator('[data-testid="cancel-button"]');
@@ -80,6 +76,9 @@ class Security extends BasePage {
   get ipSecurityDisabled() {
     return this.page.locator("#ip-security-disabled path");
   }
+  get ipSecurityEnabled() {
+    return this.page.locator('[data-testid="ip_security_enabled"]');
+  }
 
   get numberOfAttempts() {
     return this.page.getByPlaceholder("Enter number");
@@ -91,19 +90,21 @@ class Security extends BasePage {
     return this.page.getByTestId("text-input").nth(2);
   }
   get restoreToDefaultButton() {
-    return this.page.locator(".brute-force-protection-cancel");
+    return this.page.locator(
+      '[data-testid="brute_force_protection_cancel_button"]',
+    );
   }
   get adminMessageEnable() {
-    return this.page.locator("#admin-message-enable").nth(0);
+    return this.page.locator('[data-testid="administrator_message_enabled"]');
   }
   get adminMessageDisabled() {
-    return this.page.locator("#admin-message-disabled").nth(0);
+    return this.page.locator('[data-testid="administrator_message_disabled"]');
   }
   get lifetimeEnable() {
-    return this.page.locator("#session-lifetime-enable");
+    return this.page.locator('[data-testid="session_lifetime_enabled"]');
   }
   get lifetimeDisabled() {
-    return this.page.locator("#session-lifetime-disabled");
+    return this.page.locator('[data-testid="session_lifetime_disabled"]');
   }
   get lifetimeInput() {
     return this.page.getByPlaceholder(" ", { exact: true });
@@ -129,6 +130,68 @@ class Security extends BasePage {
   get sessionLifetimeGuideLink() {
     return this.page.locator("div:nth-child(36) > a");
   }
+  get inviteMembersCheckbox() {
+    return this.page.locator(
+      '[data-testid="invitation_settings_contacts_checkbox"] input[type="checkbox"]',
+    );
+  }
+  get allowGuestsCheckbox() {
+    return this.page.locator(
+      '[data-testid="invitation_settings_guests_checkbox"] input[type="checkbox"]',
+    );
+  }
+  get saveInvitationSettingsButton() {
+    return this.page.locator('[data-testid="invitation_settings_save_button"]');
+  }
+  async isChecked(locator) {
+    return await locator.isChecked();
+  }
+  async toggleInvitationSettings() {
+    await this.disableInviteMembers();
+    await this.disableAllowGuests();
+  }
+  async enableInviteMembers() {
+    const checkbox = this.inviteMembersCheckbox;
+    await checkbox.waitFor({ state: "visible" });
+    if (!(await this.isChecked(checkbox))) {
+      await checkbox.click({ force: true });
+      await this.saveInvitationSettings();
+    }
+    return this;
+  }
+  async disableInviteMembers() {
+    const checkbox = this.inviteMembersCheckbox;
+    await checkbox.waitFor({ state: "visible" });
+    if (await this.isChecked(checkbox)) {
+      await checkbox.click({ force: true });
+      await this.saveInvitationSettings();
+    }
+    return this;
+  }
+  async enableAllowGuests() {
+    const checkbox = this.allowGuestsCheckbox;
+    await checkbox.waitFor({ state: "visible" });
+    if (!(await this.isChecked(checkbox))) {
+      await checkbox.click({ force: true });
+      await this.saveInvitationSettings();
+    }
+    return this;
+  }
+
+  async disableAllowGuests() {
+    const checkbox = this.allowGuestsCheckbox;
+    await checkbox.waitFor({ state: "visible" });
+    if (await this.isChecked(checkbox)) {
+      await checkbox.click({ force: true });
+      await this.saveInvitationSettings();
+    }
+    return this;
+  }
+
+  private async saveInvitationSettings() {
+    await this.saveInvitationSettingsButton.click();
+    await this.removeToast(toastMessages.settingsUpdated);
+  }
 
   async open() {
     await this.navigateToSettings();
@@ -136,13 +199,14 @@ class Security extends BasePage {
   }
 
   async updatePasswordStrength(value: number) {
-    await this.passwordStrengthInput.focus();
+    await this.page.locator('[data-testid="password_strength_slider"]').focus();
 
     const currentValue = await this.passwordStrengthInput.evaluate(
       (slider: HTMLInputElement) => Number(slider.value),
     );
     const diff = value - currentValue;
     const key = diff > 0 ? "ArrowRight" : "ArrowLeft";
+
     for (let i = 0; i < Math.abs(diff); i++) {
       await this.passwordStrengthInput.press(key);
     }
@@ -150,17 +214,25 @@ class Security extends BasePage {
     await this.useCapitalLetter.click();
     await this.useDigits.click();
     await this.useSpecialCharacter.click();
-    await this.saveButton.first().click();
+    await this.page.locator('[data-testid="password_strength_save"]').click();
     await this.removeToast(toastMessages.settingsUpdated);
+  }
+
+  get saveTrustedMailButton() {
+    return this.page.locator('[data-testid="trusted_mail_save_button"]');
+  }
+
+  get cancelTrustedMailButton() {
+    return this.page.locator('[data-testid="trusted_mail_cancel_button"]');
   }
 
   async anyDomainsActivation() {
     await this.anyDomains.click();
-    await this.cancelButton.nth(2).click();
+    await this.cancelTrustedMailButton.click();
     await this.customDomains.click();
-    await this.cancelButton.nth(2).click();
+    await this.cancelTrustedMailButton.click();
     await this.anyDomains.click();
-    await this.saveButton.nth(2).click();
+    await this.saveTrustedMailButton.click();
     await this.removeToast(toastMessages.settingsUpdated);
   }
 
@@ -168,77 +240,96 @@ class Security extends BasePage {
     await this.customDomains.click();
     await this.addDomainLink.click();
     await this.trustDomainInput.fill("gmail.com");
-    await this.saveButton.nth(2).click();
+    await this.saveTrustedMailButton.click();
     await this.removeToast(toastMessages.settingsUpdated);
   }
 
   async disableDomains() {
     await this.deleteDomain.first().click();
     await this.trustedDomainArea.click();
-    await this.saveButton.nth(2).click();
+    await this.saveTrustedMailButton.click();
     await this.removeToast(toastMessages.addTrustedDomain);
     await this.disabledDomains.click();
-    await this.saveButton.nth(2).click();
+    await this.saveTrustedMailButton.click();
     await this.removeToast(toastMessages.settingsUpdated);
   }
-
   async ipActivation() {
-    await this.apiEnable.click();
-    await this.cancelButton.nth(5).click();
-    await this.apiEnable.click();
+    await this.ipSecurityEnabled.click();
+    await this.page.locator('[data-testid="ip_security_save_button"]').click();
+
+    await this.page.waitForSelector("#toast-container .Toastify__toast-body", {
+      state: "visible",
+    });
+    await this.page.click("#toast-container .Toastify__toast-body");
+
+    await this.ipSecurityEnabled.click();
     await this.addIpLink.click();
-    await this.ipInput.fill("155.155.155.155");
-    await this.saveButton.nth(5).click();
+    await this.page
+      .locator('[data-testid="ip_security_ip_input"]')
+      .fill("155.155.155.155");
+    await this.page.locator('[data-testid="ip_security_save_button"]').click();
     await this.removeToast(toastMessages.settingsUpdated);
   }
 
   async ipDeactivation() {
     await this.ipSecurityArea.click();
     await this.deleteIp.click();
-    await this.saveButton.nth(5).click();
+    await this.page.locator('[data-testid="ip_security_save_button"]').click();
     await this.removeToast(toastMessages.addAllowedIp);
     await this.ipSecurityDisabled.click();
-    await this.saveButton.nth(5).click();
+    await this.page.locator('[data-testid="ip_security_save_button"]').click();
     await this.removeToast(toastMessages.settingsUpdated);
   }
 
   async bruteForceActivation() {
-    await this.numberOfAttempts.fill("2");
-    await this.blickingTime.fill("30");
-    await this.checkPeriod.fill("30");
-    await this.saveButton.nth(6).click();
+    await this.page
+      .locator('[data-testid="brute_force_protection_number_attempts_input"]')
+      .fill("2");
+    await this.page
+      .locator('[data-testid="brute_force_protection_blocking_time_input"]')
+      .fill("30");
+    await this.page
+      .locator('[data-testid="brute_force_protection_check_period_input"]')
+      .fill("30");
+    await this.page
+      .locator('[data-testid="brute_force_protection_save_button"]')
+      .click();
     await this.removeToast(toastMessages.settingsUpdated);
   }
 
   async adminMessageActivation() {
     await this.adminMessageEnable.click();
-    await this.cancelButton.nth(7).click();
-    await this.adminMessageEnable.click();
-    await this.saveButton.nth(7).click();
+    await this.page
+      .locator('[data-testid="administrator_message_save_button"]')
+      .click();
     await this.removeToast(toastMessages.settingsUpdated);
   }
 
   async adminMessageDeactivation() {
     await this.adminMessageDisabled.click();
-    await this.saveButton.nth(7).click();
+    await this.page
+      .locator('[data-testid="administrator_message_save_button"]')
+      .click();
     await this.removeToast(toastMessages.settingsUpdated);
   }
 
   async sessionLifetimeActivation() {
     await this.lifetimeEnable.click();
-    await this.cancelButton.nth(8).click();
+    await this.page
+      .locator('[data-testid="session_lifetime_cancel_button"]')
+      .click();
     await this.lifetimeEnable.click();
     await this.lifetimeInput.fill("45");
-    await this.saveButton.nth(8).click();
+    await this.page
+      .locator('[data-testid="session_lifetime_save_button"]')
+      .click();
   }
 
   async sessionLifetimeDeactivation() {
     await this.lifetimeDisabled.click();
-    await this.saveButton.nth(8).click();
-  }
-
-  async saveChanges() {
-    await this.saveButton.first().click();
+    await this.page
+      .locator('[data-testid="session_lifetime_save_button"]')
+      .click();
   }
 
   async hideDateCells() {
