@@ -2,12 +2,9 @@ const navItems = {
   customization: "Customization",
   security: "Security",
   backup: "Backup",
-<<<<<<< HEAD
-  storageManagement: "Storage Management",
-=======
   integration: "Integration",
   payments: "Payments",
->>>>>>> origin/main
+  storageManagement: "Storage Management",
 } as const;
 
 const mapBackupMethodsIds = {
