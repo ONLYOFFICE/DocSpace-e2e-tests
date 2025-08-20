@@ -17,7 +17,7 @@ class OAuth extends BasePage {
   }
 
   get tabOAuth() {
-    return this.page.locator('[data-testid="OAuth 2.0"]');
+    return this.page.locator('[data-testid="oauth_tab"]');
   }
 
   get oauthGuideLink() {
@@ -145,7 +145,7 @@ class OAuth extends BasePage {
   }
 
   get openScopes() {
-    return this.page.locator('[data-testid="tag"]');
+    return this.page.locator('[data-testid="tag_container"]');
   }
 
   get backdrop() {
@@ -153,7 +153,7 @@ class OAuth extends BasePage {
   }
 
   get closeInfoPanel() {
-    return this.page.getByTestId('aside-header').getByRole('img');
+    return this.page.getByTestId('aside-header').getByTestId('icon-button');
   }
 
   get generateToken() {
@@ -215,7 +215,7 @@ class OAuth extends BasePage {
     }
 
   async checkOauthUrls() {
-    await expect(this.page.getByTestId('text').getByText("OAuth URLs")).toBeVisible();
+    await expect(this.page.locator('#sectionScroll')).toContainText('OAuth URLs');
     }
     
   async hideDate() {
