@@ -1,5 +1,4 @@
 import { expect, Page, PageScreenshotOptions } from "@playwright/test";
-import { waitUntilReady } from "@/src/utils";
 
 type ScreenshotOptions = {
   screenshotDir: string;
@@ -67,8 +66,6 @@ class Screenshot {
     safe: boolean = true,
     playwrightOptions?: PlaywrightScreenshotOptions,
   ) {
-    await waitUntilReady(this.page);
-
     if (safe) {
       await this.page.mouse.move(1, 1);
       await this.page.mouse.move(1, 1);

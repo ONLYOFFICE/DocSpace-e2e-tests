@@ -13,23 +13,6 @@ export const transformDocActions = (docActions: TListDocActions) => {
   });
 };
 
-export async function waitUntilReady(page: Page) {
-  await page.evaluate(async () => {
-    await document.fonts.ready;
-
-    const imgs = Array.from(document.images);
-    await Promise.all(
-      imgs.map((img) => {
-        if (img.complete && img.naturalWidth > 0) return;
-        return new Promise<void>((resolve) => {
-          img.addEventListener("load", () => resolve());
-          img.addEventListener("error", () => resolve());
-        });
-      }),
-    );
-  });
-}
-
 export async function waitForAllResponses(
   page: Page,
   paths: string[],
