@@ -1,8 +1,6 @@
 import { test, Page, expect } from "@playwright/test";
-
 import API from "@/src/api";
 import Login from "@/src/objects/common/Login";
-
 import Screenshot from "@/src/objects/common/Screenshot";
 import StorageManagement from "@/src/objects/settings/storageManagement/StorageManagement";
 import { PaymentApi } from "@/src/api/payment";
