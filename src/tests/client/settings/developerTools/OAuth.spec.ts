@@ -11,7 +11,7 @@ test.describe("OAuth tests", () => {
    
     screenshot = new Screenshot(page, {
       screenshotDir: "oauth",
-      fullPage: true,
+      fullPage: false,
     });
 
     oauth = new OAuth(page);
@@ -59,7 +59,6 @@ test.describe("OAuth tests", () => {
 
     await test.step("Action menu render", async () => {
       await oauth.oauthActionMenu.click();
-      await oauth.hideDate();
       await screenshot.expectHaveScreenshot("oauth_action_menu_render");
     })
 

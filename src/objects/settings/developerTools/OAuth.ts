@@ -204,7 +204,7 @@ class OAuth extends BasePage {
     return this.page.getByTestId('generate_token_input');
   }
 
-  async open() {
+    async open() {
     await this.navigateToSettings();
     await this.article.navigate(navItems.developerTools);
     await this.tabOAuth.click();
@@ -328,7 +328,6 @@ class OAuth extends BasePage {
     await this.oauthActionMenu.click();
     await this.deleteApplication.click();
   }
-
 }
 
 export default OAuth;
