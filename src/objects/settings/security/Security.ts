@@ -17,31 +17,31 @@ class Security extends BasePage {
   }
 
   get passwordStrengthInput() {
-    return this.page.locator('[data-testid="password_strength_slider"]');
+    return this.page.getByTestId("password_strength_slider");
   }
   get useCapitalLetter() {
-    return this.page.locator('[data-testid="password_strength_upper_case"]');
+    return this.page.getByTestId("password_strength_upper_case");
   }
   get useDigits() {
-    return this.page.locator('[data-testid="password_strength_digits"]');
+    return this.page.getByTestId("password_strength_digits");
   }
   get useSpecialCharacter() {
-    return this.page.locator('[data-testid="password_strength_special"]');
+    return this.page.getByTestId("password_strength_special");
   }
   get saveButton() {
-    return this.page.locator('[data-testid="save-button"]');
+    return this.page.getByTestId("save-button");
   }
   get anyDomains() {
-    return this.page.locator('[data-testid="trusted_mail_any_domains"]');
+    return this.page.getByTestId("trusted_mail_any_domains");
   }
   get customDomains() {
-    return this.page.locator('[data-testid="trusted_mail_custom_domains"]');
+    return this.page.getByTestId("trusted_mail_custom_domains");
   }
   get disabledDomains() {
-    return this.page.locator('[data-testid="trusted_mail_disabled"]');
+    return this.page.getByTestId("trusted_mail_disabled");
   }
   get cancelButton() {
-    return this.page.locator('[data-testid="cancel-button"]');
+    return this.page.getByTestId("cancel-button");
   }
   get addDomainLink() {
     return this.page.getByText("Add trusted domain");
@@ -77,7 +77,7 @@ class Security extends BasePage {
     return this.page.locator("#ip-security-disabled path");
   }
   get ipSecurityEnabled() {
-    return this.page.locator('[data-testid="ip_security_enabled"]');
+    return this.page.getByTestId("ip_security_enabled");
   }
 
   get numberOfAttempts() {
@@ -95,16 +95,16 @@ class Security extends BasePage {
     );
   }
   get adminMessageEnable() {
-    return this.page.locator('[data-testid="administrator_message_enabled"]');
+    return this.page.getByTestId("administrator_message_enabled");
   }
   get adminMessageDisabled() {
-    return this.page.locator('[data-testid="administrator_message_disabled"]');
+    return this.page.getByTestId("administrator_message_disabled");
   }
   get lifetimeEnable() {
-    return this.page.locator('[data-testid="session_lifetime_enabled"]');
+    return this.page.getByTestId("session_lifetime_enabled");
   }
   get lifetimeDisabled() {
-    return this.page.locator('[data-testid="session_lifetime_disabled"]');
+    return this.page.getByTestId("session_lifetime_disabled");
   }
   get lifetimeInput() {
     return this.page.getByPlaceholder(" ", { exact: true });

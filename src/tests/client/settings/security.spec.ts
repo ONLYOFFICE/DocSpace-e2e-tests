@@ -1,8 +1,8 @@
+import { expect } from "@playwright/test";
+import { test } from "@/src/fixtures";
 import { PaymentApi } from "@/src/api/payment";
 import Screenshot from "@/src/objects/common/Screenshot";
 import Security from "@/src/objects/settings/security/Security";
-import { test } from "@/src/fixtures";
-import { expect } from "@playwright/test";
 
 test.describe("Security tests", () => {
   let paymentApi: PaymentApi;
@@ -64,23 +64,21 @@ test.describe("Security tests", () => {
 
     await test.step("Security link", async () => {
       const page1Promise = page.waitForEvent("popup");
-      await page
-        .locator('[data-testid="password_strength_learn_more"]')
-        .click();
+      await page.getByTestId("password_strength_learn_more").click();
       const page1 = await page1Promise;
       await page1.waitForURL(
         "https://*.onlyoffice.com/docspace/configuration#passwordstrength",
       );
       await page1.close();
       const page2Promise = page.waitForEvent("popup");
-      await page.locator('[data-testid="tfa_learn_more"]').click();
+      await page.getByTestId("tfa_learn_more").click();
       const page2 = await page2Promise;
       await page2.waitForURL(
         "https://*.onlyoffice.com/docspace/configuration/docspace-two-factor-authentication.aspx",
       );
       await page2.close();
       const page3Promise = page.waitForEvent("popup");
-      await page.locator('[data-testid="trusted_mail_learn_more"]').click();
+      await page.getByTestId("trusted_mail_learn_more").click();
       const page3 = await page3Promise;
       await page3.waitForURL(
         "https://*.onlyoffice.com/docspace/configuration#TrustedDomain",
@@ -88,9 +86,7 @@ test.describe("Security tests", () => {
       await page3.close();
 
       const page4Promise = page.waitForEvent("popup");
-      await page
-        .locator('[data-testid="developer_tools_access_learn_more"]')
-        .click();
+      await page.getByTestId("developer_tools_access_learn_more").click();
       const page4 = await page4Promise;
       await page4.waitForURL(
         "https://*.onlyoffice.com/docspace/configuration/docspace-security-settings.aspx#limiteddevelopertoolsaccess_block",
@@ -98,7 +94,7 @@ test.describe("Security tests", () => {
       await page4.close();
 
       const page5Promise = page.waitForEvent("popup");
-      await page.locator('[data-testid="ip_security_learn_more"]').click();
+      await page.getByTestId("ip_security_learn_more").click();
       const page5 = await page5Promise;
       await page5.waitForURL(
         "https://helpcenter.onlyoffice.com/docspace/configuration#ipsecurity",
@@ -106,9 +102,7 @@ test.describe("Security tests", () => {
       await page5.close();
 
       const page6Promise = page.waitForEvent("popup");
-      await page
-        .locator('[data-testid="brute_force_protection_learn_more"]')
-        .click();
+      await page.getByTestId("brute_force_protection_learn_more").click();
       const page6 = await page6Promise;
       await page6.waitForURL(
         "https://*.onlyoffice.com/workspace/administration/configuration.aspx#loginsettings",
@@ -116,9 +110,7 @@ test.describe("Security tests", () => {
       await page6.close();
 
       const page7Promise = page.waitForEvent("popup");
-      await page
-        .locator('[data-testid="administrator_message_learn_more"]')
-        .click();
+      await page.getByTestId("administrator_message_learn_more").click();
       const page7 = await page7Promise;
       await page7.waitForURL(
         "https://*.onlyoffice.com/docspace/configuration#administratormessage",
@@ -126,7 +118,7 @@ test.describe("Security tests", () => {
       await page7.close();
 
       const page8Promise = page.waitForEvent("popup");
-      await page.locator('[data-testid="session_lifetime_learn_more"]').click();
+      await page.getByTestId("session_lifetime_learn_more").click();
       const page8 = await page8Promise;
       await page8.waitForURL(
         "https://*.onlyoffice.com/docspace/configuration#sessionlifetime",
