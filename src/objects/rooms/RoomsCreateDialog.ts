@@ -173,22 +173,38 @@ class RoomsCreateDialog extends BaseDialog {
     await this.clickRoomDialogSubmit();
   }
 
-  async setRoomCoverColor(colorIndex = '#6191F2') {
-    
+  async setRoomCoverColorByIndex(index: number) {
     await this.openRoomCover();
-    await this.page.locator(`.colors-container [color=${colorIndex}]`).click();
+    await this.page.getByTestId(`color_item_${index}`).click();
     await this.saveCover();
   }
 
-  async setRoomCoverIcon(iconIndex = '#cover-icon-umbrella') {
+  async setRoomCoverColorByHex(hex: `#${string}`) {
     await this.openRoomCover();
-    await this.page.locator(iconIndex).click();
+    await this.page.locator(`.colors-container [color="${hex}"]`).click();
+    await this.saveCover();
+  }
+
+  async openCustomColorPicker() {
+    await this.openRoomCover();
+    await this.page.getByTestId('color_item_add_custom').click();
+  }
+
+  async setRoomCoverIconByIndex(index: number) {
+    await this.openRoomCover();
+    await this.page.getByTestId(`room_logo_cover_icon_${index}`).click();
+    await this.saveCover();
+  }
+
+  async setRoomCoverIconById(id: string) {
+    await this.openRoomCover();
+    await this.page.locator(`#${id}`).click();
     await this.saveCover();
   }
 
   async setRoomCoverWithoutIcon() {
     await this.openRoomCover();
-    await this.page.getByText('Without icon').click();
+    await this.page.getByTestId('room_logo_cover_without_icon').click();
     await this.saveCover();
   }
 
