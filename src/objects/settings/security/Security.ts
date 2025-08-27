@@ -90,9 +90,7 @@ class Security extends BasePage {
     return this.page.getByTestId("text-input").nth(2);
   }
   get restoreToDefaultButton() {
-    return this.page.locator(
-      '[data-testid="brute_force_protection_cancel_button"]',
-    );
+    return this.page.getByTestId("brute_force_protection_cancel_button");
   }
   get adminMessageEnable() {
     return this.page.getByTestId("administrator_message_enabled");
@@ -141,7 +139,7 @@ class Security extends BasePage {
     );
   }
   get saveInvitationSettingsButton() {
-    return this.page.locator('[data-testid="invitation_settings_save_button"]');
+    return this.page.getByTestId("invitation_settings_save_button");
   }
   async isChecked(locator) {
     return await locator.isChecked();
@@ -199,7 +197,7 @@ class Security extends BasePage {
   }
 
   async updatePasswordStrength(value: number) {
-    await this.page.locator('[data-testid="password_strength_slider"]').focus();
+    await this.page.getByTestId("password_strength_slider").focus();
 
     const currentValue = await this.passwordStrengthInput.evaluate(
       (slider: HTMLInputElement) => Number(slider.value),
@@ -214,16 +212,16 @@ class Security extends BasePage {
     await this.useCapitalLetter.click();
     await this.useDigits.click();
     await this.useSpecialCharacter.click();
-    await this.page.locator('[data-testid="password_strength_save"]').click();
+    await this.page.getByTestId("password_strength_save").click();
     await this.removeToast(toastMessages.settingsUpdated);
   }
 
   get saveTrustedMailButton() {
-    return this.page.locator('[data-testid="trusted_mail_save_button"]');
+    return this.page.getByTestId("trusted_mail_save_button");
   }
 
   get cancelTrustedMailButton() {
-    return this.page.locator('[data-testid="trusted_mail_cancel_button"]');
+    return this.page.getByTestId("trusted_mail_cancel_button");
   }
 
   async anyDomainsActivation() {
@@ -255,7 +253,7 @@ class Security extends BasePage {
   }
   async ipActivation() {
     await this.ipSecurityEnabled.click();
-    await this.page.locator('[data-testid="ip_security_save_button"]').click();
+    await this.page.getByTestId("ip_security_save_button").click();
 
     await this.page.waitForSelector("#toast-container .Toastify__toast-body", {
       state: "visible",
@@ -264,72 +262,58 @@ class Security extends BasePage {
 
     await this.ipSecurityEnabled.click();
     await this.addIpLink.click();
-    await this.page
-      .locator('[data-testid="ip_security_ip_input"]')
-      .fill("155.155.155.155");
-    await this.page.locator('[data-testid="ip_security_save_button"]').click();
+    await this.page.getByTestId("ip_security_ip_input").fill("155.155.155.155");
+    await this.page.getByTestId("ip_security_save_button").click();
     await this.removeToast(toastMessages.settingsUpdated);
   }
 
   async ipDeactivation() {
     await this.ipSecurityArea.click();
     await this.deleteIp.click();
-    await this.page.locator('[data-testid="ip_security_save_button"]').click();
+    await this.page.getByTestId("ip_security_save_button").click();
     await this.removeToast(toastMessages.addAllowedIp);
     await this.ipSecurityDisabled.click();
-    await this.page.locator('[data-testid="ip_security_save_button"]').click();
+    await this.page.getByTestId("ip_security_save_button").click();
     await this.removeToast(toastMessages.settingsUpdated);
   }
 
   async bruteForceActivation() {
     await this.page
-      .locator('[data-testid="brute_force_protection_number_attempts_input"]')
+      .getByTestId("brute_force_protection_number_attempts_input")
       .fill("2");
     await this.page
-      .locator('[data-testid="brute_force_protection_blocking_time_input"]')
+      .getByTestId("brute_force_protection_blocking_time_input")
       .fill("30");
     await this.page
-      .locator('[data-testid="brute_force_protection_check_period_input"]')
+      .getByTestId("brute_force_protection_check_period_input")
       .fill("30");
-    await this.page
-      .locator('[data-testid="brute_force_protection_save_button"]')
-      .click();
+    await this.page.getByTestId("brute_force_protection_save_button").click();
     await this.removeToast(toastMessages.settingsUpdated);
   }
 
   async adminMessageActivation() {
     await this.adminMessageEnable.click();
-    await this.page
-      .locator('[data-testid="administrator_message_save_button"]')
-      .click();
+    await this.page.getByTestId("administrator_message_save_button").click();
     await this.removeToast(toastMessages.settingsUpdated);
   }
 
   async adminMessageDeactivation() {
     await this.adminMessageDisabled.click();
-    await this.page
-      .locator('[data-testid="administrator_message_save_button"]')
-      .click();
+    await this.page.getByTestId("administrator_message_save_button").click();
     await this.removeToast(toastMessages.settingsUpdated);
   }
 
   async sessionLifetimeActivation() {
     await this.lifetimeEnable.click();
-    await this.page
-      .locator('[data-testid="session_lifetime_cancel_button"]')
-      .click();
+    await this.page.getByTestId("session_lifetime_cancel_button").click();
     await this.lifetimeEnable.click();
     await this.lifetimeInput.fill("45");
-    await this.page
-      .locator('[data-testid="session_lifetime_save_button"]')
-      .click();
+    await this.page.getByTestId("session_lifetime_save_button").click();
   }
 
   async sessionLifetimeDeactivation() {
     await this.lifetimeDisabled.click();
-    await this.page
-      .locator('[data-testid="session_lifetime_save_button"]')
-      .click();
+    await this.page.getByTestId("session_lifetime_save_button").click();
   }
 
   async hideDateCells() {
