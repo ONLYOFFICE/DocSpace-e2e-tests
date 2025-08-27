@@ -71,7 +71,7 @@ export default defineConfig({
         screenshot: "only-on-failure",
       },
     },
-    {
+    /*{
       name: "firefox",
       use: {
         ...devices["Desktop Firefox"],
@@ -79,7 +79,7 @@ export default defineConfig({
         screenshot: "only-on-failure",
         headless: true,
       },
-    },
+    },*/
 
     // {
     //   name: "webkit",

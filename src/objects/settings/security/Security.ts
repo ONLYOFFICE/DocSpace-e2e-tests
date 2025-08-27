@@ -28,9 +28,11 @@ class Security extends BasePage {
   get useSpecialCharacter() {
     return this.page.getByTestId("password_strength_special");
   }
+
   get saveButton() {
-    return this.page.getByTestId("save-button");
+    return this.page.getByTestId("ip_security_save_button");
   }
+
   get anyDomains() {
     return this.page.getByTestId("trusted_mail_any_domains");
   }
@@ -253,27 +255,27 @@ class Security extends BasePage {
   }
   async ipActivation() {
     await this.ipSecurityEnabled.click();
-    await this.page.getByTestId("ip_security_save_button").click();
-
-    await this.page.waitForSelector("#toast-container .Toastify__toast-body", {
-      state: "visible",
-    });
-    await this.page.click("#toast-container .Toastify__toast-body");
+    await this.saveButton.click({ timeout: 10000 });
+    await this.page.waitForLoadState("networkidle");
+    await this.removeToast();
 
     await this.ipSecurityEnabled.click();
     await this.addIpLink.click();
     await this.page.getByTestId("ip_security_ip_input").fill("155.155.155.155");
-    await this.page.getByTestId("ip_security_save_button").click();
+    await this.saveButton.click({ timeout: 10000 });
+    await this.page.waitForLoadState("networkidle");
     await this.removeToast(toastMessages.settingsUpdated);
   }
 
   async ipDeactivation() {
     await this.ipSecurityArea.click();
     await this.deleteIp.click();
-    await this.page.getByTestId("ip_security_save_button").click();
+    await this.saveButton.click({ timeout: 10000 });
+    await this.page.waitForLoadState("networkidle");
     await this.removeToast(toastMessages.addAllowedIp);
     await this.ipSecurityDisabled.click();
-    await this.page.getByTestId("ip_security_save_button").click();
+    await this.saveButton.click({ timeout: 10000 });
+    await this.page.waitForLoadState("networkidle");
     await this.removeToast(toastMessages.settingsUpdated);
   }
 
