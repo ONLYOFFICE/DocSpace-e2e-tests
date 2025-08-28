@@ -61,56 +61,54 @@ test.describe("VDRRooms", () => {
   
     // Step 4: Fill the room name
     await myRooms.roomsCreateDialog.fillRoomName("AutoVDRTest");
-    await myRooms.roomsCreateDialog.setRoomCoverColor(1);
+    
 
-    // ---- NEW: Toggle Automatic indexing OFF ----
-  await myRooms.roomsCreateDialog.toggleAutomaticIndexing(false);
-  await screenshot.expectHaveScreenshot("vdr_automatic_indexing_disabled");
+ // ---- NEW: Toggle Automatic indexing OFF ----
+await myRooms.roomsCreateDialog.toggleAutomaticIndexing(false);
+await screenshot.expectHaveScreenshot("vdr_automatic_indexing_disabled");
 
-  // ---- NEW: Toggle Automatic indexing ON ----
-  await myRooms.roomsCreateDialog.toggleAutomaticIndexing(true);
-  await screenshot.expectHaveScreenshot("vdr_automatic_indexing_enabled");
+// ---- NEW: Toggle Automatic indexing ON ----
+await myRooms.roomsCreateDialog.toggleAutomaticIndexing(true);
+await screenshot.expectHaveScreenshot("vdr_automatic_indexing_enabled");
 
-  // ---- NEW: Toggle Restrict copy and download OFF ----
-  await myRooms.roomsCreateDialog.toggleRestrictCopyAndDownload(false);
-  await screenshot.expectHaveScreenshot("vdr_restrict_copy_and_download_disabled");
+// ---- NEW: Toggle Restrict copy and download OFF ----
+await myRooms.roomsCreateDialog.toggleRestrictCopyAndDownload(false);
+await screenshot.expectHaveScreenshot("vdr_restrict_copy_and_download_disabled");
 
-  // ---- NEW: Toggle Restrict copy and download ON ----
-  await myRooms.roomsCreateDialog.toggleRestrictCopyAndDownload(true);
-  await screenshot.expectHaveScreenshot("vdr_restrict_copy_and_download_enabled");
+// ---- NEW: Toggle Restrict copy and download ON ----
+await myRooms.roomsCreateDialog.toggleRestrictCopyAndDownload(true);
+await screenshot.expectHaveScreenshot("vdr_restrict_copy_and_download_enabled");
 
-  // ---- NEW: Toggle File lifetime ----
-  await myRooms.roomsCreateDialog.toggleFileLifetime(true);
-  await screenshot.expectHaveScreenshot("vdr_file_lifetime_enabled");
+// ---- NEW: Toggle File lifetime ----
+await myRooms.roomsCreateDialog.toggleFileLifetime(true);
+await screenshot.expectHaveScreenshot("vdr_file_lifetime_enabled");
 
-  await myRooms.roomsCreateDialog.setFileLifetimeDays(14);
+await myRooms.roomsCreateDialog.setFileLifetimeDays(14);
+await myRooms.roomsCreateDialog.selectFileLifetimeUnit("Years");
+await myRooms.roomsCreateDialog.selectFileLifetimeAction("Delete permanently");
 
-  await myRooms.roomsCreateDialog.selectFileLifetimeUnit("Years");
+await screenshot.expectHaveScreenshot("vdr_file_lifetime_filled");
 
-  await myRooms.roomsCreateDialog.selectFileLifetimeAction("Delete permanently");
+// ---- NEW: Watermark ----
+await myRooms.roomsCreateDialog.toggleWatermarks(true);
+await screenshot.expectHaveScreenshot("vdr_watermark_enabled");
 
-  await screenshot.expectHaveScreenshot("vdr_file_lifetime_filled");
+await myRooms.roomsCreateDialog.selectWatermarkType("Viewer info");
+await screenshot.expectHaveScreenshot("vdr_watermark_viewer_info");
 
-  // ---- NEW: Watermark ----
- 
-  await myRooms.roomsCreateDialog.toggleWatermarks(true);
-  await screenshot.expectHaveScreenshot("vdr_watermark_enabled");
+await myRooms.roomsCreateDialog.selectWatermarkElements([
+  "username",   
+  "useremail",  
+  "roomname"    
+]);
 
-  
-  await myRooms.roomsCreateDialog.selectWatermarkType("Viewer info");
-  await screenshot.expectHaveScreenshot("vdr_watermark_viewer_info");
+await screenshot.expectHaveScreenshot("vdr_watermark_elements_selected");
 
-  
-  await myRooms.roomsCreateDialog.selectWatermarkElements(["User Name", "User Email", "Room Name"]);
-  await screenshot.expectHaveScreenshot("vdr_watermark_elements_selected");
+await myRooms.roomsCreateDialog.setWatermarkStaticText("CONFIDENTIAL");
+await screenshot.expectHaveScreenshot("vdr_watermark_static_text");
 
-  
-  await myRooms.roomsCreateDialog.setWatermarkStaticText("CONFIDENTIAL");
-  await screenshot.expectHaveScreenshot("vdr_watermark_static_text");
-
-  
-  await myRooms.roomsCreateDialog.selectWatermarkPosition("Horizontal");
-  await screenshot.expectHaveScreenshot("vdr_watermark_position_horizontal");
+await myRooms.roomsCreateDialog.selectWatermarkPosition("Horizontal");
+await screenshot.expectHaveScreenshot("vdr_watermark_position_horizontal");
   
     // Step 5: Submit the creation form
     await myRooms.roomsCreateDialog.clickRoomDialogSubmit();
