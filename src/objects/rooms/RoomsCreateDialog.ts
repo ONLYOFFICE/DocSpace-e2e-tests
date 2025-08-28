@@ -173,9 +173,10 @@ class RoomsCreateDialog extends BaseDialog {
   
 
   async toggleAutomaticIndexing(enable: boolean) {
-    const block = this.page.locator('.virtual-data-room-block_header', { hasText: "Automatic indexing" });
-    const checkbox = block.locator('[data-testid="toggle-button-input"]');
-    const label = block.locator('[data-testid="toggle-button-container"]');
+    const block = this.page.getByTestId("virtual_data_room_automatic_indexing");
+    const checkbox = block.getByTestId("toggle-button-input");
+    const label = block.getByTestId("toggle-button-container");
+
     const isChecked = await checkbox.isChecked();
     if (isChecked !== enable) {
       await label.click();
@@ -184,9 +185,10 @@ class RoomsCreateDialog extends BaseDialog {
   }
 
   async toggleRestrictCopyAndDownload(enable: boolean) {
-    const block = this.page.locator('.virtual-data-room-block_header', { hasText: "Restrict copy and download" });
-    const checkbox = block.locator('[data-testid="toggle-button-input"]');
-    const label = block.locator('[data-testid="toggle-button-container"]');
+    const block = this.page.getByTestId("virtual_data_room_restrict_copy_download");
+    const checkbox = block.getByTestId("toggle-button-input");
+    const label = block.getByTestId("toggle-button-container");
+
     const isChecked = await checkbox.isChecked();
     if (isChecked !== enable) {
       await label.click();
@@ -195,9 +197,10 @@ class RoomsCreateDialog extends BaseDialog {
   }
 
   async toggleFileLifetime(enable: boolean) {
-    const block = this.page.locator('.virtual-data-room-block_header', { hasText: "File lifetime" });
-    const checkbox = block.locator('[data-testid="toggle-button-input"]');
-    const label = block.locator('[data-testid="toggle-button-container"]');
+    const block = this.page.getByTestId("virtual_data_room_file_lifetime");
+    const checkbox = block.getByTestId("toggle-button-input");
+    const label = block.getByTestId("toggle-button-container");
+
     const isChecked = await checkbox.isChecked();
     if (isChecked !== enable) {
       await label.click();
@@ -206,86 +209,68 @@ class RoomsCreateDialog extends BaseDialog {
   }
 
   async setFileLifetimeDays(days: number) {
-    const input = this.page
-      .locator('.virtual-data-room-block')
-      .filter({ hasText: "File lifetime" })
-      .locator('[data-testid="text-input"]');
+    const input = this.page.getByTestId("virtual_data_room_file_lifetime_input");
     await input.fill(days.toString());
     await expect(input).toHaveValue(days.toString());
   }
 
-  async selectFileLifetimeUnit(unit: string) {
-    
-    const comboBox = this.page
-      .locator('.virtual-data-room-block')
-      .filter({ hasText: "File lifetime" })
-      .locator('[data-testid="combobox"]')
-      .first();
-  
+  async selectFileLifetimeUnit(unit: "Days" | "Months" | "Years") {
+    const comboBox = this.page.getByTestId("virtual_data_room_file_lifetime_period_combobox");
     await comboBox.click();
-    
-    await this.page.locator(`role=option[name="${unit}"]`).click();
-    
+    await this.page.getByRole("option", { name: unit }).click();
     await expect(comboBox).toContainText(unit);
   }
 
-  async selectFileLifetimeAction(action: string) {
-    
-    const comboBox = this.page
-      .locator('.virtual-data-room-block')
-      .filter({ hasText: "File lifetime" })
-      .locator('[data-testid="combobox"]')
-      .nth(1);
-  
+  async selectFileLifetimeAction(action: "Move to Trash" | "Delete permanently") {
+    const comboBox = this.page.getByTestId("virtual_data_room_file_lifetime_delete_combobox");
     await comboBox.click();
-    await this.page.locator(`role=option[name="${action}"]`).click();
+    await this.page.getByRole("option", { name: action }).click();
     await expect(comboBox).toContainText(action);
   }
   
   async toggleWatermarks(enable: boolean) {
-  const block = this.page.locator('.virtual-data-room-block_header', { hasText: "Add watermarks to documents" });
-  const checkbox = block.locator('[data-testid="toggle-button-input"]');
-  const label = block.locator('[data-testid="toggle-button-container"]');
-  const isChecked = await checkbox.isChecked();
-  if (isChecked !== enable) {
-    await label.click();
+    const block = this.page.getByTestId("virtual_data_room_add_watermarks");
+    const checkbox = block.getByTestId("toggle-button-input");
+    const label = block.getByTestId("toggle-button-container");
+
+    const isChecked = await checkbox.isChecked();
+    if (isChecked !== enable) {
+      await label.click();
+    }
+    await expect(checkbox).toBeChecked({ checked: enable });
   }
-  await expect(checkbox).toBeChecked({ checked: enable });
-}
 
   async selectWatermarkType(type: "Viewer info" | "Image") {
-    const block = this.page.locator('.virtual-data-room-block').filter({ hasText: "Add watermarks to documents" });
-    
-    await block.locator('[data-testid="radio-button"]', { hasText: type }).click();
-    
-    const radio = block.locator('[data-testid="radio-button"]', { hasText: type }).locator('input[type="radio"]');
-    await expect(radio).toBeChecked();
+    const block = this.page.getByTestId("virtual_data_room_add_watermarks");
+    const option =
+      type === "Viewer info"
+        ? block.getByTestId("virtual_data_room_watermarks_radio_viewer_info")
+        : block.getByTestId("virtual_data_room_watermarks_radio_image");
+
+    await option.click();
+    await expect(option.locator("input[type='radio']")).toBeChecked();
   }
   
-  async selectWatermarkElements(elements: string[]) {
-    const block = this.page.locator('.virtual-data-room-block').filter({ hasText: "Add watermarks to documents" });
+  async selectWatermarkElements(elements: Array<"username" | "useremail" | "useripadress" | "currentdate" | "roomname">) {
+    const block = this.page.getByTestId("virtual_data_room_add_watermarks");
     for (const el of elements) {
-      const tab = block.locator(`[data-testid="${el}"]`);
+      const tab = block.getByTestId(`virtual_data_room_watermark_tab_${el}`);
       await tab.click();
-      await expect(tab).toHaveClass(/Tabs-module__selected--ZS8Ss/); 
+      await expect(tab).toHaveAttribute("aria-selected", "true");
     }
   }
   
   async setWatermarkStaticText(text: string) {
-    const block = this.page.locator('.virtual-data-room-block').filter({ hasText: "Add watermarks to documents" });
-    const input = block.locator('input[data-testid="text-input"]');
+    const input = this.page.getByTestId("virtual_data_room_watermark_text_input");
     await input.fill(text);
     await expect(input).toHaveValue(text);
   }
 
   async selectWatermarkPosition(position: string) {
-    const block = this.page.locator('.virtual-data-room-block').filter({ hasText: "Add watermarks to documents" });
-    const combo = block.locator('[data-testid="combobox"]');
-    await combo.click();
-    
-    const item = this.page.locator('[data-testid="drop-down-item"]', { hasText: position });
-    await item.click();
-    await expect(combo).toContainText(position);
+    const comboBox = this.page.getByTestId("virtual_data_room_watermark_position_combobox");
+    await comboBox.click();
+    await this.page.getByRole("option", { name: position }).click();
+    await expect(comboBox).toContainText(position);
   }
 
   async setRoomCoverColor(colorIndex = '.sc-dwalKd.kOQVrm') {
