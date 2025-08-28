@@ -168,6 +168,18 @@ class RoomsCreateDialog extends BaseDialog {
     await this.fillTemplateName(roomTemplateTitles.fromTemplate);
     await this.clickRoomDialogSubmit();
   }
+
+  async toggleAutomaticIndexing(enable: boolean) {
+    const block = this.page.getByTestId("virtual_data_room_automatic_indexing");
+    const checkbox = block.getByTestId("toggle-button-input");
+    const label = block.getByTestId("toggle-button-container");
+
+    const isChecked = await checkbox.isChecked();
+    if (isChecked !== enable) {
+      await label.click();
+    }
+    await expect(checkbox).toBeChecked({ checked: enable });
+  }
 }
 
 export default RoomsCreateDialog;
