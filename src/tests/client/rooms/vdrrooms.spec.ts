@@ -75,7 +75,6 @@ await screenshot.expectHaveScreenshot("vdr_automatic_indexing_enabled");
 await myRooms.roomsCreateDialog.toggleRestrictCopyAndDownload(false);
 await screenshot.expectHaveScreenshot("vdr_restrict_copy_and_download_disabled");
 
-// ---- NEW: Toggle Restrict copy and download ON ----
 await myRooms.roomsCreateDialog.toggleRestrictCopyAndDownload(true);
 await screenshot.expectHaveScreenshot("vdr_restrict_copy_and_download_enabled");
 
@@ -95,6 +94,7 @@ await screenshot.expectHaveScreenshot("vdr_watermark_enabled");
 
 await myRooms.roomsCreateDialog.selectWatermarkType("Viewer info");
 await screenshot.expectHaveScreenshot("vdr_watermark_viewer_info");
+
 
 await myRooms.roomsCreateDialog.selectWatermarkElements([
   "username",   
