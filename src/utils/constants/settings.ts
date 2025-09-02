@@ -4,6 +4,8 @@ const navItems = {
   backup: "Backup",
   integration: "Integration",
   payments: "Payments",
+  developerTools: "Developer Tools",
+  storageManagement: "Storage Management",
 } as const;
 
 const mapBackupMethodsIds = {
