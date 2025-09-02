@@ -46,7 +46,6 @@ class Trash extends BasePage {
     await this.page.locator("#document_catalog-trash").click();
     await expect(this.page).toHaveURL(/.*files\/trash.*/);
     await this.page.waitForLoadState("load");
-    await this.page.waitForLoadState("load");
   }
 
   async openRestoreSelector() {

@@ -12,7 +12,6 @@ const ROOM_SUBMIT_BUTTON = "#shared_create-room-modal_submit";
 const ROOM_TEMPLATE_SUBMIT_BUTTON = "#create-room-template-modal_submit";
 const LOGO_NAME_CONTAINER = ".logo-name-container";
 const TAG_NAME_INPUT = "#shared_tags-input";
-const TAG_NAME_INPUT = "#shared_tags-input";
 class RoomsCreateDialog extends BaseDialog {
   constructor(page: Page) {
     super(page);

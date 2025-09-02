@@ -13,7 +13,6 @@ test.describe("Trash", () => {
   let trash: Trash;
 
   test.beforeEach(async ({ page, api, login }) => {
-  test.beforeEach(async ({ page, api, login }) => {
     myDocuments = new MyDocuments(page, api.portalDomain);
     trash = new Trash(page);
     screenshot = new Screenshot(page, { screenshotDir: "trash" });
@@ -24,7 +23,6 @@ test.describe("Trash", () => {
     await trash.open();
   });
 
-  test("Render", async ({ page }) => {
   test("Render", async ({ page }) => {
     await test.step("Render", async () => {
       await myDocuments.filesFilter.applySort(docSort.name);

@@ -1,6 +1,5 @@
 import { expect, Page } from "@playwright/test";
 import { BaseContextMenu } from "./BaseContextMenu";
-import { BaseContextMenu } from "./BaseContextMenu";
 import { TInfoPanelTabs } from "../../utils/types/common";
 import { TRoomCreateTitles } from "@/src/utils/constants/rooms";
 import { BaseDropdown } from "./BaseDropdown";

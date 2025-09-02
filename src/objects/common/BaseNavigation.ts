@@ -1,6 +1,5 @@
 import { expect, Page } from "@playwright/test";
 import { BaseContextMenu } from "./BaseContextMenu";
-import { BaseContextMenu } from "./BaseContextMenu";
 
 const CLOSE_BUTTON =
   "[data-testid='aside-header'] [data-testid='icon-button-svg']";
@@ -16,14 +15,12 @@ type TActions = Record<string, TAction>;
 
 class BaseNavigation {
   contextMenu: BaseContextMenu;
-  contextMenu: BaseContextMenu;
   protected page: Page;
   protected actions: TActions;
 
   constructor(page: Page, actions: TActions) {
     this.page = page;
     this.actions = actions;
-    this.contextMenu = new BaseContextMenu(page);
     this.contextMenu = new BaseContextMenu(page);
   }
 
@@ -78,7 +75,6 @@ class BaseNavigation {
 
   async openContextMenu() {
     await this.page.locator("#header_optional-button").click();
-    await this.contextMenu.checkMenuExists();
     await this.contextMenu.checkMenuExists();
   }
 

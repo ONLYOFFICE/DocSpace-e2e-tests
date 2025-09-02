@@ -41,7 +41,6 @@ export default class BasePage {
     await this.optionsButton.waitFor({ state: "visible", timeout: 10000 });
     await this.optionsButton.click();
     await this.page.waitForLoadState("load");
-    await this.page.waitForLoadState("load");
     await this.settingsMenuItem.click();
   }
 

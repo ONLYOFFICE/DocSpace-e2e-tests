@@ -14,10 +14,6 @@ test.describe("Archive", () => {
     screenshot = new Screenshot(page, {
       screenshotDir: "archive",
     });
-  test.beforeEach(async ({ page, api, login }) => {
-    screenshot = new Screenshot(page, {
-      screenshotDir: "archive",
-    });
 
     myRooms = new MyRooms(page, api.portalDomain);
     myArchive = new Archive(page, api.portalDomain);

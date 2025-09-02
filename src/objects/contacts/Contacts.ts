@@ -18,7 +18,6 @@ import {
   userEmails,
 } from "@/src/utils/constants/contacts";
 import { BaseContextMenu } from "../common/BaseContextMenu";
-import { BaseContextMenu } from "../common/BaseContextMenu";
 import ContactsInfoPanel from "./ContactsInfoPanel";
 import ContactsInviteDialog from "./ContactsInviteDialog";
 import ContactsTable from "./ContactsTable";
@@ -217,7 +216,6 @@ class Contacts extends BasePage {
     await this.removeToast(toastMessages.usersInvited);
   }
 
-  async openChangeContactTypeDialog(user: string, menuItem: TMenuItem) {
   async openChangeContactTypeDialog(user: string, menuItem: TMenuItem) {
     await this.table.selectRow(user);
     await this.navigation.openChangeTypeDropdown();

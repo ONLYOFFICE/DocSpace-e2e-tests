@@ -37,9 +37,6 @@ class Folder extends BasePage {
     await this.page.goto(`https://${this.portalDomain}/rooms/personal`, {
       waitUntil: "load",
     });
-    await this.page.goto(`https://${this.portalDomain}/rooms/personal`, {
-      waitUntil: "load",
-    });
     await expect(this.page).toHaveURL(/.*rooms\/personal.*/);
   }
 
