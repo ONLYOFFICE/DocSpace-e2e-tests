@@ -45,16 +45,10 @@ export class Profile {
     return this.page.locator("[data-testid='button'][tabindex='3']");
   }
   get changePasswordButton() {
-    return config.IS_MOBILE
-      ? this.page.locator(
-          "div[class='mobile-profile-row']:nth-of-type(3) svg[role='img']",
-        )
-      : this.page.locator(
-          "div.profile-block-field.profile-block-password [data-testid='icon-button']",
-        );
+    return this.page.locator('[data-testid="password_edit_icon_button"]');
   }
   get sendPasswordChangeButton() {
-    return this.page.locator("[data-testid='button']");
+    return this.page.locator("[data-testid='change_password_send_button']");
   }
 
   // Language Selector
@@ -121,7 +115,7 @@ export class Profile {
 
   async changePassword() {
     await this.changePasswordButton.click();
-    await this.sendPasswordChangeButton.nth(-2).click();
+    await this.sendPasswordChangeButton.click();
   }
 
   async changeLanguage() {

@@ -1,13 +1,14 @@
-import Screenshot from "@/src/objects/common/Screenshot";
-import Customization from "@/src/objects/settings/customization/Customization";
-import { PaymentApi } from "@/src/api/payment";
-
-import { Profile } from "@/src/objects/profile/Profile";
-import { test } from "@/src/fixtures";
 import { expect } from "@playwright/test";
+
+import { test } from "@/src/fixtures";
+
+import Screenshot from "@/src/objects/common/Screenshot";
+import { PaymentApi } from "@/src/api/payment";
+import Customization from "@/src/objects/settings/customization/Customization";
+import { Profile } from "@/src/objects/profile/Profile";
 import { toastMessages } from "@/src/utils/constants/settings";
-// import MailChecker from "@/src/utils/helpers/MailChecker";
-// import config from "@/config";
+//import MailChecker from "@/src/utils/helpers/MailChecker";
+//import config from "@/config";
 
 test.describe("Customization", () => {
   let paymentApi: PaymentApi;
@@ -36,20 +37,20 @@ test.describe("Customization", () => {
     await test.step("Change lang&time", async () => {
       await customization.changeLanguage("English (United States)");
       await customization.changeTimezone("(UTC) Antarctica/Troll");
-      await customization.settingsTitle.click();
-      await customization.saveButton.first().click();
+      //await customization.settingsTitle.click();
+      await customization.saveButtonLanguage.click();
       await customization.removeToast(toastMessages.settingsUpdated);
       await customization.changeLanguage("English (United Kingdom)");
       await customization.changeTimezone("(UTC) Europe/London");
-      await customization.settingsTitle.click();
-      await customization.saveButton.first().click();
+      //await customization.settingsTitle.click();
+      await customization.saveButtonLanguage.click();
       await customization.removeToast(toastMessages.settingsUpdated);
     });
 
     await test.step("Welcome page settings", async () => {
       await customization.setTitle();
       await customization.removeToast(toastMessages.welcomePageSaved);
-      await customization.restoreButton.nth(1).click();
+      await customization.restoreButton.click();
       await customization.removeToast(toastMessages.welcomePageSaved);
     });
 
@@ -64,15 +65,13 @@ test.describe("Customization", () => {
       await customization.generateLogo();
       await customization.removeToast(toastMessages.settingsUpdated);
       await screenshot.expectHaveScreenshot("generated_logo_from_text");
-      await customization.restoreButton.nth(1).click();
-      await customization.removeToast(toastMessages.settingsUpdated);
     });
 
     await test.step("Branding upload pictures", async () => {
       await customization.uploadPictures();
       await customization.removeToast(toastMessages.settingsUpdated);
       await screenshot.expectHaveScreenshot("branding_upload_pictures");
-      await customization.restoreButton.nth(1).click();
+      await customization.restoreButtonBrandname.click();
       await customization.removeToast(toastMessages.settingsUpdated);
     });
 
@@ -81,11 +80,11 @@ test.describe("Customization", () => {
       await screenshot.expectHaveScreenshot("appearance_light_theme");
       await customization.selectTheme();
       await customization.darkThemeOption.click();
-      await customization.saveButtonAppearance.first().click();
+      await customization.saveButtonAppearance.click();
       await customization.removeToast(toastMessages.settingsUpdated);
       await screenshot.expectHaveScreenshot("appearance_dark_theme_1");
       await customization.selectTheme2();
-      await customization.saveButtonAppearance.first().click();
+      await customization.saveButtonAppearance.click();
       await customization.removeToast(toastMessages.settingsUpdated);
       await screenshot.expectHaveScreenshot("appearance_dark_theme_2");
     });
@@ -95,7 +94,7 @@ test.describe("Customization", () => {
       await customization.removeToast(toastMessages.settingsUpdated);
       await screenshot.expectHaveScreenshot("custom_appearance_theme_1");
       await customization.darkThemeOption.click();
-      await customization.saveButtonAppearance.first().click();
+      await customization.saveButtonAppearance.click();
       await customization.removeToast(toastMessages.settingsUpdated);
       await screenshot.expectHaveScreenshot("custom_appearance_theme_2");
       await customization.deleteCustomTheme();
@@ -146,7 +145,6 @@ test.describe("Customization", () => {
     await test.step("Rename portal", async () => {
       const { originalName, newName } = await customization.renamePortal();
 
-      // This is to remove the portal if the test falls
       api.apisystem.setPortalDomain(`${newName}.onlyoffice.io`);
       api.apisystem.setPortalName(newName);
       await page.waitForURL(
@@ -196,26 +194,53 @@ test.describe("Customization", () => {
 
     await test.step("Configure deep link", async () => {
       await customization.open();
-      await customization.choseDeepLink();
-      await customization.removeToast(toastMessages.settingsUpdated);
+      await customization.page.waitForLoadState("networkidle");
       await customization.webOnly.click({ force: true });
-      await customization.saveButton.nth(3).click();
+      await customization.page.waitForFunction(
+        (buttonSelector) => {
+          const button = document.querySelector(buttonSelector);
+          const isDisabled =
+            button.hasAttribute("disabled") ||
+            button.getAttribute("aria-disabled") === "true";
+          console.log("Button state:", {
+            disabled: button.hasAttribute("disabled"),
+            ariaDisabled: button.getAttribute("aria-disabled"),
+            classList: Array.from(button.classList),
+          });
+          return !isDisabled;
+        },
+        '[data-testid="configure_deep_link_save_button"]',
+        { timeout: 30000, polling: 1000 },
+      );
+
+      await expect(customization.saveButtonDeepLink).toBeEnabled();
+      await customization.saveButtonDeepLink.click();
       await customization.removeToast(toastMessages.settingsUpdated);
       await customization.webOrApp.click({ force: true });
-      await customization.saveButton.nth(3).click();
+      await customization.page.waitForFunction(
+        (buttonSelector) => {
+          const button = document.querySelector(buttonSelector);
+          return (
+            !button.hasAttribute("disabled") &&
+            button.getAttribute("aria-disabled") !== "true"
+          );
+        },
+        '[data-testid="configure_deep_link_save_button"]',
+        { timeout: 30000, polling: 1000 },
+      );
+
+      await customization.saveButtonDeepLink.click();
       await customization.removeToast(toastMessages.settingsUpdated);
     });
 
     await test.step("Brand name email verification", async () => {
       const profile = new Profile(page);
 
-      // Set brand name to "autoTest"
       await customization.openTab("Branding");
-      await customization.textInput.first().fill("autoTest");
-      await customization.saveButton.first().click();
+      await customization.brandNameInput.fill("autoTest");
+      await customization.saveButtonBrandname.click();
       await customization.removeToast(toastMessages.settingsUpdated);
 
-      // Request password change
       await profile.navigateToProfile();
       await profile.changePassword();
 

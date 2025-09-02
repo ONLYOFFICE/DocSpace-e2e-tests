@@ -5,6 +5,15 @@ import BaseTable, { TBaseTableLocators } from "../../common/BaseTable";
 
 class Security extends BasePage {
   table: BaseTable;
+  private adminMessageSaveButton = this.page.getByTestId(
+    "administrator_message_save_button",
+  );
+  private sessionLifetimeSaveButton = this.page.getByTestId(
+    "session_lifetime_save_button",
+  );
+  private sessionLifetimeCancelButton = this.page.getByTestId(
+    "session_lifetime_cancel_button",
+  );
   constructor(page: Page) {
     super(page);
     this.table = new BaseTable(this.page, this.tableLocators);
@@ -256,14 +265,12 @@ class Security extends BasePage {
   async ipActivation() {
     await this.ipSecurityEnabled.click();
     await this.saveButton.click({ timeout: 10000 });
-    await this.page.waitForLoadState("networkidle");
     await this.removeToast();
 
     await this.ipSecurityEnabled.click();
     await this.addIpLink.click();
     await this.page.getByTestId("ip_security_ip_input").fill("155.155.155.155");
     await this.saveButton.click({ timeout: 10000 });
-    await this.page.waitForLoadState("networkidle");
     await this.removeToast(toastMessages.settingsUpdated);
   }
 
@@ -271,11 +278,9 @@ class Security extends BasePage {
     await this.ipSecurityArea.click();
     await this.deleteIp.click();
     await this.saveButton.click({ timeout: 10000 });
-    await this.page.waitForLoadState("networkidle");
     await this.removeToast(toastMessages.addAllowedIp);
     await this.ipSecurityDisabled.click();
     await this.saveButton.click({ timeout: 10000 });
-    await this.page.waitForLoadState("networkidle");
     await this.removeToast(toastMessages.settingsUpdated);
   }
 
@@ -295,27 +300,27 @@ class Security extends BasePage {
 
   async adminMessageActivation() {
     await this.adminMessageEnable.click();
-    await this.page.getByTestId("administrator_message_save_button").click();
+    await this.adminMessageSaveButton.click();
     await this.removeToast(toastMessages.settingsUpdated);
   }
 
   async adminMessageDeactivation() {
     await this.adminMessageDisabled.click();
-    await this.page.getByTestId("administrator_message_save_button").click();
+    await this.adminMessageSaveButton.click();
     await this.removeToast(toastMessages.settingsUpdated);
   }
 
   async sessionLifetimeActivation() {
     await this.lifetimeEnable.click();
-    await this.page.getByTestId("session_lifetime_cancel_button").click();
+    await this.sessionLifetimeCancelButton.click();
     await this.lifetimeEnable.click();
     await this.lifetimeInput.fill("45");
-    await this.page.getByTestId("session_lifetime_save_button").click();
+    await this.sessionLifetimeSaveButton.click();
   }
 
   async sessionLifetimeDeactivation() {
     await this.lifetimeDisabled.click();
-    await this.page.getByTestId("session_lifetime_save_button").click();
+    await this.sessionLifetimeSaveButton.click();
   }
 
   async hideDateCells() {
