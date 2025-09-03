@@ -74,10 +74,6 @@ class BaseTable {
     await expect(firstRow).toBeVisible();
     await firstRow.click();
     await this.page.keyboard.press("Control+a");
-    const firstRow = this.tableRows.first();
-    await expect(firstRow).toBeVisible();
-    await firstRow.click();
-    await this.page.keyboard.press("Control+a");
     await this.mapTableRows(async (row) => {
       await this.expectRowIsChecked(row);
     });

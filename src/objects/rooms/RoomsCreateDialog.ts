@@ -168,8 +168,6 @@ class RoomsCreateDialog extends BaseDialog {
     await this.fillTemplateName(roomTemplateTitles.fromTemplate);
     await this.clickRoomDialogSubmit();
   }
-  
-  
 
   async toggleAutomaticIndexing(enable: boolean) {
     const block = this.page.getByTestId("virtual_data_room_automatic_indexing");
@@ -184,7 +182,9 @@ class RoomsCreateDialog extends BaseDialog {
   }
 
   async toggleRestrictCopyAndDownload(enable: boolean) {
-    const block = this.page.getByTestId("virtual_data_room_restrict_copy_download");
+    const block = this.page.getByTestId(
+      "virtual_data_room_restrict_copy_download",
+    );
     const checkbox = block.getByTestId("toggle-button-input");
     const label = block.getByTestId("toggle-button-container");
 
@@ -208,25 +208,33 @@ class RoomsCreateDialog extends BaseDialog {
   }
 
   async setFileLifetimeDays(days: number) {
-    const input = this.page.getByTestId("virtual_data_room_file_lifetime_input");
+    const input = this.page.getByTestId(
+      "virtual_data_room_file_lifetime_input",
+    );
     await input.fill(days.toString());
     await expect(input).toHaveValue(days.toString());
   }
 
   async selectFileLifetimeUnit(unit: "Days" | "Months" | "Years") {
-    const comboBox = this.page.getByTestId("virtual_data_room_file_lifetime_period_combobox");
+    const comboBox = this.page.getByTestId(
+      "virtual_data_room_file_lifetime_period_combobox",
+    );
     await comboBox.click();
     await this.page.getByRole("option", { name: unit }).click();
     await expect(comboBox).toContainText(unit);
   }
 
-  async selectFileLifetimeAction(action: "Move to Trash" | "Delete permanently") {
-    const comboBox = this.page.getByTestId("virtual_data_room_file_lifetime_delete_combobox");
+  async selectFileLifetimeAction(
+    action: "Move to Trash" | "Delete permanently",
+  ) {
+    const comboBox = this.page.getByTestId(
+      "virtual_data_room_file_lifetime_delete_combobox",
+    );
     await comboBox.click();
     await this.page.getByRole("option", { name: action }).click();
     await expect(comboBox).toContainText(action);
   }
-  
+
   async toggleWatermarks(enable: boolean) {
     const block = this.page.getByTestId("virtual_data_room_add_watermarks");
     const checkbox = block.getByTestId("toggle-button-input");
@@ -249,8 +257,12 @@ class RoomsCreateDialog extends BaseDialog {
     await option.click();
     await expect(option.locator("input[type='radio']")).toBeChecked();
   }
-  
-  async selectWatermarkElements(elements: Array<"username" | "useremail" | "useripadress" | "currentdate" | "roomname">) {
+
+  async selectWatermarkElements(
+    elements: Array<
+      "username" | "useremail" | "useripadress" | "currentdate" | "roomname"
+    >,
+  ) {
     const block = this.page.getByTestId("virtual_data_room_add_watermarks");
     for (const el of elements) {
       const tab = block.getByTestId(`virtual_data_room_watermark_tab_${el}`);
@@ -258,33 +270,38 @@ class RoomsCreateDialog extends BaseDialog {
       await expect(tab).toHaveAttribute("aria-selected", "true");
     }
   }
-  
+
   async setWatermarkStaticText(text: string) {
-    const input = this.page.getByTestId("virtual_data_room_watermark_text_input");
+    const input = this.page.getByTestId(
+      "virtual_data_room_watermark_text_input",
+    );
     await input.fill(text);
     await expect(input).toHaveValue(text);
   }
 
   async selectWatermarkPosition(position: string) {
-    const comboBox = this.page.getByTestId("virtual_data_room_watermark_position_combobox");
+    const comboBox = this.page.getByTestId(
+      "virtual_data_room_watermark_position_combobox",
+    );
     await comboBox.click();
     await this.page.getByRole("option", { name: position }).click();
     await expect(comboBox).toContainText(position);
   }
 
-  async setRoomCoverColor(colorIndex = '.sc-dwalKd.kOQVrm') {
-  
-    await this.page.getByTestId('modal').getByTestId('room-icon').getByTestId('icon-button-svg').getByRole('img').click();
-    await this.page.getByText('Customize cover').click();
-  
+  async setRoomCoverColor(colorIndex = ".sc-dwalKd.kOQVrm") {
+    await this.page
+      .getByTestId("modal")
+      .getByTestId("room-icon")
+      .getByTestId("icon-button-svg")
+      .getByRole("img")
+      .click();
+    await this.page.getByText("Customize cover").click();
+
     //const colorButtons = this.page.locator('.colors-container > div .circle');
     await this.page.locator(colorIndex).click();
 
-  await this.page.getByRole('button', { name: /apply/i }).click();
+    await this.page.getByRole("button", { name: /apply/i }).click();
   }
-  
-
-
 }
 
 export default RoomsCreateDialog;

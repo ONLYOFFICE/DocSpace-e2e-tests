@@ -8,15 +8,12 @@ export const VIEW_SWITCH = {
 export const SORT = {
   BUTTON: "#sort-by-button",
   SORT_OPTION: ".option-item",
-  SORT_OPTION: ".option-item",
 } as const;
 
 export const FILTER = {
   BUTTON: "#filter-button",
   DIALOG: "#modal-dialog",
   APPLY_BUTTON: "#filter_apply-button",
-  CANCEL_BUTTON: "#filter_cancel-button",
-  CLEAR_BUTTON: ".additional-icons-container",
   CANCEL_BUTTON: "#filter_cancel-button",
   CLEAR_BUTTON: ".additional-icons-container",
 } as const;
@@ -64,10 +61,6 @@ class BaseFilter {
     return this.page.locator(FILTER.CANCEL_BUTTON);
   }
 
-  get filterCancelButton() {
-    return this.page.locator(FILTER.CANCEL_BUTTON);
-  }
-
   get searchInput() {
     return this.page.locator(SEARCH.INPUT);
   }
@@ -103,13 +96,6 @@ class BaseFilter {
   protected async applySort(option: string) {
     await this.openDropdownSortBy();
     await this.selectSortOptionByText(option);
-  protected async selectSortOptionByText(text: string) {
-    await this.page.locator(SORT.SORT_OPTION).filter({ hasText: text }).click();
-  }
-
-  protected async applySort(option: string) {
-    await this.openDropdownSortBy();
-    await this.selectSortOptionByText(option);
   }
 
   async openFilterDialog() {
@@ -122,7 +108,6 @@ class BaseFilter {
     await expect(this.filterApplyButton).toBeEnabled();
   }
 
-  protected async applyFilter() {
   protected async applyFilter() {
     await this.filterApplyButton.click();
     await expect(this.filterDialog).not.toBeVisible();
@@ -137,10 +122,7 @@ class BaseFilter {
     await this.emptyViewClearButton.click();
     await expect(this.emptyViewContainer).not.toBeVisible();
   }
-  async clearFilterDialog() {
-    await this.page.locator(FILTER.CLEAR_BUTTON).click();
-    await expect(this.filterDialog).toBeVisible();
-  }
+
   async clearFilterDialog() {
     await this.page.locator(FILTER.CLEAR_BUTTON).click();
     await expect(this.filterDialog).toBeVisible();
@@ -148,15 +130,7 @@ class BaseFilter {
 
   protected async fillSearchInputAndCheckRequest(searchValue: string) {
     const promise = this.page.waitForResponse((response) => {
-  protected async fillSearchInputAndCheckRequest(searchValue: string) {
-    const promise = this.page.waitForResponse((response) => {
       return (
-        response
-          .url()
-          .toLowerCase()
-          .includes(
-            `filtervalue=${encodeURIComponent(searchValue.toLowerCase())}`,
-          ) && response.request().method() === "GET"
         response
           .url()
           .toLowerCase()
@@ -171,12 +145,10 @@ class BaseFilter {
   }
 
   protected async clearSearchText() {
-  protected async clearSearchText() {
     await this.searchInput.clear();
     await expect(this.searchInput).toHaveValue("");
   }
 
-  protected async removeFilter(filterName: string) {
   protected async removeFilter(filterName: string) {
     const filter = this.page
       .locator(".filter-input_selected-row")

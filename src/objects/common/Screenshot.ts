@@ -10,8 +10,6 @@ type ScreenshotOptions = {
 
 type PlaywrightScreenshotOptions = Omit<PageScreenshotOptions, "fullPage">;
 
-type PlaywrightScreenshotOptions = Omit<PageScreenshotOptions, "fullPage">;
-
 class Screenshot {
   page: Page;
   options: ScreenshotOptions = {
@@ -73,8 +71,6 @@ class Screenshot {
 
     const originalViewport = this.page.viewportSize();
 
-    const originalViewport = this.page.viewportSize();
-
     if (this.options.fullPage) {
       await this.setViewportSize();
     }
@@ -98,11 +94,6 @@ class Screenshot {
     playwrightOptions?: PlaywrightScreenshotOptions,
   ) {
     const maxAttempts = this.options.maxAttempts!;
-  private async tryScreenshot(
-    screenshotName: string,
-    playwrightOptions?: PlaywrightScreenshotOptions,
-  ) {
-    const maxAttempts = this.options.maxAttempts!;
     let lastError;
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
       try {
@@ -117,7 +108,6 @@ class Screenshot {
         return;
       } catch (err) {
         console.log(
-          `${this.options.screenshotDir} - ${screenshotName} - ${err} - Attempt ${attempt} of ${maxAttempts}`,
           `${this.options.screenshotDir} - ${screenshotName} - ${err} - Attempt ${attempt} of ${maxAttempts}`,
         );
         lastError = err;

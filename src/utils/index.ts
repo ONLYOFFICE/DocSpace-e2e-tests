@@ -1,5 +1,4 @@
 import { Page } from "@playwright/test";
-import { Page } from "@playwright/test";
 import { TListDocActions } from "./types/files";
 
 export const transformDocActions = (docActions: TListDocActions) => {

@@ -45,7 +45,9 @@ test.describe("Storage Management", () => {
       await page1.waitForURL(
         "https://*.onlyoffice.com/docspace/configuration#StorageManagement_block",
       );
-      await expect(page1).toHaveURL(/docspace\/configuration\#StorageManagement_block/);
+      await expect(page1).toHaveURL(
+        /docspace\/configuration#StorageManagement_block/,
+      );
       await page1.close();
     });
 

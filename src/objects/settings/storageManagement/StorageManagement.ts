@@ -12,75 +12,75 @@ class StorageManagement extends BasePage {
   }
 
   get storageManagementGuideLink() {
-    return this.page.getByTestId('help_center_link');
+    return this.page.getByTestId("help_center_link");
   }
 
   get portalCreationDate() {
-    return this.page.getByTestId('portal_created_date');
+    return this.page.getByTestId("portal_created_date");
   }
 
   get recalculateDate() {
-    return this.page.getByTestId('last_recalculate_date');
+    return this.page.getByTestId("last_recalculate_date");
   }
 
   get onOffQuotaRoom() {
-    return this.page.getByTestId('quota_room_button');
+    return this.page.getByTestId("quota_room_button");
   }
 
   get onOffQuotaUser() {
-    return this.page.getByTestId('quota_user_button');
+    return this.page.getByTestId("quota_user_button");
   }
 
   get comboboxRoom() {
-    return this.page.getByTestId('quota_room_form_size_combo_box');
+    return this.page.getByTestId("quota_room_form_size_combo_box");
   }
 
   get comboboxUser() {
-    return this.page.getByTestId('quota_user_form_size_combo_box');
+    return this.page.getByTestId("quota_user_form_size_combo_box");
   }
 
   get selectByte() {
-    return this.page.getByTestId('drop_down_item_0');
+    return this.page.getByTestId("drop_down_item_0");
   }
 
   get selectKB() {
-    return this.page.getByTestId('drop_down_item_1');
+    return this.page.getByTestId("drop_down_item_1");
   }
 
   get selectMB() {
-    return this.page.getByTestId('drop_down_item_2');
+    return this.page.getByTestId("drop_down_item_2");
   }
 
   get selectGB() {
-    return this.page.getByTestId('drop_down_item_3');
+    return this.page.getByTestId("drop_down_item_3");
   }
 
   get selectTB() {
-    return this.page.getByTestId('drop_down_item_4');
+    return this.page.getByTestId("drop_down_item_4");
   }
 
   get cancelButtonRoom() {
-    return this.page.getByTestId('quota_room_form_cancel_button');
+    return this.page.getByTestId("quota_room_form_cancel_button");
   }
 
   get cancelButtonUser() {
-    return this.page.getByTestId('quota_user_form_cancel_button');
+    return this.page.getByTestId("quota_user_form_cancel_button");
   }
 
   get saveButtonRoom() {
-    return this.page.getByTestId('quota_room_form_save_button');
+    return this.page.getByTestId("quota_room_form_save_button");
   }
 
   get saveButtonUser() {
-    return this.page.getByTestId('quota_user_form_save_button');
+    return this.page.getByTestId("quota_user_form_save_button");
   }
 
   get textInputRoom() {
-    return this.page.getByTestId('quota_room_form_input');
+    return this.page.getByTestId("quota_room_form_input");
   }
 
   get textInputUser() {
-    return this.page.getByTestId('quota_user_form_input');
+    return this.page.getByTestId("quota_user_form_input");
   }
 
   async open() {
@@ -89,7 +89,7 @@ class StorageManagement extends BasePage {
   }
 
   async checkStorageManagementRender() {
-    await expect(this.page.getByText('Disk space used')).toBeVisible();
+    await expect(this.page.getByText("Disk space used")).toBeVisible();
   }
 
   async hideDate() {
@@ -107,7 +107,7 @@ class StorageManagement extends BasePage {
     await this.selectTB.click();
     await this.cancelButtonRoom.click();
     await this.onOffQuotaRoom.click();
-    await this.textInputRoom.fill('500');
+    await this.textInputRoom.fill("500");
     await this.saveButtonRoom.click();
   }
 
@@ -121,10 +121,9 @@ class StorageManagement extends BasePage {
     await this.selectTB.nth(1).click();
     await this.cancelButtonUser.click();
     await this.onOffQuotaUser.click();
-    await this.textInputUser.fill('500');
+    await this.textInputUser.fill("500");
     await this.saveButtonUser.click();
   }
-
 }
 
 export default StorageManagement;

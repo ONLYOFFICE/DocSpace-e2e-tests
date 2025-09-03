@@ -6,11 +6,8 @@ import {
   roomDialogSource,
   roomTemplateTitles,
   roomToastMessages,
-  roomToastMessages,
   templateContextMenuOption,
 } from "@/src/utils/constants/rooms";
-import { test } from "@/src/fixtures";
-import { Page } from "@playwright/test";
 import { test } from "@/src/fixtures";
 import { Page } from "@playwright/test";
 
@@ -77,25 +74,43 @@ test.describe("Rooms", () => {
       await myRooms.roomsCreateDialog.openRoomCover();
       await screenshot.expectHaveScreenshot("create_common_rooms_cover");
 
-//Rooms cover change color tests starts here
-      await myRooms.roomsCreateDialog.setRoomCoverColor('.sc-fbKhjd');
-      await screenshot.expectHaveScreenshot("create_common_rooms_cover_color_red");
-      await myRooms.roomsCreateDialog.setRoomCoverColor('.sc-fbKhjd.dRRCCA');
-      await screenshot.expectHaveScreenshot("create_common_rooms_cover_color_orange");
-      await myRooms.roomsCreateDialog.setRoomCoverColor('.sc-fbKhjd.fQFbbT');
-      await screenshot.expectHaveScreenshot("create_common_rooms_cover_color_yellow");
-      await myRooms.roomsCreateDialog.setRoomCoverColor('.sc-fbKhjd.jCkA-De');
-      await screenshot.expectHaveScreenshot("create_common_rooms_cover_color_green");
-      await myRooms.roomsCreateDialog.setRoomCoverColor('.sc-fbKhjd.doREMi');
-      await screenshot.expectHaveScreenshot("create_common_rooms_cover_color_cyan");
-      await myRooms.roomsCreateDialog.setRoomCoverColor('.sc-fbKhjd.jpEyUp');
-      await screenshot.expectHaveScreenshot("create_common_rooms_cover_color_light_blue");
-      await myRooms.roomsCreateDialog.setRoomCoverColor('.sc-fbKhjd.ikQHKR');
-      await screenshot.expectHaveScreenshot("create_common_rooms_cover_color_blue");
-      await myRooms.roomsCreateDialog.setRoomCoverColor('.sc-fbKhjd.dpvPpt');
-      await screenshot.expectHaveScreenshot("create_common_rooms_cover_color_purple");
-      await myRooms.roomsCreateDialog.setRoomCoverColor('.sc-fbKhjd.lbYcxL');
-      await screenshot.expectHaveScreenshot("create_common_rooms_cover_color_pink");
+      //Rooms cover change color tests starts here
+      await myRooms.roomsCreateDialog.setRoomCoverColor(".sc-fbKhjd");
+      await screenshot.expectHaveScreenshot(
+        "create_common_rooms_cover_color_red",
+      );
+      await myRooms.roomsCreateDialog.setRoomCoverColor(".sc-fbKhjd.dRRCCA");
+      await screenshot.expectHaveScreenshot(
+        "create_common_rooms_cover_color_orange",
+      );
+      await myRooms.roomsCreateDialog.setRoomCoverColor(".sc-fbKhjd.fQFbbT");
+      await screenshot.expectHaveScreenshot(
+        "create_common_rooms_cover_color_yellow",
+      );
+      await myRooms.roomsCreateDialog.setRoomCoverColor(".sc-fbKhjd.jCkA-De");
+      await screenshot.expectHaveScreenshot(
+        "create_common_rooms_cover_color_green",
+      );
+      await myRooms.roomsCreateDialog.setRoomCoverColor(".sc-fbKhjd.doREMi");
+      await screenshot.expectHaveScreenshot(
+        "create_common_rooms_cover_color_cyan",
+      );
+      await myRooms.roomsCreateDialog.setRoomCoverColor(".sc-fbKhjd.jpEyUp");
+      await screenshot.expectHaveScreenshot(
+        "create_common_rooms_cover_color_light_blue",
+      );
+      await myRooms.roomsCreateDialog.setRoomCoverColor(".sc-fbKhjd.ikQHKR");
+      await screenshot.expectHaveScreenshot(
+        "create_common_rooms_cover_color_blue",
+      );
+      await myRooms.roomsCreateDialog.setRoomCoverColor(".sc-fbKhjd.dpvPpt");
+      await screenshot.expectHaveScreenshot(
+        "create_common_rooms_cover_color_purple",
+      );
+      await myRooms.roomsCreateDialog.setRoomCoverColor(".sc-fbKhjd.lbYcxL");
+      await screenshot.expectHaveScreenshot(
+        "create_common_rooms_cover_color_pink",
+      );
 
       await page.mouse.dblclick(1, 1); // close all dialogs
 
@@ -233,10 +248,7 @@ test.describe("Rooms", () => {
       await myRooms.moveToArchive();
       await myRooms.removeToast(
         roomToastMessages.roomArchived(duplicateRoomName),
-      await myRooms.removeToast(
-        roomToastMessages.roomArchived(duplicateRoomName),
       );
-      await myRooms.roomsTable.checkRowNotExist(duplicateRoomName);
       await myRooms.roomsTable.checkRowNotExist(duplicateRoomName);
     });
 
