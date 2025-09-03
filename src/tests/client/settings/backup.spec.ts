@@ -18,7 +18,7 @@ test.describe("Backup portal tests", () => {
   test.beforeEach(async ({ page, login, payments, services }) => {
     screenshot = new Screenshot(page, {
       screenshotDir: "backup",
-      fullPage: true,
+      fullPage: false,
     });
 
     backup = new Backup(page);

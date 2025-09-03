@@ -137,7 +137,7 @@ test.describe("Services tests", () => {
 
     await test.step("stripe link", async () => {
       const page1Promise = page.waitForEvent("popup");
-      await payments.stripeCustomerPortalLink.click({ force: true });
+      await payments.stripeCustomerPortalLink.click();
       const page1 = await page1Promise;
       await page1.waitForURL("https://billing.stripe.com/p/session/*");
       await expect(page1).toHaveURL(/billing.stripe.com/);

@@ -63,7 +63,7 @@ export class Payments extends BasePage {
   }
 
   get stripeCustomerPortalLink() {
-    return this.page.getByTestId('stripe_customer_portal_link');
+    return this.page.getByTestId('stripe_customer_portal_link').filter({ hasText: 'go to the Stripe customer portal'});
   }
 
   get configureDocSpaceLink() {
@@ -523,5 +523,6 @@ export class Payments extends BasePage {
     await this.openTab(paymentsTab.tariffPlan);
     await this.upgradeButton.click();
     await this.upgradePlanConfirmButton.click();
+    await expect(this.page.locator('#sectionScroll')).toContainText('You are using Business plan');
   }
 }
