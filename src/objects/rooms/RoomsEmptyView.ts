@@ -35,6 +35,16 @@ class RoomsEmptyView {
   async openCreateDialog() {
     await this.createNewRoom.click();
   }
+
+  async createFile(fileName: string) {
+    await this.page.getByRole("button", { name: /actions/i }).click();
+    await this.page.getByRole("menuitem", { name: "Document" }).click();
+    const nameInput = this.page.locator('input[data-testid="text-input"]');
+    await nameInput.fill(fileName);
+    await this.page
+      .locator('button[type="submit"][aria-label="Create"]')
+      .click();
+  }
 }
 
 export default RoomsEmptyView;
