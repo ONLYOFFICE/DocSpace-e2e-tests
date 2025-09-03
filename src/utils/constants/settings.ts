@@ -6,6 +6,7 @@ const navItems = {
   payments: "Payments",
   developerTools: "Developer Tools",
   services: "Services",
+  storageManagement: "Storage Management",
 } as const;
 
 const mapBackupMethodsIds = {

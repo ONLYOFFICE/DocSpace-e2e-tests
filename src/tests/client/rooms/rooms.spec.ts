@@ -73,6 +73,45 @@ test.describe("Rooms", () => {
 
       await myRooms.roomsCreateDialog.openRoomCover();
       await screenshot.expectHaveScreenshot("create_common_rooms_cover");
+
+      //Rooms cover change color tests starts here
+      await myRooms.roomsCreateDialog.setRoomCoverColor(".sc-fbKhjd");
+      await screenshot.expectHaveScreenshot(
+        "create_common_rooms_cover_color_red",
+      );
+      await myRooms.roomsCreateDialog.setRoomCoverColor(".sc-fbKhjd.dRRCCA");
+      await screenshot.expectHaveScreenshot(
+        "create_common_rooms_cover_color_orange",
+      );
+      await myRooms.roomsCreateDialog.setRoomCoverColor(".sc-fbKhjd.fQFbbT");
+      await screenshot.expectHaveScreenshot(
+        "create_common_rooms_cover_color_yellow",
+      );
+      await myRooms.roomsCreateDialog.setRoomCoverColor(".sc-fbKhjd.jCkA-De");
+      await screenshot.expectHaveScreenshot(
+        "create_common_rooms_cover_color_green",
+      );
+      await myRooms.roomsCreateDialog.setRoomCoverColor(".sc-fbKhjd.doREMi");
+      await screenshot.expectHaveScreenshot(
+        "create_common_rooms_cover_color_cyan",
+      );
+      await myRooms.roomsCreateDialog.setRoomCoverColor(".sc-fbKhjd.jpEyUp");
+      await screenshot.expectHaveScreenshot(
+        "create_common_rooms_cover_color_light_blue",
+      );
+      await myRooms.roomsCreateDialog.setRoomCoverColor(".sc-fbKhjd.ikQHKR");
+      await screenshot.expectHaveScreenshot(
+        "create_common_rooms_cover_color_blue",
+      );
+      await myRooms.roomsCreateDialog.setRoomCoverColor(".sc-fbKhjd.dpvPpt");
+      await screenshot.expectHaveScreenshot(
+        "create_common_rooms_cover_color_purple",
+      );
+      await myRooms.roomsCreateDialog.setRoomCoverColor(".sc-fbKhjd.lbYcxL");
+      await screenshot.expectHaveScreenshot(
+        "create_common_rooms_cover_color_pink",
+      );
+
       await page.mouse.dblclick(1, 1); // close all dialogs
 
       await myRooms.createRooms();
@@ -97,6 +136,9 @@ test.describe("Rooms", () => {
       await myRooms.removeToast(
         roomToastMessages.templateSaved(roomTemplateTitles.roomTemplate),
       );
+      await myRooms.removeToast(
+        roomToastMessages.templateSaved(roomTemplateTitles.roomTemplate),
+      );
       await myRooms.roomsEmptyView.checkEmptyRoomExist(roomCreateTitles.public);
       await myRooms.backToRooms();
       await myRooms.roomsTable.checkRowExist(roomTemplateTitles.roomTemplate);
@@ -113,6 +155,11 @@ test.describe("Rooms", () => {
         templateContextMenuOption.createRoom,
       );
       await myRooms.roomsCreateDialog.createPublicRoomFromTemplate();
+      await myRooms.removeToast(
+        roomToastMessages.baseOnTemplateCreated(
+          roomTemplateTitles.fromTemplate,
+        ),
+      );
       await myRooms.removeToast(
         roomToastMessages.baseOnTemplateCreated(
           roomTemplateTitles.fromTemplate,
@@ -155,11 +202,13 @@ test.describe("Rooms", () => {
         roomContextMenuOption.disableNotifications,
       );
       await myRooms.removeToast(roomToastMessages.notifyDisabled);
+      await myRooms.removeToast(roomToastMessages.notifyDisabled);
 
       await myRooms.roomsTable.openContextMenu(roomCreateTitles.public);
       await myRooms.roomsTable.clickContextMenuOption(
         roomContextMenuOption.pinToTop,
       );
+      await myRooms.removeToast(roomToastMessages.pinned);
       await myRooms.removeToast(roomToastMessages.pinned);
       await myRooms.roomsTable.checkRoomPinnedToTopExist();
 
@@ -167,6 +216,7 @@ test.describe("Rooms", () => {
       await myRooms.roomsTable.clickContextMenuOption(
         roomContextMenuOption.editRoom,
       );
+      await myRooms.roomsEditDialog.checkDialogTitleExist();
       await myRooms.roomsEditDialog.checkDialogTitleExist();
       await screenshot.expectHaveScreenshot("edit_room_dialog");
       await myRooms.roomsEditDialog.fillRoomName("Edited room");
@@ -183,9 +233,14 @@ test.describe("Rooms", () => {
         roomToastMessages.duplicate(roomCreateTitles.public),
       );
       await myRooms.roomsTable.checkRowExist(duplicateRoomName);
+      await myRooms.removeToast(
+        roomToastMessages.duplicate(roomCreateTitles.public),
+      );
+      await myRooms.roomsTable.checkRowExist(duplicateRoomName);
     });
 
     await test.step("MoveToArchive", async () => {
+      await myRooms.roomsTable.openContextMenu(duplicateRoomName);
       await myRooms.roomsTable.openContextMenu(duplicateRoomName);
       await myRooms.roomsTable.clickContextMenuOption(
         roomContextMenuOption.moveToArchive,
@@ -263,10 +318,18 @@ test.describe("Rooms", () => {
       await myRooms.roomsFilter.openDropdownSortBy();
       await screenshot.expectHaveScreenshot("sort_dropdown");
       await myRooms.roomsFilter.selectSortByType();
+      await myRooms.roomsFilter.selectSortByType();
       await screenshot.expectHaveScreenshot("sort_by_type");
     });
 
     await test.step("Search", async () => {
+      await myRooms.roomsFilter.fillRoomsSearchInputAndCheckRequest(
+        roomCreateTitles.collaboration,
+      );
+      await myRooms.roomsTable.checkRowExist(roomCreateTitles.collaboration);
+      await screenshot.expectHaveScreenshot("search_collaboration_room");
+      await myRooms.roomsFilter.clearSearchText();
+      await myRooms.roomsTable.checkRowExist(roomCreateTitles.public);
       await myRooms.roomsFilter.fillRoomsSearchInputAndCheckRequest(
         roomCreateTitles.collaboration,
       );

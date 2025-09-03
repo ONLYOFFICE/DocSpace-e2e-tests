@@ -66,6 +66,7 @@ class Screenshot {
   ) {
     if (safe) {
       await this.page.mouse.move(1, 1);
+      await this.page.mouse.move(1, 1);
     }
 
     const originalViewport = this.page.viewportSize();
@@ -76,6 +77,11 @@ class Screenshot {
 
     const screenshotName = this.getScreenshotName(comment);
 
+    await this.tryScreenshot(screenshotName, playwrightOptions);
+
+    if (this.options.fullPage && originalViewport) {
+      await this.page.setViewportSize(originalViewport);
+    }
     await this.tryScreenshot(screenshotName, playwrightOptions);
 
     if (this.options.fullPage && originalViewport) {
