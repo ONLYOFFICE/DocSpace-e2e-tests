@@ -1,25 +1,42 @@
-import { expect, Page, Locator } from "@playwright/test";
+import {Page} from "@playwright/test";
 
-const CHECK_READY_FORM = "Check ready forms";
-const BACK_TO_ROOM = "Back to room";
-const FILL_IT_OUT_AGAIN = "Fill it out again";
+const CHECK_READY_FORM = "goto_complete_folder_button";
+const BACK_TO_ROOM = "back_to_room_button";
+const FILL_IT_OUT_AGAIN = "fill_again_link";
 
 class RoomPDFCompleted {
   private page: Page;
-  private backToRoomButton: Locator;
 
   constructor(page: Page) {
     this.page = page;
-    this.backToRoomButton = page.locator('button:has-text("Back to room")');
   }
 
   setPdfPage(page: Page) {
     this.page = page;
-    this.backToRoomButton = page.locator('button:has-text("Back to room")');
+  }
+
+  private get backToRoomButton() {
+    return this.page.getByTestId(BACK_TO_ROOM);
   }
 
   async chooseBackToRoom() {
-    await this.backToRoomButton.click();
+     await this.backToRoomButton.click();
+  }
+
+  private get fillItOutAgainButton() {
+    return this.page.getByTestId(FILL_IT_OUT_AGAIN);
+  }
+
+  async chooseFillItOutAgain() {
+    await this.fillItOutAgainButton.click();
+  }
+
+  private get checkReadyFormButton() {
+    return this.page.getByTestId(CHECK_READY_FORM);
+  }
+
+  async checkReadyForm() {
+    await this.checkReadyFormButton.click();
   }
 }
 

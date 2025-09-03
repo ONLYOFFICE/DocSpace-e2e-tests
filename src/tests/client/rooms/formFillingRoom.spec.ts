@@ -10,7 +10,6 @@ import MyRooms from "@/src/objects/rooms/Rooms";
 import FilesPdfForm from "@/src/objects/files/FilesPdfForm";
 import RoomPDFCompleted from "@/src/objects/rooms/RoomPDFCompleted";
 import { Profile } from "@/src/objects/profile/Profile";
-import FilesArticle from "@/src/objects/files/FilesArticle";
 import MyDocuments from "@/src/objects/files/MyDocuments";  
 import InfoPanel from "@/src/objects/common/InfoPanel";
 import path from 'path';
@@ -21,8 +20,6 @@ test.describe("Rooms", () => {
   let page: Page;
   let login: Login;
   let screenshot: Screenshot;
-  let filesArticle: FilesArticle;
-  let filesPdfForm: FilesPdfForm;
   let formFillingRoom: FormFillingRoom;
   let shortTour: ShortTour;
   let myRooms: MyRooms;
@@ -49,8 +46,6 @@ test.describe("Rooms", () => {
     shortTour = new ShortTour(page);
     myDocuments = new MyDocuments(page, api.portalDomain);
     roomPDFCompleted = new RoomPDFCompleted(page);
-    filesArticle = new FilesArticle(page);
-    filesPdfForm = new FilesPdfForm(page);
     profile = new Profile(page);
     await login.loginToPortal();
   });
@@ -70,6 +65,7 @@ test("FormFillingRoom - Take A Tour", async () => {
       await shortTour.clickNextStep();
       await shortTour.checkStep("fifthStep");
       await shortTour.clickNextStep();
+      await formFillingRoom.infoPanel.close();
       await screenshot.expectHaveScreenshot("form_filling_room_after_completing_of_the_tour");
     });
 
@@ -161,7 +157,7 @@ test("FormFillingRoom - Submit Not Filling PDF Form", async () => {
       pdfForm.setPdfPage(page2);
       completedForm.setPdfPage(page2);
       formFillingRoom.setPage(page2);
-      await pdfForm.submit();
+      await pdfForm.clickSubmitButton();
       await completedForm.chooseBackToRoom();
       await page2.waitForLoadState('networkidle', { timeout: 2000 }).catch(() => {
         console.warn('networkidle did not happen in 2 seconds, continue testing');
@@ -186,18 +182,18 @@ test("FormFillingRoom - Submit Not Filling PDF Form", async () => {
       const sizeNum = await infoPanel.getSizeInBytes();
       await expect(sizeNum).toBeGreaterThan(0);
     });
-    // uncommit test after fix Bug 76134
-    // await test.step("OpenXlsxFile", async () => {
-    //   const item = page2.locator('[aria-label="ONLYOFFICE Resume Sample,"]');
-    //   await formFillingRoom.filesTable.openContextMenuRow(item);
-    //   await formFillingRoom.filesTable.contextMenu.clickOption("Preview");
-    //   page3 = await page2.waitForEvent('popup');
-    //   await page3.waitForLoadState('networkidle', { timeout: 10000 }).catch(() => {
-    //     console.warn('networkidle did not happen in 10 seconds, continue testing');
-    //   });
-    //   const screenshot = new Screenshot(page3, { screenshotDir: "rooms" });
-    //   await screenshot.expectHaveScreenshot("opened_xlsx_file");
-    // });
+  
+    await test.step("OpenXlsxFile", async () => {
+      const item = page2.locator('[aria-label="ONLYOFFICE Resume Sample,"]');
+      await formFillingRoom.filesTable.openContextMenuRow(item);
+      await formFillingRoom.filesTable.contextMenu.clickOption("Preview");
+      page3 = await page2.waitForEvent('popup');
+      await page3.waitForLoadState('networkidle', { timeout: 10000 }).catch(() => {
+        console.warn('networkidle did not happen in 10 seconds, continue testing');
+      });
+      const screenshot = new Screenshot(page3, { screenshotDir: "rooms" });
+      await screenshot.expectHaveScreenshot("opened_xlsx_file");
+    });
   });
 
 test.afterAll(async ({ browser }) => {

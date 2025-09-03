@@ -15,5 +15,20 @@ class RoomsSelectPanel extends BaseSelector {
     await expect(this.page.getByLabel("Select")).toBeVisible();
     await this.page.getByLabel('Select').click();
   }
+  
+  async select(type: "resent" | "documents" | "rooms") {
+    const selectors = {
+        "documents": 'selector-item-0',
+        "resent": 'selector-item-1',
+        "rooms": 'selector-item-2'
+    };
+
+    const selector = selectors[type];
+    if (!selector) {
+        throw new Error(`Unknown selector type: ${type}`);
+    }
+
+    await this.selector.getByTestId(selector).click();
+}
 }
 export default RoomsSelectPanel;
