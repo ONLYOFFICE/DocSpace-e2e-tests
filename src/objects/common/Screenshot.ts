@@ -46,6 +46,7 @@ class Screenshot {
     };
   }
 
+  // Set viewport size to full scroll page size
   private async setViewportSize() {
     const { height, width } = await this.getPageSize();
     await this.page.setViewportSize({ height, width });
@@ -66,24 +67,20 @@ class Screenshot {
   ) {
     if (safe) {
       await this.page.mouse.move(1, 1);
-      await this.page.mouse.move(1, 1);
     }
 
     const originalViewport = this.page.viewportSize();
 
+    const screenshotName = this.getScreenshotName(comment);
+
+    // Set full scroll page size if needed
     if (this.options.fullPage) {
       await this.setViewportSize();
     }
 
-    const screenshotName = this.getScreenshotName(comment);
-
     await this.tryScreenshot(screenshotName, playwrightOptions);
 
-    if (this.options.fullPage && originalViewport) {
-      await this.page.setViewportSize(originalViewport);
-    }
-    await this.tryScreenshot(screenshotName, playwrightOptions);
-
+    // Restore original viewport size
     if (this.options.fullPage && originalViewport) {
       await this.page.setViewportSize(originalViewport);
     }
