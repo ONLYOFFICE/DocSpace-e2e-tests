@@ -46,6 +46,7 @@ class Screenshot {
     };
   }
 
+  // Set viewport size to full scroll page size
   private async setViewportSize() {
     const { height, width } = await this.getPageSize();
     await this.page.setViewportSize({ height, width });
@@ -72,12 +73,14 @@ class Screenshot {
 
     const screenshotName = this.getScreenshotName(comment);
 
+    // Set full scroll page size if needed
     if (this.options.fullPage) {
       await this.setViewportSize();
     }
 
     await this.tryScreenshot(screenshotName, playwrightOptions);
 
+    // Restore original viewport size
     if (this.options.fullPage && originalViewport) {
       await this.page.setViewportSize(originalViewport);
     }
