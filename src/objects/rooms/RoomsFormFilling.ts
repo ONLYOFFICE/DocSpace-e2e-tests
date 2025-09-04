@@ -100,6 +100,8 @@ class FormFillingRoom {
     await this.page.waitForSelector(".title-block");
     await this.filesTable.openContextMenuForItem(folderName);    
     await this.filesTable.contextMenu.clickOption("Open");
+    await this.page.waitForTimeout(500);
+    
   }
 }
 export default FormFillingRoom;

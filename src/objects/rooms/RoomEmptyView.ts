@@ -4,6 +4,7 @@ import BaseToast from "../common/BaseToast";
 const UPLOAD_FORM_DOCSPACE = "#upload-pdf-form";
 const UPLOAD_FORM_DEVICE = "#create-form";
 const SHARE_ROOM = "#share-room";
+const EMPTY_VIEW = "empty-view"; 
 
 class RoomEmptyView {
   page: Page;
@@ -21,7 +22,16 @@ class RoomEmptyView {
   private get shareRoomButton() {
     return this.page.locator(SHARE_ROOM);
   }
-   async uploadPdfFromDocSpace() {
+  
+  private get emptyView() {
+    return this.page.getByTestId(EMPTY_VIEW);
+  }
+
+  async checkEmptyView() {
+    await expect(this.emptyView).toBeVisible();
+  }
+
+  async uploadPdfFromDocSpace() {
     await expect(this.uploadPdfFromDocSpaceButton).toBeVisible();
     await this.uploadPdfFromDocSpaceButton.click();
   }
@@ -45,7 +55,6 @@ class RoomEmptyView {
   async shareRoomClick() {
     await expect(this.shareRoomButton).toBeVisible();
     await this.shareRoomButton.click();
-    await this.toast.removeToast();
   }
 }
 

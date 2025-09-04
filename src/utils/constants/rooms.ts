@@ -71,6 +71,7 @@ export const roomToastMessages = {
   notifyEnabled: "Room notifications enabled",
   roomsArchived: "The rooms are archived",
   selectedTemplatesDeleted: "Selected room templates have been deleted",
+  linkCopied: "Link copied to clipboard",
 
   duplicate: (folderName: string) =>
     `The folder ${folderName} successfully duplicated`,

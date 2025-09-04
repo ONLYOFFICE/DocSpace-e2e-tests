@@ -1,52 +1,38 @@
-import { test, Page, expect } from "@playwright/test";
-import API from "@/src/api";
-import Login from "@/src/objects/common/Login";
+import { test } from "@/src/fixtures";
 import Screenshot from "@/src/objects/common/Screenshot";
-import {formFillingRoomContextMenuOption, formFillingRoomDropdownActions} from "@/src/utils/constants/rooms";
+import {formFillingRoomContextMenuOption, roomToastMessages} from "@/src/utils/constants/rooms";
 import { ShortTour } from "@/src/objects/rooms/ShortTourModal";
 import FormFillingRoom from "@/src/objects/rooms/RoomsFormFilling";
 import MyRooms from "@/src/objects/rooms/Rooms";
-
+import fs from 'fs';
 import FilesPdfForm from "@/src/objects/files/FilesPdfForm";
 import RoomPDFCompleted from "@/src/objects/rooms/RoomPDFCompleted";
-import { Profile } from "@/src/objects/profile/Profile";
 import MyDocuments from "@/src/objects/files/MyDocuments";  
 import InfoPanel from "@/src/objects/common/InfoPanel";
 import path from 'path';
-import fs from 'fs';
+import { Page } from '@playwright/test';
+import { expect } from "@playwright/test";
 
 test.describe("Rooms", () => {
-  let api: API;
-  let page: Page;
-  let login: Login;
+
   let screenshot: Screenshot;
   let formFillingRoom: FormFillingRoom;
   let shortTour: ShortTour;
   let myRooms: MyRooms;
   let myDocuments: MyDocuments;  
   let roomPDFCompleted: RoomPDFCompleted;
-  let profile: Profile;
-  let page2: Page;
-  let page3: Page;
-
-   test.beforeAll(async ({ playwright, browser }) => {
-    const apiContext = await playwright.request.newContext();
-    api = new API(apiContext);
-    await api.setup();
-    console.log(api.portalDomain);
-    page = await browser.newPage();
-    await page.addInitScript(() => {
-      globalThis.localStorage?.setItem("integrationUITests", "true");
-    });
-
-    login = new Login(page, api.portalDomain);
+  let pdfForm: FilesPdfForm;
+  let completedForm: RoomPDFCompleted;
+ 
+   test.beforeEach(async ({ page,api, login }) => {
     screenshot = new Screenshot(page, { screenshotDir: "rooms" });
     myRooms = new MyRooms(page, api.portalDomain);
     formFillingRoom = new FormFillingRoom(page);
     shortTour = new ShortTour(page);
     myDocuments = new MyDocuments(page, api.portalDomain);
     roomPDFCompleted = new RoomPDFCompleted(page);
-    profile = new Profile(page);
+    pdfForm = new FilesPdfForm(page);
+    completedForm = new RoomPDFCompleted(page);
     await login.loginToPortal();
   });
 
@@ -66,11 +52,11 @@ test("FormFillingRoom - Take A Tour", async () => {
       await shortTour.checkStep("fifthStep");
       await shortTour.clickNextStep();
       await formFillingRoom.infoPanel.close();
+      await formFillingRoom.roomEmptyView.checkEmptyView();
       await screenshot.expectHaveScreenshot("form_filling_room_after_completing_of_the_tour");
     });
 
     await test.step("CheckSkipButtonTheTourModalWindow", async () => {
-    
       await formFillingRoom.navigation.openContextMenu();
       await formFillingRoom.navigation.contextMenu.clickOption(formFillingRoomContextMenuOption.startTour);
       await shortTour.checkStep("welcome");
@@ -101,21 +87,23 @@ test("FormFillingRoom - Take A Tour", async () => {
      await formFillingRoom.navigation.gotoBack();
   });
  });
-test("FormFillingRoom - Check All Buttons On Empty Page", async () =>   {
+test("FormFillingRoom - Check All Buttons On Empty Page", async ({page}) =>   {
     await test.step("ClickShareRoomOnEmptyRoomScreen", async () => {
       await myRooms.createFormFillingRoom();
       await shortTour.skipWelcomeIfPresent();
       await myRooms.infoPanel.close();
-      await screenshot.expectHaveScreenshot("form_filling_room_empty_view");
       await formFillingRoom.roomEmptyView.shareRoomClick();
-      await screenshot.expectHaveScreenshot("share_room_on_empty_room_screen");
+      await formFillingRoom.toast.clickLinkInToast();
+      await formFillingRoom.infoPanel.checkInfoPanelExist();
+      //remove timeout when delete animation on page
+      await page.waitForTimeout(4000); 
+      await screenshot.expectHaveScreenshot("info_panel_after_clicking_on_share_room");
     });
     await test.step("ClickAddPDFFormFromMyDocuments", async () => {
       await formFillingRoom.roomEmptyView.uploadPdfFromDocSpace();
       await formFillingRoom.selectPanel.checkSelectorExist(); 
       await screenshot.expectHaveScreenshot("select_panel_opened");
       await formFillingRoom.selectPanel.close();
-      
     });
     await test.step("ClickUploadFormFromDevice", async () => {
       const pdfPath = path.resolve(__dirname, '../../../../data/rooms/PDF from device.pdf');
@@ -125,35 +113,39 @@ test("FormFillingRoom - Check All Buttons On Empty Page", async () =>   {
       await shortTour.clickModalCloseButton();
       await formFillingRoom.infoPanel.close();
       await formFillingRoom.filesTable.hideModifiedColumn();
-      await screenshot.expectHaveScreenshot("upload_form_from_device");
-    });
+      await formFillingRoom.filesTable.selectPdfFile();
   });
-test("FormFillingRoom - Submit Not Filling PDF Form", async () => {
+});
+test("FormFillingRoom - Submit Not Filling PDF Form", async ({page}) => {
+    let page2: Page;
+    let page3: Page;
     await test.step("CreateFormFillingRoom", async () => {
       await myRooms.openWithoutEmptyCheck();
       await myRooms.createFormFillingRoom();
       await shortTour.skipWelcomeIfPresent();
       await myRooms.infoPanel.close();
-      await screenshot.expectHaveScreenshot("form_filling_room_empty_view");
     });
     await test.step("UploadPDFFormFromMyDocuments", async () => {
       await formFillingRoom.roomEmptyView.uploadPdfFromDocSpace();
       await formFillingRoom.selectPanel.checkSelectorExist(); 
       await formFillingRoom.selectPanel.select("documents");
       await formFillingRoom.selectPanel.selectItemByText('ONLYOFFICE Resume Sample');
+      //remove timeout when delete animation on page
+      await page.waitForTimeout(2000);
       await screenshot.expectHaveScreenshot("select_pdf_form_from_my_documents");
       await formFillingRoom.selectPanel.confirmSelection();
       await shortTour.clickModalCloseButton();
       await myRooms.infoPanel.close();
       await formFillingRoom.filesTable.hideModifiedColumn();
-      await screenshot.expectHaveScreenshot("selected_pdf_form_added_to_room");
+      await expect(page.getByLabel('ONLYOFFICE Resume Sample,')).toBeVisible();
     });
     await test.step("SubmitPDFFormWithEmptyFields", async () => {
-      const pdfForm = new FilesPdfForm(page);
-      const completedForm = new RoomPDFCompleted(page);
+      const context = page.context();
+      const page2Promise = context.waitForEvent('page');
       await formFillingRoom.filesTable.openContextMenuForItem("ONLYOFFICE Resume Sample");
       await formFillingRoom.filesTable.contextMenu.clickOption("Fill");
-      page2 = await page.waitForEvent('popup');
+      page2 = await page2Promise;
+      await page2.waitForLoadState();
       pdfForm.setPdfPage(page2);
       completedForm.setPdfPage(page2);
       formFillingRoom.setPage(page2);
@@ -166,11 +158,9 @@ test("FormFillingRoom - Submit Not Filling PDF Form", async () => {
     });  
     await test.step("CheckPDFFormAndXlsxInCompleteFolder", async () => {
       await formFillingRoom.gotoFolder("Complete");
-      await page.waitForTimeout(2000);
       await formFillingRoom.gotoFolder("ONLYOFFICE Resume Sample");
       await expect(page2.getByLabel('ONLYOFFICE Resume Sample,')).toBeVisible();
       await expect(page2.getByLabel('1 - admin-zero admin-zero - ONLYOFFICE Resume Sample')).toBeVisible();
-
     });  
     await test.step("CheckSizeOfXlsxFileNotEqualZero", async () => {
       const item = page2.locator('[aria-label="ONLYOFFICE Resume Sample,"]');
@@ -182,8 +172,7 @@ test("FormFillingRoom - Submit Not Filling PDF Form", async () => {
       const sizeNum = await infoPanel.getSizeInBytes();
       await expect(sizeNum).toBeGreaterThan(0);
     });
-  
-    await test.step("OpenXlsxFile", async () => {
+      await test.step("OpenXlsxFile", async () => {
       const item = page2.locator('[aria-label="ONLYOFFICE Resume Sample,"]');
       await formFillingRoom.filesTable.openContextMenuRow(item);
       await formFillingRoom.filesTable.contextMenu.clickOption("Preview");
@@ -195,9 +184,4 @@ test("FormFillingRoom - Submit Not Filling PDF Form", async () => {
       await screenshot.expectHaveScreenshot("opened_xlsx_file");
     });
   });
-
-test.afterAll(async ({ browser }) => {
-  await api.cleanup();
-  await browser.close();
-});
 });

@@ -19,8 +19,9 @@ class RoomsSelectPanel extends BaseSelector {
   async select(type: "resent" | "documents" | "rooms") {
     const selectors = {
         "documents": 'selector-item-0',
-        "resent": 'selector-item-1',
-        "rooms": 'selector-item-2'
+        "favorite": 'selector-item-1',
+        "resent": 'selector-item-2',
+        "rooms": 'selector-item-3'
     };
 
     const selector = selectors[type];
