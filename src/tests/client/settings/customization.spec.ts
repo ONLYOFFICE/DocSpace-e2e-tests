@@ -170,6 +170,7 @@ test.describe("Customization", () => {
       // // Check for email with subject "Change of portal address"
       // const email = await mailChecker.checkEmailBySubject({
       //   subject: "Change of portal address",
+      //   timeoutSeconds: 30,
       //   moveOut: false,
       //   timeoutSeconds: 60,
       // });
@@ -180,6 +181,8 @@ test.describe("Customization", () => {
       //   );
       // }
 
+      // // Final verification
+      // expect(email).toBeTruthy();
       // // Final verification
       // expect(email).toBeTruthy();
 
@@ -261,6 +264,8 @@ test.describe("Customization", () => {
       //   moveOut: false,
       // });
 
+      // // Final verification
+      // expect(email).toBeTruthy();
       // // Final verification
       // expect(email).toBeTruthy();
     });
