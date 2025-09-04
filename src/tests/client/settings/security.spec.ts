@@ -141,7 +141,20 @@ test.describe("Security tests", () => {
       ).toHaveText("Successful Login via API", { timeout: 10000 });
       await screenshot.expectHaveScreenshot("login_history_view");
     });
+    // Moved to a separate spec (freezes in Firefox)
+    /*const banner = page.getByTestId("campaigns-banner");
+    await expect(banner).toBeVisible({ timeout: 10000 });
+    const currentUrl = page.url();
+    await banner.click();
+    await expect(page).toHaveURL(/\/portal-settings\/security\/access-portal/);
+    await page.goto(currentUrl);
+    const tfaHeader = page
+      .getByTestId("text")
+      .filter({ hasText: "Two-factor authentication" })
+      .first();
 
+    await expect(tfaHeader).toBeVisible();
+*/
     await test.step("Audit trail", async () => {
       await security.openTab("Audit Trail");
       await security.hideDateCells();
