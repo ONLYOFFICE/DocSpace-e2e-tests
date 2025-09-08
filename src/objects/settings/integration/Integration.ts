@@ -319,21 +319,19 @@ export class Integration extends BasePage {
   }
 
   get saveButtonServices() {
-    return this.page.getByRole("button", { name: "Enable" });
+    return this.page.getByTestId('consumer_dialog_enable_button');
   }
 
   get s3Switch() {
-    return this.page.locator('[data-consumer="s3"]');
+    return this.page.getByTestId('consumer_s3_item').getByTestId('toggle-button-container');
   }
 
   get s3AccessKey() {
-    return this.page.getByRole("textbox", { name: "S3 accesskey" });
+    return this.page.getByTestId('acesskey_input');
   }
 
   get s3SecretKey() {
-    return this.page.getByRole("textbox", {
-      name: "S3 secret access key",
-    });
+    return this.page.getByTestId('secretaccesskey_input');
   }
 
   get googleCloudJsonInput() {
@@ -557,7 +555,7 @@ export class Integration extends BasePage {
       throw new Error("AWS S3 configuration is not provided");
     }
 
-    await this.s3Switch.click();
+    await this.s3Switch.click({ force: true });
     await expect(this.s3AccessKey).toBeVisible();
     await screenshot?.expectHaveScreenshot("aws_s3_enable_dialog");
     await this.s3AccessKey.fill(config.S3_ACCESS_KEY);
