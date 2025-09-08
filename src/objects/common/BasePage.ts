@@ -14,7 +14,7 @@ export default class BasePage {
   }
 
   protected get optionsButton(): Locator {
-    return this.page.locator('[data-testid="icon-button"].option-button-icon');
+    return this.page.getByTestId('profile_user_icon_button');
   }
 
   protected get settingsMenuItem(): Locator {
