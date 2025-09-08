@@ -7,6 +7,7 @@
   },
   "scripts": {
     "start": "node scripts/playwright-test-runner.js",
+    "testUI": "npx playwright test --ui",
     "docker:build": "docker-compose build",
     "docker:start": "docker-compose run --rm tests-local npx playwright test",
     "docker:start:screenshots": "docker-compose run --rm tests-local npx playwright test --update-snapshots",
