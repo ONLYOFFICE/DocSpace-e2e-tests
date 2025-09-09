@@ -176,7 +176,7 @@ export class BackupLocators {
   }
 
   get okButton() {
-    return this.page.getByTestId('delete_third_party_button').nth(1);
+    return this.page.getByTestId('delete_third_party_button');
   }
 
   get selectDropbox() {
