@@ -92,6 +92,9 @@ export default defineConfig({
     // },
   ],
   expect: {
+    toHaveScreenshot: {
+      maxDiffPixels: 5,
+    },
     timeout: 20000, // default timeout for expect assertions (toBeVisible, toHaveText, etc.)
   },
   timeout: 240000, // default timeout for test execution

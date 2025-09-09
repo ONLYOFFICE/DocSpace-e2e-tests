@@ -5,24 +5,34 @@ const navItems = {
   integration: "Integration",
   payments: "Payments",
   developerTools: "Developer Tools",
+  services: "Services",
   storageManagement: "Storage Management",
 } as const;
 
 const mapBackupMethodsIds = {
-  temporaryStorage: "#temporary-storage",
-  backupRoom: "#backup-room",
-  thirdPartyResource: "#third-party-resource",
-  thirdPartyStorage: "#third-party-storage",
+  temporaryStorage: 'temporary_storage_radio_button',
+  backupRoom: 'backup_room_radio_button',
+  thirdPartyResource: 'third_party_resource_radio_button',
+  thirdPartyStorage: 'third_party_storage_radio_button',
+} as const;
+
+const mapAutoBackupMethodsIds = {
+  backupRoom: 'auto_backup_room_radio_button',
+  thirdPartyResource: 'auto_backup_resource_radio_button',
+  thirdPartyStorage: 'auto_backup_storage_radio_button',
 } as const;
 
 type TBackupMethodsIds =
   (typeof mapBackupMethodsIds)[keyof typeof mapBackupMethodsIds];
 
+type TAutoBackupMethodsIds =
+  (typeof mapAutoBackupMethodsIds)[keyof typeof mapAutoBackupMethodsIds];
+
 const mapThirdPartyResource = {
-  nextcloud: "Nextcloud",
-  box: "Box",
-  dropbox: "Dropbox",
-} as const;
+    nextcloud: 'Nextcloud',
+    box: 'Box',
+    dropbox: 'Dropbox',
+  } as const;
 
 type TThirdPartyResource =
   (typeof mapThirdPartyResource)[keyof typeof mapThirdPartyResource];
@@ -36,11 +46,11 @@ type TThirdPartyStorage =
   (typeof mapThirdPartyStorage)[keyof typeof mapThirdPartyStorage];
 
 const integrationTabs = {
-  ldap: "LDAP Settings",
-  sso: "Single Sign-On",
-  plugins: "Plugins",
-  thirdPartyServices: "Third-party services",
-  smtp: "SMTP Settings",
+  ldap: 'ldap_tab',
+  sso: 'sso_tab',
+  plugins: 'plugins_tab',
+  thirdPartyServices: 'third-party-services_tab',
+  smtp: 'smtp-settings_tab',
 } as const;
 
 type TIntegrationTabs = (typeof integrationTabs)[keyof typeof integrationTabs];
@@ -54,16 +64,16 @@ const certificateType = {
 type TCertificateType = (typeof certificateType)[keyof typeof certificateType];
 
 const paymentsTab = {
-  tariffPlan: "Tariff plan",
-  wallet: "Wallet",
+  tariffPlan: 'portal-payments_tab',
+  wallet: 'wallet_tab',
 };
 
 type TPaymentsTab = (typeof paymentsTab)[keyof typeof paymentsTab];
 
 const transactionHistoryFilter = {
-  allTransactions: "All transactions",
-  credit: "Credit",
-  debit: "Debit",
+  allTransactions: 'all_transactions_option',
+  credit: 'credit_transactions_option',
+  debit: 'debit_transactions_option',
 } as const;
 
 type TTransactionHistoryFilter =
@@ -102,7 +112,9 @@ const toastMessages = {
 export {
   navItems,
   TBackupMethodsIds,
+  TAutoBackupMethodsIds,
   mapBackupMethodsIds,
+  mapAutoBackupMethodsIds,
   TThirdPartyResource,
   mapThirdPartyResource,
   TThirdPartyStorage,
