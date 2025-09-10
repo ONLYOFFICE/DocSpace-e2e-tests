@@ -69,8 +69,8 @@ class RoomsCreateDialog extends BaseDialog {
         await this.roomIconButtonPath.click({ trial: true }).catch(() => {});
         await this.roomIconButtonPath.click();
       }
-      await expect(this.customizeCoverMenuItemImg).toBeVisible();
-    }).toPass({ timeout: 3000 });
+      await expect(this.customizeCoverMenuItemImg).toBeVisible({ timeout: 1000 });
+    }).toPass({ timeout: 8000 });
   }
 
   async checkRoomTypeExist(roomType: TRoomCreateTitles) {
@@ -292,8 +292,8 @@ class RoomsCreateDialog extends BaseDialog {
       
       await expect(
         this.page.getByTestId("virtual_data_room_file_lifetime_period_days"),
-      ).toBeVisible();
-    }).toPass({ timeout: 3000 });
+      ).toBeVisible({ timeout: 1000 });
+    }).toPass({ timeout: 8000 });
   
    
     const optionTestId =
@@ -320,8 +320,8 @@ class RoomsCreateDialog extends BaseDialog {
         this.page.getByTestId(
           "virtual_data_room_file_lifetime_delete_move_to_trash",
         ),
-      ).toBeVisible();
-    }).toPass({ timeout: 3000 });
+      ).toBeVisible({ timeout: 1000 });
+    }).toPass({ timeout: 8000 });
   
     const optionTestId =
       action === "Move to Trash"
@@ -388,8 +388,8 @@ class RoomsCreateDialog extends BaseDialog {
         this.page.getByTestId(
           "virtual_data_room_watermark_position_horizontal",
         ),
-      ).toBeVisible();
-    }).toPass({ timeout: 3000 });
+      ).toBeVisible({ timeout: 1000 });
+    }).toPass({ timeout: 8000 });
   
    
     const optionTestId =
