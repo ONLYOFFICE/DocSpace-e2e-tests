@@ -84,9 +84,10 @@ test.describe("Payments", () => {
       await payments.fillRequestData();
       await screenshot.expectHaveScreenshot("send_request_filled_fields");
       const [response] = await Promise.all([
-        page.waitForResponse(resp =>
-          resp.request().method() === 'POST' &&
-          resp.url().includes('/api/2.0/portal/payment/request')
+        page.waitForResponse(
+          (resp) =>
+            resp.request().method() === "POST" &&
+            resp.url().includes("/api/2.0/portal/payment/request"),
         ),
         payments.sendRequest(),
       ]);
@@ -182,20 +183,21 @@ test.describe("Payments", () => {
       await payments.fillAmountTopUpForServices();
 
       const [response] = await Promise.all([
-          page.waitForResponse(resp =>
-            resp.request().method() === 'GET' &&
-            resp.url().includes('/api/2.0/portal/payment/customer/balance')
-          ),
-          payments.topUpButton.click(),
-        ]);
-        expect(response.status()).toBe(200);
-        await payments.cancelAutomaticPaymentsButton.click();
-      });
+        page.waitForResponse(
+          (resp) =>
+            resp.request().method() === "GET" &&
+            resp.url().includes("/api/2.0/portal/payment/customer/balance"),
+        ),
+        payments.topUpButton.click(),
+      ]);
+      expect(response.status()).toBe(200);
+      await payments.cancelAutomaticPaymentsButton.click();
+    });
 
-      await test.step("Change tariff plan", async () => {
-        await payments.openTab(paymentsTab.tariffPlan);
-        await payments.changeTariffPlan();
-        await screenshot.expectHaveScreenshot("payment_business_plan");
-      });
+    await test.step("Change tariff plan", async () => {
+      await payments.openTab(paymentsTab.tariffPlan);
+      await payments.changeTariffPlan();
+      await screenshot.expectHaveScreenshot("payment_business_plan");
     });
   });
+});

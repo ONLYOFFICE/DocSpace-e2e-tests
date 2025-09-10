@@ -50,7 +50,7 @@ class BaseSelector {
         await this.selector.getByText("Back", { exact: true }).click();
         break;
       case "header":
-        await this.selector.getByTestId('selector-add-button').click();
+        await this.selector.getByTestId("selector-add-button").click();
         break;
       default:
         break;
