@@ -28,7 +28,7 @@ test.describe("Backup portal tests", () => {
     await backup.open();
   });
 
-  test("Manual backup", async ({ page }) => {
+  test("Manual backup", async () => {
     test.setTimeout(300000); // 5 min
     await test.step("Render", async () => {
       await screenshot.expectHaveScreenshot("render_data_backup");
