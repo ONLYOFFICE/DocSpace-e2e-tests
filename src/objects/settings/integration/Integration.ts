@@ -319,19 +319,21 @@ export class Integration extends BasePage {
   }
 
   get saveButtonServices() {
-    return this.page.getByTestId('consumer_dialog_enable_button');
+    return this.page.getByTestId("consumer_dialog_enable_button");
   }
 
   get s3Switch() {
-    return this.page.getByTestId('consumer_s3_item').getByTestId('toggle-button-container');
+    return this.page
+      .getByTestId("consumer_s3_item")
+      .getByTestId("toggle-button-container");
   }
 
   get s3AccessKey() {
-    return this.page.getByTestId('acesskey_input');
+    return this.page.getByTestId("acesskey_input");
   }
 
   get s3SecretKey() {
-    return this.page.getByTestId('secretaccesskey_input');
+    return this.page.getByTestId("secretaccesskey_input");
   }
 
   get googleCloudJsonInput() {
