@@ -37,6 +37,42 @@ class RoomsCreateDialog extends BaseDialog {
     return this.page.locator(LOGO_NAME_CONTAINER).getByTestId("dropdown");
   }
 
+  private get roomIconButtonPath() {
+    return this.page
+      .getByTestId('create_edit_room_icon')
+      .getByTestId('icon-button-svg')
+      .locator('path');
+  }
+  
+  private get customizeCoverMenuItemImg() {
+    
+    return this.page
+      .getByTestId('create_edit_room_customize_cover')
+      .getByRole('img');
+  }
+  
+  private get roomLogoCoverDialog() {
+    
+    return this.page.getByTestId('room_logo_cover_dialog');
+  }
+  
+  private get roomLogoCoverDialogHeaderText() {
+    
+    return this.roomLogoCoverDialog
+      .getByTestId('aside-header')
+      .getByTestId('text');
+  }
+
+  private async ensureIconMenuOpen() {
+    await expect(async () => {
+      if (!(await this.customizeCoverMenuItemImg.isVisible())) {
+        await this.roomIconButtonPath.click({ trial: true }).catch(() => {});
+        await this.roomIconButtonPath.click();
+      }
+      await expect(this.customizeCoverMenuItemImg).toBeVisible();
+    }).toPass({ timeout: 3000 });
+  }
+
   async checkRoomTypeExist(roomType: TRoomCreateTitles) {
     await expect(this.dialog.getByTitle(roomType)).toBeVisible();
   }
@@ -53,41 +89,34 @@ class RoomsCreateDialog extends BaseDialog {
   }
 
   async openRoomIconDropdown() {
-    await this.page.getByTestId('modal')
-      .getByTestId('room-icon')
-      .getByTestId('icon-button-svg')
-      .getByRole('img')
-      .click();
-    await expect(this.roomIconDropdown).toBeVisible();
+    await this.ensureIconMenuOpen();
   }
 
   async clickCustomizeCover() {
-    await this.roomIconDropdown.getByText("Customize cover").click();
+    if (!(await this.customizeCoverMenuItemImg.isVisible())) {
+      await this.ensureIconMenuOpen();
+    }
+    await this.customizeCoverMenuItemImg.click();
   }
 
   async openRoomCover() {
-    const isRoomIconDropdownVisible = await this.roomIconDropdown.isVisible();
-  
-    if (!isRoomIconDropdownVisible) {
-      await this.openRoomIconDropdown();
-    }
+    await this.ensureIconMenuOpen();
     await this.clickCustomizeCover();
-    await expect(this.page.getByText("Room cover")).toBeVisible();
-    await expect(
-      this.page.locator(".cover-icon-container svg").first()
-    ).toBeVisible();
+    await expect(this.roomLogoCoverDialogHeaderText).toBeVisible();
   }
 
+  /** @deprecated  use setRoomCoverColorByIndex**/
   async selectCoverColor() {
     await this.page.locator(".colors-container [color='#6191F2']").click();
   }
-
+ /** @deprecated use setRoomCoverIconByIndex**/
   async selectCoverIcon() {
     await this.page.locator(".cover-icon-container div").first().click();
   }
 
   async saveCover() {
     await this.page.getByRole("button", { name: "Apply" }).click();
+    await expect(this.roomLogoCoverDialog).toBeHidden({ timeout: 20000 });
   }
 
   async checkNoTemplatesFoundExist() {
@@ -112,10 +141,8 @@ class RoomsCreateDialog extends BaseDialog {
   }
 
   async fillRoomName(name: string) {
-    await this.fillInput(
-      this.page.getByRole("textbox", { name: "Name:" }),
-      name,
-    );
+    const input = this.page.getByTestId('create_edit_room_input');
+    await this.fillInput(input, name);
   }
 
   async fillTemplateName(name: string) {
@@ -259,8 +286,24 @@ class RoomsCreateDialog extends BaseDialog {
     const comboBox = this.page.getByTestId(
       "virtual_data_room_file_lifetime_period_combobox",
     );
-    await comboBox.click();
-    await this.page.getByRole("option", { name: unit }).click();
+    
+    await expect(async () => {
+      await comboBox.click();
+      
+      await expect(
+        this.page.getByTestId("virtual_data_room_file_lifetime_period_days"),
+      ).toBeVisible();
+    }).toPass({ timeout: 3000 });
+  
+   
+    const optionTestId =
+      unit === "Days"
+        ? "virtual_data_room_file_lifetime_period_days"
+        : unit === "Months"
+        ? "virtual_data_room_file_lifetime_period_months"
+        : "virtual_data_room_file_lifetime_period_years";
+  
+    await this.page.getByTestId(optionTestId).click();
     await expect(comboBox).toContainText(unit);
   }
 
@@ -270,8 +313,22 @@ class RoomsCreateDialog extends BaseDialog {
     const comboBox = this.page.getByTestId(
       "virtual_data_room_file_lifetime_delete_combobox",
     );
-    await comboBox.click();
-    await this.page.getByRole("option", { name: action }).click();
+    
+    await expect(async () => {
+      await comboBox.click();
+      await expect(
+        this.page.getByTestId(
+          "virtual_data_room_file_lifetime_delete_move_to_trash",
+        ),
+      ).toBeVisible();
+    }).toPass({ timeout: 3000 });
+  
+    const optionTestId =
+      action === "Move to Trash"
+        ? "virtual_data_room_file_lifetime_delete_move_to_trash"
+        : "virtual_data_room_file_lifetime_delete_permanently";
+  
+    await this.page.getByTestId(optionTestId).click();
     await expect(comboBox).toContainText(action);
   }
 
@@ -319,16 +376,33 @@ class RoomsCreateDialog extends BaseDialog {
     await expect(input).toHaveValue(text);
   }
 
-  async selectWatermarkPosition(position: string) {
+  async selectWatermarkPosition(position: "Horizontal" | "Diagonal") {
     const comboBox = this.page.getByTestId(
       "virtual_data_room_watermark_position_combobox",
     );
-    await comboBox.click();
-    await this.page.getByRole("option", { name: position }).click();
+  
+    
+    await expect(async () => {
+      await comboBox.click();
+      await expect(
+        this.page.getByTestId(
+          "virtual_data_room_watermark_position_horizontal",
+        ),
+      ).toBeVisible();
+    }).toPass({ timeout: 3000 });
+  
+   
+    const optionTestId =
+      position === "Horizontal"
+        ? "virtual_data_room_watermark_position_horizontal"
+        : "virtual_data_room_watermark_position_diagonal";
+  
+    await this.page.getByTestId(optionTestId).click();
+  
+    
     await expect(comboBox).toContainText(position);
   }
 
-  
 }
 
 export default RoomsCreateDialog;
