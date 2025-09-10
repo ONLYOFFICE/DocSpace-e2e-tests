@@ -3,7 +3,9 @@ import { expect, Page } from "@playwright/test";
 import {
   navItems,
   mapBackupMethodsIds,
+
   TBackupMethodsIds,
+  TAutoBackupMethodsIds,
   TThirdPartyResource,
   TThirdPartyStorage,
   toastMessages,
@@ -20,7 +22,7 @@ export class Backup extends BasePage {
   selector: BaseSelector;
   regionDropdown: BaseDropdown;
   thirdPartyDropdown: BaseDropdown;
-
+  autoThirdPartyDropdown: BaseDropdown;
   integration: Integration;
 
   constructor(page: Page) {
@@ -32,6 +34,9 @@ export class Backup extends BasePage {
     });
     this.thirdPartyDropdown = new BaseDropdown(page, {
       menu: this.locators.thirdPartyDropdown,
+    });
+    this.autoThirdPartyDropdown = new BaseDropdown(page, {
+      menu: this.locators.autoThirdPartyDropdown,
     });
     this.selector = new BaseSelector(page);
   }
@@ -54,7 +59,7 @@ export class Backup extends BasePage {
     );
   }
 
-  async openTab(tab: "Data backup" | "Automatic backup") {
+  async openTab(tab: "Data backup" | "auto-backup_tab") {
     await this.page.getByTestId(tab).click();
 
     switch (tab) {
@@ -62,7 +67,7 @@ export class Backup extends BasePage {
         await this.checkDataBackupExist();
         break;
 
-      case "Automatic backup":
+      case "auto-backup_tab":
         await this.checkAutoBackupExist();
         break;
 
@@ -86,10 +91,25 @@ export class Backup extends BasePage {
     await page1.close();
   }
 
+  async openAutoBackupGuide(hash: "CreatingBackup_block" | "AutoBackup") {
+    const page1Promise = this.page.waitForEvent("popup");
+    await this.locators.autoBackupGuideLink.click();
+    const page1 = await page1Promise;
+    await expect(page1).toHaveURL(
+      new RegExp(`.*\\.onlyoffice\\.com/docspace/configuration#${hash}`),
+    );
+    await page1.close();
+  }
+
   async openThirdPartyDropdown() {
     await this.locators.thirdPartyDropdownButton.click();
     await this.page.waitForTimeout(500);
   }
+
+  // async openThirdPartyDropdownAutoBackup() {
+  //   await this.locators.thirdPartyDropdownButtonAutoBackup.click();
+  //   await this.page.waitForTimeout(500);
+  // }
 
   async openRegionDropdown() {
     await this.locators.regionCombobox.click();
@@ -101,23 +121,16 @@ export class Backup extends BasePage {
   }
 
   async enableAutoBackup() {
-    if (await this.locators.autoBackupSwitch.isChecked()) {
-      return;
-    }
     await this.locators.autoBackupSwitch.click();
   }
 
   async disableAutoBackup() {
-    if (!(await this.locators.autoBackupSwitch.isChecked())) {
-      return;
-    }
     await this.locators.autoBackupSwitch.click();
     await this.locators.saveAutoBackupButton.click();
     await this.removeToast(toastMessages.settingsUpdated);
   }
 
   async selectDocuments() {
-    await this.locators.forwardDocSpace.click();
     await this.locators.forwardDocuments.click();
     await this.selector.checkSelectorAddButtonExist();
     await this.locators.selectButton.click();
@@ -199,7 +212,11 @@ export class Backup extends BasePage {
   }
 
   async selectBackupMethod(method: TBackupMethodsIds) {
-    await this.page.locator(method).click();
+    await this.page.getByTestId(method).click();
+  }
+
+  async selectAutoBackupMethod(method: TAutoBackupMethodsIds) {
+    await this.page.getByTestId(method).click();
   }
 
   async selectThirdPartyStorage(selection: TThirdPartyStorage) {
@@ -208,6 +225,10 @@ export class Backup extends BasePage {
 
   async selectThirdPartyResource(selection: TThirdPartyResource) {
     await this.thirdPartyDropdown.clickOption(selection);
+  }
+
+  async selectAutoThirdPartyResource(selection: TThirdPartyResource) {
+    await this.autoThirdPartyDropdown.clickOption(selection);
   }
 
   async fillConnectingAccount(url: string, login: string, password: string) {
@@ -237,28 +258,32 @@ export class Backup extends BasePage {
     await this.page.waitForTimeout(500); // temp plug
   }
 
-  async performActionOnResource(action: "Disconnect" | "Reconnect") {
-    await this.page.getByText(action, { exact: true }).click();
+  async openActionMenuResourceAutoBackup() {
+    await this.locators.actionMenuResourceAutoBackup.click();
+    await this.page.waitForTimeout(500); // temp plug
   }
 
-  async openDisconnectServiceDialog() {
-    await this.performActionOnResource("Disconnect");
-    await expect(
-      this.page.getByText("Disconnect cloud", { exact: true }).nth(1),
-    ).toBeVisible();
-  }
+  // async performActionOnResource(action: "Disconnect" | "Reconnect") {
+  //   await this.page.getByText(action, { exact: true }).click();
+  // }
 
-  async confirmDisconnectService() {
-    await this.page.getByLabel("OK").nth(1).click();
-    await expect(
-      this.page.getByText("Disconnect cloud", { exact: true }).nth(1),
-    ).toBeHidden();
-  }
+  // async openDisconnectServiceDialog() {
+  //   await this.performActionOnResource("Disconnect");
+  //   await expect(
+  //     this.page.getByText("Disconnect cloud", { exact: true }).nth(1),
+  //   ).toBeVisible();
+  // }
+
+  // async confirmDisconnectService() {
+  //   await this.page.getByLabel("OK").nth(1).click();
+  //   await expect(
+  //     this.page.getByText("Disconnect cloud", { exact: true }).nth(1),
+  //   ).toBeHidden();
+  // }
 
   async disconnectService() {
-    await this.openActionMenuResource();
-    await this.openDisconnectServiceDialog();
-    await this.confirmDisconnectService();
+    await this.locators.disconnectButton.click();
+    await this.locators.okButton.click();
   }
 
   async Dropbox() {
@@ -291,7 +316,7 @@ export class Backup extends BasePage {
   async createBackupInService() {
     await this.openRoomSelector();
     await this.locators.selectButton.click();
-    await this.locators.createCopyButton.click();
+    await this.locators.thirdPartyCreateCopyButton.click();
     await this.removeToast(toastMessages.backCopyCreated);
   }
 
@@ -306,7 +331,7 @@ export class Backup extends BasePage {
     await this.openRoomSelector();
     await this.selector.selectItemByIndex(0, true);
     await this.locators.saveHereButton.click();
-    await this.locators.saveButtonAutoBackup.click();
+    await this.locators.saveAutoBackupButton.click();
     await this.removeToast(toastMessages.settingsUpdated);
   }
 
@@ -330,5 +355,35 @@ export class Backup extends BasePage {
       .locator('button[data-target-id="Button-grantAccessButtonLabel"]')
       .click();
     await page1.waitForLoadState("domcontentloaded");
+  }
+
+  async connectBoxAutoBackup() {
+    if (!config.BOX_LOGIN || !config.BOX_PASS) {
+      throw new Error("Box configuration is missing");
+    }
+
+    const page1Promise = this.page.waitForEvent("popup");
+    await this.locators.connectButtonAutoBackup.click();
+    const page1 = await page1Promise;
+    await page1.waitForLoadState("load");
+    await page1.getByPlaceholder("Email").fill(config.BOX_LOGIN);
+    await expect(page1.getByPlaceholder("Email")).toHaveValue(config.BOX_LOGIN);
+    await page1.getByPlaceholder("Password").fill(config.BOX_PASS);
+    await expect(page1.getByPlaceholder("Password")).toHaveValue(
+      config.BOX_PASS,
+    );
+    await page1.locator('input[name="login_submit"]').click();
+    await page1
+      .locator('button[data-target-id="Button-grantAccessButtonLabel"]')
+      .click();
+    await page1.waitForLoadState("domcontentloaded");
+  }
+
+  async openThirdPartyServiceAutoBackup() {
+    await expect(this.locators.thirdPartyDropdownButtonAutoBackup).toBeVisible();
+    await expect(async () => {
+      await this.locators.thirdPartyDropdownButtonAutoBackup.click();
+      await expect(this.locators.autoThirdPartyDropdown).toBeVisible();
+    }).toPass();
   }
 }
