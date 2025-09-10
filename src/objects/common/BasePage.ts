@@ -14,15 +14,19 @@ export default class BasePage {
   }
 
   protected get optionsButton(): Locator {
-    return this.page.locator('[data-testid="icon-button"].option-button-icon');
+    return this.page.getByTestId("profile_user_icon_button");
   }
 
   protected get settingsMenuItem(): Locator {
-    return this.page.locator('[data-testid="user-menu-settings"]');
+    return this.page
+      .locator("li.p-menuitem a.p-menuitem-link")
+      .filter({ hasText: "Settings" });
   }
 
   protected get paymentsMenuItem(): Locator {
-    return this.page.locator('[data-testid="user-menu-payments"]');
+    return this.page
+      .locator("li.p-menuitem a.p-menuitem-link")
+      .filter({ hasText: "Payments" });
   }
 
   async removeToast(message?: string, timeout?: number) {
