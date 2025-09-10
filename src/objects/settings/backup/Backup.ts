@@ -3,7 +3,6 @@ import { expect, Page } from "@playwright/test";
 import {
   navItems,
   mapBackupMethodsIds,
-
   TBackupMethodsIds,
   TAutoBackupMethodsIds,
   TThirdPartyResource,
@@ -392,7 +391,9 @@ export class Backup extends BasePage {
   }
 
   async openThirdPartyServiceAutoBackup() {
-    await expect(this.locators.thirdPartyDropdownButtonAutoBackup).toBeVisible();
+    await expect(
+      this.locators.thirdPartyDropdownButtonAutoBackup,
+    ).toBeVisible();
     await expect(async () => {
       await this.locators.thirdPartyDropdownButtonAutoBackup.click();
       await expect(this.locators.autoThirdPartyDropdown).toBeVisible();
