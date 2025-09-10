@@ -323,7 +323,7 @@ export class Integration extends BasePage {
   }
 
   get s3Switch() {
-    return this.page.getByTestId('consumer_s3_item').getByTestId('toggle-button-container');
+    return this.page.getByTestId('consumer_s3_item').getByTestId('consumer_toggle_button').getByTestId('toggle-button-container');
   }
 
   get s3AccessKey() {
@@ -550,12 +550,19 @@ export class Integration extends BasePage {
     await this.removeToast(toastMessages.deactivatedSuccessfully);
   }
 
+
+  async s3SwitchClick() {
+    await expect(this.s3Switch).toBeVisible();
+    await expect(async () => {
+      await this.s3Switch.click();
+      await expect(this.s3AccessKey).toBeVisible();
+    }).toPass();
+  }
+
   async activateAWSS3(screenshot?: Screenshot) {
     if (!config.S3_ACCESS_KEY || !config.S3_SECRET_KEY) {
       throw new Error("AWS S3 configuration is not provided");
     }
-
-    await this.s3Switch.click({ force: true });
     await expect(this.s3AccessKey).toBeVisible();
     await screenshot?.expectHaveScreenshot("aws_s3_enable_dialog");
     await this.s3AccessKey.fill(config.S3_ACCESS_KEY);

@@ -112,9 +112,7 @@ test.describe("Backup portal tests", () => {
       );
       await backup.locators.saveButton.click();
       await backup.openRoomSelector();
-      await backup.locators.selectNextCloudRepo.click();
-      await backup.locators.selectButton.click();
-      await backup.locators.thirdPartyCreateCopyButton.click();
+      await backup.selectDocumentsNextCloud();
       await backup.removeToast(toastMessages.backCopyCreated, 40000);
       await backup.openActionMenuResource();
       await screenshot.expectHaveScreenshot(
@@ -231,10 +229,8 @@ test.describe("Backup portal tests", () => {
       await backup.locators.saveButton.click();
       await backup.openRoomSelector();
 
-      await backup.locators.selectNextCloudRepo.click();
-      await backup.locators.saveHereButton.click();
-      await backup.locators.saveAutoBackupButton.click();
-      await backup.removeToast(toastMessages.settingsUpdated);
+      await backup.selectDocumentsNextCloudAutoBackup();
+      await backup.saveAutoSavePeriod();
       await backup.openActionMenuResourceAutoBackup();
       await screenshot.expectHaveScreenshot(
         "auto_backup_third_party_resource_action_menu",
