@@ -12,10 +12,14 @@ const ROOM_SUBMIT_BUTTON = "#shared_create-room-modal_submit";
 const ROOM_TEMPLATE_SUBMIT_BUTTON = "#create-room-template-modal_submit";
 const LOGO_NAME_CONTAINER = ".logo-name-container";
 const TAG_NAME_INPUT = "#shared_tags-input";
+
 class RoomsCreateDialog extends BaseDialog {
   constructor(page: Page) {
     super(page);
   }
+
+  private static readonly OPEN_PASS_TIMEOUT_MS = 12000; 
+  private static readonly OPEN_VISIBLE_TIMEOUT_MS = 800; 
 
   private get roomDialogSubmitButton() {
     return this.page.locator(ROOM_SUBMIT_BUTTON);
@@ -37,13 +41,6 @@ class RoomsCreateDialog extends BaseDialog {
     return this.page.locator(LOGO_NAME_CONTAINER).getByTestId("dropdown");
   }
 
-  private get roomIconButtonPath() {
-    return this.page
-      .getByTestId('create_edit_room_icon')
-      .getByTestId('icon-button-svg')
-      .locator('path');
-  }
-  
   private get customizeCoverMenuItemImg() {
     
     return this.page
@@ -63,18 +60,47 @@ class RoomsCreateDialog extends BaseDialog {
       .getByTestId('text');
   }
 
-  private async ensureIconMenuOpen() {
-    await expect(async () => {
-      if (!(await this.customizeCoverMenuItemImg.isVisible())) {
-        await this.roomIconButtonPath.click({ trial: true }).catch(() => {});
-        await this.roomIconButtonPath.click();
-      }
-      await expect(this.customizeCoverMenuItemImg).toBeVisible({ timeout: 1000 });
-    }).toPass({ timeout: 8000 });
+  private get roomIconButton() {
+    return this.page.getByTestId('create_edit_room_icon');
+  }
+  private get roomIconButtonSvg() {
+    return this.roomIconButton.getByTestId('icon-button-svg');
   }
 
-  async checkRoomTypeExist(roomType: TRoomCreateTitles) {
-    await expect(this.dialog.getByTitle(roomType)).toBeVisible();
+  private get roomIconButtonPath() {
+    return this.roomIconButtonSvg.locator('path');
+  }
+
+  private async ensureIconMenuOpen() {
+    const anyOption = this.customizeCoverMenuItemImg; 
+    const deadline = Date.now() + RoomsCreateDialog.OPEN_PASS_TIMEOUT_MS;
+    let attempt = 0;
+  
+    while (Date.now() < deadline) {
+      attempt++;
+      await this.roomIconButton.scrollIntoViewIfNeeded().catch(() => {});
+      const clickTargets = [
+        this.roomIconButtonPath,
+        this.roomIconButtonSvg,
+        this.roomIconButton,
+      ];
+      for (const target of clickTargets) {
+        try {
+          await target.click({ trial: true }).catch(() => {});
+          await target.click({ delay: 20 }); 
+          await expect(anyOption).toBeVisible({
+            timeout: RoomsCreateDialog.OPEN_VISIBLE_TIMEOUT_MS,
+          });
+          return; 
+        } catch {
+          
+        }
+      }
+      await this.page.waitForTimeout(150);
+    }
+    await expect(anyOption).toBeVisible({
+      timeout: RoomsCreateDialog.OPEN_VISIBLE_TIMEOUT_MS,
+    });
   }
 
   async openRoomType(title: TRoomCreateTitles) {
