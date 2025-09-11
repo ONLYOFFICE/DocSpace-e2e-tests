@@ -1,0 +1,14 @@
+pre-push:
+  parallel: true
+  skip_on_merge_commit: true
+  commands:
+    tsc:
+      run: FORCE_COLOR=0 npm run tsc
+      skip_empty: true
+      follow: true
+      skip_on_fail: false
+    lint:
+      run: FORCE_COLOR=0 npm run lint
+      skip_empty: true
+      follow: true
+      skip_on_fail: false
