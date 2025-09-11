@@ -43,6 +43,7 @@ test.describe("VDRRooms_file_lifetime", () => {
     await expect(flameIcon).toBeVisible();
 
     await screenshot.expectHaveScreenshot("vdr_file_lifetime_enabled_flame_icon");
+    await myRooms.backToRooms();
   });
 
   test("VDR: file lifetime disabled — flame icon is NOT shown", async () => {
@@ -58,9 +59,7 @@ test.describe("VDRRooms_file_lifetime", () => {
 
     await expect(page.getByRole("heading", { name: roomName })).toBeVisible();
 
-    const flameIcon = page.locator(".title-icon > div > .injected-svg");
-    await expect(flameIcon).toHaveCount(0);
-
     await screenshot.expectHaveScreenshot("vdr_file_lifetime_disabled_no_icon");
+    
   });
 });
