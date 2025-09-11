@@ -12,10 +12,14 @@ const ROOM_SUBMIT_BUTTON = "#shared_create-room-modal_submit";
 const ROOM_TEMPLATE_SUBMIT_BUTTON = "#create-room-template-modal_submit";
 const LOGO_NAME_CONTAINER = ".logo-name-container";
 const TAG_NAME_INPUT = "#shared_tags-input";
+
 class RoomsCreateDialog extends BaseDialog {
   constructor(page: Page) {
     super(page);
   }
+
+  private static readonly OPEN_PASS_TIMEOUT_MS = 12000; 
+  private static readonly OPEN_VISIBLE_TIMEOUT_MS = 800; 
 
   private get roomDialogSubmitButton() {
     return this.page.locator(ROOM_SUBMIT_BUTTON);
@@ -37,8 +41,66 @@ class RoomsCreateDialog extends BaseDialog {
     return this.page.locator(LOGO_NAME_CONTAINER).getByTestId("dropdown");
   }
 
-  async checkRoomTypeExist(roomType: TRoomCreateTitles) {
-    await expect(this.dialog.getByTitle(roomType)).toBeVisible();
+  private get customizeCoverMenuItemImg() {
+    
+    return this.page
+      .getByTestId('create_edit_room_customize_cover')
+      .getByRole('img');
+  }
+  
+  private get roomLogoCoverDialog() {
+    
+    return this.page.getByTestId('room_logo_cover_dialog');
+  }
+  
+  private get roomLogoCoverDialogHeaderText() {
+    
+    return this.roomLogoCoverDialog
+      .getByTestId('aside-header')
+      .getByTestId('text');
+  }
+
+  private get roomIconButton() {
+    return this.page.getByTestId('create_edit_room_icon');
+  }
+  private get roomIconButtonSvg() {
+    return this.roomIconButton.getByTestId('icon-button-svg');
+  }
+
+  private get roomIconButtonPath() {
+    return this.roomIconButtonSvg.locator('path');
+  }
+
+  private async ensureIconMenuOpen() {
+    const anyOption = this.customizeCoverMenuItemImg; 
+    const deadline = Date.now() + RoomsCreateDialog.OPEN_PASS_TIMEOUT_MS;
+    let attempt = 0;
+  
+    while (Date.now() < deadline) {
+      attempt++;
+      await this.roomIconButton.scrollIntoViewIfNeeded().catch(() => {});
+      const clickTargets = [
+        this.roomIconButtonPath,
+        this.roomIconButtonSvg,
+        this.roomIconButton,
+      ];
+      for (const target of clickTargets) {
+        try {
+          await target.click({ trial: true }).catch(() => {});
+          await target.click({ delay: 20 }); 
+          await expect(anyOption).toBeVisible({
+            timeout: RoomsCreateDialog.OPEN_VISIBLE_TIMEOUT_MS,
+          });
+          return; 
+        } catch {
+          
+        }
+      }
+      await this.page.waitForTimeout(150);
+    }
+    await expect(anyOption).toBeVisible({
+      timeout: RoomsCreateDialog.OPEN_VISIBLE_TIMEOUT_MS,
+    });
   }
 
   async openRoomType(title: TRoomCreateTitles) {
@@ -53,37 +115,34 @@ class RoomsCreateDialog extends BaseDialog {
   }
 
   async openRoomIconDropdown() {
-    await this.roomIcon.click();
-    await expect(this.roomIconDropdown).toBeVisible();
+    await this.ensureIconMenuOpen();
   }
 
   async clickCustomizeCover() {
-    await this.roomIconDropdown.getByText("Customize cover").click();
+    if (!(await this.customizeCoverMenuItemImg.isVisible())) {
+      await this.ensureIconMenuOpen();
+    }
+    await this.customizeCoverMenuItemImg.click();
   }
 
   async openRoomCover() {
-    const isRoomIconDropdownVisible = await this.roomIconDropdown.isVisible();
-
-    if (!isRoomIconDropdownVisible) {
-      await this.openRoomIconDropdown();
-    }
+    await this.ensureIconMenuOpen();
     await this.clickCustomizeCover();
-    await expect(this.page.getByText("Room cover")).toBeVisible();
-    await expect(
-      this.page.locator(".cover-icon-container svg").first(),
-    ).toBeVisible();
+    await expect(this.roomLogoCoverDialogHeaderText).toBeVisible();
   }
 
+  /** @deprecated  use setRoomCoverColorByIndex**/
   async selectCoverColor() {
     await this.page.locator(".colors-container [color='#6191F2']").click();
   }
-
+ /** @deprecated use setRoomCoverIconByIndex**/
   async selectCoverIcon() {
     await this.page.locator(".cover-icon-container div").first().click();
   }
 
   async saveCover() {
     await this.page.getByRole("button", { name: "Apply" }).click();
+    await expect(this.roomLogoCoverDialog).toBeHidden({ timeout: 20000 });
   }
 
   async checkNoTemplatesFoundExist() {
@@ -108,10 +167,8 @@ class RoomsCreateDialog extends BaseDialog {
   }
 
   async fillRoomName(name: string) {
-    await this.fillInput(
-      this.page.getByRole("textbox", { name: "Name:" }),
-      name,
-    );
+    const input = this.page.getByTestId('create_edit_room_input');
+    await this.fillInput(input, name);
   }
 
   async fillTemplateName(name: string) {
@@ -169,6 +226,42 @@ class RoomsCreateDialog extends BaseDialog {
     await this.clickRoomDialogSubmit();
   }
 
+  async setRoomCoverColorByIndex(index: number) {
+    await this.openRoomCover();
+    await this.page.getByTestId(`color_item_${index}`).click();
+    await this.saveCover();
+  }
+
+  async setRoomCoverColorByHex(hex: `#${string}`) {
+    await this.openRoomCover();
+    await this.page.locator(`.colors-container [color="${hex}"]`).click();
+    await this.saveCover();
+  }
+
+  async openCustomColorPicker() {
+    await this.openRoomCover();
+    await this.page.getByTestId('color_item_add_custom').click();
+  }
+
+  async setRoomCoverIconByIndex(index: number) {
+    await this.openRoomCover();
+    await this.page.getByTestId(`room_logo_cover_icon_${index}`).click();
+    await this.saveCover();
+  }
+
+  async setRoomCoverIconById(id: string) {
+    await this.openRoomCover();
+    await this.page.locator(`#${id}`).click();
+    await this.saveCover();
+  }
+
+  async setRoomCoverWithoutIcon() {
+    await this.openRoomCover();
+    await this.page.getByTestId('room_logo_cover_without_icon').click();
+    await this.saveCover();
+  }
+
+
   async toggleAutomaticIndexing(enable: boolean) {
     const block = this.page.getByTestId("virtual_data_room_automatic_indexing");
     const checkbox = block.getByTestId("toggle-button-input");
@@ -219,8 +312,24 @@ class RoomsCreateDialog extends BaseDialog {
     const comboBox = this.page.getByTestId(
       "virtual_data_room_file_lifetime_period_combobox",
     );
-    await comboBox.click();
-    await this.page.getByRole("option", { name: unit }).click();
+    
+    await expect(async () => {
+      await comboBox.click();
+      
+      await expect(
+        this.page.getByTestId("virtual_data_room_file_lifetime_period_days"),
+      ).toBeVisible({ timeout: 1000 });
+    }).toPass({ timeout: 8000 });
+  
+   
+    const optionTestId =
+      unit === "Days"
+        ? "virtual_data_room_file_lifetime_period_days"
+        : unit === "Months"
+        ? "virtual_data_room_file_lifetime_period_months"
+        : "virtual_data_room_file_lifetime_period_years";
+  
+    await this.page.getByTestId(optionTestId).click();
     await expect(comboBox).toContainText(unit);
   }
 
@@ -230,8 +339,22 @@ class RoomsCreateDialog extends BaseDialog {
     const comboBox = this.page.getByTestId(
       "virtual_data_room_file_lifetime_delete_combobox",
     );
-    await comboBox.click();
-    await this.page.getByRole("option", { name: action }).click();
+    
+    await expect(async () => {
+      await comboBox.click();
+      await expect(
+        this.page.getByTestId(
+          "virtual_data_room_file_lifetime_delete_move_to_trash",
+        ),
+      ).toBeVisible({ timeout: 1000 });
+    }).toPass({ timeout: 8000 });
+  
+    const optionTestId =
+      action === "Move to Trash"
+        ? "virtual_data_room_file_lifetime_delete_move_to_trash"
+        : "virtual_data_room_file_lifetime_delete_permanently";
+  
+    await this.page.getByTestId(optionTestId).click();
     await expect(comboBox).toContainText(action);
   }
 
@@ -279,29 +402,33 @@ class RoomsCreateDialog extends BaseDialog {
     await expect(input).toHaveValue(text);
   }
 
-  async selectWatermarkPosition(position: string) {
+  async selectWatermarkPosition(position: "Horizontal" | "Diagonal") {
     const comboBox = this.page.getByTestId(
       "virtual_data_room_watermark_position_combobox",
     );
-    await comboBox.click();
-    await this.page.getByRole("option", { name: position }).click();
+  
+    
+    await expect(async () => {
+      await comboBox.click();
+      await expect(
+        this.page.getByTestId(
+          "virtual_data_room_watermark_position_horizontal",
+        ),
+      ).toBeVisible({ timeout: 1000 });
+    }).toPass({ timeout: 8000 });
+  
+   
+    const optionTestId =
+      position === "Horizontal"
+        ? "virtual_data_room_watermark_position_horizontal"
+        : "virtual_data_room_watermark_position_diagonal";
+  
+    await this.page.getByTestId(optionTestId).click();
+  
+    
     await expect(comboBox).toContainText(position);
   }
 
-  async setRoomCoverColor(colorIndex = ".sc-dwalKd.kOQVrm") {
-    await this.page
-      .getByTestId("modal")
-      .getByTestId("room-icon")
-      .getByTestId("icon-button-svg")
-      .getByRole("img")
-      .click();
-    await this.page.getByText("Customize cover").click();
-
-    //const colorButtons = this.page.locator('.colors-container > div .circle');
-    await this.page.locator(colorIndex).click();
-
-    await this.page.getByRole("button", { name: /apply/i }).click();
-  }
 }
 
 export default RoomsCreateDialog;
