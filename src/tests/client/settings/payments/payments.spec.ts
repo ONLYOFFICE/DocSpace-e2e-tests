@@ -33,6 +33,8 @@ test.describe("Payments", () => {
       await payments.openTab(paymentsTab.tariffPlan);
       const stripePage = await payments.upgradePlan(10);
       await payments.fillPaymentData(stripePage);
+      await page.pause();
+      await payments.hideDateTariffPlan();
       await screenshot.expectHaveScreenshot("payment_business_plan");
       await page.reload();
     });
@@ -70,10 +72,13 @@ test.describe("Payments", () => {
       await payments.updatePlan();
 
       await payments.numberOfAdminsInput.fill("1");
+      await payments.hideDateTariffPlan();
       await screenshot.expectHaveScreenshot("payment_change_tarif_plan_min");
       await payments.numberOfAdminsInput.fill("500");
+      await payments.hideDateTariffPlan();
       await screenshot.expectHaveScreenshot("payment_change_tarif_plan_middle");
       await payments.numberOfAdminsInput.fill("99999");
+      await payments.hideDateTariffPlan();
       await screenshot.expectHaveScreenshot("payment_change_tarif_plan_max");
     });
 
@@ -115,7 +120,7 @@ test.describe("Payments", () => {
 
     await test.step("Wallet refilled", async () => {
       await payments.checkWalletRefilledDialogExist();
-      await payments.hideDates();
+      await payments.hideDatesWallet();
       await screenshot.expectHaveScreenshot("wallet_refilled_dialog");
 
       await payments.enableAutomaticPayments();
@@ -143,7 +148,7 @@ test.describe("Payments", () => {
       await payments.removeToast(toastMessages.walletToppedUp);
 
       await payments.dialog.close();
-      await payments.hideDates();
+      await payments.hideDatesWallet();
       await screenshot.expectHaveScreenshot("top_up_balance_success");
     });
 
@@ -196,7 +201,9 @@ test.describe("Payments", () => {
 
     await test.step("Change tariff plan", async () => {
       await payments.openTab(paymentsTab.tariffPlan);
+      await expect(payments.thisStartUpPlan()).toBeVisible();
       await payments.changeTariffPlan();
+      await payments.hideDateTariffPlan();  
       await screenshot.expectHaveScreenshot("payment_business_plan");
     });
   });
