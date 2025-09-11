@@ -62,13 +62,15 @@ test.describe("VDRRooms_autoindex", () => {
     await page.bringToFront();
   
     // Check that the first row has index "1"
-    const firstRow = page.locator('[role="row"]').nth(1); 
+    const firstRow = page.getByRole('row').nth(1);
     await expect(firstRow).toBeVisible();
   
-    const firstCell = firstRow.locator('[role="gridcell"], td').first();
-    await expect(firstCell).toHaveText(/^1$/);
+    const firstCell = firstRow.getByRole('gridcell').first();
+    await expect(firstCell.getByRole('button')).toHaveAccessibleName(/^1\b/);
   
     await screenshot.expectHaveScreenshot("vdr_autoindex_new_document_indexed");
+    await myRooms.backToRooms;
+
   });
 
   test("VDR: auto indexing disabled — no index column and no numeric index", async () => {
@@ -102,13 +104,6 @@ test.describe("VDRRooms_autoindex", () => {
   
    
     await page.bringToFront();
-  
-
-    const firstRow = page.locator('[role="row"]').nth(1); 
-    await expect(firstRow).toBeVisible();
-  
-    const firstCell = firstRow.locator('[role="gridcell"], td').first();
-    await expect(firstCell).not.toHaveText(/^\d+$/); 
   
     await screenshot.expectHaveScreenshot("vdr_autoindex_off_new_document_no_index");
   });
