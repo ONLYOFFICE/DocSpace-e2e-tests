@@ -14,15 +14,15 @@ export default class BasePage {
   }
 
   protected get optionsButton(): Locator {
-    return this.page.getByTestId('profile_user_icon_button');
+    return this.page.getByTestId("profile_user_icon_button");
   }
 
   protected get settingsMenuItem(): Locator {
-    return this.page.getByTestId('user-menu-settings');
+    return this.page.getByTestId("user-menu-settings");
   }
 
   protected get paymentsMenuItem(): Locator {
-    return this.page.getByTestId('user-menu-payments');
+    return this.page.getByTestId("user-menu-payments");
   }
 
   async removeToast(message?: string, timeout?: number) {

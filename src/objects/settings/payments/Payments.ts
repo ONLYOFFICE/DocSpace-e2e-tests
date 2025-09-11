@@ -22,21 +22,21 @@ export class Payments extends BasePage {
   }
 
   get minusButton() {
-    return this.page.getByTestId('quantity_picker_minus_icon');
+    return this.page.getByTestId("quantity_picker_minus_icon");
   }
   get plusButton() {
-    return this.page.getByTestId('quantity_picker_plus_icon');
+    return this.page.getByTestId("quantity_picker_plus_icon");
   }
   get upgradeButton() {
-    return this.page.getByTestId('upgrade_plan_button');
+    return this.page.getByTestId("upgrade_plan_button");
   }
 
   get downgradeButton() {
-    return this.page.getByTestId('downgrade_plan_button');
+    return this.page.getByTestId("downgrade_plan_button");
   }
 
   get sendRequestButton() {
-    return this.page.getByTestId('sales_request_button');
+    return this.page.getByTestId("sales_request_button");
   }
 
   get linkVerificationBlock() {
@@ -44,7 +44,7 @@ export class Payments extends BasePage {
   }
 
   get topUpBalanceButton() {
-    return this.page.getByTestId('top_up_balance_button');
+    return this.page.getByTestId("top_up_balance_button");
   }
 
   get businessPlanUpdated() {
@@ -59,15 +59,17 @@ export class Payments extends BasePage {
   }
 
   get numberOfAdminsInput() {
-    return this.page.getByTestId('quantity_picker_input');
+    return this.page.getByTestId("quantity_picker_input");
   }
 
   get stripeCustomerPortalLink() {
-    return this.page.getByTestId('stripe_customer_portal_link').filter({ hasText: 'go to the Stripe customer portal'});
+    return this.page
+      .getByTestId("stripe_customer_portal_link")
+      .filter({ hasText: "go to the Stripe customer portal" });
   }
 
   get configureDocSpaceLink() {
-    return this.page.getByTestId('wallet_learn_more_link');
+    return this.page.getByTestId("wallet_learn_more_link");
   }
 
   get currentTariffCount() {
@@ -75,19 +77,19 @@ export class Payments extends BasePage {
   }
 
   get requestNameInput() {
-    return this.page.getByTestId('request_name_input');
+    return this.page.getByTestId("request_name_input");
   }
 
   get requestEmailInput() {
-    return this.page.getByTestId('email-input');
+    return this.page.getByTestId("email-input");
   }
 
   get requestDetailsInput() {
-    return this.page.getByTestId('request_description_textarea');
+    return this.page.getByTestId("request_description_textarea");
   }
 
   get reguestSendButton() {
-    return this.page.getByTestId('send_sales_request_button');
+    return this.page.getByTestId("send_sales_request_button");
   }
 
   get goToStripeLink() {
@@ -97,19 +99,19 @@ export class Payments extends BasePage {
   }
 
   get saveAutomaticPaymentsButton() {
-    return this.page.getByTestId('wallet_refilled_save_button');
+    return this.page.getByTestId("wallet_refilled_save_button");
   }
 
   get cancelAutomaticPaymentsButton() {
-    return this.page.getByTestId('wallet_refilled_cancel_button');
+    return this.page.getByTestId("wallet_refilled_cancel_button");
   }
 
   get saveAutomaticPaymentsModalButton() {
-    return this.page.getByTestId('save_auto_payment_button');
+    return this.page.getByTestId("save_auto_payment_button");
   }
 
   get plus10Button() {
-    return this.page.getByTestId('tab_item_10');
+    return this.page.getByTestId("tab_item_10");
   }
   get plus20Button() {
     return this.page.getByTestId("tab_item_20");
@@ -125,23 +127,27 @@ export class Payments extends BasePage {
   }
 
   get datePickerFromButton() {
-    return this.page.getByTestId('transaction_start_date_picker').getByTestId("selected-label");
+    return this.page
+      .getByTestId("transaction_start_date_picker")
+      .getByTestId("selected-label");
   }
 
   get datePickerToButton() {
-    return this.page.getByTestId('transaction_end_date_picker').getByTestId("selected-label");
+    return this.page
+      .getByTestId("transaction_end_date_picker")
+      .getByTestId("selected-label");
   }
 
   get amountTopUpInput() {
-    return this.page.getByTestId('top_up_amount_input');
+    return this.page.getByTestId("top_up_amount_input");
   }
 
   get topUpButton() {
-    return this.page.getByTestId('top_up_button');
+    return this.page.getByTestId("top_up_button");
   }
 
   get automaticPaymentsSwitch() {
-    return this.page.getByTestId('auto_payments_toggle_button');
+    return this.page.getByTestId("auto_payments_toggle_button");
   }
 
   get automaticPaymentsBlock() {
@@ -149,23 +155,23 @@ export class Payments extends BasePage {
   }
 
   get balanceGoesBelowInput() {
-    return this.automaticPaymentsBlock.getByTestId('top_up_min_balance_input');
+    return this.automaticPaymentsBlock.getByTestId("top_up_min_balance_input");
   }
 
   get creditBackUpToInput() {
-    return this.automaticPaymentsBlock.getByTestId('top_up_max_balance_input');
+    return this.automaticPaymentsBlock.getByTestId("top_up_max_balance_input");
   }
 
   get editAutoTopUpButton() {
-    return this.page.getByTestId('edit_auto_payment_button');
+    return this.page.getByTestId("edit_auto_payment_button");
   }
 
   get editAutoTopUpLink() {
-    return this.page.getByTestId('auto_edit_button');
+    return this.page.getByTestId("auto_edit_button");
   }
 
   get transactionHistorySelectorButton() {
-    return this.page.getByTestId('transaction_type_combobox');
+    return this.page.getByTestId("transaction_type_combobox");
   }
 
   get calendar() {
@@ -179,26 +185,27 @@ export class Payments extends BasePage {
   }
 
   get downloadReportButton() {
-    return this.page.getByTestId('download_report_button');
+    return this.page.getByTestId("download_report_button");
   }
 
   get addPaymentsMethodButton() {
-    return this.page.getByTestId('selector-add-button-container').getByTestId('payment_method_add_button');
+    return this.page
+      .getByTestId("selector-add-button-container")
+      .getByTestId("payment_method_add_button");
   }
 
   get cancelButton() {
-    return this.page.getByTestId('cancel_top_up_button');
+    return this.page.getByTestId("cancel_top_up_button");
   }
 
   get upgradePlanCancelButton() {
-    return this.page.getByTestId('cancel_payment_button');
+    return this.page.getByTestId("cancel_payment_button");
   }
 
   get upgradePlanConfirmButton() {
-    return this.page.getByTestId('confirm_payment_button');
+    return this.page.getByTestId("confirm_payment_button");
   }
 
-  
   async addPaymentsMethod(stripePage: Page) {
     await expect(this.addPaymentsMethodButton).toBeVisible();
     await expect(async () => {
@@ -463,7 +470,6 @@ export class Payments extends BasePage {
     await stripePage.locator("#shippingLocality").fill("Los Angeles");
     await stripePage.locator("#shippingPostalCode").fill("90045");
     await stripePage.locator("#shippingAdministrativeArea").selectOption("CA");
-    
 
     const cardAccordionItem = stripePage.getByTestId("card-accordion-item");
 
@@ -493,15 +499,15 @@ export class Payments extends BasePage {
         timeout: 500,
       });
 
-      await stripePage.getByTestId('hosted-payment-submit-button').click();
+      await stripePage.getByTestId("hosted-payment-submit-button").click();
     }).toPass({
       timeout: 15000,
     });
   }
 
   async fillAmountTopUpForServices() {
-    await this.amountTopUpInput.fill('1000');
-    await expect(this.amountTopUpInput).toHaveValue('1000');
+    await this.amountTopUpInput.fill("1000");
+    await expect(this.amountTopUpInput).toHaveValue("1000");
   }
 
   async changeTariffPlan() {
@@ -523,6 +529,8 @@ export class Payments extends BasePage {
     await this.openTab(paymentsTab.tariffPlan);
     await this.upgradeButton.click();
     await this.upgradePlanConfirmButton.click();
-    await expect(this.page.locator('#sectionScroll')).toContainText('You are using Business plan');
+    await expect(this.page.locator("#sectionScroll")).toContainText(
+      "You are using Business plan",
+    );
   }
 }

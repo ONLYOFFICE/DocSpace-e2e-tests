@@ -72,13 +72,13 @@ export const test = base.extend<TestFixtures>({
 
   payments: async ({ page }, use) => {
     const payments = new Payments(page);
-    
+
     await use(payments);
   },
 
   services: async ({ page }, use) => {
     const services = new Services(page);
-    
+
     await use(services);
   },
 });
