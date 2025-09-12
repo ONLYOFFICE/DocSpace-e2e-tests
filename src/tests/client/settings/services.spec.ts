@@ -104,6 +104,7 @@ test.describe("Services tests", () => {
       expect(response.status()).toBe(200);
 
       await expect(page.getByText("GB → 199 GB in total")).toBeVisible();
+      await services.hideDateCurrentPayment();
       await screenshot.expectHaveScreenshot("Disk_storage_downgrade_modal");
       await services.diskStorageCancelButton.click();
       await screenshot.expectHaveScreenshot("Disk_storage_downgrade_block");
@@ -124,6 +125,7 @@ test.describe("Services tests", () => {
 
     await test.step("Upgrade disk storage", async () => {
       await services.changeDiskStoragePlus();
+      await services.hideDateCurrentPayment();
       await screenshot.expectHaveScreenshot("Disk_storage_upgrade_modal");
       const [response] = await Promise.all([
         page.waitForResponse(
