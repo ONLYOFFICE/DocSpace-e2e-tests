@@ -8,6 +8,7 @@ import {
 } from "@/src/utils/constants/settings";
 import BaseDialog from "../../common/BaseDialog";
 import BaseTable from "../../common/BaseTable";
+// import { number } from "@inquirer/prompts";
 export class Payments extends BasePage {
   portalUrl: string;
   dialog: BaseDialog;
@@ -20,18 +21,22 @@ export class Payments extends BasePage {
     this.table = new BaseTable(page);
   }
 
-  get numberOfadmins() {
-    return this.page.getByTestId("text-input");
-  }
-
   get minusButton() {
-    return this.page.locator("[data-operation='minus']");
+    return this.page.getByTestId("quantity_picker_minus_icon");
   }
   get plusButton() {
-    return this.page.locator("[data-operation='plus']");
+    return this.page.getByTestId("quantity_picker_plus_icon");
   }
-  get approveButton() {
-    return this.page.getByTestId("button");
+  get upgradeButton() {
+    return this.page.getByTestId("upgrade_plan_button");
+  }
+
+  get downgradeButton() {
+    return this.page.getByTestId("downgrade_plan_button");
+  }
+
+  get sendRequestButton() {
+    return this.page.getByTestId("sales_request_button");
   }
 
   get linkVerificationBlock() {
@@ -39,9 +44,7 @@ export class Payments extends BasePage {
   }
 
   get topUpBalanceButton() {
-    return this.page.getByRole("button", {
-      name: "Top up balance",
-    });
+    return this.page.getByTestId("top_up_balance_button");
   }
 
   get businessPlanUpdated() {
@@ -56,19 +59,17 @@ export class Payments extends BasePage {
   }
 
   get numberOfAdminsInput() {
-    return this.priceCalculationContainer.getByTestId("text-input");
+    return this.page.getByTestId("quantity_picker_input");
   }
 
   get stripeCustomerPortalLink() {
-    return this.page.locator(".payer-info_account-link");
+    return this.page
+      .getByTestId("stripe_customer_portal_link")
+      .filter({ hasText: "go to the Stripe customer portal" });
   }
 
   get configureDocSpaceLink() {
-    return this.page
-      .getByRole("link", {
-        name: "Learn more",
-      })
-      .nth(0);
+    return this.page.getByTestId("wallet_learn_more_link");
   }
 
   get currentTariffCount() {
@@ -76,19 +77,19 @@ export class Payments extends BasePage {
   }
 
   get requestNameInput() {
-    return this.page.locator("#your-name");
+    return this.page.getByTestId("request_name_input");
   }
 
   get requestEmailInput() {
-    return this.page.locator("#registration-email");
+    return this.page.getByTestId("email-input");
   }
 
   get requestDetailsInput() {
-    return this.page.locator("#request-details");
+    return this.page.getByTestId("request_description_textarea");
   }
 
   get reguestSendButton() {
-    return this.page.locator(".send-button");
+    return this.page.getByTestId("send_sales_request_button");
   }
 
   get goToStripeLink() {
@@ -98,54 +99,55 @@ export class Payments extends BasePage {
   }
 
   get saveAutomaticPaymentsButton() {
-    return this.page.getByRole("button", {
-      name: "Save",
-    });
+    return this.page.getByTestId("wallet_refilled_save_button");
+  }
+
+  get cancelAutomaticPaymentsButton() {
+    return this.page.getByTestId("wallet_refilled_cancel_button");
+  }
+
+  get saveAutomaticPaymentsModalButton() {
+    return this.page.getByTestId("save_auto_payment_button");
   }
 
   get plus10Button() {
-    return this.page.locator("[data-id='10']");
+    return this.page.getByTestId("tab_item_10");
   }
   get plus20Button() {
-    return this.page.locator("[data-id='20']");
+    return this.page.getByTestId("tab_item_20");
   }
   get plus30Button() {
-    return this.page.locator("[data-id='30']");
+    return this.page.getByTestId("tab_item_30");
   }
   get plus50Button() {
-    return this.page.locator("[data-id='50']");
+    return this.page.getByTestId("tab_item_50");
   }
   get plus100Button() {
-    return this.page.locator("[data-id='100']");
+    return this.page.getByTestId("tab_item_100");
   }
 
   get datePickerFromButton() {
     return this.page
-      .getByTestId("date-picker")
-      .nth(0)
+      .getByTestId("transaction_start_date_picker")
       .getByTestId("selected-label");
   }
 
   get datePickerToButton() {
     return this.page
-      .getByTestId("date-picker")
-      .nth(1)
+      .getByTestId("transaction_end_date_picker")
       .getByTestId("selected-label");
   }
 
   get amountTopUpInput() {
-    return this.page.getByPlaceholder("Enter an integer amount...");
+    return this.page.getByTestId("top_up_amount_input");
   }
 
   get topUpButton() {
-    return this.page.getByRole("button", {
-      name: "Top up",
-      exact: true,
-    });
+    return this.page.getByTestId("top_up_button");
   }
 
   get automaticPaymentsSwitch() {
-    return this.page.getByTestId("toggle-button-container").nth(0);
+    return this.page.getByTestId("auto_payments_toggle_button");
   }
 
   get automaticPaymentsBlock() {
@@ -153,25 +155,23 @@ export class Payments extends BasePage {
   }
 
   get balanceGoesBelowInput() {
-    return this.automaticPaymentsBlock.getByTestId("text-input").nth(0);
+    return this.automaticPaymentsBlock.getByTestId("top_up_min_balance_input");
   }
 
   get creditBackUpToInput() {
-    return this.automaticPaymentsBlock.getByTestId("text-input").nth(1);
+    return this.automaticPaymentsBlock.getByTestId("top_up_max_balance_input");
   }
 
   get editAutoTopUpButton() {
-    return this.page.getByRole("button", {
-      name: "Edit",
-    });
+    return this.page.getByTestId("edit_auto_payment_button");
   }
 
   get editAutoTopUpLink() {
-    return this.page.locator('a:has-text("Edit")');
+    return this.page.getByTestId("auto_edit_button");
   }
 
   get transactionHistorySelectorButton() {
-    return this.page.locator("[data-test-id='combo-button']").nth(0);
+    return this.page.getByTestId("transaction_type_combobox");
   }
 
   get calendar() {
@@ -185,9 +185,41 @@ export class Payments extends BasePage {
   }
 
   get downloadReportButton() {
-    return this.page.getByRole("button", {
-      name: "Download report",
-    });
+    return this.page.getByTestId("download_report_button");
+  }
+
+  get addPaymentsMethodButton() {
+    return this.page
+      .getByTestId("selector-add-button-container")
+      .getByTestId("payment_method_add_button");
+  }
+
+  get cancelButton() {
+    return this.page.getByTestId("cancel_top_up_button");
+  }
+
+  get upgradePlanCancelButton() {
+    return this.page.getByTestId("cancel_payment_button");
+  }
+
+  get upgradePlanConfirmButton() {
+    return this.page.getByTestId("confirm_payment_button");
+  }
+
+  get subscriptionBlock() {
+    return this.page.getByTestId("text").filter({ hasText: "Subscription will be automatically renewed" });
+  }
+
+  get startUpPlan() {
+    return this.page.getByTestId("text").filter({ hasText: "You are using free Startup plan" });
+  }
+
+  async addPaymentsMethod(stripePage: Page) {
+    await expect(this.addPaymentsMethodButton).toBeVisible();
+    await expect(async () => {
+      await this.addPaymentsMethodButton.click();
+      await expect(stripePage.locator("#payment-form")).toBeVisible();
+    }).toPass();
   }
 
   async enableAutomaticPayments() {
@@ -200,11 +232,15 @@ export class Payments extends BasePage {
     await this.saveAutomaticPaymentsButton.click();
   }
 
+  async saveAutomaticPaymentsModal() {
+    await this.saveAutomaticPaymentsModalButton.click();
+  }
+
   async checkWalletRefilledDialogExist() {
     await this.dialog.checkDialogTitleExist("Wallet refilled");
   }
 
-  async hideDates() {
+  async hideDatesWallet() {
     await this.table.checkTableExist();
 
     await this.table.mapTableRows(async (row) => {
@@ -221,6 +257,19 @@ export class Payments extends BasePage {
     });
     await this.datePickerToButton.evaluate((el: HTMLDivElement) => {
       el.textContent = "*hidden*";
+    });
+  }
+
+  async hideDateTariffPlan() {
+    await this.subscriptionBlock.evaluate((el) => {
+        const textElement = el.querySelector('[data-testid="text"]') || el;
+        if (textElement) {
+            // Remove any date between "on" and "with"
+            textElement.innerHTML = textElement.innerHTML.replace(
+                /on [^w]+ with/g,
+                'on with'
+            );
+        }
     });
   }
 
@@ -248,7 +297,7 @@ export class Payments extends BasePage {
   }
 
   async openSendRequestDialog() {
-    await this.approveButton.click();
+    await this.sendRequestButton.click();
     await expect(this.requestNameInput).toBeVisible();
   }
 
@@ -285,7 +334,7 @@ export class Payments extends BasePage {
   }
 
   async selectTransactionHistoryFilter(filter: TTransactionHistoryFilter) {
-    await this.page.getByRole("option", { name: filter }).click();
+    await this.page.getByTestId(filter).click();
   }
 
   async checkTariffPlanExist() {
@@ -330,9 +379,9 @@ export class Payments extends BasePage {
   }
 
   async upgradePlan(adminsCount: number) {
-    await this.numberOfadmins.fill(adminsCount.toString());
+    await this.numberOfAdminsInput.fill(adminsCount.toString());
     const page1Promise = this.page.waitForEvent("popup");
-    await this.approveButton.click();
+    await this.upgradeButton.click();
     const page1 = await page1Promise;
     await page1.waitForLoadState();
     return page1;
@@ -396,7 +445,7 @@ export class Payments extends BasePage {
 
       await stripePage.getByTestId("hosted-payment-submit-button").click();
     }).toPass({
-      timeout: 5000,
+      timeout: 15000,
     });
 
     const returnUrl = new URL(
@@ -416,7 +465,7 @@ export class Payments extends BasePage {
 
   async downgradePlan() {
     await this.minusButton.click();
-    await this.approveButton.click();
+    await this.downgradeButton.click();
     await this.expectNumberOfAdminsCount(9);
     // ISSUE: sometimes toast is not appearing
     // await this.removeToast(toastMessages.planUpdated);
@@ -424,9 +473,93 @@ export class Payments extends BasePage {
 
   async updatePlan() {
     await this.plusButton.click();
-    await this.approveButton.click();
+    await this.upgradeButton.click();
     await this.expectNumberOfAdminsCount(10);
     // ISSUE: sometimes toast is not appearing
     // await this.removeToast(toastMessages.planUpdated);
+  }
+
+  async fillPaymentDataFromAddPaymentMethodServices(stripePage: Page) {
+    // Remove link verification block if present
+    await expect(stripePage.locator("#payment-form")).toBeVisible();
+
+    await this.removeLinkVerification(stripePage);
+
+    await stripePage.locator("#shippingName").fill("Admin-zero");
+    await stripePage.locator("#shippingCountry").selectOption("US");
+    await stripePage.locator("#shippingAddressLine1").fill("1 World Way");
+    await stripePage.locator("#shippingAddressLine2").fill("1 World Way");
+    await stripePage.locator("#shippingLocality").fill("Los Angeles");
+    await stripePage.locator("#shippingPostalCode").fill("90045");
+    await stripePage.locator("#shippingAdministrativeArea").selectOption("CA");
+
+    const cardAccordionItem = stripePage.getByTestId("card-accordion-item");
+
+    if (await cardAccordionItem.isVisible()) {
+      await cardAccordionItem.click();
+    }
+
+    await expect(async () => {
+      const cardNumberInput = stripePage.locator("#cardNumber");
+      const cardNumberValue = "4242 4242 4242 4242";
+      await cardNumberInput.fill(cardNumberValue);
+      await expect(cardNumberInput).toHaveValue(cardNumberValue, {
+        timeout: 500,
+      });
+
+      const cardExpiryInput = stripePage.locator("#cardExpiry");
+      const cardExpiryValue = "01 / 30";
+      await cardExpiryInput.fill(cardExpiryValue);
+      await expect(cardExpiryInput).toHaveValue(cardExpiryValue, {
+        timeout: 500,
+      });
+
+      const cardCvcInput = stripePage.locator("#cardCvc");
+      const cardCvcValue = "123";
+      await cardCvcInput.fill(cardCvcValue);
+      await expect(cardCvcInput).toHaveValue(cardCvcValue, {
+        timeout: 500,
+      });
+
+      await stripePage.getByTestId("hosted-payment-submit-button").click();
+    }).toPass({
+      timeout: 15000,
+    });
+  }
+
+  async fillAmountTopUpForServices() {
+    await this.amountTopUpInput.fill("1000");
+    await expect(this.amountTopUpInput).toHaveValue("1000");
+  }
+
+  async changeTariffPlan() {
+    await this.upgradeButton.click();
+    await this.upgradePlanCancelButton.click();
+    await this.upgradeButton.click();
+    await this.upgradePlanConfirmButton.click();
+    await expect(this.page.locator("#sectionScroll")).toContainText(
+      "You are using Business plan",
+    );
+  }
+
+  async payForBackup() {
+    await this.open();
+    await this.openTab(paymentsTab.wallet);
+    await this.openTopUpBalanceDialog();
+    await this.addPaymentsMethod(this.page);
+    await this.fillPaymentDataFromAddPaymentMethodServices(this.page);
+    await this.fillAmountTopUpForServices();
+    await this.topUpButton.click();
+    await this.cancelAutomaticPaymentsButton.click();
+    await this.openTab(paymentsTab.tariffPlan);
+    await this.upgradeButton.click();
+    await this.upgradePlanConfirmButton.click();
+    await expect(this.page.locator("#sectionScroll")).toContainText(
+      "You are using Business plan",
+    );
+  }
+
+  thisStartUpPlan() {
+    return this.page.getByTestId("text").filter({ hasText: "You are using free Startup plan" });
   }
 }

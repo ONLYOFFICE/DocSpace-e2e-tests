@@ -122,6 +122,7 @@ class BaseFilter {
     await this.emptyViewClearButton.click();
     await expect(this.emptyViewContainer).not.toBeVisible();
   }
+
   async clearFilterDialog() {
     await this.page.locator(FILTER.CLEAR_BUTTON).click();
     await expect(this.filterDialog).toBeVisible();
