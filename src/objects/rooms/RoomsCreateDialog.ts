@@ -10,8 +10,9 @@ import { waitForGetRoomsResponse } from "./api";
 
 const ROOM_SUBMIT_BUTTON = "#shared_create-room-modal_submit";
 const ROOM_TEMPLATE_SUBMIT_BUTTON = "#create-room-template-modal_submit";
-const LOGO_NAME_CONTAINER = ".logo-name-container";
-const TAG_NAME_INPUT = "#shared_tags-input";
+const LOGO_NAME_CONTAINER = "create_edit_room_icon";
+const TAG_NAME_INPUT = "create_edit_room_tags_input";
+
 class RoomsCreateDialog extends BaseDialog {
   constructor(page: Page) {
     super(page);
@@ -30,11 +31,11 @@ class RoomsCreateDialog extends BaseDialog {
   }
 
   private get roomIcon() {
-    return this.page.locator(LOGO_NAME_CONTAINER).getByTestId("empty-icon");
+    return this.page.getByTestId(LOGO_NAME_CONTAINER).getByTestId("empty-icon");
   }
 
   private get roomIconDropdown() {
-    return this.page.locator(LOGO_NAME_CONTAINER).getByTestId("dropdown");
+    return this.page.getByTestId(LOGO_NAME_CONTAINER).getByTestId("dropdown");
   }
 
   async checkRoomTypeExist(roomType: TRoomCreateTitles) {
@@ -69,21 +70,19 @@ class RoomsCreateDialog extends BaseDialog {
     }
     await this.clickCustomizeCover();
     await expect(this.page.getByText("Room cover")).toBeVisible();
-    await expect(
-      this.page.locator(".cover-icon-container svg").first(),
-    ).toBeVisible();
+    await expect(this.page.getByTestId('color_item_selected_0')).toBeVisible();
   }
 
   async selectCoverColor() {
-    await this.page.locator(".colors-container [color='#6191F2']").click();
+    await this.page.getByTestId("color_item_6").click();
   }
 
   async selectCoverIcon() {
-    await this.page.locator(".cover-icon-container div").first().click();
+    await this.page.getByTestId("room_logo_cover_icon_0").click();
   }
 
   async saveCover() {
-    await this.page.getByRole("button", { name: "Apply" }).click();
+    await this.page.getByTestId("room_logo_cover_apply_button").click();
   }
 
   async checkNoTemplatesFoundExist() {
@@ -122,7 +121,9 @@ class RoomsCreateDialog extends BaseDialog {
   }
 
   async fillTag(tagName: string) {
-    await this.fillInput(this.page.locator(TAG_NAME_INPUT), tagName);
+    const tagInput = this.page.getByTestId(TAG_NAME_INPUT);
+    await tagInput.fill(tagName);
+    await this.fillInput(tagInput, tagName);
   }
 
   async createTag(tagName: string) {

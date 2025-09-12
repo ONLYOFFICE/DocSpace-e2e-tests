@@ -1,8 +1,6 @@
-import { test, Page } from "@playwright/test";
+import { Page } from "@playwright/test";
 import { expect } from "@playwright/test";
-
-import API from "@/src/api";
-import Login from "@/src/objects/common/Login";
+import { test } from "@/src/fixtures";
 import MyRooms from "@/src/objects/rooms/Rooms";
 import Screenshot from "@/src/objects/common/Screenshot";
 import {
@@ -15,41 +13,26 @@ import {
  * Tests various aspects of tag management
  */
 test.describe("Tags", () => {
-  let page: Page;
   let screenshot: Screenshot;
   let myRooms: MyRooms;
 
-  let api: API;
+  test.beforeEach(async ({ page, api, login }) => {
 
-  test.beforeAll(async ({ playwright, browser }) => {
-    const apiContext = await playwright.request.newContext();
-    api = new API(apiContext);
-    await api.setup();
-    console.log(api.portalDomain);
-
-    page = await browser.newPage();
-
-    await page.addInitScript(() => {
-      globalThis.localStorage?.setItem("integrationUITests", "true");
-    });
-
-    screenshot = new Screenshot(page, {
+      screenshot = new Screenshot(page, {
       screenshotDir: "rooms",
       suiteName: "tags",
     });
-    const login = new Login(page, api.portalDomain);
     myRooms = new MyRooms(page, api.portalDomain);
 
     await login.loginToPortal();
   });
 
-  test("Tags", async () => {
+  test("Tags", async ({ page }) => {
     await test.step("CreateRoomWithTag", async () => {
       await myRooms.roomsArticle.openCreateDialog();
       await myRooms.roomsCreateDialog.openRoomType(
         roomCreateTitles.collaboration,
       );
-      await page.waitForTimeout(500);
       await myRooms.roomsCreateDialog.openRoomIconDropdown();
       await myRooms.roomsCreateDialog.openRoomCover();
       await myRooms.roomsCreateDialog.selectCoverColor();
@@ -131,14 +114,10 @@ test.describe("Tags", () => {
         "0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789",
       );
       await myRooms.roomsCreateDialog.clickRoomDialogSubmit();
+      await myRooms.infoPanel.hideDatePropertiesDetails();
       await screenshot.expectHaveScreenshot("long_name_tag_in_room");
       await myRooms.backToRooms();
       await screenshot.expectHaveScreenshot("long_name_tag_in_rooms_table");
     });
-  });
-
-  test.afterAll(async () => {
-    await api.cleanup();
-    await page.close();
   });
 });

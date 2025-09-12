@@ -1,6 +1,6 @@
 import { expect, Page } from "@playwright/test";
 import { BaseContextMenu } from "./BaseContextMenu";
-import { TInfoPanelTabs } from "../../utils/types/common";
+import { getTabInfo, TInfoPanelTabs } from "../../utils/types/common";
 import { TRoomCreateTitles } from "@/src/utils/constants/rooms";
 import { BaseDropdown } from "./BaseDropdown";
 import BaseToast from "./BaseToast";
@@ -143,7 +143,8 @@ class InfoPanel {
   }
 
   async openTab(tabName: TInfoPanelTabs) {
-    const tab = this.page.getByTestId(tabName);
+    const tabInfo = getTabInfo(tabName);
+    const tab = this.page.getByTestId(tabInfo.testId);
     await expect(tab).toBeVisible();
     await tab.click();
   }
