@@ -41,6 +41,10 @@ class RoomsCreateDialog extends BaseDialog {
     return this.page.locator(LOGO_NAME_CONTAINER).getByTestId("dropdown");
   }
 
+  async checkRoomTypeExist(roomType: TRoomCreateTitles) {
+    await expect(this.dialog.getByTitle(roomType)).toBeVisible();
+  }
+
   private get customizeCoverMenuItemImg() {
     
     return this.page
