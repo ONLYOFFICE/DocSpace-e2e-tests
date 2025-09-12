@@ -50,10 +50,7 @@ class BaseSelector {
         await this.selector.getByText("Back", { exact: true }).click();
         break;
       case "header":
-        await this.selector
-          .getByTestId("aside-header")
-          .locator(".icon-button_svg")
-          .click();
+        await this.selector.getByTestId("selector-add-button").click();
         break;
       default:
         break;

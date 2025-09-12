@@ -1,11 +1,15 @@
 import { test as base, Page } from "@playwright/test";
 import API from "@/src/api";
 import Login from "@/src/objects/common/Login";
+import { Payments } from "@/src/objects/settings/payments/Payments";
+import Services from "@/src/objects/settings/services/services";
 
 type TestFixtures = {
   api: API;
   page: Page;
   login: Login;
+  payments: Payments;
+  services: Services;
 };
 
 // Extend the base Playwright test with our fixtures
@@ -64,5 +68,17 @@ export const test = base.extend<TestFixtures>({
     const login = new Login(page, api.portalDomain);
 
     await use(login);
+  },
+
+  payments: async ({ page }, use) => {
+    const payments = new Payments(page);
+
+    await use(payments);
+  },
+
+  services: async ({ page }, use) => {
+    const services = new Services(page);
+
+    await use(services);
   },
 });
