@@ -110,6 +110,10 @@ class Services extends BasePage {
     return this.page.getByTestId("payer_info_help_button");
   }
 
+  get curentPaymentBlock() {
+    return this.page.getByTestId("text").filter({ hasText: "Subscription will be automatically renewed" });
+  }
+
   async open() {
     await this.navigateToSettings();
     await this.navigateToArticle(navItems.services);
@@ -192,6 +196,19 @@ class Services extends BasePage {
     await this.navigateToArticle(navItems.services);
     await this.backupSwitch.click();
     await this.continueButton.click();
+  }
+
+  async hideDateCurrentPayment() {
+    await this.curentPaymentBlock.evaluate((el) => {
+        const textElement = el.querySelector('[data-testid="text"]') || el;
+        if (textElement) {
+            // Remove any date between "on" and "with"
+            textElement.innerHTML = textElement.innerHTML.replace(
+                /on [^w]+ with/g,
+                'on with'
+            );
+        }
+    });
   }
 }
 
