@@ -100,7 +100,9 @@ class Screenshot {
             this.options.screenshotDir,
             `${screenshotName}.png`,
           ],
-          playwrightOptions,
+          {
+            ...playwrightOptions,
+          },
         );
         return;
       } catch (err) {
