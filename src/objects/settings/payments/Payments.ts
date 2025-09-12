@@ -206,6 +206,14 @@ export class Payments extends BasePage {
     return this.page.getByTestId("confirm_payment_button");
   }
 
+  get subscriptionBlock() {
+    return this.page.getByTestId("text").filter({ hasText: "Subscription will be automatically renewed" });
+  }
+
+  get startUpPlan() {
+    return this.page.getByTestId("text").filter({ hasText: "You are using free Startup plan" });
+  }
+
   async addPaymentsMethod(stripePage: Page) {
     await expect(this.addPaymentsMethodButton).toBeVisible();
     await expect(async () => {
@@ -232,7 +240,7 @@ export class Payments extends BasePage {
     await this.dialog.checkDialogTitleExist("Wallet refilled");
   }
 
-  async hideDates() {
+  async hideDatesWallet() {
     await this.table.checkTableExist();
 
     await this.table.mapTableRows(async (row) => {
@@ -251,6 +259,20 @@ export class Payments extends BasePage {
       el.textContent = "*hidden*";
     });
   }
+
+  async hideDateTariffPlan() {
+    await this.subscriptionBlock.evaluate((el) => {
+        const textElement = el.querySelector('[data-testid="text"]') || el;
+        if (textElement) {
+            // Remove any date between "on" and "with"
+            textElement.innerHTML = textElement.innerHTML.replace(
+                /on [^w]+ with/g,
+                'on with'
+            );
+        }
+    });
+  }
+
   async fillAmountTopUp(amount: number) {
     await this.plus10Button.click();
     await expect(this.amountTopUpInput).toHaveValue("10");
@@ -515,6 +537,9 @@ export class Payments extends BasePage {
     await this.upgradePlanCancelButton.click();
     await this.upgradeButton.click();
     await this.upgradePlanConfirmButton.click();
+    await expect(this.page.locator("#sectionScroll")).toContainText(
+      "You are using Business plan",
+    );
   }
 
   async payForBackup() {
@@ -532,5 +557,9 @@ export class Payments extends BasePage {
     await expect(this.page.locator("#sectionScroll")).toContainText(
       "You are using Business plan",
     );
+  }
+
+  thisStartUpPlan() {
+    return this.page.getByTestId("text").filter({ hasText: "You are using free Startup plan" });
   }
 }
