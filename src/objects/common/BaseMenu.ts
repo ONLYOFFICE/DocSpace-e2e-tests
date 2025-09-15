@@ -60,7 +60,7 @@ export abstract class BaseMenu {
     });
     await this.page.waitForTimeout(100);
 
-    const scroller = container.locator('[data-testid="scroller"]');
+    const scroller = container.locator('[data-testid="scroller"]').first();
     if (await scroller.count() > 0) {
         for (let i = 0; i < 30; i++) {
             if (await item.isVisible()) return;

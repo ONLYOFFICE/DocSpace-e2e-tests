@@ -12,6 +12,7 @@ const ROOM_SUBMIT_BUTTON = "#shared_create-room-modal_submit";
 const ROOM_TEMPLATE_SUBMIT_BUTTON = "#create-room-template-modal_submit";
 const LOGO_NAME_CONTAINER = "create_edit_room_icon";
 const TAG_NAME_INPUT = "create_edit_room_tags_input";
+const ROOM_NAME_INPUT = "create_edit_room_input";
 
 class RoomsCreateDialog extends BaseDialog {
   constructor(page: Page) {
@@ -108,7 +109,7 @@ class RoomsCreateDialog extends BaseDialog {
 
   async fillRoomName(name: string) {
     await this.fillInput(
-      this.page.getByRole("textbox", { name: "Name:" }),
+      this.page.getByTestId(ROOM_NAME_INPUT),
       name,
     );
   }
@@ -129,7 +130,7 @@ class RoomsCreateDialog extends BaseDialog {
   async createTag(tagName: string) {
     await this.fillTag(tagName);
     await this.page
-      .getByRole("option", { name: `Create tag “${tagName}”` })
+      .getByTestId('drop-down-item')
       .click();
   }
 
