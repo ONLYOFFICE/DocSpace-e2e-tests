@@ -39,7 +39,6 @@ test.describe("Tags", () => {
       await myRooms.roomsCreateDialog.selectCoverIcon();
       await myRooms.roomsCreateDialog.saveCover();
       await myRooms.roomsCreateDialog.fillRoomName("Tag Room");
-      await screenshot.expectHaveScreenshot("room_after_create");
       await myRooms.roomsCreateDialog.createTag("Tag1");
       await expect(page.getByText("Tag1")).toBeVisible();
       await screenshot.expectHaveScreenshot("room_after_create_tag");
@@ -58,6 +57,7 @@ test.describe("Tags", () => {
       await myRooms.roomsTable.clickTag("Tag1");
       await screenshot.expectHaveScreenshot("filter_tag_in_rooms_table");
       await myRooms.roomsFilter.openFilterDialog();
+      await expect(page.getByTestId("filter_block_item_content_filter-tags")).toBeVisible();
       await screenshot.expectHaveScreenshot("tag_in_filter");
       await myRooms.roomsFilter.cancelFilter();
     });

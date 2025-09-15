@@ -55,6 +55,7 @@ class RoomsCreateDialog extends BaseDialog {
   }
 
   async openRoomIconDropdown() {
+    await expect(this.roomIcon).toBeVisible();
     await this.roomIcon.click();
     await expect(this.roomIconDropdown).toBeVisible();
   }
