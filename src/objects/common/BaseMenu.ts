@@ -48,27 +48,36 @@ export abstract class BaseMenu {
   }
 
   protected async scrollUntilVisible(item: Locator, container: Locator) {
-    if (await item.isVisible()) {
+    // Даем элементу шанс появиться самому
+    if (await item.isVisible({ timeout: 2000 }).catch(() => false)) {
       return;
     }
 
-    // Scroll to the top of the container
-    await container.evaluate((el) => {
-      const scroller = el.querySelector("[data-testid='scroller']");
-      if (scroller) {
-        scroller.scrollTop = 0;
-      }
-    });
+    try {
+      // Пробуем просто подождать
+      await this.page.waitForTimeout(1000);
 
-    const maxScrolls = 100;
+      // Если элемент все еще не виден, пробуем скроллить
+      if (!(await item.isVisible({ timeout: 500 }).catch(() => false))) {
+        // Пробуем скроллить с помощью клавиш
+        for (let i = 0; i < 5; i++) {
+          await this.page.keyboard.press("ArrowDown");
+          await this.page.waitForTimeout(200);
 
-    for (let i = 0; i < maxScrolls; i++) {
-      if (await item.isVisible()) {
-        return;
+          if (await item.isVisible({ timeout: 500 }).catch(() => false)) {
+            return;
+          }
+        }
       }
-      await container.hover();
-      await this.page.mouse.wheel(0, 400);
-      await this.page.waitForTimeout(100);
+
+      // Последняя попытка - кликнуть в центр экрана
+      const viewport = this.page.viewportSize();
+      if (viewport) {
+        await this.page.mouse.click(viewport.width / 2, viewport.height / 2);
+      }
+    } catch (error) {
+      console.warn("Error during scroll:", error);
+      // Продолжаем выполнение, даже если что-то пошло не так
     }
   }
 

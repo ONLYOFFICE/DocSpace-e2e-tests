@@ -15,18 +15,15 @@ export default class BasePage {
 
   protected get optionsButton(): Locator {
     return this.page.getByTestId("profile_user_icon_button");
+    return this.page.getByTestId("profile_user_icon_button");
   }
 
   protected get settingsMenuItem(): Locator {
-    return this.page
-      .locator("li.p-menuitem a.p-menuitem-link")
-      .filter({ hasText: "Settings" });
+    return this.page.getByTestId("user-menu-settings");
   }
 
   protected get paymentsMenuItem(): Locator {
-    return this.page
-      .locator("li.p-menuitem a.p-menuitem-link")
-      .filter({ hasText: "Payments" });
+    return this.page.getByTestId("user-menu-payments");
   }
 
   async removeToast(message?: string, timeout?: number) {
