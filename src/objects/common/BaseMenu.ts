@@ -53,21 +53,31 @@ export abstract class BaseMenu {
       return;
     }
 
-    try {
-      //await this.page.waitForTimeout(1000);
-
-      if (!(await item.isVisible({ timeout: 500 }).catch(() => false))) {
-        for (let i = 0; i < 5; i++) {
-          await this.page.keyboard.press("ArrowDown");
-          await this.page.waitForTimeout(200);
-
-          if (await item.isVisible({ timeout: 500 }).catch(() => false)) {
-            return;
-          }
-        }
+    await container.evaluate((el) => {
+      const scroller = el.querySelector("[data-testid='scroller']");
+      if (scroller) {
+        scroller.scrollTop = 0;
       }
-    } catch (error) {
-      console.warn("Error during scroll:", error);
+    });
+    await this.page.waitForTimeout(100);
+
+    const scroller = container.locator('[data-testid="scroller"]');
+    if ((await scroller.count()) > 0) {
+      for (let i = 0; i < 30; i++) {
+        if (await item.isVisible()) return;
+
+        await scroller.hover();
+        await scroller.evaluate((el) => (el.scrollTop += 160));
+        await this.page.waitForTimeout(100);
+      }
+    }
+
+    for (let i = 0; i < 50; i++) {
+      if (await item.isVisible()) return;
+
+      await container.hover();
+      await this.page.mouse.wheel(0, 400);
+      await this.page.waitForTimeout(100);
     }
   }
 

@@ -3,7 +3,6 @@ import { expect, Page } from "@playwright/test";
 import {
   navItems,
   mapBackupMethodsIds,
-
   TBackupMethodsIds,
   TAutoBackupMethodsIds,
   TThirdPartyResource,
@@ -136,6 +135,17 @@ export class Backup extends BasePage {
     await this.locators.selectButton.click();
   }
 
+  async selectDocumentsNextCloud() {
+    await this.locators.forwardDocumentsNextCloud.click();
+    await this.locators.selectButton.click();
+    await this.locators.thirdPartyCreateCopyButton.click();
+  }
+
+  async selectDocumentsNextCloudAutoBackup() {
+    await this.locators.forwardDocumentsNextCloud.click();
+    await this.locators.selectButton.click();
+  }
+
   async backupRoom() {
     await this.enableAutoBackup();
     await this.openRoomSelector();
@@ -208,6 +218,7 @@ export class Backup extends BasePage {
   async activateAWSS3() {
     await this.navigateToArticle(navItems.integration);
     await this.integration.openTab(integrationTabs.thirdPartyServices);
+    await this.integration.s3SwitchClick();
     await this.integration.activateAWSS3();
   }
 
@@ -380,7 +391,9 @@ export class Backup extends BasePage {
   }
 
   async openThirdPartyServiceAutoBackup() {
-    await expect(this.locators.thirdPartyDropdownButtonAutoBackup).toBeVisible();
+    await expect(
+      this.locators.thirdPartyDropdownButtonAutoBackup,
+    ).toBeVisible();
     await expect(async () => {
       await this.locators.thirdPartyDropdownButtonAutoBackup.click();
       await expect(this.locators.autoThirdPartyDropdown).toBeVisible();

@@ -14,7 +14,7 @@ import { expect } from "@playwright/test";
 test.describe("Backup portal tests", () => {
   let backup: Backup;
   let screenshot: Screenshot;
-  
+
   test.beforeEach(async ({ page, login, payments, services }) => {
     screenshot = new Screenshot(page, {
       screenshotDir: "backup",
@@ -28,7 +28,7 @@ test.describe("Backup portal tests", () => {
     await backup.open();
   });
 
-  test("Manual backup", async ({ page }) => {
+  test("Manual backup", async () => {
     test.setTimeout(300000); // 5 min
     await test.step("Render", async () => {
       await screenshot.expectHaveScreenshot("render_data_backup");
@@ -112,15 +112,13 @@ test.describe("Backup portal tests", () => {
       );
       await backup.locators.saveButton.click();
       await backup.openRoomSelector();
-      await backup.locators.selectNextCloudRepo.click();
-      await backup.locators.selectButton.click();
-      await backup.locators.thirdPartyCreateCopyButton.click();
+      await backup.selectDocumentsNextCloud();
       await backup.removeToast(toastMessages.backCopyCreated, 40000);
       await backup.openActionMenuResource();
       await screenshot.expectHaveScreenshot(
         "backup_third_party_resource_action_menu",
       );
-      await backup.disconnectService(); 
+      await backup.disconnectService();
     });
 
     await test.step("Backup in Third-Party resource box", async () => {
@@ -150,7 +148,7 @@ test.describe("Backup portal tests", () => {
     });
   });
 
-  test("Auto backup", async ({ page }) => {    
+  test("Auto backup", async ({ page }) => {
     await test.step("Auto backup link", async () => {
       await backup.openTab("auto-backup_tab");
       await screenshot.expectHaveScreenshot("auto_backup");
@@ -213,14 +211,18 @@ test.describe("Backup portal tests", () => {
 
     await test.step("Auto backup in Third-Party resource NextCloud", async () => {
       await backup.enableAutoBackup();
-      await backup.selectAutoBackupMethod(mapAutoBackupMethodsIds.thirdPartyResource);
+      await backup.selectAutoBackupMethod(
+        mapAutoBackupMethodsIds.thirdPartyResource,
+      );
       await screenshot.expectHaveScreenshot("auto_backup_third_party_resource");
 
       await backup.openThirdPartyServiceAutoBackup();
       await screenshot.expectHaveScreenshot(
         "auto_backup_third_party_resource_dropdown",
       );
-      await backup.selectAutoThirdPartyResource(mapThirdPartyResource.nextcloud);
+      await backup.selectAutoThirdPartyResource(
+        mapThirdPartyResource.nextcloud,
+      );
       await backup.locators.connectButtonAutoBackup.click();
 
       await backup.fillConnectingNextcloudAccount();
@@ -231,10 +233,8 @@ test.describe("Backup portal tests", () => {
       await backup.locators.saveButton.click();
       await backup.openRoomSelector();
 
-      await backup.locators.selectNextCloudRepo.click();
-      await backup.locators.saveHereButton.click();
-      await backup.locators.saveAutoBackupButton.click();
-      await backup.removeToast(toastMessages.settingsUpdated);
+      await backup.selectDocumentsNextCloudAutoBackup();
+      await backup.saveAutoSavePeriod();
       await backup.openActionMenuResourceAutoBackup();
       await screenshot.expectHaveScreenshot(
         "auto_backup_third_party_resource_action_menu",
@@ -245,7 +245,9 @@ test.describe("Backup portal tests", () => {
 
     await test.step("Auto backup in Third-Party resource box", async () => {
       await backup.enableAutoBackup();
-      await backup.selectAutoBackupMethod(mapAutoBackupMethodsIds.thirdPartyResource);
+      await backup.selectAutoBackupMethod(
+        mapAutoBackupMethodsIds.thirdPartyResource,
+      );
       await backup.openThirdPartyServiceAutoBackup();
       await backup.selectAutoThirdPartyResource(mapThirdPartyResource.box);
       await backup.connectBoxAutoBackup();
@@ -272,7 +274,9 @@ test.describe("Backup portal tests", () => {
       await backup.navigateToArticle(navItems.backup);
       await backup.openTab("auto-backup_tab");
       await backup.enableAutoBackup();
-      await backup.selectAutoBackupMethod(mapAutoBackupMethodsIds.thirdPartyStorage);
+      await backup.selectAutoBackupMethod(
+        mapAutoBackupMethodsIds.thirdPartyStorage,
+      );
       await screenshot.expectHaveScreenshot("auto_backup_third_party_storage");
       await backup.locators.bucketInput.fill("portals-manual");
       await backup.openRegionDropdown();
@@ -282,14 +286,15 @@ test.describe("Backup portal tests", () => {
       await backup.regionDropdown.clickOption(
         "US East (N. Virginia) (us-east-1)",
       );
-       const [response] = await Promise.all([
-              page.waitForResponse(resp =>
-                resp.request().method() === 'POST' &&
-                resp.url().includes('/api/2.0/portal/createbackupschedule')
-              ),
-              backup.locators.saveAutoBackupButton.click(),
-            ]);
-            expect(response.status()).toBe(200);
+      const [response] = await Promise.all([
+        page.waitForResponse(
+          (resp) =>
+            resp.request().method() === "POST" &&
+            resp.url().includes("/api/2.0/portal/createbackupschedule"),
+        ),
+        backup.locators.saveAutoBackupButton.click(),
+      ]);
+      expect(response.status()).toBe(200);
       await backup.removeAllToast();
     });
   });
