@@ -49,28 +49,36 @@ export abstract class BaseMenu {
 
   protected async scrollUntilVisible(item: Locator, container: Locator) {
     if (await item.isVisible()) {
-      return;
-    }
-
-    // Scroll to the top of the container
-    await container.evaluate((el) => {
-      const scroller = el.querySelector("[data-testid='scroller']");
-      if (scroller) {
-        scroller.scrollTop = 0;
-      }
-    });
-
-    const maxScrolls = 100;
-
-    for (let i = 0; i < maxScrolls; i++) {
-      if (await item.isVisible()) {
         return;
-      }
-      await container.hover();
-      await this.page.mouse.wheel(0, 400);
-      await this.page.waitForTimeout(100);
     }
-  }
+
+    await container.evaluate((el) => {
+        const scroller = el.querySelector("[data-testid='scroller']");
+        if (scroller) {
+            scroller.scrollTop = 0;
+        }
+    });
+    await this.page.waitForTimeout(100);
+
+    const scroller = container.locator('[data-testid="scroller"]');
+    if (await scroller.count() > 0) {
+        for (let i = 0; i < 30; i++) {
+            if (await item.isVisible()) return;
+            
+            await scroller.hover();
+            await scroller.evaluate(el => el.scrollTop += 160);
+            await this.page.waitForTimeout(100);
+        }
+    }
+
+    for (let i = 0; i < 50; i++) {
+        if (await item.isVisible()) return;
+        
+        await container.hover();
+        await this.page.mouse.wheel(0, 400);
+        await this.page.waitForTimeout(100);
+    }
+}
 
   async hoverOption(selector: TMenuItem | string, isSubmenu = false) {
     const root = isSubmenu ? this.submenu : this.menu;
