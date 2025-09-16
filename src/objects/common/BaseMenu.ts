@@ -54,12 +54,9 @@ export abstract class BaseMenu {
     }
 
     try {
-      // Пробуем просто подождать
-      await this.page.waitForTimeout(1000);
+      //await this.page.waitForTimeout(1000);
 
-      // Если элемент все еще не виден, пробуем скроллить
       if (!(await item.isVisible({ timeout: 500 }).catch(() => false))) {
-        // Пробуем скроллить с помощью клавиш
         for (let i = 0; i < 5; i++) {
           await this.page.keyboard.press("ArrowDown");
           await this.page.waitForTimeout(200);
@@ -69,15 +66,8 @@ export abstract class BaseMenu {
           }
         }
       }
-
-      // Последняя попытка - кликнуть в центр экрана
-      const viewport = this.page.viewportSize();
-      if (viewport) {
-        await this.page.mouse.click(viewport.width / 2, viewport.height / 2);
-      }
     } catch (error) {
       console.warn("Error during scroll:", error);
-      // Продолжаем выполнение, даже если что-то пошло не так
     }
   }
 
