@@ -1,6 +1,6 @@
 import { expect, Page } from "@playwright/test";
 import BaseTable from "../common/BaseTable";
-import BaseContextMenu from "../common/BaseContextMenu";
+import { BaseContextMenu } from "../common/BaseContextMenu";
 import { initialDocNames } from "@/src/utils/constants/files";
 
 const TABLE_LIST_ITEM = ".table-list-item.window-item";
@@ -36,6 +36,12 @@ class FilesTable extends BaseTable {
 
   async openContextMenu() {
     await this.openContextMenuRow(this.docxFile);
+  }
+
+  async openContextMenuForItem(name: string) {
+    const item = this.page.locator(TABLE_LIST_ITEM, { hasText: name });
+    await expect(item).toBeVisible();
+    await this.openContextMenuRow(item);
   }
 
   async checkInitialDocsExist() {

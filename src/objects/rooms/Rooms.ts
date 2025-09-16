@@ -8,6 +8,7 @@ import RoomsTypesDropdown from "./RoomsTypeDropdown";
 import {
   roomCreateTitles,
   roomDialogSource,
+  roomToastMessages,
   TRoomDialogSource,
 } from "@/src/utils/constants/rooms";
 import RoomsArticle from "./RoomsArticle";
@@ -16,6 +17,7 @@ import RoomsChangeOwnerDialog from "./RoomsChangeOwnerDialog";
 import RoomsAccessSettingsDialog from "./RoomsAccessSettingsDialog";
 import RoomsFilter from "./RoomsFilter";
 import BaseInviteDialog from "../common/BaseInviteDialog";
+import BasePage from "../common/BasePage";
 
 const navActions = {
   moveToArchive: {
@@ -28,8 +30,7 @@ const navActions = {
   },
 } as const;
 
-class MyRooms {
-  private page: Page;
+class MyRooms extends BasePage {
   private portalDomain: string;
 
   roomsEmptyView: RoomsEmptyView;
@@ -47,7 +48,7 @@ class MyRooms {
   inviteDialog: BaseInviteDialog;
 
   constructor(page: Page, portalDomain: string) {
-    this.page = page;
+    super(page);
     this.portalDomain = portalDomain;
 
     this.navigation = new BaseNavigation(page, navActions);
@@ -72,6 +73,13 @@ class MyRooms {
     });
     await expect(this.page).toHaveURL(/.*rooms\/shared.*/);
     await this.roomsEmptyView.checkNoRoomsExist();
+  }
+
+  async openWithoutEmptyCheck() {
+    await this.page.goto(`https://${this.portalDomain}/rooms/shared`, {
+      waitUntil: "load",
+    });
+    await expect(this.page).toHaveURL(/.*rooms\/shared.*/);
   }
 
   async openTemplatesTab() {
@@ -134,6 +142,7 @@ class MyRooms {
   async moveAllRoomsToArchive() {
     await this.roomsTable.selectAllRows();
     await this.navigation.performAction(navActions.moveToArchive);
+    await this.removeToast(roomToastMessages.roomsArchived);
   }
 
   async moveToArchive() {
@@ -144,6 +153,7 @@ class MyRooms {
   async deleteAllRooms() {
     await this.roomsTable.selectAllRows();
     await this.navigation.performAction(navActions.delete);
+    await this.removeToast(roomToastMessages.selectedTemplatesDeleted);
   }
 }
 

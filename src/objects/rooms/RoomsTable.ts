@@ -1,7 +1,7 @@
 import { expect, Page } from "@playwright/test";
 import BaseTable from "../common/BaseTable";
 
-import BaseContextMenu from "../common/BaseContextMenu";
+import { BaseContextMenu } from "../common/BaseContextMenu";
 import {
   TRoomContextMenuOption,
   TTemplateContextMenuOption,
@@ -24,6 +24,10 @@ class RoomsTable extends BaseTable {
     await this.hideTableColumn(this.page.locator(LAST_ACTIVITY_CHECKBOX));
   }
 
+  async clickTag(tagValue: string) {
+    await this.page.locator(`[data-tag="${tagValue}"]`).click();
+  }
+
   async checkRoomPinnedToTopExist() {
     await expect(
       this.tableContainer.locator(TABLE_ITEM_PINNED_TO_TOP),
@@ -34,6 +38,11 @@ class RoomsTable extends BaseTable {
     option: TTemplateContextMenuOption | TRoomContextMenuOption,
   ) {
     await this.contextMenu.clickOption(option);
+  }
+
+  async openRoomByName(roomName: string) {
+    await this.page.getByRole("link", { name: roomName }).click();
+    await this.page.waitForURL(/rooms\/shared\/filter\?folder=/);
   }
 }
 

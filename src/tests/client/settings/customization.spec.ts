@@ -1,41 +1,27 @@
-import { test, Page, expect } from "@playwright/test";
-
-import API from "@/src/api";
-import Login from "@/src/objects/common/Login";
-
 import Screenshot from "@/src/objects/common/Screenshot";
 import Customization from "@/src/objects/settings/customization/Customization";
 import { PaymentApi } from "@/src/api/payment";
 
 import { Profile } from "@/src/objects/profile/Profile";
+import { test } from "@/src/fixtures";
+import { expect } from "@playwright/test";
+import { toastMessages } from "@/src/utils/constants/settings";
+// import MailChecker from "@/src/utils/helpers/MailChecker";
+// import config from "@/config";
 
 test.describe("Customization", () => {
-  let api: API;
   let paymentApi: PaymentApi;
-  let page: Page;
 
-  let login: Login;
   let screenshot: Screenshot;
   let customization: Customization;
 
-  test.beforeAll(async ({ playwright, browser }) => {
-    const apiContext = await playwright.request.newContext();
-    api = new API(apiContext);
-    paymentApi = new PaymentApi(apiContext, api.apisystem);
-    await api.setup();
-    console.log(api.portalDomain);
+  test.beforeEach(async ({ page, api, login }) => {
+    paymentApi = new PaymentApi(api.apiRequestContext, api.apisystem);
 
     const portalInfo = await paymentApi.getPortalInfo(api.portalDomain);
     await paymentApi.makePortalPayment(portalInfo.tenantId, 10);
     await paymentApi.refreshPaymentInfo(api.portalDomain);
 
-    page = await browser.newPage();
-
-    await page.addInitScript(() => {
-      globalThis.localStorage?.setItem("integrationUITests", "true");
-    });
-
-    login = new Login(page, api.portalDomain);
     screenshot = new Screenshot(page, {
       screenshotDir: "customization",
       fullPage: true,
@@ -46,49 +32,48 @@ test.describe("Customization", () => {
     await customization.open();
   });
 
-  test("Customization full flow", async () => {
-    // test.setTimeout(10 * 60 * 1000); // 10 minutes
+  test("Customization full flow", async ({ api, page }) => {
     await test.step("Change lang&time", async () => {
       await customization.changeLanguage("English (United States)");
       await customization.changeTimezone("(UTC) Antarctica/Troll");
       await customization.settingsTitle.click();
       await customization.saveButton.first().click();
-      await customization.removeToast();
+      await customization.removeToast(toastMessages.settingsUpdated);
       await customization.changeLanguage("English (United Kingdom)");
       await customization.changeTimezone("(UTC) Europe/London");
       await customization.settingsTitle.click();
       await customization.saveButton.first().click();
-      await customization.removeToast();
+      await customization.removeToast(toastMessages.settingsUpdated);
     });
 
     await test.step("Welcome page settings", async () => {
       await customization.setTitle();
-      await customization.removeToast();
+      await customization.removeToast(toastMessages.welcomePageSaved);
       await customization.restoreButton.nth(1).click();
-      await customization.removeToast();
+      await customization.removeToast(toastMessages.welcomePageSaved);
     });
 
     await test.step("Brand name", async () => {
       await customization.openTab("Branding");
       await customization.brandName();
-      await customization.removeToast();
+      await customization.removeToast(toastMessages.settingsUpdated);
       await screenshot.expectHaveScreenshot("brand_name");
     });
 
     await test.step("Generate logo from text", async () => {
       await customization.generateLogo();
-      await customization.removeToast();
+      await customization.removeToast(toastMessages.settingsUpdated);
       await screenshot.expectHaveScreenshot("generated_logo_from_text");
       await customization.restoreButton.nth(1).click();
-      await customization.removeToast();
+      await customization.removeToast(toastMessages.settingsUpdated);
     });
 
     await test.step("Branding upload pictures", async () => {
       await customization.uploadPictures();
-      await customization.removeToast();
+      await customization.removeToast(toastMessages.settingsUpdated);
       await screenshot.expectHaveScreenshot("branding_upload_pictures");
       await customization.restoreButton.nth(1).click();
-      await customization.removeToast();
+      await customization.removeToast(toastMessages.settingsUpdated);
     });
 
     await test.step("Appearance", async () => {
@@ -97,24 +82,24 @@ test.describe("Customization", () => {
       await customization.selectTheme();
       await customization.darkThemeOption.click();
       await customization.saveButtonAppearance.first().click();
-      await customization.removeToast();
+      await customization.removeToast(toastMessages.settingsUpdated);
       await screenshot.expectHaveScreenshot("appearance_dark_theme_1");
       await customization.selectTheme2();
       await customization.saveButtonAppearance.first().click();
-      await customization.removeToast();
+      await customization.removeToast(toastMessages.settingsUpdated);
       await screenshot.expectHaveScreenshot("appearance_dark_theme_2");
     });
 
     await test.step("Custom appereance", async () => {
       await customization.createCustomTheme("##0EEDE9", "#931073");
-      await customization.removeToast();
+      await customization.removeToast(toastMessages.settingsUpdated);
       await screenshot.expectHaveScreenshot("custom_appearance_theme_1");
       await customization.darkThemeOption.click();
       await customization.saveButtonAppearance.first().click();
-      await customization.removeToast();
+      await customization.removeToast(toastMessages.settingsUpdated);
       await screenshot.expectHaveScreenshot("custom_appearance_theme_2");
       await customization.deleteCustomTheme();
-      await customization.removeToast();
+      await customization.removeToast(toastMessages.settingsUpdated);
       await customization.checkCustomThemeNotExist();
       await screenshot.expectHaveScreenshot("custom_appearance_deleted_theme");
     });
@@ -172,7 +157,10 @@ test.describe("Customization", () => {
       );
       await page.waitForLoadState("domcontentloaded");
 
-      console.log("Portal renamed successfully, wait for email");
+      // console.log("Portal renamed successfully, wait for email");
+
+      // // Wait for email to arrive
+      // await new Promise((resolve) => setTimeout(resolve, 10000));
 
       // // Create a MailChecker instance
       // const mailChecker = new MailChecker({
@@ -184,15 +172,11 @@ test.describe("Customization", () => {
       // // Check for email with subject "Change of portal address"
       // const email = await mailChecker.checkEmailBySubject({
       //   subject: "Change of portal address",
+      //   timeoutSeconds: 30,
       //   moveOut: false,
+      //   timeoutSeconds: 60,
       // });
 
-      // // Check for email with subject "Change of portal address"
-      // const email = await mailChecker.checkEmailBySubject({
-      //   subject: "Change of portal address",
-      //   moveOut: false,
-      // });
-      // Log the found email
       // if (email) {
       //   console.log(
       //     `Found portal address change email with subject: "${email.subject}"`,
@@ -201,26 +185,28 @@ test.describe("Customization", () => {
 
       // // Final verification
       // expect(email).toBeTruthy();
+      // // Final verification
+      // expect(email).toBeTruthy();
 
       await customization.renamePortalBack(originalName);
       api.apisystem.setPortalDomain(`${originalName}.onlyoffice.io`);
       api.apisystem.setPortalName(originalName);
       await page.waitForURL(`https://${originalName}.onlyoffice.io/**`, {
         timeout: 30000,
+        waitUntil: "load",
       });
-      await page.waitForLoadState("domcontentloaded");
     });
 
     await test.step("Configure deep link", async () => {
       await customization.open();
       await customization.choseDeepLink();
-      await customization.removeToast();
+      await customization.removeToast(toastMessages.settingsUpdated);
       await customization.webOnly.click({ force: true });
       await customization.saveButton.nth(3).click();
-      await customization.removeToast();
+      await customization.removeToast(toastMessages.settingsUpdated);
       await customization.webOrApp.click({ force: true });
       await customization.saveButton.nth(3).click();
-      await customization.removeToast();
+      await customization.removeToast(toastMessages.settingsUpdated);
     });
 
     await test.step("Brand name email verification", async () => {
@@ -230,13 +216,14 @@ test.describe("Customization", () => {
       await customization.openTab("Branding");
       await customization.textInput.first().fill("autoTest");
       await customization.saveButton.first().click();
+      await customization.removeToast(toastMessages.settingsUpdated);
 
       // Request password change
       await profile.navigateToProfile();
       await profile.changePassword();
 
       // // Wait for email to arrive
-      // await new Promise((resolve) => setTimeout(resolve, 15000));
+      // await new Promise((resolve) => setTimeout(resolve, 10000));
 
       // // Create a MailChecker instance
       // const mailChecker = new MailChecker({
@@ -251,20 +238,11 @@ test.describe("Customization", () => {
       //   sender: "autoTest",
       //   moveOut: false,
       // });
-      // Check for email with subject "Confirm changing your password" and sender "autoTest"
-      // const email = await mailChecker.checkEmailBySenderAndSubject({
-      //   subject: "Confirm changing your password",
-      //   sender: "autoTest",
-      //   moveOut: false,
-      // });
 
       // // Final verification
       // expect(email).toBeTruthy();
+      // // Final verification
+      // expect(email).toBeTruthy();
     });
-  });
-
-  test.afterAll(async () => {
-    await api.cleanup();
-    await page.close();
   });
 });

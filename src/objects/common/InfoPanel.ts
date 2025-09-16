@@ -1,7 +1,9 @@
 import { expect, Page } from "@playwright/test";
-import ContextMenu from "./BaseContextMenu";
+import { BaseContextMenu } from "./BaseContextMenu";
 import { TInfoPanelTabs } from "../../utils/types/common";
 import { TRoomCreateTitles } from "@/src/utils/constants/rooms";
+import { BaseDropdown } from "./BaseDropdown";
+import BaseToast from "./BaseToast";
 
 const NO_ITEM_TEXT = ".no-item-text";
 const INFO_OPTIONS_ICON = "#info-options";
@@ -22,16 +24,19 @@ const SHARED_LINKS_WRAPPER = "[data-testid='shared-links']";
 const SHARED_LINKS_AVATAR =
   "[data-testid='avatar'] [data-has-username='false']";
 const CREATE_SHARED_LINKS_ICON = "[data-tooltip-id='file-links-tooltip']";
+const ROOM_ICON = ".item-icon [data-testid='room-icon']";
 
 class InfoPanel {
-  page: Page;
-  protected contextMenu: ContextMenu;
-  protected dropdown: ContextMenu;
+  protected page: Page;
+  protected contextMenu: BaseContextMenu;
+  protected dropdown: BaseDropdown;
+  protected toast: BaseToast;
 
   constructor(page: Page) {
     this.page = page;
-    this.contextMenu = new ContextMenu(page);
-    this.dropdown = new ContextMenu(page, true);
+    this.contextMenu = new BaseContextMenu(page);
+    this.dropdown = new BaseDropdown(page);
+    this.toast = new BaseToast(page);
   }
 
   private get noItemText() {
@@ -92,6 +97,11 @@ class InfoPanel {
       elements.forEach((el) => (el.style.display = "none")); // hide creation time
     });
   }
+  async hideRoomIcon() {
+    const icon = this.page.locator(ROOM_ICON).last();
+    await icon.waitFor({ state: "visible", timeout: 5_000 });
+    await icon.evaluate((el) => (el.style.display = "none"));
+  }
 
   async checkNoItemTextExist() {
     return await expect(this.noItemText).toBeVisible();
@@ -133,7 +143,9 @@ class InfoPanel {
   }
 
   async openTab(tabName: TInfoPanelTabs) {
-    await this.infoPanelTabs.getByText(tabName).click();
+    const tab = this.page.getByTestId(tabName);
+    await expect(tab).toBeVisible();
+    await tab.click();
   }
 
   async checkHistoryExist(title: string) {
@@ -179,11 +191,18 @@ class InfoPanel {
     await expect(membersTitle).toBeVisible();
   }
 
+  async removeSharedLinkCreatedToast() {
+    await this.toast.removeToast(
+      "Anyone with this link can read only. The link is valid for unlimited.",
+    );
+  }
+
   async createFirstSharedLink() {
     await expect(this.sharedLinksAvatar).toHaveCount(0);
     const createAndCopy = this.sharedLinksWrapper.getByText("Create and copy");
     await expect(createAndCopy).toBeVisible();
     await createAndCopy.click();
+    await this.removeSharedLinkCreatedToast();
     await expect(this.sharedLinksAvatar).toHaveCount(1);
   }
 

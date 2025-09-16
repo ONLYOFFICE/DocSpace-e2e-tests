@@ -50,14 +50,15 @@ class BaseSelector {
         await this.selector.getByText("Back", { exact: true }).click();
         break;
       case "header":
-        await this.selector
-          .getByTestId("aside-header")
-          .locator(".icon-button_svg")
-          .click();
+        await this.selector.getByTestId("selector-add-button").click();
         break;
       default:
         break;
     }
+  }
+
+  async checkSelectorAddButtonExist() {
+    await expect(this.selectorAddButton).toBeVisible();
   }
 
   async checkEmptyContainerExist() {
@@ -69,17 +70,21 @@ class BaseSelector {
   async select(type: "documents" | "rooms") {
     switch (type) {
       case "documents":
-        await this.selector.getByTestId("selector-item-0").click();
+        await this.selectItemByIndex(0);
         break;
       case "rooms":
-        await this.selector.getByTestId("selector-item-1").click();
+        await this.selectItemByIndex(1);
         break;
     }
   }
 
   async acceptCreate() {
     await expect(this.newSelectorItem).toBeVisible();
-    await this.newSelectorItem.getByRole("img").nth(1).click();
+    // TODO ACCEPT BUTTON BY TEST ID;
+    await this.page
+      .locator(".Selector-module__inputWrapper--PcjcU")
+      .first()
+      .click();
     await expect(this.newSelectorItem).not.toBeVisible();
   }
 
@@ -93,6 +98,7 @@ class BaseSelector {
 
   async selectItemByText(text: string, doubleClick = false) {
     const item = await this.getItemByName(text);
+
     if (doubleClick) {
       await item.dblclick();
     } else {
@@ -100,8 +106,18 @@ class BaseSelector {
     }
   }
 
-  async selectFirstItem() {
-    await this.selector.getByTestId("selector-item-1").click();
+  async selectItemByIndex(index: number, doubleClick = false) {
+    if (index < 0) {
+      throw new Error("Index must be a non-negative number");
+    }
+
+    const item = this.selector.getByTestId(`selector-item-${index}`);
+
+    if (doubleClick) {
+      await item.dblclick();
+    } else {
+      await item.click();
+    }
   }
 
   async createNewItem() {

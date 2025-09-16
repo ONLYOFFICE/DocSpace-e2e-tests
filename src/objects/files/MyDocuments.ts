@@ -6,9 +6,9 @@ import InfoPanel from "../common/InfoPanel";
 import FilesTable from "./FilesTable";
 import FilesFilter from "./FilesFilter";
 import FilesEmptyView from "./FilesEmptyView";
+import BasePage from "../common/BasePage";
 
-class MyDocuments {
-  private page: Page;
+class MyDocuments extends BasePage {
   private portalDomain: string;
 
   filesArticle: FilesArticle;
@@ -21,7 +21,7 @@ class MyDocuments {
   infoPanel: InfoPanel;
 
   constructor(page: Page, portalDomain: string) {
-    this.page = page;
+    super(page);
     this.portalDomain = portalDomain;
 
     this.infoPanel = new InfoPanel(page);
@@ -36,8 +36,8 @@ class MyDocuments {
 
   async open() {
     await this.page.goto(`https://${this.portalDomain}/rooms/personal`);
-    await this.page.waitForLoadState("load");
     await expect(this.page).toHaveURL(/.*rooms\/personal.*/);
+    await this.page.waitForLoadState("load");
   }
 
   async openRecentlyAccessibleTab() {
@@ -47,6 +47,7 @@ class MyDocuments {
   async deleteAllDocs() {
     await this.filesTable.selectAllRows();
     await this.filesNavigation.delete();
+    await this.removeToast("successfully moved to Trash");
     await this.filesEmptyView.checkNoDocsTextExist();
   }
 }

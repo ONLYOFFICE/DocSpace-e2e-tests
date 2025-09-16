@@ -11,8 +11,17 @@ class BaseToast {
     return this.page.locator("#toast-container").getByRole("alert");
   }
 
-  async removeToast(text?: string) {
-    await expect(this.toast).toBeVisible();
+  async removeAllToast() {
+    const toasts = await this.toast.all();
+
+    for (const toast of toasts) {
+      await toast.click();
+      await expect(toast).not.toBeVisible();
+    }
+  }
+
+  async removeToast(text?: string, timeout?: number) {
+    await expect(this.toast).toBeVisible({ timeout });
     if (text) {
       await expect(this.toast).toContainText(text);
     }

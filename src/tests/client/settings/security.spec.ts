@@ -6,6 +6,8 @@ import { PaymentApi } from "@/src/api/payment";
 
 import Screenshot from "@/src/objects/common/Screenshot";
 import Security from "@/src/objects/settings/security/Security";
+import { test } from "@/src/fixtures";
+import { expect } from "@playwright/test";
 
 test.describe("Security tests", () => {
   let paymentApi: PaymentApi;
@@ -13,6 +15,11 @@ test.describe("Security tests", () => {
 
   let security: Security;
 
+  test.beforeEach(async ({ page, api, login }) => {
+    paymentApi = new PaymentApi(api.apiRequestContext, api.apisystem);
+    const portalInfo = await paymentApi.getPortalInfo(api.portalDomain);
+    await paymentApi.makePortalPayment(portalInfo.tenantId, 10);
+    await paymentApi.refreshPaymentInfo(api.portalDomain);
   test.beforeEach(async ({ page, api, login }) => {
     paymentApi = new PaymentApi(api.apiRequestContext, api.apisystem);
     const portalInfo = await paymentApi.getPortalInfo(api.portalDomain);
@@ -26,9 +33,11 @@ test.describe("Security tests", () => {
     security = new Security(page);
 
     await login.loginToPortal();
+    await login.loginToPortal();
     await security.open();
   });
 
+  test("All security scenarios", async ({ page }) => {
   test("All security scenarios", async ({ page }) => {
     await test.step("Password strength", async () => {
       await security.updatePasswordStrength(17);
