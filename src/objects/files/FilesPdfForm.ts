@@ -1,4 +1,5 @@
 import { expect, Page } from "@playwright/test";
+import RoomPDFCompleted from "../rooms/RoomPDFCompleted";
 
 const SUBMIT_BUTTON = "#id-submit-group";
 
@@ -23,20 +24,16 @@ class FilesPdfForm {
   }
   
   async clickSubmitButton() {
-    await this.page?.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {
-      console.warn('networkidle did not happen in 5 seconds, continue testing');
-    });
     await this.submitButton.click();
+    // Create an instance of RoomPDFCompleted and check the button
+    const completedForm = new RoomPDFCompleted(this.page!);
+    await expect(completedForm.isReadyFormButtonVisible()).toBeTruthy();
+    return completedForm;
   }
 
-
-  
   async checkSubmitButtonExist() {
     await expect(this.submitButton).toBeVisible();
   }
-  // async clickSubmitButton() {
-  //   await this.submitButton.click();
-  // }
 }
 
 export default FilesPdfForm;

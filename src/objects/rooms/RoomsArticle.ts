@@ -9,10 +9,13 @@ class RoomsArticle extends BaseArticle {
   private get newRoomButton() {
     return this.articleContainer.getByRole("button", { name: "New room" });
   }
-
+  private get dialogHeader() {
+    return this.page.getByTestId("aside-header");
+  }
   async openCreateDialog() {
     await expect(this.newRoomButton).toBeVisible();
     await this.newRoomButton.click();
+    await expect(this.dialogHeader).toBeVisible();
   }
 }
 

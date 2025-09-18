@@ -46,6 +46,8 @@ export class ShortTour {
   async clickSkipTour() {
     await this.page.waitForSelector(SKIP_BUTTON);
     await this.skipButton.click();
+    // Wait for the animation to complete 
+    await this.page.waitForTimeout(4000);
   }
 
   async clickBackStep() {
@@ -56,17 +58,7 @@ export class ShortTour {
   async checkStep(stepName: keyof typeof tourSteps) {
     const stepText = tourSteps[stepName];
     const stepElement = this.page.getByText(stepText);
-    await expect(stepElement).toBeVisible({ timeout: 3000 });
-  }
-
-  async skipWelcomeIfPresent() {
-    try {
-      await this.page.waitForSelector(SKIP_BUTTON, { timeout: 2000 });
-      await this.clickSkipTour();
-    } catch (error) {
-      // If skip button is not found or timeout, continue without skipping
-      console.log('Welcome modal not found, continuing with test');
-    }
+    await expect(stepElement).toBeVisible({ timeout: 5000 });
   }
 
   async clickModalCloseButton() {

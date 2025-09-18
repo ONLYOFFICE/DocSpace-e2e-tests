@@ -30,7 +30,10 @@ class RoomPDFCompleted {
   async chooseFillItOutAgain() {
     await this.fillItOutAgainButton.click();
   }
-
+  
+  public async isReadyFormButtonVisible() {
+    return this.checkReadyFormButton.isVisible();
+  }
   private get checkReadyFormButton() {
     return this.page.getByTestId(CHECK_READY_FORM);
   }

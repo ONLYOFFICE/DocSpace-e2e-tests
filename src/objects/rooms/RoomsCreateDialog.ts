@@ -8,17 +8,21 @@ import Screenshot from "../common/Screenshot";
 import BaseDialog from "../common/BaseDialog";
 import { waitForGetRoomsResponse } from "./api";
 
-const ROOM_SUBMIT_BUTTON = "#shared_create-room-modal_submit";
+const ROOM_SUBMIT_BUTTON = "create_room_dialog_save";
 const ROOM_TEMPLATE_SUBMIT_BUTTON = "#create-room-template-modal_submit";
-const LOGO_NAME_CONTAINER = ".logo-name-container";
-const TAG_NAME_INPUT = "#shared_tags-input";
+const LOGO_NAME_CONTAINER = "create_edit_room_icon";
+const TAG_NAME_INPUT = "create_edit_room_tags_input";
+const ROOM_NAME_INPUT = "create_edit_room_input";
+const ROOM_TYPE_DROPDOWN_BUTTON = "room-type-dropdown-button";
+const CUSTOMIZE_COVER_BUTTON = "create_edit_room_customize_cover";
+
 class RoomsCreateDialog extends BaseDialog {
   constructor(page: Page) {
     super(page);
   }
 
   private get roomDialogSubmitButton() {
-    return this.page.locator(ROOM_SUBMIT_BUTTON);
+    return this.page.getByTestId(ROOM_SUBMIT_BUTTON);
   }
 
   private get roomTemplateSubmitButton() {
@@ -26,15 +30,19 @@ class RoomsCreateDialog extends BaseDialog {
   }
 
   private get roomTypeDropdownButton() {
-    return this.page.getByTestId("room-type-dropdown-button");
+    return this.page.getByTestId(ROOM_TYPE_DROPDOWN_BUTTON);
   }
 
   private get roomIcon() {
-    return this.page.locator(LOGO_NAME_CONTAINER).getByTestId("empty-icon");
+    return this.page.getByTestId(LOGO_NAME_CONTAINER).getByTestId("empty-icon");
   }
 
   private get roomIconDropdown() {
-    return this.page.locator(LOGO_NAME_CONTAINER).getByTestId("dropdown");
+    return this.page.getByTestId(LOGO_NAME_CONTAINER).getByTestId("dropdown");
+  }
+
+  private get customizeCoverButton() {
+    return this.page.getByTestId(CUSTOMIZE_COVER_BUTTON);
   }
 
   async checkRoomTypeExist(roomType: TRoomCreateTitles) {
@@ -53,12 +61,13 @@ class RoomsCreateDialog extends BaseDialog {
   }
 
   async openRoomIconDropdown() {
+    await expect(this.roomIcon).toBeVisible();
     await this.roomIcon.click();
     await expect(this.roomIconDropdown).toBeVisible();
   }
 
   async clickCustomizeCover() {
-    await this.roomIconDropdown.getByText("Customize cover").click();
+    await this.customizeCoverButton.click();
   }
 
   async openRoomCover() {
@@ -69,21 +78,19 @@ class RoomsCreateDialog extends BaseDialog {
     }
     await this.clickCustomizeCover();
     await expect(this.page.getByText("Room cover")).toBeVisible();
-    await expect(
-      this.page.locator(".cover-icon-container svg").first(),
-    ).toBeVisible();
+    await expect(this.page.getByTestId('color_item_selected_0')).toBeVisible();
   }
 
   async selectCoverColor() {
-    await this.page.locator(".colors-container [color='#6191F2']").click();
+    await this.page.getByTestId("color_item_6").click();
   }
 
   async selectCoverIcon() {
-    await this.page.locator(".cover-icon-container div").first().click();
+    await this.page.getByTestId("room_logo_cover_icon_0").click();
   }
 
   async saveCover() {
-    await this.page.getByRole("button", { name: "Apply" }).click();
+    await this.page.getByTestId("room_logo_cover_apply_button").click();
   }
 
   async checkNoTemplatesFoundExist() {
@@ -109,7 +116,7 @@ class RoomsCreateDialog extends BaseDialog {
 
   async fillRoomName(name: string) {
     await this.fillInput(
-      this.page.getByRole("textbox", { name: "Name:" }),
+      this.page.getByTestId(ROOM_NAME_INPUT),
       name,
     );
   }
@@ -122,13 +129,15 @@ class RoomsCreateDialog extends BaseDialog {
   }
 
   async fillTag(tagName: string) {
-    await this.fillInput(this.page.locator(TAG_NAME_INPUT), tagName);
+    const tagInput = this.page.getByTestId(TAG_NAME_INPUT);
+    await tagInput.fill(tagName);
+    await this.fillInput(tagInput, tagName);
   }
 
   async createTag(tagName: string) {
     await this.fillTag(tagName);
     await this.page
-      .getByRole("option", { name: `Create tag “${tagName}”` })
+      .getByTestId('drop-down-item')
       .click();
   }
 

@@ -18,6 +18,11 @@ import RoomsAccessSettingsDialog from "./RoomsAccessSettingsDialog";
 import RoomsFilter from "./RoomsFilter";
 import BaseInviteDialog from "../common/BaseInviteDialog";
 import BasePage from "../common/BasePage";
+import RoomEmptyView from "./RoomEmptyView";
+import BaseSelector from "../common/BaseSelector";
+import RoomsSelectPanel from "./RoomsSelectPanel";
+import BaseToast from "../common/BaseToast";
+import FilesTable from "../files/FilesTable";
 
 const navActions = {
   moveToArchive: {
@@ -32,12 +37,12 @@ const navActions = {
 
 class MyRooms extends BasePage {
   private portalDomain: string;
+  private page: Page;
 
   roomsEmptyView: RoomsEmptyView;
   roomsCreateDialog: RoomsCreateDialog;
   roomsChangeOwnerDialog: RoomsChangeOwnerDialog;
   navigation: BaseNavigation;
-
   infoPanel: InfoPanel;
   roomsTable: RoomsTable;
   roomsTypeDropdown: RoomsTypesDropdown;
@@ -46,15 +51,20 @@ class MyRooms extends BasePage {
   roomsAccessSettingsDialog: RoomsAccessSettingsDialog;
   roomsFilter: RoomsFilter;
   inviteDialog: BaseInviteDialog;
+  roomEmptyView: RoomEmptyView;
+  selector: BaseSelector;
+  selectPanel: RoomsSelectPanel;
+  filesTable: FilesTable;
+  toast: BaseToast;
 
   constructor(page: Page, portalDomain: string) {
     super(page);
     this.portalDomain = portalDomain;
+    this.page = page;
 
     this.navigation = new BaseNavigation(page, navActions);
-
     this.infoPanel = new InfoPanel(page);
-
+    this.roomEmptyView = new RoomEmptyView(page);
     this.roomsTable = new RoomsTable(page);
     this.roomsEmptyView = new RoomsEmptyView(page);
     this.roomsCreateDialog = new RoomsCreateDialog(page);
@@ -65,6 +75,10 @@ class MyRooms extends BasePage {
     this.roomsAccessSettingsDialog = new RoomsAccessSettingsDialog(page);
     this.roomsFilter = new RoomsFilter(page);
     this.inviteDialog = new BaseInviteDialog(page);
+    this.selector = new BaseSelector(page);
+    this.selectPanel = new RoomsSelectPanel(page);
+    this.filesTable = new FilesTable(page);
+    this.toast = new BaseToast(page);
   }
 
   async open() {
@@ -155,18 +169,75 @@ class MyRooms extends BasePage {
     await this.navigation.performAction(navActions.delete);
     await this.removeToast(roomToastMessages.selectedTemplatesDeleted);
   }
-  async createFormFillingRoom() {
+  async createFormFillingRoom(roomName: string) {
     await this.roomsArticle.openCreateDialog();
     await this.roomsCreateDialog.openRoomType(roomCreateTitles.formFilling);
     await this.roomsCreateDialog.openRoomCover();
-    await this.roomsCreateDialog.createRoomWithCover(roomCreateTitles.formFilling);
+    await this.roomsCreateDialog.selectCoverColor();
+    await this.roomsCreateDialog.selectCoverIcon();
+    await this.roomsCreateDialog.saveCover();
+    await this.roomsCreateDialog.fillRoomName(roomName);
+    await this.roomsCreateDialog.clickRoomDialogSubmit();
+
   }
 
   async openRoom(roomName: string) {
-    await this.roomsTable.openContextMenuForItem(roomName);
+    await this.roomsTable.openContextMenu(roomName);
     await this.roomsTable.contextMenu.clickOption("Open");
   }
 
+  async openAndClosePdfForm(fileName: string) {
+    await this.filesTable.openContextMenuForItem(fileName);    
+    await this.filesTable.contextMenu.clickOption("Fill");
+    
+    const [filledPage] = await Promise.all([
+      this.page.context().waitForEvent("page", { timeout: 5000 }),
+    ]).catch(() => [null]);
+        
+    if (filledPage) {
+      await filledPage.waitForLoadState("networkidle");
+      await filledPage?.close();
+    }
+  }
+
+  setPage(page: Page) {
+    this.page = page;
+    this.navigation = new BaseNavigation(page, navActions);
+    this.infoPanel = new InfoPanel(page);
+    this.roomEmptyView = new RoomEmptyView(page);
+    this.roomsTable = new RoomsTable(page);
+    this.roomsEmptyView = new RoomsEmptyView(page);
+    this.roomsCreateDialog = new RoomsCreateDialog(page);
+    this.roomsTypeDropdown = new RoomsTypesDropdown(page);
+    this.roomsArticle = new RoomsArticle(page);
+    this.roomsEditDialog = new RoomsEditDialog(page);
+    this.roomsChangeOwnerDialog = new RoomsChangeOwnerDialog(page);
+    this.roomsAccessSettingsDialog = new RoomsAccessSettingsDialog(page);
+    this.roomsFilter = new RoomsFilter(page);
+    this.inviteDialog = new BaseInviteDialog(page);
+    this.selector = new BaseSelector(page);
+    this.selectPanel = new RoomsSelectPanel(page);
+    this.filesTable = new FilesTable(page);
+    this.toast = new BaseToast(page);
+  }
+
+  async gotoFolder(folderName: string) {
+    await this.page.waitForSelector(".title-block", { 
+      state: 'visible', 
+      timeout: 10000 
+    });
+    const responsePromise = this.page.waitForResponse(response => {
+      return response.url().includes('/api/2.0/files') && 
+             response.request().method() === 'GET' &&
+             response.status() === 200;
+    });
+  
+    await this.filesTable.openContextMenuForItem(folderName);    
+    await this.filesTable.contextMenu.clickOption("Open");
+  
+    await responsePromise;
+  
+  }
 }
 
 export default MyRooms;
