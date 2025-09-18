@@ -170,7 +170,7 @@ class InfoPanel {
   async getSizeInBytes(): Promise<number> {
     const size = await this.getSizeProperty();
     if (!size) {
-      throw new Error('Размер файла не найден!');
+      throw new Error('Size not found');
     }
     const sizeStr = size.replace(/^Size\s*/i, '').trim();
     const match = sizeStr.match(/([\d.]+)\s*(KB|MB|B)/i);
