@@ -15,7 +15,7 @@ export const FILTER = {
   DIALOG: "#modal-dialog",
   APPLY_BUTTON: "#filter_apply-button",
   CANCEL_BUTTON: "#filter_cancel-button",
-  CLEAR_BUTTON: ".additional-icons-container",
+  CLEAR_BUTTON: "filter_clear_button",
 } as const;
 
 export const SEARCH = {
@@ -124,7 +124,7 @@ class BaseFilter {
   }
 
   async clearFilterDialog() {
-    await this.page.locator(FILTER.CLEAR_BUTTON).click();
+    await this.page.getByTestId(FILTER.CLEAR_BUTTON).click();
     await expect(this.filterDialog).toBeVisible();
   }
 
