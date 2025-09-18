@@ -12,6 +12,7 @@ class RoomsArticle extends BaseArticle {
   private get dialogHeader() {
     return this.page.getByTestId("aside-header");
   }
+
   async openCreateDialog() {
     await expect(this.newRoomButton).toBeVisible();
     await this.newRoomButton.click();

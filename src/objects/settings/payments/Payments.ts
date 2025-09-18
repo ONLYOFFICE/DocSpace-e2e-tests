@@ -207,11 +207,15 @@ export class Payments extends BasePage {
   }
 
   get subscriptionBlock() {
-    return this.page.getByTestId("text").filter({ hasText: "Subscription will be automatically renewed" });
+    return this.page
+      .getByTestId("text")
+      .filter({ hasText: "Subscription will be automatically renewed" });
   }
 
   get startUpPlan() {
-    return this.page.getByTestId("text").filter({ hasText: "You are using free Startup plan" });
+    return this.page
+      .getByTestId("text")
+      .filter({ hasText: "You are using free Startup plan" });
   }
 
   async addPaymentsMethod(stripePage: Page) {
@@ -262,14 +266,14 @@ export class Payments extends BasePage {
 
   async hideDateTariffPlan() {
     await this.subscriptionBlock.evaluate((el) => {
-        const textElement = el.querySelector('[data-testid="text"]') || el;
-        if (textElement) {
-            // Remove any date between "on" and "with"
-            textElement.innerHTML = textElement.innerHTML.replace(
-                /on [^w]+ with/g,
-                'on with'
-            );
-        }
+      const textElement = el.querySelector('[data-testid="text"]') || el;
+      if (textElement) {
+        // Remove any date between "on" and "with"
+        textElement.innerHTML = textElement.innerHTML.replace(
+          /on [^w]+ with/g,
+          "on with",
+        );
+      }
     });
   }
 
@@ -560,6 +564,8 @@ export class Payments extends BasePage {
   }
 
   thisStartUpPlan() {
-    return this.page.getByTestId("text").filter({ hasText: "You are using free Startup plan" });
+    return this.page
+      .getByTestId("text")
+      .filter({ hasText: "You are using free Startup plan" });
   }
 }

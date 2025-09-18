@@ -49,36 +49,36 @@ export abstract class BaseMenu {
 
   protected async scrollUntilVisible(item: Locator, container: Locator) {
     if (await item.isVisible()) {
-        return;
+      return;
     }
 
     await container.evaluate((el) => {
-        const scroller = el.querySelector("[data-testid='scroller']");
-        if (scroller) {
-            scroller.scrollTop = 0;
-        }
+      const scroller = el.querySelector("[data-testid='scroller']");
+      if (scroller) {
+        scroller.scrollTop = 0;
+      }
     });
     await this.page.waitForTimeout(100);
 
     const scroller = container.locator('[data-testid="scroller"]').first();
-    if (await scroller.count() > 0) {
-        for (let i = 0; i < 30; i++) {
-            if (await item.isVisible()) return;
-            
-            await scroller.hover();
-            await scroller.evaluate(el => el.scrollTop += 160);
-            await this.page.waitForTimeout(100);
-        }
+    if ((await scroller.count()) > 0) {
+      for (let i = 0; i < 30; i++) {
+        if (await item.isVisible()) return;
+
+        await scroller.hover();
+        await scroller.evaluate((el) => (el.scrollTop += 160));
+        await this.page.waitForTimeout(100);
+      }
     }
 
     for (let i = 0; i < 50; i++) {
-        if (await item.isVisible()) return;
-        
-        await container.hover();
-        await this.page.mouse.wheel(0, 400);
-        await this.page.waitForTimeout(100);
+      if (await item.isVisible()) return;
+
+      await container.hover();
+      await this.page.mouse.wheel(0, 400);
+      await this.page.waitForTimeout(100);
     }
-}
+  }
 
   async hoverOption(selector: TMenuItem | string, isSubmenu = false) {
     const root = isSubmenu ? this.submenu : this.menu;

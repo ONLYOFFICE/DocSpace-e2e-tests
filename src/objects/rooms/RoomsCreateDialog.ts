@@ -35,6 +35,7 @@ class RoomsCreateDialog extends BaseDialog {
 
   private get roomIcon() {
     return this.page.getByTestId(LOGO_NAME_CONTAINER).getByTestId("empty-icon");
+    return this.page.getByTestId(LOGO_NAME_CONTAINER).getByTestId("empty-icon");
   }
 
   private get roomIconDropdown() {
@@ -62,6 +63,7 @@ class RoomsCreateDialog extends BaseDialog {
 
   async openRoomIconDropdown() {
     await expect(this.roomIcon).toBeVisible();
+    await expect(this.roomIcon).toBeVisible();
     await this.roomIcon.click();
     await expect(this.roomIconDropdown).toBeVisible();
   }
@@ -83,13 +85,16 @@ class RoomsCreateDialog extends BaseDialog {
 
   async selectCoverColor() {
     await this.page.getByTestId("color_item_6").click();
+    await this.page.getByTestId("color_item_6").click();
   }
 
   async selectCoverIcon() {
     await this.page.getByTestId("room_logo_cover_icon_0").click();
+    await this.page.getByTestId("room_logo_cover_icon_0").click();
   }
 
   async saveCover() {
+    await this.page.getByTestId("room_logo_cover_apply_button").click();
     await this.page.getByTestId("room_logo_cover_apply_button").click();
   }
 
@@ -129,6 +134,9 @@ class RoomsCreateDialog extends BaseDialog {
   }
 
   async fillTag(tagName: string) {
+    const tagInput = this.page.getByTestId(TAG_NAME_INPUT);
+    await tagInput.fill(tagName);
+    await this.fillInput(tagInput, tagName);
     const tagInput = this.page.getByTestId(TAG_NAME_INPUT);
     await tagInput.fill(tagName);
     await this.fillInput(tagInput, tagName);

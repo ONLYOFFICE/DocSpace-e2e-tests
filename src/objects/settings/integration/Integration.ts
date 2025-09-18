@@ -323,7 +323,9 @@ export class Integration extends BasePage {
   }
 
   get s3Switch() {
-    return this.page.getByTestId('consumer_s3_item').getByTestId('toggle-button-container');
+    return this.page
+      .getByTestId("consumer_s3_item")
+      .getByTestId("toggle-button-container");
   }
 
   get s3AccessKey() {
@@ -549,7 +551,6 @@ export class Integration extends BasePage {
     await this.facebookSwitch.click();
     await this.removeToast(toastMessages.deactivatedSuccessfully);
   }
-
 
   async s3SwitchClick() {
     await expect(this.s3Switch).toBeVisible();

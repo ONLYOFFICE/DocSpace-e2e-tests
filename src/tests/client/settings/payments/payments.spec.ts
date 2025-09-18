@@ -203,7 +203,7 @@ test.describe("Payments", () => {
       await payments.openTab(paymentsTab.tariffPlan);
       await expect(payments.thisStartUpPlan()).toBeVisible();
       await payments.changeTariffPlan();
-      await payments.hideDateTariffPlan();  
+      await payments.hideDateTariffPlan();
       await screenshot.expectHaveScreenshot("payment_business_plan");
     });
   });

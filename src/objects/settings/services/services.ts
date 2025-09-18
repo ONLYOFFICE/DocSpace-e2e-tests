@@ -111,7 +111,9 @@ class Services extends BasePage {
   }
 
   get curentPaymentBlock() {
-    return this.page.getByTestId("text").filter({ hasText: "Subscription will be automatically renewed" });
+    return this.page
+      .getByTestId("text")
+      .filter({ hasText: "Subscription will be automatically renewed" });
   }
 
   async open() {
@@ -200,14 +202,14 @@ class Services extends BasePage {
 
   async hideDateCurrentPayment() {
     await this.curentPaymentBlock.evaluate((el) => {
-        const textElement = el.querySelector('[data-testid="text"]') || el;
-        if (textElement) {
-            // Remove any date between "on" and "with"
-            textElement.innerHTML = textElement.innerHTML.replace(
-                /on [^w]+ with/g,
-                'on with'
-            );
-        }
+      const textElement = el.querySelector('[data-testid="text"]') || el;
+      if (textElement) {
+        // Remove any date between "on" and "with"
+        textElement.innerHTML = textElement.innerHTML.replace(
+          /on [^w]+ with/g,
+          "on with",
+        );
+      }
     });
   }
 }
