@@ -1,4 +1,3 @@
-import { Page } from "@playwright/test";
 import { expect } from "@playwright/test";
 import { test } from "@/src/fixtures";
 import MyRooms from "@/src/objects/rooms/Rooms";
@@ -17,8 +16,7 @@ test.describe("Tags", () => {
   let myRooms: MyRooms;
 
   test.beforeEach(async ({ page, api, login }) => {
-
-      screenshot = new Screenshot(page, {
+    screenshot = new Screenshot(page, {
       screenshotDir: "rooms",
       suiteName: "tags",
     });
@@ -57,7 +55,9 @@ test.describe("Tags", () => {
       await myRooms.roomsTable.clickTag("Tag1");
       await screenshot.expectHaveScreenshot("filter_tag_in_rooms_table");
       await myRooms.roomsFilter.openFilterDialog();
-      await expect(page.getByTestId("filter_block_item_content_filter-tags")).toBeVisible();
+      await expect(
+        page.getByTestId("filter_block_item_content_filter-tags"),
+      ).toBeVisible();
       await screenshot.expectHaveScreenshot("tag_in_filter");
       await myRooms.roomsFilter.cancelFilter();
     });

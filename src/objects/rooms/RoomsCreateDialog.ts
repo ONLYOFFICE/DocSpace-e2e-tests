@@ -72,7 +72,7 @@ class RoomsCreateDialog extends BaseDialog {
     }
     await this.clickCustomizeCover();
     await expect(this.page.getByText("Room cover")).toBeVisible();
-    await expect(this.page.getByTestId('color_item_selected_0')).toBeVisible();
+    await expect(this.page.getByTestId("color_item_selected_0")).toBeVisible();
   }
 
   async selectCoverColor() {
@@ -109,10 +109,7 @@ class RoomsCreateDialog extends BaseDialog {
   }
 
   async fillRoomName(name: string) {
-    await this.fillInput(
-      this.page.getByTestId(ROOM_NAME_INPUT),
-      name,
-    );
+    await this.fillInput(this.page.getByTestId(ROOM_NAME_INPUT), name);
   }
 
   async fillTemplateName(name: string) {
@@ -130,9 +127,7 @@ class RoomsCreateDialog extends BaseDialog {
 
   async createTag(tagName: string) {
     await this.fillTag(tagName);
-    await this.page
-      .getByTestId('drop-down-item')
-      .click();
+    await this.page.getByTestId("drop-down-item").click();
   }
 
   async createTags(count: number) {
