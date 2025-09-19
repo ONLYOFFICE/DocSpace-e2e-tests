@@ -35,17 +35,17 @@ class Folder extends BasePage {
   }
 
   async open() {
-    return test.step('Open my documents', async () => {
-    await this.navigateToMyDocuments();
-    await this.page.waitForLoadState("load");
-  });
+    return test.step("Open my documents", async () => {
+      await this.navigateToMyDocuments();
+      await this.page.waitForLoadState("load");
+    });
   }
 
   async expectFolderVisible(name: string) {
-    return test.step('Expect folder visible', async () => {
-    const locator = this.page.getByText(name, { exact: true });
-    await expect(locator).toBeVisible();
-  });
+    return test.step("Expect folder visible", async () => {
+      const locator = this.page.getByText(name, { exact: true });
+      await expect(locator).toBeVisible();
+    });
   }
 
   async expectFolderNotVisible(name: string) {
@@ -59,23 +59,23 @@ class Folder extends BasePage {
   }
 
   async createRoomFromFolder(roomType: TRoomCreateTitles, roomName?: string) {
-    return test.step('Create room from folder', async () => {
-    await this.roomsCreateDialog.openRoomType(roomType);
-    if (roomName) {
-      await this.roomsCreateDialog.fillRoomName(roomName);
-    }
-    await this.roomsCreateDialog.clickRoomDialogSubmit();
+    return test.step("Create room from folder", async () => {
+      await this.roomsCreateDialog.openRoomType(roomType);
+      if (roomName) {
+        await this.roomsCreateDialog.fillRoomName(roomName);
+      }
+      await this.roomsCreateDialog.clickRoomDialogSubmit();
     });
   }
 
   async createNew(name: string) {
-    return test.step('Create new folder', async () => {
-    await this.filesNavigation.openCreateDropdown();
-    await this.filesNavigation.selectCreateAction(DOC_ACTIONS.CREATE_FOLDER);
-    await this.filesNavigation.modal.checkModalExist();
-    await this.filesNavigation.modal.fillCreateTextInput(name);
-    await this.filesNavigation.modal.clickCreateButton();
-    await this.expectFolderVisible(name);
+    return test.step("Create new folder", async () => {
+      await this.filesNavigation.openCreateDropdown();
+      await this.filesNavigation.selectCreateAction(DOC_ACTIONS.CREATE_FOLDER);
+      await this.filesNavigation.modal.checkModalExist();
+      await this.filesNavigation.modal.fillCreateTextInput(name);
+      await this.filesNavigation.modal.clickCreateButton();
+      await this.expectFolderVisible(name);
     });
   }
 }

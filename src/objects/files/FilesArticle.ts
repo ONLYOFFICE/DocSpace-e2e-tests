@@ -15,48 +15,48 @@ class FilesArticle extends BaseArticle {
   }
 
   async openMainDropdown() {
-    return test.step('Open main dropdown', async () => {
-    await this.clickArticleMainButton();
-    await this.contextMenu.checkMenuExists();
-  });
+    return test.step("Open main dropdown", async () => {
+      await this.clickArticleMainButton();
+      await this.contextMenu.checkMenuExists();
+    });
   }
 
   async closeMainDropdown() {
-    return test.step('Close main dropdown', async () => {
-    await this.contextMenu.close();
-  });
+    return test.step("Close main dropdown", async () => {
+      await this.contextMenu.close();
+    });
   }
 
   async checkCreatedFileByActionExist(actionText: string) {
-    return test.step('Check created file by action exist', async () => {
-    await expect(
-      this.page.getByText(actionText, { exact: true }),
-    ).toBeVisible();
-  });
+    return test.step("Check created file by action exist", async () => {
+      await expect(
+        this.page.getByText(actionText, { exact: true }),
+      ).toBeVisible();
+    });
   }
 
   async createFiles() {
-    return test.step('Create files', async () => {
-    for (const actionText of listArticleDocActions) {
-      await this.openMainDropdown();
-      await this.contextMenu.selectCreateAction(actionText);
-      await this.modal.fillCreateTextInput(actionText);
+    return test.step("Create files", async () => {
+      for (const actionText of listArticleDocActions) {
+        await this.openMainDropdown();
+        await this.contextMenu.selectCreateAction(actionText);
+        await this.modal.fillCreateTextInput(actionText);
 
-      if (actionText !== "Folder") {
-        const [newPage] = await Promise.all([
-          this.page.context().waitForEvent("page", { timeout: 5000 }),
-          this.modal.clickCreateButton(),
-        ]).catch(() => [null]);
+        if (actionText !== "Folder") {
+          const [newPage] = await Promise.all([
+            this.page.context().waitForEvent("page", { timeout: 5000 }),
+            this.modal.clickCreateButton(),
+          ]).catch(() => [null]);
 
-        await newPage?.close();
-      } else {
-        await this.modal.clickCreateButton();
+          await newPage?.close();
+        } else {
+          await this.modal.clickCreateButton();
+        }
+
+        await this.checkCreatedFileByActionExist(actionText);
       }
-
-      await this.checkCreatedFileByActionExist(actionText);
-    }
-  });
-}
+    });
+  }
 }
 
 export default FilesArticle;

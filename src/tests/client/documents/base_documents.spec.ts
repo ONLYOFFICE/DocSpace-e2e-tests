@@ -1,6 +1,7 @@
 import MyDocuments from "@/src/objects/files/MyDocuments";
 import Screenshot from "@/src/objects/common/Screenshot";
 import { test } from "@/src/fixtures";
+import { INFO_PANEL_TABS } from "@/src/utils/types/common";
 
 test.describe("My documents: Base", () => {
   let myDocuments: MyDocuments;
@@ -14,7 +15,7 @@ test.describe("My documents: Base", () => {
     await myDocuments.open();
   });
 
-  test("Render", async ({ page }) => {
+  test("Render", async () => {
     await test.step("Render", async () => {
       await myDocuments.filesTable.hideTableColumn();
       await screenshot.expectHaveScreenshot("render");
@@ -65,38 +66,44 @@ test.describe("My documents: Base", () => {
       await screenshot.expectHaveScreenshot("info_panel_file_options_opened");
       await myDocuments.infoPanel.closeMenu();
 
-      await myDocuments.infoPanel.openTab("info_history_tab");
+      await myDocuments.infoPanel.openTab(INFO_PANEL_TABS.History.name);
       await myDocuments.infoPanel.checkHistoryExist("File created.");
       await myDocuments.infoPanel.hideCreationDateHistory();
       await screenshot.expectHaveScreenshot("info_panel_file_history");
-      
-      await myDocuments.infoPanel.openTab("info_share_tab");
+
+      await myDocuments.infoPanel.openTab(INFO_PANEL_TABS.Share.name);
       await myDocuments.infoPanel.checkShareExist();
       await myDocuments.infoPanel.createFirstSharedLink();
       await myDocuments.infoPanel.createMoreSharedLink();
       await screenshot.expectHaveScreenshot("info_panel_file_share");
-      
+
       await myDocuments.filesTable.selectAllRows();
       await screenshot.expectHaveScreenshot("info_panel_multi_selected_files");
       await myDocuments.filesTable.resetSelect();
 
-      await myDocuments.filesTable.selectFolderByName("Folder");
+      await myDocuments.filesTable.selectFolderByName();
       await myDocuments.infoPanel.hideDatePropertiesDetails();
       await myDocuments.infoPanel.checkFolderProperties();
 
       await myDocuments.infoPanel.openOptions();
       await screenshot.expectHaveScreenshot("info_panel_folder_options");
 
-      await myDocuments.infoPanel.openTab("info_history_tab");
+      await myDocuments.infoPanel.openTab(INFO_PANEL_TABS.History.name);
       await myDocuments.infoPanel.checkHistoryExist("Folder created.");
-      
+
       await myDocuments.filesTable.openContextMenu();
-      await myDocuments.filesTable.contextMenu.clickSubmenuOption("Properties", "Info");
+      await myDocuments.filesTable.contextMenu.clickSubmenuOption(
+        "Properties",
+        "Info",
+      );
       await myDocuments.infoPanel.hideDatePropertiesDetails();
       await myDocuments.infoPanel.checkDocxFileProperties();
 
       await myDocuments.filesTable.openContextMenu();
-      await myDocuments.filesTable.contextMenu.clickSubmenuOption("Share", "Manage links");
+      await myDocuments.filesTable.contextMenu.clickSubmenuOption(
+        "Share",
+        "Manage links",
+      );
       await myDocuments.infoPanel.checkShareExist();
 
       await myDocuments.infoPanel.close();

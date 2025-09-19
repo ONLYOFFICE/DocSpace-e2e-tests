@@ -26,16 +26,16 @@ class BaseArticle {
   }
 
   async checkArticleActionsButtonExist() {
-    return test.step('Check article actions button exist', async () => {
-    await expect(this.mainButton).toBeVisible();
-  });
+    return test.step("Check article actions button exist", async () => {
+      await expect(this.mainButton).toBeVisible();
+    });
   }
 
   async clickArticleMainButton() {
-    return test.step('Click article main button', async () => {
-    await this.checkArticleActionsButtonExist();
-    await this.mainButton.click();
-  });
+    return test.step("Click article main button", async () => {
+      await this.checkArticleActionsButtonExist();
+      await this.mainButton.click();
+    });
   }
 }
 

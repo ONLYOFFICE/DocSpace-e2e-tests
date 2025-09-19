@@ -52,20 +52,28 @@ export abstract class BaseMenu {
       return;
     }
 
-    // Scroll to the top of the container
     await container.evaluate((el) => {
       const scroller = el.querySelector("[data-testid='scroller']");
       if (scroller) {
         scroller.scrollTop = 0;
       }
     });
+    await this.page.waitForTimeout(100);
 
-    const maxScrolls = 100;
+    const scroller = container.locator('[data-testid="scroller"]').first();
+    if ((await scroller.count()) > 0) {
+      for (let i = 0; i < 30; i++) {
+        if (await item.isVisible()) return;
 
-    for (let i = 0; i < maxScrolls; i++) {
-      if (await item.isVisible()) {
-        return;
+        await scroller.hover();
+        await scroller.evaluate((el) => (el.scrollTop += 160));
+        await this.page.waitForTimeout(100);
       }
+    }
+
+    for (let i = 0; i < 50; i++) {
+      if (await item.isVisible()) return;
+
       await container.hover();
       await this.page.mouse.wheel(0, 400);
       await this.page.waitForTimeout(100);
@@ -80,41 +88,41 @@ export abstract class BaseMenu {
   }
 
   async clickOption(selector: TMenuItem | string, isSubmenu = false) {
-    return test.step('Click option', async () => {
-    const root = isSubmenu ? this.submenu : this.menu;
-    const item = this.getMenuItem(root, selector);
-    await this.scrollUntilVisible(item, root);
-    await item.click();
-  });
-}
+    return test.step("Click option", async () => {
+      const root = isSubmenu ? this.submenu : this.menu;
+      const item = this.getMenuItem(root, selector);
+      await this.scrollUntilVisible(item, root);
+      await item.click();
+    });
+  }
 
   async clickSubmenuOption(
     parentSelector: TMenuItem | string,
     childSelector: TMenuItem | string,
   ) {
-    return test.step('Click submenu option', async () => {
-    await this.hoverOption(parentSelector);
-    const child = this.getMenuItem(this.submenu, childSelector);
-    await this.scrollUntilVisible(child, this.submenu);
-    await child.click();
-  });
-}
+    return test.step("Click submenu option", async () => {
+      await this.hoverOption(parentSelector);
+      const child = this.getMenuItem(this.submenu, childSelector);
+      await this.scrollUntilVisible(child, this.submenu);
+      await child.click();
+    });
+  }
 
   async close() {
-    return test.step('Close menu', async () => {
-    await expect(async () => {
-      await this.page.mouse.click(1, 1);
-      await expect(this.menu).not.toBeVisible({
-        timeout: 500,
-      });
-    }).toPass();
-  });
+    return test.step("Close menu", async () => {
+      await expect(async () => {
+        await this.page.mouse.click(1, 1);
+        await expect(this.menu).not.toBeVisible({
+          timeout: 500,
+        });
+      }).toPass();
+    });
   }
   async checkMenuExists(timeout?: number) {
-    return test.step('Check menu exists', async () => {
-    await expect(this.menu).toBeVisible({
-      timeout,
+    return test.step("Check menu exists", async () => {
+      await expect(this.menu).toBeVisible({
+        timeout,
+      });
     });
-  });
   }
 }

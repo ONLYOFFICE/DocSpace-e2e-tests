@@ -22,31 +22,33 @@ class FilesEmptyView {
   }
 
   async checkNoDocsTextExist() {
-    return test.step('Check no docs text exist', async () => {
-    await expect(this.page.getByText("No docs here yet")).toBeVisible();
-  });
+    return test.step("Check no docs text exist", async () => {
+      await expect(this.page.getByText("No docs here yet")).toBeVisible();
+    });
   }
 
   async checkNoFilesTextExist() {
-    return test.step('Check no files text exist', async () => {
-    await expect(this.page.getByText("No recent files here yet")).toBeVisible();
-  });
+    return test.step("Check no files text exist", async () => {
+      await expect(
+        this.page.getByText("No recent files here yet"),
+      ).toBeVisible();
+    });
   }
 
   async clickGotoDocumentsButton() {
-    return test.step('Click goto my documents button', async () => {
-    await this.page.locator(GOTO_DOCUMENTS_BUTTON).click();
-  });
+    return test.step("Click goto my documents button", async () => {
+      await this.page.locator(GOTO_DOCUMENTS_BUTTON).click();
+    });
   }
 
   async openAndValidateFileCreateModals() {
-    return test.step('Open and validate file create modals', async () => {
-    for (const [selector, modalTitle] of Object.entries(mapDocActions)) {
-      await this.page.locator(selector).click();
-      await this.modal.checkModalExist();
-      await this.modal.checkModalTitleExist(modalTitle);
-      await this.modal.closeModalByClickCancelButton();
-    }
+    return test.step("Open and validate file create modals", async () => {
+      for (const [selector, modalTitle] of Object.entries(mapDocActions)) {
+        await this.page.locator(selector).click();
+        await this.modal.checkModalExist();
+        await this.modal.checkModalTitleExist(modalTitle);
+        await this.modal.closeModalByClickCancelButton();
+      }
     });
   }
 }

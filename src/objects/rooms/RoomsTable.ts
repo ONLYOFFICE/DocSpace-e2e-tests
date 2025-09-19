@@ -20,15 +20,18 @@ class RoomsTable extends BaseTable {
   }
 
   async hideLastActivityColumn() {
-    return test.step('Hide last activity column', async () => {
+    return test.step("Hide last activity column", async () => {
       await this.clickSettingsMenu();
-  
-      const isChecked = await this.page.getByTestId(LAST_ACTIVITY_CHECKBOX).isChecked();
-      if (isChecked) await this.page.getByTestId(LAST_ACTIVITY_CHECKBOX).click();
-  
+
+      const isChecked = await this.page
+        .getByTestId(LAST_ACTIVITY_CHECKBOX)
+        .isChecked();
+      if (isChecked)
+        await this.page.getByTestId(LAST_ACTIVITY_CHECKBOX).click();
+
       await this.clickSettingsMenu();
-      });
-    }
+    });
+  }
 
   async clickTag(tagValue: string) {
     await this.page.locator(`[data-tag="${tagValue}"]`).click();

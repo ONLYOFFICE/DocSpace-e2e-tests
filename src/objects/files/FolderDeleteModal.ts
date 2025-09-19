@@ -11,20 +11,20 @@ class FolderDeleteModal {
   }
 
   async clickDeleteFolder() {
-    return test.step('Click delete folder', async () => {
-    const createRoom = this.page.locator(MOVE_TO_TRASH);
-    await expect(createRoom).toBeVisible();
-    await createRoom.click();
-  });
-}
+    return test.step("Click delete folder", async () => {
+      const createRoom = this.page.locator(MOVE_TO_TRASH);
+      await expect(createRoom).toBeVisible();
+      await createRoom.click();
+    });
+  }
 
   async clickCancelDeleteFolder() {
-    return test.step('Click cancel delete folder', async () => {
-    const cancelButton = this.page.locator(CANCEL_DELETE_FOLDER);
-    await expect(cancelButton).toBeVisible();
-    await cancelButton.click();
-  });
-}
+    return test.step("Click cancel delete folder", async () => {
+      const cancelButton = this.page.locator(CANCEL_DELETE_FOLDER);
+      await expect(cancelButton).toBeVisible();
+      await cancelButton.click();
+    });
+  }
 }
 
 export default FolderDeleteModal;

@@ -30,7 +30,7 @@ test.describe("Folder", () => {
     await folder.open();
   });
 
-  test("Folder actions", async ({ page }) => {
+  test("Folder actions", async () => {
     await test.step("Select folder", async () => {
       await myDocuments.checkMyDocumentsExist();
       await folder.filesNavigation.openCreateDropdown();
@@ -57,7 +57,10 @@ test.describe("Folder", () => {
     await test.step("CreateRoomFromFolder", async () => {
       await folder.open();
       await folder.filesTable.openContextMenuForItem();
-      await folder.filesTable.contextMenu.clickSubmenuOption("Share", "Create room");
+      await folder.filesTable.contextMenu.clickSubmenuOption(
+        "Share",
+        "Create room",
+      );
       await screenshot.expectHaveScreenshot("choose_room_type");
       await folder.createRoomFromFolder(roomCreateTitles.public);
       await folder.infoPanel.hideRoomIcon();
@@ -122,7 +125,6 @@ test.describe("Folder", () => {
     });
 
     await test.step("Delete", async () => {
-      
       await folder.filesTable.openContextMenuForItem();
       await folder.filesTable.contextMenu.clickOption("Delete");
       await screenshot.expectHaveScreenshot("delete_folder_modal");

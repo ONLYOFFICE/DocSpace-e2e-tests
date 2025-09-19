@@ -41,14 +41,14 @@ class BaseNavigation {
   }
 
   async openCreateDropdown() {
-    return test.step('Click plus button', async () => {
-    await expect(async () => {
-      await expect(this.headerAddButton).toBeVisible({
-        timeout: 500,
-      });
-      await this.clickAddButton();
-      await this.contextMenu.checkMenuExists(500);
-    }).toPass();
+    return test.step("Click plus button", async () => {
+      await expect(async () => {
+        await expect(this.headerAddButton).toBeVisible({
+          timeout: 500,
+        });
+        await this.clickAddButton();
+        await this.contextMenu.checkMenuExists(500);
+      }).toPass();
     });
   }
 
@@ -62,11 +62,11 @@ class BaseNavigation {
   }
 
   async gotoBack() {
-    return test.step('Go back', async () => {
-    await expect(this.backArrowIcon).toBeVisible();
-    await this.backArrowIcon.click();
-  });
-}
+    return test.step("Go back", async () => {
+      await expect(this.backArrowIcon).toBeVisible();
+      await this.backArrowIcon.click();
+    });
+  }
 
   async closeContextMenu() {
     await this.contextMenu.close();

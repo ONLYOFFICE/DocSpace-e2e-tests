@@ -36,36 +36,36 @@ class MyDocuments extends BasePage {
   }
 
   get checkMyDocuments() {
-    return this.page.getByTestId('heading').filter({hasText: 'My documents'});
+    return this.page.getByTestId("heading").filter({ hasText: "My documents" });
   }
 
   checkMyDocumentsExist() {
-    return test.step('Check my documents exist', async () => {
-    await expect(this.checkMyDocuments).toBeVisible();
-  });
+    return test.step("Check my documents exist", async () => {
+      await expect(this.checkMyDocuments).toBeVisible();
+    });
   }
 
   async open() {
-    return test.step('Open my documents', async () => {
-    await this.navigateToMyDocuments();
-    await this.page.waitForLoadState("load");
-    await this.checkMyDocumentsExist();
-  });
+    return test.step("Open my documents", async () => {
+      await this.navigateToMyDocuments();
+      await this.page.waitForLoadState("load");
+      await this.checkMyDocumentsExist();
+    });
   }
 
   async openRecentlyAccessibleTab() {
-    return test.step('Open recently accessible tab', async () => {
-    await this.page.locator("#document_catalog-recent").click();
-  });
+    return test.step("Open recently accessible tab", async () => {
+      await this.page.locator("#document_catalog-recent").click();
+    });
   }
 
   async deleteAllDocs() {
-    return test.step('Delete all docs', async () => {
-    await this.filesTable.selectAllRows();
-    await this.filesNavigation.delete();
-    await this.removeToast("successfully moved to Trash");
-    await this.filesEmptyView.checkNoDocsTextExist();
-  });
+    return test.step("Delete all docs", async () => {
+      await this.filesTable.selectAllRows();
+      await this.filesNavigation.delete();
+      await this.removeToast("successfully moved to Trash");
+      await this.filesEmptyView.checkNoDocsTextExist();
+    });
   }
 }
 

@@ -10,16 +10,16 @@ const navItems = {
 } as const;
 
 const mapBackupMethodsIds = {
-  temporaryStorage: 'temporary_storage_radio_button',
-  backupRoom: 'backup_room_radio_button',
-  thirdPartyResource: 'third_party_resource_radio_button',
-  thirdPartyStorage: 'third_party_storage_radio_button',
+  temporaryStorage: "temporary_storage_radio_button",
+  backupRoom: "backup_room_radio_button",
+  thirdPartyResource: "third_party_resource_radio_button",
+  thirdPartyStorage: "third_party_storage_radio_button",
 } as const;
 
 const mapAutoBackupMethodsIds = {
-  backupRoom: 'auto_backup_room_radio_button',
-  thirdPartyResource: 'auto_backup_resource_radio_button',
-  thirdPartyStorage: 'auto_backup_storage_radio_button',
+  backupRoom: "auto_backup_room_radio_button",
+  thirdPartyResource: "auto_backup_resource_radio_button",
+  thirdPartyStorage: "auto_backup_storage_radio_button",
 } as const;
 
 type TBackupMethodsIds =
@@ -29,10 +29,10 @@ type TAutoBackupMethodsIds =
   (typeof mapAutoBackupMethodsIds)[keyof typeof mapAutoBackupMethodsIds];
 
 const mapThirdPartyResource = {
-    nextcloud: 'Nextcloud',
-    box: 'Box',
-    dropbox: 'Dropbox',
-  } as const;
+  nextcloud: "Nextcloud",
+  box: "Box",
+  dropbox: "Dropbox",
+} as const;
 
 type TThirdPartyResource =
   (typeof mapThirdPartyResource)[keyof typeof mapThirdPartyResource];
@@ -46,11 +46,11 @@ type TThirdPartyStorage =
   (typeof mapThirdPartyStorage)[keyof typeof mapThirdPartyStorage];
 
 const integrationTabs = {
-  ldap: 'ldap_tab',
-  sso: 'sso_tab',
-  plugins: 'plugins_tab',
-  thirdPartyServices: 'third-party-services_tab',
-  smtp: 'smtp-settings_tab',
+  ldap: "ldap_tab",
+  sso: "sso_tab",
+  plugins: "plugins_tab",
+  thirdPartyServices: "third-party-services_tab",
+  smtp: "smtp-settings_tab",
 } as const;
 
 type TIntegrationTabs = (typeof integrationTabs)[keyof typeof integrationTabs];
@@ -64,16 +64,16 @@ const certificateType = {
 type TCertificateType = (typeof certificateType)[keyof typeof certificateType];
 
 const paymentsTab = {
-  tariffPlan: 'portal-payments_tab',
-  wallet: 'wallet_tab',
+  tariffPlan: "portal-payments_tab",
+  wallet: "wallet_tab",
 };
 
 type TPaymentsTab = (typeof paymentsTab)[keyof typeof paymentsTab];
 
 const transactionHistoryFilter = {
-  allTransactions: 'all_transactions_option',
-  credit: 'credit_transactions_option',
-  debit: 'debit_transactions_option',
+  allTransactions: "all_transactions_option",
+  credit: "credit_transactions_option",
+  debit: "debit_transactions_option",
 } as const;
 
 type TTransactionHistoryFilter =

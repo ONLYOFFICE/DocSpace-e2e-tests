@@ -11,15 +11,15 @@ class FilesSelectPanel extends BaseSelector {
   }
 
   async confirmSelection() {
-    return test.step('Confirm selection', async () => {
-    await this.confirmButton.click();
-  });
+    return test.step("Confirm selection", async () => {
+      await this.confirmButton.click();
+    });
   }
 
   async checkFileSelectPanelExist() {
-    return test.step('Check file select panel exist', async () => {
-    await expect(this.selector.getByTestId("selector-item-1")).toBeVisible();
-  });
+    return test.step("Check file select panel exist", async () => {
+      await expect(this.selector.getByTestId("selector-item-1")).toBeVisible();
+    });
   }
 }
 

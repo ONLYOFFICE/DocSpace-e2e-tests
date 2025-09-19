@@ -68,19 +68,19 @@ class MyRooms extends BasePage {
   }
 
   async openRooms() {
-    return test.step('Open rooms', async () => {
+    return test.step("Open rooms", async () => {
       await this.navigateToRooms();
       await this.page.waitForLoadState("load");
     });
   }
 
-async openWithoutEmptyCheck() {
-  return test.step('Open rooms', async () => {
-  await this.navigateToRooms();
-  await this.page.waitForLoadState("load");
-  await this.infoPanel.close();
-});
-}
+  async openWithoutEmptyCheck() {
+    return test.step("Open rooms", async () => {
+      await this.navigateToRooms();
+      await this.page.waitForLoadState("load");
+      await this.infoPanel.close();
+    });
+  }
 
   async openTemplatesTab() {
     await this.page.getByText("Templates").click();

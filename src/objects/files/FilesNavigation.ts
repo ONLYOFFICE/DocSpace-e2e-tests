@@ -27,38 +27,38 @@ class FilesNavigation extends BaseNavigation {
   }
 
   async validateCreateFileModal(actionText: string) {
-    return test.step('Validate create file modal', async () => {
-    const modalTitle =
-      actionText === DOC_ACTIONS.CREATE_PDF_BLANK
-        ? DOC_ACTIONS.CREATE_PDF_FORM
-        : actionText;
+    return test.step("Validate create file modal", async () => {
+      const modalTitle =
+        actionText === DOC_ACTIONS.CREATE_PDF_BLANK
+          ? DOC_ACTIONS.CREATE_PDF_FORM
+          : actionText;
 
-    await this.modal.checkModalExist();
-    await this.modal.checkModalTitleExist(modalTitle);
-    await this.modal.closeModalByClickCancelButton();
-  });
+      await this.modal.checkModalExist();
+      await this.modal.checkModalTitleExist(modalTitle);
+      await this.modal.closeModalByClickCancelButton();
+    });
   }
 
   async openAndValidateFileCreateModals() {
-    return test.step('Open and validate file create modals', async () => {
-    for (const actionText of listDocActions) {
-      await this.openCreateDropdown();
-      await this.contextMenu.selectCreateAction(actionText);
-      await this.validateCreateFileModal(actionText);
-    }
-  });
+    return test.step("Open and validate file create modals", async () => {
+      for (const actionText of listDocActions) {
+        await this.openCreateDropdown();
+        await this.contextMenu.selectCreateAction(actionText);
+        await this.validateCreateFileModal(actionText);
+      }
+    });
   }
 
   async delete() {
-    return test.step('Delete', async () => {
-    await this.performAction(navActions.delete);
+    return test.step("Delete", async () => {
+      await this.performAction(navActions.delete);
     });
   }
 
   async selectCreateAction(actionText: string) {
-    return test.step('Select create action', async () => {
-    await this.contextMenu.selectCreateAction(actionText);
-  });
+    return test.step("Select create action", async () => {
+      await this.contextMenu.selectCreateAction(actionText);
+    });
   }
 }
 

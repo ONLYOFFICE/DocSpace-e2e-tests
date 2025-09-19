@@ -4,7 +4,7 @@ import { test } from "@playwright/test";
 const TABLE_CONTAINER = "#table-container";
 const TABLE_LIST_ITEM = ".table-list-item.window-item";
 // const SETTINGS_ICON = 'icon-button-svg';
-const TABLE_SETTING_CONTAINER = 'settings-block';
+const TABLE_SETTING_CONTAINER = "settings-block";
 
 export type TBaseTableLocators = {
   tableContainer?: Locator;
@@ -33,19 +33,19 @@ class BaseTable {
   }
 
   get settingsButton() {
-    return  this.page.getByTestId('table-settings-button');
+    return this.page.getByTestId("table-settings-button");
   }
 
   get checkboxModified() {
-    return this.page.getByTestId('table_settings_Modified');
+    return this.page.getByTestId("table_settings_Modified");
   }
 
   get firstRow() {
-    return this.page.getByTestId('files-cell-name-0');
+    return this.page.getByTestId("files-cell-name-0");
   }
 
   get mainMenuCheckbox() {
-    return this.page.getByTestId('table_group_menu_checkbox');
+    return this.page.getByTestId("table_group_menu_checkbox");
   }
 
   async clickSettingsMenu() {
@@ -53,13 +53,13 @@ class BaseTable {
   }
 
   async hideTableColumn() {
-    return test.step('Hide table column', async () => {
-    await this.clickSettingsMenu();
+    return test.step("Hide table column", async () => {
+      await this.clickSettingsMenu();
 
-    const isChecked = await this.checkboxModified.isChecked();
-    if (isChecked) await this.checkboxModified.click();
+      const isChecked = await this.checkboxModified.isChecked();
+      if (isChecked) await this.checkboxModified.click();
 
-    await this.clickSettingsMenu();
+      await this.clickSettingsMenu();
     });
   }
 
@@ -79,12 +79,12 @@ class BaseTable {
   }
 
   async selectAllRows() {
-    return test.step('Select all rows', async () => {
-    await this.firstRow.click();
-    await this.mainMenuCheckbox.click();
-    await this.mapTableRows(async (row) => {
-      await this.expectRowIsChecked(row);
-    });
+    return test.step("Select all rows", async () => {
+      await this.firstRow.click();
+      await this.mainMenuCheckbox.click();
+      await this.mapTableRows(async (row) => {
+        await this.expectRowIsChecked(row);
+      });
     });
   }
 
@@ -121,10 +121,10 @@ class BaseTable {
   }
 
   async checkRowExist(title: string) {
-    return test.step('Check row exist', async () => {
-    const row = await this.getRowByTitle(title);
-    await expect(row).toBeVisible();
-  });
+    return test.step("Check row exist", async () => {
+      const row = await this.getRowByTitle(title);
+      await expect(row).toBeVisible();
+    });
   }
 
   async checkRowNotExist(title: string) {
@@ -133,9 +133,9 @@ class BaseTable {
   }
 
   async resetSelect() {
-    return test.step('Reset select', async () => {
+    return test.step("Reset select", async () => {
       await this.mainMenuCheckbox.click();
-  });
+    });
   }
 
   async openFooterContextMenu() {

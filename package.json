@@ -12,7 +12,8 @@
     "docker:start": "docker-compose run --rm tests-local npx playwright test",
     "docker:start:screenshots": "docker-compose run --rm tests-local npx playwright test --update-snapshots",
     "lint": "eslint \"./src/**/*.{ts,js}\"",
-    "lint:fix": "eslint \"./src/**/*.{ts,js}\" --fix"
+    "lint:fix": "eslint \"./src/**/*.{ts,js}\" --fix",
+    "tsc": "tsc --noEmit"
   },
   "keywords": [],
   "author": "",
@@ -31,6 +32,7 @@
     "eslint-plugin-prettier": "^5.2.3",
     "globals": "^15.14.0",
     "husky": "^9.1.7",
+    "lefthook": "^1.12.4",
     "lint-staged": "^15.4.3",
     "prettier": "^3.4.2",
     "ts-node": "^10.9.2",

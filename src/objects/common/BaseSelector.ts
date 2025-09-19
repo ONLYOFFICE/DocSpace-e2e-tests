@@ -50,7 +50,7 @@ class BaseSelector {
         await this.selector.getByText("Back", { exact: true }).click();
         break;
       case "header":
-        await this.selector.getByTestId('selector-add-button').click();
+        await this.selector.getByTestId("selector-add-button").click();
         break;
       default:
         break;
@@ -97,16 +97,16 @@ class BaseSelector {
   }
 
   async selectItemByText(text: string, doubleClick = false) {
-    return test.step('Select item by text', async () => {
-    const item = await this.getItemByName(text);
+    return test.step("Select item by text", async () => {
+      const item = await this.getItemByName(text);
 
-    if (doubleClick) {
-      await item.dblclick();
-    } else {
-      await item.click();
-    }
-  });
-}
+      if (doubleClick) {
+        await item.dblclick();
+      } else {
+        await item.click();
+      }
+    });
+  }
 
   async selectItemByIndex(index: number, doubleClick = false) {
     if (index < 0) {
