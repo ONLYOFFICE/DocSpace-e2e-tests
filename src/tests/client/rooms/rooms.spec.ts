@@ -253,7 +253,7 @@ test.describe("Rooms", () => {
       await myRooms.infoPanel.checkNoItemTextExist();
       await screenshot.expectHaveScreenshot("info_panel_empty");
       await myRooms.roomsTable.selectRow(roomTemplateTitles.roomTemplate);
-      await myRooms.infoPanel.openTab("Details");
+      await myRooms.infoPanel.openTab("info_details_tab");
       await myRooms.infoPanel.hideDatePropertiesDetails();
       await myRooms.infoPanel.checkRoomProperties(roomCreateTitles.public);
       await screenshot.expectHaveScreenshot("info_panel_template_details");
@@ -264,7 +264,7 @@ test.describe("Rooms", () => {
       );
       await myRooms.infoPanel.closeMenu();
 
-      await myRooms.infoPanel.openTab("Accesses");
+      await myRooms.infoPanel.openTab("info_accesses_tab");
       await myRooms.infoPanel.checkAccessesExist();
       await screenshot.expectHaveScreenshot("info_panel_template_accesses");
       await myRooms.infoPanel.close();
@@ -273,7 +273,7 @@ test.describe("Rooms", () => {
       await myRooms.roomsTable.checkRowExist(roomCreateTitles.public);
       await myRooms.roomsTable.selectRow(roomCreateTitles.public);
       await myRooms.infoPanel.open();
-      await myRooms.infoPanel.openTab("Details");
+      await myRooms.infoPanel.openTab("info_details_tab");
       await myRooms.infoPanel.hideDatePropertiesDetails();
       await myRooms.infoPanel.checkRoomProperties(roomCreateTitles.public);
       await screenshot.expectHaveScreenshot("info_panel_room_details");
@@ -282,12 +282,12 @@ test.describe("Rooms", () => {
       await screenshot.expectHaveScreenshot("info_panel_room_options_opened");
       await myRooms.infoPanel.closeMenu();
 
-      await myRooms.infoPanel.openTab("History");
+      await myRooms.infoPanel.openTab("info_history_tab");
       await myRooms.infoPanel.checkHistoryExist("room created");
       await myRooms.infoPanel.hideCreationDateHistory();
       await screenshot.expectHaveScreenshot("info_panel_room_history");
 
-      await myRooms.infoPanel.openTab("Contacts");
+      await myRooms.infoPanel.openTab("info_members_tab");
       await screenshot.expectHaveScreenshot("info_panel_room_contacts");
       await myRooms.infoPanel.close();
     });

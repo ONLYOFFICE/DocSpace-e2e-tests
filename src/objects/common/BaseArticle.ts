@@ -1,6 +1,6 @@
-import { expect, Locator, Page } from "@playwright/test";
+import { expect, Locator, Page, test } from "@playwright/test";
 
-const ACTIONS_BUTTON = "#actions-main-button";
+const ACTIONS_BUTTON = "main-button";
 const ARTICLE_CONTAINER = "#article-container";
 
 class BaseArticle {
@@ -9,7 +9,7 @@ class BaseArticle {
 
   constructor(page: Page, mainButton?: Locator) {
     this.page = page;
-    this.mainButton = mainButton || this.page.locator(ACTIONS_BUTTON);
+    this.mainButton = mainButton || this.page.getByTestId(ACTIONS_BUTTON);
   }
 
   get articleContainer() {
@@ -26,12 +26,16 @@ class BaseArticle {
   }
 
   async checkArticleActionsButtonExist() {
+    return test.step('Check article actions button exist', async () => {
     await expect(this.mainButton).toBeVisible();
+  });
   }
 
   async clickArticleMainButton() {
+    return test.step('Click article main button', async () => {
     await this.checkArticleActionsButtonExist();
     await this.mainButton.click();
+  });
   }
 }
 

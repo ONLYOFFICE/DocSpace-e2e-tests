@@ -1,4 +1,4 @@
-import { expect, Page } from "@playwright/test";
+import { expect, Page, test } from "@playwright/test";
 import RoomsEmptyView from "./RoomsEmptyView";
 import RoomsCreateDialog from "./RoomsCreateDialog";
 import BaseNavigation from "../common/BaseNavigation";
@@ -67,20 +67,20 @@ class MyRooms extends BasePage {
     this.inviteDialog = new BaseInviteDialog(page);
   }
 
-  async open() {
-    await this.page.goto(`https://${this.portalDomain}/rooms/shared`, {
-      waitUntil: "load",
+  async openRooms() {
+    return test.step('Open rooms', async () => {
+      await this.navigateToRooms();
+      await this.page.waitForLoadState("load");
     });
-    await expect(this.page).toHaveURL(/.*rooms\/shared.*/);
-    await this.roomsEmptyView.checkNoRoomsExist();
   }
 
-  async openWithoutEmptyCheck() {
-    await this.page.goto(`https://${this.portalDomain}/rooms/shared`, {
-      waitUntil: "load",
-    });
-    await expect(this.page).toHaveURL(/.*rooms\/shared.*/);
-  }
+async openWithoutEmptyCheck() {
+  return test.step('Open rooms', async () => {
+  await this.navigateToRooms();
+  await this.page.waitForLoadState("load");
+  await this.infoPanel.close();
+});
+}
 
   async openTemplatesTab() {
     await this.page.getByText("Templates").click();

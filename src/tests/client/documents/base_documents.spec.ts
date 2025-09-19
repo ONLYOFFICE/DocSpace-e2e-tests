@@ -14,16 +14,15 @@ test.describe("My documents: Base", () => {
     await myDocuments.open();
   });
 
-  test("Render", async () => {
+  test("Render", async ({ page }) => {
     await test.step("Render", async () => {
-      await myDocuments.filesTable.hideModifiedColumn();
+      await myDocuments.filesTable.hideTableColumn();
       await screenshot.expectHaveScreenshot("render");
     });
 
     await test.step("EmptyScreen", async () => {
       await myDocuments.deleteAllDocs();
       await screenshot.expectHaveScreenshot("empty_screen_view");
-
       await myDocuments.filesEmptyView.openAndValidateFileCreateModals();
 
       await myDocuments.openRecentlyAccessibleTab();
@@ -47,7 +46,7 @@ test.describe("My documents: Base", () => {
       await myDocuments.filesArticle.closeMainDropdown();
 
       await myDocuments.filesArticle.createFiles();
-      await myDocuments.filesTable.hideModifiedColumn();
+      await myDocuments.filesTable.hideTableColumn();
 
       await screenshot.expectHaveScreenshot("files_create_created_files");
     });
@@ -66,17 +65,17 @@ test.describe("My documents: Base", () => {
       await screenshot.expectHaveScreenshot("info_panel_file_options_opened");
       await myDocuments.infoPanel.closeMenu();
 
-      await myDocuments.infoPanel.openTab("History");
+      await myDocuments.infoPanel.openTab("info_history_tab");
       await myDocuments.infoPanel.checkHistoryExist("File created.");
       await myDocuments.infoPanel.hideCreationDateHistory();
       await screenshot.expectHaveScreenshot("info_panel_file_history");
-
-      await myDocuments.infoPanel.openTab("Share");
+      
+      await myDocuments.infoPanel.openTab("info_share_tab");
       await myDocuments.infoPanel.checkShareExist();
       await myDocuments.infoPanel.createFirstSharedLink();
       await myDocuments.infoPanel.createMoreSharedLink();
       await screenshot.expectHaveScreenshot("info_panel_file_share");
-
+      
       await myDocuments.filesTable.selectAllRows();
       await screenshot.expectHaveScreenshot("info_panel_multi_selected_files");
       await myDocuments.filesTable.resetSelect();
@@ -88,16 +87,16 @@ test.describe("My documents: Base", () => {
       await myDocuments.infoPanel.openOptions();
       await screenshot.expectHaveScreenshot("info_panel_folder_options");
 
-      await myDocuments.infoPanel.openTab("History");
+      await myDocuments.infoPanel.openTab("info_history_tab");
       await myDocuments.infoPanel.checkHistoryExist("Folder created.");
-
+      
       await myDocuments.filesTable.openContextMenu();
-      await myDocuments.filesTable.contextMenu.clickOption("Info");
+      await myDocuments.filesTable.contextMenu.clickSubmenuOption("Properties", "Info");
       await myDocuments.infoPanel.hideDatePropertiesDetails();
       await myDocuments.infoPanel.checkDocxFileProperties();
 
       await myDocuments.filesTable.openContextMenu();
-      await myDocuments.filesTable.contextMenu.clickOption("Share");
+      await myDocuments.filesTable.contextMenu.clickSubmenuOption("Share", "Manage links");
       await myDocuments.infoPanel.checkShareExist();
 
       await myDocuments.infoPanel.close();

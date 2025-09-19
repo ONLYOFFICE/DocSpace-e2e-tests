@@ -1,5 +1,5 @@
 import { TRoomCreateTitles } from "@/src/utils/constants/rooms";
-import { expect, Page } from "@playwright/test";
+import { expect, Page, test } from "@playwright/test";
 
 const NEW_SELECTOR_ITEM_INPUT_SELECTOR = "input.input-component.not-selectable";
 
@@ -97,6 +97,7 @@ class BaseSelector {
   }
 
   async selectItemByText(text: string, doubleClick = false) {
+    return test.step('Select item by text', async () => {
     const item = await this.getItemByName(text);
 
     if (doubleClick) {
@@ -104,7 +105,8 @@ class BaseSelector {
     } else {
       await item.click();
     }
-  }
+  });
+}
 
   async selectItemByIndex(index: number, doubleClick = false) {
     if (index < 0) {

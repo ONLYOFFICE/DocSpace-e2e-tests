@@ -1,9 +1,9 @@
-import { expect, Page } from "@playwright/test";
+import { expect, Page, test } from "@playwright/test";
 import { BaseContextMenu } from "./BaseContextMenu";
 
 const CLOSE_BUTTON =
   "[data-testid='aside-header'] [data-testid='icon-button-svg']";
-const HEADER_ADD_BUTTON = "#header_add-button";
+const HEADER_ADD_BUTTON = "plus-button";
 const BACK_ARROW_ICON =
   ".navigation-arrow-container [data-testid='icon-button']";
 
@@ -25,7 +25,7 @@ class BaseNavigation {
   }
 
   private get headerAddButton() {
-    return this.page.locator(HEADER_ADD_BUTTON);
+    return this.page.getByTestId(HEADER_ADD_BUTTON);
   }
 
   private get backArrowIcon() {
@@ -41,6 +41,7 @@ class BaseNavigation {
   }
 
   async openCreateDropdown() {
+    return test.step('Click plus button', async () => {
     await expect(async () => {
       await expect(this.headerAddButton).toBeVisible({
         timeout: 500,
@@ -48,10 +49,11 @@ class BaseNavigation {
       await this.clickAddButton();
       await this.contextMenu.checkMenuExists(500);
     }).toPass();
+    });
   }
 
   async clickAddButton() {
-    await this.headerAddButton.click();
+    await this.page.getByTestId(HEADER_ADD_BUTTON).click();
   }
 
   async clickSelectAllCheckbox() {
@@ -60,9 +62,11 @@ class BaseNavigation {
   }
 
   async gotoBack() {
+    return test.step('Go back', async () => {
     await expect(this.backArrowIcon).toBeVisible();
     await this.backArrowIcon.click();
-  }
+  });
+}
 
   async closeContextMenu() {
     await this.contextMenu.close();
@@ -79,12 +83,12 @@ class BaseNavigation {
   }
 
   async performAction(action: TAction) {
-    const actionButton = this.page.locator(action.button);
+    const actionButton = this.page.getByTestId(action.button);
     await expect(actionButton).toBeVisible();
     await actionButton.click();
 
     if (action?.submit) {
-      const actionButtonSubmit = this.page.locator(action.submit);
+      const actionButtonSubmit = this.page.getByTestId(action.submit);
       await expect(actionButtonSubmit).toBeVisible();
       await actionButtonSubmit.click();
     }

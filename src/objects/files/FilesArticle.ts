@@ -1,4 +1,4 @@
-import { expect, Page } from "@playwright/test";
+import { expect, Page, test } from "@playwright/test";
 import BaseArticle from "../common/BaseArticle";
 import FilesCreateContextMenu from "./FilesCreateContextMenu";
 import { listArticleDocActions } from "@/src/utils/constants/files";
@@ -15,21 +15,28 @@ class FilesArticle extends BaseArticle {
   }
 
   async openMainDropdown() {
+    return test.step('Open main dropdown', async () => {
     await this.clickArticleMainButton();
     await this.contextMenu.checkMenuExists();
+  });
   }
 
   async closeMainDropdown() {
+    return test.step('Close main dropdown', async () => {
     await this.contextMenu.close();
+  });
   }
 
   async checkCreatedFileByActionExist(actionText: string) {
+    return test.step('Check created file by action exist', async () => {
     await expect(
       this.page.getByText(actionText, { exact: true }),
     ).toBeVisible();
+  });
   }
 
   async createFiles() {
+    return test.step('Create files', async () => {
     for (const actionText of listArticleDocActions) {
       await this.openMainDropdown();
       await this.contextMenu.selectCreateAction(actionText);
@@ -48,7 +55,8 @@ class FilesArticle extends BaseArticle {
 
       await this.checkCreatedFileByActionExist(actionText);
     }
-  }
+  });
+}
 }
 
 export default FilesArticle;

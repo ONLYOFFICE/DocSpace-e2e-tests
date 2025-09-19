@@ -3,7 +3,7 @@ import {
   roomTemplateTitles,
   TRoomCreateTitles,
 } from "@/src/utils/constants/rooms";
-import { expect, Page } from "@playwright/test";
+import { expect, Page, test } from "@playwright/test";
 import Screenshot from "../common/Screenshot";
 import BaseDialog from "../common/BaseDialog";
 import { waitForGetRoomsResponse } from "./api";
@@ -42,6 +42,7 @@ class RoomsCreateDialog extends BaseDialog {
   }
 
   async openRoomType(title: TRoomCreateTitles) {
+    return test.step('Open room type', async () => {
     if (title !== roomCreateTitles.fromTemplate) {
       await this.dialog.getByTitle(title).click();
       await expect(this.roomTypeDropdownButton).toBeVisible();
@@ -50,7 +51,8 @@ class RoomsCreateDialog extends BaseDialog {
       await this.dialog.getByTitle(title).click();
       await promise;
     }
-  }
+  });
+}
 
   async openRoomIconDropdown() {
     await this.roomIcon.click();

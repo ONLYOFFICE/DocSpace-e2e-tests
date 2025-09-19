@@ -3,6 +3,7 @@ import { DOC_ACTIONS, listDocActions } from "../../utils/constants/files";
 import FilesCreateModal from "./FilesCreateModal";
 import BaseNavigation from "../common/BaseNavigation";
 import FilesCreateContextMenu from "./FilesCreateContextMenu";
+import { test } from "@playwright/test";
 
 const navActions = {
   moveToArchive: {
@@ -10,8 +11,8 @@ const navActions = {
     submit: "#shared_move-to-archived-modal_submit",
   },
   delete: {
-    button: "#menu-delete",
-    submit: "#delete-file-modal_submit",
+    button: "table_group_menu_item_menu-delete",
+    submit: "delete_dialog_modal_submit",
   },
 } as const;
 
@@ -26,6 +27,7 @@ class FilesNavigation extends BaseNavigation {
   }
 
   async validateCreateFileModal(actionText: string) {
+    return test.step('Validate create file modal', async () => {
     const modalTitle =
       actionText === DOC_ACTIONS.CREATE_PDF_BLANK
         ? DOC_ACTIONS.CREATE_PDF_FORM
@@ -33,23 +35,30 @@ class FilesNavigation extends BaseNavigation {
 
     await this.modal.checkModalExist();
     await this.modal.checkModalTitleExist(modalTitle);
-    await this.modal.closeModalByClickOutside();
+    await this.modal.closeModalByClickCancelButton();
+  });
   }
 
   async openAndValidateFileCreateModals() {
+    return test.step('Open and validate file create modals', async () => {
     for (const actionText of listDocActions) {
       await this.openCreateDropdown();
       await this.contextMenu.selectCreateAction(actionText);
       await this.validateCreateFileModal(actionText);
     }
+  });
   }
 
   async delete() {
+    return test.step('Delete', async () => {
     await this.performAction(navActions.delete);
+    });
   }
 
   async selectCreateAction(actionText: string) {
+    return test.step('Select create action', async () => {
     await this.contextMenu.selectCreateAction(actionText);
+  });
   }
 }
 

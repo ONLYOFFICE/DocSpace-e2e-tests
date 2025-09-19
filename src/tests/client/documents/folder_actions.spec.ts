@@ -4,9 +4,11 @@ import { roomCreateTitles } from "@/src/utils/constants/rooms";
 import Screenshot from "@/src/objects/common/Screenshot";
 import { DOC_ACTIONS } from "@/src/utils/constants/files";
 import { test } from "@/src/fixtures";
+import MyDocuments from "@/src/objects/files/MyDocuments";
 
 test.describe("Folder", () => {
   let folder: Folder;
+  let myDocuments: MyDocuments;
   let myRooms: Rooms;
   let screenshot: Screenshot;
 
@@ -17,6 +19,7 @@ test.describe("Folder", () => {
 
   test.beforeEach(async ({ page, api, login }) => {
     folder = new Folder(page, api.portalDomain);
+    myDocuments = new MyDocuments(page, api.portalDomain);
     screenshot = new Screenshot(page, {
       screenshotDir: "files",
       suiteName: "folder_actions",
@@ -27,8 +30,9 @@ test.describe("Folder", () => {
     await folder.open();
   });
 
-  test("Folder actions", async () => {
-    await test.step("Select", async () => {
+  test("Folder actions", async ({ page }) => {
+    await test.step("Select folder", async () => {
+      await myDocuments.checkMyDocumentsExist();
       await folder.filesNavigation.openCreateDropdown();
       await folder.filesNavigation.selectCreateAction(
         DOC_ACTIONS.CREATE_FOLDER,
@@ -37,57 +41,40 @@ test.describe("Folder", () => {
       await folder.filesNavigation.modal.checkModalTitleExist("New folder");
       await folder.filesNavigation.modal.fillCreateTextInput(baseFolder);
       await folder.filesNavigation.modal.clickCreateButton();
-      await folder.filesTable.hideModifiedColumn();
-      await folder.filesTable.openContextMenuForItem(baseFolder);
+      await folder.filesTable.hideTableColumn();
+      await folder.filesTable.openContextMenuForItem();
       await folder.filesTable.contextMenu.clickOption("Select");
       await screenshot.expectHaveScreenshot("folder_selected");
     });
 
     await test.step("OpenFolder", async () => {
-      await folder.filesTable.openContextMenuForItem(baseFolder);
+      await folder.filesTable.openContextMenuForItem();
       await folder.filesTable.contextMenu.clickOption("Open");
       await screenshot.expectHaveScreenshot("empty_folder_opened");
       await folder.filesNavigation.gotoBack();
     });
 
-    await test.step("Share", async () => {
-      const roomNameShared = `${baseFolder}-shared-room`;
-      await folder.filesTable.openContextMenuForItem(baseFolder);
-      await folder.filesTable.contextMenu.clickOption("Share");
-      await screenshot.expectHaveScreenshot("share_folder_modal_opened");
-      await folder.folderShareModal.clickCreateRoom();
-      await screenshot.expectHaveScreenshot("share_folder_choose_room_type");
-      await folder.createRoomFromFolder(
-        roomCreateTitles.public,
-        roomNameShared,
-      );
-      await folder.infoPanel.hideRoomIcon();
-      await screenshot.expectHaveScreenshot("room_from_shared_folder_created");
-
-      await myRooms.openWithoutEmptyCheck();
-      await myRooms.roomsTable.hideLastActivityColumn();
-      await myRooms.roomsTable.checkRowExist(roomNameShared);
-    });
-
-    await test.step("CreateRoom", async () => {
+    await test.step("CreateRoomFromFolder", async () => {
       await folder.open();
-      await folder.filesTable.openContextMenuForItem(baseFolder);
-      await folder.filesTable.contextMenu.clickOption("Create room");
+      await folder.filesTable.openContextMenuForItem();
+      await folder.filesTable.contextMenu.clickSubmenuOption("Share", "Create room");
       await screenshot.expectHaveScreenshot("choose_room_type");
       await folder.createRoomFromFolder(roomCreateTitles.public);
       await folder.infoPanel.hideRoomIcon();
+      await myRooms.infoPanel.hideDatePropertiesDetails();
       await screenshot.expectHaveScreenshot("public_room_from_folder_created");
 
-      await myRooms.openWithoutEmptyCheck();
+      await myRooms.openRooms();
+      await folder.infoPanel.close();
       await myRooms.roomsTable.hideLastActivityColumn();
       await myRooms.roomsTable.checkRowExist(`${baseFolder}`);
     });
 
     await test.step("Move", async () => {
-      await folder.open();
+      await myDocuments.open();
       await folder.createNew(folderToMove);
 
-      await folder.filesTable.openContextMenuForItem(folderToMove);
+      await folder.filesTable.openContextMenuForItem();
       await folder.filesTable.contextMenu.clickSubmenuOption(
         "Move or copy",
         "Move to",
@@ -97,7 +84,7 @@ test.describe("Folder", () => {
       await folder.filesSelectPanel.selectItemByText(baseFolder);
       await folder.filesSelectPanel.confirmSelection();
       await folder.removeToast(
-        `The folder ${folderToMove} successfully moved to Documents`,
+        `The folder ${folderToMove} successfully moved to My documents`,
       );
       await folder.expectFolderNotVisible(folderToMove);
     });
@@ -105,7 +92,7 @@ test.describe("Folder", () => {
     await test.step("Copy", async () => {
       await folder.createNew(folderToCopy);
 
-      await folder.filesTable.openContextMenuForItem(folderToCopy);
+      await folder.filesTable.openContextMenuForItem();
       await folder.filesTable.contextMenu.clickSubmenuOption(
         "Move or copy",
         "Copy",
@@ -115,27 +102,28 @@ test.describe("Folder", () => {
       await folder.filesSelectPanel.selectItemByText(baseFolder);
       await folder.filesSelectPanel.confirmSelection();
 
-      await folder.filesTable.openContextMenuForItem(baseFolder);
+      await folder.filesTable.openContextMenuForItem();
       await folder.filesTable.contextMenu.clickOption("Open");
       await folder.expectFolderVisible(folderToCopy);
     });
 
     await test.step("RenameFolder", async () => {
       await folder.open();
-      await folder.filesTable.openContextMenuForItem(baseFolder);
+      await folder.filesTable.openContextMenuForItem();
       await folder.filesTable.contextMenu.clickOption("Rename");
       await folder.filesNavigation.modal.checkModalExist();
       await screenshot.expectHaveScreenshot("folder_rename_modal");
       await folder.filesNavigation.modal.fillCreateTextInput(renamedFolder);
       await folder.filesNavigation.modal.clickCreateButton();
       await folder.removeToast(
-        `The folder '${baseFolder}' is renamed to '${renamedFolder}'`,
+        `The folder '${folderToCopy}' is renamed to '${renamedFolder}'`,
       );
-      await folder.expectFolderRenamed(baseFolder, renamedFolder);
+      await folder.expectFolderRenamed(folderToCopy, renamedFolder);
     });
 
     await test.step("Delete", async () => {
-      await folder.filesTable.openContextMenuForItem(renamedFolder);
+      
+      await folder.filesTable.openContextMenuForItem();
       await folder.filesTable.contextMenu.clickOption("Delete");
       await screenshot.expectHaveScreenshot("delete_folder_modal");
       await folder.folderDeleteModal.clickDeleteFolder();

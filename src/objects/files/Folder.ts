@@ -1,4 +1,4 @@
-import { expect, Page } from "@playwright/test";
+import { expect, Page, test } from "@playwright/test";
 import FilesNavigation from "./FilesNavigation";
 import FilesTable from "./FilesTable";
 import FolderShareModal from "./FolderShareModal";
@@ -9,6 +9,7 @@ import RoomsCreateDialog from "@/src/objects/rooms/RoomsCreateDialog";
 import { TRoomCreateTitles } from "@/src/utils/constants/rooms";
 import { DOC_ACTIONS } from "@/src/utils/constants/files";
 import BasePage from "../common/BasePage";
+
 class Folder extends BasePage {
   private portalDomain: string;
 
@@ -34,15 +35,17 @@ class Folder extends BasePage {
   }
 
   async open() {
-    await this.page.goto(`https://${this.portalDomain}/rooms/personal`, {
-      waitUntil: "load",
-    });
-    await expect(this.page).toHaveURL(/.*rooms\/personal.*/);
+    return test.step('Open my documents', async () => {
+    await this.navigateToMyDocuments();
+    await this.page.waitForLoadState("load");
+  });
   }
 
   async expectFolderVisible(name: string) {
+    return test.step('Expect folder visible', async () => {
     const locator = this.page.getByText(name, { exact: true });
     await expect(locator).toBeVisible();
+  });
   }
 
   async expectFolderNotVisible(name: string) {
@@ -56,20 +59,24 @@ class Folder extends BasePage {
   }
 
   async createRoomFromFolder(roomType: TRoomCreateTitles, roomName?: string) {
+    return test.step('Create room from folder', async () => {
     await this.roomsCreateDialog.openRoomType(roomType);
     if (roomName) {
       await this.roomsCreateDialog.fillRoomName(roomName);
     }
     await this.roomsCreateDialog.clickRoomDialogSubmit();
+    });
   }
 
   async createNew(name: string) {
+    return test.step('Create new folder', async () => {
     await this.filesNavigation.openCreateDropdown();
     await this.filesNavigation.selectCreateAction(DOC_ACTIONS.CREATE_FOLDER);
     await this.filesNavigation.modal.checkModalExist();
     await this.filesNavigation.modal.fillCreateTextInput(name);
     await this.filesNavigation.modal.clickCreateButton();
     await this.expectFolderVisible(name);
+    });
   }
 }
 

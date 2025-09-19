@@ -1,4 +1,4 @@
-import { Page } from "@playwright/test";
+import { Page, test } from "@playwright/test";
 import { DOC_ACTIONS } from "../../utils/constants/files";
 import FilesCreateModal from "./FilesCreateModal";
 import { BaseContextMenu } from "../common/BaseContextMenu";
@@ -12,13 +12,14 @@ class FilesCreateContextMenu extends BaseContextMenu {
   }
 
   async selectCreateAction(actionText: string) {
+    return test.step('Select create action', async () => {
     if (actionText === DOC_ACTIONS.CREATE_PDF_BLANK) {
       await this.hoverOption("PDF Form");
       await this.clickOption(actionText, true);
     } else {
       await this.clickOption(actionText);
     }
+  });
   }
 }
-
 export default FilesCreateContextMenu;

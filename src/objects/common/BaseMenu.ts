@@ -1,4 +1,4 @@
-import { Page, Locator, expect } from "@playwright/test";
+import { Page, Locator, expect, test } from "@playwright/test";
 
 export type TMenuItem = {
   type: "text" | "id" | "data-testid" | "class";
@@ -80,33 +80,41 @@ export abstract class BaseMenu {
   }
 
   async clickOption(selector: TMenuItem | string, isSubmenu = false) {
+    return test.step('Click option', async () => {
     const root = isSubmenu ? this.submenu : this.menu;
     const item = this.getMenuItem(root, selector);
     await this.scrollUntilVisible(item, root);
     await item.click();
-  }
+  });
+}
 
   async clickSubmenuOption(
     parentSelector: TMenuItem | string,
     childSelector: TMenuItem | string,
   ) {
+    return test.step('Click submenu option', async () => {
     await this.hoverOption(parentSelector);
     const child = this.getMenuItem(this.submenu, childSelector);
     await this.scrollUntilVisible(child, this.submenu);
     await child.click();
-  }
+  });
+}
 
   async close() {
+    return test.step('Close menu', async () => {
     await expect(async () => {
       await this.page.mouse.click(1, 1);
       await expect(this.menu).not.toBeVisible({
         timeout: 500,
       });
     }).toPass();
+  });
   }
   async checkMenuExists(timeout?: number) {
+    return test.step('Check menu exists', async () => {
     await expect(this.menu).toBeVisible({
       timeout,
     });
+  });
   }
 }

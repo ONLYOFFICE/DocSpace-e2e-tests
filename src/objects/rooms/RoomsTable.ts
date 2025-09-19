@@ -1,4 +1,4 @@
-import { expect, Page } from "@playwright/test";
+import { expect, Page, test } from "@playwright/test";
 import BaseTable from "../common/BaseTable";
 
 import { BaseContextMenu } from "../common/BaseContextMenu";
@@ -7,8 +7,7 @@ import {
   TTemplateContextMenuOption,
 } from "@/src/utils/constants/rooms";
 
-const LAST_ACTIVITY_CHECKBOX =
-  ".table-container_settings-checkbox:has(span:text-is('Last activity'))";
+const LAST_ACTIVITY_CHECKBOX = "table_settings_Activity";
 
 const TABLE_ITEM_PINNED_TO_TOP = ".icons-group.is-pinned";
 
@@ -21,8 +20,15 @@ class RoomsTable extends BaseTable {
   }
 
   async hideLastActivityColumn() {
-    await this.hideTableColumn(this.page.locator(LAST_ACTIVITY_CHECKBOX));
-  }
+    return test.step('Hide last activity column', async () => {
+      await this.clickSettingsMenu();
+  
+      const isChecked = await this.page.getByTestId(LAST_ACTIVITY_CHECKBOX).isChecked();
+      if (isChecked) await this.page.getByTestId(LAST_ACTIVITY_CHECKBOX).click();
+  
+      await this.clickSettingsMenu();
+      });
+    }
 
   async clickTag(tagValue: string) {
     await this.page.locator(`[data-tag="${tagValue}"]`).click();
