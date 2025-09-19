@@ -19,9 +19,6 @@ const navActions = {
   },
 } as const;
 
-const LAST_ACTIVITY_CHECKBOX =
-  ".table-container_settings-checkbox:has(span:text-is('Last activity'))";
-
 class MyArchive extends BasePage {
   portalDomain: string;
 
@@ -63,9 +60,7 @@ class MyArchive extends BasePage {
   }
 
   async hideLastActivityColumn() {
-    await this.archiveTable.hideTableColumn(
-      this.page.locator(LAST_ACTIVITY_CHECKBOX),
-    );
+    await this.archiveTable.hideTableColumn();
   }
 }
 

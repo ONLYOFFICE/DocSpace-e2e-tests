@@ -41,9 +41,9 @@ test.describe("Trash", () => {
       );
       await screenshot.expectHaveScreenshot("context_menu_table");
 
-      await trash.trashTable.openSettings();
+      await trash.trashTable.clickSettingsMenu();
       await screenshot.expectHaveScreenshot("context_menu_table_settings");
-      await trash.trashTable.closeSettings();
+      await trash.trashTable.clickSettingsMenu();
     });
 
     await test.step("OpenEmptyTrashDialog", async () => {

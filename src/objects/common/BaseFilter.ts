@@ -22,7 +22,7 @@ export const SEARCH = {
   INPUT: "Search",
 } as const;
 
-export const EMPTY_VIEW = { 
+export const EMPTY_VIEW = {
   CONTAINER: "[data-testid='empty-view']",
 } as const;
 

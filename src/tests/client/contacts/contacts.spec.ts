@@ -29,11 +29,11 @@ test.describe(() => {
       await contacts.table.checkRowExist(ADMIN_OWNER_NAME);
       await screenshot.expectHaveScreenshot("empty_view_members");
 
-      await contacts.table.openSettings();
+      await contacts.table.clickSettingsMenu();
       await screenshot.expectHaveScreenshot(
         "empty_view_members_table_settings",
       );
-      await contacts.table.closeSettings();
+      await contacts.table.clickSettingsMenu();
 
       await contacts.openTab("Groups");
       await contacts.checkEmptyGroupsExist();
@@ -309,7 +309,7 @@ test.describe(() => {
       await contacts.groupDialog.fillGroupName(GROUP_NAME);
       await contacts.groupDialog.submitEditGroup();
 
-      await contacts.table.openSettings();
+      await contacts.table.clickSettingsMenu();
       await screenshot.expectHaveScreenshot("groups_table_settings");
 
       await contacts.infoPanel.open();
@@ -358,9 +358,9 @@ test.describe(() => {
       await screenshot.expectHaveScreenshot("guests_context_menu");
       await contacts.closeMenu();
 
-      await contacts.table.openSettings();
+      await contacts.table.clickSettingsMenu();
       await screenshot.expectHaveScreenshot("guests_table_settings");
-      await contacts.table.closeSettings();
+      await contacts.table.clickSettingsMenu();
 
       await contacts.table.openContextMenu(userEmails.guest);
       await contacts.table.contextMenu.hoverOption(
