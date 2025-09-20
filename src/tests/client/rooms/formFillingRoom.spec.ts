@@ -177,13 +177,14 @@ test.describe("Rooms", () => {
       await myRooms.filesTable.contextMenu.clickOption("Preview");
             page3 = await page2.waitForEvent('popup');
       // Wait up to 20000 ms because the XLSX editor inside the iframe opens slowly in Firefox
-      await page3.waitForLoadState('networkidle', { timeout: 20000 }).catch(() => {
+      await page3.waitForLoadState('networkidle', { timeout: 60000 }).catch(() => {
         console.warn('networkidle did not happen in 20 seconds, continue testing');
       });
       const screenshot = new Screenshot(page3, { screenshotDir: "rooms" });
       // Wait for the iframe XLSX to load
       const frameEditor = await page3.frameLocator('iframe[name="frameEditor"]');
       const canvasOverlay = frameEditor.locator('#ws-canvas-graphic-overlay');
+      await expect(frameEditor.locator('#box-doc-name')).toBeVisible({ timeout: 20000 });
       await expect(canvasOverlay).toBeVisible({ timeout: 20000 });
       await screenshot.expectHaveScreenshot("opened_xlsx_file");
     });
