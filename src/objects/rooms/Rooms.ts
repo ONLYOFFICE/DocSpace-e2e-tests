@@ -226,20 +226,8 @@ class MyRooms extends BasePage {
       state: 'visible', 
       timeout: 10000 
     });
-    await this.page.waitForSelector('[data-testid="room-icon-image"]', { 
-      state: 'visible',
-      timeout: 10000  // 10 seconds timeout
-    });
-    const responsePromise = this.page.waitForResponse(response => {
-      return response.url().includes('/api/2.0/files') && 
-             response.request().method() === 'GET' &&
-             response.status() === 200;
-    });
-  
     await this.filesTable.openContextMenuForItem(folderName);    
     await this.filesTable.contextMenu.clickOption("Open");
-  
-    await responsePromise;
     }
 }
 

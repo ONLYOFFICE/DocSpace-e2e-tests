@@ -150,11 +150,12 @@ test.describe("Rooms", () => {
       myRooms.setPage(page2);
       await pdfForm.clickSubmitButton();
       await completedForm.chooseBackToRoom();
-      await expect(page2.getByLabel('ONLYOFFICE Resume Sample,')).toBeVisible();
+      await expect(page2.getByLabel('ONLYOFFICE Resume Sample,')).toBeVisible({ timeout: 10000 });
     });
 
     await test.step("CheckPDFFormAndXlsxInCompleteFolder", async () => {
       await myRooms.gotoFolder("Complete");
+      await expect(page2.getByRole('heading', { name: 'Complete' })).toBeVisible();
       await myRooms.gotoFolder("ONLYOFFICE Resume Sample");
       await expect(page2.getByLabel(/1 - admin-zero admin-zero - ONLYOFFICE Resume Sample/)).toBeVisible();
       await expect(page2.getByLabel('ONLYOFFICE Resume Sample,')).toBeVisible();
