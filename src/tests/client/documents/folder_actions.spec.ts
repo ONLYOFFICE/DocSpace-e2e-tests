@@ -30,7 +30,7 @@ test.describe("Folder", () => {
     await folder.open();
   });
 
-  test("Folder actions", async ({page}) => {
+  test("Folder actions", async () => {
     await test.step("Select folder", async () => {
       await myDocuments.checkMyDocumentsExist();
       await folder.filesNavigation.openCreateDropdown();

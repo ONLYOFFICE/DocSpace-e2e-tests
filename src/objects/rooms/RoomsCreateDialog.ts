@@ -16,7 +16,7 @@ const ROOM_NAME_INPUT = "create_edit_room_input";
 
 const COLOR_SELECTORS = {
   red: "color_item_selected_0",
-  orange: "color_item_1", 
+  orange: "color_item_1",
   yellow: "color_item_2",
   green: "color_item_3",
   turquoise: "color_item_4",
@@ -32,7 +32,6 @@ class RoomsCreateDialog extends BaseDialog {
   constructor(page: Page) {
     super(page);
   }
-  
   private colorSelectors = COLOR_SELECTORS;
 
   private get roomDialogSubmitButton() {
@@ -55,7 +54,7 @@ class RoomsCreateDialog extends BaseDialog {
     return this.page.getByTestId(LOGO_NAME_CONTAINER).getByTestId("dropdown");
   }
 
-    async checkRoomTypeExist(roomType: TRoomCreateTitles) {
+  async checkRoomTypeExist(roomType: TRoomCreateTitles) {
     await expect(this.dialog.getByTitle(roomType)).toBeVisible();
   }
 
@@ -305,13 +304,13 @@ class RoomsCreateDialog extends BaseDialog {
   }
 
   async setRoomCoverColor(color: RoomCoverColor) {
-    return test.step('Set room cover color', async () => {
-    await this.page.getByTestId("room-title").click();
-    await this.page.getByTestId("create_edit_room_customize_cover").click();
-    await this.page.getByTestId(this.colorSelectors[color]).click();
-    await this.page.getByTestId("room_logo_cover_apply_button").click();
-  });
-}
+    return test.step("Set room cover color", async () => {
+      await this.page.getByTestId("room-title").click();
+      await this.page.getByTestId("create_edit_room_customize_cover").click();
+      await this.page.getByTestId(this.colorSelectors[color]).click();
+      await this.page.getByTestId("room_logo_cover_apply_button").click();
+    });
+  }
 }
 
 export default RoomsCreateDialog;

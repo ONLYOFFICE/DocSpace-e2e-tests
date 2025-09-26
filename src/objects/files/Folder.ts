@@ -10,7 +10,6 @@ import { TRoomCreateTitles } from "@/src/utils/constants/rooms";
 import { DOC_ACTIONS } from "@/src/utils/constants/files";
 import BasePage from "../common/BasePage";
 
-
 class Folder extends BasePage {
   private portalDomain: string;
 
