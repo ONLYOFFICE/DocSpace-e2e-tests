@@ -24,6 +24,7 @@ const COLOR_SELECTORS = {
   blue: "color_item_6",
   purple: "color_item_7",
   pink: "color_item_8",
+  custom: "color_item_add_custom",
 } as const;
 
 type RoomCoverColor = keyof typeof COLOR_SELECTORS;

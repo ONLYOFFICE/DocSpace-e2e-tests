@@ -58,7 +58,7 @@ test.describe("VDRRooms", () => {
 
     // Step 4: Fill the room name
     await myRooms.roomsCreateDialog.fillRoomName("AutoIndexRoom");
-    await myRooms.roomsCreateDialog.setRoomCoverColor(".sc-fbKhjd");
+    await myRooms.roomsCreateDialog.setRoomCoverColor("custom");
 
     // Step 5: Submit the creation form
     await myRooms.roomsCreateDialog.clickRoomDialogSubmit();
