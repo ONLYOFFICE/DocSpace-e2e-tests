@@ -76,39 +76,39 @@ test.describe("Rooms", () => {
       await screenshot.expectHaveScreenshot("create_common_rooms_cover");
 
       //Rooms cover change color tests starts here
-      await myRooms.roomsCreateDialog.setRoomCoverColor(".sc-fbKhjd");
+      await myRooms.roomsCreateDialog.setRoomCoverColor("red");
       await screenshot.expectHaveScreenshot(
         "create_common_rooms_cover_color_red",
       );
-      await myRooms.roomsCreateDialog.setRoomCoverColor(".sc-fbKhjd.dRRCCA");
+      await myRooms.roomsCreateDialog.setRoomCoverColor("orange");
       await screenshot.expectHaveScreenshot(
         "create_common_rooms_cover_color_orange",
       );
-      await myRooms.roomsCreateDialog.setRoomCoverColor(".sc-fbKhjd.fQFbbT");
+      await myRooms.roomsCreateDialog.setRoomCoverColor("yellow");
       await screenshot.expectHaveScreenshot(
         "create_common_rooms_cover_color_yellow",
       );
-      await myRooms.roomsCreateDialog.setRoomCoverColor(".sc-fbKhjd.jCkA-De");
+      await myRooms.roomsCreateDialog.setRoomCoverColor("green");
       await screenshot.expectHaveScreenshot(
         "create_common_rooms_cover_color_green",
       );
-      await myRooms.roomsCreateDialog.setRoomCoverColor(".sc-fbKhjd.doREMi");
+      await myRooms.roomsCreateDialog.setRoomCoverColor("turquoise");
       await screenshot.expectHaveScreenshot(
         "create_common_rooms_cover_color_cyan",
       );
-      await myRooms.roomsCreateDialog.setRoomCoverColor(".sc-fbKhjd.jpEyUp");
+      await myRooms.roomsCreateDialog.setRoomCoverColor("skyBlue");
       await screenshot.expectHaveScreenshot(
         "create_common_rooms_cover_color_light_blue",
       );
-      await myRooms.roomsCreateDialog.setRoomCoverColor(".sc-fbKhjd.ikQHKR");
+      await myRooms.roomsCreateDialog.setRoomCoverColor("blue");
       await screenshot.expectHaveScreenshot(
         "create_common_rooms_cover_color_blue",
       );
-      await myRooms.roomsCreateDialog.setRoomCoverColor(".sc-fbKhjd.dpvPpt");
+      await myRooms.roomsCreateDialog.setRoomCoverColor("purple");
       await screenshot.expectHaveScreenshot(
         "create_common_rooms_cover_color_purple",
       );
-      await myRooms.roomsCreateDialog.setRoomCoverColor(".sc-fbKhjd.lbYcxL");
+      await myRooms.roomsCreateDialog.setRoomCoverColor("pink");
       await screenshot.expectHaveScreenshot(
         "create_common_rooms_cover_color_pink",
       );

@@ -10,6 +10,7 @@ import { TRoomCreateTitles } from "@/src/utils/constants/rooms";
 import { DOC_ACTIONS } from "@/src/utils/constants/files";
 import BasePage from "../common/BasePage";
 
+
 class Folder extends BasePage {
   private portalDomain: string;
 
@@ -64,6 +65,7 @@ class Folder extends BasePage {
       if (roomName) {
         await this.roomsCreateDialog.fillRoomName(roomName);
       }
+      await this.roomsCreateDialog.setRoomCoverColor("blue");
       await this.roomsCreateDialog.clickRoomDialogSubmit();
     });
   }

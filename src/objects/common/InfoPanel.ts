@@ -24,7 +24,7 @@ const SHARED_LINKS_WRAPPER = "shared-links";
 const SHARED_LINKS_AVATAR =
   "[data-testid='avatar'] [data-has-username='false']";
 const CREATE_SHARED_LINKS_ICON = "[data-tooltip-id='file-links-tooltip']";
-const ROOM_ICON = ".item-icon [data-testid='room-icon']";
+const ROOM_ICON = "info_panel_details_room_icon";
 
 class InfoPanel {
   protected page: Page;
@@ -103,7 +103,7 @@ class InfoPanel {
   }
   async hideRoomIcon() {
     return test.step("Hide room icon", async () => {
-      const icon = this.page.locator(ROOM_ICON).last();
+      const icon = this.page.getByTestId(ROOM_ICON).last();
       await icon.waitFor({ state: "visible", timeout: 5_000 });
       await icon.evaluate((el) => (el.style.display = "none"));
     });

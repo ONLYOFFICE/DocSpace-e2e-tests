@@ -30,7 +30,7 @@ test.describe("Folder", () => {
     await folder.open();
   });
 
-  test("Folder actions", async () => {
+  test("Folder actions", async ({page}) => {
     await test.step("Select folder", async () => {
       await myDocuments.checkMyDocumentsExist();
       await folder.filesNavigation.openCreateDropdown();
@@ -63,7 +63,6 @@ test.describe("Folder", () => {
       );
       await screenshot.expectHaveScreenshot("choose_room_type");
       await folder.createRoomFromFolder(roomCreateTitles.public);
-      await folder.infoPanel.hideRoomIcon();
       await myRooms.infoPanel.hideDatePropertiesDetails();
       await screenshot.expectHaveScreenshot("public_room_from_folder_created");
 
