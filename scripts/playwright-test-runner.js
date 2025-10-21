@@ -17,6 +17,10 @@ import { fileURLToPath } from "url";
 import fs from "fs";
 import path from "path";
 
+function escapeRegex(str) {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 function writeLastRun(lastRunPath, answer, playwrightFlags, useDocker) {
   fs.writeFileSync(
     lastRunPath,
@@ -36,19 +40,24 @@ function readLastRun(lastRunPath) {
 }
 
 function getSpecFiles(dir, files = []) {
+  if (!fs.existsSync(dir)) {
+    return files;
+  }
   fs.readdirSync(dir).forEach((file) => {
     const fullPath = path.join(dir, file);
     if (fs.statSync(fullPath).isDirectory()) {
       getSpecFiles(fullPath, files);
     } else if (file.endsWith(".spec.ts")) {
-      files.push(file);
+      const rel = path.relative(process.cwd(), fullPath);
+      // Normalize to POSIX-style paths so Playwright's regex arg matches on Windows
+      files.push(rel.split(path.sep).join("/"));
     }
   });
   return files;
 }
 
 const getTestSelectAnswer = async (lastRun) => {
-  const specs = getSpecFiles("./src/tests/client");
+  const specs = getSpecFiles("./src/tests");
   const testChoices = [
     { name: "All tests", value: "all" },
     ...specs.map((s) => ({ name: s, value: s })),
@@ -143,16 +152,11 @@ function runPlaywrightDocker(playwrightArgs) {
 }
 
 const lastAnswerVariant = (lastRun) => {
+  const arg = lastRun.answer === "all" ? "" : `^${escapeRegex(lastRun.answer)}$`;
   if (lastRun.useDocker) {
-    runPlaywrightDocker([
-      lastRun.answer === "all" ? "" : lastRun.answer,
-      ...(lastRun?.playwrightFlags || []),
-    ]);
+    runPlaywrightDocker([arg, ...(lastRun?.playwrightFlags || [])]);
   } else {
-    runPlaywrightLocal([
-      lastRun.answer === "all" ? "" : lastRun.answer,
-      ...(lastRun?.playwrightFlags || []),
-    ]);
+    runPlaywrightLocal([arg, ...(lastRun?.playwrightFlags || [])]);
   }
 };
 
@@ -163,10 +167,12 @@ const newAnswerVariant = (
   lastRunPath,
   answer,
 ) => {
+  const sel = answer === "all" ? "<all>" : answer;
   console.log(
-    `Run: ${isDockerEnv ? "docker-compose run --rm tests-local" : ""} npx playwright test ${playwrightFlags.join(" ")}`,
+    `Run: ${isDockerEnv ? "docker-compose run --rm tests-local" : ""} npx playwright test ${sel} ${playwrightFlags.join(" ")}`,
   );
-  runFunction([answer === "all" ? "" : answer, ...playwrightFlags]);
+  const arg = answer === "all" ? "" : `^${escapeRegex(answer)}$`;
+  runFunction([arg, ...playwrightFlags]);
   writeLastRun(lastRunPath, answer, playwrightFlags, isDockerEnv);
 };
 

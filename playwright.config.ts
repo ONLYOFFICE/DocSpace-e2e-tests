@@ -62,24 +62,24 @@ export default defineConfig({
   },
 
   projects: [
-    {
-      name: "chromium",
-      use: {
-        headless: true,
-        ...devices["Desktop Chrome"],
-        viewport: { width: 1440, height: 1024 },
-        screenshot: "only-on-failure",
-      },
-    },
-    {
-      name: "firefox",
-      use: {
-        ...devices["Desktop Firefox"],
-        viewport: { width: 1440, height: 1024 },
-        screenshot: "only-on-failure",
-        headless: true,
-      },
-    },
+    // {
+    //   name: "chromium",
+    //   use: {
+    //     headless: true,
+    //     ...devices["Desktop Chrome"],
+    //     viewport: { width: 1440, height: 1024 },
+    //     screenshot: "only-on-failure",
+    //   },
+    // },
+    // {
+    //   name: "firefox",
+    //   use: {
+    //     ...devices["Desktop Firefox"],
+    //     viewport: { width: 1440, height: 1024 },
+    //     screenshot: "only-on-failure",
+    //     headless: true,
+    //   },
+    // },
 
     // {
     //   name: "webkit",
@@ -90,6 +90,14 @@ export default defineConfig({
     //     viewport: { width: 1440, height: 1024 },
     //   },
     // },
+    {
+      name: "api-tests",
+      testMatch: "**/api/**/*.spec.ts", // Только API тесты
+      use: {
+        // Настройки для API тестов (без браузера)
+        baseURL: 'https://autotestplaywright.onlyoffice.io',
+      },
+    },
   ],
   expect: {
     toHaveScreenshot: {

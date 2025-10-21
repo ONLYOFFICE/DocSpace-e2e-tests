@@ -1,11 +1,13 @@
-import { test as base, Page } from "@playwright/test";
+import { test as base, Page, APIRequestContext  } from "@playwright/test";
 import API from "@/src/api";
+import { ApiSDK } from "../services/index"
 import Login from "@/src/objects/common/Login";
 import { Payments } from "@/src/objects/settings/payments/Payments";
 import Services from "@/src/objects/settings/services/services";
 
 type TestFixtures = {
   api: API;
+  apiSdk: ApiSDK;
   page: Page;
   login: Login;
   payments: Payments;
@@ -60,25 +62,28 @@ export const test = base.extend<TestFixtures>({
     });
 
     await use(page);
-
     await page.close();
   },
 
   login: async ({ page, api }, use) => {
     const login = new Login(page, api.portalDomain);
-
     await use(login);
   },
 
   payments: async ({ page }, use) => {
     const payments = new Payments(page);
-
     await use(payments);
   },
 
   services: async ({ page }, use) => {
     const services = new Services(page);
-
     await use(services);
   },
+
+  apiSdk: async ({ request }, use) => {
+    const api = new ApiSDK(request);
+    await use(api);
+  },
+
+
 });
