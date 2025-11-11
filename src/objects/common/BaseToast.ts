@@ -21,12 +21,14 @@ class BaseToast {
   }
 
   async removeToast(text?: string, timeout?: number) {
-    await expect(this.toast).toBeVisible({ timeout });
+    const toast = this.toast.first();
+
+    await expect(toast).toBeVisible({ timeout });
     if (text) {
-      await expect(this.toast).toContainText(text);
+      await expect(toast).toContainText(text);
     }
-    await this.toast.click();
-    await expect(this.toast).not.toBeVisible();
+    await toast.click();
+    await expect(toast).not.toBeVisible();
   }
 }
 
