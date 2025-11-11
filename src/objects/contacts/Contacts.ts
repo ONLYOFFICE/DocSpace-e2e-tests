@@ -154,7 +154,7 @@ class Contacts extends BasePage {
   }
 
   async openTab(tab: "Members" | "Groups" | "Guests") {
-    const tabLocator = this.page.locator("span").filter({ hasText: tab });
+    const tabLocator = this.page.getByRole("link", { name: tab, exact: true });
     await expect(tabLocator).toBeVisible();
     await tabLocator.click();
   }
@@ -284,7 +284,7 @@ class Contacts extends BasePage {
   }
 
   async checkEmptyGuestsExist() {
-    await expect(this.page.getByText("No added guests yet")).toBeVisible();
+    await expect(this.page.getByText("No guests found")).toBeVisible();
   }
 }
 
