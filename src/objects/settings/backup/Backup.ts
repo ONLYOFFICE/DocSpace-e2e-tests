@@ -80,22 +80,26 @@ export class Backup extends BasePage {
     await this.locators.autoBackupTab.click();
   }
 
-  async openBackupGuide(hash: "CreatingBackup_block" | "AutoBackup") {
+  async openBackupGuide() {
     const page1Promise = this.page.waitForEvent("popup");
     await this.locators.backupGuideLink.click();
     const page1 = await page1Promise;
     await expect(page1).toHaveURL(
-      new RegExp(`.*\\.onlyoffice\\.com/docspace/configuration#${hash}`),
+      new RegExp(
+        `https://helpcenter\\.onlyoffice\\.com/docspace/configuration/docspace-backup-restore-settings\\.aspx#creatingbackup_block`,
+      ),
     );
     await page1.close();
   }
 
-  async openAutoBackupGuide(hash: "CreatingBackup_block" | "AutoBackup") {
+  async openAutoBackupGuide() {
     const page1Promise = this.page.waitForEvent("popup");
     await this.locators.autoBackupGuideLink.click();
     const page1 = await page1Promise;
     await expect(page1).toHaveURL(
-      new RegExp(`.*\\.onlyoffice\\.com/docspace/configuration#${hash}`),
+      new RegExp(
+        `https://helpcenter\\.onlyoffice\\.com/docspace/configuration/docspace-backup-restore-settings\\.aspx#automaticbackup_block`,
+      ),
     );
     await page1.close();
   }

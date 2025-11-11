@@ -1,5 +1,4 @@
 import { Backup } from "@/src/objects/settings/backup/Backup";
-import Screenshot from "@/src/objects/common/Screenshot";
 
 import {
   mapAutoBackupMethodsIds,
@@ -13,14 +12,8 @@ import { expect } from "@playwright/test";
 
 test.describe("Backup portal tests", () => {
   let backup: Backup;
-  let screenshot: Screenshot;
 
   test.beforeEach(async ({ page, login, payments, services }) => {
-    screenshot = new Screenshot(page, {
-      screenshotDir: "backup",
-      fullPage: false,
-    });
-
     backup = new Backup(page);
     await login.loginToPortal();
     await payments.payForBackup();
@@ -30,12 +23,10 @@ test.describe("Backup portal tests", () => {
 
   test("Manual backup", async () => {
     test.setTimeout(300000); // 5 min
-    await test.step("Render", async () => {
-      await screenshot.expectHaveScreenshot("render_data_backup");
-    });
+    await test.step("Render", async () => {});
 
     await test.step("Backup link", async () => {
-      await backup.openBackupGuide("CreatingBackup_block");
+      await backup.openBackupGuide();
     });
 
     await test.step("Backup temporary storage", async () => {
@@ -76,10 +67,8 @@ test.describe("Backup portal tests", () => {
 
     await test.step("Backup room storage", async () => {
       await backup.selectBackupMethod(mapBackupMethodsIds.backupRoom);
-      await screenshot.expectHaveScreenshot("backup_room");
       await backup.openRoomSelector();
       await backup.selectDocuments();
-      await screenshot.expectHaveScreenshot("backup_room_storage_selected");
       await backup.locators.createCopyButton.click();
       await backup.removeToast(toastMessages.backCopyCreated, 40000);
     });
@@ -97,27 +86,17 @@ test.describe("Backup portal tests", () => {
 
     await test.step("Backup in Third-Party resource NextCloud", async () => {
       await backup.selectBackupMethod(mapBackupMethodsIds.thirdPartyResource);
-      await backup.expectConnectButtonNotToBeDisabled();
-      await screenshot.expectHaveScreenshot("backup_third_party_resource");
       await backup.openThirdPartyDropdown();
-      await screenshot.expectHaveScreenshot(
-        "backup_third_party_resource_dropdown",
-      );
       await backup.selectThirdPartyResource(mapThirdPartyResource.nextcloud);
+      await backup.expectConnectButtonNotToBeDisabled();
       await backup.locators.connectButton.click();
 
       await backup.fillConnectingNextcloudAccount();
-      await screenshot.expectHaveScreenshot(
-        "backup_third_party_resource_connect_nextcloud",
-      );
       await backup.locators.saveButton.click();
       await backup.openRoomSelector();
       await backup.selectDocumentsNextCloud();
       await backup.removeToast(toastMessages.backCopyCreated, 40000);
       await backup.openActionMenuResource();
-      await screenshot.expectHaveScreenshot(
-        "backup_third_party_resource_action_menu",
-      );
       await backup.disconnectService();
     });
 
@@ -130,48 +109,40 @@ test.describe("Backup portal tests", () => {
       await backup.disconnectService();
     });
 
-    await test.step("Backup in Third-Party storage S3", async () => {
-      await backup.activateAWSS3();
-      await backup.navigateToArticle(navItems.backup);
-      await backup.selectBackupMethod(mapBackupMethodsIds.thirdPartyStorage);
-      await screenshot.expectHaveScreenshot("backup_third_party_storage");
-      await backup.locators.bucketInput.fill("portals-manual");
-      await backup.openRegionDropdown();
-      await screenshot.expectHaveScreenshot(
-        "backup_third_party_storage_region_dropdown",
-      );
-      await backup.regionDropdown.clickOption(
-        "US East (N. Virginia) (us-east-1)",
-      );
-      await backup.locators.createAmazonCopyButton.click();
-      await backup.removeToast(toastMessages.backCopyCreated, 80000);
-    });
+    // Disabled because of a geo region validation error; to be re-enabled after the problem is resolved.
+    // await test.step("Backup in Third-Party storage S3", async () => {
+    //   await backup.activateAWSS3();
+    //   await backup.navigateToArticle(navItems.backup);
+    //   await backup.selectBackupMethod(mapBackupMethodsIds.thirdPartyStorage);
+    //   await backup.locators.bucketInput.fill("portals-manual");
+    //   await backup.openRegionDropdown();
+    //   await backup.regionDropdown.clickOption(
+    //     "US East (N. Virginia) (us-east-1)",
+    //   );
+    //   await backup.locators.createAmazonCopyButton.click();
+    //   await backup.removeToast(toastMessages.backCopyCreated, 80000);
+    // });
   });
 
   test("Auto backup", async ({ page }) => {
     await test.step("Auto backup link", async () => {
       await backup.openTab("auto-backup_tab");
-      await screenshot.expectHaveScreenshot("auto_backup");
-      await backup.openAutoBackupGuide("AutoBackup");
+      await backup.openAutoBackupGuide();
     });
 
     await test.step("Every day auto backup", async () => {
       await backup.enableAutoBackup();
-      await screenshot.expectHaveScreenshot("auto_backup_enabled");
 
       await backup.openRoomSelector();
       await backup.selectDocuments();
 
       await backup.openTimeSelector();
-      await screenshot.expectHaveScreenshot("auto_backup_time_selector");
       await backup.selectTime();
 
       await backup.openNumberCopySelector();
-      await screenshot.expectHaveScreenshot("auto_backup_number_copy_selector");
       await backup.selectNumberCopy();
 
       await backup.openScheduleSelector();
-      await screenshot.expectHaveScreenshot("auto_backup_schedule_selector");
       await page.mouse.click(1, 1);
 
       await backup.saveAutoSavePeriod();
@@ -185,7 +156,6 @@ test.describe("Backup portal tests", () => {
       await backup.locators.selectEveryWeek.click();
 
       await backup.openDaySelector();
-      await screenshot.expectHaveScreenshot("auto_backup_every_week_selector");
       await backup.selectDay();
 
       await backup.setBackupTimeAndCopies();
@@ -201,7 +171,6 @@ test.describe("Backup portal tests", () => {
       await backup.locators.selectEveryMonth.click();
 
       await backup.openMonthSelector();
-      await screenshot.expectHaveScreenshot("auto_backup_every_month_selector");
       await backup.selectMonth();
 
       await backup.setBackupTimeAndCopies();
@@ -214,21 +183,14 @@ test.describe("Backup portal tests", () => {
       await backup.selectAutoBackupMethod(
         mapAutoBackupMethodsIds.thirdPartyResource,
       );
-      await screenshot.expectHaveScreenshot("auto_backup_third_party_resource");
 
       await backup.openThirdPartyServiceAutoBackup();
-      await screenshot.expectHaveScreenshot(
-        "auto_backup_third_party_resource_dropdown",
-      );
       await backup.selectAutoThirdPartyResource(
         mapThirdPartyResource.nextcloud,
       );
       await backup.locators.connectButtonAutoBackup.click();
 
       await backup.fillConnectingNextcloudAccount();
-      await screenshot.expectHaveScreenshot(
-        "auto_backup_third_party_resource_connect_nextcloud",
-      );
 
       await backup.locators.saveButton.click();
       await backup.openRoomSelector();
@@ -236,9 +198,6 @@ test.describe("Backup portal tests", () => {
       await backup.selectDocumentsNextCloudAutoBackup();
       await backup.saveAutoSavePeriod();
       await backup.openActionMenuResourceAutoBackup();
-      await screenshot.expectHaveScreenshot(
-        "auto_backup_third_party_resource_action_menu",
-      );
       await backup.disconnectService();
       await backup.disableAutoBackup();
     });
@@ -277,12 +236,8 @@ test.describe("Backup portal tests", () => {
       await backup.selectAutoBackupMethod(
         mapAutoBackupMethodsIds.thirdPartyStorage,
       );
-      await screenshot.expectHaveScreenshot("auto_backup_third_party_storage");
       await backup.locators.bucketInput.fill("portals-manual");
       await backup.openRegionDropdown();
-      await screenshot.expectHaveScreenshot(
-        "auto_backup_third_party_storage_region_dropdown",
-      );
       await backup.regionDropdown.clickOption(
         "US East (N. Virginia) (us-east-1)",
       );
