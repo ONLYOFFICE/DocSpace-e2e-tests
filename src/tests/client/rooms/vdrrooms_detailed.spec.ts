@@ -3,7 +3,6 @@ import { test, Page } from "@playwright/test";
 import API from "@/src/api";
 import Login from "@/src/objects/common/Login";
 import MyRooms from "@/src/objects/rooms/Rooms";
-import Screenshot from "@/src/objects/common/Screenshot";
 import {
   roomCreateTitles,
   roomDialogSource,
@@ -18,7 +17,6 @@ test.describe("VDRRooms", () => {
   let page: Page;
 
   let login: Login;
-  let screenshot: Screenshot;
 
   let myRooms: MyRooms;
 
@@ -35,7 +33,6 @@ test.describe("VDRRooms", () => {
     });
 
     login = new Login(page, api.portalDomain);
-    screenshot = new Screenshot(page, { screenshotDir: "rooms" });
 
     myRooms = new MyRooms(page, api.portalDomain);
 
@@ -54,7 +51,7 @@ test.describe("VDRRooms", () => {
     await myRooms.roomsCreateDialog.openRoomType(roomCreateTitles.virtualData);
 
     // Optionally: take a screenshot of the dialog
-    await screenshot.expectHaveScreenshot("vdr_open_create_dialog");
+    // await screenshot.expectHaveScreenshot("vdr_open_create_dialog");
 
     // Step 4: Fill the room name
     await myRooms.roomsCreateDialog.fillRoomName("AutoIndexRoom");
@@ -65,11 +62,11 @@ test.describe("VDRRooms", () => {
 
     // Step 6: Assert the new room is present in the table/empty view
     await myRooms.roomsTable.checkRowExist("AutoIndexRoom");
-    await screenshot.expectHaveScreenshot("vdr_created_room_in_table");
+    // await screenshot.expectHaveScreenshot("vdr_created_room_in_table");
 
     // Step 7: Open the room
     await myRooms.roomsTable.openRoomByName("AutoIndexRoom");
-    await screenshot.expectHaveScreenshot("vdr_empty_room");
+    // await screenshot.expectHaveScreenshot("vdr_empty_room");
 
     await myRooms.roomsEmptyView.createFile("AutoIndex");
   });

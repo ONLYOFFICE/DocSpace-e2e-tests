@@ -28,6 +28,7 @@ export const roomContextMenuOption = {
   duplicate: "Duplicate",
   pinToTop: "Pin to top",
   disableNotifications: "Disable notifications",
+  manage: "Manage",
 } as const;
 
 export const templateContextMenuOption = {

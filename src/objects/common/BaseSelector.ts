@@ -70,10 +70,10 @@ class BaseSelector {
   async select(type: "documents" | "rooms") {
     switch (type) {
       case "documents":
-        await this.selectItemByIndex(0);
+        await this.selectItemByIndex(1);
         break;
       case "rooms":
-        await this.selectItemByIndex(1);
+        await this.selectItemByIndex(2);
         break;
     }
   }

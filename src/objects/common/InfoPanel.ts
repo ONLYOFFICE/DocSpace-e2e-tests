@@ -203,7 +203,6 @@ class InfoPanel {
     const createAndCopy = this.sharedLinksWrapper.getByText("Create and copy");
     await expect(createAndCopy).toBeVisible();
     await createAndCopy.click();
-    await this.removeSharedLinkCreatedToast();
     await expect(this.sharedLinksAvatar).toHaveCount(1);
   }
 

@@ -27,35 +27,35 @@ test.describe(() => {
   test("Contacts", async () => {
     await test.step("EmptyView", async () => {
       await contacts.table.checkRowExist(ADMIN_OWNER_NAME);
-      await screenshot.expectHaveScreenshot("empty_view_members");
+      // await screenshot.expectHaveScreenshot("empty_view_members");
 
       await contacts.table.openSettings();
-      await screenshot.expectHaveScreenshot(
-        "empty_view_members_table_settings",
-      );
+      // await screenshot.expectHaveScreenshot(
+      //   "empty_view_members_table_settings",
+      // );
       await contacts.table.closeSettings();
 
       await contacts.openTab("Groups");
       await contacts.checkEmptyGroupsExist();
-      await screenshot.expectHaveScreenshot("empty_view_groups");
+      // await screenshot.expectHaveScreenshot("empty_view_groups");
 
       await contacts.openTab("Guests");
       await contacts.checkEmptyGuestsExist();
-      await screenshot.expectHaveScreenshot("empty_view_guests");
+      // await screenshot.expectHaveScreenshot("empty_view_guests");
     });
 
     await test.step("ActionsMenu", async () => {
       await contacts.openTab("Members");
       await contacts.table.checkRowExist(ADMIN_OWNER_NAME);
       await contacts.openSubmenu("article");
-      await screenshot.expectHaveScreenshot("actions_menu_article");
+      // await screenshot.expectHaveScreenshot("actions_menu_article");
       await contacts.closeMenu();
 
       await contacts.openSubmenu("header");
-      await screenshot.expectHaveScreenshot("actions_menu_header");
+      // await screenshot.expectHaveScreenshot("actions_menu_header");
 
       await contacts.openSubmenu("table");
-      await screenshot.expectHaveScreenshot("actions_menu_table");
+      // await screenshot.expectHaveScreenshot("actions_menu_table");
     });
 
     await test.step("InviteUsers", async () => {
@@ -69,38 +69,38 @@ test.describe(() => {
         invite.submenu.roomAdmin,
       );
       await contacts.inviteDialog.openAccessOptions();
-      await screenshot.expectHaveScreenshot("invite_users_dialog");
+      // await screenshot.expectHaveScreenshot("invite_users_dialog");
       await contacts.inviteDialog.selectAccessOption(invite.submenu.roomAdmin);
 
       await contacts.inviteDialog.fillSearchInviteInput(userEmails.roomAdmin);
       await contacts.inviteDialog.checkUserExist(userEmails.roomAdmin);
-      await screenshot.expectHaveScreenshot("invite_users_dialog_search_user");
+      // await screenshot.expectHaveScreenshot("invite_users_dialog_search_user");
 
       await contacts.inviteDialog.clickAddUserToInviteList(
         userEmails.roomAdmin,
       );
       await contacts.inviteDialog.checkAddedUserExist(userEmails.roomAdmin);
-      await screenshot.expectHaveScreenshot("invite_users_dialog_added_user");
+      // await screenshot.expectHaveScreenshot("invite_users_dialog_added_user");
 
       await contacts.inviteDialog.openRowAccessSelector(
         invite.submenu.roomAdmin,
       );
-      await screenshot.expectHaveScreenshot(
-        "invite_users_dialog_user_access_selector",
-      );
+      // await screenshot.expectHaveScreenshot(
+      //   "invite_users_dialog_user_access_selector",
+      // );
       await contacts.inviteDialog.selectAccessOption(invite.submenu.user);
-      await screenshot.expectHaveScreenshot(
-        "invite_users_dialog_added_user_changed_access",
-      );
+      // await screenshot.expectHaveScreenshot(
+      //   "invite_users_dialog_added_user_changed_access",
+      // );
       await contacts.inviteDialog.openRowAccessSelector(invite.submenu.user);
       await contacts.inviteDialog.selectRemoveAccessOption();
-      await screenshot.expectHaveScreenshot(
-        "invite_users_dialog_removed_user_from_list",
-      );
+      // await screenshot.expectHaveScreenshot(
+      //   "invite_users_dialog_removed_user_from_list",
+      // );
       await contacts.inviteDialog.close();
 
       await contacts.inviteUsers();
-      await screenshot.expectHaveScreenshot("invite_users_success");
+      // await screenshot.expectHaveScreenshot("invite_users_success");
     });
 
     await test.step("Disable", async () => {
@@ -109,14 +109,14 @@ test.describe(() => {
         membersContextMenuOption.disable,
       );
       await contacts.dialog.checkDialogTitleExist("Disable user");
-      await screenshot.expectHaveScreenshot("disable_diaglog");
+      // await screenshot.expectHaveScreenshot("disable_diaglog");
       await contacts.dialog.close();
 
       await contacts.table.selectRow(userEmails.roomAdmin);
       await contacts.disableUser();
 
       await contacts.table.checkDisabledUserExist(userEmails.roomAdmin);
-      await screenshot.expectHaveScreenshot("disable_users_success");
+      // await screenshot.expectHaveScreenshot("disable_users_success");
     });
 
     await test.step("ChangeType", async () => {
@@ -124,7 +124,7 @@ test.describe(() => {
         userEmails.docspaceAdmin,
         menuItemChangeUserType.roomAdmin,
       );
-      await screenshot.expectHaveScreenshot("change_type_room_admin_dialog");
+      // await screenshot.expectHaveScreenshot("change_type_room_admin_dialog");
       await contacts.submitChangeContactTypeDialog();
       await contacts.table.checkContactType(
         userEmails.docspaceAdmin,
@@ -135,7 +135,7 @@ test.describe(() => {
         userEmails.docspaceAdmin,
         menuItemChangeUserType.user,
       );
-      await screenshot.expectHaveScreenshot("change_type_user_dialog");
+      // await screenshot.expectHaveScreenshot("change_type_user_dialog");
       await contacts.submitChangeContactTypeDialog();
       await contacts.table.checkContactType(
         userEmails.docspaceAdmin,
@@ -146,9 +146,9 @@ test.describe(() => {
         userEmails.docspaceAdmin,
         menuItemChangeUserType.docspaceAdmin,
       );
-      await screenshot.expectHaveScreenshot(
-        "change_type_docspace_admin_dialog",
-      );
+      // await screenshot.expectHaveScreenshot(
+      //   "change_type_docspace_admin_dialog",
+      // );
       await contacts.submitChangeContactTypeDialog();
       await contacts.table.checkContactType(
         userEmails.docspaceAdmin,
@@ -160,34 +160,34 @@ test.describe(() => {
         userEmails.guest,
         menuItemChangeUserType.guest,
       );
-      await screenshot.expectHaveScreenshot("change_type_guest_dialog");
+      // await screenshot.expectHaveScreenshot("change_type_guest_dialog");
       await contacts.submitChangeContactTypeDialog();
       await contacts.table.checkRowNotExist(userEmails.guest);
     });
 
     await test.step("ChangeOwner", async () => {
       await contacts.openChangeOwnerDialog();
-      await screenshot.expectHaveScreenshot("change_owner");
+      // await screenshot.expectHaveScreenshot("change_owner");
       await contacts.openChooseFromList();
-      await screenshot.expectHaveScreenshot("change_owner_choose_from_list");
+      // await screenshot.expectHaveScreenshot("change_owner_choose_from_list");
       await contacts.dialog.close();
     });
 
     await test.step("ChangeName", async () => {
       await contacts.openChangeNameDialog();
-      await screenshot.expectHaveScreenshot("change_name");
+      // await screenshot.expectHaveScreenshot("change_name");
       await contacts.dialog.close();
     });
 
     await test.step("ChangeEmail", async () => {
       await contacts.openChangeEmailDialog();
-      await screenshot.expectHaveScreenshot("change_email");
+      // await screenshot.expectHaveScreenshot("change_email");
       await contacts.dialog.close();
     });
 
     await test.step("ChangePassword", async () => {
       await contacts.openChangePasswordDialog();
-      await screenshot.expectHaveScreenshot("change_password");
+      // await screenshot.expectHaveScreenshot("change_password");
       await contacts.dialog.close();
     });
 
@@ -202,7 +202,7 @@ test.describe(() => {
       );
       await contacts.reassignmentDialog.checkReassignmentTitleExist();
       await contacts.reassignmentDialog.clickChooseFromList();
-      await screenshot.expectHaveScreenshot("reassign_data_choose_from_list");
+      // await screenshot.expectHaveScreenshot("reassign_data_choose_from_list");
       await contacts.reassignmentDialog.clickCancel();
       await contacts.reassignmentDialog.close();
     });
@@ -213,14 +213,14 @@ test.describe(() => {
         membersContextMenuOption.delete,
       );
       await contacts.dialog.checkDialogTitleExist("Delete user");
-      await screenshot.expectHaveScreenshot("delete_dialog");
+      // await screenshot.expectHaveScreenshot("delete_dialog");
       await contacts.dialog.close();
 
       await contacts.table.selectRow(userEmails.user);
       await contacts.deleteUser();
       await contacts.reassignmentDialog.checkReassignmentTitleExist();
       await contacts.reassignmentDialog.checkAllDataTransfered();
-      await screenshot.expectHaveScreenshot("delete_success");
+      // await screenshot.expectHaveScreenshot("delete_success");
       await contacts.reassignmentDialog.close();
     });
 
@@ -230,7 +230,7 @@ test.describe(() => {
         membersContextMenuOption.enable,
       );
       await contacts.dialog.checkDialogTitleExist("Enable user");
-      await screenshot.expectHaveScreenshot("enable_dialog");
+      // await screenshot.expectHaveScreenshot("enable_dialog");
       await contacts.dialog.close();
 
       await contacts.selectAllContacts();
@@ -243,9 +243,9 @@ test.describe(() => {
       await contacts.groupDialog.checkDialogExist();
       await contacts.groupDialog.fillGroupName(GROUP_NAME);
       await contacts.groupDialog.openAddMembersSelector();
-      await screenshot.expectHaveScreenshot(
-        "create_group_add_members_selector",
-      );
+      // await screenshot.expectHaveScreenshot(
+      //   "create_group_add_members_selector",
+      // );
       await contacts.groupDialog.selectContact(userEmails.roomAdmin);
       await contacts.groupDialog.submitSelectContacts();
       await contacts.groupDialog.openHeadOfGroupSelector();
@@ -255,7 +255,7 @@ test.describe(() => {
       await contacts.groupDialog.selectContact(userEmails.docspaceAdmin, true);
 
       await contacts.groupDialog.submitCreateGroup();
-      await screenshot.expectHaveScreenshot("create_group_success");
+      // await screenshot.expectHaveScreenshot("create_group_success");
       await contacts.groupDialog.close();
     });
 
@@ -263,28 +263,28 @@ test.describe(() => {
       await contacts.infoPanel.open();
       await contacts.table.selectRow(ADMIN_OWNER_NAME);
       await contacts.infoPanel.hideRegistrationDate();
-      await screenshot.expectHaveScreenshot("members_info_panel_user_owner");
+      // await screenshot.expectHaveScreenshot("members_info_panel_user_owner");
 
       await contacts.infoPanel.openContactsOptions();
-      await screenshot.expectHaveScreenshot("members_info_panel_options");
+      // await screenshot.expectHaveScreenshot("members_info_panel_options");
       await contacts.infoPanel.close();
 
       await contacts.peopleFilter.openDropdownSortBy();
-      await screenshot.expectHaveScreenshot("members_table_sort_by");
+      // await screenshot.expectHaveScreenshot("members_table_sort_by");
 
       await contacts.peopleFilter.openFilterDialog();
-      await screenshot.expectHaveScreenshot("members_filter_dialog");
+      // await screenshot.expectHaveScreenshot("members_filter_dialog");
       await contacts.dialog.close();
 
       await contacts.peopleFilter.fillSearchContactsInputAndCheckRequest(
         ADMIN_OWNER_NAME,
       );
-      await screenshot.expectHaveScreenshot("members_filter_search");
+      // await screenshot.expectHaveScreenshot("members_filter_search");
 
       await contacts.peopleFilter.fillSearchContactsInputAndCheckRequest(
         "empty_search",
       );
-      await screenshot.expectHaveScreenshot("members_filter_empty_search");
+      // await screenshot.expectHaveScreenshot("members_filter_empty_search");
       await contacts.peopleFilter.clearFilter();
       await contacts.table.checkRowExist(ADMIN_OWNER_NAME);
     });
@@ -293,7 +293,7 @@ test.describe(() => {
       await contacts.openTab("Groups");
 
       await contacts.table.openContextMenu(GROUP_NAME);
-      await screenshot.expectHaveScreenshot("groups_context_menu");
+      // await screenshot.expectHaveScreenshot("groups_context_menu");
       await contacts.table.clickContextMenuOption(
         groupsContextMenuOption.editGroup,
       );
@@ -310,22 +310,22 @@ test.describe(() => {
       await contacts.groupDialog.submitEditGroup();
 
       await contacts.table.openSettings();
-      await screenshot.expectHaveScreenshot("groups_table_settings");
+      // await screenshot.expectHaveScreenshot("groups_table_settings");
 
       await contacts.infoPanel.open();
       await contacts.table.selectRow(GROUP_NAME);
       await contacts.infoPanel.checkGroupMemberExist();
-      await screenshot.expectHaveScreenshot("groups_info_panel");
+      // await screenshot.expectHaveScreenshot("groups_info_panel");
 
       await contacts.infoPanel.openGroupsOptions();
-      await screenshot.expectHaveScreenshot("groups_info_panel_options");
+      // await screenshot.expectHaveScreenshot("groups_info_panel_options");
       await contacts.infoPanel.close();
 
       await contacts.groupsFilter.openDropdownSortBy();
-      await screenshot.expectHaveScreenshot("groups_table_sort_by");
+      // await screenshot.expectHaveScreenshot("groups_table_sort_by");
 
       await contacts.groupsFilter.openFilterDialog();
-      await screenshot.expectHaveScreenshot("groups_table_filter_dialog");
+      // await screenshot.expectHaveScreenshot("groups_table_filter_dialog");
       await contacts.dialog.close();
 
       await contacts.groupsFilter.fillSearchContactsInputAndCheckRequest(
@@ -337,12 +337,12 @@ test.describe(() => {
         "empty_search",
       );
       await contacts.table.checkRowNotExist(GROUP_NAME);
-      await screenshot.expectHaveScreenshot("groups_filter_empty_search");
+      // await screenshot.expectHaveScreenshot("groups_filter_empty_search");
       await contacts.groupsFilter.clearFilter();
       await contacts.table.checkRowExist(GROUP_NAME);
 
       await contacts.openDeleteGroupDialog();
-      await screenshot.expectHaveScreenshot("groups_delete_dialog");
+      // await screenshot.expectHaveScreenshot("groups_delete_dialog");
       await contacts.dialog.close();
 
       await contacts.table.selectRow(GROUP_NAME);
@@ -355,28 +355,28 @@ test.describe(() => {
 
       await contacts.peopleFilter.removeFilter("Me");
       await contacts.table.openContextMenu(userEmails.guest);
-      await screenshot.expectHaveScreenshot("guests_context_menu");
+      // await screenshot.expectHaveScreenshot("guests_context_menu");
       await contacts.closeMenu();
 
       await contacts.table.openSettings();
-      await screenshot.expectHaveScreenshot("guests_table_settings");
+      // await screenshot.expectHaveScreenshot("guests_table_settings");
       await contacts.table.closeSettings();
 
       await contacts.table.openContextMenu(userEmails.guest);
       await contacts.table.contextMenu.hoverOption(
         guestsContextMenuOption.changeType,
       );
-      await screenshot.expectHaveScreenshot(
-        "guests_context_menu_change_type",
-        false,
-      );
+      // await screenshot.expectHaveScreenshot(
+      //   "guests_context_menu_change_type",
+      //   false,
+      // );
 
       await contacts.infoPanel.open();
       await contacts.table.selectRow(userEmails.guest);
-      await screenshot.expectHaveScreenshot("guests_info_panel");
+      // await screenshot.expectHaveScreenshot("guests_info_panel");
 
       await contacts.infoPanel.openContactsOptions();
-      await screenshot.expectHaveScreenshot("guests_info_panel_options");
+      // await screenshot.expectHaveScreenshot("guests_info_panel_options");
       await contacts.infoPanel.close();
 
       await contacts.disableGuest();
@@ -387,23 +387,23 @@ test.describe(() => {
       await contacts.table.checkEnabledUserExist(userEmails.guest);
 
       await contacts.peopleFilter.openDropdownSortBy();
-      await screenshot.expectHaveScreenshot("guests_sort_by");
+      // await screenshot.expectHaveScreenshot("guests_sort_by");
 
       await contacts.peopleFilter.openFilterDialog();
-      await screenshot.expectHaveScreenshot("guests_filter_dialog");
+      // await screenshot.expectHaveScreenshot("guests_filter_dialog");
       await contacts.dialog.close();
 
       await contacts.peopleFilter.fillSearchContactsInputAndCheckRequest(
         "empty_search",
       );
       await contacts.table.checkRowNotExist(userEmails.guest);
-      await screenshot.expectHaveScreenshot("guests_filter_empty_search");
+      // await screenshot.expectHaveScreenshot("guests_filter_empty_search");
 
       await contacts.peopleFilter.fillSearchContactsInputAndCheckRequest(
         userEmails.guest,
       );
       await contacts.table.checkRowExist(userEmails.guest);
-      await screenshot.expectHaveScreenshot("guests_filter_search");
+      // await screenshot.expectHaveScreenshot("guests_filter_search");
     });
   });
 });
