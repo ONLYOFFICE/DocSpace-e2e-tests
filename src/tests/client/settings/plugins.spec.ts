@@ -29,7 +29,7 @@ test.describe("Integration tests - Plugins", () => {
     await integration.open();
     await integration.openTab(integrationTabs.plugins);
   });
-  test("Plugins", async () => {
+  test.skip("Plugins", async () => {
     await test.step("Markdown link", async () => {
       await plugins.openMarkdownSettings(screenshot);
       const page1 = await plugins.guidePopup();

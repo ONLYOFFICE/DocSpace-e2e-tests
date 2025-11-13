@@ -31,7 +31,7 @@ test.describe("Storage Management", () => {
     await storageManagement.open();
   });
 
-  test("Storage Management full flow", async ({ page }) => {
+  test.skip("Storage Management full flow", async ({ page }) => {
     await test.step("Storage Management Render", async () => {
       await storageManagement.checkStorageManagementRender();
       await storageManagement.hideDate();

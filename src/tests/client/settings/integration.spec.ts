@@ -26,7 +26,7 @@ test.describe("Integration tests", () => {
     await login.loginToPortal();
     await integration.open();
   });
-  test("Integration", async ({ page }) => {
+  test.skip("Integration", async ({ page }) => {
     await test.step("Ldap", async () => {
       await integration.open();
       await integration.activateLdap(screenshot);

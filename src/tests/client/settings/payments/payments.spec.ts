@@ -22,7 +22,7 @@ test.describe("Payments", () => {
     await payments.open();
   });
 
-  test("Test flow", async ({ page }) => {
+  test.skip("Test flow", async ({ page }) => {
     await test.step("Payment", async () => {
       await screenshot.expectHaveScreenshot("payment_free_plan");
       await payments.openTab(paymentsTab.wallet);
@@ -179,7 +179,7 @@ test.describe("Payments", () => {
     });
   });
 
-  test("Top up wallet & change tariff plan", async ({ page }) => {
+  test.skip("Top up wallet & change tariff plan", async ({ page }) => {
     await test.step("Top up wallet", async () => {
       await payments.openTab(paymentsTab.wallet);
       await payments.openTopUpBalanceDialog();

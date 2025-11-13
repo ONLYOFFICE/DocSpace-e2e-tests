@@ -162,9 +162,7 @@ class Contacts extends BasePage {
   async openSubmenu(source: "header" | "table" | "article") {
     switch (source) {
       case "header":
-        await this.navigation.openHeaderSubmenu(
-          contactsActionsMenu.invite.label,
-        );
+        await this.navigation.openCreateDropdown();
         break;
       case "table":
         {

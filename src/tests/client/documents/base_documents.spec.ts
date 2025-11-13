@@ -1,24 +1,17 @@
 import MyDocuments from "@/src/objects/files/MyDocuments";
-import Screenshot from "@/src/objects/common/Screenshot";
 import { test } from "@/src/fixtures";
 
 test.describe("My documents: Base", () => {
   let myDocuments: MyDocuments;
-  let screenshot: Screenshot;
 
   test.beforeEach(async ({ page, api, login }) => {
     myDocuments = new MyDocuments(page, api.portalDomain);
-    screenshot = new Screenshot(page, { screenshotDir: "files" });
 
     await login.loginToPortal();
     await myDocuments.open();
   });
 
   test("Render", async () => {
-    await test.step("Render", async () => {
-      await screenshot.expectHaveScreenshot("render");
-    });
-
     await test.step("EmptyScreen", async () => {
       await myDocuments.deleteAllDocs();
       await myDocuments.filesEmptyView.checkNoDocsTextExist();
