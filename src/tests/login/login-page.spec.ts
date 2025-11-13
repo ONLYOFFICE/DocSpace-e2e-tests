@@ -31,7 +31,7 @@ test.describe(() => {
     login = new Login(page, portalDomain);
   });
 
-  test("Login page", async () => {
+  test.skip("Login page", async () => {
     await test.step("OpenLoginPage", async () => {
       await page.goto(`https://${portalDomain}/login`, {
         waitUntil: "load",

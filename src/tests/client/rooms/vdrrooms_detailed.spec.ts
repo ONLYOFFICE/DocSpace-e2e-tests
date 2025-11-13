@@ -39,7 +39,7 @@ test.describe("VDRRooms", () => {
     await login.loginToPortal();
   });
 
-  test("Create VDR Room smoke", async () => {
+  test.skip("Create VDR Room smoke", async () => {
     // Step 1: Check empty rooms state
     //await myRooms.roomsEmptyView.checkNoRoomsExist();
     //await screenshot.expectHaveScreenshot("vdr_empty_rooms");

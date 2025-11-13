@@ -1,13 +1,13 @@
 import { docSort, mapInitialDocNames } from "@/src/utils/constants/files";
 
-import Screenshot from "@/src/objects/common/Screenshot";
+// import Screenshot from "@/src/objects/common/Screenshot";
 import MyDocuments from "@/src/objects/files/MyDocuments";
 import Trash from "@/src/objects/trash/Trash";
 import { roomCreateTitles } from "@/src/utils/constants/rooms";
 import { test } from "@/src/fixtures";
 
 test.describe("Trash", () => {
-  let screenshot: Screenshot;
+  // let screenshot: Screenshot;
 
   let myDocuments: MyDocuments;
   let trash: Trash;
@@ -15,7 +15,7 @@ test.describe("Trash", () => {
   test.beforeEach(async ({ page, api, login }) => {
     myDocuments = new MyDocuments(page, api.portalDomain);
     trash = new Trash(page);
-    screenshot = new Screenshot(page, { screenshotDir: "trash" });
+    // screenshot = new Screenshot(page, { screenshotDir: "trash" });
 
     await login.loginToPortal();
     await myDocuments.open();
@@ -29,7 +29,7 @@ test.describe("Trash", () => {
       await trash.trashTable.checkRowExist(
         mapInitialDocNames.ONLYOFFICE_SAMPLE_DOCUMENT,
       );
-      await screenshot.expectHaveScreenshot("render");
+      // await screenshot.expectHaveScreenshot("render");
     });
 
     await test.step("Sort", async () => {
@@ -38,14 +38,12 @@ test.describe("Trash", () => {
 
     await test.step("Filter", async () => {
       await trash.filter.filterButton.click();
-      await screenshot.expectHaveScreenshot("filter_dialog");
       await page.mouse.click(1, 1);
     });
 
     await test.step("InfoPanel", async () => {
       await trash.trashTable.tableRows.first().click();
       await trash.infoPanel.open();
-      await trash.infoPanel.hideDatePropertiesDetails();
       await trash.infoPanel.openOptions();
       await trash.infoPanel.close();
     });

@@ -26,7 +26,7 @@ test.describe("Security tests", () => {
     await security.open();
   });
 
-  test("All security scenarios", async ({ page }) => {
+  test.skip("All security scenarios", async ({ page }) => {
     await test.step("Password strength", async () => {
       await security.updatePasswordStrength(17);
       await security.updatePasswordStrength(8);

@@ -22,6 +22,10 @@ class BaseSelector {
     return this.page.locator(".empty-folder_container-links").first();
   }
 
+  private get globalSelectorItems() {
+    return this.page.locator(`[data-testid^="selector-item-"]`);
+  }
+
   private get newSelectorItemInput() {
     return this.selector.locator(
       `${NEW_SELECTOR_ITEM_INPUT_SELECTOR}:not([placeholder="Search"])`,
@@ -160,6 +164,16 @@ class BaseSelector {
     await this.selector.getByText(roomType, { exact: true }).click();
     await this.fillNewItemName(roomType);
     await this.acceptCreate();
+  }
+
+  async selectItemByTextGlobal(text: string, doubleClick = false) {
+    const item = this.globalSelectorItems.filter({ hasText: text });
+    await expect(item).toBeVisible();
+    if (doubleClick) {
+      await item.dblclick();
+    } else {
+      await item.click();
+    }
   }
 }
 

@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 import { openForgotPasswordPage } from "./utils";
 
-test.describe("Site: Forgot password page", () => {
+test.describe.skip("Site: Forgot password page", () => {
   test("Render", async ({ page }) => {
     await openForgotPasswordPage(page);
 

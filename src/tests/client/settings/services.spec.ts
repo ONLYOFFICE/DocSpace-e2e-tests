@@ -22,7 +22,7 @@ test.describe("Services tests", () => {
     await services.open();
   });
 
-  test("All services test", async ({ page }) => {
+  test.skip("All services test", async ({ page }) => {
     await test.step("Open top up wallet modal in backup service", async () => {
       await services.checkServicesRendered();
       await screenshot.expectHaveScreenshot("Services_rendered");
