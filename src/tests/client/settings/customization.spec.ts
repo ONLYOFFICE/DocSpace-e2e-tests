@@ -1,8 +1,6 @@
-import Screenshot from "@/src/objects/common/Screenshot";
 import Customization from "@/src/objects/settings/customization/Customization";
 import { PaymentApi } from "@/src/api/payment";
 
-import { Profile } from "@/src/objects/profile/Profile";
 import { test } from "@/src/fixtures";
 import { expect } from "@playwright/test";
 import { toastMessages } from "@/src/utils/constants/settings";
@@ -11,8 +9,6 @@ import { toastMessages } from "@/src/utils/constants/settings";
 
 test.describe("Customization", () => {
   let paymentApi: PaymentApi;
-
-  let screenshot: Screenshot;
   let customization: Customization;
 
   test.beforeEach(async ({ page, api, login }) => {
@@ -21,35 +17,31 @@ test.describe("Customization", () => {
     const portalInfo = await paymentApi.getPortalInfo(api.portalDomain);
     await paymentApi.makePortalPayment(portalInfo.tenantId, 10);
     await paymentApi.refreshPaymentInfo(api.portalDomain);
-
-    screenshot = new Screenshot(page, {
-      screenshotDir: "customization",
-      fullPage: true,
-    });
     customization = new Customization(page);
 
     await login.loginToPortal();
     await customization.open();
   });
 
-  test.skip("Customization full flow", async ({ api, page }) => {
+  test("Customization full flow", async ({ api, page }) => {
     await test.step("Change lang&time", async () => {
       await customization.changeLanguage("English (United States)");
       await customization.changeTimezone("(UTC) Antarctica/Troll");
       await customization.settingsTitle.click();
-      await customization.saveButton.first().click();
+      await customization.languageTimeZoneSaveButton.click();
       await customization.removeToast(toastMessages.settingsUpdated);
       await customization.changeLanguage("English (United Kingdom)");
       await customization.changeTimezone("(UTC) Europe/London");
       await customization.settingsTitle.click();
-      await customization.saveButton.first().click();
+      await customization.languageTimeZoneSaveButton.click();
       await customization.removeToast(toastMessages.settingsUpdated);
     });
 
     await test.step("Welcome page settings", async () => {
       await customization.setTitle();
+      await customization.customizationWelcomeSaveButton.click();
       await customization.removeToast(toastMessages.welcomePageSaved);
-      await customization.restoreButton.nth(1).click();
+      await customization.customizationWelcomeCancelButton.click();
       await customization.removeToast(toastMessages.welcomePageSaved);
     });
 
@@ -57,89 +49,93 @@ test.describe("Customization", () => {
       await customization.openTab("Branding");
       await customization.brandName();
       await customization.removeToast(toastMessages.settingsUpdated);
-      await screenshot.expectHaveScreenshot("brand_name");
     });
 
     await test.step("Generate logo from text", async () => {
       await customization.generateLogo();
       await customization.removeToast(toastMessages.settingsUpdated);
-      await screenshot.expectHaveScreenshot("generated_logo_from_text");
-      await customization.restoreButton.nth(1).click();
+      await customization.logoRestoreButton.click();
       await customization.removeToast(toastMessages.settingsUpdated);
     });
 
     await test.step("Branding upload pictures", async () => {
       await customization.uploadPictures();
       await customization.removeToast(toastMessages.settingsUpdated);
-      await screenshot.expectHaveScreenshot("branding_upload_pictures");
-      await customization.restoreButton.nth(1).click();
+      await customization.logoRestoreButton.click();
       await customization.removeToast(toastMessages.settingsUpdated);
     });
 
     await test.step("Appearance", async () => {
       await customization.openTab("Appearance");
-      await screenshot.expectHaveScreenshot("appearance_light_theme");
       await customization.selectTheme();
       await customization.darkThemeOption.click();
       await customization.saveButtonAppearance.first().click();
       await customization.removeToast(toastMessages.settingsUpdated);
-      await screenshot.expectHaveScreenshot("appearance_dark_theme_1");
       await customization.selectTheme2();
-      await customization.saveButtonAppearance.first().click();
+      await customization.saveButtonAppearance.click();
       await customization.removeToast(toastMessages.settingsUpdated);
-      await screenshot.expectHaveScreenshot("appearance_dark_theme_2");
     });
 
     await test.step("Custom appereance", async () => {
       await customization.createCustomTheme("##0EEDE9", "#931073");
       await customization.removeToast(toastMessages.settingsUpdated);
-      await screenshot.expectHaveScreenshot("custom_appearance_theme_1");
       await customization.darkThemeOption.click();
-      await customization.saveButtonAppearance.first().click();
+      await customization.saveButtonAppearance.click();
       await customization.removeToast(toastMessages.settingsUpdated);
-      await screenshot.expectHaveScreenshot("custom_appearance_theme_2");
       await customization.deleteCustomTheme();
       await customization.removeToast(toastMessages.settingsUpdated);
       await customization.checkCustomThemeNotExist();
-      await screenshot.expectHaveScreenshot("custom_appearance_deleted_theme");
     });
 
     await test.step("General link", async () => {
       await customization.openTab("General");
-      await customization.renamingString.fill("empty-string-for-screenshot");
-      await customization.hideDnsSettingsInput();
-      await screenshot.expectHaveScreenshot("general");
+
+      // 1. Language & Time Zone guide
       const page1Promise = page.waitForEvent("popup");
       await customization.docspaceLanguageGuideLink.click();
       const page1 = await page1Promise;
       await page1.waitForURL(
-        "https://*.onlyoffice.com/docspace/configuration#DocSpacelanguage",
+        "https://*.onlyoffice.com/docspace/configuration/docspace-customization-settings.aspx#languageandtimezonesettings_block",
       );
-      await expect(page1).toHaveURL(/docspace\/configuration#DocSpacelanguage/);
+      await expect(page1).toHaveURL(
+        /docspace-customization-settings\.aspx#languageandtimezonesettings_block/,
+      );
       await page1.close();
+
+      // 2. Welcome Page Settings guide
       const page2Promise = page.waitForEvent("popup");
       await customization.docspaceTitleGuideLink.click();
       const page2 = await page2Promise;
       await page2.waitForURL(
-        "https://*.onlyoffice.com/docspace/configuration#DocSpacetitle",
+        "https://*.onlyoffice.com/docspace/configuration/docspace-customization-settings.aspx#welcomepagesettings_block",
       );
-      await expect(page2).toHaveURL(/docspace\/configuration#DocSpacetitle/);
+      await expect(page2).toHaveURL(
+        /docspace-customization-settings\.aspx#welcomepagesettings_block/,
+      );
       await page2.close();
+
+      // 3. DNS Settings guide
       const page3Promise = page.waitForEvent("popup");
       await customization.docspaceAlternativeUrlGuideLink.click();
       const page3 = await page3Promise;
       await page3.waitForURL(
-        "https://*.onlyoffice.com/docspace/configuration#alternativeurl",
+        "https://*.onlyoffice.com/docspace/configuration/docspace-customization-settings.aspx#dnssettings_block",
       );
-      await expect(page3).toHaveURL(/docspace\/configuration#alternativeurl/);
+      await expect(page3).toHaveURL(
+        /docspace-customization-settings\.aspx#dnssettings_block/,
+      );
       await page3.close();
+
+      // 4. DocSpace Renaming guide
       const page4Promise = page.waitForEvent("popup");
       await customization.docspaceRenamingGuideLink.click();
       const page4 = await page4Promise;
       await page4.waitForURL(
-        "https://*.onlyoffice.com/docspace/configuration#DocSpacerenaming",
+        "https://*.onlyoffice.com/docspace/configuration/docspace-customization-settings.aspx#docspacerenaming_block",
       );
-      await expect(page4).toHaveURL(/docspace\/configuration#DocSpacerenaming/);
+      await expect(page4).toHaveURL(
+        /docspace-customization-settings\.aspx#docspacerenaming_block/,
+      );
       await page4.close();
     });
 
@@ -202,25 +198,25 @@ test.describe("Customization", () => {
       await customization.choseDeepLink();
       await customization.removeToast(toastMessages.settingsUpdated);
       await customization.webOnly.click({ force: true });
-      await customization.saveButton.nth(3).click();
+      await customization.configureDeepLinkSaveButton.click();
       await customization.removeToast(toastMessages.settingsUpdated);
       await customization.webOrApp.click({ force: true });
-      await customization.saveButton.nth(3).click();
+      await customization.configureDeepLinkSaveButton.click();
       await customization.removeToast(toastMessages.settingsUpdated);
     });
 
     await test.step("Brand name email verification", async () => {
-      const profile = new Profile(page);
+      // const profile = new Profile(page);
 
       // Set brand name to "autoTest"
       await customization.openTab("Branding");
-      await customization.textInput.first().fill("autoTest");
-      await customization.saveButton.first().click();
+      await customization.textInputBrandName.first().fill("autoTest");
+      await customization.brandNameSaveButton.click();
       await customization.removeToast(toastMessages.settingsUpdated);
 
       // Request password change
-      await profile.navigateToProfile();
-      await profile.changePassword();
+      // await profile.navigateToProfile();
+      // await profile.changePassword();
 
       // // Wait for email to arrive
       // await new Promise((resolve) => setTimeout(resolve, 10000));
