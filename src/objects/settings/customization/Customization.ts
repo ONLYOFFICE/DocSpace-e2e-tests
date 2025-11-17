@@ -27,11 +27,35 @@ class Customization extends BasePage {
   get saveButton() {
     return this.page.locator('[data-testid="save-button"]');
   }
+  get languageTimeZoneSaveButton() {
+    return this.page.getByTestId("language_and_time_zone_save_buttons");
+  }
+  get customizationWelcomeSaveButton() {
+    return this.page.getByTestId("customization_welcome_page_save_buttons");
+  }
+  get customizationWelcomeCancelButton() {
+    return this.page.getByTestId("customization_welcome_page_cancel_buttons");
+  }
+  get brandNameSaveButton() {
+    return this.page.getByTestId("brand_name_save_button");
+  }
+  get brandNameCancelButton() {
+    return this.page.getByTestId("brand_name_cancel_button");
+  }
+  get logoSaveButton() {
+    return this.page.getByTestId("white-label-save");
+  }
+  get logoRestoreButton() {
+    return this.page.getByTestId("white-label-cancel");
+  }
   get titleInput() {
     return this.page.getByPlaceholder("Enter title");
   }
-  get textInput() {
+  get textInputLogo() {
     return this.page.locator('[data-testid="logo-text-input"]');
+  }
+  get textInputBrandName() {
+    return this.page.locator('[data-testid="brand_name_input"]');
   }
   get generateLogoButton() {
     return this.page.locator('[data-testid="generate-logo-button"]');
@@ -39,17 +63,22 @@ class Customization extends BasePage {
   get restoreButton() {
     return this.page.locator('[data-testid="cancel-button"]');
   }
+  get configureDeepLinkCancelButton() {
+    return this.page.locator(
+      '[data-testid="configure_deep_link_cancel_button"]',
+    );
+  }
+  get configureDeepLinkSaveButton() {
+    return this.page.locator('[data-testid="configure_deep_link_save_button"]');
+  }
   get themeContainer() {
     return this.page.locator(".theme-container").first();
   }
   get darkThemeOption() {
-    return this.page
-      .locator("div")
-      .filter({ hasText: /^Dark theme$/ })
-      .first();
+    return this.page.locator('[data-testid="dark-theme_subtab"]');
   }
   get saveButtonAppearance() {
-    return this.page.locator('[data-testid="button"]:has-text("Save")');
+    return this.page.locator('[data-testid="appearance_save_button"]');
   }
   get themeAdd() {
     return this.page.locator(".theme-add");
@@ -61,7 +90,7 @@ class Customization extends BasePage {
     return this.page.locator("#buttons");
   }
   get deleteThemeButton() {
-    return this.page.getByRole("button", { name: "Delete theme" });
+    return this.page.locator('[data-testid="appearance_delete_button"]');
   }
   get confirmDeleteButton() {
     return this.page.getByRole("button", {
@@ -70,33 +99,33 @@ class Customization extends BasePage {
     });
   }
   get docspaceLanguageGuideLink() {
-    return this.page.getByTestId("link").first();
+    return this.page.getByTestId("language_and_time_zone_link");
   }
   get docspaceTitleGuideLink() {
-    return this.page.getByTestId("link").nth(1);
+    return this.page.getByTestId("customization_welcome_page_learn_more");
   }
   get docspaceAlternativeUrlGuideLink() {
-    return this.page.getByTestId("link").nth(2);
+    return this.page.getByTestId("customization_dns_settings_learn_more");
   }
   get docspaceRenamingGuideLink() {
-    return this.page.getByTestId("link").nth(3);
+    return this.page.getByTestId("portal_renaming_learn_more");
   }
 
   get approveNewColorSheme() {
-    return this.page.getByRole("button", { name: "Save" }).nth(1);
+    return this.page.locator('[data-testid="color_scheme_dialog_save"]');
   }
   get renamingString() {
     return this.page.getByPlaceholder("Enter name");
   }
   get cancelRenaming() {
-    return this.page
-      .locator("#buttonsPortalRenaming")
-      .getByTestId("cancel-button");
+    return this.page.locator(
+      '[data-testid="customization_portal_renaming_cancel_button"]',
+    );
   }
   get saveRenaming() {
-    return this.page
-      .locator("#buttonsPortalRenaming")
-      .getByTestId("save-button");
+    return this.page.locator(
+      '[data-testid="customization_portal_renaming_save_button"]',
+    );
   }
   get continue() {
     return this.page.getByLabel("Continue");
@@ -178,30 +207,31 @@ class Customization extends BasePage {
   }
 
   async changeLanguage(language: string) {
+    await expect(this.languageSelector).toBeVisible();
     await this.languageSelector.click();
     await this.dropdown.clickOption(language);
   }
 
   async changeTimezone(timezone: string) {
+    await expect(this.timezoneSelector).toBeVisible();
     await this.timezoneSelector.click();
     await this.dropdown.clickOption(timezone);
   }
 
   async setTitle() {
     await this.titleInput.fill("DocSpace Autotest Portal");
-    await this.saveButton.nth(1).click();
   }
 
   async generateLogo() {
-    await this.textInput.nth(1).fill("AutoTesting");
+    await this.textInputLogo.fill("AutoTesting");
     await this.generateLogoButton.click();
-    await this.saveButton.nth(1).click();
+    await this.logoSaveButton.click();
   }
 
   async brandName() {
-    await this.textInput.first().fill("AutoTesting");
-    await expect(this.saveCancelReminder).toBeVisible();
-    await this.saveButton.first().click();
+    await this.textInputBrandName.first().fill("AutoTesting");
+    await expect(this.brandNameSaveButton).toBeVisible();
+    await this.brandNameSaveButton.click();
   }
 
   async selectTheme() {
@@ -234,13 +264,8 @@ class Customization extends BasePage {
 
   async uploadPictures() {
     const upload = async (selector: string, filePath: string) => {
-      await Promise.all([
-        this.page.waitForResponse(
-          (res) =>
-            res.url().includes("userPhotos/temp") && res.status() === 200,
-        ),
-        this.page.locator(selector).setInputFiles(filePath),
-      ]);
+      await this.page.locator(selector).setInputFiles(filePath);
+      await this.page.waitForTimeout(2000);
     };
 
     await upload("#logoUploader_1_light", "data/space_header/PNG.png");
@@ -253,7 +278,7 @@ class Customization extends BasePage {
     await upload("#logoUploader_4_light", "data/editor_header/png.png");
     await upload("#logoUploader_5_light", "data/editor_header/jpg.jpg");
 
-    await this.saveButton.nth(1).click();
+    await this.logoSaveButton.click();
   }
 
   async renamePortal() {
@@ -280,11 +305,11 @@ class Customization extends BasePage {
 
   async choseDeepLink() {
     await this.appOnly.click();
-    await this.restoreButton.nth(3).click();
+    await this.configureDeepLinkCancelButton.click();
     await this.webOnly.click();
-    await this.restoreButton.nth(3).click();
+    await this.configureDeepLinkCancelButton.click();
     await this.appOnly.click();
-    await this.saveButton.nth(3).click();
+    await this.configureDeepLinkSaveButton.click();
   }
 }
 
