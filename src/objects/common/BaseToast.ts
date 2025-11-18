@@ -30,6 +30,13 @@ class BaseToast {
     await toast.click();
     await expect(toast).not.toBeVisible();
   }
+
+  async dismissToastSafely(text: string, timeout = 30000) {
+    const toast = this.toast.filter({ hasText: text }).first();
+    await toast.waitFor({ state: "visible", timeout });
+    await toast.click();
+    await toast.waitFor({ state: "hidden", timeout });
+  }
 }
 
 export default BaseToast;
