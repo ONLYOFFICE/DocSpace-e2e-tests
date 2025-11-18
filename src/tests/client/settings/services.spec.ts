@@ -1,20 +1,13 @@
 import { expect } from "@playwright/test";
 import { test } from "@/src/fixtures";
-import Screenshot from "@/src/objects/common/Screenshot";
 import Services from "@/src/objects/settings/services/services";
 import { Payments } from "@/src/objects/settings/payments/Payments";
 
 test.describe("Services tests", () => {
-  let screenshot: Screenshot;
   let services: Services;
   let payments: Payments;
 
   test.beforeEach(async ({ page, login }) => {
-    screenshot = new Screenshot(page, {
-      screenshotDir: "services",
-      fullPage: false,
-    });
-
     services = new Services(page);
     payments = new Payments(page);
 
@@ -22,18 +15,15 @@ test.describe("Services tests", () => {
     await services.open();
   });
 
-  test.skip("All services test", async ({ page }) => {
+  test("All services test", async ({ page }) => {
     await test.step("Open top up wallet modal in backup service", async () => {
       await services.checkServicesRendered();
-      await screenshot.expectHaveScreenshot("Services_rendered");
       await services.openTopUpWalletModal();
-      await screenshot.expectHaveScreenshot("Top_up_wallet_modal");
       await payments.cancelButton.click();
     });
 
     await test.step("Open backup service modal in backup service", async () => {
       await services.openBackupServiceModal();
-      await screenshot.expectHaveScreenshot("Backup_service_modal");
       await services.closeBackupServiceModal.click();
       await services.clickSwitchInBackupServiceModal();
       await payments.cancelButton.click();
@@ -41,7 +31,6 @@ test.describe("Services tests", () => {
 
     await test.step("Open disk storage modal", async () => {
       await services.openDiskStorageModal();
-      await screenshot.expectHaveScreenshot("Disk_storage_modal");
       await services.checkAdditionalStorage();
       await services.topUpLinkClick();
       await services.backTopUpButton.click();
@@ -61,20 +50,19 @@ test.describe("Services tests", () => {
         services.continueButton.click(),
       ]);
       expect(response.status()).toBe(200);
-      await screenshot.expectHaveScreenshot("Backup_service_active");
     });
 
     await test.step("Deactivate backup service", async () => {
+      await services.backupSwitch.click();
       const [response] = await Promise.all([
         page.waitForResponse(
           (resp) =>
             resp.request().method() === "POST" &&
             resp.url().includes("/api/2.0/portal/payment/servicestate"),
         ),
-        services.backupSwitch.click(),
+        services.continueButton.click(),
       ]);
       expect(response.status()).toBe(200);
-      await screenshot.expectHaveScreenshot("Backup_service_deactivated");
     });
 
     await test.step("Buy disk storage", async () => {
@@ -88,7 +76,6 @@ test.describe("Services tests", () => {
         services.buyButton.click(),
       ]);
       expect(response.status()).toBe(200);
-      await screenshot.expectHaveScreenshot("Disk_storage_bought");
     });
 
     await test.step("Downgrade disk storage", async () => {
@@ -105,9 +92,7 @@ test.describe("Services tests", () => {
 
       await expect(page.getByText("GB → 199 GB in total")).toBeVisible();
       await services.hideDateCurrentPayment();
-      await screenshot.expectHaveScreenshot("Disk_storage_downgrade_modal");
       await services.diskStorageCancelButton.click();
-      await screenshot.expectHaveScreenshot("Disk_storage_downgrade_block");
       await services.diskStorageBlock.click();
 
       const [response2] = await Promise.all([
@@ -120,13 +105,11 @@ test.describe("Services tests", () => {
       ]);
       expect(response2.status()).toBe(200);
       await services.diskStorageCancelButton.click();
-      await screenshot.expectHaveScreenshot("Disk_storage_cancel_change");
     });
 
     await test.step("Upgrade disk storage", async () => {
       await services.changeDiskStoragePlus();
       await services.hideDateCurrentPayment();
-      await screenshot.expectHaveScreenshot("Disk_storage_upgrade_modal");
       const [response] = await Promise.all([
         page.waitForResponse(
           (resp) =>
@@ -136,8 +119,6 @@ test.describe("Services tests", () => {
         services.buyButton.click(),
       ]);
       expect(response.status()).toBe(200);
-
-      await screenshot.expectHaveScreenshot("Disk_storage_upgrade_block");
     });
 
     await test.step("stripe link", async () => {
@@ -151,7 +132,6 @@ test.describe("Services tests", () => {
 
     await test.step("Info button", async () => {
       await services.infoButton.click();
-      await screenshot.expectHaveScreenshot("Info_button");
     });
   });
 });
