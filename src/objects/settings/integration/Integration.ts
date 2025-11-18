@@ -531,10 +531,10 @@ export class Integration extends BasePage {
 
   async s3SwitchClick() {
     await expect(this.s3Switch).toBeVisible();
-    await expect(async () => {
+    if (!(await this.s3AccessKey.isVisible())) {
       await this.s3Switch.click();
-      await expect(this.s3AccessKey).toBeVisible();
-    }).toPass();
+    }
+    await expect(this.s3AccessKey).toBeVisible({ timeout: 30000 });
   }
 
   async activateAWSS3() {

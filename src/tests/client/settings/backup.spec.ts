@@ -1,5 +1,4 @@
 import { Backup } from "@/src/objects/settings/backup/Backup";
-
 import {
   mapAutoBackupMethodsIds,
   mapBackupMethodsIds,
@@ -31,7 +30,7 @@ test.describe("Backup portal tests", () => {
 
     await test.step("Backup temporary storage", async () => {
       await backup.locators.createBackupButton.click();
-      await backup.removeToast(toastMessages.backCopyCreated);
+      await backup.dismissToastSafely(toastMessages.backCopyCreated);
       // // Wait for email to arrive
       // await new Promise((resolve) => setTimeout(resolve, 15000));
 
@@ -70,7 +69,7 @@ test.describe("Backup portal tests", () => {
       await backup.openRoomSelector();
       await backup.selectDocuments();
       await backup.locators.createCopyButton.click();
-      await backup.removeToast(toastMessages.backCopyCreated, 40000);
+      await backup.dismissToastSafely(toastMessages.backCopyCreated, 40000);
     });
 
     // // ISSUE: CAPTCHA OR INFINITE LOADING

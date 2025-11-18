@@ -143,12 +143,12 @@ export class Plugins extends BasePage {
   async enableMarkdown() {
     await this.markdownArea.click();
     await this.markdownEnableSwitch.click();
-    await this.removeToast(toastMessages.pluginEnabled);
+    await this.dismissToastSafely(toastMessages.pluginEnabled);
   }
   async enableDrawIo() {
     await this.drawIoArea.click();
     await this.drawIoEnableSwitch.click();
-    await this.removeToast(toastMessages.pluginEnabled);
+    await this.dismissToastSafely(toastMessages.pluginEnabled);
   }
 
   async openMarkdownSettings() {
@@ -158,37 +158,37 @@ export class Plugins extends BasePage {
   async enableSpeechToText() {
     await this.speechToTextArea.click();
     await this.speechToTextEnableSwitch.click();
-    await this.removeToast(toastMessages.pluginEnabled);
+    await this.dismissToastSafely(toastMessages.pluginEnabled);
   }
 
   async enablePdfConverter() {
     await this.pdfConverterArea.click();
     await this.pdfConverterEnableSwitch.click();
-    await this.removeToast(toastMessages.pluginEnabled);
+    await this.dismissToastSafely(toastMessages.pluginEnabled);
   }
 
   async disableMarkdown() {
     await this.markdownArea.click();
     await this.markdownEnableSwitch.click();
-    await this.removeToast(toastMessages.pluginDisabled);
+    await this.dismissToastSafely(toastMessages.pluginDisabled);
   }
 
   async disableDrawIo() {
     await this.drawIoArea.click();
     await this.drawIoEnableSwitch.click();
-    await this.removeToast(toastMessages.pluginDisabled);
+    await this.dismissToastSafely(toastMessages.pluginDisabled);
   }
 
   async disableSpeechToText() {
     await this.speechToTextArea.click();
     await this.speechToTextEnableSwitch.click();
-    await this.removeToast(toastMessages.pluginDisabled);
+    await this.dismissToastSafely(toastMessages.pluginDisabled);
   }
 
   async disablePdfConverter() {
     await this.pdfConverterArea.click();
     await this.pdfConverterEnableSwitch.click();
-    await this.removeToast(toastMessages.pluginDisabled);
+    await this.dismissToastSafely(toastMessages.pluginDisabled);
   }
 
   async openDrawIoSettings() {

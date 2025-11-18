@@ -130,7 +130,7 @@ export class Backup extends BasePage {
   async disableAutoBackup() {
     await this.locators.autoBackupSwitch.click();
     await this.locators.saveAutoBackupButton.click();
-    await this.removeToast(toastMessages.settingsUpdated);
+    await this.dismissToastSafely(toastMessages.settingsUpdated);
   }
 
   async selectDocuments() {
@@ -178,7 +178,7 @@ export class Backup extends BasePage {
 
   async saveAutoSavePeriod() {
     await this.locators.saveAutoBackupButton.click();
-    await this.removeToast(toastMessages.settingsUpdated);
+    await this.dismissToastSafely(toastMessages.settingsUpdated);
   }
 
   async setBackupTimeAndCopies() {
@@ -216,7 +216,7 @@ export class Backup extends BasePage {
     await this.locators.forwardDocuments.click();
     await this.locators.selectButton.click();
     await this.locators.createCopyButton.click();
-    await this.removeToast(toastMessages.backCopyCreated);
+    await this.dismissToastSafely(toastMessages.backCopyCreated);
   }
 
   async activateAWSS3() {
@@ -332,7 +332,7 @@ export class Backup extends BasePage {
     await this.openRoomSelector();
     await this.locators.selectButton.click();
     await this.locators.thirdPartyCreateCopyButton.click();
-    await this.removeToast(toastMessages.backCopyCreated);
+    await this.dismissToastSafely(toastMessages.backCopyCreated);
   }
 
   async selectDropboxAutoBackup() {
@@ -347,7 +347,7 @@ export class Backup extends BasePage {
     await this.selector.selectItemByIndex(0, true);
     await this.locators.saveHereButton.click();
     await this.locators.saveAutoBackupButton.click();
-    await this.removeToast(toastMessages.settingsUpdated);
+    await this.dismissToastSafely(toastMessages.settingsUpdated);
   }
 
   async connectBox() {
