@@ -1,12 +1,10 @@
 import { PaymentApi } from "@/src/api/payment";
-import Screenshot from "@/src/objects/common/Screenshot";
 import Security from "@/src/objects/settings/security/Security";
 import { test } from "@/src/fixtures";
 import { expect } from "@playwright/test";
 
 test.describe("Security tests", () => {
   let paymentApi: PaymentApi;
-  let screenshot: Screenshot;
 
   let security: Security;
 
@@ -16,17 +14,13 @@ test.describe("Security tests", () => {
     await paymentApi.makePortalPayment(portalInfo.tenantId, 10);
     await paymentApi.refreshPaymentInfo(api.portalDomain);
 
-    screenshot = new Screenshot(page, {
-      screenshotDir: "security",
-      fullPage: true,
-    });
     security = new Security(page);
 
     await login.loginToPortal();
     await security.open();
   });
 
-  test.skip("All security scenarios", async ({ page }) => {
+  test("All security scenarios", async ({ page }) => {
     await test.step("Password strength", async () => {
       await security.updatePasswordStrength(17);
       await security.updatePasswordStrength(8);
@@ -60,21 +54,21 @@ test.describe("Security tests", () => {
       await security.passwordStrengthGuideLink.click();
       const page1 = await page1Promise;
       await page1.waitForURL(
-        "https://*.onlyoffice.com/docspace/configuration#passwordstrength",
+        "https://helpcenter.onlyoffice.com/docspace/configuration/docspace-security-settings.aspx#passwordstrengthsettings_block",
       );
       await page1.close();
       const page2Promise = page.waitForEvent("popup");
       await security.twoFactorAuthenticationGuideLink.click();
       const page2 = await page2Promise;
       await page2.waitForURL(
-        "https://*.onlyoffice.com/docspace/configuration/docspace-two-factor-authentication.aspx",
+        "https://helpcenter.onlyoffice.com/docspace/configuration/docspace-two-factor-authentication.aspx",
       );
       await page2.close();
       const page3Promise = page.waitForEvent("popup");
       await security.trustedDomainGuideLink.click();
       const page3 = await page3Promise;
       await page3.waitForURL(
-        "https://*.onlyoffice.com/docspace/configuration#TrustedDomain",
+        "https://helpcenter.onlyoffice.com/docspace/configuration/docspace-security-settings.aspx#trustedmaildomainsettings_block",
       );
       await page3.close();
 
@@ -82,7 +76,7 @@ test.describe("Security tests", () => {
       await security.ipSecurityGuideLink.click();
       const page4 = await page4Promise;
       await page4.waitForURL(
-        "https://*.onlyoffice.com/docspace/configuration/docspace-security-settings.aspx#limiteddevelopertoolsaccess_block",
+        "https://helpcenter.onlyoffice.com/docspace/configuration/docspace-security-settings.aspx#limiteddevelopertoolsaccess_block",
       );
       await page4.close();
 
@@ -90,7 +84,7 @@ test.describe("Security tests", () => {
       await security.bruteForceGuideLink.click();
       const page5 = await page5Promise;
       await page5.waitForURL(
-        "https://*.onlyoffice.com/workspace/administration/configuration.aspx#loginsettings",
+        "https://helpcenter.onlyoffice.com/docspace/configuration/docspace-security-settings.aspx#bruteforceprotectionsettings_block",
       );
       await page5.close();
 
@@ -98,7 +92,7 @@ test.describe("Security tests", () => {
       await security.adminMessageGuideLink.click();
       const page6 = await page6Promise;
       await page6.waitForURL(
-        "https://*.onlyoffice.com/docspace/configuration#administratormessage",
+        "https://helpcenter.onlyoffice.com/docspace/configuration/docspace-security-settings.aspx#administratormessagesettings_block",
       );
       await page6.close();
 
@@ -106,32 +100,24 @@ test.describe("Security tests", () => {
       await security.sessionLifetimeGuideLink.click();
       const page7 = await page7Promise;
       await page7.waitForURL(
-        "https://*.onlyoffice.com/docspace/configuration#sessionlifetime",
+        "https://helpcenter.onlyoffice.com/docspace/configuration/docspace-security-settings.aspx#sessionlifetime_block",
       );
       await page7.close();
     });
 
-    await test.step("DocSpace access settings", async () => {
-      await screenshot.expectHaveScreenshot("docspace_access_settings_view");
-    });
-
     await test.step("Login history", async () => {
       await security.openTab("Login History");
-      await security.hideDateCells();
       await expect(
         page.locator("text=Successful Login via API").first(),
       ).toHaveText("Successful Login via API", { timeout: 10000 });
-      await screenshot.expectHaveScreenshot("login_history_view");
     });
 
     await test.step("Audit trail", async () => {
       await security.openTab("Audit Trail");
-      await security.hideDateCells();
       await expect(page.locator("text=Language Updated").first()).toHaveText(
         "Language Updated",
         { timeout: 10000 },
       );
-      await screenshot.expectHaveScreenshot("audit_trail_view");
     });
   });
 });

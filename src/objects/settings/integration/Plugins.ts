@@ -1,7 +1,6 @@
 import { Page, Locator } from "@playwright/test";
 import BasePage from "../../common/BasePage";
 import config from "@/config";
-import Screenshot from "../../common/Screenshot";
 import { toastMessages } from "@/src/utils/constants/settings";
 
 export class Plugins extends BasePage {
@@ -20,64 +19,78 @@ export class Plugins extends BasePage {
   }
 
   get markdownArea(): Locator {
-    return this.page.getByText("markdown 1.1.0DocSpace plugin");
+    return this.page.getByTestId("plugin_markdown");
   }
 
   get markdownSettingsButton(): Locator {
     return this.markdownArea
-      .locator(".plugin-controls .icon-button_svg")
+      .locator('[data-testid="open_settings_icon_button"]')
       .first();
   }
 
   get markdownEnableSwitch(): Locator {
-    return this.markdownArea.locator("circle");
+    return this.markdownArea.locator(
+      '[data-testid="enable_plugin_toggle_button"]',
+    );
   }
 
   get drawIoArea(): Locator {
-    return this.page.getByText("draw.io 1.1.0A tool for");
+    return this.page.getByTestId("plugin_draw.io");
   }
 
   get drawIoSettingsButton(): Locator {
-    return this.drawIoArea.locator(".plugin-controls .icon-button_svg").first();
+    return this.drawIoArea
+      .locator('[data-testid="open_settings_icon_button"]')
+      .first();
   }
 
   get drawIoEnableSwitch(): Locator {
-    return this.drawIoArea.locator("circle");
+    return this.drawIoArea.locator(
+      '[data-testid="enable_plugin_toggle_button"]',
+    );
   }
 
   get speechToTextArea(): Locator {
-    return this.page.getByText("speech-to-text 1.0.2Speech to");
+    return this.page.getByTestId("plugin_speech-to-text");
   }
 
   get speechToTextSettingsButton(): Locator {
     return this.speechToTextArea
-      .locator(".plugin-controls .icon-button_svg")
+      .locator('[data-testid="open_settings_icon_button"]')
       .first();
   }
 
   get speechToTextEnableSwitch(): Locator {
-    return this.speechToTextArea.locator("circle");
+    return this.speechToTextArea.locator(
+      '[data-testid="enable_plugin_toggle_button"]',
+    );
   }
 
   get pdfConverterArea(): Locator {
-    return this.page.getByText("pdf-converter 1.0.2A plugin");
+    return this.page.getByTestId("plugin_pdf-converter");
   }
 
   get pdfConverterSettingsButton(): Locator {
     return this.pdfConverterArea
-      .locator(".plugin-controls .icon-button_svg")
+      .locator('[data-testid="open_settings_icon_button"]')
       .first();
   }
 
   get pdfConverterEnableSwitch(): Locator {
-    return this.pdfConverterArea.locator("circle");
+    return this.pdfConverterArea.locator(
+      '[data-testid="enable_plugin_toggle_button"]',
+    );
   }
   get guideLink(): Locator {
-    return this.page.getByTestId("link");
+    return this.page.getByTestId("plugin_home_page_link");
   }
 
   get languageCombobox(): Locator {
-    return this.page.getByTestId("combobox").locator("div").first();
+    return this.page
+      .locator("#modal-dialog")
+      .getByTestId("combobox")
+      .locator("div")
+      .first();
   }
 
   get selectLanguage(): Locator {
@@ -85,15 +98,23 @@ export class Plugins extends BasePage {
   }
 
   get offlineModeSwitch(): Locator {
-    return this.page.locator("#modal-scroll circle").first();
+    return this.page
+      .locator("#modal-dialog")
+      .getByTestId("toggle-button")
+      .first();
   }
 
   get librariesSwitch(): Locator {
-    return this.page.locator("#modal-scroll circle").nth(1);
+    return this.page
+      .locator("#modal-dialog")
+      .getByTestId("toggle-button")
+      .nth(1);
   }
 
   get saveButton(): Locator {
-    return this.page.getByRole("button", { name: "Save" });
+    return this.page
+      .locator("#modal-dialog")
+      .getByTestId("settings_plugin_save_button");
   }
 
   get textInput(): Locator {
@@ -130,14 +151,9 @@ export class Plugins extends BasePage {
     await this.removeToast(toastMessages.pluginEnabled);
   }
 
-  async openMarkdownSettings(screenshot?: Screenshot) {
+  async openMarkdownSettings() {
     await this.markdownArea.click();
     await this.markdownSettingsButton.click();
-
-    const maskPluginLocators = await this.getMaskPluginLocators();
-    await screenshot?.expectHaveScreenshot("markdown_settings", true, {
-      mask: maskPluginLocators,
-    });
   }
   async enableSpeechToText() {
     await this.speechToTextArea.click();
@@ -175,34 +191,19 @@ export class Plugins extends BasePage {
     await this.removeToast(toastMessages.pluginDisabled);
   }
 
-  async openDrawIoSettings(screenshot?: Screenshot) {
+  async openDrawIoSettings() {
     await this.drawIoArea.click();
     await this.drawIoSettingsButton.click();
-
-    const maskPluginLocators = await this.getMaskPluginLocators();
-    await screenshot?.expectHaveScreenshot("draw_io_settings", true, {
-      mask: maskPluginLocators,
-    });
   }
 
-  async openSpeechToTextSettings(screenshot?: Screenshot) {
+  async openSpeechToTextSettings() {
     await this.speechToTextArea.click();
     await this.speechToTextSettingsButton.click();
-
-    const maskPluginLocators = await this.getMaskPluginLocators();
-    await screenshot?.expectHaveScreenshot("speech_to_text_settings", true, {
-      mask: maskPluginLocators,
-    });
   }
 
-  async openPdfConverterSettings(screenshot?: Screenshot) {
+  async openPdfConverterSettings() {
     await this.pdfConverterArea.click();
     await this.pdfConverterSettingsButton.click();
-
-    const maskPluginLocators = await this.getMaskPluginLocators();
-    await screenshot?.expectHaveScreenshot("pdf_converter_settings", true, {
-      mask: maskPluginLocators,
-    });
   }
 
   async guidePopup() {
@@ -211,16 +212,8 @@ export class Plugins extends BasePage {
     return page1;
   }
 
-  async changeDrawIoSettings(screenshot?: Screenshot) {
-    const maskPluginLocators = await this.getMaskPluginLocators();
+  async changeDrawIoSettings() {
     await this.languageCombobox.click();
-    await screenshot?.expectHaveScreenshot(
-      "draw_io_settings_language_dropdown",
-      true,
-      {
-        mask: maskPluginLocators,
-      },
-    );
     await this.selectLanguage.click();
     await this.offlineModeSwitch.click();
     await this.librariesSwitch.click();

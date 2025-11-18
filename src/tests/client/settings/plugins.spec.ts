@@ -3,12 +3,10 @@ import { PaymentApi } from "@/src/api/payment";
 import { test } from "@/src/fixtures";
 import { Plugins } from "@/src/objects/settings/integration/Plugins";
 import { integrationTabs } from "@/src/utils/constants/settings";
-import Screenshot from "@/src/objects/common/Screenshot";
 
 test.describe("Integration tests - Plugins", () => {
   let paymentApi: PaymentApi;
 
-  let screenshot: Screenshot | undefined;
   let integration: Integration;
   let plugins: Plugins;
 
@@ -19,9 +17,6 @@ test.describe("Integration tests - Plugins", () => {
     await paymentApi.makePortalPayment(portalInfo.tenantId, 10);
     await paymentApi.refreshPaymentInfo(api.portalDomain);
 
-    screenshot = new Screenshot(page, {
-      screenshotDir: "plugins",
-    });
     integration = new Integration(page);
     plugins = new Plugins(page);
 
@@ -29,9 +24,9 @@ test.describe("Integration tests - Plugins", () => {
     await integration.open();
     await integration.openTab(integrationTabs.plugins);
   });
-  test.skip("Plugins", async () => {
+  test("Plugins", async () => {
     await test.step("Markdown link", async () => {
-      await plugins.openMarkdownSettings(screenshot);
+      await plugins.openMarkdownSettings();
       const page1 = await plugins.guidePopup();
       await page1.waitForURL(
         "https://github.com/ONLYOFFICE/docspace-plugins/tree/master/markdown",
@@ -41,7 +36,7 @@ test.describe("Integration tests - Plugins", () => {
     });
 
     await test.step("Draw.io link", async () => {
-      await plugins.openDrawIoSettings(screenshot);
+      await plugins.openDrawIoSettings();
       const page1 = await plugins.guidePopup();
       await page1.waitForURL(
         "https://github.com/ONLYOFFICE/docspace-plugins/tree/master/draw.io",
@@ -52,12 +47,12 @@ test.describe("Integration tests - Plugins", () => {
 
     await test.step("Draw.io change settings", async () => {
       await plugins.openDrawIoSettings();
-      await plugins.changeDrawIoSettings(screenshot);
+      await plugins.changeDrawIoSettings();
       await plugins.closePluginSettings();
     });
 
     await test.step("Speech to text link", async () => {
-      await plugins.openSpeechToTextSettings(screenshot);
+      await plugins.openSpeechToTextSettings();
       const page1 = await plugins.guidePopup();
       await page1.waitForURL(
         "https://github.com/ONLYOFFICE/docspace-plugins/tree/master/speech-to-text",
@@ -67,7 +62,7 @@ test.describe("Integration tests - Plugins", () => {
     });
 
     await test.step("Pdf converter link", async () => {
-      await plugins.openPdfConverterSettings(screenshot);
+      await plugins.openPdfConverterSettings();
       const page1 = await plugins.guidePopup();
       await page1.waitForURL(
         "https://github.com/ONLYOFFICE/docspace-plugins/tree/master/pdf-converter",
