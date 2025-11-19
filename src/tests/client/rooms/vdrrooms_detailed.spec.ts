@@ -39,10 +39,9 @@ test.describe("VDRRooms", () => {
     await login.loginToPortal();
   });
 
-  test.skip("Create VDR Room smoke", async () => {
+  test("Create VDR Room smoke", async () => {
     // Step 1: Check empty rooms state
-    //await myRooms.roomsEmptyView.checkNoRoomsExist();
-    //await screenshot.expectHaveScreenshot("vdr_empty_rooms");
+    await myRooms.roomsEmptyView.checkNoRoomsExist();
 
     // Step 2: Open the create room dialog via navigation
     await myRooms.openCreateRoomDialog(roomDialogSource.navigation);
@@ -50,25 +49,19 @@ test.describe("VDRRooms", () => {
     // Step 3: Select the VDR room type (replace with your actual VDR constant/title)
     await myRooms.roomsCreateDialog.openRoomType(roomCreateTitles.virtualData);
 
-    // Optionally: take a screenshot of the dialog
-    // await screenshot.expectHaveScreenshot("vdr_open_create_dialog");
-
     // Step 4: Fill the room name
     await myRooms.roomsCreateDialog.fillRoomName("AutoIndexRoom");
-    await myRooms.roomsCreateDialog.setRoomCoverColor(".sc-fbKhjd");
+    await myRooms.roomsCreateDialog.setRoomCoverColor("color_item_2");
 
     // Step 5: Submit the creation form
     await myRooms.roomsCreateDialog.clickRoomDialogSubmit();
 
     // Step 6: Assert the new room is present in the table/empty view
+    await myRooms.backToRooms();
     await myRooms.roomsTable.checkRowExist("AutoIndexRoom");
-    // await screenshot.expectHaveScreenshot("vdr_created_room_in_table");
 
     // Step 7: Open the room
     await myRooms.roomsTable.openRoomByName("AutoIndexRoom");
-    // await screenshot.expectHaveScreenshot("vdr_empty_room");
-
-    await myRooms.roomsEmptyView.createFile("AutoIndex");
   });
 
   test.afterAll(async () => {

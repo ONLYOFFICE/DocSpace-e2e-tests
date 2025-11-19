@@ -286,19 +286,12 @@ class RoomsCreateDialog extends BaseDialog {
     await expect(comboBox).toContainText(position);
   }
 
-  async setRoomCoverColor(colorIndex = ".sc-dwalKd.kOQVrm") {
-    await this.page
-      .getByTestId("modal")
-      .getByTestId("room-icon")
-      .getByTestId("icon-button-svg")
-      .getByRole("img")
-      .click();
-    await this.page.getByText("Customize cover").click();
-
-    //const colorButtons = this.page.locator('.colors-container > div .circle');
-    await this.page.locator(colorIndex).click();
-
-    await this.page.getByRole("button", { name: /apply/i }).click();
+  async setRoomCoverColor(colorTestId = "color_item_6") {
+    await this.page.getByTestId("create_edit_room_icon").click();
+    await this.page.getByTestId("create_edit_room_customize_cover").click();
+    await this.page.getByTestId(colorTestId).click();
+    const applyButton = this.page.getByTestId("room_logo_cover_apply_button");
+    await applyButton.click();
   }
 }
 
