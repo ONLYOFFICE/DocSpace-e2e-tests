@@ -49,7 +49,8 @@ test.describe("Folder", () => {
       );
       await folder.createRoomFromFolder(roomCreateTitles.public);
       await myRooms.openWithoutEmptyCheck();
-      await myRooms.roomsTable.checkRowExist(`${baseFolder}`);
+      await myRooms.roomsFilter.fillRoomsSearchInputAndCheckRequest(baseFolder);
+      await myRooms.roomsTable.checkRowExist(baseFolder);
     });
 
     await test.step("Move folder into another folder", async () => {

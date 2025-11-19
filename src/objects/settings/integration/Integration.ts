@@ -75,19 +75,22 @@ export class Integration extends BasePage {
   }
 
   get userType() {
-    return this.page.getByTestId("combobox").locator("path");
+    return this.page
+      .locator(".access-selector")
+      .locator("[data-test-id='combo-button']")
+      .first();
   }
 
   get userTypeDocSpaceadmin() {
-    return this.page.getByText("DocSpace adminPaid");
+    return this.page.getByTestId("access_right_option_3");
   }
 
   get userTypeRoomAdmin() {
-    return this.page.getByText("Room adminPaid");
+    return this.page.getByTestId("access_right_option_roomadmin");
   }
 
   get userTypeUser() {
-    return this.page.getByText("User", { exact: true });
+    return this.page.getByTestId("access_right_option_newuser");
   }
 
   get periodBox() {

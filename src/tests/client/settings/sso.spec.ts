@@ -31,7 +31,7 @@ test.describe("Integration tests - SSO", () => {
     await integration.openTab(integrationTabs.sso);
     await promise;
   });
-  test.skip("Sso", async ({ page }) => {
+  test("Sso", async ({ page }) => {
     await test.step("Enable", async () => {
       await sso.enableSso();
     });
