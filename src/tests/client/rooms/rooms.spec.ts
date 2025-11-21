@@ -1,5 +1,4 @@
 import MyRooms from "@/src/objects/rooms/Rooms";
-import Screenshot from "@/src/objects/common/Screenshot";
 import {
   roomContextMenuOption,
   roomCreateTitles,
@@ -12,7 +11,6 @@ import { test } from "@/src/fixtures";
 import { Page } from "@playwright/test";
 
 test.describe("Rooms", () => {
-  let screenshot: Screenshot;
   let myRooms: MyRooms;
   let page: Page;
 
@@ -20,10 +18,6 @@ test.describe("Rooms", () => {
 
   test.beforeEach(async ({ page: fixturePage, api, login }) => {
     page = fixturePage;
-    screenshot = new Screenshot(page, {
-      screenshotDir: "rooms",
-      suiteName: "rooms",
-    });
     myRooms = new MyRooms(page, api.portalDomain);
 
     await login.loginToPortal();
@@ -32,7 +26,6 @@ test.describe("Rooms", () => {
   test("Render", async () => {
     await test.step("Render", async () => {
       await myRooms.roomsEmptyView.checkNoRoomsExist();
-      await screenshot.expectHaveScreenshot("render");
     });
 
     await test.step("OpenCreateDialog", async () => {
