@@ -119,6 +119,7 @@ export class Backup extends BasePage {
   }
 
   async openRoomSelector() {
+    await expect(this.locators.selectRoom).toBeVisible();
     await this.locators.selectRoom.click();
     await this.selector.checkSelectorExist();
   }
@@ -227,7 +228,10 @@ export class Backup extends BasePage {
   }
 
   async selectBackupMethod(method: TBackupMethodsIds) {
-    await this.page.getByTestId(method).click();
+    const option = this.page.getByTestId(method);
+    await expect(option).toBeVisible();
+    await expect(option).toBeEnabled();
+    await option.click();
   }
 
   async selectAutoBackupMethod(method: TAutoBackupMethodsIds) {
