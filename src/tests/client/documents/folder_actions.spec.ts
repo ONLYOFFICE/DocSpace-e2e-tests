@@ -47,9 +47,8 @@ test.describe("Folder", () => {
         "Share",
         "Create room",
       );
-      await folder.createRoomFromFolder(roomCreateTitles.public);
+      await folder.createRoomFromFolderAndWait(roomCreateTitles.public);
       await myRooms.openWithoutEmptyCheck();
-      await myRooms.roomsFilter.fillRoomsSearchInputAndCheckRequest(baseFolder);
       await myRooms.roomsTable.checkRowExist(baseFolder);
     });
 
@@ -65,8 +64,7 @@ test.describe("Folder", () => {
       await folder.filesSelectPanel.checkFileSelectPanelExist();
       await folder.filesSelectPanel.selectItemByText(baseFolder);
       await folder.filesSelectPanel.confirmSelection();
-      // TODO: Re-enable this check after the IO bug is fixed;
-      // await folder.expectFolderNotVisible(folderToMove);
+      await folder.expectFolderNotVisible(folderToMove);
     });
 
     await test.step("Copy", async () => {
