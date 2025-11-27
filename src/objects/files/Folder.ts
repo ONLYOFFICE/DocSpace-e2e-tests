@@ -6,6 +6,7 @@ import FolderDeleteModal from "./FolderDeleteModal";
 import FilesSelectPanel from "./FilesSelectPanel";
 import InfoPanel from "../common/InfoPanel";
 import RoomsCreateDialog from "@/src/objects/rooms/RoomsCreateDialog";
+import { waitForCreateRoomResponse } from "@/src/objects/rooms/api";
 import { TRoomCreateTitles } from "@/src/utils/constants/rooms";
 import { DOC_ACTIONS } from "@/src/utils/constants/files";
 import BasePage from "../common/BasePage";
@@ -61,6 +62,16 @@ class Folder extends BasePage {
       await this.roomsCreateDialog.fillRoomName(roomName);
     }
     await this.roomsCreateDialog.clickRoomDialogSubmit();
+  }
+
+  async createRoomFromFolderAndWait(
+    roomType: TRoomCreateTitles,
+    roomName?: string,
+  ) {
+    const createRoomRequest = waitForCreateRoomResponse(this.page);
+
+    await this.createRoomFromFolder(roomType, roomName);
+    await createRoomRequest;
   }
 
   async createNew(name: string) {
