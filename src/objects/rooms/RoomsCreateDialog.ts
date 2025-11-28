@@ -289,7 +289,19 @@ class RoomsCreateDialog extends BaseDialog {
   async setRoomCoverColor(colorTestId = "color_item_6") {
     await this.page.getByTestId("create_edit_room_icon").click();
     await this.page.getByTestId("create_edit_room_customize_cover").click();
-    await this.page.getByTestId(colorTestId).click();
+    const normalizedId = colorTestId.replace(
+      "color_item_selected_",
+      "color_item_",
+    );
+    const selectedId = normalizedId.replace(
+      "color_item_",
+      "color_item_selected_",
+    );
+    const colorOption = this.page.locator(
+      `[data-testid="${normalizedId}"], [data-testid="${selectedId}"]`,
+    );
+    await expect(colorOption.first()).toBeVisible();
+    await colorOption.first().click();
     const applyButton = this.page.getByTestId("room_logo_cover_apply_button");
     await applyButton.click();
   }
