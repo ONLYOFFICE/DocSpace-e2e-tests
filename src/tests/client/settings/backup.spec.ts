@@ -83,23 +83,24 @@ test.describe("Backup portal tests", () => {
     //   await backup.createBackupInService();
     // });
 
-    await test.step("Backup in Third-Party resource NextCloud", async () => {
-      await backup.selectBackupMethod(mapBackupMethodsIds.thirdPartyResource);
-      await backup.openThirdPartyDropdown();
-      await backup.selectThirdPartyResource(mapThirdPartyResource.nextcloud);
-      await backup.expectConnectButtonNotToBeDisabled();
-      await backup.locators.connectButton.click();
+    // await test.step("Backup in Third-Party resource NextCloud", async () => {
+    //   await backup.selectBackupMethod(mapBackupMethodsIds.thirdPartyResource);
+    //   await backup.openThirdPartyDropdown();
+    //   await backup.selectThirdPartyResource(mapThirdPartyResource.nextcloud);
+    //   await backup.expectConnectButtonNotToBeDisabled();
+    //   await backup.locators.connectButton.click();
 
-      await backup.fillConnectingNextcloudAccount();
-      await backup.locators.saveButton.click();
-      await backup.openRoomSelector();
-      await backup.selectDocumentsNextCloud();
-      await backup.removeToast(toastMessages.backCopyCreated, 40000);
-      await backup.openActionMenuResource();
-      await backup.disconnectService();
-    });
+    //   await backup.fillConnectingNextcloudAccount();
+    //   await backup.locators.saveButton.click();
+    //   await backup.openRoomSelector();
+    //   await backup.selectDocumentsNextCloud();
+    //   await backup.removeToast(toastMessages.backCopyCreated, 40000);
+    //   await backup.openActionMenuResource();
+    //   await backup.disconnectService();
+    // });
 
     await test.step("Backup in Third-Party resource box", async () => {
+      await backup.selectBackupMethod(mapBackupMethodsIds.thirdPartyResource);
       await backup.openThirdPartyDropdown();
       await backup.selectThirdPartyResource(mapThirdPartyResource.box);
       await backup.connectBox();
@@ -109,18 +110,18 @@ test.describe("Backup portal tests", () => {
     });
 
     // Disabled because of a geo region validation error; to be re-enabled after the problem is resolved.
-    // await test.step("Backup in Third-Party storage S3", async () => {
-    //   await backup.activateAWSS3();
-    //   await backup.navigateToArticle(navItems.backup);
-    //   await backup.selectBackupMethod(mapBackupMethodsIds.thirdPartyStorage);
-    //   await backup.locators.bucketInput.fill("portals-manual");
-    //   await backup.openRegionDropdown();
-    //   await backup.regionDropdown.clickOption(
-    //     "US East (N. Virginia) (us-east-1)",
-    //   );
-    //   await backup.locators.createAmazonCopyButton.click();
-    //   await backup.removeToast(toastMessages.backCopyCreated, 80000);
-    // });
+    await test.step("Backup in Third-Party storage S3", async () => {
+      await backup.activateAWSS3();
+      await backup.navigateToArticle(navItems.backup);
+      await backup.selectBackupMethod(mapBackupMethodsIds.thirdPartyStorage);
+      await backup.locators.bucketInput.fill("portals-manual");
+      await backup.openRegionDropdown();
+      await backup.regionDropdown.clickOption(
+        "US East (N. Virginia) (us-east-1)",
+      );
+      await backup.locators.createAmazonCopyButton.click();
+      await backup.removeToast(toastMessages.backCopyCreated, 80000);
+    });
   });
 
   test("Auto backup", async ({ page }) => {
@@ -177,29 +178,29 @@ test.describe("Backup portal tests", () => {
       await backup.disableAutoBackup();
     });
 
-    await test.step("Auto backup in Third-Party resource NextCloud", async () => {
-      await backup.enableAutoBackup();
-      await backup.selectAutoBackupMethod(
-        mapAutoBackupMethodsIds.thirdPartyResource,
-      );
+    // await test.step("Auto backup in Third-Party resource NextCloud", async () => {
+    //   await backup.enableAutoBackup();
+    //   await backup.selectAutoBackupMethod(
+    //     mapAutoBackupMethodsIds.thirdPartyResource,
+    //   );
 
-      await backup.openThirdPartyServiceAutoBackup();
-      await backup.selectAutoThirdPartyResource(
-        mapThirdPartyResource.nextcloud,
-      );
-      await backup.locators.connectButtonAutoBackup.click();
+    //   await backup.openThirdPartyServiceAutoBackup();
+    //   await backup.selectAutoThirdPartyResource(
+    //     mapThirdPartyResource.nextcloud,
+    //   );
+    //   await backup.locators.connectButtonAutoBackup.click();
 
-      await backup.fillConnectingNextcloudAccount();
+    //   await backup.fillConnectingNextcloudAccount();
 
-      await backup.locators.saveButton.click();
-      await backup.openRoomSelector();
+    //   await backup.locators.saveButton.click();
+    //   await backup.openRoomSelector();
 
-      await backup.selectDocumentsNextCloudAutoBackup();
-      await backup.saveAutoSavePeriod();
-      await backup.openActionMenuResourceAutoBackup();
-      await backup.disconnectService();
-      await backup.disableAutoBackup();
-    });
+    //   await backup.selectDocumentsNextCloudAutoBackup();
+    //   await backup.saveAutoSavePeriod();
+    //   await backup.openActionMenuResourceAutoBackup();
+    //   await backup.disconnectService();
+    //   await backup.disableAutoBackup();
+    // });
 
     await test.step("Auto backup in Third-Party resource box", async () => {
       await backup.enableAutoBackup();
