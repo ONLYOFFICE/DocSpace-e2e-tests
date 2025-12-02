@@ -50,6 +50,16 @@ class MyDocuments extends BasePage {
     await this.removeToast("successfully moved to Trash");
     await this.filesEmptyView.checkNoDocsTextExist();
   }
+
+  async renameFile(oldName: string, newName: string) {
+    await this.filesTable.openContextMenuForItem(oldName);
+    await this.filesTable.contextMenu.clickOption("Rename");
+    await this.filesNavigation.modal.checkModalExist();
+    await this.filesNavigation.modal.fillCreateTextInput(newName);
+    await this.filesNavigation.modal.clickCreateButton();
+    await this.filesTable.checkRowExist(newName);
+    await this.filesTable.checkRowNotExist(oldName);
+  }
 }
 
 export default MyDocuments;

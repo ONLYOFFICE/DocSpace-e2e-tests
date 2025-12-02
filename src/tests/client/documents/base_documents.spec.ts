@@ -103,5 +103,14 @@ test.describe("My documents: Base", () => {
       );
       await myDocuments.filesFilter.checkFilesEmptyViewExist();
     });
+
+    await test.step("Rename Files", async () => {
+      await myDocuments.open();
+      await myDocuments.renameFile("Document", "Document (renamed)");
+      await myDocuments.renameFile("Spreadsheet", "Spreadsheet (renamed)");
+      await myDocuments.renameFile("Presentation", "Presentation (renamed)");
+      await myDocuments.renameFile("Folder", "Folder (renamed)");
+      await myDocuments.renameFile("Blank", "Blank (renamed)");
+    });
   });
 });
