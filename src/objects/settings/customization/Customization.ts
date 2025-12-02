@@ -1,6 +1,6 @@
 import BasePage from "@/src/objects/common/BasePage";
 import { navItems } from "@/src/utils/constants/settings";
-import { expect, Page } from "@playwright/test";
+import { expect, Page, Locator } from "@playwright/test";
 import { BaseDropdown } from "@/src/objects/common/BaseDropdown";
 
 class Customization extends BasePage {
@@ -207,13 +207,13 @@ class Customization extends BasePage {
   }
 
   async changeLanguage(language: string) {
-    await expect(this.languageSelector).toBeVisible();
+    await this.waitForComboButtonEnabled(this.languageSelector);
     await this.languageSelector.click();
     await this.dropdown.clickOption(language);
   }
 
   async changeTimezone(timezone: string) {
-    await expect(this.timezoneSelector).toBeVisible();
+    await this.waitForComboButtonEnabled(this.timezoneSelector);
     await this.timezoneSelector.click();
     await this.dropdown.clickOption(timezone);
   }
@@ -310,6 +310,11 @@ class Customization extends BasePage {
     await this.configureDeepLinkCancelButton.click();
     await this.appOnly.click();
     await this.configureDeepLinkSaveButton.click();
+  }
+
+  private async waitForComboButtonEnabled(comboButton: Locator) {
+    await expect(comboButton).toBeVisible();
+    await expect(comboButton).not.toHaveAttribute("aria-disabled", "true");
   }
 }
 

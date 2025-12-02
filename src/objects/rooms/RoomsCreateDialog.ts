@@ -6,7 +6,7 @@ import {
 import { expect, Page } from "@playwright/test";
 import Screenshot from "../common/Screenshot";
 import BaseDialog from "../common/BaseDialog";
-import { waitForGetRoomsResponse } from "./api";
+import { waitForGetRoomsResponse, waitForCreateRoomResponse } from "./api";
 
 const ROOM_SUBMIT_BUTTON = "#shared_create-room-modal_submit";
 const ROOM_TEMPLATE_SUBMIT_BUTTON = "#create-room-template-modal_submit";
@@ -154,7 +154,9 @@ class RoomsCreateDialog extends BaseDialog {
     await this.selectCoverIcon();
     await this.saveCover();
     await this.fillRoomName(roomName);
+    const createRoomPromise = waitForCreateRoomResponse(this.page);
     await this.clickRoomDialogSubmit();
+    await createRoomPromise;
   }
 
   async createPublicRoomTemplate() {
