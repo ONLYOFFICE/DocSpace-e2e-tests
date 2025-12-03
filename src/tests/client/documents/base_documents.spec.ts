@@ -79,9 +79,12 @@ test.describe("My documents: Base", () => {
     await test.step("Filter", async () => {
       await myDocuments.filesFilter.openFilterDialog();
 
+      // Quick tag filters should limit to folders first
       await myDocuments.filesFilter.selectFilterByFolders();
       await myDocuments.filesFilter.applyFilter();
+      await myDocuments.filesTable.checkRowExist("Folder");
 
+      // Media preset returns empty when no assets exist
       await myDocuments.filesFilter.openFilterDialog();
       await myDocuments.filesFilter.selectFilterByMedia();
       await myDocuments.filesFilter.applyFilter();
@@ -89,6 +92,73 @@ test.describe("My documents: Base", () => {
 
       await myDocuments.filesFilter.clearFilter();
       await myDocuments.filesTable.checkRowExist("Folder");
+
+      // All files view should list at least the generated document
+      await myDocuments.filesFilter.openFilterDialog();
+      await myDocuments.filesFilter.selectFilterByFiles();
+      await myDocuments.filesFilter.applyFilter();
+      await myDocuments.filesTable.checkRowExist("Document");
+
+      // Documents filter hides other file types
+      await myDocuments.filesFilter.openFilterDialog();
+      await myDocuments.filesFilter.selectFilterByDocuments();
+      await myDocuments.filesFilter.applyFilter();
+
+      await myDocuments.filesTable.checkRowExist("Document");
+      await myDocuments.filesTable.checkRowNotExist("Spreadsheet");
+
+      // Spreadsheet filter restores spreadsheet entries
+      await myDocuments.filesFilter.openFilterDialog();
+      await myDocuments.filesFilter.clearFilterDialog();
+      await myDocuments.filesFilter.selectFilterBySpreadsheets();
+      await myDocuments.filesFilter.applyFilter();
+      await myDocuments.filesTable.checkRowExist("Spreadsheet");
+      await myDocuments.filesTable.checkRowNotExist("Presentation");
+
+      // Presentation filter isolates presentation file
+      await myDocuments.filesFilter.openFilterDialog();
+      await myDocuments.filesFilter.clearFilterDialog();
+      await myDocuments.filesFilter.selectFilterByPresentations();
+      await myDocuments.filesFilter.applyFilter();
+      await myDocuments.filesTable.checkRowExist("Presentation");
+      await myDocuments.filesTable.checkRowNotExist("Document");
+
+      // PDF documents filter should surface Blank file
+      await myDocuments.filesFilter.openFilterDialog();
+      await myDocuments.filesFilter.clearFilterDialog();
+      await myDocuments.filesFilter.selectFilterByPdfForms();
+      await myDocuments.filesFilter.applyFilter();
+      await myDocuments.filesTable.checkRowExist("Blank");
+
+      // Remaining categories should show empty state if no assets
+      await myDocuments.filesFilter.openFilterDialog();
+      await myDocuments.filesFilter.clearFilterDialog();
+      await myDocuments.filesFilter.selectFilterByDiagrams();
+      await myDocuments.filesFilter.applyFilter();
+      await myDocuments.filesFilter.checkFilesEmptyViewExist();
+
+      await myDocuments.filesFilter.openFilterDialog();
+      await myDocuments.filesFilter.clearFilterDialog();
+      await myDocuments.filesFilter.selectFilterByPdfDocuments();
+      await myDocuments.filesFilter.applyFilter();
+      await myDocuments.filesFilter.checkFilesEmptyViewExist();
+
+      await myDocuments.filesFilter.openFilterDialog();
+      await myDocuments.filesFilter.clearFilterDialog();
+      await myDocuments.filesFilter.selectFilterByArchives();
+      await myDocuments.filesFilter.applyFilter();
+      await myDocuments.filesFilter.checkFilesEmptyViewExist();
+
+      await myDocuments.filesFilter.openFilterDialog();
+      await myDocuments.filesFilter.clearFilterDialog();
+      await myDocuments.filesFilter.selectFilterByImages();
+      await myDocuments.filesFilter.applyFilter();
+      await myDocuments.filesFilter.checkFilesEmptyViewExist();
+
+      await myDocuments.filesFilter.openFilterDialog();
+      await myDocuments.filesFilter.clearFilterDialog();
+      await myDocuments.filesFilter.applyFilter();
+      await myDocuments.filesTable.checkRowExist("Document");
     });
 
     await test.step("Search", async () => {
