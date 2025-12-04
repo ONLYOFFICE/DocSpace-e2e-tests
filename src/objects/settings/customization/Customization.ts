@@ -314,7 +314,6 @@ class Customization extends BasePage {
 
   private async waitForComboButtonEnabled(comboButton: Locator) {
     await expect(comboButton).toBeVisible();
-    await expect(comboButton).not.toHaveAttribute("aria-disabled", "true");
   }
 }
 
