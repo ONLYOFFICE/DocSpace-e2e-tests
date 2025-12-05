@@ -120,7 +120,7 @@ test.describe("Backup portal tests", () => {
         "US East (N. Virginia) (us-east-1)",
       );
       await backup.locators.createAmazonCopyButton.click();
-      await backup.removeToast(toastMessages.backCopyCreated, 80000);
+      await backup.dismissToastSafely(toastMessages.backCopyCreated, 80000);
     });
   });
 
