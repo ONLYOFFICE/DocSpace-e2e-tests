@@ -39,6 +39,8 @@ class Folder extends BasePage {
       waitUntil: "load",
     });
     await expect(this.page).toHaveURL(/.*rooms\/personal.*/);
+    const addButton = this.page.locator("#header_add-button");
+    await expect(addButton).toBeVisible();
   }
 
   async expectFolderVisible(name: string) {
