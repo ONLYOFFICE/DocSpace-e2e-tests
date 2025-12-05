@@ -38,6 +38,7 @@ test.describe("Trash", () => {
 
     await test.step("Filter", async () => {
       await trash.filter.filterButton.click();
+      await page.waitForTimeout(2000);
       await page.mouse.click(1, 1);
     });
 
