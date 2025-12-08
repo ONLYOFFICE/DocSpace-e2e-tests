@@ -157,7 +157,7 @@ test.describe("My documents: Base", () => {
 
       await myDocuments.filesFilter.openFilterDialog();
       await myDocuments.filesFilter.clearFilterDialog();
-      await myDocuments.filesFilter.applyFilter();
+      await myDocuments.filesFilter.cancelFilter();
       await myDocuments.filesTable.checkRowExist("Document");
     });
 
