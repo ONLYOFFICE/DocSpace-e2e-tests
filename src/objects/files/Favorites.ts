@@ -42,6 +42,15 @@ class Favorites extends BasePage {
   async clearSearch() {
     await this.filesFilter.clearSearchText();
   }
+
+  async removeFromFavorites(itemName: string) {
+    const row = await this.filesTable.getRowByTitle(itemName);
+    const favoriteButton = row.locator(
+      '[data-testid="icon-button"][data-iconname*="favorite"]',
+    );
+    await expect(favoriteButton).toBeVisible();
+    await favoriteButton.click();
+  }
 }
 
 export default Favorites;

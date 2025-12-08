@@ -64,7 +64,6 @@ class MyDocuments extends BasePage {
   async addToFavorites(itemName: string) {
     await this.filesTable.openContextMenuForItem(itemName);
     await this.filesTable.contextMenu.clickOption("Mark as favorite");
-    await this.removeToast();
   }
 }
 

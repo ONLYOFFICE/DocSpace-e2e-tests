@@ -22,7 +22,41 @@ test.describe("Favorites", () => {
     await myDocuments.filesArticle.createFiles();
   });
 
-  test("Mark all documents as favorites", async () => {
+  test("Add and remove favorites", async ({}) => {
+    await test.step("Mark all documents as favorites", async () => {
+      await myDocuments.addToFavorites(documentName);
+      await myDocuments.addToFavorites(spreadsheetName);
+      await myDocuments.addToFavorites(presentationName);
+      await myDocuments.addToFavorites(pdfFormName);
+      await myDocuments.addToFavorites(folderName);
+    });
+
+    await test.step("Open Favorites", async () => {
+      await favorites.openFromNavigation();
+    });
+
+    await test.step("Verify favorite documents exist", async () => {
+      await favorites.filesTable.checkRowExist(documentName);
+      await favorites.filesTable.checkRowExist(spreadsheetName);
+      await favorites.filesTable.checkRowExist(presentationName);
+      await favorites.filesTable.checkRowExist(pdfFormName);
+      await favorites.filesTable.checkRowExist(folderName);
+    });
+
+    await test.step("Remove single document from favorite", async () => {
+      await favorites.removeFromFavorites(documentName);
+      await favorites.filesTable.checkRowNotExist(documentName);
+    });
+
+    await test.step("Verify remaining favorites", async () => {
+      await favorites.filesTable.checkRowExist(spreadsheetName);
+      await favorites.filesTable.checkRowExist(presentationName);
+      await favorites.filesTable.checkRowExist(pdfFormName);
+      await favorites.filesTable.checkRowExist(folderName);
+    });
+  });
+
+  test("Search in favorites", async () => {
     await test.step("Mark all documents", async () => {
       await myDocuments.addToFavorites(documentName);
       await myDocuments.addToFavorites(spreadsheetName);
@@ -31,13 +65,18 @@ test.describe("Favorites", () => {
       await myDocuments.addToFavorites(folderName);
     });
 
-    await test.step("Open Favorites and verify", async () => {
+    await test.step("Open Favorites", async () => {
       await favorites.openFromNavigation();
-      await favorites.filesTable.checkRowExist(documentName);
+    });
+
+    await test.step("Search favorites by name", async () => {
+      await favorites.searchFavorites(spreadsheetName);
       await favorites.filesTable.checkRowExist(spreadsheetName);
-      await favorites.filesTable.checkRowExist(presentationName);
-      await favorites.filesTable.checkRowExist(pdfFormName);
-      await favorites.filesTable.checkRowExist(folderName);
+      await favorites.filesTable.checkRowNotExist(documentName);
+    });
+
+    await test.step("Clear favorite search", async () => {
+      await favorites.clearSearch();
     });
   });
 });
