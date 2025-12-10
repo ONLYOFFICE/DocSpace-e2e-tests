@@ -33,7 +33,9 @@ class ContactsInfoPanel extends InfoPanel {
   }
 
   async checkGroupMemberExist() {
-    const groupMember = this.infoPanel.locator(".group-member").first();
+    const groupMember = this.infoPanel
+      .locator('[data-testid^="selector-item-"]')
+      .first();
     await expect(groupMember).toBeVisible();
   }
 }

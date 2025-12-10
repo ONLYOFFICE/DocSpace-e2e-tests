@@ -28,6 +28,7 @@ export const EMPTY_VIEW = {
 
 class BaseFilter {
   page: Page;
+  private lastSelectedFilterTag?: string;
 
   constructor(page: Page) {
     this.page = page;
@@ -106,11 +107,21 @@ class BaseFilter {
   async selectFilterTag(tagSelector: string) {
     await this.page.locator(tagSelector).click();
     await expect(this.filterApplyButton).toBeEnabled();
+    this.lastSelectedFilterTag = tagSelector;
   }
 
   protected async applyFilter() {
     await this.filterApplyButton.click();
-    await expect(this.filterDialog).not.toBeVisible();
+    try {
+      await expect(this.filterDialog).not.toBeVisible();
+    } catch {
+      if (this.lastSelectedFilterTag) {
+        await this.page.locator(this.lastSelectedFilterTag).click();
+        await expect(this.filterApplyButton).toBeEnabled();
+      }
+      await this.filterApplyButton.click();
+      await expect(this.filterDialog).not.toBeVisible();
+    }
   }
 
   async cancelFilter() {

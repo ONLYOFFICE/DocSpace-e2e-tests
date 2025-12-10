@@ -14,7 +14,7 @@ const navActions = {
     submit: "#restore-all_submit",
   },
   delete: {
-    button: "#menu-delete-room",
+    button: '[data-testid="option_delete"]',
     submit: "#delete-file-modal_submit",
   },
 } as const;

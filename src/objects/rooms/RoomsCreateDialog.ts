@@ -6,7 +6,7 @@ import {
 import { expect, Page } from "@playwright/test";
 import Screenshot from "../common/Screenshot";
 import BaseDialog from "../common/BaseDialog";
-import { waitForGetRoomsResponse } from "./api";
+import { waitForGetRoomsResponse, waitForCreateRoomResponse } from "./api";
 
 const ROOM_SUBMIT_BUTTON = "create_room_dialog_save";
 const ROOM_TEMPLATE_SUBMIT_BUTTON = "#create-room-template-modal_submit";
@@ -165,7 +165,9 @@ class RoomsCreateDialog extends BaseDialog {
     await this.selectCoverIcon();
     await this.saveCover();
     await this.fillRoomName(roomName);
+    const createRoomPromise = waitForCreateRoomResponse(this.page);
     await this.clickRoomDialogSubmit();
+    await createRoomPromise;
   }
 
   async createPublicRoomTemplate() {
@@ -297,19 +299,24 @@ class RoomsCreateDialog extends BaseDialog {
     await expect(comboBox).toContainText(position);
   }
 
-  async setRoomCoverColor(colorIndex = ".sc-dwalKd.kOQVrm") {
-    await this.page
-      .getByTestId("modal")
-      .getByTestId("room-icon")
-      .getByTestId("icon-button-svg")
-      .getByRole("img")
-      .click();
-    await this.page.getByText("Customize cover").click();
-
-    //const colorButtons = this.page.locator('.colors-container > div .circle');
-    await this.page.locator(colorIndex).click();
-
-    await this.page.getByRole("button", { name: /apply/i }).click();
+  async setRoomCoverColor(colorTestId = "color_item_6") {
+    await this.page.getByTestId("create_edit_room_icon").click();
+    await this.page.getByTestId("create_edit_room_customize_cover").click();
+    const normalizedId = colorTestId.replace(
+      "color_item_selected_",
+      "color_item_",
+    );
+    const selectedId = normalizedId.replace(
+      "color_item_",
+      "color_item_selected_",
+    );
+    const colorOption = this.page.locator(
+      `[data-testid="${normalizedId}"], [data-testid="${selectedId}"]`,
+    );
+    await expect(colorOption.first()).toBeVisible();
+    await colorOption.first().click();
+    const applyButton = this.page.getByTestId("room_logo_cover_apply_button");
+    await applyButton.click();
   }
 }
 

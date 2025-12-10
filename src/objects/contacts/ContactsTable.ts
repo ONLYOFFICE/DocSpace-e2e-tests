@@ -57,6 +57,12 @@ class ContactsTable extends BaseTable {
     await avatar.click({ force: true });
   }
 
+  async selectGroupRow(title: string) {
+    const row = await this.getRowByTitle(title);
+    await expect(row).toBeVisible();
+    await row.locator(".table-container_cell").first().click({ force: true });
+  }
+
   async selectRowByIndex(index: number) {
     const row = this.tableRows.nth(index);
     await expect(row).toBeVisible();

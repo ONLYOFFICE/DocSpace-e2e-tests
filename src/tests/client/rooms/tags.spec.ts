@@ -1,7 +1,6 @@
 import { expect } from "@playwright/test";
 import { test } from "@/src/fixtures";
 import MyRooms from "@/src/objects/rooms/Rooms";
-import Screenshot from "@/src/objects/common/Screenshot";
 import {
   roomContextMenuOption,
   roomCreateTitles,
@@ -12,14 +11,9 @@ import {
  * Tests various aspects of tag management
  */
 test.describe("Tags", () => {
-  let screenshot: Screenshot;
   let myRooms: MyRooms;
 
   test.beforeEach(async ({ page, api, login }) => {
-    screenshot = new Screenshot(page, {
-      screenshotDir: "rooms",
-      suiteName: "tags",
-    });
     myRooms = new MyRooms(page, api.portalDomain);
 
     await login.loginToPortal();
@@ -39,26 +33,21 @@ test.describe("Tags", () => {
       await myRooms.roomsCreateDialog.fillRoomName("Tag Room");
       await myRooms.roomsCreateDialog.createTag("Tag1");
       await expect(page.getByText("Tag1")).toBeVisible();
-      await screenshot.expectHaveScreenshot("room_after_create_tag");
       await myRooms.roomsCreateDialog.clickRoomDialogSubmit();
       await myRooms.infoPanel.openTab("Details");
       await myRooms.infoPanel.hideDatePropertiesDetails();
-      await screenshot.expectHaveScreenshot("room_with_tag_details");
       await myRooms.backToRooms();
       await myRooms.infoPanel.close();
       await myRooms.roomsTable.hideLastActivityColumn();
       await myRooms.roomsTable.selectRow("Tag Room");
-      await screenshot.expectHaveScreenshot("tag_in_rooms_table");
     });
 
     await test.step("FilterByTag", async () => {
       await myRooms.roomsTable.clickTag("Tag1");
-      await screenshot.expectHaveScreenshot("filter_tag_in_rooms_table");
       await myRooms.roomsFilter.openFilterDialog();
       await expect(
         page.getByTestId("filter_block_item_content_filter-tags"),
       ).toBeVisible();
-      await screenshot.expectHaveScreenshot("tag_in_filter");
       await myRooms.roomsFilter.cancelFilter();
     });
 
@@ -66,16 +55,16 @@ test.describe("Tags", () => {
       await myRooms.roomsTable.selectRow("Tag Room");
       await myRooms.roomsTable.openContextMenu("Tag Room");
       await myRooms.roomsTable.clickContextMenuOption(
+        roomContextMenuOption.manage,
+      );
+      await myRooms.roomsTable.clickContextMenuOption(
         roomContextMenuOption.editRoom,
       );
       await myRooms.roomsCreateDialog.closeTag("Tag1");
-      await screenshot.expectHaveScreenshot("delete_tag_on_edit_room");
       await myRooms.roomsEditDialog.clickSaveButton();
-      await screenshot.expectHaveScreenshot("room_after_delete_tag");
       await myRooms.roomsFilter.openFilterDialog();
       await myRooms.roomsFilter.clearFilterDialog();
       await myRooms.roomsFilter.cancelFilter();
-      await screenshot.expectHaveScreenshot("room_list_after_delete_tag");
     });
 
     await test.step("CreateFiveTagsInRoom", async () => {
@@ -95,7 +84,6 @@ test.describe("Tags", () => {
       await myRooms.roomsCreateDialog.clickRoomDialogSubmit();
       await myRooms.infoPanel.openTab("Details");
       await myRooms.infoPanel.hideDatePropertiesDetails();
-      await screenshot.expectHaveScreenshot("room_with_many_tags");
       await myRooms.backToRooms();
     });
 
@@ -114,10 +102,7 @@ test.describe("Tags", () => {
         "0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789",
       );
       await myRooms.roomsCreateDialog.clickRoomDialogSubmit();
-      await myRooms.infoPanel.hideDatePropertiesDetails();
-      await screenshot.expectHaveScreenshot("long_name_tag_in_room");
       await myRooms.backToRooms();
-      await screenshot.expectHaveScreenshot("long_name_tag_in_rooms_table");
     });
   });
 });

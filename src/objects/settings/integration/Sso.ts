@@ -18,7 +18,10 @@ export class Sso extends BasePage {
   }
 
   get userTypeButton() {
-    return this.page.getByTestId("combobox").nth(4);
+    return this.page
+      .locator(".access-selector")
+      .locator("[data-test-id='combo-button']")
+      .first();
   }
 
   get ssoSwitch() {
@@ -91,15 +94,21 @@ export class Sso extends BasePage {
   }
 
   get idpSignVerifyAlgorithmButton() {
-    return this.page.getByTestId("combobox").nth(1);
+    return this.page
+      .getByTestId("idp_signing_combobox")
+      .locator("[data-test-id='combo-button']");
   }
 
   get spSignVerifyAlgorithmButton() {
-    return this.page.getByTestId("combobox").nth(2);
+    return this.page
+      .getByTestId("sp_signing_combobox")
+      .locator("[data-test-id='combo-button']");
   }
 
   get spDecryptAlgorithmButton() {
-    return this.page.getByTestId("combobox").nth(3);
+    return this.page
+      .getByTestId("sp_decryption_combobox")
+      .locator("[data-test-id='combo-button']");
   }
 
   get spAddCertificateButton() {
@@ -179,7 +188,7 @@ export class Sso extends BasePage {
   }
 
   get saveSpSettingsButton() {
-    return this.page.getByTestId("save-button");
+    return this.page.getByTestId("save_sso_settings_button");
   }
 
   get spMetaHideButton() {

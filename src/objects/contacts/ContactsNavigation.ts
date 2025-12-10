@@ -1,5 +1,6 @@
 import { Page } from "@playwright/test";
 import BaseNavigation from "../common/BaseNavigation";
+import { headerInviteIds } from "@/src/utils/constants/contacts";
 
 export const navActions = {
   invite: {
@@ -22,7 +23,7 @@ export const navActions = {
     button: "#menu-change-type",
   },
   createGroup: {
-    button: "#create_group",
+    button: "#create-group-option",
   },
   deleteGroup: {
     button: "#menu-delete",
@@ -36,9 +37,9 @@ class ContactsNavigation extends BaseNavigation {
   }
 
   private async ensureHeaderMenuOpen() {
-    const isVisible = await this.contextMenu.menu.isVisible();
-    if (!isVisible) {
+    if (!(await this.contextMenu.menu.isVisible())) {
       await this.openHeaderMenu();
+      await this.contextMenu.menu.waitFor({ state: "visible" });
     }
   }
 
@@ -51,25 +52,26 @@ class ContactsNavigation extends BaseNavigation {
   }
 
   async openCreateGroupDialog() {
-    await this.openCreateDropdown();
-    await this.contextMenu.clickOption({
-      type: "id",
-      value: "create_group",
-    });
+    await this.performAction({ button: navActions.createGroup.button });
   }
 
-  async clickHeaderSubmenuOption(parentText: string, childText: string) {
+  async clickHeaderSubmenuOption(_parentText: string, childText: string) {
     await this.ensureHeaderMenuOpen();
-    await this.contextMenu.clickSubmenuOption(parentText, childText);
+
+    const idByText: Record<string, string> = {
+      "DocSpace admin": headerInviteIds.docspaceAdmin,
+      "Room admin": headerInviteIds.roomAdmin,
+      User: headerInviteIds.user,
+    };
+
+    const id = idByText[childText];
+    if (!id) throw new Error(`Unknown header item: ${childText}`);
+
+    await this.contextMenu.clickOption({ type: "id", value: id });
   }
 
   async openHeaderMenu() {
     await this.clickAddButton();
-  }
-
-  async openHeaderSubmenu(parentText: string) {
-    await this.ensureHeaderMenuOpen();
-    await this.contextMenu.hoverOption(parentText);
   }
 }
 

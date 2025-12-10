@@ -5,6 +5,7 @@ import BaseNavigation from "../common/BaseNavigation";
 import InfoPanel from "../common/InfoPanel";
 import RoomsTable from "./RoomsTable";
 import RoomsTypesDropdown from "./RoomsTypeDropdown";
+import FilesNavigation from "../files/FilesNavigation";
 import {
   roomCreateTitles,
   roomDialogSource,
@@ -32,6 +33,7 @@ const navActions = {
   delete: {
     button: "#menu-delete",
     submit: "#delete-file-modal_submit",
+    confirmCheckboxSelector: "#modal-dialog label[data-testid='checkbox']",
   },
 } as const;
 
@@ -46,6 +48,7 @@ class MyRooms extends BasePage {
   infoPanel: InfoPanel;
   roomsTable: RoomsTable;
   roomsTypeDropdown: RoomsTypesDropdown;
+  filesNavigation: FilesNavigation;
   roomsArticle: RoomsArticle;
   roomsEditDialog: RoomsEditDialog;
   roomsAccessSettingsDialog: RoomsAccessSettingsDialog;
@@ -69,6 +72,7 @@ class MyRooms extends BasePage {
     this.roomsEmptyView = new RoomsEmptyView(page);
     this.roomsCreateDialog = new RoomsCreateDialog(page);
     this.roomsTypeDropdown = new RoomsTypesDropdown(page);
+    this.filesNavigation = new FilesNavigation(page);
     this.roomsArticle = new RoomsArticle(page);
     this.roomsEditDialog = new RoomsEditDialog(page);
     this.roomsChangeOwnerDialog = new RoomsChangeOwnerDialog(page);

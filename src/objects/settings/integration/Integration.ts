@@ -8,7 +8,6 @@ import {
   toastMessages,
 } from "@/src/utils/constants/settings";
 
-import Screenshot from "../../common/Screenshot";
 import BaseDialog from "../../common/BaseDialog";
 import {
   waitForGetAuthServiceResponse,
@@ -40,15 +39,15 @@ export class Integration extends BasePage {
   }
 
   get ldapNameServerInput() {
-    return this.page.locator('input[name="server"]');
+    return this.page.getByTestId("server_field_input");
   }
 
   get ldapUserDininput() {
-    return this.page.locator('input[name="userDN"][data-testid="text-input"]');
+    return this.page.getByTestId("user_dn_field_input");
   }
 
   get ldapUserFilterInput() {
-    return this.page.getByText("(uid=*)");
+    return this.page.getByTestId("user_filter_field_textarea");
   }
 
   get ldapLoginInput() {
@@ -56,11 +55,15 @@ export class Integration extends BasePage {
   }
 
   get ldapPasswordInput() {
-    return this.page.getByTestId("input-block").getByTestId("text-input");
+    return this.page.locator('input[name="password"]');
   }
 
-  get defaultButton() {
+  get ldapDefaultButton() {
     return this.page.getByRole("button", { name: "Default settings" });
+  }
+
+  get smtpDefaultButton() {
+    return this.page.getByTestId("smtp_default_settings_button");
   }
 
   get ldapOKButton() {
@@ -72,91 +75,80 @@ export class Integration extends BasePage {
   }
 
   get userType() {
-    return this.page.getByTestId("combobox").locator("path");
+    return this.page
+      .locator(".access-selector")
+      .locator("[data-test-id='combo-button']")
+      .first();
   }
 
   get userTypeDocSpaceadmin() {
-    return this.page.getByText("DocSpace adminPaid");
+    return this.page.getByTestId("access_right_option_3");
   }
 
   get userTypeRoomAdmin() {
-    return this.page.getByText("Room adminPaid");
+    return this.page.getByTestId("access_right_option_roomadmin");
   }
 
   get userTypeUser() {
-    return this.page.getByText("User", { exact: true });
+    return this.page.getByTestId("access_right_option_newuser");
   }
 
   get periodBox() {
-    return this.page.getByTestId("cron").locator("path").first();
+    return this.page
+      .getByTestId("ldap_cron_period")
+      .getByRole("button", { name: /Every/ });
   }
 
   get selectEveryDayPeriod() {
     return this.page
-      .getByTestId("drop-down-item")
+      .getByTestId(/^drop_down_item_/)
       .filter({ hasText: /^Every day$/ });
   }
 
   get hourCombobox() {
-    return this.page.getByTestId("cron").locator("path").nth(3);
-  }
-
-  get hourCombobox2() {
-    return this.page
-      .getByTestId("cron")
-      .locator("div")
-      .filter({ hasText: "Every hour" })
-      .nth(3);
+    return this.page.getByTestId("ldap_cron_hours").getByRole("button");
   }
 
   get selectEveryHour() {
     return this.page
-      .getByTestId("drop-down-item")
+      .getByTestId(/^drop_down_item_/)
       .filter({ hasText: /^06$/ })
       .nth(1);
   }
 
   get selectEveryHour2() {
     return this.page
-      .getByTestId("drop-down-item")
+      .getByTestId(/^drop_down_item_/)
       .filter({ hasText: /^06$/ })
       .nth(2);
   }
 
   get selectWeekPeriod() {
     return this.page
-      .getByTestId("drop-down-item")
+      .getByTestId(/^drop_down_item_/)
       .filter({ hasText: /^Every week$/ });
   }
 
   get selectMonthPeriod() {
     return this.page
-      .getByTestId("drop-down-item")
+      .getByTestId(/^drop_down_item_/)
       .filter({ hasText: /^Every month$/ });
   }
 
   get dayCombobox() {
-    return this.page
-      .getByTestId("cron")
-      .locator("div")
-      .filter({ hasText: "Every day of the week" })
-      .nth(2);
+    return this.page.getByTestId("ldap_cron_week_days").getByRole("button");
   }
 
   get dayOfWeekCombobox() {
-    return this.page
-      .getByTestId("cron")
-      .locator("div")
-      .filter({ hasText: "Day of the week" })
-      .nth(2);
+    return this.page.getByTestId("ldap_cron_week_days").getByRole("button");
   }
 
   get minuteCombobox() {
-    return this.page
-      .getByTestId("cron")
-      .locator("div")
-      .filter({ hasText: "Every minute" })
-      .nth(3);
+    return this.page.getByTestId("ldap_cron_minutes").getByRole("button");
+  }
+
+  get minuteDropdown() {
+    return this.page.getByTestId("ldap_cron_minutes_dropdown");
   }
 
   get selectDay() {
@@ -164,11 +156,7 @@ export class Integration extends BasePage {
   }
 
   get dayOfTheMounthCombobox() {
-    return this.page
-      .getByTestId("cron")
-      .locator("div")
-      .filter({ hasText: "Day of the month" })
-      .nth(2);
+    return this.page.getByTestId("ldap_cron_month_days").getByRole("button");
   }
 
   get selectDayOfTheMounth() {
@@ -176,15 +164,13 @@ export class Integration extends BasePage {
   }
 
   get selectEveryYear(): Locator {
-    return this.page.locator("div").filter({ hasText: /^Every year$/ });
+    return this.page
+      .getByTestId(/^drop_down_item_/)
+      .filter({ hasText: /^Every year$/ });
   }
 
   get monthBox(): Locator {
-    return this.page
-      .getByTestId("cron")
-      .locator("div")
-      .filter({ hasText: "Every month" })
-      .nth(2);
+    return this.page.getByTestId("ldap_cron_months").getByRole("button");
   }
 
   get selectMonth(): Locator {
@@ -193,7 +179,7 @@ export class Integration extends BasePage {
 
   get selectMinute() {
     return this.page
-      .getByTestId("drop-down-item")
+      .getByTestId(/^drop_down_item_/)
       .filter({ hasText: /^05$/ })
       .first();
   }
@@ -262,7 +248,7 @@ export class Integration extends BasePage {
   }
 
   get smtpSenderEmail() {
-    return this.page.getByTestId("email-input");
+    return this.page.getByTestId("smtp_sender_email_input");
   }
 
   get smtpSSLEnable() {
@@ -273,13 +259,13 @@ export class Integration extends BasePage {
   }
 
   get smtpSendTestMail() {
-    return this.page.getByRole("button", {
-      name: "Send Test Mail",
-    });
+    return this.page.getByTestId("send_test_mail_button");
   }
 
   get smtpLink() {
-    return this.page.getByTestId("link");
+    return this.page.locator(
+      '[data-testid="integration_settings_link"][href*="smtpsettings_block"]',
+    );
   }
 
   // third party locators
@@ -289,7 +275,9 @@ export class Integration extends BasePage {
   }
 
   get thirdPartyLink() {
-    return this.page.getByTestId("link");
+    return this.page.locator(
+      '[data-testid="integration_settings_link"][href*="thirdpartyserviceintegration_block"]',
+    );
   }
 
   get facebookSwitch() {
@@ -345,11 +333,11 @@ export class Integration extends BasePage {
   }
 
   get manualSyncLDAPButton() {
-    return this.page.getByTestId("button").filter({ hasText: "Sync users" });
+    return this.page.getByTestId("manual_sync_button");
   }
 
   get saveButton() {
-    return this.page.getByRole("button", { name: "Save" });
+    return this.page.getByTestId("smtp_settings_save_button");
   }
 
   // sso locators
@@ -440,7 +428,7 @@ export class Integration extends BasePage {
       }
 
       case integrationTabs.plugins: {
-        await this.page.getByTestId("scrollbar").getByText(tab).click();
+        await this.page.getByTestId(tab).click();
         await waitForSystemWebPluginsIconsResponse(this.page);
         break;
       }
@@ -465,7 +453,7 @@ export class Integration extends BasePage {
   }
 
   async disableLdap() {
-    await this.defaultButton.click();
+    await this.ldapDefaultButton.click();
     await this.ldapOKButton.click();
     await this.checkOperationCompleted();
   }
@@ -477,7 +465,8 @@ export class Integration extends BasePage {
     await expect(textLocator).toBeVisible();
     await expect(textLocator).toBeHidden();
   }
-  async activateLdap(screenshot?: Screenshot) {
+
+  async activateLdap() {
     if (
       !config.LDAP_SERVER ||
       !config.LDAP_USER_DN ||
@@ -488,18 +477,14 @@ export class Integration extends BasePage {
       throw new Error("LDAP configuration is not provided");
     }
 
-    await screenshot?.expectHaveScreenshot("ldap_settings_render");
     await this.ldapSettingsShow.click();
-    await screenshot?.expectHaveScreenshot("ldap_settings_show");
     await this.ldapSettingsHide.click();
     await this.enableLdap();
-    await screenshot?.expectHaveScreenshot("ldap_settings_enabled");
     await this.ldapNameServerInput.fill(config.LDAP_SERVER);
     await this.ldapUserDininput.fill(config.LDAP_USER_DN);
     await this.ldapUserFilterInput.fill(config.LDAP_USER_FILTER);
     await this.userType.click();
     await expect(this.page.locator('[data-key="roomAdmin"]')).toBeVisible();
-    await screenshot?.expectHaveScreenshot("ldap_settings_user_type_dropdown");
     await this.userTypeDocSpaceadmin.click();
     await this.userType.click();
     await this.userTypeRoomAdmin.click();
@@ -509,15 +494,13 @@ export class Integration extends BasePage {
     await this.ldapPasswordInput.fill(config.LDAP_PASSWORD);
     await this.ldapSaveButton.click();
     await this.checkOperationCompleted();
-    await screenshot?.expectHaveScreenshot("ldap_settings_saved");
   }
 
-  async activateSMTP(screenshot?: Screenshot) {
+  async activateSMTP() {
     if (!config.SMTP_HOST_LOGIN || !config.SMTP_HOST_PASSWORD) {
       throw new Error("SMTP configuration is not provided");
     }
 
-    await screenshot?.expectHaveScreenshot("smtp_render");
     await this.smtpHost.fill("smtp.yandex.com");
     await this.smtpPort.fill("587");
     await this.smtpAuthEnable.click();
@@ -530,17 +513,14 @@ export class Integration extends BasePage {
     await this.saveButton.click();
     await promise;
     await this.removeToast(toastMessages.settingsUpdated);
-    await screenshot?.expectHaveScreenshot("smtp_saved");
   }
-  async activateFacebook(screenshot?: Screenshot) {
+  async activateFacebook() {
     if (!config.FACEBOOK_ID || !config.FACEBOOK_KEY) {
       throw new Error("Facebook configuration is not provided");
     }
 
-    await screenshot?.expectHaveScreenshot("third_party_services_render");
     await this.facebookSwitch.click();
     await expect(this.facebookID).toBeVisible();
-    await screenshot?.expectHaveScreenshot("facebook_enable_dialog");
     await this.facebookID.fill(config.FACEBOOK_ID);
     await this.facebookKey.fill(config.FACEBOOK_KEY);
     await this.saveButtonServices.click();
@@ -554,18 +534,18 @@ export class Integration extends BasePage {
 
   async s3SwitchClick() {
     await expect(this.s3Switch).toBeVisible();
-    await expect(async () => {
+    if (!(await this.s3AccessKey.isVisible())) {
       await this.s3Switch.click();
-      await expect(this.s3AccessKey).toBeVisible();
-    }).toPass();
+    }
+    await expect(this.s3AccessKey).toBeVisible({ timeout: 30000 });
   }
 
-  async activateAWSS3(screenshot?: Screenshot) {
+  async activateAWSS3() {
     if (!config.S3_ACCESS_KEY || !config.S3_SECRET_KEY) {
       throw new Error("AWS S3 configuration is not provided");
     }
+    await this.s3SwitchClick();
     await expect(this.s3AccessKey).toBeVisible();
-    await screenshot?.expectHaveScreenshot("aws_s3_enable_dialog");
     await this.s3AccessKey.fill(config.S3_ACCESS_KEY);
     await this.s3SecretKey.fill(config.S3_SECRET_KEY);
     await this.saveButtonServices.click();
@@ -577,18 +557,16 @@ export class Integration extends BasePage {
     await this.removeToast(toastMessages.deactivatedSuccessfully);
   }
 
-  async activateGoogleCloud(screenshot?: Screenshot) {
+  async activateGoogleCloud() {
     await this.googleCloudSwitch.click();
     await expect(this.googleCloudJsonInput).toBeVisible();
-    await screenshot?.expectHaveScreenshot("google_cloud_enable_dialog");
     // TODO: ACTIVATION
     await this.page.mouse.click(1, 1);
   }
 
-  async activateRackspace(screenshot?: Screenshot) {
+  async activateRackspace() {
     await this.rackspaceSwitch.click();
     await expect(this.rackspaceKeyInput).toBeVisible();
-    await screenshot?.expectHaveScreenshot("rackspace_enable_dialog");
     // TODO: ACTIVATION
     await this.page.mouse.click(1, 1);
   }
@@ -598,111 +576,86 @@ export class Integration extends BasePage {
     await this.checkOperationCompleted();
   }
 
-  async everyHour(screenshot?: Screenshot) {
+  async everyHour() {
     await this.openTab(integrationTabs.ldap);
     await this.enableAutoSyncLDAP();
-    await screenshot?.expectHaveScreenshot("auto_sync_every_hour_enabled");
     await this.minuteCombobox.click();
-    await screenshot?.expectHaveScreenshot(
-      "auto_sync_every_hour_every_minute_dropdown",
-    );
+    await expect(this.minuteDropdown).toBeVisible();
     await this.selectMinute.click();
     await this.autoLdapSaveButton.click();
     await this.removeToast(toastMessages.settingsUpdated);
     await this.disableAutoSyncLDAP();
   }
 
-  async everyDay(screenshot?: Screenshot) {
+  async everyDay() {
     await this.openTab(integrationTabs.ldap);
     await this.enableAutoSyncLDAP();
     await this.periodBox.click();
-    await screenshot?.expectHaveScreenshot(
-      "auto_sync_every_day_period_dropdown",
-    );
     await this.selectEveryDayPeriod.click();
-    await this.hourCombobox2.click();
-    await screenshot?.expectHaveScreenshot("auto_sync_every_day_hour_dropdown");
+    await this.hourCombobox.click();
     await this.selectEveryHour.click();
     await this.minuteCombobox.click();
+    await expect(this.minuteDropdown).toBeVisible();
     await this.selectMinute.click();
     await this.autoLdapSaveButton.click();
     await this.removeToast(toastMessages.settingsUpdated);
-    await screenshot?.expectHaveScreenshot("auto_sync_every_day_saved");
     await this.disableAutoSyncLDAP();
   }
 
-  async everyWeek(screenshot?: Screenshot) {
+  async everyWeek() {
     await this.openTab(integrationTabs.ldap);
     await this.enableAutoSyncLDAP();
     await this.periodBox.click();
     await this.selectWeekPeriod.click();
     await this.dayCombobox.click();
-    await screenshot?.expectHaveScreenshot(
-      "auto_sync_every_week_every_day_dropdown",
-    );
     await this.selectDay.click();
-    await this.hourCombobox2.click();
+    await this.hourCombobox.click();
     await this.selectEveryHour.click();
     await this.minuteCombobox.click();
+    await expect(this.minuteDropdown).toBeVisible();
     await this.selectMinute.click();
     await this.autoLdapSaveButton.click();
     await this.removeToast(toastMessages.settingsUpdated);
-    await screenshot?.expectHaveScreenshot("auto_sync_every_week_saved");
     await this.disableAutoSyncLDAP();
   }
 
-  async everyMonth(screenshot?: Screenshot) {
+  async everyMonth() {
     await this.openTab(integrationTabs.ldap);
     await this.enableAutoSyncLDAP();
     await this.periodBox.click();
-    await screenshot?.expectHaveScreenshot(
-      "auto_sync_every_month_period_dropdown",
-    );
     await this.selectMonthPeriod.click();
     await this.dayOfTheMounthCombobox.click();
-    await screenshot?.expectHaveScreenshot(
-      "auto_sync_every_month_day_month_dropdown",
-    );
     await this.selectDayOfTheMounth.click();
     await this.dayOfWeekCombobox.click();
-    await screenshot?.expectHaveScreenshot(
-      "auto_sync_every_month_day_week_dropdown",
-    );
     await this.selectDay.click();
-    await this.hourCombobox2.click();
+    await this.hourCombobox.click();
     await this.selectEveryHour2.click();
     await this.minuteCombobox.click();
+    await expect(this.minuteDropdown).toBeVisible();
     await this.selectMinute.click();
     await this.autoLdapSaveButton.click();
     await this.removeToast(toastMessages.settingsUpdated);
-    await screenshot?.expectHaveScreenshot("auto_sync_every_month_saved");
     await this.disableAutoSyncLDAP();
   }
 
-  async everyYear(screenshot?: Screenshot) {
+  async everyYear() {
     await this.openTab(integrationTabs.ldap);
     await this.enableAutoSyncLDAP();
     await this.periodBox.click();
-    await screenshot?.expectHaveScreenshot(
-      "auto_sync_every_year_period_dropdown",
-    );
     await this.selectEveryYear.click();
     await this.monthBox.click();
-    await screenshot?.expectHaveScreenshot(
-      "auto_sync_every_year_month_dropdown",
-    );
     await this.selectMonth.click();
     await this.dayOfTheMounthCombobox.click();
     await this.selectDayOfTheMounth.click();
     await this.dayOfWeekCombobox.click();
     await this.selectDay.click();
-    await this.hourCombobox2.click();
+    await this.hourCombobox.click();
     await this.selectEveryHour2.click();
     await this.minuteCombobox.click();
+    await expect(this.minuteDropdown).toBeVisible();
     await this.selectMinute.click();
     await this.autoLdapSaveButton.click();
     await this.removeToast(toastMessages.settingsUpdated);
-    await screenshot?.expectHaveScreenshot("auto_sync_every_year_saved");
     await this.disableAutoSyncLDAP();
   }
 }

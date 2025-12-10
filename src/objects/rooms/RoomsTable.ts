@@ -42,7 +42,7 @@ class RoomsTable extends BaseTable {
 
   async openRoomByName(roomName: string) {
     await this.page.getByRole("link", { name: roomName }).click();
-    await this.page.waitForURL(/rooms\/shared\/filter\?folder=/);
+    await this.page.waitForURL(/rooms\/shared\/.*\/filter\?folder=/);
   }
 }
 

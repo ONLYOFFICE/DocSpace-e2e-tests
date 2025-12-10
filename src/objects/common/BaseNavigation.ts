@@ -10,6 +10,7 @@ const BACK_ARROW_ICON =
 type TAction = {
   button: string;
   submit?: string;
+  confirmCheckboxSelector?: string;
 };
 type TActions = Record<string, TAction>;
 
@@ -74,7 +75,9 @@ class BaseNavigation {
   }
 
   async openContextMenu() {
-    await this.page.locator("#header_optional-button").click();
+    const button = this.page.locator("#header_optional-button");
+    await expect(button).toBeVisible();
+    await button.click();
     await this.contextMenu.checkMenuExists();
   }
 
@@ -82,6 +85,12 @@ class BaseNavigation {
     const actionButton = this.page.locator(action.button);
     await expect(actionButton).toBeVisible();
     await actionButton.click();
+
+    if (action?.confirmCheckboxSelector) {
+      const checkboxLabel = this.page.locator(action.confirmCheckboxSelector);
+      await expect(checkboxLabel).toBeVisible();
+      await checkboxLabel.click();
+    }
 
     if (action?.submit) {
       const actionButtonSubmit = this.page.locator(action.submit);

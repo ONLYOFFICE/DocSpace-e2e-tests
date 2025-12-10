@@ -20,16 +20,17 @@ class ContactsGroupDialog extends BaseDialog {
 
   async openAddMembersSelector() {
     await this.dialog.getByText("Add members", { exact: true }).click();
-    await this.contactSelector.checkSelectorExist();
   }
 
   async openHeadOfGroupSelector() {
     await this.dialog.getByText("Select", { exact: true }).click();
-    await this.contactSelector.checkSelectorExist();
+    await expect(
+      this.page.locator('[data-testid^="selector-item-"]').first(),
+    ).toBeVisible();
   }
 
   async selectContact(contact: string, doubleClick = false) {
-    await this.contactSelector.selectItemByText(contact, doubleClick);
+    await this.contactSelector.selectItemByTextGlobal(contact, doubleClick);
   }
 
   async checkAddedContactExist(contact: string) {
@@ -62,9 +63,8 @@ class ContactsGroupDialog extends BaseDialog {
   // }
 
   async submitSelectContacts() {
-    const selectButton = this.contactSelector.selector.getByRole("button", {
-      name: /^Select/,
-    });
+    const selectButton = this.page.getByRole("button", { name: /^Select/ });
+
     await expect(selectButton).toBeVisible();
     await selectButton.click();
   }
