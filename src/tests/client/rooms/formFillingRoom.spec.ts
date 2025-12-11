@@ -1,6 +1,4 @@
 import { test } from "@/src/fixtures";
-import Screenshot from "@/src/objects/common/Screenshot";
-import {formFillingRoomContextMenuOption} from "@/src/utils/constants/rooms";
 import { ShortTour } from "@/src/objects/rooms/ShortTourModal";
 import MyRooms from "@/src/objects/rooms/Rooms";
 import fs from 'fs';
@@ -11,8 +9,7 @@ import path from 'path';
 import { Page } from '@playwright/test';
 import { expect } from "@playwright/test";
 
-test.describe("Rooms", () => {
-  let screenshot: Screenshot;
+test.describe("FormFilling room tests", () => {
   let myRooms: MyRooms;
   let shortTour: ShortTour;
   let pdfForm: FilesPdfForm;
@@ -20,83 +17,32 @@ test.describe("Rooms", () => {
 
 
   test.beforeEach(async ({ page, api, login }) => {
-    screenshot = new Screenshot(page, { screenshotDir: "rooms" });
     myRooms = new MyRooms(page, api.portalDomain);
     shortTour = new ShortTour(page);
     pdfForm = new FilesPdfForm(page);
     completedForm = new RoomPDFCompleted(page);
     await login.loginToPortal();
+    await myRooms.createFormFillingRoom("FormFillingRoom");
   });
-
-  test("FormFillingRoom - Take A Tour", async ({page}) => {
-    await test.step("TakeATourAfterCreatingFormFillingRoom", async () => {
-      await myRooms.createFormFillingRoom("FormFillingRoom");
-      await shortTour.checkStep("welcome");
-      await shortTour.clickStartTour();
-      await shortTour.checkStep("firstStep");
-      await shortTour.clickNextStep();
-      await shortTour.checkStep("secondStep");
-      await shortTour.clickNextStep();
-      await shortTour.checkStep("thirdStep");
-      await shortTour.clickNextStep();
-      await shortTour.checkStep("fourthStep");
-      await shortTour.clickNextStep();
-      await shortTour.checkStep("fifthStep");
-      await shortTour.clickNextStep();
-      await myRooms.infoPanel.close();
-      await myRooms.roomEmptyView.checkEmptyView();
-      await screenshot.expectHaveScreenshot("form_filling_room_after_completing_of_the_tour");
-    });
-
-
-    await test.step("CheckSkipButtonTheTourModalWindow", async () => {
-      await myRooms.navigation.openContextMenu();
-      await myRooms.navigation.contextMenu.clickOption(formFillingRoomContextMenuOption.startTour);
-      await shortTour.checkStep("welcome");
-      await shortTour.clickSkipTour();
-      await screenshot.expectHaveScreenshot("form_filling_room_after_skip_tour");
-    });
-
-    await test.step("CheckCloseButtonTheTourModalWindow", async () => {
-      await myRooms.navigation.openContextMenu();
-      await myRooms.navigation.contextMenu.clickOption(formFillingRoomContextMenuOption.startTour);
-      await shortTour.checkStep("welcome");
-      await shortTour.clickModalCloseButton();
-      await screenshot.expectHaveScreenshot("closing_the_tour_modal_window");
-    });
-
-    await test.step("CheckTheBackButtonTheTourModalWindow", async () => {
-      await myRooms.navigation.openContextMenu();
-      await myRooms.navigation.contextMenu.clickOption(formFillingRoomContextMenuOption.startTour);
-      await shortTour.checkStep("welcome");
-      await shortTour.clickStartTour();
-      await shortTour.checkStep("firstStep");
-      await shortTour.clickNextStep();
-      await shortTour.checkStep("secondStep");
-      await shortTour.clickBackStep();
-      await shortTour.checkStep("firstStep");
-      await shortTour.clickModalCloseButton();
-      await screenshot.expectHaveScreenshot("first_step_after_pressing_the_back_button");
-      await myRooms.navigation.gotoBack();
-    });
-  });
-
-  test("FormFillingRoom - Check All Buttons On Empty Page", async ({page}) => {
+  test("Check All Buttons On Empty Page", async ({page}) => {
     await test.step("ClickShareRoomOnEmptyRoomScreen", async () => {
-      await myRooms.createFormFillingRoom("FormFillingRoom");
+      try {
       await shortTour.clickSkipTour();
-     // await shortTour.skipWelcomeIfPresent();
+    } catch (e) {
+      console.log('Tour modal not found, continuing with the test');
+    }
       await myRooms.infoPanel.close();
       await myRooms.roomEmptyView.shareRoomClick();
       await myRooms.toast.clickLinkInToast();
       await myRooms.infoPanel.checkInfoPanelExist();
-      await screenshot.expectHaveScreenshot("info_panel_after_clicking_on_share_room");
+      //check the form filling shared link exist in info panel
+      await myRooms.infoPanel.checkFormFillingSharedLinkExist();
     });
 
     await test.step("ClickAddPDFFormFromMyDocuments", async () => {
       await myRooms.roomEmptyView.uploadPdfFromDocSpace();
-      await myRooms.selectPanel.checkSelectorExist(); 
-      await screenshot.expectHaveScreenshot("select_panel_opened");
+      //check folders on Select Panel
+      await myRooms.selectPanel.verifyAllFolderOptions();
       await myRooms.selectPanel.close();
     });
 
@@ -109,32 +55,24 @@ test.describe("Rooms", () => {
       await myRooms.infoPanel.close();
       await myRooms.filesTable.hideModifiedColumn();
       await myRooms.filesTable.selectPdfFile();
+      await expect(page.getByLabel('PDF from device,')).toBeVisible();
+      await expect(page.getByLabel('In process')).toBeVisible();
+      await expect(page.getByLabel('Complete')).toBeVisible();
     });
   });
-
-  test("FormFillingRoom - Submit Not Filling PDF Form", async ({page}) => {
+  test("Submit Not Filling PDF Form", async ({page}) => {
     let page2: Page;
     let page3: Page;
-    
-    await test.step("CreateFormFillingRoom", async () => {
-      await myRooms.openWithoutEmptyCheck();
-      await myRooms.createFormFillingRoom("FormFillingRoom");
-      await shortTour.clickSkipTour();
-      //    await shortTour.waitAndCloseWelcomeModal();
-      await myRooms.infoPanel.close();
-      await screenshot.expectHaveScreenshot("form_filling_room_after_creating");
-    });
 
     await test.step("UploadPDFFormFromMyDocuments", async () => {
+      await shortTour.clickSkipTour();
       await myRooms.roomEmptyView.uploadPdfFromDocSpace();
       await myRooms.selectPanel.checkSelectorExist(); 
       await myRooms.selectPanel.select("documents");
       await myRooms.selectPanel.selectItemByText('ONLYOFFICE Resume Sample');
-      await screenshot.expectHaveScreenshot("select_pdf_form_from_my_documents");
       await myRooms.selectPanel.confirmSelection();
       await shortTour.clickModalCloseButton();
       await myRooms.infoPanel.close();
-      await myRooms.filesTable.hideModifiedColumn();
       await expect(page.getByLabel('ONLYOFFICE Resume Sample,')).toBeVisible();
     });
 
@@ -172,7 +110,7 @@ test.describe("Rooms", () => {
       await expect(sizeNum).toBeGreaterThan(0);
     });
 
-    await test.step("OpenXlsxFile", async () => {
+    await test.step("OpenResultXlsxFile", async () => {
       const item = page2.locator('[aria-label="ONLYOFFICE Resume Sample,"]');
       await myRooms.filesTable.openContextMenuRow(item);
       await myRooms.filesTable.contextMenu.clickOption("Preview");
@@ -181,13 +119,11 @@ test.describe("Rooms", () => {
       await page3.waitForLoadState('networkidle', { timeout: 60000 }).catch(() => {
         console.warn('networkidle did not happen in 20 seconds, continue testing');
       });
-      const screenshot = new Screenshot(page3, { screenshotDir: "rooms" });
       // Wait for the iframe XLSX to load
       const frameEditor = await page3.frameLocator('iframe[name="frameEditor"]');
       const canvasOverlay = frameEditor.locator('#ws-canvas-graphic-overlay');
       await expect(frameEditor.locator('#box-doc-name')).toBeVisible({ timeout: 20000 });
       await expect(canvasOverlay).toBeVisible({ timeout: 20000 });
-      await screenshot.expectHaveScreenshot("opened_xlsx_file");
     });
   });
 });

@@ -34,24 +34,30 @@ export class ShortTour {
   }
     
   async clickStartTour() {
-    await this.page.waitForSelector(TAKE_A_TOUR_BUTTON);
+    const button = this.page.locator(TAKE_A_TOUR_BUTTON);
+    await expect(button).toBeVisible();
+    await expect(button).toBeEnabled();
     await this.startTourButton.click();
   }
 
   async clickNextStep() {
-    await this.page.waitForSelector(NEXT_BUTTON);
+    const button = this.page.locator(NEXT_BUTTON);
+    await expect(button).toBeVisible();
+    await expect(button).toBeEnabled();
     await this.nextStepButton.click();
   }
 
   async clickSkipTour() {
-    await this.page.waitForSelector(SKIP_BUTTON);
+    const button = this.page.locator(SKIP_BUTTON);
+    await expect(button).toBeVisible();
+    await expect(button).toBeEnabled();
     await this.skipButton.click();
-    // Wait for the animation to complete 
-    await this.page.waitForTimeout(4000);
   }
 
   async clickBackStep() {
-    await this.page.waitForSelector(BACK_BUTTON);
+    const button = this.page.locator(BACK_BUTTON);
+    await expect(button).toBeVisible();
+    await expect(button).toBeEnabled();
     await this.backButton.click();
   }
 
@@ -62,7 +68,19 @@ export class ShortTour {
   }
 
   async clickModalCloseButton() {
-    await this.page.waitForSelector(MODAL_CLOSE_BUTTON);
+    const button = this.page.locator(MODAL_CLOSE_BUTTON);
+    await expect(button).toBeVisible();
+    await expect(button).toBeEnabled();
     await this.modalCloseButton.click();
   }
+ async isTourVisible(timeout = 3000): Promise<boolean> {
+  try {
+    const button = this.page.locator(TAKE_A_TOUR_BUTTON);
+    await button.waitFor({ state: 'visible', timeout });
+    await expect(button).toBeVisible({ timeout });
+    return true;
+  } catch {
+    return false;
+  }
+}
 }

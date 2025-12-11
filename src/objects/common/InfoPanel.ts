@@ -22,10 +22,10 @@ const HISTORY_LIST = "#history-list-info-panel";
 const CREATION_TIME_HISTORY = "p.date";
 
 const SHARED_LINKS_WRAPPER = "[data-testid='shared-links']";
-const SHARED_LINKS_AVATAR =
-  "[data-testid='avatar'] [data-has-username='false']";
+const SHARED_LINKS_AVATAR = "[data-testid='avatar'] [data-has-username='false']";
 const CREATE_SHARED_LINKS_ICON = "[data-tooltip-id='file-links-tooltip']";
 const ROOM_ICON = ".item-icon [data-testid='room-icon']";
+const FORMFILLING_SHARED_LINK = "Link to fill out";
 
 class InfoPanel {
   protected page: Page;
@@ -74,6 +74,10 @@ class InfoPanel {
 
   private get sharedLinksAvatar() {
     return this.sharedLinksWrapper.locator(SHARED_LINKS_AVATAR);
+  }
+
+  private get formFillingSharedLink() {
+    return this.page.getByText(FORMFILLING_SHARED_LINK);
   }
 
   async hideDatePropertiesDetails() {
@@ -206,6 +210,9 @@ class InfoPanel {
     await expect(this.sharedLinksWrapper).toBeVisible();
   }
 
+  async checkFormFillingSharedLinkExist() {
+    await expect(this.formFillingSharedLink).toBeVisible();
+  }
   async checkAccessesExist() {
     const membersTitle = this.infoPanel.getByText("Administration");
     await expect(membersTitle).toBeVisible();

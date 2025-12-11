@@ -1,6 +1,15 @@
 import { expect, Page } from "@playwright/test";
 import BaseSelector from "../common/BaseSelector";
 
+type FolderType = 'ai' | 'documents' | 'rooms' | 'favorite' | 'recent';
+const FOLDER_SELECTORS: Record<FolderType, string> = {
+  "ai": '[data-testid="selector-item-0"]',
+  "documents": '[data-testid="selector-item-1"]',
+  "rooms": '[data-testid="selector-item-2"]',
+  "favorite": '[data-testid="selector-item-3"]',
+  "recent": '[data-testid="selector-item-4"]'
+} as const;
+
 class RoomsSelectPanel extends BaseSelector {
   constructor(page: Page) {
     super(page);
@@ -16,20 +25,30 @@ class RoomsSelectPanel extends BaseSelector {
     await this.page.getByLabel('Select').click();
   }
   
-  async select(type: "resent" | "documents" | "rooms") {
-    const selectors = {
-        "documents": 'selector-item-0',
-        "favorite": 'selector-item-1',
-        "resent": 'selector-item-2',
-        "rooms": 'selector-item-3'
-    };
-
-    const selector = selectors[type];
-    if (!selector) {
-        throw new Error(`Unknown selector type: ${type}`);
-    }
-
-    await this.selector.getByTestId(selector).click();
+  async select(type: FolderType) {
+    const selector = FOLDER_SELECTORS[type];
+    const element = this.selector.locator(selector);
+    await expect(element).toBeVisible();
+    await element.click();
+  }
+  
+  async verifyAllFolderOptions() {
+    await this.selector.waitFor({ state: 'visible' });
+  
+    const expectedOptions: Array<{ type: FolderType; text: string }> = [
+      { type: 'ai', text: 'AI' },
+      { type: 'documents', text: 'My documents' },
+      { type: 'rooms', text: 'Rooms' },
+      { type: 'recent', text: 'Recent' },
+      { type: 'favorite', text: 'Favorite' }
+    ];
+    for (const option of expectedOptions) {
+      const selector = FOLDER_SELECTORS[option.type];
+      const optionElement = this.selector.locator(selector);
+      await expect(optionElement).toBeVisible();
+      await expect(optionElement).toContainText(option.text);
+  }
 }
+
 }
 export default RoomsSelectPanel;

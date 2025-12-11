@@ -24,6 +24,7 @@ import BaseSelector from "../common/BaseSelector";
 import RoomsSelectPanel from "./RoomsSelectPanel";
 import BaseToast from "../common/BaseToast";
 import FilesTable from "../files/FilesTable";
+import { ShortTour } from "./ShortTourModal";
 
 const navActions = {
   moveToArchive: {
@@ -173,7 +174,8 @@ class MyRooms extends BasePage {
     await this.navigation.performAction(navActions.delete);
     await this.removeToast(roomToastMessages.selectedTemplatesDeleted);
   }
-  async createFormFillingRoom(roomName: string) {
+
+  async createFormFillingRoom(roomName: string, tags?: string[]) {
     await this.roomsArticle.openCreateDialog();
     await this.roomsCreateDialog.openRoomType(roomCreateTitles.formFilling);
     await this.roomsCreateDialog.openRoomCover();
@@ -181,10 +183,43 @@ class MyRooms extends BasePage {
     await this.roomsCreateDialog.selectCoverIcon();
     await this.roomsCreateDialog.saveCover();
     await this.roomsCreateDialog.fillRoomName(roomName);
+  
+    // Add tags if they are provided
+    if (tags?.length) {
+      for (const tag of tags) {
+        await this.roomsCreateDialog.createTag(tag);
+      }
+    }
+  
     await this.roomsCreateDialog.clickRoomDialogSubmit();
-
-  }
-
+    // Wait for either the tour or the empty page to appear. 
+    await Promise.race([
+      // Check for tour modal
+      (async () => {
+        try {
+          const shortTour = new ShortTour(this.page);
+          await shortTour.isTourVisible();
+          return 'tour';
+        } catch {
+       return null;
+      }
+    })(),
+    // Check for empty page
+    (async () => {
+      try {
+        await this.roomEmptyView.checkEmptyView();
+        return 'empty';
+      } catch {
+        return null;
+      }
+    })()
+  ]).then(result => {
+    if (!result) {
+      throw new Error('Neither tour modal nor empty page appeared after room creation');
+    }
+  });
+ }
+  
   async openRoom(roomName: string) {
     await this.roomsTable.openContextMenu(roomName);
     await this.roomsTable.contextMenu.clickOption("Open");
