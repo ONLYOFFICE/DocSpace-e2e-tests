@@ -34,14 +34,19 @@ class People {
       },
     );
 
-    const body = await response.json();
+    const body = await response.json().catch(() => null);
+
     if (!response.ok()) {
-      throw new Error(
-        `Failed to activate admin user: ${response.status()} - ${body.error || body.message}`,
+      console.warn(
+        "Admin activation failed",
+        this.portalDomain,
+        response.status(),
+        body?.error || body?.message || "",
       );
+      return { status: response.status(), body };
     }
 
-    return body;
+    return { status: response.status(), body };
   }
 }
 
