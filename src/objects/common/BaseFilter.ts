@@ -105,7 +105,14 @@ class BaseFilter {
   }
 
   async selectFilterTag(tagSelector: string) {
-    await this.page.locator(tagSelector).click();
+    const tag = this.page.locator(tagSelector);
+    await tag.click();
+
+    if (!(await this.filterApplyButton.isEnabled())) {
+      await this.clearFilterDialog();
+      await tag.click();
+    }
+
     await expect(this.filterApplyButton).toBeEnabled();
     this.lastSelectedFilterTag = tagSelector;
   }
