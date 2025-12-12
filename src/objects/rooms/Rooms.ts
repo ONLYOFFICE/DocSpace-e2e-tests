@@ -58,7 +58,6 @@ class MyRooms extends BasePage {
   constructor(page: Page, portalDomain: string) {
     super(page);
     this.portalDomain = portalDomain;
-    this.page = page;
 
     this.navigation = new BaseNavigation(page, navActions);
     this.infoPanel = new InfoPanel(page);
