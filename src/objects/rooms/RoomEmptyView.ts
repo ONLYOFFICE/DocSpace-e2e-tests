@@ -5,6 +5,7 @@ const UPLOAD_FORM_DOCSPACE = "#upload-pdf-form";
 const UPLOAD_FORM_DEVICE = "#create-form";
 const SHARE_ROOM = "#share-room";
 const EMPTY_VIEW = "empty-view"; 
+const FILE_INPUT = '#customFileInput';
 
 class RoomEmptyView {
   page: Page;
@@ -26,6 +27,9 @@ class RoomEmptyView {
   private get emptyView() {
     return this.page.getByTestId(EMPTY_VIEW);
   }
+   private get fileInput() {
+    return this.page.locator(FILE_INPUT);
+  }
 
   async checkEmptyView() {
     await expect(this.emptyView).toBeVisible();
@@ -40,18 +44,14 @@ class RoomEmptyView {
     await this.uploadFormButton.click();
   }
 
-  async uploadPdfForm(filePath: string) {
-    const upload = async (selector: string, filePath: string) => {
-    await Promise.all([
-      this.page.waitForResponse(
-        (res) =>
-          res.url().includes("/upload/check") && res.status() === 200,
-      ),
-      await this.page.locator('#customFileInput').first().setInputFiles(filePath),
-    ]);
-    };
-    await upload("#customFileInput", filePath);
-  }
+async uploadPdfForm(filePath: string) {
+  await Promise.all([
+    this.page.waitForResponse(
+      (res) => res.url().includes("/upload/check") && res.status() === 200,
+    ),
+    this.fileInput.first().setInputFiles(filePath)
+  ]);
+}
   async shareRoomClick() {
     await expect(this.shareRoomButton).toBeVisible();
     await this.shareRoomButton.click();
