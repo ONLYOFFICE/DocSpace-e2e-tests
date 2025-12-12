@@ -48,9 +48,6 @@ class FilesTable extends BaseTable {
   async openContextMenu() {
     await this.openContextMenuRow(this.docxFile);
   }
-  async openPdfContextMenu() {
-    await this.openContextMenuRow(this.pdfFile);
-  }
 
   async openContextMenuForItem(name: string) {
     const item = this.page.locator(TABLE_LIST_ITEM, { hasText: name });

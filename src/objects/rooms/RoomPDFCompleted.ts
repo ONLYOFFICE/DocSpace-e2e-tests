@@ -1,5 +1,4 @@
-import {Page} from "@playwright/test";
-
+import { Page } from "@playwright/test";
 const CHECK_READY_FORM = "goto_complete_folder_button";
 const BACK_TO_ROOM = "back_to_room_button";
 const FILL_IT_OUT_AGAIN = "fill_again_link";
@@ -10,11 +9,6 @@ class RoomPDFCompleted {
   constructor(page: Page) {
     this.page = page;
   }
-
-  setPdfPage(page: Page) {
-    this.page = page;
-  }
-
   private get backToRoomButton() {
     return this.page.getByTestId(BACK_TO_ROOM);
   }
@@ -34,6 +28,7 @@ class RoomPDFCompleted {
   public async isReadyFormButtonVisible() {
     return this.checkReadyFormButton.isVisible();
   }
+  
   private get checkReadyFormButton() {
     return this.page.getByTestId(CHECK_READY_FORM);
   }

@@ -10,7 +10,7 @@ const FOLDER_SELECTORS: Record<FolderType, string> = {
   "recent": '[data-testid="selector-item-4"]'
 } as const;
 
-class RoomsSelectPanel extends BaseSelector {
+class RoomSelectPanel extends BaseSelector {
   constructor(page: Page) {
     super(page);
   }
@@ -51,4 +51,4 @@ class RoomsSelectPanel extends BaseSelector {
 }
 
 }
-export default RoomsSelectPanel;
+export default RoomSelectPanel;

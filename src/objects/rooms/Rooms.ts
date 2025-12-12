@@ -19,12 +19,9 @@ import RoomsAccessSettingsDialog from "./RoomsAccessSettingsDialog";
 import RoomsFilter from "./RoomsFilter";
 import BaseInviteDialog from "../common/BaseInviteDialog";
 import BasePage from "../common/BasePage";
-import RoomEmptyView from "./RoomEmptyView";
 import BaseSelector from "../common/BaseSelector";
-import RoomsSelectPanel from "./RoomsSelectPanel";
 import BaseToast from "../common/BaseToast";
 import FilesTable from "../files/FilesTable";
-import { ShortTour } from "./ShortTourModal";
 
 const navActions = {
   moveToArchive: {
@@ -40,7 +37,6 @@ const navActions = {
 
 class MyRooms extends BasePage {
   private portalDomain: string;
-  private page: Page;
 
   roomsEmptyView: RoomsEmptyView;
   roomsCreateDialog: RoomsCreateDialog;
@@ -55,9 +51,7 @@ class MyRooms extends BasePage {
   roomsAccessSettingsDialog: RoomsAccessSettingsDialog;
   roomsFilter: RoomsFilter;
   inviteDialog: BaseInviteDialog;
-  roomEmptyView: RoomEmptyView;
   selector: BaseSelector;
-  selectPanel: RoomsSelectPanel;
   filesTable: FilesTable;
   toast: BaseToast;
 
@@ -68,7 +62,6 @@ class MyRooms extends BasePage {
 
     this.navigation = new BaseNavigation(page, navActions);
     this.infoPanel = new InfoPanel(page);
-    this.roomEmptyView = new RoomEmptyView(page);
     this.roomsTable = new RoomsTable(page);
     this.roomsEmptyView = new RoomsEmptyView(page);
     this.roomsCreateDialog = new RoomsCreateDialog(page);
@@ -81,7 +74,6 @@ class MyRooms extends BasePage {
     this.roomsFilter = new RoomsFilter(page);
     this.inviteDialog = new BaseInviteDialog(page);
     this.selector = new BaseSelector(page);
-    this.selectPanel = new RoomsSelectPanel(page);
     this.filesTable = new FilesTable(page);
     this.toast = new BaseToast(page);
   }
@@ -157,7 +149,27 @@ class MyRooms extends BasePage {
       await this.backToRooms();
     }
   }
-
+async createFormFillingRoom(roomName: string, tags?: string[]) {
+    await this.roomsArticle.openCreateDialog();
+    await this.roomsCreateDialog.openRoomType(roomCreateTitles.formFilling);
+    await this.roomsCreateDialog.openRoomCover();
+    await this.roomsCreateDialog.selectCoverColor();
+    await this.roomsCreateDialog.selectCoverIcon();
+    await this.roomsCreateDialog.saveCover();
+    await this.roomsCreateDialog.fillRoomName(roomName);
+  
+    // Add tags if they are provided
+    if (tags?.length) {
+      for (const tag of tags) {
+        await this.roomsCreateDialog.createTag(tag);
+      }
+    }
+    await this.roomsCreateDialog.clickRoomDialogSubmit();
+    const tipsModal = this.page.getByText(
+          "Welcome to the Form Filling Room!",
+        );
+    await expect(tipsModal).toBeVisible({ timeout: 10000 });
+ }
   async moveAllRoomsToArchive() {
     await this.roomsTable.selectAllRows();
     await this.navigation.performAction(navActions.moveToArchive);
@@ -175,99 +187,10 @@ class MyRooms extends BasePage {
     await this.removeToast(roomToastMessages.selectedTemplatesDeleted);
   }
 
-  async createFormFillingRoom(roomName: string, tags?: string[]) {
-    await this.roomsArticle.openCreateDialog();
-    await this.roomsCreateDialog.openRoomType(roomCreateTitles.formFilling);
-    await this.roomsCreateDialog.openRoomCover();
-    await this.roomsCreateDialog.selectCoverColor();
-    await this.roomsCreateDialog.selectCoverIcon();
-    await this.roomsCreateDialog.saveCover();
-    await this.roomsCreateDialog.fillRoomName(roomName);
-  
-    // Add tags if they are provided
-    if (tags?.length) {
-      for (const tag of tags) {
-        await this.roomsCreateDialog.createTag(tag);
-      }
-    }
-  
-    await this.roomsCreateDialog.clickRoomDialogSubmit();
-    // Wait for either the tour or the empty page to appear. 
-    await Promise.race([
-      // Check for tour modal
-      (async () => {
-        try {
-          const shortTour = new ShortTour(this.page);
-          await shortTour.isTourVisible();
-          return 'tour';
-        } catch {
-       return null;
-      }
-    })(),
-    // Check for empty page
-    (async () => {
-      try {
-        await this.roomEmptyView.checkEmptyView();
-        return 'empty';
-      } catch {
-        return null;
-      }
-    })()
-  ]).then(result => {
-    if (!result) {
-      throw new Error('Neither tour modal nor empty page appeared after room creation');
-    }
-  });
- }
-  
   async openRoom(roomName: string) {
     await this.roomsTable.openContextMenu(roomName);
     await this.roomsTable.contextMenu.clickOption("Open");
   }
-
-  async openAndClosePdfForm(fileName: string) {
-    await this.filesTable.openContextMenuForItem(fileName);    
-    await this.filesTable.contextMenu.clickOption("Fill");
-    
-    const [filledPage] = await Promise.all([
-      this.page.context().waitForEvent("page", { timeout: 5000 }),
-    ]).catch(() => [null]);
-        
-    if (filledPage) {
-      await filledPage.waitForLoadState("networkidle");
-      await filledPage?.close();
-    }
-  }
-
-  setPage(page: Page) {
-    this.page = page;
-    this.navigation = new BaseNavigation(page, navActions);
-    this.infoPanel = new InfoPanel(page);
-    this.roomEmptyView = new RoomEmptyView(page);
-    this.roomsTable = new RoomsTable(page);
-    this.roomsEmptyView = new RoomsEmptyView(page);
-    this.roomsCreateDialog = new RoomsCreateDialog(page);
-    this.roomsTypeDropdown = new RoomsTypesDropdown(page);
-    this.roomsArticle = new RoomsArticle(page);
-    this.roomsEditDialog = new RoomsEditDialog(page);
-    this.roomsChangeOwnerDialog = new RoomsChangeOwnerDialog(page);
-    this.roomsAccessSettingsDialog = new RoomsAccessSettingsDialog(page);
-    this.roomsFilter = new RoomsFilter(page);
-    this.inviteDialog = new BaseInviteDialog(page);
-    this.selector = new BaseSelector(page);
-    this.selectPanel = new RoomsSelectPanel(page);
-    this.filesTable = new FilesTable(page);
-    this.toast = new BaseToast(page);
-  }
-
-  async gotoFolder(folderName: string) {
-    await this.page.waitForSelector(".title-block", { 
-      state: 'visible', 
-      timeout: 10000 
-    });
-    await this.filesTable.openContextMenuForItem(folderName);    
-    await this.filesTable.contextMenu.clickOption("Open");
-    }
 }
 
 export default MyRooms;
