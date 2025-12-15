@@ -1,7 +1,7 @@
 import { expect, Page } from "@playwright/test";
 import BaseArticle from "../common/BaseArticle";
 import FilesCreateContextMenu from "./FilesCreateContextMenu";
-import { listArticleDocActions } from "@/src/utils/constants/files";
+import { listArticleDocActions, DOC_ACTIONS } from "@/src/utils/constants/files";
 import FilesCreateModal from "./FilesCreateModal";
 
 class FilesArticle extends BaseArticle {
@@ -48,6 +48,19 @@ class FilesArticle extends BaseArticle {
 
       await this.checkCreatedFileByActionExist(actionText);
     }
+  }
+  async createPDFBlank(fileName: string) {
+    await this.openMainDropdown();
+    await this.contextMenu.selectCreateAction(DOC_ACTIONS.CREATE_PDF_BLANK);
+    await this.modal.fillCreateTextInput(fileName);
+
+    const [newPage] = await Promise.all([
+      this.page.context().waitForEvent("page", { timeout: 5000 }),
+      this.modal.clickCreateButton(),
+    ]).catch(() => [null]);
+
+    await newPage?.close();
+    await this.checkCreatedFileByActionExist(fileName);
   }
 }
 

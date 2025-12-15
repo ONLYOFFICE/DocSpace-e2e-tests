@@ -16,15 +16,16 @@ const PROPERTY_FILE_EXTENSION = "#File\\ extension";
 const PROPERTY_TYPE = "#Type";
 const PROPERTY_DATE_MODIFIED = "#Date\\ modified";
 const PROPERTY_CREATION_DATE = "#Creation\\ date";
+const PROPERTY_SIZE = "#Size";
 
 const HISTORY_LIST = "#history-list-info-panel";
 const CREATION_TIME_HISTORY = "p.date";
 
 const SHARED_LINKS_WRAPPER = "[data-testid='shared-links']";
-const SHARED_LINKS_AVATAR =
-  "[data-testid='avatar'] [data-has-username='false']";
+const SHARED_LINKS_AVATAR = "[data-testid='avatar'] [data-has-username='false']";
 const CREATE_SHARED_LINKS_ICON = "[data-tooltip-id='file-links-tooltip']";
 const ROOM_ICON = ".item-icon [data-testid='room-icon']";
+const FORMFILLING_SHARED_LINK = "Link to fill out";
 
 class InfoPanel {
   protected page: Page;
@@ -73,6 +74,10 @@ class InfoPanel {
 
   private get sharedLinksAvatar() {
     return this.sharedLinksWrapper.locator(SHARED_LINKS_AVATAR);
+  }
+
+  private get formFillingSharedLink() {
+    return this.page.getByText(FORMFILLING_SHARED_LINK);
   }
 
   async hideDatePropertiesDetails() {
@@ -162,6 +167,24 @@ class InfoPanel {
     await expect(fileType).toContainText("Document");
   }
 
+  async getSizeProperty() {
+    const size = this.infoPanel.locator(PROPERTY_SIZE);
+    return await size.textContent();
+  }
+  async getSizeInBytes(): Promise<number> {
+    const size = await this.getSizeProperty();
+    if (!size) {
+      throw new Error('Size not found');
+    }
+    const sizeStr = size.replace(/^Size\s*/i, '').trim();
+    const match = sizeStr.match(/([\d.]+)\s*(KB|MB|B)/i);
+    if (!match) return 0;
+    let [_, num, unit] = match;
+    let sizeNum = parseFloat(num);
+    if (/MB/i.test(unit)) sizeNum *= 1024 * 1024;
+    else if (/KB/i.test(unit)) sizeNum *= 1024;
+    return sizeNum;
+  }
   async checkFolderProperties() {
     const folderType = this.infoPanel.locator(PROPERTY_TYPE);
     await expect(folderType).toContainText("Folder");
@@ -187,6 +210,9 @@ class InfoPanel {
     await expect(this.sharedLinksWrapper).toBeVisible();
   }
 
+  async checkFormFillingSharedLinkExist() {
+    await expect(this.formFillingSharedLink).toBeVisible();
+  }
   async checkAccessesExist() {
     const membersTitle = this.infoPanel.getByText("Administration");
     await expect(membersTitle).toBeVisible();

@@ -19,6 +19,9 @@ import RoomsAccessSettingsDialog from "./RoomsAccessSettingsDialog";
 import RoomsFilter from "./RoomsFilter";
 import BaseInviteDialog from "../common/BaseInviteDialog";
 import BasePage from "../common/BasePage";
+import BaseSelector from "../common/BaseSelector";
+import BaseToast from "../common/BaseToast";
+import FilesTable from "../files/FilesTable";
 
 const navActions = {
   moveToArchive: {
@@ -39,7 +42,6 @@ class MyRooms extends BasePage {
   roomsCreateDialog: RoomsCreateDialog;
   roomsChangeOwnerDialog: RoomsChangeOwnerDialog;
   navigation: BaseNavigation;
-
   infoPanel: InfoPanel;
   roomsTable: RoomsTable;
   roomsTypeDropdown: RoomsTypesDropdown;
@@ -49,15 +51,16 @@ class MyRooms extends BasePage {
   roomsAccessSettingsDialog: RoomsAccessSettingsDialog;
   roomsFilter: RoomsFilter;
   inviteDialog: BaseInviteDialog;
+  selector: BaseSelector;
+  filesTable: FilesTable;
+  toast: BaseToast;
 
   constructor(page: Page, portalDomain: string) {
     super(page);
     this.portalDomain = portalDomain;
 
     this.navigation = new BaseNavigation(page, navActions);
-
     this.infoPanel = new InfoPanel(page);
-
     this.roomsTable = new RoomsTable(page);
     this.roomsEmptyView = new RoomsEmptyView(page);
     this.roomsCreateDialog = new RoomsCreateDialog(page);
@@ -69,6 +72,9 @@ class MyRooms extends BasePage {
     this.roomsAccessSettingsDialog = new RoomsAccessSettingsDialog(page);
     this.roomsFilter = new RoomsFilter(page);
     this.inviteDialog = new BaseInviteDialog(page);
+    this.selector = new BaseSelector(page);
+    this.filesTable = new FilesTable(page);
+    this.toast = new BaseToast(page);
   }
 
   async open() {
@@ -142,7 +148,27 @@ class MyRooms extends BasePage {
       await this.backToRooms();
     }
   }
-
+async createFormFillingRoom(roomName: string, tags?: string[]) {
+    await this.roomsArticle.openCreateDialog();
+    await this.roomsCreateDialog.openRoomType(roomCreateTitles.formFilling);
+    await this.roomsCreateDialog.openRoomCover();
+    await this.roomsCreateDialog.selectCoverColor();
+    await this.roomsCreateDialog.selectCoverIcon();
+    await this.roomsCreateDialog.saveCover();
+    await this.roomsCreateDialog.fillRoomName(roomName);
+  
+    // Add tags if they are provided
+    if (tags?.length) {
+      for (const tag of tags) {
+        await this.roomsCreateDialog.createTag(tag);
+      }
+    }
+    await this.roomsCreateDialog.clickRoomDialogSubmit();
+    const tipsModal = this.page.getByText(
+          "Welcome to the Form Filling Room!",
+        );
+    await expect(tipsModal).toBeVisible({ timeout: 10000 });
+ }
   async moveAllRoomsToArchive() {
     await this.roomsTable.selectAllRows();
     await this.navigation.performAction(navActions.moveToArchive);
@@ -158,6 +184,11 @@ class MyRooms extends BasePage {
     await this.roomsTable.selectAllRows();
     await this.navigation.performAction(navActions.delete);
     await this.removeToast(roomToastMessages.selectedTemplatesDeleted);
+  }
+
+  async openRoom(roomName: string) {
+    await this.roomsTable.openContextMenu(roomName);
+    await this.roomsTable.contextMenu.clickOption("Open");
   }
 }
 

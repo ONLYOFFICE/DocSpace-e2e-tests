@@ -8,11 +8,13 @@ import Screenshot from "../common/Screenshot";
 import BaseDialog from "../common/BaseDialog";
 import { waitForGetRoomsResponse, waitForCreateRoomResponse } from "./api";
 
-const ROOM_SUBMIT_BUTTON = "#shared_create-room-modal_submit";
+const ROOM_SUBMIT_BUTTON = "create_room_dialog_save";
 const ROOM_TEMPLATE_SUBMIT_BUTTON = "#create-room-template-modal_submit";
 const LOGO_NAME_CONTAINER = "create_edit_room_icon";
 const TAG_NAME_INPUT = "create_edit_room_tags_input";
 const ROOM_NAME_INPUT = "create_edit_room_input";
+const ROOM_TYPE_DROPDOWN_BUTTON = "room-type-dropdown-button";
+const CUSTOMIZE_COVER_BUTTON = "create_edit_room_customize_cover";
 
 class RoomsCreateDialog extends BaseDialog {
   constructor(page: Page) {
@@ -20,7 +22,7 @@ class RoomsCreateDialog extends BaseDialog {
   }
 
   private get roomDialogSubmitButton() {
-    return this.page.locator(ROOM_SUBMIT_BUTTON);
+    return this.page.getByTestId(ROOM_SUBMIT_BUTTON);
   }
 
   private get roomTemplateSubmitButton() {
@@ -28,7 +30,7 @@ class RoomsCreateDialog extends BaseDialog {
   }
 
   private get roomTypeDropdownButton() {
-    return this.page.getByTestId("room-type-dropdown-button");
+    return this.page.getByTestId(ROOM_TYPE_DROPDOWN_BUTTON);
   }
 
   private get roomIcon() {
@@ -37,6 +39,10 @@ class RoomsCreateDialog extends BaseDialog {
 
   private get roomIconDropdown() {
     return this.page.getByTestId(LOGO_NAME_CONTAINER).getByTestId("dropdown");
+  }
+
+  private get customizeCoverButton() {
+    return this.page.getByTestId(CUSTOMIZE_COVER_BUTTON);
   }
 
   async checkRoomTypeExist(roomType: TRoomCreateTitles) {
@@ -61,7 +67,7 @@ class RoomsCreateDialog extends BaseDialog {
   }
 
   async clickCustomizeCover() {
-    await this.roomIconDropdown.getByText("Customize cover").click();
+    await this.customizeCoverButton.click();
   }
 
   async openRoomCover() {
@@ -72,7 +78,7 @@ class RoomsCreateDialog extends BaseDialog {
     }
     await this.clickCustomizeCover();
     await expect(this.page.getByText("Room cover")).toBeVisible();
-    await expect(this.page.getByTestId("color_item_selected_0")).toBeVisible();
+    await expect(this.page.getByTestId('color_item_selected_0')).toBeVisible();
   }
 
   async selectCoverColor() {
@@ -109,7 +115,10 @@ class RoomsCreateDialog extends BaseDialog {
   }
 
   async fillRoomName(name: string) {
-    await this.fillInput(this.page.getByTestId(ROOM_NAME_INPUT), name);
+    await this.fillInput(
+      this.page.getByTestId(ROOM_NAME_INPUT),
+      name,
+    );
   }
 
   async fillTemplateName(name: string) {
@@ -127,7 +136,9 @@ class RoomsCreateDialog extends BaseDialog {
 
   async createTag(tagName: string) {
     await this.fillTag(tagName);
-    await this.page.getByTestId("drop-down-item").click();
+    await this.page
+      .getByTestId('drop-down-item')
+      .click();
   }
 
   async createTags(count: number) {

@@ -6,6 +6,7 @@ import { initialDocNames } from "@/src/utils/constants/files";
 const TABLE_LIST_ITEM = ".table-list-item.window-item";
 
 const DOCX_FILE_LINK = ".files-item a[title$='.docx']";
+const PDF_FILE_LINK = ".files-item a[title$='.pdf']";
 const MODIFIED_CHECKBOX =
   ".table-container_settings-checkbox:has(span:text-is('Modified'))";
 
@@ -26,6 +27,16 @@ class FilesTable extends BaseTable {
   async selectDocxFile() {
     await expect(this.docxFile).toBeVisible();
     await this.docxFile.click();
+  }
+  private get pdfFile() {
+    return this.page.locator(TABLE_LIST_ITEM, {
+      has: this.page.locator(PDF_FILE_LINK),
+    });
+  }
+
+  async selectPdfFile() {
+    await expect(this.pdfFile).toBeVisible();
+    await this.pdfFile.click();
   }
 
   async selectFolderByName(name: string) {
