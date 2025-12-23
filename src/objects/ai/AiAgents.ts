@@ -17,16 +17,30 @@ export class AiAgents extends BasePage {
     return this.page.locator("#go-to-ai-provider-settings");
   }
 
-  private get addProviderButton() {
-    return this.page.locator('[aria-label="Add AI provider"]');
+  private get aiAgentsNavigationItem() {
+    return this.page.locator(
+      'a[href*="/ai-agents"] #document_catalog-undefined',
+    );
+  }
+
+  private get noProvidersNavigationLink() {
+    return this.page.getByText(/no providers/i);
   }
 
   get learnMoreLink() {
     return this.page.getByRole("link", { name: "Learn more" });
   }
 
-  async open() {
+  async openDirectly() {
     await this.page.goto(`https://${this.portalDomain}/ai-agents/filter`);
+    await this.waitForAiAgentsPage();
+  }
+
+  async open() {
+    const navItem = this.aiAgentsNavigationItem;
+    await expect(navItem).toBeVisible();
+    await navItem.click();
+    await this.waitForAiAgentsPage();
   }
 
   async expectNoProvidersMessage() {
@@ -35,7 +49,10 @@ export class AiAgents extends BasePage {
 
   async goToSettings() {
     await this.goToSettingsButton.click();
-    await expect(this.addProviderButton).toBeVisible();
+  }
+
+  private async waitForAiAgentsPage() {
+    await expect(this.page).toHaveURL(/\/ai-agents/);
   }
 }
 
