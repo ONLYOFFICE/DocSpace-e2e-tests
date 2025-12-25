@@ -47,4 +47,13 @@ export default class BasePage {
   async navigateToArticle(title: string) {
     await this.article.navigate(title);
   }
+
+  async waitForDownload(action: () => Promise<void>) {
+    const [download] = await Promise.all([
+      this.page.waitForEvent("download"),
+      action(),
+    ]);
+
+    return download;
+  }
 }
