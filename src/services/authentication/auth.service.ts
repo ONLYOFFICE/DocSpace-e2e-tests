@@ -12,8 +12,8 @@ export class AUTH {
     return test.step('Owner Auth', async () => {
      const response = await this.request.post('/api/2.0/authentication', {
         data: {
-        userName: 'desptest90@gmail.com',
-        password: '12345678',
+        userName: process.env.OWNER_USER_NAME,
+        password: process.env.OWNER_PASSWORD,
         }
     });
     const headers = response.headers();
@@ -26,10 +26,13 @@ export class AUTH {
 
   async userAuth() {
     return test.step('User Auth', async () => {
+    const usersData = JSON.parse(fs.readFileSync('users.json', 'utf8'));
+    const userData = usersData.user;
+    
      const response = await this.request.post('/api/2.0/authentication', {
         data: {
-        userName: 'Sydney_Roberts41@hotmail.com',
-        password: 'vfmf2vO1Kp1',
+        userName: userData.email,
+        password: userData.password,
         }
     });
     const headers = response.headers();
@@ -40,7 +43,43 @@ export class AUTH {
     });
   }
 
-  //toDo add other auth user type
+  async roomAdminAuth() {
+    return test.step('Room admin auth', async () => {
+    const usersData = JSON.parse(fs.readFileSync('users.json', 'utf8'));
+    const userData = usersData.roomAdmin;
+    
+     const response = await this.request.post('/api/2.0/authentication', {
+        data: {
+        userName: userData.email,
+        password: userData.password,
+        }
+    });
+    const headers = response.headers();
+    const cookie = headers['set-cookie'];
+    const cookieValue = cookie.split(';')[0];
+    this.saveToken('roomAdmin', cookieValue);
+    return response;
+    });
+  }
+
+  async docSpaceAdminAuth() {
+    return test.step('DocSpace admin auth', async () => {
+    const usersData = JSON.parse(fs.readFileSync('users.json', 'utf8'));
+    const userData = usersData.docspaceAdmin;
+    
+     const response = await this.request.post('/api/2.0/authentication', {
+        data: {
+        userName: userData.email,
+        password: userData.password,
+        }
+    });
+    const headers = response.headers();
+    const cookie = headers['set-cookie'];
+    const cookieValue = cookie.split(';')[0];
+    this.saveToken('docspaceAdmin', cookieValue);
+    return response;
+    });
+  }
 
   private saveToken(role: string, token: string) {
     const tokensPath = path.resolve('tokens.json');
@@ -58,6 +97,4 @@ export class AUTH {
     fs.writeFileSync(tokensPath, JSON.stringify(tokenData, null, 2));
     console.log(`${role} token saved to tokens.json`);
   }
-
- 
 }

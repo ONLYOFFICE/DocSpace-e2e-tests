@@ -7,27 +7,26 @@ test.describe('API testing', () => {
    await apiSdk.auth.ownerAuth();
    await apiSdk.profiles.addMemberUser();
    await apiSdk.auth.userAuth();
-    
+   await apiSdk.profiles.addMemberRoomAdmin();
+   await apiSdk.auth.roomAdminAuth();
+   await apiSdk.profiles.addMemberDocSpaceAdmin();
+   await apiSdk.auth.docSpaceAdminAuth();
   });
 
-  /*toDo - дополнить создание пользователей и их авторизацию в beforeAll
-            и уже писать тесты из под разных типов пользователей.
+  /*toDo - Прикрутить теперь SDK и написать тесты из под разных типов пользователей.
 
-            + прикрутить фэйкер, для автогенерации имен и email и паролей
-             и реализовать их запись тоже в файл для авторизации.
   */
 
   test('Create User', async ({ apiSdk }) => {
     const response = await apiSdk.profiles.addMemberUser();
     const body = await response.json();
-    console.log(body);
     expect(response.status()).toBe(200);
-    expect(body.isCollaborator).toBe(true);
-    expect(body.isOwner).toBe(false);
-    expect(body.isVisitor).toBe(false);
-    expect(body.isAdmin).toBe(false);
-    expect(body.isRoomAdmin).toBe(false);
-    expect(body.isLDAP).toBe(false);
+    expect(body.response.isCollaborator).toBe(true);
+    expect(body.response.isOwner).toBe(false);
+    expect(body.response.isVisitor).toBe(false);
+    expect(body.response.isAdmin).toBe(false);
+    expect(body.response.isRoomAdmin).toBe(false);
+    expect(body.response.isLDAP).toBe(false);
   });
  
   

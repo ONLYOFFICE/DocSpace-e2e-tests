@@ -1,0 +1,30 @@
+{
+  "user": {
+    "password": "1tUsNCqnJlhN",
+    "email": "Luis55@hotmail.com",
+    "firstName": "Ethelyn",
+    "lastName": "Kemmer",
+    "type": "User"
+  },
+  "roomAdmin": {
+    "password": "YyXHoGOXSR9k",
+    "email": "Kelley.Hirthe@hotmail.com",
+    "firstName": "Pearl",
+    "lastName": "Renner-Kovacek",
+    "type": "RoomAdmin"
+  },
+  "docspaceAdmin": {
+    "password": "9f33Sf7ytOnX",
+    "email": "Brennan.Balistreri@gmail.com",
+    "firstName": "Juana",
+    "lastName": "Metz",
+    "type": "DocSpaceAdmin"
+  },
+  "docSpaceAdmin": {
+    "password": "PoQIxB7_iHUT",
+    "email": "Orville_Little58@gmail.com",
+    "firstName": "Angelina",
+    "lastName": "Rempel",
+    "type": "DocSpaceAdmin"
+  }
+}

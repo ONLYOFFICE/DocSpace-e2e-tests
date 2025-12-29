@@ -21,6 +21,7 @@
   "description": "",
   "devDependencies": {
     "@eslint/js": "^9.18.0",
+    "@faker-js/faker": "^9.9.0",
     "@playwright/test": "^1.49.1",
     "@reportportal/agent-js-playwright": "^5.1.11",
     "@types/imapflow": "^1.0.22",

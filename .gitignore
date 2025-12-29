@@ -19,4 +19,5 @@ scripts/last-run.json
 .vscode
 
 .tokens.json
+.users.json
 
