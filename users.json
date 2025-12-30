@@ -1,30 +1,23 @@
 {
   "user": {
-    "password": "1tUsNCqnJlhN",
-    "email": "Luis55@hotmail.com",
-    "firstName": "Ethelyn",
-    "lastName": "Kemmer",
+    "password": "JzKhRQS_pYzG",
+    "email": "Shayne59@yahoo.com",
+    "firstName": "Pattie",
+    "lastName": "Rutherford",
     "type": "User"
   },
   "roomAdmin": {
-    "password": "YyXHoGOXSR9k",
-    "email": "Kelley.Hirthe@hotmail.com",
-    "firstName": "Pearl",
-    "lastName": "Renner-Kovacek",
+    "password": "cULUqcfVXWx8",
+    "email": "Bud.Walker67@gmail.com",
+    "firstName": "Baby",
+    "lastName": "Turcotte",
     "type": "RoomAdmin"
   },
-  "docspaceAdmin": {
-    "password": "9f33Sf7ytOnX",
-    "email": "Brennan.Balistreri@gmail.com",
-    "firstName": "Juana",
-    "lastName": "Metz",
-    "type": "DocSpaceAdmin"
-  },
   "docSpaceAdmin": {
-    "password": "PoQIxB7_iHUT",
-    "email": "Orville_Little58@gmail.com",
-    "firstName": "Angelina",
-    "lastName": "Rempel",
+    "password": "ITYh2IPbvR0j",
+    "email": "Trudie.Rolfson66@gmail.com",
+    "firstName": "Ken",
+    "lastName": "Rowe",
     "type": "DocSpaceAdmin"
   }
 }

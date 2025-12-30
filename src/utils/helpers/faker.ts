@@ -33,5 +33,6 @@ export class FAKER {
        firstName: faker.person.firstName(),
        lastName: faker.person.lastName(),
     }
-  }
+
+   }
 }

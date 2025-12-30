@@ -12,6 +12,11 @@ type TestFixtures = {
   login: Login;
   payments: Payments;
   services: Services;
+  ownerAuth: void;
+  createDocSpaceAdmin: void;
+  docSpaceAdminAuth: void;
+  
+  
 };
 
 // Extend the base Playwright test with our fixtures
@@ -84,6 +89,21 @@ export const test = base.extend<TestFixtures>({
     const api = new ApiSDK(request);
     await use(api);
   },
+
+  ownerAuth: async ({ apiSdk }, use) => {
+    await apiSdk.auth.ownerAuth();
+    await use();
+  },
+
+  createDocSpaceAdmin: async ({ apiSdk, ownerAuth }, use) => {
+    await apiSdk.profiles.addMemberDocSpaceAdmin();
+    await use();
+  },
+
+  docSpaceAdminAuth: async ({ apiSdk, createDocSpaceAdmin }, use) => {
+    await apiSdk.auth.docSpaceAdminAuth();
+    await use();
+  }
 
 
 });

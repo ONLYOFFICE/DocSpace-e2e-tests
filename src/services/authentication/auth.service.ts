@@ -65,7 +65,7 @@ export class AUTH {
   async docSpaceAdminAuth() {
     return test.step('DocSpace admin auth', async () => {
     const usersData = JSON.parse(fs.readFileSync('users.json', 'utf8'));
-    const userData = usersData.docspaceAdmin;
+    const userData = usersData.docSpaceAdmin;
     
      const response = await this.request.post('/api/2.0/authentication', {
         data: {

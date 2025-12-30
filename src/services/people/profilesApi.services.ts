@@ -104,4 +104,81 @@ export class ProfilesApi {
     fs.writeFileSync(usersPath, JSON.stringify(usersData, null, 2));
     console.log(`${userType} data saved to users.json`);
   }
+
+  async addUserForLongFirstAndLastName(data: { password: string; email: string; firstName: string; lastName: string; type: string }) {
+    return test.step('Create User for long first and last name', async () => {
+    const tokenData = JSON.parse(fs.readFileSync('tokens.json', 'utf8'));
+    const ownerToken = tokenData.owner;
+    let cookieValue = ownerToken;
+    if (typeof ownerToken === 'string' && ownerToken.includes(';')) {
+            cookieValue = ownerToken.split(';')[0];
+        }
+
+    const userData = {
+        password: data.password,
+        email: data.email,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        type: data.type
+      };
+
+    const response = await this.request.post('/api/2.0/people', {
+        headers: { 'Cookie': ownerToken },
+        data: userData
+    });
+    return response;
+    });
+  }
+
+  async addUserForLongEmail(data: { password: string; email: string; firstName: string; lastName: string; type: string }) {
+    return test.step('Create User for long email', async () => {
+    const tokenData = JSON.parse(fs.readFileSync('tokens.json', 'utf8'));
+    const ownerToken = tokenData.owner;
+    let cookieValue = ownerToken;
+    if (typeof ownerToken === 'string' && ownerToken.includes(';')) {
+            cookieValue = ownerToken.split(';')[0];
+        }
+
+    const userData = {
+        password: data.password,
+        email: data.email,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        type: data.type
+      };
+
+    const response = await this.request.post('/api/2.0/people', {
+        headers: { 'Cookie': ownerToken },
+        data: userData
+    });
+    return response;
+    });
+  }
+
+  async docSpaceAdminAddsDocSpaceAdmin(data: { password: string; email: string; firstName: string; lastName: string; type: string }) {
+    return test.step('DocSpace admin adds DocSpace admin', async () => {
+    const tokenData = JSON.parse(fs.readFileSync('tokens.json', 'utf8'));
+    const docSpaceAdminToken = tokenData.docspaceAdmin;
+    let cookieValue = docSpaceAdminToken;
+    if (typeof docSpaceAdminToken === 'string' && docSpaceAdminToken.includes(';')) {
+            cookieValue = docSpaceAdminToken.split(';')[0];
+        }
+
+     const userData = {
+        password: data.password,
+        email: data.email,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        type: data.type
+      };
+
+    const response = await this.request.post('/api/2.0/people', {
+        headers: { 'Cookie': docSpaceAdminToken },
+        data: userData
+    });
+    return response;
+    });
+  }
+
+
 }
