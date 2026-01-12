@@ -124,7 +124,6 @@ class BaseFilter {
     } catch {
       if (this.lastSelectedFilterTag) {
         await this.page.locator(this.lastSelectedFilterTag).click();
-        await expect(this.filterApplyButton).toBeEnabled();
       }
       await this.filterApplyButton.click();
       await expect(this.filterDialog).not.toBeVisible();

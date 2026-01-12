@@ -11,6 +11,24 @@ export const waitForGetSsoV2Response = (page: Page) => {
   });
 };
 
+export const waitForUpdateSsoV2Response = (page: Page) => {
+  return page.waitForResponse((response) => {
+    return (
+      response.url().includes("api/2.0/settings/ssov2") &&
+      response.request().method() === "PUT"
+    );
+  });
+};
+
+export const waitForDeleteSsoV2Response = (page: Page) => {
+  return page.waitForResponse((response) => {
+    return (
+      response.url().includes("api/2.0/settings/ssov2") &&
+      response.request().method() === "DELETE"
+    );
+  });
+};
+
 export const waitForGetAuthServiceResponse = (page: Page) => {
   return page.waitForResponse((response) => {
     return (
