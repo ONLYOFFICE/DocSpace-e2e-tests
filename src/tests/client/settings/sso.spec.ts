@@ -6,7 +6,10 @@ import {
   integrationTabs,
   toastMessages,
 } from "@/src/utils/constants/settings";
-import { waitForGetSsoV2Response } from "@/src/objects/settings/integration/api";
+import {
+  waitForDeleteSsoV2Response,
+  waitForGetSsoV2Response,
+} from "@/src/objects/settings/integration/api";
 import { Sso } from "@/src/objects/settings/integration/Sso";
 import { expect } from "@playwright/test";
 
@@ -85,9 +88,6 @@ test.describe("Integration tests - SSO", () => {
 
       await sso.generateIdpPublicCertificate(publicCertificate!);
       await expect(sso.certificateDescriptionText).toHaveCount(3);
-      await sso.hideCertificateDescriptions();
-
-      await sso.hideIdpAdvancedSettings();
       await sso.showIdpAdvancedSettings();
 
       await sso.openIdpSignVerifyAlgorithmSelector();
@@ -126,8 +126,6 @@ test.describe("Integration tests - SSO", () => {
 
       await sso.openNameIdFormatSelector();
       await page.mouse.click(1, 1);
-
-      await sso.hideAuthPageCheckbox.click();
       await sso.disableEmailVerificationCheckbox.click();
 
       await sso.saveSpSettingsButton.click();
@@ -144,12 +142,13 @@ test.describe("Integration tests - SSO", () => {
       const metaDataUrl = metaDataPage.url();
       await metaDataPage.close();
       await sso.loadMetaData(metaDataUrl);
-
-      await sso.hideSpMetadata();
     });
 
     await test.step("Reset settings", async () => {
+      const deleteResponsePromise = waitForDeleteSsoV2Response(page);
       await sso.defaultSettingsButton.click();
+      const deleteResponse = await deleteResponsePromise;
+      expect(deleteResponse.status(), "Failed to reset SSO settings").toBe(200);
       expect(sso.xmlUrlInput).not.toBeVisible();
     });
   });

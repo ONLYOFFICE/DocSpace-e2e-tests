@@ -370,9 +370,11 @@ export class Backup extends BasePage {
       config.BOX_PASS,
     );
     await page1.locator('input[name="login_submit"]').click();
-    await page1
-      .locator('button[data-target-id="Button-grantAccessButtonLabel"]')
-      .click();
+    const grantAccessButton = page1.locator(
+      'button[data-target-id="Button-grantAccessButtonLabel"]',
+    );
+    await expect(grantAccessButton).toBeVisible();
+    await grantAccessButton.click();
     await page1.waitForLoadState("domcontentloaded");
   }
 
@@ -392,9 +394,11 @@ export class Backup extends BasePage {
       config.BOX_PASS,
     );
     await page1.locator('input[name="login_submit"]').click();
-    await page1
-      .locator('button[data-target-id="Button-grantAccessButtonLabel"]')
-      .click();
+    const grantAccessButton = page1.locator(
+      'button[data-target-id="Button-grantAccessButtonLabel"]',
+    );
+    await expect(grantAccessButton).toBeVisible();
+    await grantAccessButton.click();
     await page1.waitForLoadState("domcontentloaded");
   }
 
