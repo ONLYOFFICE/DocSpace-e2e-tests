@@ -26,22 +26,24 @@ class People {
   }
 
   async activateAdminUser() {
-    const response = await this.apiContext.put(
-      `https://${this.portalDomain}/api/2.0/people/activationstatus/Activated`,
-      {
-        headers: { Authorization: `Bearer ${this.authToken}` },
-        data: { userIds: [this.adminUserId] },
-      },
+  const response = await this.apiContext.put(
+    `https://${this.portalDomain}/api/2.0/people/activationstatus/Activated`,
+    {
+      headers: { Authorization: `Bearer ${this.authToken}` },
+      data: { userIds: [this.adminUserId] },
+    },
+  );
+
+  const text = await response.text();
+  const body = text ? JSON.parse(text) : null;
+
+  if (!response.ok()) {
+    throw new Error(
+      `Failed to activate admin user: ${response.status()} - ${JSON.stringify(body)}`
     );
+  }
 
-    const body = await response.json();
-    if (!response.ok()) {
-      throw new Error(
-        `Failed to activate admin user: ${response.status()} - ${body.error || body.message}`,
-      );
-    }
-
-    return body;
+  return body;
   }
 }
 

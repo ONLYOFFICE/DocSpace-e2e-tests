@@ -4,14 +4,14 @@ import { faker } from '@faker-js/faker';
 
 
 test.describe('API profile methods', () => {
-  // test.beforeAll(async ({ apiSdk }) => {
-  //  await apiSdk.auth.ownerAuth();
-  //  await apiSdk.profiles.addMemberUser();
-  //  await apiSdk.auth.userAuth();
-  //  await apiSdk.profiles.addMemberRoomAdmin();
-  //  await apiSdk.auth.roomAdminAuth();
-  //  await apiSdk.profiles.addMemberDocSpaceAdmin();
-  //  await apiSdk.auth.docSpaceAdminAuth();
+  // test.beforeAll(async ({ }) => {
+    // await apiSdk.auth.ownerAuth();
+    // await apiSdk.profiles.addMemberUser();
+    // await apiSdk.auth.userAuth();
+    // await apiSdk.profiles.addMemberRoomAdmin();
+    // await apiSdk.auth.roomAdminAuth();
+    // await apiSdk.profiles.addMemberDocSpaceAdmin();
+    // await apiSdk.auth.docSpaceAdminAuth();
   // });
 
   /*
@@ -23,7 +23,7 @@ test.describe('API profile methods', () => {
 
   */
 
-  test('Owner create User @api', async ({ ownerAuth, apiSdk }) => {
+  test('Owner create User', async ({ apiSdk }) => {
     const response = await apiSdk.profiles.addMemberUser();
     const body = await response.json();
     expect(response.status()).toBe(200);
@@ -35,7 +35,7 @@ test.describe('API profile methods', () => {
     expect(body.response.isLDAP).toBe(false);
   });
 
-  test('Owner create Room Admin @api', async ({ apiSdk }) => {
+  test('Owner create Room Admin', async ({ apiSdk }) => {
     const response = await apiSdk.profiles.addMemberRoomAdmin();
     const body = await response.json();
     expect(response.status()).toBe(200);
@@ -47,7 +47,7 @@ test.describe('API profile methods', () => {
     expect(body.response.isLDAP).toBe(false);
   });
 
-  test('Owner create DocSpace Admin @api', async ({ apiSdk }) => {
+  test('Owner create DocSpace Admin', async ({ apiSdk }) => {
     const response = await apiSdk.profiles.addMemberDocSpaceAdmin();
     const body = await response.json();
     expect(response.status()).toBe(200);
@@ -59,7 +59,8 @@ test.describe('API profile methods', () => {
     expect(body.response.isLDAP).toBe(false);
   });
 
-  test('Owner create User for long first and last name @api', async ({ apiSdk }) => {
+  
+  test('Owner create User for long first and last name', async ({ apiSdk }) => {
     const userData = {
       password: faker.internet.password({ length: 12 }),
       email: faker.internet.email(),
@@ -74,7 +75,7 @@ test.describe('API profile methods', () => {
     expect(body.response.errors.LastName).toContain('The field LastName must be a string with a maximum length of 255.');
   });
 
-  test('Owner create User for long email @api', async ({ apiSdk }) => {
+  test('Owner create User for long email', async ({ apiSdk }) => {
     const localPart = faker.string.alpha({ length: 260, casing: 'lower' });
     const domain = faker.internet.domainName();
     const userData = {
@@ -91,7 +92,11 @@ test.describe('API profile methods', () => {
   });
 
 
-  test('DocSpace admin creates DocSpace admin @api', async ({ docSpaceAdminAuth, apiSdk }) => {
+  test('DocSpace admin creates DocSpace admin', async ({ apiSdk, api }) => {
+    await apiSdk.profiles.addMemberDocSpaceAdmin();
+    await api.auth.authenticateDocSpaceAdmin();
+    
+
      const userData = {
       password: faker.internet.password({ length: 12 }),
       email: faker.internet.email(),
@@ -99,14 +104,13 @@ test.describe('API profile methods', () => {
       lastName: faker.person.lastName(),
       type: "DocSpaceAdmin"
     };
+
     const response = await apiSdk.profiles.docSpaceAdminAddsDocSpaceAdmin(userData);
     const body = await response.json();
     expect(response.status()).toBe(403);
     expect(body.error.message).toContain('Access denied');
   });
 
-
-
-
 });
+
 

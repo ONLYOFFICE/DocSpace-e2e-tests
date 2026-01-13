@@ -79,7 +79,7 @@ export class PaymentApi {
 
       const data = {
         portalId: portalId,
-        customerEmail: config.DOCSPACE_ADMIN_EMAIL,
+        customerEmail: config.DOCSPACE_OWNER_EMAIL,
         quantity: quantity,
       };
 

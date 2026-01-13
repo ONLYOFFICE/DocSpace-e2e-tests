@@ -1,4 +1,4 @@
-import { test as base, Page, APIRequestContext  } from "@playwright/test";
+import { test as base, Page } from "@playwright/test";
 import API from "@/src/api";
 import { ApiSDK } from "../services/index"
 import Login from "@/src/objects/common/Login";
@@ -85,9 +85,10 @@ export const test = base.extend<TestFixtures>({
     await use(services);
   },
 
-  apiSdk: async ({ request }, use) => {
-    const api = new ApiSDK(request);
-    await use(api);
+  apiSdk: async ({ api, request }, use) => {
+    const sdk = new ApiSDK(request, api.auth.authTokenOwner, api.auth.authTokenDocSpaceAdmin, api.portalDomain);
+    api.auth.setProfilesApi(sdk.profiles);
+    await use(sdk);
   },
 
   ownerAuth: async ({ apiSdk }, use) => {

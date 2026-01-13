@@ -48,9 +48,9 @@ test.describe(() => {
     });
 
     await test.step("ForgotPassword", async () => {
-      await login.resetPassword(config.DOCSPACE_ADMIN_EMAIL);
+      await login.resetPassword(config.DOCSPACE_OWNER_EMAIL);
       await login.removeToast(
-        `If a user with the ${config.DOCSPACE_ADMIN_EMAIL} email exists, the password change instruction has been sent to this email address.`,
+        `If a user with the ${config.DOCSPACE_OWNER_EMAIL} email exists, the password change instruction has been sent to this email address.`,
       );
     });
 

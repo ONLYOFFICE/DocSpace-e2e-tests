@@ -32,7 +32,7 @@ class API {
 
     this.auth.setPortalDomain(portal.tenant.domain);
 
-    const authToken = await this.auth.authenticate();
+    const authToken = await this.auth.authenticateOwner();
 
     this.apisystem.setAuthToken(authToken);
     this.people.setAuthToken(authToken);
@@ -42,7 +42,7 @@ class API {
     this.file.setAuthToken(authToken);
     this.file.setPortalDomain(portal.tenant.domain);
 
-    await this.people.activateAdminUser();
+    // await this.people.activateAdminUser();
   }
 
   async cleanup() {

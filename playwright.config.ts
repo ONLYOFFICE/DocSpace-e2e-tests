@@ -63,6 +63,14 @@ export default defineConfig({
 
   projects: [
     {
+      name: "api-tests",
+      testMatch: "**/api/**/*.spec.ts", // Only API tests
+      workers: 1,
+      // use: {
+      //   baseURL: 'https://autotestplaywright.onlyoffice.io',
+      // },
+    },
+    {
       name: "chromium",
       use: {
         headless: true,
@@ -90,15 +98,7 @@ export default defineConfig({
     //     viewport: { width: 1440, height: 1024 },
     //   },
     // },
-    {
-      name: "api-tests",
-      testMatch: "**/api/**/*.spec.ts", // Только API тесты
-      workers: 1,
-      use: {
-        baseURL: 'https://autotestplaywright.onlyoffice.io',
-      },
-    },
-  ],
+   ],
   expect: {
     toHaveScreenshot: {
       maxDiffPixels: 5,

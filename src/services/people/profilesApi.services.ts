@@ -1,26 +1,25 @@
 import { test, APIRequestContext } from '@playwright/test';
 import { FAKER } from '@/src/utils/helpers/faker';
-import fs from 'fs';
-import path from 'path';
-
 
 export class ProfilesApi {
     private request: APIRequestContext;
     private faker: FAKER;
-    constructor(request: APIRequestContext) {
+    private authTokenOwner: string = '';
+    private authTokenDocSpaceAdmin: string = '';
+    private portalDomain: string = '';
+    private docSpaceAdminEmail: string = '';
+    private docSpaceAdminPassword: string = '';
+
+    constructor(request: APIRequestContext, authToken: string, authTokenDocSpaceAdmin: string, portalDomain: string) {
     this.request = request;
     this.faker = new FAKER(request);
+    this.authTokenOwner = authToken;
+    this.authTokenDocSpaceAdmin = authTokenDocSpaceAdmin;
+    this.portalDomain = portalDomain;
   }
 
   async addMemberUser() {
     return test.step('Create User', async () => {
-    const tokenData = JSON.parse(fs.readFileSync('tokens.json', 'utf8'));
-    const ownerToken = tokenData.owner;
-    let cookieValue = ownerToken;
-    if (typeof ownerToken === 'string' && ownerToken.includes(';')) {
-            cookieValue = ownerToken.split(';')[0];
-        }
-
     const userData = {
         password: this.faker.user.password,
         email: this.faker.user.email,
@@ -29,24 +28,16 @@ export class ProfilesApi {
         type: "User"
       };
 
-    const response = await this.request.post('/api/2.0/people', {
-        headers: { 'Cookie': ownerToken },
+    const response = await this.request.post(`https://${this.portalDomain}/api/2.0/people`, {
+        headers: { Authorization: `Bearer ${this.authTokenOwner}` },
         data: userData
     });
-    this.saveUserData('user', userData);
     return response;
     });
   }
 
-   async addMemberRoomAdmin() {
+  async addMemberRoomAdmin() {
     return test.step('Create room admin', async () => {
-    const tokenData = JSON.parse(fs.readFileSync('tokens.json', 'utf8'));
-    const ownerToken = tokenData.owner;
-    let cookieValue = ownerToken;
-    if (typeof ownerToken === 'string' && ownerToken.includes(';')) {
-            cookieValue = ownerToken.split(';')[0];
-        }
-
     const userData = {
         password: this.faker.roomAdmin.password,
         email: this.faker.roomAdmin.email,
@@ -55,24 +46,28 @@ export class ProfilesApi {
         type: "RoomAdmin"
       };
 
-    const response = await this.request.post('/api/2.0/people', {
-        headers: { 'Cookie': ownerToken },
+    const response = await this.request.post(`https://${this.portalDomain}/api/2.0/people`, {
+        headers: { Authorization: `Bearer ${this.authTokenOwner}` },
         data: userData
     });
-    this.saveUserData('roomAdmin', userData);
     return response;
     });
   }
 
+  public getDocSpaceAdminEmail(): string {
+    return this.docSpaceAdminEmail;
+  }
+
+  public getDocSpaceAdminPassword(): string {
+    return this.docSpaceAdminPassword;
+  }
+
+  public setAuthTokenDocSpaceAdmin(token: string) {
+    this.authTokenDocSpaceAdmin = token;
+  }
+
   async addMemberDocSpaceAdmin() {
     return test.step('Create docSpace admin', async () => {
-    const tokenData = JSON.parse(fs.readFileSync('tokens.json', 'utf8'));
-    const ownerToken = tokenData.owner;
-    let cookieValue = ownerToken;
-    if (typeof ownerToken === 'string' && ownerToken.includes(';')) {
-            cookieValue = ownerToken.split(';')[0];
-        }
-
     const userData = {
         password: this.faker.docspaceAdmin.password,
         email: this.faker.docspaceAdmin.email,
@@ -81,39 +76,19 @@ export class ProfilesApi {
         type: "DocSpaceAdmin"
       };
 
-    const response = await this.request.post('/api/2.0/people', {
-        headers: { 'Cookie': ownerToken },
+      this.docSpaceAdminEmail = userData.email;
+      this.docSpaceAdminPassword = userData.password;
+
+    const response = await this.request.post(`https://${this.portalDomain}/api/2.0/people`, {
+        headers: { Authorization: `Bearer ${this.authTokenOwner}` },
         data: userData
     });
-    this.saveUserData('docSpaceAdmin', userData);
     return response;
     });
   }
 
-  private saveUserData(userType: string, userData: any) {
-    const usersPath = path.resolve('users.json');
-    let usersData: Record<string, any> = {};
-    
-    try {
-      const existingData = fs.readFileSync(usersPath, 'utf8');
-      usersData = JSON.parse(existingData);
-    } catch {}
-    
-    usersData[userType] = userData;
-    
-    fs.writeFileSync(usersPath, JSON.stringify(usersData, null, 2));
-    console.log(`${userType} data saved to users.json`);
-  }
-
   async addUserForLongFirstAndLastName(data: { password: string; email: string; firstName: string; lastName: string; type: string }) {
     return test.step('Create User for long first and last name', async () => {
-    const tokenData = JSON.parse(fs.readFileSync('tokens.json', 'utf8'));
-    const ownerToken = tokenData.owner;
-    let cookieValue = ownerToken;
-    if (typeof ownerToken === 'string' && ownerToken.includes(';')) {
-            cookieValue = ownerToken.split(';')[0];
-        }
-
     const userData = {
         password: data.password,
         email: data.email,
@@ -122,8 +97,8 @@ export class ProfilesApi {
         type: data.type
       };
 
-    const response = await this.request.post('/api/2.0/people', {
-        headers: { 'Cookie': ownerToken },
+    const response = await this.request.post(`https://${this.portalDomain}/api/2.0/people`, {
+        headers: { Authorization: `Bearer ${this.authTokenOwner}` },
         data: userData
     });
     return response;
@@ -132,13 +107,6 @@ export class ProfilesApi {
 
   async addUserForLongEmail(data: { password: string; email: string; firstName: string; lastName: string; type: string }) {
     return test.step('Create User for long email', async () => {
-    const tokenData = JSON.parse(fs.readFileSync('tokens.json', 'utf8'));
-    const ownerToken = tokenData.owner;
-    let cookieValue = ownerToken;
-    if (typeof ownerToken === 'string' && ownerToken.includes(';')) {
-            cookieValue = ownerToken.split(';')[0];
-        }
-
     const userData = {
         password: data.password,
         email: data.email,
@@ -147,8 +115,8 @@ export class ProfilesApi {
         type: data.type
       };
 
-    const response = await this.request.post('/api/2.0/people', {
-        headers: { 'Cookie': ownerToken },
+    const response = await this.request.post(`https://${this.portalDomain}/api/2.0/people`, {
+        headers: { Authorization: `Bearer ${this.authTokenOwner}` },
         data: userData
     });
     return response;
@@ -157,13 +125,6 @@ export class ProfilesApi {
 
   async docSpaceAdminAddsDocSpaceAdmin(data: { password: string; email: string; firstName: string; lastName: string; type: string }) {
     return test.step('DocSpace admin adds DocSpace admin', async () => {
-    const tokenData = JSON.parse(fs.readFileSync('tokens.json', 'utf8'));
-    const docSpaceAdminToken = tokenData.docspaceAdmin;
-    let cookieValue = docSpaceAdminToken;
-    if (typeof docSpaceAdminToken === 'string' && docSpaceAdminToken.includes(';')) {
-            cookieValue = docSpaceAdminToken.split(';')[0];
-        }
-
      const userData = {
         password: data.password,
         email: data.email,
@@ -172,8 +133,8 @@ export class ProfilesApi {
         type: data.type
       };
 
-    const response = await this.request.post('/api/2.0/people', {
-        headers: { 'Cookie': docSpaceAdminToken },
+   const response = await this.request.post(`https://${this.portalDomain}/api/2.0/people`, {
+        headers: { Authorization: `Bearer ${this.authTokenDocSpaceAdmin}` },
         data: userData
     });
     return response;
