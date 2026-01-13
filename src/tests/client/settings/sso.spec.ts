@@ -88,6 +88,7 @@ test.describe("Integration tests - SSO", () => {
 
       await sso.generateIdpPublicCertificate(publicCertificate!);
       await expect(sso.certificateDescriptionText).toHaveCount(3);
+      await sso.hideIdpAdvancedSettings();
       await sso.showIdpAdvancedSettings();
 
       await sso.openIdpSignVerifyAlgorithmSelector();
