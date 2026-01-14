@@ -1,16 +1,11 @@
 import { APIRequestContext } from "@playwright/test";
-
 import config from "../../config";
 
 class Apisystem {
   apiContext: APIRequestContext;
-
   portalDomain: string = "";
-
   adminUserId: string = "";
-
   portalName: string = "";
-
   authToken: string = "";
 
   constructor(apiContext: APIRequestContext) {

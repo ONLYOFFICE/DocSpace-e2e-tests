@@ -4,11 +4,10 @@ import { ProfilesApi } from "../services/people/profilesApi.services";
 
 class Auth {
   apiRequestContext: APIRequestContext;
-
   authTokenOwner: string = "";
-
   authTokenDocSpaceAdmin: string = "";
-
+  authTokenRoomAdmin: string = "";
+  authTokenUser: string = "";
   portalDomain: string;
 
   private profilesApi?: ProfilesApi;
@@ -79,6 +78,66 @@ class Auth {
     this.profilesApi.setAuthTokenDocSpaceAdmin(this.authTokenDocSpaceAdmin);
 
     return this.authTokenDocSpaceAdmin;
+  }
+
+  async authenticateRoomAdmin() {
+    if (!this.profilesApi) {
+      throw new Error('ProfilesApi is not provided to Auth; cannot authenticate Room admin');
+    }
+
+    const email = this.profilesApi.getRoomAdminEmail();
+    const password = this.profilesApi.getRoomAdminPassword();
+
+    const authResponse = await this.apiRequestContext.post(
+      `https://${this.portalDomain}/api/2.0/authentication`,
+      {
+        data: { userName: email, password },
+      },
+    );
+
+    const authBody = await authResponse.json();
+
+    if (!authResponse.ok()) {
+      throw new Error(
+        `Authentication failed: ${authResponse.status()} - ${authBody.error || authBody.message}`,
+      );
+    }
+
+    this.authTokenRoomAdmin = authBody.response.token;
+
+    this.profilesApi.setAuthTokenRoomAdmin(this.authTokenRoomAdmin);
+
+    return this.authTokenRoomAdmin;
+  }
+
+  async authenticateUser() {
+    if (!this.profilesApi) {
+      throw new Error('ProfilesApi is not provided to Auth; cannot authenticate User');
+    }
+
+    const email = this.profilesApi.getUserEmail();
+    const password = this.profilesApi.getUserPassword();
+
+    const authResponse = await this.apiRequestContext.post(
+      `https://${this.portalDomain}/api/2.0/authentication`,
+      {
+        data: { userName: email, password },
+      },
+    );
+
+    const authBody = await authResponse.json();
+
+    if (!authResponse.ok()) {
+      throw new Error(
+        `Authentication failed: ${authResponse.status()} - ${authBody.error || authBody.message}`,
+      );
+    }
+
+    this.authTokenUser = authBody.response.token;
+
+    this.profilesApi.setAuthTokenUser(this.authTokenUser);
+
+    return this.authTokenUser;
   }
 }
 

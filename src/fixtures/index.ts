@@ -86,7 +86,12 @@ export const test = base.extend<TestFixtures>({
   },
 
   apiSdk: async ({ api, request }, use) => {
-    const sdk = new ApiSDK(request, api.auth.authTokenOwner, api.auth.authTokenDocSpaceAdmin, api.portalDomain);
+    const sdk = new ApiSDK(
+      request,
+      api.auth.authTokenOwner,
+      api.auth.authTokenDocSpaceAdmin,
+      api.portalDomain
+    );
     api.auth.setProfilesApi(sdk.profiles);
     await use(sdk);
   },
@@ -95,16 +100,4 @@ export const test = base.extend<TestFixtures>({
     await apiSdk.auth.ownerAuth();
     await use();
   },
-
-  createDocSpaceAdmin: async ({ apiSdk, ownerAuth }, use) => {
-    await apiSdk.profiles.addMemberDocSpaceAdmin();
-    await use();
-  },
-
-  docSpaceAdminAuth: async ({ apiSdk, createDocSpaceAdmin }, use) => {
-    await apiSdk.auth.docSpaceAdminAuth();
-    await use();
-  }
-
-
 });
