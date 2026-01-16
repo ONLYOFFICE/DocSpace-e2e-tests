@@ -4,7 +4,7 @@ import { faker } from "@faker-js/faker";
 
 test.describe("API profile methods", () => {
   /*
-  toDo - написать тесты из под разных типов пользователей:
+  toDo - write tests for different types of users:
   - User (collaborator)
   - Room Admin 
   - DocSpace Admin
@@ -35,7 +35,7 @@ test.describe("API profile methods", () => {
     expect(body.response.isLDAP).toBe(false);
   });
 
-  test.only("Owner create DocSpace Admin", async ({ apiSdk }) => {
+  test("Owner create DocSpace Admin", async ({ apiSdk }) => {
     const response = await apiSdk.profiles.addMemberDocSpaceAdmin();
     const body = await response.json();
     expect(response.status()).toBe(200);
@@ -47,10 +47,7 @@ test.describe("API profile methods", () => {
     expect(body.response.isLDAP).toBe(false);
   });
 
-  test("Owner create User for long first and last name", async ({
-    apiSdk,
-    api,
-  }) => {
+  test("Owner create User for long first and last name", async ({ apiSdk }) => {
     const userData = {
       password: faker.internet.password({ length: 12 }),
       email: faker.internet.email(),
