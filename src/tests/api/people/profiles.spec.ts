@@ -11,7 +11,7 @@ test.describe("API profile methods", () => {
   - Owner
   */
 
-  test("Owner create User", async ({ apiSdk, api }) => {
+  test("Owner create User", async ({ apiSdk }) => {
     const response = await apiSdk.profiles.addMemberUser();
     const body = await response.json();
     expect(response.status()).toBe(200);
@@ -23,7 +23,7 @@ test.describe("API profile methods", () => {
     expect(body.response.isLDAP).toBe(false);
   });
 
-  test("Owner create Room Admin", async ({ apiSdk, api }) => {
+  test("Owner create Room Admin", async ({ apiSdk }) => {
     const response = await apiSdk.profiles.addMemberRoomAdmin();
     const body = await response.json();
     expect(response.status()).toBe(200);
@@ -35,7 +35,7 @@ test.describe("API profile methods", () => {
     expect(body.response.isLDAP).toBe(false);
   });
 
-  test.only("Owner create DocSpace Admin", async ({ apiSdk, api }) => {
+  test.only("Owner create DocSpace Admin", async ({ apiSdk }) => {
     const response = await apiSdk.profiles.addMemberDocSpaceAdmin();
     const body = await response.json();
     expect(response.status()).toBe(200);
@@ -70,7 +70,7 @@ test.describe("API profile methods", () => {
     );
   });
 
-  test("Owner create User for long email", async ({ apiSdk, api }) => {
+  test("Owner create User for long email", async ({ apiSdk }) => {
     const localPart = faker.string.alpha({ length: 260, casing: "lower" });
     const domain = faker.internet.domainName();
     const userData = {
