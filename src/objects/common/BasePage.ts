@@ -29,6 +29,10 @@ export default class BasePage {
     await this.toast.removeToast(message, timeout);
   }
 
+  async dismissToastSafely(message: string, timeout?: number) {
+    await this.toast.dismissToastSafely(message, timeout);
+  }
+
   async removeAllToast() {
     await this.toast.removeAllToast();
   }
@@ -42,5 +46,14 @@ export default class BasePage {
 
   async navigateToArticle(title: string) {
     await this.article.navigate(title);
+  }
+
+  async waitForDownload(action: () => Promise<void>) {
+    const [download] = await Promise.all([
+      this.page.waitForEvent("download"),
+      action(),
+    ]);
+
+    return download;
   }
 }

@@ -6,16 +6,17 @@ import {
   integrationTabs,
   toastMessages,
 } from "@/src/utils/constants/settings";
-import { waitForGetSsoV2Response } from "@/src/objects/settings/integration/api";
+import {
+  waitForDeleteSsoV2Response,
+  waitForGetSsoV2Response,
+} from "@/src/objects/settings/integration/api";
 import { Sso } from "@/src/objects/settings/integration/Sso";
-import Screenshot from "@/src/objects/common/Screenshot";
 import { expect } from "@playwright/test";
 
 test.describe("Integration tests - SSO", () => {
   let paymentApi: PaymentApi;
   let sso: Sso;
   let integration: Integration;
-  let screenshot: Screenshot;
 
   test.beforeEach(async ({ page, api, login }) => {
     paymentApi = new PaymentApi(api.apiRequestContext, api.apisystem);
@@ -23,11 +24,8 @@ test.describe("Integration tests - SSO", () => {
     const portalInfo = await paymentApi.getPortalInfo(api.portalDomain);
     await paymentApi.makePortalPayment(portalInfo.tenantId, 10);
     await paymentApi.refreshPaymentInfo(api.portalDomain);
+    await page.waitForTimeout(2000); // give billing changes time to propagate before hitting SSO endpoints
 
-    screenshot = new Screenshot(page, {
-      screenshotDir: "sso",
-      fullPage: true,
-    });
     sso = new Sso(page);
     integration = new Integration(page);
 
@@ -39,9 +37,7 @@ test.describe("Integration tests - SSO", () => {
   });
   test("Sso", async ({ page }) => {
     await test.step("Enable", async () => {
-      await screenshot.expectHaveScreenshot("sso_render");
       await sso.enableSso();
-      await screenshot.expectHaveScreenshot("sso_enabled");
     });
 
     await test.step("Sp certificates", async () => {
@@ -67,29 +63,18 @@ test.describe("Integration tests - SSO", () => {
       await sso.hideCertificateDescriptions();
 
       await sso.openGenerateSpCeritficateDialog();
-      await screenshot.expectHaveScreenshot("sp_certificates_add_dialog");
       await sso.openTypeSpCertificateSelector();
-      await screenshot.expectHaveScreenshot("sp_certificates_type_dropdown");
       await sso.generateSpCertificate(certificateType.encryption);
       await expect(sso.certificateDescriptionText).toHaveCount(2);
       await sso.hideCertificateDescriptions();
-      await screenshot.expectHaveScreenshot(
-        "sp_certificates_generated_signing_and_encryption",
-      );
 
       await sso.hideSpAdvancedSettings();
       await sso.showSpAdvancedSettings();
 
       await sso.openSpSignVerifyAlgorithmSelector();
-      await screenshot.expectHaveScreenshot(
-        "sp_certificates_sign_verify_algorithm_dropdown",
-      );
       await page.mouse.click(1, 1);
 
       await sso.openSpDecryptAlgorithmSelector();
-      await screenshot.expectHaveScreenshot(
-        "sp_certificates_decrypt_algorithm_dropdown",
-      );
       await page.mouse.click(1, 1);
     });
 
@@ -100,22 +85,13 @@ test.describe("Integration tests - SSO", () => {
       await page.mouse.click(1, 1); // close dialog
 
       await sso.openGenerateIdpPublicCertificateDialog();
-      await screenshot.expectHaveScreenshot("idp_public_certificate_dialog");
 
       await sso.generateIdpPublicCertificate(publicCertificate!);
       await expect(sso.certificateDescriptionText).toHaveCount(3);
-      await sso.hideCertificateDescriptions();
-      await screenshot.expectHaveScreenshot(
-        "idp_public_certificates_generated_signing",
-      );
-
       await sso.hideIdpAdvancedSettings();
       await sso.showIdpAdvancedSettings();
 
       await sso.openIdpSignVerifyAlgorithmSelector();
-      await screenshot.expectHaveScreenshot(
-        "idp_public_certificates_verify_algorithm_dropdown",
-      );
       await page.mouse.click(1, 1);
     });
 
@@ -127,7 +103,6 @@ test.describe("Integration tests - SSO", () => {
 
     await test.step("Users type", async () => {
       await sso.userTypeButton.click();
-      await screenshot?.expectHaveScreenshot("sso_users_type_dropdown");
       await integration.userTypeDocSpaceadmin.click();
       await sso.userTypeButton.click();
       await integration.userTypeRoomAdmin.click();
@@ -151,10 +126,7 @@ test.describe("Integration tests - SSO", () => {
       await sso.validateInput(sso.idpSloUrlPostInput);
 
       await sso.openNameIdFormatSelector();
-      await screenshot.expectHaveScreenshot("sso_name_id_format_dropdown");
       await page.mouse.click(1, 1);
-
-      await sso.hideAuthPageCheckbox.click();
       await sso.disableEmailVerificationCheckbox.click();
 
       await sso.saveSpSettingsButton.click();
@@ -171,12 +143,13 @@ test.describe("Integration tests - SSO", () => {
       const metaDataUrl = metaDataPage.url();
       await metaDataPage.close();
       await sso.loadMetaData(metaDataUrl);
-
-      await sso.hideSpMetadata();
     });
 
     await test.step("Reset settings", async () => {
+      const deleteResponsePromise = waitForDeleteSsoV2Response(page);
       await sso.defaultSettingsButton.click();
+      const deleteResponse = await deleteResponsePromise;
+      expect(deleteResponse.status(), "Failed to reset SSO settings").toBe(200);
       expect(sso.xmlUrlInput).not.toBeVisible();
     });
   });

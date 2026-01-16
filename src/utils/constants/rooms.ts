@@ -28,6 +28,7 @@ export const roomContextMenuOption = {
   duplicate: "Duplicate",
   pinToTop: "Pin to top",
   disableNotifications: "Disable notifications",
+  manage: "Manage",
 } as const;
 
 export const templateContextMenuOption = {
@@ -36,6 +37,26 @@ export const templateContextMenuOption = {
   accessSettings: "Access settings",
 } as const;
 
+export const formFillingRoomContextMenuOption = {
+  ...roomContextMenuOption,
+  startTour: "Take a short tour"
+} as const;
+
+export const formFillingRoomDropdownActions = {
+  UPLOAD_PDF_FORM: {
+    label: "Upload PDF form",
+    submenu: {
+      fromDocSpace: "From DocSpace",
+      fromDevice: "From device",
+    },
+  },
+  CHOOSE_FROM_TEMPLATE: "Choose from Templates",
+  CREATE_FOLDER: "Create new Folder",
+  
+} as const;
+
+export type TFormFillingRoomContextMenuOption =
+  (typeof formFillingRoomContextMenuOption)[keyof typeof formFillingRoomContextMenuOption];
 export const roomSort = {
   name: "Name",
   type: "Type",
@@ -51,6 +72,7 @@ export const roomToastMessages = {
   notifyEnabled: "Room notifications enabled",
   roomsArchived: "The rooms are archived",
   selectedTemplatesDeleted: "Selected room templates have been deleted",
+  linkCopied: "Link copied to clipboard",
 
   duplicate: (folderName: string) =>
     `The folder ${folderName} successfully duplicated`,
@@ -73,3 +95,12 @@ export type TRoomDialogSource =
 
 export type TRoomCreateTitles =
   (typeof roomCreateTitles)[keyof typeof roomCreateTitles];
+
+export const tourSteps = {
+    welcome: "Welcome to the Form Filling Room!",
+    firstStep: "Starting the form filling process",
+    secondStep: "Quick sharing",
+    thirdStep: "Submitting the responses",
+    fourthStep: "Convenient analyzing of the collected responses",
+    fifthStep: "Easy form uploading"
+  };

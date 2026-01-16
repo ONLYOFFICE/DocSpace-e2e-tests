@@ -34,16 +34,14 @@ class People {
     },
   );
 
-  const text = await response.text();
-  const body = text ? JSON.parse(text) : null;
+    const body = await response.json();
+    if (!response.ok()) {
+      throw new Error(
+        `Failed to activate admin user: ${response.status()} - ${body.error || body.message}`,
+      );
+    }
 
-  if (!response.ok()) {
-    throw new Error(
-      `Failed to activate admin user: ${response.status()} - ${JSON.stringify(body)}`
-    );
-  }
-
-  return body;
+    return body;
   }
 }
 

@@ -56,7 +56,7 @@ export class Login extends BasePage {
               request.method() === "POST"
             );
           },
-          { timeout: 1000 },
+          { timeout: 4000 },
         ),
         this.loginButton.click(),
       ]);

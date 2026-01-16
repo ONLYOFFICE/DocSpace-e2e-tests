@@ -154,7 +154,7 @@ class Contacts extends BasePage {
   }
 
   async openTab(tab: "Members" | "Groups" | "Guests") {
-    const tabLocator = this.page.locator("span").filter({ hasText: tab });
+    const tabLocator = this.page.getByRole("link", { name: tab, exact: true });
     await expect(tabLocator).toBeVisible();
     await tabLocator.click();
   }
@@ -162,9 +162,7 @@ class Contacts extends BasePage {
   async openSubmenu(source: "header" | "table" | "article") {
     switch (source) {
       case "header":
-        await this.navigation.openHeaderSubmenu(
-          contactsActionsMenu.invite.label,
-        );
+        await this.navigation.openCreateDropdown();
         break;
       case "table":
         {
@@ -284,7 +282,7 @@ class Contacts extends BasePage {
   }
 
   async checkEmptyGuestsExist() {
-    await expect(this.page.getByText("No added guests yet")).toBeVisible();
+    await expect(this.page.getByText("No guests found")).toBeVisible();
   }
 }
 

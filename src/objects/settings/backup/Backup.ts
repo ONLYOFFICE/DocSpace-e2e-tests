@@ -80,22 +80,26 @@ export class Backup extends BasePage {
     await this.locators.autoBackupTab.click();
   }
 
-  async openBackupGuide(hash: "CreatingBackup_block" | "AutoBackup") {
+  async openBackupGuide() {
     const page1Promise = this.page.waitForEvent("popup");
     await this.locators.backupGuideLink.click();
     const page1 = await page1Promise;
     await expect(page1).toHaveURL(
-      new RegExp(`.*\\.onlyoffice\\.com/docspace/configuration#${hash}`),
+      new RegExp(
+        `https://helpcenter\\.onlyoffice\\.com/docspace/configuration/docspace-backup-restore-settings\\.aspx#creatingbackup_block`,
+      ),
     );
     await page1.close();
   }
 
-  async openAutoBackupGuide(hash: "CreatingBackup_block" | "AutoBackup") {
+  async openAutoBackupGuide() {
     const page1Promise = this.page.waitForEvent("popup");
     await this.locators.autoBackupGuideLink.click();
     const page1 = await page1Promise;
     await expect(page1).toHaveURL(
-      new RegExp(`.*\\.onlyoffice\\.com/docspace/configuration#${hash}`),
+      new RegExp(
+        `https://helpcenter\\.onlyoffice\\.com/docspace/configuration/docspace-backup-restore-settings\\.aspx#automaticbackup_block`,
+      ),
     );
     await page1.close();
   }
@@ -115,6 +119,7 @@ export class Backup extends BasePage {
   }
 
   async openRoomSelector() {
+    await expect(this.locators.selectRoom).toBeVisible();
     await this.locators.selectRoom.click();
     await this.selector.checkSelectorExist();
   }
@@ -126,7 +131,7 @@ export class Backup extends BasePage {
   async disableAutoBackup() {
     await this.locators.autoBackupSwitch.click();
     await this.locators.saveAutoBackupButton.click();
-    await this.removeToast(toastMessages.settingsUpdated);
+    await this.dismissToastSafely(toastMessages.settingsUpdated);
   }
 
   async selectDocuments() {
@@ -174,7 +179,7 @@ export class Backup extends BasePage {
 
   async saveAutoSavePeriod() {
     await this.locators.saveAutoBackupButton.click();
-    await this.removeToast(toastMessages.settingsUpdated);
+    await this.dismissToastSafely(toastMessages.settingsUpdated);
   }
 
   async setBackupTimeAndCopies() {
@@ -212,7 +217,7 @@ export class Backup extends BasePage {
     await this.locators.forwardDocuments.click();
     await this.locators.selectButton.click();
     await this.locators.createCopyButton.click();
-    await this.removeToast(toastMessages.backCopyCreated);
+    await this.dismissToastSafely(toastMessages.backCopyCreated);
   }
 
   async activateAWSS3() {
@@ -223,7 +228,10 @@ export class Backup extends BasePage {
   }
 
   async selectBackupMethod(method: TBackupMethodsIds) {
-    await this.page.getByTestId(method).click();
+    const option = this.page.getByTestId(method);
+    await expect(option).toBeVisible();
+    await expect(option).toBeEnabled();
+    await option.click();
   }
 
   async selectAutoBackupMethod(method: TAutoBackupMethodsIds) {
@@ -328,7 +336,7 @@ export class Backup extends BasePage {
     await this.openRoomSelector();
     await this.locators.selectButton.click();
     await this.locators.thirdPartyCreateCopyButton.click();
-    await this.removeToast(toastMessages.backCopyCreated);
+    await this.dismissToastSafely(toastMessages.backCopyCreated);
   }
 
   async selectDropboxAutoBackup() {
@@ -343,7 +351,7 @@ export class Backup extends BasePage {
     await this.selector.selectItemByIndex(0, true);
     await this.locators.saveHereButton.click();
     await this.locators.saveAutoBackupButton.click();
-    await this.removeToast(toastMessages.settingsUpdated);
+    await this.dismissToastSafely(toastMessages.settingsUpdated);
   }
 
   async connectBox() {
@@ -362,9 +370,11 @@ export class Backup extends BasePage {
       config.BOX_PASS,
     );
     await page1.locator('input[name="login_submit"]').click();
-    await page1
-      .locator('button[data-target-id="Button-grantAccessButtonLabel"]')
-      .click();
+    const grantAccessButton = page1.locator(
+      'button[data-target-id="Button-grantAccessButtonLabel"]',
+    );
+    await expect(grantAccessButton).toBeVisible();
+    await grantAccessButton.click();
     await page1.waitForLoadState("domcontentloaded");
   }
 
@@ -384,9 +394,11 @@ export class Backup extends BasePage {
       config.BOX_PASS,
     );
     await page1.locator('input[name="login_submit"]').click();
-    await page1
-      .locator('button[data-target-id="Button-grantAccessButtonLabel"]')
-      .click();
+    const grantAccessButton = page1.locator(
+      'button[data-target-id="Button-grantAccessButtonLabel"]',
+    );
+    await expect(grantAccessButton).toBeVisible();
+    await grantAccessButton.click();
     await page1.waitForLoadState("domcontentloaded");
   }
 

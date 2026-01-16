@@ -88,6 +88,11 @@ const toastMessages = {
   deactivatedSuccessfully: "Deactivated successfully",
   welcomePageSaved: "Welcome Page settings have been successfully saved",
 
+  // storage management
+  roomQuotaEnabled: "Room quota has been successfully enabled",
+  userQuotaEnabled: "User quota has been successfully enabled",
+  aiQuotaEnabled: "AI agent quota has been successfully enabled",
+
   // plugins
   pluginEnabled: "Plugin enabled",
   pluginDisabled: "Plugin disabled",
@@ -102,7 +107,7 @@ const toastMessages = {
   invalidBinding:
     "Invalid binding: SSO urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
 
-  //payments
+  // payments
   walletToppedUp: "Wallet has been successfully topped up",
   planUpdated: "Business plan updated",
   requestSent:

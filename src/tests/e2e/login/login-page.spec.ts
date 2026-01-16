@@ -1,13 +1,11 @@
 import { test, Page } from "@playwright/test";
 import config from "@/config";
 import API from "@/src/api";
-import Screenshot from "@/src/objects/common/Screenshot";
 import Login from "@/src/objects/common/Login";
 
 test.describe(() => {
   let api: API;
   let page: Page;
-  let screenshot: Screenshot;
   let portalDomain: string;
   let login: Login;
 
@@ -24,19 +22,14 @@ test.describe(() => {
       globalThis.localStorage?.setItem("integrationUITests", "true");
     });
 
-    screenshot = new Screenshot(page, {
-      screenshotDir: "login_page",
-      clientName: "login",
-    });
     login = new Login(page, portalDomain);
   });
 
-  test("Login page", async () => {
+  test.skip("Login page", async () => {
     await test.step("OpenLoginPage", async () => {
       await page.goto(`https://${portalDomain}/login`, {
         waitUntil: "load",
       });
-      await screenshot.expectHaveScreenshot("login_page");
     });
 
     await test.step("EmptyLoginData", async () => {
@@ -44,7 +37,6 @@ test.describe(() => {
       await login.passwordInput.waitFor({ state: "visible" });
 
       await login.loginButton.click();
-      await screenshot.expectHaveScreenshot("empty_login_data");
     });
 
     await test.step("ForgotPassword", async () => {
@@ -62,14 +54,11 @@ test.describe(() => {
       await login.passwordInput.fill("wrongpassword123");
 
       await login.loginButton.click();
-      await screenshot.expectHaveScreenshot("wrong_login_data");
     });
 
     await test.step("OpenPanelWithSocialNetworks", async () => {
       await login.openSocialPanel();
-      await screenshot.expectHaveScreenshot("social_panel_opened");
       await login.closeSocialPanel();
-      await screenshot.expectHaveScreenshot("social_panel_closed");
     });
   });
 

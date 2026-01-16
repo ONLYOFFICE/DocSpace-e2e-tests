@@ -91,6 +91,7 @@ export abstract class BaseMenu {
     const root = isSubmenu ? this.submenu : this.menu;
     const item = this.getMenuItem(root, selector);
     await this.scrollUntilVisible(item, root);
+    await item.waitFor({ state: "visible" });
     await item.click();
   }
 

@@ -11,6 +11,12 @@ export const contactsActionsMenu = {
   createGroup: "Create group",
 } as const;
 
+export const headerInviteIds = {
+  docspaceAdmin: "accounts-add_administrator",
+  roomAdmin: "accounts-add_manager",
+  user: "accounts-add_collaborator",
+} as const;
+
 export const ADMIN_OWNER_NAME = "admin-zero admin-zero";
 
 export const GROUP_NAME = "Test Group";

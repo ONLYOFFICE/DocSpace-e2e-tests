@@ -135,8 +135,9 @@ export class BackupLocators {
   get thirdPartyDropdown() {
     return this.page.getByTestId("manual_backup_accounts_dropdown");
   }
+
   get thirdPartyDropdownButton() {
-    return this.page.getByTestId("manual_backup_accounts_combobox");
+    return this.page.locator('[data-test-id="combo-button"][role="button"]');
   }
 
   get thirdPartyDropdownButtonAutoBackup() {

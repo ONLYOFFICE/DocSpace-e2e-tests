@@ -36,7 +36,7 @@ test.describe('API profile methods', () => {
     expect(body.response.isLDAP).toBe(false);
   });
 
-  test('Owner create DocSpace Admin', async ({ apiSdk, api }) => {
+  test.only('Owner create DocSpace Admin', async ({ apiSdk, api }) => {
     const response = await apiSdk.profiles.addMemberDocSpaceAdmin();
     const body = await response.json();
     expect(response.status()).toBe(200);
@@ -186,7 +186,7 @@ test.describe('API profile methods', () => {
     // expect(body.error.message).toContain('Access denied');
   });
 */
-  test.only('User creates User', async ({ apiSdk, api }) => {
+  test('User creates User', async ({ apiSdk, api }) => {
     await apiSdk.profiles.addMemberUser();
     await api.auth.authenticateUser();
 

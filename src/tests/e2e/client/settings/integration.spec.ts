@@ -2,12 +2,9 @@ import { Integration } from "@/src/objects/settings/integration/Integration";
 import { PaymentApi } from "@/src/api/payment";
 import { test } from "@/src/fixtures";
 import { integrationTabs, toastMessages } from "@/src/utils/constants/settings";
-import Screenshot from "@/src/objects/common/Screenshot";
 
 test.describe("Integration tests", () => {
   let paymentApi: PaymentApi;
-
-  let screenshot: Screenshot;
   let integration: Integration;
 
   test.beforeEach(async ({ page, api, login }) => {
@@ -16,11 +13,6 @@ test.describe("Integration tests", () => {
     const portalInfo = await paymentApi.getPortalInfo(api.portalDomain);
     await paymentApi.makePortalPayment(portalInfo.tenantId, 10);
     await paymentApi.refreshPaymentInfo(api.portalDomain);
-
-    screenshot = new Screenshot(page, {
-      screenshotDir: "integration",
-      fullPage: true,
-    });
     integration = new Integration(page);
 
     await login.loginToPortal();
@@ -29,7 +21,7 @@ test.describe("Integration tests", () => {
   test("Integration", async ({ page }) => {
     await test.step("Ldap", async () => {
       await integration.open();
-      await integration.activateLdap(screenshot);
+      await integration.activateLdap();
     });
 
     await test.step("Manual sync", async () => {
@@ -37,27 +29,27 @@ test.describe("Integration tests", () => {
     });
 
     await test.step("Auto sync every hour", async () => {
-      await integration.everyHour(screenshot);
+      await integration.everyHour();
       await integration.enableAutoSyncLDAP();
     });
 
     await test.step("Auto sync every day", async () => {
-      await integration.everyDay(screenshot);
+      await integration.everyDay();
       await integration.enableAutoSyncLDAP();
     });
 
     await test.step("Auto sync every week", async () => {
-      await integration.everyWeek(screenshot);
+      await integration.everyWeek();
       await integration.enableAutoSyncLDAP();
     });
 
     await test.step("Auto sync every month", async () => {
-      await integration.everyMonth(screenshot);
+      await integration.everyMonth();
       await integration.enableAutoSyncLDAP();
     });
 
     await test.step("Auto sync every year", async () => {
-      await integration.everyYear(screenshot);
+      await integration.everyYear();
       await integration.enableAutoSyncLDAP();
     });
 
@@ -70,17 +62,17 @@ test.describe("Integration tests", () => {
       await integration.ldapLink.click();
       const page1 = await page1Promise;
       await page1.waitForURL(
-        "https://*.onlyoffice.com/docspace/configuration#LdapSettings_block",
+        /https:\/\/.*onlyoffice\.com\/docspace\/configuration\/docspace-integration-settings\.aspx#ldapsettings_block/,
       );
       await page1.close();
     });
 
     await test.step("Smtp", async () => {
       await integration.openTab(integrationTabs.smtp);
-      await integration.activateSMTP(screenshot);
+      await integration.activateSMTP();
       await integration.smtpSendTestMail.click();
       await integration.removeToast(toastMessages.operationCompleted);
-      await integration.defaultButton.click();
+      await integration.smtpDefaultButton.click();
       await integration.removeToast(toastMessages.settingsUpdated);
     });
 
@@ -89,7 +81,7 @@ test.describe("Integration tests", () => {
       await integration.smtpLink.click();
       const page1 = await page1Promise;
       await page1.waitForURL(
-        "https://*.onlyoffice.com/docspace/configuration#AdjustingIntegrationSettings_block",
+        /https:\/\/helpcenter\.onlyoffice\.com\/docspace\/configuration\/docspace-integration-settings\.aspx#smtpsettings_block/,
       );
       await page1.close();
     });
@@ -100,27 +92,27 @@ test.describe("Integration tests", () => {
       await integration.thirdPartyLink.click();
       const page1 = await page1Promise;
       await page1.waitForURL(
-        "https://*.onlyoffice.com/docspace/configuration#AdjustingIntegrationSettings_block",
+        /https:\/\/helpcenter\.onlyoffice\.com\/docspace\/configuration\/docspace-integration-settings\.aspx#thirdpartyserviceintegration_block/,
       );
       await page1.close();
     });
 
     await test.step("Facebook enable", async () => {
-      await integration.activateFacebook(screenshot);
+      await integration.activateFacebook();
       await integration.deactivateFacebook();
     });
 
     await test.step("AWSS3 enable", async () => {
-      await integration.activateAWSS3(screenshot);
+      await integration.activateAWSS3();
       await integration.deactivateAWSS3();
     });
 
     await test.step("Google Cloud enable", async () => {
-      await integration.activateGoogleCloud(screenshot);
+      await integration.activateGoogleCloud();
     });
 
     await test.step("Rackspace enable", async () => {
-      await integration.activateRackspace(screenshot);
+      await integration.activateRackspace();
     });
   });
 });

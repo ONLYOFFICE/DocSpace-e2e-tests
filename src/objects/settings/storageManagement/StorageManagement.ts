@@ -31,12 +31,20 @@ class StorageManagement extends BasePage {
     return this.page.getByTestId("quota_user_button");
   }
 
+  get onOffQuotaAiAgent() {
+    return this.page.getByTestId("quota_ai_agent_button");
+  }
+
   get comboboxRoom() {
     return this.page.getByTestId("quota_room_form_size_combo_box");
   }
 
   get comboboxUser() {
     return this.page.getByTestId("quota_user_form_size_combo_box");
+  }
+
+  get comboboxAiAgent() {
+    return this.page.getByTestId("quota_ai_agent_form_size_combo_box");
   }
 
   get selectByte() {
@@ -67,6 +75,10 @@ class StorageManagement extends BasePage {
     return this.page.getByTestId("quota_user_form_cancel_button");
   }
 
+  get cancelButtonAiAgent() {
+    return this.page.getByTestId("quota_ai_agent_form_cancel_button");
+  }
+
   get saveButtonRoom() {
     return this.page.getByTestId("quota_room_form_save_button");
   }
@@ -75,12 +87,20 @@ class StorageManagement extends BasePage {
     return this.page.getByTestId("quota_user_form_save_button");
   }
 
+  get saveButtonAiAgent() {
+    return this.page.getByTestId("quota_ai_agent_form_save_button");
+  }
+
   get textInputRoom() {
     return this.page.getByTestId("quota_room_form_input");
   }
 
   get textInputUser() {
     return this.page.getByTestId("quota_user_form_input");
+  }
+
+  get textInputAiAgent() {
+    return this.page.getByTestId("quota_ai_agent_form_input");
   }
 
   async open() {
@@ -123,6 +143,20 @@ class StorageManagement extends BasePage {
     await this.onOffQuotaUser.click();
     await this.textInputUser.fill("500");
     await this.saveButtonUser.click();
+  }
+
+  async QuotaAiAgentActivate() {
+    await this.onOffQuotaAiAgent.click();
+    await this.comboboxAiAgent.click();
+    await this.selectKB.last().click();
+    await this.comboboxAiAgent.click();
+    await this.selectGB.last().click();
+    await this.comboboxAiAgent.click();
+    await this.selectTB.last().click();
+    await this.cancelButtonAiAgent.click();
+    await this.onOffQuotaAiAgent.click();
+    await this.textInputAiAgent.fill("5");
+    await this.saveButtonAiAgent.click();
   }
 }
 
