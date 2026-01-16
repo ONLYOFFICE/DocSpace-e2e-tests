@@ -22,7 +22,8 @@ const HISTORY_LIST = "#history-list-info-panel";
 const CREATION_TIME_HISTORY = "p.date";
 
 const SHARED_LINKS_WRAPPER = "[data-testid='shared-links']";
-const SHARED_LINKS_AVATAR = "[data-testid='avatar'] [data-has-username='false']";
+const SHARED_LINKS_AVATAR =
+  "[data-testid='avatar'] [data-has-username='false']";
 const CREATE_SHARED_LINKS_ICON = "[data-tooltip-id='file-links-tooltip']";
 const ROOM_ICON = ".item-icon [data-testid='room-icon']";
 const FORMFILLING_SHARED_LINK = "Link to fill out";
@@ -174,9 +175,9 @@ class InfoPanel {
   async getSizeInBytes(): Promise<number> {
     const size = await this.getSizeProperty();
     if (!size) {
-      throw new Error('Size not found');
+      throw new Error("Size not found");
     }
-    const sizeStr = size.replace(/^Size\s*/i, '').trim();
+    const sizeStr = size.replace(/^Size\s*/i, "").trim();
     const match = sizeStr.match(/([\d.]+)\s*(KB|MB|B)/i);
     if (!match) return 0;
     let [_, num, unit] = match;

@@ -98,7 +98,7 @@ export default defineConfig({
     //     viewport: { width: 1440, height: 1024 },
     //   },
     // },
-   ],
+  ],
   expect: {
     toHaveScreenshot: {
       maxDiffPixels: 5,

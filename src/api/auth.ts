@@ -12,7 +12,11 @@ class Auth {
 
   private profilesApi?: ProfilesApi;
 
-  constructor(apiRequestContext: APIRequestContext, portalDomain: string, profilesApi?: ProfilesApi) {
+  constructor(
+    apiRequestContext: APIRequestContext,
+    portalDomain: string,
+    profilesApi?: ProfilesApi,
+  ) {
     this.apiRequestContext = apiRequestContext;
     this.portalDomain = portalDomain;
     this.profilesApi = profilesApi;
@@ -52,7 +56,9 @@ class Auth {
 
   async authenticateDocSpaceAdmin() {
     if (!this.profilesApi) {
-      throw new Error('ProfilesApi is not provided to Auth; cannot authenticate DocSpace admin');
+      throw new Error(
+        "ProfilesApi is not provided to Auth; cannot authenticate DocSpace admin",
+      );
     }
 
     const email = this.profilesApi.getDocSpaceAdminEmail();
@@ -82,7 +88,9 @@ class Auth {
 
   async authenticateRoomAdmin() {
     if (!this.profilesApi) {
-      throw new Error('ProfilesApi is not provided to Auth; cannot authenticate Room admin');
+      throw new Error(
+        "ProfilesApi is not provided to Auth; cannot authenticate Room admin",
+      );
     }
 
     const email = this.profilesApi.getRoomAdminEmail();
@@ -112,7 +120,9 @@ class Auth {
 
   async authenticateUser() {
     if (!this.profilesApi) {
-      throw new Error('ProfilesApi is not provided to Auth; cannot authenticate User');
+      throw new Error(
+        "ProfilesApi is not provided to Auth; cannot authenticate User",
+      );
     }
 
     const email = this.profilesApi.getUserEmail();

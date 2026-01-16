@@ -1,6 +1,6 @@
 import { test as base, Page } from "@playwright/test";
 import API from "@/src/api";
-import { ApiSDK } from "../services/index"
+import { ApiSDK } from "../services/index";
 import Login from "@/src/objects/common/Login";
 import { Payments } from "@/src/objects/settings/payments/Payments";
 import Services from "@/src/objects/settings/services/services";
@@ -15,8 +15,6 @@ type TestFixtures = {
   ownerAuth: void;
   createDocSpaceAdmin: void;
   docSpaceAdminAuth: void;
-  
-  
 };
 
 // Extend the base Playwright test with our fixtures
@@ -90,7 +88,7 @@ export const test = base.extend<TestFixtures>({
       request,
       api.auth.authTokenOwner,
       api.auth.authTokenDocSpaceAdmin,
-      api.portalDomain
+      api.portalDomain,
     );
     api.auth.setProfilesApi(sdk.profiles);
     await use(sdk);

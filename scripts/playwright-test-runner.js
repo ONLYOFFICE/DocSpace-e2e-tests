@@ -152,7 +152,8 @@ function runPlaywrightDocker(playwrightArgs) {
 }
 
 const lastAnswerVariant = (lastRun) => {
-  const arg = lastRun.answer === "all" ? "" : `^${escapeRegex(lastRun.answer)}$`;
+  const arg =
+    lastRun.answer === "all" ? "" : `^${escapeRegex(lastRun.answer)}$`;
   if (lastRun.useDocker) {
     runPlaywrightDocker([arg, ...(lastRun?.playwrightFlags || [])]);
   } else {
