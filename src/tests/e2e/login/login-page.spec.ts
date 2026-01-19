@@ -10,8 +10,9 @@ test.describe(() => {
   let login: Login;
 
   test.beforeAll(async ({ playwright, browser }) => {
-    const apiContext = await playwright.request.newContext();
-    api = new API(apiContext);
+    const ownerContext = await playwright.request.newContext();
+    const userContext = await playwright.request.newContext();
+    api = new API(ownerContext, userContext);
     await api.setup();
     console.log(api.portalDomain);
     portalDomain = api.portalDomain;

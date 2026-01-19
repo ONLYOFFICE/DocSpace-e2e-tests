@@ -20,15 +20,20 @@ type TestFixtures = {
 // Extend the base Playwright test with our fixtures
 export const test = base.extend<TestFixtures>({
   api: async ({ playwright }, use) => {
-    const apiContext = await playwright.request.newContext();
-    const api = new API(apiContext);
+    const ownerContext = await playwright.request.newContext();
+    const userContext = await playwright.request.newContext();
+    const api = new API(ownerContext, userContext);
 
     await api.setup();
     console.log(`Portal domain: ${api.portalDomain}`);
 
     await use(api);
 
+    await api.auth.authenticateOwner();
     await api.cleanup();
+
+    await ownerContext.dispose();
+    await userContext.dispose();
   },
 
   page: async ({ browser }, use) => {
