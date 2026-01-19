@@ -93,9 +93,4 @@ export const test = base.extend<TestFixtures>({
     api.auth.setProfilesApi(sdk.profiles);
     await use(sdk);
   },
-
-  ownerAuth: async ({ apiSdk }, use) => {
-    await apiSdk.auth.ownerAuth();
-    await use();
-  },
 });

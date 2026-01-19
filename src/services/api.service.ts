@@ -1,9 +1,8 @@
-import { AUTH, ProfilesApi, FAKER } from "./index";
+import { ProfilesApi, FAKER } from "./index";
 import { APIRequestContext } from "@playwright/test";
 
 export class ApiSDK {
   private request: APIRequestContext;
-  readonly auth: AUTH;
   readonly profiles: ProfilesApi;
   readonly faker: FAKER;
 
@@ -14,7 +13,6 @@ export class ApiSDK {
     portalDomain: string,
   ) {
     this.request = request;
-    this.auth = new AUTH(request);
     this.profiles = new ProfilesApi(
       request,
       authToken,
