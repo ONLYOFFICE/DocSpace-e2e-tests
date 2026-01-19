@@ -1,9 +1,9 @@
 import { expect, Page } from "@playwright/test";
 import { tourSteps } from "@/src/utils/constants/rooms";
-const TAKE_A_TOUR_BUTTON = '#form-filling_tips_start';
-const SKIP_BUTTON = '#form-filling_tips_skip';
-const NEXT_BUTTON = '#form-filling_tips_next';
-const BACK_BUTTON = '#form-filling_tips_back';
+const TAKE_A_TOUR_BUTTON = "#form-filling_tips_start";
+const SKIP_BUTTON = "#form-filling_tips_skip";
+const NEXT_BUTTON = "#form-filling_tips_next";
+const BACK_BUTTON = "#form-filling_tips_back";
 const MODAL_CLOSE_BUTTON = '#modal-dialog [data-testid="icon-button-svg"]';
 
 export class ShortTour {
@@ -32,7 +32,7 @@ export class ShortTour {
   private get modalCloseButton() {
     return this.page.locator(MODAL_CLOSE_BUTTON);
   }
-    
+
   async clickStartTour() {
     const button = this.page.locator(TAKE_A_TOUR_BUTTON);
     await expect(button).toBeVisible();
@@ -73,14 +73,14 @@ export class ShortTour {
     await expect(button).toBeEnabled();
     await this.modalCloseButton.click();
   }
- async isTourVisible(timeout = 3000): Promise<boolean> {
-  try {
-    const button = this.page.locator(TAKE_A_TOUR_BUTTON);
-    await button.waitFor({ state: 'visible', timeout });
-    await expect(button).toBeVisible({ timeout });
-    return true;
-  } catch {
-    return false;
+  async isTourVisible(timeout = 3000): Promise<boolean> {
+    try {
+      const button = this.page.locator(TAKE_A_TOUR_BUTTON);
+      await button.waitFor({ state: "visible", timeout });
+      await expect(button).toBeVisible({ timeout });
+      return true;
+    } catch {
+      return false;
+    }
   }
-}
 }

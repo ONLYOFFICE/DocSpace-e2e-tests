@@ -4,12 +4,12 @@ import BaseToast from "../common/BaseToast";
 const UPLOAD_FORM_DOCSPACE = "#upload-pdf-form";
 const UPLOAD_FORM_DEVICE = "#create-form";
 const SHARE_ROOM = "#share-room";
-const EMPTY_VIEW = "empty-view"; 
-const FILE_INPUT = '#customFileInput';
+const EMPTY_VIEW = "empty-view";
+const FILE_INPUT = "#customFileInput";
 
 class RoomEmptyView {
   page: Page;
-  toast: BaseToast; 
+  toast: BaseToast;
   constructor(page: Page) {
     this.page = page;
     this.toast = new BaseToast(page);
@@ -23,11 +23,11 @@ class RoomEmptyView {
   private get shareRoomButton() {
     return this.page.locator(SHARE_ROOM);
   }
-  
+
   private get emptyView() {
     return this.page.getByTestId(EMPTY_VIEW);
   }
-   private get fileInput() {
+  private get fileInput() {
     return this.page.locator(FILE_INPUT);
   }
 
@@ -44,14 +44,14 @@ class RoomEmptyView {
     await this.uploadFormButton.click();
   }
 
-async uploadPdfForm(filePath: string) {
-  await Promise.all([
-    this.page.waitForResponse(
-      (res) => res.url().includes("/upload/check") && res.status() === 200,
-    ),
-    this.fileInput.first().setInputFiles(filePath)
-  ]);
-}
+  async uploadPdfForm(filePath: string) {
+    await Promise.all([
+      this.page.waitForResponse(
+        (res) => res.url().includes("/upload/check") && res.status() === 200,
+      ),
+      this.fileInput.first().setInputFiles(filePath),
+    ]);
+  }
   async shareRoomClick() {
     await expect(this.shareRoomButton).toBeVisible();
     await this.shareRoomButton.click();

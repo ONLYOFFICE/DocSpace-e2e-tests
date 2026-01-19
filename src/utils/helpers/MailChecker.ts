@@ -122,9 +122,10 @@ class MailChecker {
       let foundEmail: EmailResult | null = null;
       while ((Date.now() - startTime) / 1000 < timeoutSeconds) {
         // Get all emails (including read and unread)
-        const uids: (string | number)[] = await this.imapClient.search({
-          all: true,
-        });
+        const searchResult = await this.imapClient.search({ all: true });
+        const uids: (string | number)[] = Array.isArray(searchResult)
+          ? searchResult
+          : [];
 
         if (uids.length > 0) {
           // Get only the last 5 emails
@@ -140,6 +141,7 @@ class MailChecker {
             const message = await this.imapClient.fetchOne(String(uid), {
               envelope: true,
             });
+            if (!message) continue;
             const envelope: MessageEnvelopeObject | undefined =
               message?.envelope;
             if (!envelope) continue;
@@ -156,6 +158,7 @@ class MailChecker {
 
           // Find email with the required subject
           for (const { uid, message } of emailsWithDates) {
+            if (!message) continue;
             const envelope: MessageEnvelopeObject | undefined =
               message?.envelope;
             if (!envelope) continue;
@@ -214,9 +217,10 @@ class MailChecker {
         let foundEmail: EmailResult | null = null;
         while ((Date.now() - startTime) / 1000 < timeoutSeconds) {
           // Get all emails (including read and unread)
-          const uids: (string | number)[] = await this.imapClient.search({
-            all: true,
-          });
+          const searchResult = await this.imapClient.search({ all: true });
+          const uids: (string | number)[] = Array.isArray(searchResult)
+            ? searchResult
+            : [];
 
           if (uids.length > 0) {
             // Get only the last 5 emails
@@ -232,6 +236,7 @@ class MailChecker {
               const message = await this.imapClient.fetchOne(String(uid), {
                 envelope: true,
               });
+              if (!message) continue;
               const envelope = message?.envelope;
               if (!envelope || !envelope.date) continue;
               emailsWithDates.push({
@@ -246,6 +251,7 @@ class MailChecker {
 
             // Find email with the required subject and sender
             for (const { uid, message } of emailsWithDates) {
+              if (!message) continue;
               const envelope: MessageEnvelopeObject | undefined =
                 message?.envelope;
               if (!envelope) continue;
@@ -332,9 +338,10 @@ class MailChecker {
       let foundEmail: EmailResult | null = null;
 
       while ((Date.now() - startTime) / 1000 < timeoutSeconds) {
-        const uids: (string | number)[] = await this.imapClient.search({
-          all: true,
-        });
+        const searchResult = await this.imapClient.search({ all: true });
+        const uids: (string | number)[] = Array.isArray(searchResult)
+          ? searchResult
+          : [];
         const lastEmails = uids.slice(-5);
 
         for (const uid of lastEmails) {
@@ -342,6 +349,7 @@ class MailChecker {
             envelope: true,
             source: true,
           });
+          if (!message) continue;
 
           const envelope: MessageEnvelopeObject | undefined = message?.envelope;
           if (!envelope) continue;

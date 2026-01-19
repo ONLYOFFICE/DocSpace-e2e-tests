@@ -93,7 +93,7 @@ class MyRooms extends BasePage {
   }
 
   async openTemplatesTab() {
-    await this.page.getByText("Templates").click();
+    await this.page.getByTestId("templates_tab").click();
   }
 
   async openRoomsTab() {
@@ -148,7 +148,7 @@ class MyRooms extends BasePage {
       await this.backToRooms();
     }
   }
-async createFormFillingRoom(roomName: string, tags?: string[]) {
+  async createFormFillingRoom(roomName: string, tags?: string[]) {
     await this.roomsArticle.openCreateDialog();
     await this.roomsCreateDialog.openRoomType(roomCreateTitles.formFilling);
     await this.roomsCreateDialog.openRoomCover();
@@ -156,7 +156,7 @@ async createFormFillingRoom(roomName: string, tags?: string[]) {
     await this.roomsCreateDialog.selectCoverIcon();
     await this.roomsCreateDialog.saveCover();
     await this.roomsCreateDialog.fillRoomName(roomName);
-  
+
     // Add tags if they are provided
     if (tags?.length) {
       for (const tag of tags) {
@@ -164,11 +164,9 @@ async createFormFillingRoom(roomName: string, tags?: string[]) {
       }
     }
     await this.roomsCreateDialog.clickRoomDialogSubmit();
-    const tipsModal = this.page.getByText(
-          "Welcome to the Form Filling Room!",
-        );
+    const tipsModal = this.page.getByText("Welcome to the Form Filling Room!");
     await expect(tipsModal).toBeVisible({ timeout: 10000 });
- }
+  }
   async moveAllRoomsToArchive() {
     await this.roomsTable.selectAllRows();
     await this.navigation.performAction(navActions.moveToArchive);
