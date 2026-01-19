@@ -12,17 +12,17 @@ class FilesPdfForm {
 
   setPdfPage(page: Page) {
     this.page = page;
-  } 
-  
+  }
+
   get submitButton() {
     if (!this.page) {
-      throw new Error('PDF form page not set. Please call setPdfPage() first');
+      throw new Error("PDF form page not set. Please call setPdfPage() first");
     }
     return this.page
-    .frameLocator('iframe[name="frameEditor"]')
-    .locator(SUBMIT_BUTTON);
+      .frameLocator('iframe[name="frameEditor"]')
+      .locator(SUBMIT_BUTTON);
   }
-  
+
   async clickSubmitButton() {
     await this.submitButton.click();
     // Create an instance of RoomPDFCompleted and check the button

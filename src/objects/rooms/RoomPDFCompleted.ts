@@ -14,7 +14,7 @@ class RoomPDFCompleted {
   }
 
   async chooseBackToRoom() {
-     await this.backToRoomButton.click();
+    await this.backToRoomButton.click();
   }
 
   private get fillItOutAgainButton() {
@@ -24,11 +24,11 @@ class RoomPDFCompleted {
   async chooseFillItOutAgain() {
     await this.fillItOutAgainButton.click();
   }
-  
+
   public async isReadyFormButtonVisible() {
     return this.checkReadyFormButton.isVisible();
   }
-  
+
   private get checkReadyFormButton() {
     return this.page.getByTestId(CHECK_READY_FORM);
   }

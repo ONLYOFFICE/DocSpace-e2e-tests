@@ -1,7 +1,10 @@
 import { expect, Page } from "@playwright/test";
 import BaseArticle from "../common/BaseArticle";
 import FilesCreateContextMenu from "./FilesCreateContextMenu";
-import { listArticleDocActions, DOC_ACTIONS } from "@/src/utils/constants/files";
+import {
+  listArticleDocActions,
+  DOC_ACTIONS,
+} from "@/src/utils/constants/files";
 import FilesCreateModal from "./FilesCreateModal";
 
 class FilesArticle extends BaseArticle {

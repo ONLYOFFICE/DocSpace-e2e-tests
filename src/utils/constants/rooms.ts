@@ -39,7 +39,7 @@ export const templateContextMenuOption = {
 
 export const formFillingRoomContextMenuOption = {
   ...roomContextMenuOption,
-  startTour: "Take a short tour"
+  startTour: "Take a short tour",
 } as const;
 
 export const formFillingRoomDropdownActions = {
@@ -52,7 +52,6 @@ export const formFillingRoomDropdownActions = {
   },
   CHOOSE_FROM_TEMPLATE: "Choose from Templates",
   CREATE_FOLDER: "Create new Folder",
-  
 } as const;
 
 export type TFormFillingRoomContextMenuOption =
@@ -97,10 +96,10 @@ export type TRoomCreateTitles =
   (typeof roomCreateTitles)[keyof typeof roomCreateTitles];
 
 export const tourSteps = {
-    welcome: "Welcome to the Form Filling Room!",
-    firstStep: "Starting the form filling process",
-    secondStep: "Quick sharing",
-    thirdStep: "Submitting the responses",
-    fourthStep: "Convenient analyzing of the collected responses",
-    fifthStep: "Easy form uploading"
-  };
+  welcome: "Welcome to the Form Filling Room!",
+  firstStep: "Starting the form filling process",
+  secondStep: "Quick sharing",
+  thirdStep: "Submitting the responses",
+  fourthStep: "Convenient analyzing of the collected responses",
+  fifthStep: "Easy form uploading",
+};
