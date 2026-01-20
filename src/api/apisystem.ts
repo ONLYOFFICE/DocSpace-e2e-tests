@@ -9,9 +9,9 @@ class Apisystem {
   portalName: string = "";
   authToken: string = "";
 
-   private auth: Auth
+  private auth: Auth
 
-  constructor(apiContext: APIRequestContext,  auth: Auth) {
+  constructor(apiContext: APIRequestContext, auth: Auth) {
     this.apiContext = apiContext;
     this.auth = auth;
   }
@@ -70,7 +70,7 @@ class Apisystem {
     if (!this.auth.authTokenOwner) {
       throw new Error("Owner token is missing. Cannot delete portal.");
     }
- 
+
     const deleteUrl = `https://${this.portalDomain}/api/2.0/portal/deleteportalimmediately`;
 
     const response = await this.apiContext.delete(deleteUrl, {
@@ -80,10 +80,10 @@ class Apisystem {
     const body = await response.json();
 
     if (!response.ok()) {
-    throw new Error(
-      `Failed to delete portal: ${response.status()} - ${body.error || body.message}`,
-    );
-  }
+      throw new Error(
+        `Failed to delete portal: ${response.status()} - ${body.error || body.message}`,
+      );
+    }
   }
 }
 
