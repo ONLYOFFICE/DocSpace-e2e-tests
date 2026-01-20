@@ -154,11 +154,7 @@ test.describe("My documents: Base", () => {
       await myDocuments.filesFilter.selectFilterByImages();
       await myDocuments.filesFilter.applyFilter();
       await myDocuments.filesFilter.checkFilesEmptyViewExist();
-
-      await myDocuments.filesFilter.openFilterDialog();
-      await myDocuments.filesFilter.clearFilterDialog();
-      await myDocuments.filesFilter.cancelFilter();
-      await myDocuments.filesTable.checkRowExist("Document");
+      await myDocuments.filesFilter.clearFilterFromEmptyView();
     });
 
     await test.step("Search", async () => {
