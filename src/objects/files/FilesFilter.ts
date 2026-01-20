@@ -18,6 +18,7 @@ const filesFilter = {
 } as const;
 
 const TITLE_FOLDERS = "#folder-tile-heading";
+const EMPTY_VIEW_FILTER = "#empty-view-filter";
 
 class FilesFilter extends BaseFilter {
   constructor(page: Page) {
@@ -116,6 +117,12 @@ class FilesFilter extends BaseFilter {
 
   async checkFilesEmptyViewExist() {
     await super.checkEmptyView("No findings");
+  }
+
+  async clearFilterFromEmptyView() {
+    const promise = waitForGetFilesResponse(this.page);
+    await this.page.locator(EMPTY_VIEW_FILTER).click();
+    await promise;
   }
 }
 
