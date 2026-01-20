@@ -93,7 +93,7 @@ class MyRooms extends BasePage {
   }
 
   async openTemplatesTab() {
-    await this.page.getByText("Templates").click();
+    await this.page.getByTestId("templates_tab").click();
   }
 
   async openRoomsTab() {

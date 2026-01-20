@@ -180,7 +180,8 @@ class InfoPanel {
     const sizeStr = size.replace(/^Size\s*/i, "").trim();
     const match = sizeStr.match(/([\d.]+)\s*(KB|MB|B)/i);
     if (!match) return 0;
-    let [_, num, unit] = match;
+    const num = match[1];
+    const unit = match[2];
     let sizeNum = parseFloat(num);
     if (/MB/i.test(unit)) sizeNum *= 1024 * 1024;
     else if (/KB/i.test(unit)) sizeNum *= 1024;
