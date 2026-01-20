@@ -21,11 +21,8 @@ function escapeRegex(str) {
   return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
-function writeLastRun(lastRunPath, answer, playwrightFlags, useDocker) {
-  fs.writeFileSync(
-    lastRunPath,
-    JSON.stringify({ answer, playwrightFlags, useDocker }, null, 2),
-  );
+function writeLastRun(lastRunPath, lastRunData) {
+  fs.writeFileSync(lastRunPath, JSON.stringify(lastRunData, null, 2));
 }
 
 function readLastRun(lastRunPath) {
@@ -39,144 +36,123 @@ function readLastRun(lastRunPath) {
   return null;
 }
 
+// Получаем все тестовые файлы и возвращаем путь от категории (/e2e/... или /api/...)
 function getSpecFiles(dir, files = []) {
-  if (!fs.existsSync(dir)) {
-    return files;
-  }
+  if (!fs.existsSync(dir)) return files;
   fs.readdirSync(dir).forEach((file) => {
     const fullPath = path.join(dir, file);
     if (fs.statSync(fullPath).isDirectory()) {
       getSpecFiles(fullPath, files);
     } else if (file.endsWith(".spec.ts")) {
-      const rel = path.relative(process.cwd(), fullPath);
-      // Normalize to POSIX-style paths so Playwright's regex arg matches on Windows
-      files.push(rel.split(path.sep).join("/"));
+      const relPath = path.relative("./src/tests", fullPath);
+      files.push("/" + relPath.split(path.sep).join("/"));
     }
   });
   return files;
 }
 
-const getTestSelectAnswer = async (lastRun) => {
-  const specs = getSpecFiles("./src/tests");
+// Выбор верхнего уровня (категории или All tests)
+async function getTopLevelAnswer(lastRun) {
+  const choices = [
+    { name: "All tests", value: "all" },
+    { name: "API tests", value: "api" },
+    { name: "E2E tests", value: "e2e" },
+  ];
+
+  if (lastRun) {
+    const dockerInfo = lastRun.useDocker ? " [Docker]" : "";
+    choices.unshift({
+      name: `🔁 Repeat previous run (${lastRun.category}/${lastRun.answer}${lastRun.playwrightFlags?.join(" ") || ""}${dockerInfo})`,
+      value: "last",
+    });
+  }
+
+  return await select({
+    message: "Select test category",
+    choices,
+    loop: false,
+  });
+}
+
+// Выбор теста внутри категории
+async function getTestSelectAnswer(category, lastRun) {
+  const specs = getSpecFiles(`./src/tests/${category}`);
   const testChoices = [
     { name: "All tests", value: "all" },
     ...specs.map((s) => ({ name: s, value: s })),
   ];
 
-  if (lastRun) {
+  if (lastRun && lastRun.category === category) {
     const dockerInfo = lastRun.useDocker ? " [Docker]" : "";
     testChoices.unshift({
-      name: `🔁 Repeat previous run (${lastRun.answer}${lastRun.playwrightFlags.join(" ")}${dockerInfo})`,
+      name: `🔁 Repeat previous run (${lastRun.answer}${lastRun.playwrightFlags?.join(" ") || ""}${dockerInfo})`,
       value: "last",
     });
   }
 
-  const answer = await select({
-    message: "Select a test",
+  return await select({
+    message: `Select a ${category.toUpperCase()} test`,
     choices: testChoices,
     loop: false,
   });
+}
 
-  return answer;
-};
-
-const getRunEnvironment = async (skip) => {
-  if (skip) {
-    return false;
-  }
-
-  const answer = await select({
+// Выбор окружения
+async function getRunEnvironment(skip) {
+  if (skip) return false;
+  return await select({
     message: "Run environment",
     choices: [
       { name: "Local", value: false },
       { name: "Docker container", value: true },
     ],
   });
+}
 
-  return answer;
-};
+// Выбор флагов Playwright (только для e2e)
+async function getPlaywrightFlags(skip, isDockerEnv, category) {
+  if (skip || category === "api") return [];
+  const flags = [{ name: "Update snapshots (--update-snapshots)", value: "--update-snapshots" }];
+  if (!isDockerEnv) flags.push({ name: "Headed mode (--headed)", value: "--headed" });
+  return await checkbox({ message: "Playwright flags", choices: flags });
+}
 
-const getPlaywrightFlags = async (skip, isDockerEnv) => {
-  if (skip) {
-    return [];
-  }
-
-  const testChoices = [
-    {
-      name: "Update snapshots (--update-snapshots)",
-      value: "--update-snapshots",
-    },
-  ];
-
-  if (!isDockerEnv) {
-    testChoices.push({
-      name: "Headed mode (--headed)",
-      value: "--headed",
-    });
-  }
-
-  return await checkbox({
-    message: "Playwright flags",
-    choices: testChoices,
-  });
-};
-
+// Локальный запуск
 function runPlaywrightLocal(playwrightArgs) {
-  const localArgs = ["playwright", "test", ...playwrightArgs];
-
-  const child = spawn("npx", localArgs, {
+  const child = spawn("npx", ["playwright", "test", ...playwrightArgs], {
     stdio: "inherit",
     shell: process.platform === "win32",
   });
-  child.on("exit", (code) => {
-    process.exit(code);
-  });
+  child.on("exit", (code) => process.exit(code));
 }
 
+// Запуск в Docker
 function runPlaywrightDocker(playwrightArgs) {
-  const dockerArgs = [
-    "run",
-    "--rm",
-    "tests-local",
-    "npx",
-    "playwright",
-    "test",
-    ...playwrightArgs,
-  ];
-  const child = spawn("docker-compose", dockerArgs, {
-    stdio: "inherit",
-  });
-  child.on("exit", (code) => {
-    process.exit(code);
-  });
+  const dockerArgs = ["run", "--rm", "tests-local", "npx", "playwright", "test", ...playwrightArgs];
+  const child = spawn("docker-compose", dockerArgs, { stdio: "inherit" });
+  child.on("exit", (code) => process.exit(code));
 }
 
-const lastAnswerVariant = (lastRun) => {
-  const arg =
-    lastRun.answer === "all" ? "" : `^${escapeRegex(lastRun.answer)}$`;
-  if (lastRun.useDocker) {
-    runPlaywrightDocker([arg, ...(lastRun?.playwrightFlags || [])]);
-  } else {
-    runPlaywrightLocal([arg, ...(lastRun?.playwrightFlags || [])]);
-  }
-};
+// Повтор последнего запуска
+function lastAnswerVariant(lastRun) {
+  const arg = lastRun.answer === "all" ? "" : `^${escapeRegex(lastRun.answer)}$`;
+  const runner = lastRun.useDocker ? runPlaywrightDocker : runPlaywrightLocal;
+  runner([arg, ...(lastRun.playwrightFlags || [])]);
+}
 
-const newAnswerVariant = (
-  isDockerEnv,
-  playwrightFlags,
-  runFunction,
-  lastRunPath,
-  answer,
-) => {
+// Новый запуск
+function newAnswerVariant(category, answer, isDockerEnv, playwrightFlags, lastRunPath) {
   const sel = answer === "all" ? "<all>" : answer;
   console.log(
-    `Run: ${isDockerEnv ? "docker-compose run --rm tests-local" : ""} npx playwright test ${sel} ${playwrightFlags.join(" ")}`,
+    `Run: ${isDockerEnv ? "docker-compose run --rm tests-local " : ""}npx playwright test ${sel} ${playwrightFlags.join(" ")}`
   );
   const arg = answer === "all" ? "" : `^${escapeRegex(answer)}$`;
-  runFunction([arg, ...playwrightFlags]);
-  writeLastRun(lastRunPath, answer, playwrightFlags, isDockerEnv);
-};
+  const runner = isDockerEnv ? runPlaywrightDocker : runPlaywrightLocal;
+  runner([arg, ...playwrightFlags]);
+  writeLastRun(lastRunPath, { category, answer, playwrightFlags, useDocker: isDockerEnv });
+}
 
+// Главная функция
 const run = async () => {
   process.on("uncaughtException", (error) => {
     if (error instanceof Error && error.name === "ExitPromptError") {
@@ -189,31 +165,48 @@ const run = async () => {
   const __filename = fileURLToPath(import.meta.url);
   const __dirname = path.dirname(__filename);
   const lastRunPath = path.join(__dirname, "last-run.json");
-
   const lastRun = readLastRun(lastRunPath);
-  const answer = await getTestSelectAnswer(lastRun);
 
-  const isLastRun = answer === "last";
-
-  // Skip environment and flag selection if repeating last run
-  const isDockerEnv = isLastRun
-    ? lastRun.useDocker
-    : await getRunEnvironment(false);
-  const playwrightFlags = await getPlaywrightFlags(isLastRun, isDockerEnv);
-
-  const runFunction = isDockerEnv ? runPlaywrightDocker : runPlaywrightLocal;
+  // 1️⃣ Выбор верхнего уровня
+  const topLevel = await getTopLevelAnswer(lastRun);
+  const isLastRun = topLevel === "last";
 
   if (isLastRun) {
     lastAnswerVariant(lastRun);
+    return;
+  }
+
+  // 2️⃣ Если выбрали All tests на верхнем уровне, то объединяем все тесты
+  let category = topLevel;
+  let answer;
+  if (topLevel === "all") {
+    category = "all";
+    answer = "all"; // запуск всех тестов сразу
   } else {
-    newAnswerVariant(
-      isDockerEnv,
-      playwrightFlags,
-      runFunction,
-      lastRunPath,
-      answer,
-    );
+    // 3️⃣ Выбор теста внутри категории
+    answer = await getTestSelectAnswer(category, lastRun);
+    if (answer === "last") {
+      lastAnswerVariant(lastRun);
+      return;
+    }
+  }
+
+  // 4️⃣ Выбор окружения и флагов
+  const isDockerEnv = await getRunEnvironment(false);
+  const playwrightFlags = await getPlaywrightFlags(false, isDockerEnv, category);
+
+  // 5️⃣ Запуск
+  if (category === "all") {
+    // Объединяем все тесты из api и e2e
+    const allSpecs = [...getSpecFiles("./src/tests/api"), ...getSpecFiles("./src/tests/e2e")];
+    const args = allSpecs.length ? allSpecs : [];
+    const runner = isDockerEnv ? runPlaywrightDocker : runPlaywrightLocal;
+    runner(args);
+    writeLastRun(lastRunPath, { category: "all", answer: "all", playwrightFlags, useDocker: isDockerEnv });
+  } else {
+    newAnswerVariant(category, answer, isDockerEnv, playwrightFlags, lastRunPath);
   }
 };
 
 run();
+
