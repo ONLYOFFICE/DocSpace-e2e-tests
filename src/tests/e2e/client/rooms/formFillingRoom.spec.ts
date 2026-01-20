@@ -31,7 +31,7 @@ test.describe("FormFilling room tests", () => {
     await myRooms.createFormFillingRoom("FormFillingRoom");
   });
 
-  test("Take A Tour", async ({ page }) => {
+  test("Take A Tour", async () => {
     await test.step("TakeATourAfterCreatingFormFillingRoom", async () => {
       await shortTour.checkStep("welcome");
       await shortTour.clickStartTour();
