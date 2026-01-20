@@ -27,6 +27,9 @@ const SHARED_LINKS_AVATAR =
 const CREATE_SHARED_LINKS_ICON = "[data-tooltip-id='file-links-tooltip']";
 const ROOM_ICON = ".item-icon [data-testid='room-icon']";
 const FORMFILLING_SHARED_LINK = "Link to fill out";
+const SHARED_LINK_COMBOBOX_ACCESS = '[data-test-id="combo-button"]';
+const SHARING_ACCESS_ANYONE_WITH_LINK = "drop_down_item_anyone";
+const SHARING_ACCESS_DOCSPACE_USERS = "drop_down_item_users";
 
 class InfoPanel {
   protected page: Page;
@@ -240,6 +243,45 @@ class InfoPanel {
     await expect(this.createSharedLinksIcon).toBeVisible();
     await this.createSharedLinksIcon.click();
     await expect(this.sharedLinksAvatar).toHaveCount(currentLinksCount + 1);
+  }
+  private get linkComboboxAccess() {
+    return this.infoPanel.locator(SHARED_LINK_COMBOBOX_ACCESS);
+  }
+  async clickLinkComboboxAccess() {
+    await this.linkComboboxAccess.click();
+  }
+  async getCurrentLinkAccess(): Promise<
+    "anyone with the link" | "docspace users only" | null
+  > {
+    const anyoneSelected = await this.page
+      .locator(
+        `[data-testid="${SHARING_ACCESS_ANYONE_WITH_LINK}"][aria-selected="true"]`,
+      )
+      .isVisible();
+    if (anyoneSelected) return "anyone with the link";
+
+    const usersSelected = await this.page
+      .locator(
+        `[data-testid="${SHARING_ACCESS_DOCSPACE_USERS}"][aria-selected="true"]`,
+      )
+      .isVisible();
+    if (usersSelected) return "docspace users only";
+
+    return null;
+  }
+  async selectLinkAccess(
+    option: "anyone with the link" | "docspace users only",
+  ) {
+    const currentText = await this.linkComboboxAccess.textContent();
+    if (currentText?.trim() === option) {
+      await this.linkComboboxAccess.click();
+      return;
+    }
+    await this.linkComboboxAccess.waitFor({ state: "visible" });
+    await this.linkComboboxAccess.click();
+    const optionLocator = this.page.getByText(option).first();
+    await optionLocator.waitFor({ state: "visible" });
+    await optionLocator.click();
   }
 }
 

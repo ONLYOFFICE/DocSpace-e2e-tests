@@ -1,19 +1,13 @@
-import BaseDialog from "../common/BaseDialog";
+import BaseInviteDialog from "../common/BaseInviteDialog";
 
-const ACCESS_SELECTOR = ".access-selector";
+const ROLE_WARNING = ".role-warning";
 
-class RoomsInviteDialog extends BaseDialog {
-  async checkInviteTitleExist() {
-    await this.checkDialogTitleExist("Invite");
+class RoomsInviteDialog extends BaseInviteDialog {
+  private get roleWarning() {
+    return this.page.locator(ROLE_WARNING);
   }
-
-  private get accessSelector() {
-    return this.page.locator(ACCESS_SELECTOR);
-  }
-
-  async openAccessSelector() {
-    await this.accessSelector.click();
+  async checkRoleWarningVisible() {
+    await this.roleWarning.waitFor({ state: "visible" });
   }
 }
-
 export default RoomsInviteDialog;
