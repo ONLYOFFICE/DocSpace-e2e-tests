@@ -66,9 +66,6 @@ export default defineConfig({
       name: "api-tests",
       testMatch: "**/api/**/*.spec.ts", // Only API tests
       workers: 1,
-      // use: {
-      //   baseURL: 'https://autotestplaywright.onlyoffice.io',
-      // },
     },
     {
       name: "chromium",
