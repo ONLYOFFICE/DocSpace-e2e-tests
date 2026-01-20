@@ -9,7 +9,7 @@ class Apisystem {
   portalName: string = "";
   authToken: string = "";
 
-  private auth: Auth
+  private auth: Auth;
 
   constructor(apiContext: APIRequestContext, auth: Auth) {
     this.apiContext = apiContext;
