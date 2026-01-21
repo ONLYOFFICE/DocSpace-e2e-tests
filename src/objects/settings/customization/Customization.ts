@@ -2,6 +2,8 @@ import BasePage from "@/src/objects/common/BasePage";
 import { navItems } from "@/src/utils/constants/settings";
 import { expect, Page, Locator } from "@playwright/test";
 import { BaseDropdown } from "@/src/objects/common/BaseDropdown";
+import path from "path";
+import fs from "fs";
 
 class Customization extends BasePage {
   protected dropdown: BaseDropdown;
@@ -264,7 +266,12 @@ class Customization extends BasePage {
 
   async uploadPictures() {
     const upload = async (selector: string, filePath: string) => {
-      await this.page.locator(selector).setInputFiles(filePath);
+      const resolvedPath = path.resolve(process.cwd(), filePath);
+
+      if (!fs.existsSync(resolvedPath)) {
+        throw new Error(`File not found: ${resolvedPath}`);
+      }
+      await this.page.locator(selector).setInputFiles(resolvedPath);
       await this.page.waitForTimeout(2000);
     };
 

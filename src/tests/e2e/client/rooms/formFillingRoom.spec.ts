@@ -104,8 +104,8 @@ test.describe("FormFilling room tests", () => {
     });
     await test.step("ClickUploadFormFromDevice", async () => {
       const pdfPath = path.resolve(
-        __dirname,
-        "../../../../data/rooms/PDF from device.pdf",
+        process.cwd(),
+        "data/rooms/PDF from device.pdf",
       );
       console.log("PDF Path:", pdfPath);
       console.log("Exists:", fs.existsSync(pdfPath));
