@@ -6,7 +6,7 @@ import FilesPdfForm from "@/src/objects/files/FilesPdfForm";
 import RoomPDFCompleted from "@/src/objects/rooms/RoomPDFCompleted";
 import InfoPanel from "@/src/objects/common/InfoPanel";
 import path from "path";
-import { Page } from "@playwright/test";
+import { BrowserContext, Page } from "@playwright/test";
 import { expect } from "@playwright/test";
 import FilesTable from "@/src/objects/files/FilesTable";
 import RoomEmptyView from "@/src/objects/rooms/RoomEmptyView";
@@ -26,6 +26,8 @@ test.describe("FormFilling room tests", () => {
   let infoPanel: InfoPanel;
   let roomInfoPanel: RoomInfoPanel;
   let roomsInviteDialog: RoomsInviteDialog;
+  let incognitoContext: BrowserContext | null = null;
+  let incognitoPage: Page | null = null;
 
   test.beforeEach(async ({ page, api, login }) => {
     myRooms = new MyRooms(page, api.portalDomain);
@@ -38,6 +40,16 @@ test.describe("FormFilling room tests", () => {
     roomsInviteDialog = new RoomsInviteDialog(page);
     await login.loginToPortal();
     await myRooms.createFormFillingRoom("FormFillingRoom");
+  });
+  test.afterEach(async () => {
+    if (incognitoPage) {
+      await incognitoPage.close().catch(() => {});
+      incognitoPage = null;
+    }
+    if (incognitoContext) {
+      await incognitoContext.close().catch(() => {});
+      incognitoContext = null;
+    }
   });
 
   test("Take A Tour", async () => {
@@ -339,6 +351,67 @@ test.describe("FormFilling room tests", () => {
       await infoPanel.clickLinkComboboxAccess();
       const currentOption = await infoPanel.getCurrentLinkAccess();
       expect(currentOption).toBe("docspace users only"); //Bug 79256
+    });
+  });
+  test("Filling PDF Form with link by anonymous", async ({ page, browser }) => {
+    await test.step("Upload PDF Form from My Documents", async () => {
+      await shortTour.clickSkipTour();
+      await roomEmptyView.uploadPdfFromDocSpace();
+      await selectPanel.checkSelectorExist();
+      await selectPanel.select("documents");
+      await selectPanel.selectItemByText("ONLYOFFICE Resume Sample");
+      await selectPanel.confirmSelection();
+      await shortTour.clickModalCloseButton().catch(() => {});
+      await myRooms.infoPanel.close();
+      await expect(page.getByLabel("ONLYOFFICE Resume Sample,")).toBeVisible();
+    });
+    await test.step("Copy shared link for PDF form", async () => {
+      const origin = new URL(page.url()).origin;
+      await page
+        .context()
+        .grantPermissions(["clipboard-read", "clipboard-write"], {
+          origin,
+        });
+      await filesTable.openContextMenuForItem("ONLYOFFICE Resume Sample");
+      await filesTable.contextMenu.clickSubmenuOption(
+        "Share",
+        "Copy shared link",
+      );
+      await myRooms.toast.dismissToastSafely("Link copied to clipboard", 5000);
+    });
+    await test.step("Open PDF form in incognito", async () => {
+      const url = await page.evaluate(() => navigator.clipboard.readText());
+      if (!url) throw new Error("Clipboard is empty");
+      incognitoContext = await browser.newContext();
+      incognitoPage = await incognitoContext.newPage();
+      await incognitoPage.goto(url, { waitUntil: "domcontentloaded" });
+    });
+    let completedForm: RoomPDFCompleted;
+    await test.step("Submit not filled PDF Form", async () => {
+      if (!incognitoPage) throw new Error("incognitoPage not initialized");
+      const pdfForm = new FilesPdfForm(incognitoPage);
+      completedForm = await pdfForm.clickSubmitButton();
+      await completedForm.checkDocumentTitleIsVisible(
+        "1 - ONLYOFFICE Resume Sample",
+      );
+    });
+    await test.step("Check back to room button is hidden", async () => {
+      await completedForm.checkBackToRoomButtonHidden();
+    });
+    await test.step("Check download button is visible and clickable", async () => {
+      if (!incognitoPage) throw new Error("incognitoPage not initialized");
+      await completedForm.checkDownloadButtonVisible();
+    });
+    await test.step("Click download button and verify download starts", async () => {
+      if (!incognitoPage) throw new Error("incognitoPage not initialized");
+      const [download] = await Promise.all([
+        incognitoPage.waitForEvent("download"),
+        completedForm.clickDownloadButton(),
+      ]);
+      const fileName = await download.suggestedFilename();
+      expect(fileName).toMatch(/ONLYOFFICE Resume Sample.*\.pdf$/i);
+      // cancel download to avoid file saving
+      await download.cancel();
     });
   });
 });
