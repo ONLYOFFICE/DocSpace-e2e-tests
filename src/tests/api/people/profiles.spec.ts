@@ -177,7 +177,7 @@ test.describe("API profile methods", () => {
       email: faker.internet.email(),
       firstName: faker.person.firstName(),
       lastName: faker.person.lastName(),
-      type: "User"
+      type: "User",
     };
 
     const response = await apiSdk.profiles.roomAdminAddsUser(userData);

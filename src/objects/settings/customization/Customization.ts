@@ -273,7 +273,7 @@ class Customization extends BasePage {
       }
       await Promise.all([
         this.page.waitForResponse(
-          (res) => res.url().includes("/upload") && res.status() === 200
+          (res) => res.url().includes("/upload") && res.status() === 200,
         ),
         this.page.locator(selector).setInputFiles(resolvedPath),
       ]);
