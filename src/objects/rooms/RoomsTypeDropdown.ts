@@ -25,11 +25,10 @@ class RoomsTypesDropdown {
   }
 
   async selectRoomTypeByTitle(title: TRoomCreateTitles) {
-    const roomType = this.roomTypesDropdown.getByTitle(title, { exact: true });
+    const roomType = this.roomTypesDropdown.getByText(title, { exact: true });
     await expect(roomType).toBeVisible();
     await roomType.click();
     await expect(this.roomTypesDropdown).not.toBeVisible();
-    await expect(this.roomTypeDropdownButton).toHaveAttribute("title", title);
   }
 }
 

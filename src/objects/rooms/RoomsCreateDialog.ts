@@ -46,12 +46,12 @@ class RoomsCreateDialog extends BaseDialog {
   }
 
   async checkRoomTypeExist(roomType: TRoomCreateTitles) {
-    await expect(this.dialog.getByTitle(roomType)).toBeVisible();
+    await expect(this.dialog.getByText(roomType)).toBeVisible();
   }
 
   async openRoomType(title: TRoomCreateTitles) {
     if (title !== roomCreateTitles.fromTemplate) {
-      await this.dialog.getByTitle(title).click();
+      await this.dialog.getByText(title).click();
       await expect(this.roomTypeDropdownButton).toBeVisible();
     } else {
       const promise = waitForGetRoomsResponse(this.page);

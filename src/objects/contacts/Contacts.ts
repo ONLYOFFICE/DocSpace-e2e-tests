@@ -222,19 +222,19 @@ class Contacts extends BasePage {
   }
 
   async openChangeOwnerDialog() {
-    await this.table.openContextMenu(ADMIN_OWNER_NAME);
+    await this.table.openContextMenuByNameText(ADMIN_OWNER_NAME);
     await this.table.clickContextMenuOption(ownerContextMenuOption.changeOwner);
     await this.dialog.checkDialogTitleExist("Change owner");
   }
 
   async openChangeNameDialog() {
-    await this.table.openContextMenu(ADMIN_OWNER_NAME);
+    await this.table.openContextMenuByNameText(ADMIN_OWNER_NAME);
     await this.table.clickContextMenuOption(ownerContextMenuOption.changeName);
     await this.dialog.checkDialogTitleExist("Change name");
   }
 
   async openChangeEmailDialog() {
-    await this.table.openContextMenu(ADMIN_OWNER_NAME);
+    await this.table.openContextMenuByNameText(ADMIN_OWNER_NAME);
     await this.table.clickContextMenuOption(ownerContextMenuOption.changeEmail);
     await this.dialog.checkDialogTitleExist("Change email");
   }
@@ -246,7 +246,7 @@ class Contacts extends BasePage {
   }
 
   async openChangePasswordDialog() {
-    await this.table.openContextMenu(ADMIN_OWNER_NAME);
+    await this.table.openContextMenuByNameText(ADMIN_OWNER_NAME);
     await this.table.clickContextMenuOption(
       ownerContextMenuOption.changePassword,
     );

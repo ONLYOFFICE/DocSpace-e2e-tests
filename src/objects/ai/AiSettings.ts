@@ -10,13 +10,11 @@ class AiSettings extends BasePage {
   }
 
   private get addProviderButton() {
-    return this.page.locator('[aria-label="Add AI provider"]');
+    return this.page.getByTestId("add-provider-button");
   }
 
   private get addMcpServerButton() {
-    return this.page.locator(
-      '[aria-label="Add MCP Server"][data-testid="button"]',
-    );
+    return this.page.getByTestId("add-mcp-button");
   }
 
   private get providersTab() {

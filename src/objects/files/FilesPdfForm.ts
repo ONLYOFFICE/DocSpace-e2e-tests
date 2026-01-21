@@ -2,6 +2,7 @@ import { expect, Page } from "@playwright/test";
 import RoomPDFCompleted from "../rooms/RoomPDFCompleted";
 
 const SUBMIT_BUTTON = "#id-submit-group";
+const CLOSE_BUTTON = "#id-btn-close-editor";
 
 class FilesPdfForm {
   private page: Page | null;
@@ -33,6 +34,18 @@ class FilesPdfForm {
 
   async checkSubmitButtonExist() {
     await expect(this.submitButton).toBeVisible();
+  }
+  get closeButton() {
+    if (!this.page) {
+      throw new Error("PDF form page not set. Please call setPdfPage() first");
+    }
+    return this.page
+      .frameLocator('iframe[name="frameEditor"]')
+      .locator(CLOSE_BUTTON);
+  }
+
+  async clickCloseButton() {
+    await this.closeButton.click();
   }
 }
 
