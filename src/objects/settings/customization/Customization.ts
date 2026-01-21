@@ -14,10 +14,10 @@ class Customization extends BasePage {
   }
 
   get languageSelector() {
-    return this.page.locator('[data-test-id="combo-button"]').first();
+    return this.page.getByTestId("language_and_time_zone_combo_box_language");
   }
   get timezoneSelector() {
-    return this.page.locator('[data-test-id="combo-button"]').nth(1);
+    return this.page.getByTestId("language_and_time_zone_combo_box_timezone");
   }
   get settingsTitle() {
     return this.page.getByText(

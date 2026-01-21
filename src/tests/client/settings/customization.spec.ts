@@ -26,12 +26,12 @@ test.describe("Customization", () => {
   test("Customization full flow", async ({ api, page }) => {
     await test.step("Change lang&time", async () => {
       await customization.changeLanguage("English (United States)");
-      await customization.changeTimezone("(UTC) Antarctica/Troll");
+      await customization.changeTimezone("(UTC+05:00) Maldives Time");
       await customization.settingsTitle.click();
       await customization.languageTimeZoneSaveButton.click();
       await customization.removeToast(toastMessages.settingsUpdated);
       await customization.changeLanguage("English (United Kingdom)");
-      await customization.changeTimezone("(UTC) Europe/London");
+      await customization.changeTimezone("(UTC+00:00) United Kingdom Time");
       await customization.settingsTitle.click();
       await customization.languageTimeZoneSaveButton.click();
       await customization.removeToast(toastMessages.settingsUpdated);
