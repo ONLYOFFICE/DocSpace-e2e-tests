@@ -167,9 +167,8 @@ test.describe("API profile methods", () => {
     expect(response.status()).toBe(403);
     expect(body.error.message).toContain("Access denied");
   });
-  // Test for room admin creates User don't work, room admin can't create user because access denied
 
-  /*  test('Room admin creates User', async ({ apiSdk, api }) => {
+  test('Room admin creates User', async ({ apiSdk, api }) => {
     await apiSdk.profiles.addMemberRoomAdmin();
     await api.auth.authenticateRoomAdmin();
 
@@ -183,11 +182,15 @@ test.describe("API profile methods", () => {
 
     const response = await apiSdk.profiles.roomAdminAddsUser(userData);
     const body = await response.json();
-    console.log(body);
-    // expect(response.status()).toBe(403);
-    // expect(body.error.message).toContain('Access denied');
+    expect(response.status()).toBe(200);
+    expect(body.response.isCollaborator).toBe(true);
+    expect(body.response.isOwner).toBe(false);
+    expect(body.response.isVisitor).toBe(false);
+    expect(body.response.isAdmin).toBe(false);
+    expect(body.response.isRoomAdmin).toBe(false);
+    expect(body.response.isLDAP).toBe(false);
   });
-*/
+
   test("User creates User", async ({ apiSdk, api }) => {
     await apiSdk.profiles.addMemberUser();
     await api.auth.authenticateUser();
