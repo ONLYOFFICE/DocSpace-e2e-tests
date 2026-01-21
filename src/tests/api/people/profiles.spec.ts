@@ -168,11 +168,11 @@ test.describe("API profile methods", () => {
     expect(body.error.message).toContain("Access denied");
   });
 
-  test('Room admin creates User', async ({ apiSdk, api }) => {
+  test("Room admin creates User", async ({ apiSdk, api }) => {
     await apiSdk.profiles.addMemberRoomAdmin();
     await api.auth.authenticateRoomAdmin();
 
-     const userData = {
+    const userData = {
       password: faker.internet.password({ length: 12 }),
       email: faker.internet.email(),
       firstName: faker.person.firstName(),

@@ -272,8 +272,8 @@ class Customization extends BasePage {
         throw new Error(`File not found: ${resolvedPath}`);
       }
       await Promise.all([
-        this.page.waitForResponse(res =>
-          res.url().includes("/upload") && res.status() === 200
+        this.page.waitForResponse(
+          (res) => res.url().includes("/upload") && res.status() === 200
         ),
         this.page.locator(selector).setInputFiles(resolvedPath),
       ]);
