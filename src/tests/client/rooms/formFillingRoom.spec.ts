@@ -326,7 +326,7 @@ test.describe("FormFilling room tests", () => {
       await filesTable.openContextMenuForItem("ONLYOFFICE Resume Sample");
       await filesTable.contextMenu.clickSubmenuOption(
         "Share",
-        "Sharing setting",
+        "Sharing settings",
       );
       await infoPanel.selectLinkAccess("docspace users only");
       await myRooms.toast.dismissToastSafely("Link copied to clipboard", 10000);
