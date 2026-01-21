@@ -35,7 +35,7 @@ test.describe("Profile", () => {
       await profile.lastNameInput.fill(updatedLastName);
       await profile.changeNameSaveButton.click();
 
-      await expect(profile.displayedName).toHaveText(updatedFullName);
+      await profile.expectNameVisible(updatedFullName);
     });
 
     await test.step("Upload avatar", async () => {

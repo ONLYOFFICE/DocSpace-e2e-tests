@@ -324,7 +324,10 @@ test.describe("FormFilling room tests", () => {
     });
     await test.step("Change link to file", async () => {
       await filesTable.openContextMenuForItem("ONLYOFFICE Resume Sample");
-      await filesTable.contextMenu.clickSubmenuOption("Share", "Manage");
+      await filesTable.contextMenu.clickSubmenuOption(
+        "Share",
+        "Sharing setting",
+      );
       await infoPanel.selectLinkAccess("docspace users only");
       await myRooms.toast.dismissToastSafely("Link copied to clipboard", 10000);
       await myRooms.infoPanel.close();

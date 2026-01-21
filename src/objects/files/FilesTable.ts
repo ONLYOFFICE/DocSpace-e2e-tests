@@ -5,8 +5,8 @@ import { initialDocNames } from "@/src/utils/constants/files";
 
 const TABLE_LIST_ITEM = ".table-list-item.window-item";
 
-const DOCX_FILE_LINK = ".files-item a[title$='.docx']";
-const PDF_FILE_LINK = ".files-item a[title$='.pdf']";
+const DOCX_FILE_LINK = ".files-item [data-document-title$='.docx']";
+const PDF_FILE_LINK = ".files-item [data-document-title$='.pdf']";
 const MODIFIED_CHECKBOX =
   ".table-container_settings-checkbox:has(span:text-is('Modified'))";
 
