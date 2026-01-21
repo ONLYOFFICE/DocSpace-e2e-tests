@@ -21,6 +21,32 @@ class ContactsTable extends BaseTable {
     return row.locator(".disabled-badge");
   }
 
+  async getRowByNameText(name: string) {
+    return this.tableRows.filter({
+      has: this.page
+        .getByTestId("contacts_users_username_text")
+        .filter({ hasText: name }),
+    });
+  }
+
+  async checkRowExistByNameText(name: string) {
+    const row = await this.getRowByNameText(name);
+    await expect(row).toBeVisible();
+  }
+
+  async selectRowByNameText(name: string) {
+    const row = await this.getRowByNameText(name);
+    await expect(row).toBeVisible();
+    const avatar = row.getByTestId("avatar");
+    await avatar.click({ force: true });
+  }
+
+  async openContextMenuByNameText(name: string) {
+    const row = await this.getRowByNameText(name);
+    await expect(row).toBeVisible();
+    await row.click({ button: "right" });
+  }
+
   async getCountPaidUsers() {
     const countPaidUsers = this.tableRows.filter({
       has: this.page.locator(".paid-badge"),

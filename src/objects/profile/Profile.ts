@@ -54,6 +54,10 @@ export class Profile extends BasePage {
     return this.page.locator("p[data-testid='text'][title]").first();
   }
 
+  get mainProfile(): Locator {
+    return this.page.getByTestId("main-profile");
+  }
+
   get languageLabel(): Locator {
     return this.page.locator(
       "[data-testid='text'].Profile-module__profileLanguage--hL2Lt",
@@ -146,6 +150,10 @@ export class Profile extends BasePage {
     );
   }
 
+  async expectNameVisible(fullName: string) {
+    await expect(this.mainProfile).toContainText(fullName);
+  }
+
   async navigateToProfile() {
     await this.userMenuButton.click();
     await this.profileMenuItem.click();
@@ -153,7 +161,7 @@ export class Profile extends BasePage {
 
   async open() {
     await this.navigateToProfile();
-    await this.displayedName.waitFor({ state: "visible" });
+    await this.mainProfile.waitFor({ state: "visible" });
     const avatarSrc = await this.avatarImage.getAttribute("src");
     this.initialAvatarSrc = avatarSrc;
     this.currentAvatarSrc = avatarSrc;

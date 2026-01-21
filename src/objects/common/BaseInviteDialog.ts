@@ -95,7 +95,7 @@ class BaseInviteDialog extends BaseDialog {
   }
   async verifyUserRole(email: string, expectedRole: string) {
     const userRow = this.page.locator(ROW_ITEM, { hasText: email });
-    await expect(userRow.locator(`[title="${expectedRole}"]`)).toBeVisible();
+    await expect(userRow).toContainText(expectedRole);
   }
 }
 

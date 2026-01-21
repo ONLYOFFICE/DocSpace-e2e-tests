@@ -1,8 +1,8 @@
 export const roomCreateTitles = {
   public: "Public room",
-  formFilling: "Form filling room",
+  formFilling: "Form Filling room",
   collaboration: "Collaboration room",
-  virtualData: "Virtual data room",
+  virtualData: "Virtual Data room",
   custom: "Custom room",
   fromTemplate: "From template",
 } as const;
@@ -28,7 +28,7 @@ export const roomContextMenuOption = {
   duplicate: "Duplicate",
   pinToTop: "Pin to top",
   disableNotifications: "Disable notifications",
-  manage: "Manage",
+  manage: "More options",
 } as const;
 
 export const templateContextMenuOption = {

@@ -22,7 +22,7 @@ test.describe(() => {
 
   test("Contacts", async () => {
     await test.step("EmptyView", async () => {
-      await contacts.table.checkRowExist(ADMIN_OWNER_NAME);
+      await contacts.table.checkRowExistByNameText(ADMIN_OWNER_NAME);
 
       await contacts.table.openSettings();
       await contacts.table.closeSettings();
@@ -205,8 +205,7 @@ test.describe(() => {
     await test.step("Members", async () => {
       await contacts.openTab("Members");
       await contacts.infoPanel.open();
-      await contacts.table.selectRow(ADMIN_OWNER_NAME);
-      await contacts.infoPanel.hideRegistrationDate();
+      await contacts.table.selectRowByNameText(ADMIN_OWNER_NAME);
 
       await contacts.infoPanel.openContactsOptions();
       await contacts.infoPanel.close();
@@ -224,7 +223,7 @@ test.describe(() => {
         "empty_search",
       );
       await contacts.peopleFilter.clearFilter();
-      await contacts.table.checkRowExist(ADMIN_OWNER_NAME);
+      await contacts.table.checkRowExistByNameText(ADMIN_OWNER_NAME);
     });
 
     await test.step("Groups", async () => {
