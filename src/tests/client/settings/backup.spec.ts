@@ -115,10 +115,7 @@ test.describe("Backup portal tests", () => {
       await backup.navigateToArticle(navItems.backup);
       await backup.selectBackupMethod(mapBackupMethodsIds.thirdPartyStorage);
       await backup.locators.bucketInput.fill("portals-manual");
-      await backup.openRegionDropdown();
-      await backup.regionDropdown.clickOption(
-        "US East (N. Virginia) (us-east-1)",
-      );
+      await backup.selectRegion("US East (N. Virginia) (us-east-1)");
       await backup.locators.createAmazonCopyButton.click();
       await backup.dismissToastSafely(toastMessages.backCopyCreated, 80000);
     });
