@@ -62,7 +62,7 @@ export class ProfilesApi {
           data: userData,
         },
       );
-      return response;
+      return {response, userData};
     });
   }
 
@@ -98,7 +98,7 @@ export class ProfilesApi {
           data: userData,
         },
       );
-      return response;
+      return {response, userData};
     });
   }
 
@@ -134,7 +134,7 @@ export class ProfilesApi {
           data: userData,
         },
       );
-      return response;
+      return {response, userData};
     });
   }
 
@@ -192,7 +192,7 @@ export class ProfilesApi {
     });
   }
 
-  async docSpaceAdminAddsDocSpaceAdmin(data: {
+  async docSpaceAdminAddsUsers(data: {
     password: string;
     email: string;
     firstName: string;
@@ -200,60 +200,6 @@ export class ProfilesApi {
     type: string;
   }) {
     return test.step("DocSpace admin adds DocSpace admin", async () => {
-      const userData = {
-        password: data.password,
-        email: data.email,
-        firstName: data.firstName,
-        lastName: data.lastName,
-        type: data.type,
-      };
-
-      const response = await this.request.post(
-        `https://${this.portalDomain}/api/2.0/people`,
-        {
-          headers: { Authorization: `Bearer ${this.authTokenDocSpaceAdmin}` },
-          data: userData,
-        },
-      );
-      return response;
-    });
-  }
-
-  async docSpaceAdminAddsRoomAdmin(data: {
-    password: string;
-    email: string;
-    firstName: string;
-    lastName: string;
-    type: string;
-  }) {
-    return test.step("DocSpace admin adds room admin", async () => {
-      const userData = {
-        password: data.password,
-        email: data.email,
-        firstName: data.firstName,
-        lastName: data.lastName,
-        type: data.type,
-      };
-
-      const response = await this.request.post(
-        `https://${this.portalDomain}/api/2.0/people`,
-        {
-          headers: { Authorization: `Bearer ${this.authTokenDocSpaceAdmin}` },
-          data: userData,
-        },
-      );
-      return response;
-    });
-  }
-
-  async docSpaceAdminAddsUser(data: {
-    password: string;
-    email: string;
-    firstName: string;
-    lastName: string;
-    type: string;
-  }) {
-    return test.step("DocSpace admin adds user", async () => {
       const userData = {
         password: data.password,
         email: data.email,
@@ -353,4 +299,195 @@ export class ProfilesApi {
       return response;
     });
   }
+
+  async ownerReturnAllUsersList() {
+    return test.step("Return all users list", async () => {
+      const response = await this.request.get(
+        `https://${this.portalDomain}/api/2.0/people`,
+        {
+          headers: { Authorization: `Bearer ${this.authTokenOwner}` },
+        },
+      );
+      return response;
+    });
+  }
+
+  async docSpaceAdminReturnAllUsersList() {
+    return test.step("Return all users list", async () => {
+      const response = await this.request.get(
+        `https://${this.portalDomain}/api/2.0/people`,
+        {
+          headers: { Authorization: `Bearer ${this.authTokenDocSpaceAdmin}` },
+        },
+      );
+      return response;
+    });
+  }
+
+  async roomAdminReturnAllUsersList() {
+    return test.step("Return all users list", async () => {
+      const response = await this.request.get(
+        `https://${this.portalDomain}/api/2.0/people`,
+        {
+          headers: { Authorization: `Bearer ${this.authTokenRoomAdmin}` },
+        },
+      );
+      return response;
+    });
+  }
+
+  async userReturnAllUsersList() {
+    return test.step("Return all users list", async () => {
+      const response = await this.request.get(
+        `https://${this.portalDomain}/api/2.0/people`,
+        {
+          headers: { Authorization: `Bearer ${this.authTokenUser}` },
+        },
+      );
+      return response;
+    });
+  }
+
+  async ownerInviteUser(data: {
+    type: string;
+    email: string;
+  }) {
+    return test.step("Owner invite user", async () => {
+      const userData = {
+      invitations:[
+        {
+        type: data.type,
+        email: data.email,
+      }
+      ]};
+
+      const response = await this.request.post(
+        `https://${this.portalDomain}/api/2.0/people/invite`,
+        {
+          headers: { Authorization: `Bearer ${this.authTokenOwner}` },
+          data: userData,
+        },
+      );
+      return response;
+    });
+  }
+
+  async docSpaceAdminInviteUser(data: {
+    type: string;
+    email: string;
+  }) {
+    return test.step("DocSpace admin invite user", async () => {
+      const userData = {
+      invitations:[
+        {
+        type: data.type,
+        email: data.email,
+      }
+      ]};
+
+      const response = await this.request.post(
+        `https://${this.portalDomain}/api/2.0/people/invite`,
+        {
+          headers: { Authorization: `Bearer ${this.authTokenDocSpaceAdmin}` },
+          data: userData,
+        },
+      );
+      return response;
+    });
+  }
+
+  async roomAdminInviteUser(data: {
+    type: string;
+    email: string;
+  }) {
+    return test.step("Room admin invite user", async () => {
+      const userData = {
+      invitations:[
+        {
+        type: data.type,
+        email: data.email,
+      }
+      ]};
+
+      const response = await this.request.post(
+        `https://${this.portalDomain}/api/2.0/people/invite`,
+        {
+          headers: { Authorization: `Bearer ${this.authTokenRoomAdmin}` },
+          data: userData,
+        },
+      );
+      return response;
+    });
+  }
+
+  async userInviteUser(data: {
+    type: string;
+    email: string;
+  }) {
+    return test.step("User invite user", async () => {
+      const userData = {
+      invitations:[
+        {
+        type: data.type,
+        email: data.email,
+      }
+      ]};
+
+      const response = await this.request.post(
+        `https://${this.portalDomain}/api/2.0/people/invite`,
+        {
+          headers: { Authorization: `Bearer ${this.authTokenUser}` },
+          data: userData,
+        },
+      );
+      return response;
+    });
+  }
+
+  async inviteUserForLongEmail(data: {
+    type: string;
+    email: string;
+  }) {
+    return test.step("Invite User for long email", async () => {
+      const userData = {
+      invitations:[
+        {
+        type: data.type,
+        email: data.email,
+      }
+      ]};
+
+      const response = await this.request.post(
+        `https://${this.portalDomain}/api/2.0/people/invite`,
+        {
+          headers: { Authorization: `Bearer ${this.authTokenOwner}` },
+          data: userData,
+        },
+      );
+      return response;
+    });
+  }
+
+  async resendActavationEmails(data: {
+    userIds: string[];
+    resendAll: boolean;
+  }) {
+    return test.step("Resend activation emails", async () => {
+      const userData = {
+        userIds: data.userIds,
+        resendAll: data.resendAll,
+      };
+
+      const response = await this.request.put(
+        `https://${this.portalDomain}/api/2.0/people/invite`,
+        {
+          headers: { Authorization: `Bearer ${this.authTokenOwner}` },
+          data: userData,
+        },
+      );
+      return response;
+    });
+  }
+
+
 }
