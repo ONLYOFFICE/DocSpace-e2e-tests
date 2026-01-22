@@ -62,7 +62,7 @@ export class ProfilesApi {
           data: userData,
         },
       );
-      return {response, userData};
+      return { response, userData };
     });
   }
 
@@ -98,7 +98,7 @@ export class ProfilesApi {
           data: userData,
         },
       );
-      return {response, userData};
+      return { response, userData };
     });
   }
 
@@ -134,7 +134,7 @@ export class ProfilesApi {
           data: userData,
         },
       );
-      return {response, userData};
+      return { response, userData };
     });
   }
 
@@ -348,18 +348,16 @@ export class ProfilesApi {
     });
   }
 
-  async ownerInviteUser(data: {
-    type: string;
-    email: string;
-  }) {
+  async ownerInviteUser(data: { type: string; email: string }) {
     return test.step("Owner invite user", async () => {
       const userData = {
-      invitations:[
-        {
-        type: data.type,
-        email: data.email,
-      }
-      ]};
+        invitations: [
+          {
+            type: data.type,
+            email: data.email,
+          },
+        ],
+      };
 
       const response = await this.request.post(
         `https://${this.portalDomain}/api/2.0/people/invite`,
@@ -372,18 +370,16 @@ export class ProfilesApi {
     });
   }
 
-  async docSpaceAdminInviteUser(data: {
-    type: string;
-    email: string;
-  }) {
+  async docSpaceAdminInviteUser(data: { type: string; email: string }) {
     return test.step("DocSpace admin invite user", async () => {
       const userData = {
-      invitations:[
-        {
-        type: data.type,
-        email: data.email,
-      }
-      ]};
+        invitations: [
+          {
+            type: data.type,
+            email: data.email,
+          },
+        ],
+      };
 
       const response = await this.request.post(
         `https://${this.portalDomain}/api/2.0/people/invite`,
@@ -396,18 +392,16 @@ export class ProfilesApi {
     });
   }
 
-  async roomAdminInviteUser(data: {
-    type: string;
-    email: string;
-  }) {
+  async roomAdminInviteUser(data: { type: string; email: string }) {
     return test.step("Room admin invite user", async () => {
       const userData = {
-      invitations:[
-        {
-        type: data.type,
-        email: data.email,
-      }
-      ]};
+        invitations: [
+          {
+            type: data.type,
+            email: data.email,
+          },
+        ],
+      };
 
       const response = await this.request.post(
         `https://${this.portalDomain}/api/2.0/people/invite`,
@@ -420,18 +414,16 @@ export class ProfilesApi {
     });
   }
 
-  async userInviteUser(data: {
-    type: string;
-    email: string;
-  }) {
+  async userInviteUser(data: { type: string; email: string }) {
     return test.step("User invite user", async () => {
       const userData = {
-      invitations:[
-        {
-        type: data.type,
-        email: data.email,
-      }
-      ]};
+        invitations: [
+          {
+            type: data.type,
+            email: data.email,
+          },
+        ],
+      };
 
       const response = await this.request.post(
         `https://${this.portalDomain}/api/2.0/people/invite`,
@@ -444,18 +436,16 @@ export class ProfilesApi {
     });
   }
 
-  async inviteUserForLongEmail(data: {
-    type: string;
-    email: string;
-  }) {
+  async inviteUserForLongEmail(data: { type: string; email: string }) {
     return test.step("Invite User for long email", async () => {
       const userData = {
-      invitations:[
-        {
-        type: data.type,
-        email: data.email,
-      }
-      ]};
+        invitations: [
+          {
+            type: data.type,
+            email: data.email,
+          },
+        ],
+      };
 
       const response = await this.request.post(
         `https://${this.portalDomain}/api/2.0/people/invite`,
@@ -488,6 +478,4 @@ export class ProfilesApi {
       return response;
     });
   }
-
-
 }

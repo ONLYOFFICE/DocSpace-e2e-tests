@@ -25,7 +25,7 @@ test.describe("API profile methods", () => {
   */
 
   test("Owner create User", async ({ apiSdk }) => {
-    const {response, userData} = await apiSdk.profiles.addMemberUser();
+    const { response } = await apiSdk.profiles.addMemberUser();
     const body = await response.json();
     expect(response.status()).toBe(200);
     expect(body.response.isCollaborator).toBe(true);
@@ -35,12 +35,12 @@ test.describe("API profile methods", () => {
     expect(body.response.isRoomAdmin).toBe(false);
     expect(body.response.isLDAP).toBe(false);
     expect(body.response.id).toMatch(
-      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
     );
   });
 
   test("Owner create Room Admin", async ({ apiSdk }) => {
-    const {response, userData} = await apiSdk.profiles.addMemberRoomAdmin();
+    const { response } = await apiSdk.profiles.addMemberRoomAdmin();
     const body = await response.json();
     expect(response.status()).toBe(200);
     expect(body.response.isCollaborator).toBe(false);
@@ -50,12 +50,12 @@ test.describe("API profile methods", () => {
     expect(body.response.isRoomAdmin).toBe(true);
     expect(body.response.isLDAP).toBe(false);
     expect(body.response.id).toMatch(
-      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
     );
   });
 
   test("Owner create DocSpace Admin", async ({ apiSdk }) => {
-    const {response, userData} = await apiSdk.profiles.addMemberDocSpaceAdmin();
+    const { response } = await apiSdk.profiles.addMemberDocSpaceAdmin();
     const body = await response.json();
     expect(response.status()).toBe(200);
     expect(body.response.isCollaborator).toBe(false);
@@ -65,7 +65,7 @@ test.describe("API profile methods", () => {
     expect(body.response.isRoomAdmin).toBe(false);
     expect(body.response.isLDAP).toBe(false);
     expect(body.response.id).toMatch(
-      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
     );
   });
 
@@ -119,8 +119,7 @@ test.describe("API profile methods", () => {
       type: "DocSpaceAdmin",
     };
 
-    const response =
-      await apiSdk.profiles.docSpaceAdminAddsUsers(userData);
+    const response = await apiSdk.profiles.docSpaceAdminAddsUsers(userData);
     const body = await response.json();
     expect(response.status()).toBe(403);
     expect(body.error.message).toContain("Access denied");
@@ -148,7 +147,7 @@ test.describe("API profile methods", () => {
     expect(body.response.isRoomAdmin).toBe(true);
     expect(body.response.isLDAP).toBe(false);
     expect(body.response.id).toMatch(
-      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
     );
   });
 
@@ -174,7 +173,7 @@ test.describe("API profile methods", () => {
     expect(body.response.isRoomAdmin).toBe(false);
     expect(body.response.isLDAP).toBe(false);
     expect(body.response.id).toMatch(
-      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
     );
   });
 
@@ -218,7 +217,7 @@ test.describe("API profile methods", () => {
     expect(body.response.isRoomAdmin).toBe(false);
     expect(body.response.isLDAP).toBe(false);
     expect(body.response.id).toMatch(
-      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
     );
   });
 
@@ -240,14 +239,12 @@ test.describe("API profile methods", () => {
     expect(body.error.message).toContain("Access denied");
   });
 
-
   test("Owner returns all users list", async ({ apiSdk }) => {
     const { userData: docSpaceAdminUserData } =
       await apiSdk.profiles.addMemberDocSpaceAdmin();
     const { userData: roomAdminUserData } =
       await apiSdk.profiles.addMemberRoomAdmin();
-    const { userData: userUserData } = 
-      await apiSdk.profiles.addMemberUser();
+    const { userData: userUserData } = await apiSdk.profiles.addMemberUser();
     const response = await apiSdk.profiles.ownerReturnAllUsersList();
     const body = (await response.json()) as { response: UsersListItem[] };
 
@@ -257,14 +254,16 @@ test.describe("API profile methods", () => {
     expect(response.status()).toBe(200);
     expect(owner).toBeTruthy();
     if (!owner) {
-      throw new Error(`Owner user not found in users list by email: ${config.DOCSPACE_OWNER_EMAIL}`);
+      throw new Error(
+        `Owner user not found in users list by email: ${config.DOCSPACE_OWNER_EMAIL}`,
+      );
     }
     expect(owner.firstName).toBe("admin-zero");
     expect(owner.lastName).toBe("admin-zero");
     expect(owner.email).toBe(config.DOCSPACE_OWNER_EMAIL);
     expect(owner.isOwner).toBe(true);
     expect(owner.id).toMatch(
-      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
     );
 
     const docspaceAdmin = body.response.find(
@@ -281,7 +280,7 @@ test.describe("API profile methods", () => {
     expect(docspaceAdmin.email).toBe(docSpaceAdminUserData.email);
     expect(docspaceAdmin.isAdmin).toBe(true);
     expect(docspaceAdmin.id).toMatch(
-      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
     );
 
     const roomAdmin = body.response.find(
@@ -298,7 +297,7 @@ test.describe("API profile methods", () => {
     expect(roomAdmin.email).toBe(roomAdminUserData.email);
     expect(roomAdmin.isRoomAdmin).toBe(true);
     expect(roomAdmin.id).toMatch(
-      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
     );
 
     const user = body.response.find(
@@ -306,14 +305,16 @@ test.describe("API profile methods", () => {
     );
     expect(user).toBeTruthy();
     if (!user) {
-      throw new Error(`User not found in users list by email: ${userUserData.email}`);
+      throw new Error(
+        `User not found in users list by email: ${userUserData.email}`,
+      );
     }
     expect(user.firstName).toBe(userUserData.firstName);
     expect(user.lastName).toBe(userUserData.lastName);
     expect(user.email).toBe(userUserData.email);
     expect(user.isCollaborator).toBe(true);
     expect(user.id).toMatch(
-      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
     );
   });
 
@@ -322,9 +323,8 @@ test.describe("API profile methods", () => {
       await apiSdk.profiles.addMemberDocSpaceAdmin();
     const { userData: roomAdminUserData } =
       await apiSdk.profiles.addMemberRoomAdmin();
-    const { userData: userUserData } = 
-      await apiSdk.profiles.addMemberUser();
-      await api.auth.authenticateDocSpaceAdmin();
+    const { userData: userUserData } = await apiSdk.profiles.addMemberUser();
+    await api.auth.authenticateDocSpaceAdmin();
 
     const response = await apiSdk.profiles.docSpaceAdminReturnAllUsersList();
     const body = (await response.json()) as { response: UsersListItem[] };
@@ -335,14 +335,16 @@ test.describe("API profile methods", () => {
     expect(response.status()).toBe(200);
     expect(owner).toBeTruthy();
     if (!owner) {
-      throw new Error(`Owner user not found in users list by email: ${config.DOCSPACE_OWNER_EMAIL}`);
+      throw new Error(
+        `Owner user not found in users list by email: ${config.DOCSPACE_OWNER_EMAIL}`,
+      );
     }
     expect(owner.firstName).toBe("admin-zero");
     expect(owner.lastName).toBe("admin-zero");
     expect(owner.email).toBe(config.DOCSPACE_OWNER_EMAIL);
     expect(owner.isOwner).toBe(true);
     expect(owner.id).toMatch(
-      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
     );
 
     const docspaceAdmin = body.response.find(
@@ -359,7 +361,7 @@ test.describe("API profile methods", () => {
     expect(docspaceAdmin.email).toBe(docSpaceAdminUserData.email);
     expect(docspaceAdmin.isAdmin).toBe(true);
     expect(docspaceAdmin.id).toMatch(
-      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
     );
 
     const roomAdmin = body.response.find(
@@ -376,7 +378,7 @@ test.describe("API profile methods", () => {
     expect(roomAdmin.email).toBe(roomAdminUserData.email);
     expect(roomAdmin.isRoomAdmin).toBe(true);
     expect(roomAdmin.id).toMatch(
-      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
     );
 
     const user = body.response.find(
@@ -384,14 +386,16 @@ test.describe("API profile methods", () => {
     );
     expect(user).toBeTruthy();
     if (!user) {
-      throw new Error(`User not found in users list by email: ${userUserData.email}`);
+      throw new Error(
+        `User not found in users list by email: ${userUserData.email}`,
+      );
     }
     expect(user.firstName).toBe(userUserData.firstName);
     expect(user.lastName).toBe(userUserData.lastName);
     expect(user.email).toBe(userUserData.email);
     expect(user.isCollaborator).toBe(true);
     expect(user.id).toMatch(
-      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
     );
   });
 
@@ -400,8 +404,7 @@ test.describe("API profile methods", () => {
       await apiSdk.profiles.addMemberDocSpaceAdmin();
     const { userData: roomAdminUserData } =
       await apiSdk.profiles.addMemberRoomAdmin();
-    const { userData: userUserData } = 
-      await apiSdk.profiles.addMemberUser();
+    const { userData: userUserData } = await apiSdk.profiles.addMemberUser();
     await api.auth.authenticateRoomAdmin();
 
     const response = await apiSdk.profiles.roomAdminReturnAllUsersList();
@@ -413,14 +416,16 @@ test.describe("API profile methods", () => {
     expect(response.status()).toBe(200);
     expect(owner).toBeTruthy();
     if (!owner) {
-      throw new Error(`Owner user not found in users list by email: ${config.DOCSPACE_OWNER_EMAIL}`);
+      throw new Error(
+        `Owner user not found in users list by email: ${config.DOCSPACE_OWNER_EMAIL}`,
+      );
     }
     expect(owner.firstName).toBe("admin-zero");
     expect(owner.lastName).toBe("admin-zero");
     expect(owner.email).toBe(config.DOCSPACE_OWNER_EMAIL);
     expect(owner.isOwner).toBe(true);
     expect(owner.id).toMatch(
-      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
     );
 
     const docspaceAdmin = body.response.find(
@@ -437,7 +442,7 @@ test.describe("API profile methods", () => {
     expect(docspaceAdmin.email).toBe(docSpaceAdminUserData.email);
     expect(docspaceAdmin.isAdmin).toBe(true);
     expect(docspaceAdmin.id).toMatch(
-      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
     );
 
     const roomAdmin = body.response.find(
@@ -454,7 +459,7 @@ test.describe("API profile methods", () => {
     expect(roomAdmin.email).toBe(roomAdminUserData.email);
     expect(roomAdmin.isRoomAdmin).toBe(true);
     expect(roomAdmin.id).toMatch(
-      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
     );
 
     const user = body.response.find(
@@ -462,14 +467,16 @@ test.describe("API profile methods", () => {
     );
     expect(user).toBeTruthy();
     if (!user) {
-      throw new Error(`User not found in users list by email: ${userUserData.email}`);
+      throw new Error(
+        `User not found in users list by email: ${userUserData.email}`,
+      );
     }
     expect(user.firstName).toBe(userUserData.firstName);
     expect(user.lastName).toBe(userUserData.lastName);
     expect(user.email).toBe(userUserData.email);
     expect(user.isCollaborator).toBe(true);
     expect(user.id).toMatch(
-      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
     );
   });
 
@@ -485,7 +492,6 @@ test.describe("API profile methods", () => {
   });
 
   test("Owner invites docspace admin", async ({ apiSdk }) => {
-
     const userData = {
       type: "DocSpaceAdmin",
       email: faker.internet.email(),
@@ -497,7 +503,7 @@ test.describe("API profile methods", () => {
     expect(response.status()).toBe(200);
     expect(invitedUser.displayName).toBe(userData.email);
     expect(invitedUser.id).toMatch(
-      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
     );
     expect(body.count).toBe(1);
     expect(invitedUser.hasAvatar).toBe(false);
@@ -505,7 +511,6 @@ test.describe("API profile methods", () => {
   });
 
   test("Owner invites room admin", async ({ apiSdk }) => {
-
     const userData = {
       type: "RoomAdmin",
       email: faker.internet.email(),
@@ -517,7 +522,7 @@ test.describe("API profile methods", () => {
     expect(response.status()).toBe(200);
     expect(invitedUser.displayName).toBe(userData.email);
     expect(invitedUser.id).toMatch(
-      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
     );
     expect(body.count).toBe(1);
     expect(invitedUser.hasAvatar).toBe(false);
@@ -525,7 +530,6 @@ test.describe("API profile methods", () => {
   });
 
   test("Owner invites user", async ({ apiSdk }) => {
-
     const userData = {
       type: "User",
       email: faker.internet.email(),
@@ -537,7 +541,7 @@ test.describe("API profile methods", () => {
     expect(response.status()).toBe(200);
     expect(invitedUser.displayName).toBe(userData.email);
     expect(invitedUser.id).toMatch(
-      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
     );
     expect(body.count).toBe(1);
     expect(invitedUser.hasAvatar).toBe(false);
@@ -550,18 +554,18 @@ test.describe("API profile methods", () => {
     const email = faker.internet.email();
 
     const response = await apiSdk.profiles.docSpaceAdminInviteUser({
-    type: "RoomAdmin",
-    email,
-  });
+      type: "RoomAdmin",
+      email,
+    });
     const body = await response.json();
     const invitedUser = body.response.find(
-    (user: UsersListItem) => user.displayName === email,
-  );
+      (user: UsersListItem) => user.displayName === email,
+    );
     expect(response.status()).toBe(200);
     expect(invitedUser).toBeDefined();
     expect(invitedUser.displayName).toBe(email);
     expect(invitedUser.id).toMatch(
-      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
     );
     expect(body.count).toBe(2);
     expect(invitedUser.hasAvatar).toBe(false);
@@ -574,18 +578,18 @@ test.describe("API profile methods", () => {
     const email = faker.internet.email();
 
     const response = await apiSdk.profiles.docSpaceAdminInviteUser({
-    type: "User",
-    email,
-  });
+      type: "User",
+      email,
+    });
     const body = await response.json();
     const invitedUser = body.response.find(
-    (user: UsersListItem) => user.displayName === email,
-  );
+      (user: UsersListItem) => user.displayName === email,
+    );
     expect(response.status()).toBe(200);
     expect(invitedUser).toBeDefined();
     expect(invitedUser.displayName).toBe(email);
     expect(invitedUser.id).toMatch(
-      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
     );
     expect(body.count).toBe(2);
     expect(invitedUser.hasAvatar).toBe(false);
@@ -593,7 +597,10 @@ test.describe("API profile methods", () => {
   });
 
   // TODO: Bug 79500
-  test.skip("DocSpace admin invites docspace admin", async ({ apiSdk, api }) => {
+  test.skip("DocSpace admin invites docspace admin", async ({
+    apiSdk,
+    api,
+  }) => {
     await apiSdk.profiles.addMemberDocSpaceAdmin();
     await api.auth.authenticateDocSpaceAdmin();
 
@@ -606,7 +613,9 @@ test.describe("API profile methods", () => {
     const body = await response.json();
     console.log(body);
     expect(response.status()).toBe(403);
-    expect(body.error.message).toContain("No permissions to perform this action");
+    expect(body.error.message).toContain(
+      "No permissions to perform this action",
+    );
   });
 
   test("Room admin invites user", async ({ apiSdk, api }) => {
@@ -622,17 +631,17 @@ test.describe("API profile methods", () => {
     const body = await response.json();
     expect(response.status()).toBe(200);
     const invitedUser = body.response.find(
-      (u: UsersListItem) => u.displayName === userData.email
+      (u: UsersListItem) => u.displayName === userData.email,
     );
     expect(invitedUser.displayName).toBe(userData.email);
     expect(invitedUser.id).toMatch(
-      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
     );
     expect(body.count).toBe(2);
     expect(invitedUser.hasAvatar).toBe(false);
     expect(invitedUser.isAnonim).toBe(false);
   });
-  
+
   // TODO: Bug 79500
   test.skip("Room admin invites room admin", async ({ apiSdk, api }) => {
     await apiSdk.profiles.addMemberRoomAdmin();
@@ -647,7 +656,9 @@ test.describe("API profile methods", () => {
     const body = await response.json();
     console.log(body);
     expect(response.status()).toBe(403);
-    expect(body.error.message).toContain("No permissions to perform this action");
+    expect(body.error.message).toContain(
+      "No permissions to perform this action",
+    );
   });
 
   // TODO: Bug 79500
@@ -664,7 +675,9 @@ test.describe("API profile methods", () => {
     const body = await response.json();
     console.log(body);
     expect(response.status()).toBe(403);
-    expect(body.error.message).toContain("No permissions to perform this action");
+    expect(body.error.message).toContain(
+      "No permissions to perform this action",
+    );
   });
 
   // TODO: Bug 79500
@@ -683,7 +696,6 @@ test.describe("API profile methods", () => {
     );
   });
 
-
   test("Resend activation emails ", async ({ apiSdk }) => {
     const email = faker.internet.email();
     const response = await apiSdk.profiles.ownerInviteUser({
@@ -698,18 +710,18 @@ test.describe("API profile methods", () => {
       resendAll: true,
     };
 
-    const responseResent = await apiSdk.profiles.resendActavationEmails(userData);
+    const responseResent =
+      await apiSdk.profiles.resendActavationEmails(userData);
     const bodyResent = await responseResent.json();
     const resendUser = bodyResent.response[0];
     expect(responseResent.status()).toBe(200);
     expect(resendUser.id).toMatch(
-      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
     );
     expect(resendUser.email).toBe(email);
     expect(resendUser.hasAvatar).toBe(false);
     expect(resendUser.isAnonim).toBe(false);
     expect(resendUser.status).toBe(4);
     expect(resendUser.activationStatus).toBe(2);
-
   });
 });
