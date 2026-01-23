@@ -414,7 +414,6 @@ test.describe("FormFilling room tests", () => {
       );
       await myRooms.toast.dismissToastSafely("Link copied to clipboard", 5000);
 
-      // Store the URL in a variable instead of clipboard
       shareLink = await page.evaluate(() => navigator.clipboard.readText());
       if (!shareLink)
         throw new Error("Failed to get share link from clipboard");
