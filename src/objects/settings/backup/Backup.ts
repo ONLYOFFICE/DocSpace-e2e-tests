@@ -118,6 +118,61 @@ export class Backup extends BasePage {
     await this.locators.regionCombobox.click();
   }
 
+  private async findRegionOption(regionLabel: string) {
+    const dropdown = this.locators.regionDropdown;
+    const option = dropdown.getByRole("option", {
+      name: regionLabel,
+      exact: true,
+    });
+
+    const collectVisibleOptions = async () => {
+      const visibleOptions = dropdown.locator('[role="option"]');
+      return (await visibleOptions.allTextContents())
+        .map((text) => text.trim())
+        .filter(Boolean);
+    };
+
+    let collected = await collectVisibleOptions();
+    if ((await option.count()) > 0) {
+      return { option, collected };
+    }
+
+    const scroller = dropdown.locator('[data-testid="scroller"]').first();
+    if ((await scroller.count()) === 0) {
+      return { option, collected };
+    }
+
+    for (let i = 1; i <= 40; i++) {
+      await scroller.evaluate((el) => {
+        el.scrollTop += 260;
+      });
+      await this.page.waitForTimeout(120);
+      const texts = await collectVisibleOptions();
+      if (texts.length > 0) {
+        collected = Array.from(new Set([...collected, ...texts]));
+      }
+      if ((await option.count()) > 0) {
+        return { option, collected };
+      }
+    }
+
+    return { option, collected };
+  }
+
+  async selectRegion(regionLabel: string) {
+    await this.openRegionDropdown();
+    const { option, collected } = await this.findRegionOption(regionLabel);
+    if ((await option.count()) === 0) {
+      throw new Error(
+        `Region option not found: "${regionLabel}". Available: ${Array.from(
+          collected,
+        ).join(" | ")}`,
+      );
+    }
+    await this.regionDropdown.clickOption(regionLabel);
+    await expect(this.locators.regionCombobox).toContainText(regionLabel);
+  }
+
   async openRoomSelector() {
     await expect(this.locators.selectRoom).toBeVisible();
     await this.locators.selectRoom.click();
