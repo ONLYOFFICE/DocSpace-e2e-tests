@@ -16,6 +16,43 @@ import { INFO_PANEL_TABS } from "@/src/utils/types/common";
 import RoomInfoPanel from "@/src/objects/rooms/RoomInfoPanel";
 import RoomsInviteDialog from "@/src/objects/rooms/RoomsInviteDialog";
 
+function ensureIncognitoPage(
+  incognitoPage: Page | null,
+): asserts incognitoPage is Page {
+  if (!incognitoPage) {
+    throw new Error("incognitoPage is not initialized");
+  }
+}
+async function setupClipboardPermissions(page: Page) {
+  const origin = new URL(page.url()).origin;
+  const isFirefox =
+    (await page.context().browser()?.browserType().name()) === "firefox";
+
+  try {
+    if (isFirefox) {
+      await page
+        .context()
+        .grantPermissions(["clipboardReadWrite", "clipboard-sanitized-write"], {
+          origin,
+        });
+    } else {
+      await page
+        .context()
+        .grantPermissions(["clipboard-read", "clipboard-write"], { origin });
+    }
+    // Clear clipboard
+    await page.evaluate(() => navigator.clipboard.writeText(""));
+  } catch (error: unknown) {
+    // Add type annotation here
+    if (error instanceof Error) {
+      console.warn("Could not set up clipboard permissions:", error.message);
+    } else {
+      console.warn(
+        "An unknown error occurred while setting up clipboard permissions",
+      );
+    }
+  }
+}
 test.describe("FormFilling room tests", () => {
   let myRooms: MyRooms;
   let shortTour: ShortTour;
@@ -354,6 +391,7 @@ test.describe("FormFilling room tests", () => {
     });
   });
   test("Filling PDF Form with link by anonymous", async ({ page, browser }) => {
+    let shareLink: string;
     await test.step("Upload PDF Form from My Documents", async () => {
       await shortTour.clickSkipTour();
       await roomEmptyView.uploadPdfFromDocSpace();
@@ -365,20 +403,23 @@ test.describe("FormFilling room tests", () => {
       await myRooms.infoPanel.close();
       await expect(page.getByLabel("ONLYOFFICE Resume Sample,")).toBeVisible();
     });
+
     await test.step("Copy shared link for PDF form", async () => {
-      const origin = new URL(page.url()).origin;
-      await page
-        .context()
-        .grantPermissions(["clipboard-read", "clipboard-write"], {
-          origin,
-        });
+      await setupClipboardPermissions(page);
+
       await filesTable.openContextMenuForItem("ONLYOFFICE Resume Sample");
       await filesTable.contextMenu.clickSubmenuOption(
         "Share",
         "Copy shared link",
       );
       await myRooms.toast.dismissToastSafely("Link copied to clipboard", 5000);
+
+      // Store the URL in a variable instead of clipboard
+      shareLink = await page.evaluate(() => navigator.clipboard.readText());
+      if (!shareLink)
+        throw new Error("Failed to get share link from clipboard");
     });
+
     await test.step("Open PDF form in incognito", async () => {
       const url = await page.evaluate(() => navigator.clipboard.readText());
       if (!url) throw new Error("Clipboard is empty");
@@ -388,7 +429,7 @@ test.describe("FormFilling room tests", () => {
     });
     let completedForm: RoomPDFCompleted;
     await test.step("Submit not filled PDF Form", async () => {
-      if (!incognitoPage) throw new Error("incognitoPage not initialized");
+      ensureIncognitoPage(incognitoPage);
       const pdfForm = new FilesPdfForm(incognitoPage);
       completedForm = await pdfForm.clickSubmitButton();
       await completedForm.checkDocumentTitleIsVisible(
@@ -399,11 +440,11 @@ test.describe("FormFilling room tests", () => {
       await completedForm.checkBackToRoomButtonHidden();
     });
     await test.step("Check download button is visible and clickable", async () => {
-      if (!incognitoPage) throw new Error("incognitoPage not initialized");
+      ensureIncognitoPage(incognitoPage);
       await completedForm.checkDownloadButtonVisible();
     });
     await test.step("Click download button and verify download starts", async () => {
-      if (!incognitoPage) throw new Error("incognitoPage not initialized");
+      ensureIncognitoPage(incognitoPage);
       const [download] = await Promise.all([
         incognitoPage.waitForEvent("download"),
         completedForm.clickDownloadButton(),

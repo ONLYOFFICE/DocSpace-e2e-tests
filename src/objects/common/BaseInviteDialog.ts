@@ -3,6 +3,7 @@ import BaseDialog from "../common/BaseDialog";
 
 const ACCESS_SELECTOR = ".access-selector";
 const ROW_ITEM = ".scroll-wrapper .row-item";
+const INVITE_USER_BOX = '[class*="inviteUserBox"]';
 
 class BaseInviteDialog extends BaseDialog {
   async checkInviteTitleExist() {
@@ -14,7 +15,7 @@ class BaseInviteDialog extends BaseDialog {
   }
 
   private get dropDownUserList() {
-    return this.dialog.locator(".add-manually-dropdown");
+    return this.dialog.locator(".dropdown-container");
   }
 
   private get accessSelectorOptions() {
@@ -53,18 +54,16 @@ class BaseInviteDialog extends BaseDialog {
 
   async checkAddedUserExist(value: string) {
     await expect(
-      this.dialog
-        .locator(ROW_ITEM)
-        .locator(".invite-user-box")
-        .getByText(value),
+      this.dialog.locator(ROW_ITEM).locator(INVITE_USER_BOX).getByText(value),
     ).toBeVisible();
   }
 
   async openRowAccessSelector(value: string) {
     const userAccessSelectorLocator = this.dialog
       .locator(ROW_ITEM)
-      .locator(".role-access span")
-      .getByText(value);
+      .locator(ACCESS_SELECTOR)
+      .filter({ hasText: value })
+      .locator("span");
 
     await expect(userAccessSelectorLocator).toBeVisible();
     await userAccessSelectorLocator.click();

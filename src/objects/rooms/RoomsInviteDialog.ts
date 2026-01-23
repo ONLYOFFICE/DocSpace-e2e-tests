@@ -1,10 +1,10 @@
 import BaseInviteDialog from "../common/BaseInviteDialog";
 
-const ROLE_WARNING = ".role-warning";
+const ROLE_WARNING = "help-button";
 
 class RoomsInviteDialog extends BaseInviteDialog {
   private get roleWarning() {
-    return this.page.locator(ROLE_WARNING);
+    return this.page.getByTestId(ROLE_WARNING);
   }
   async checkRoleWarningVisible() {
     await this.roleWarning.waitFor({ state: "visible" });
