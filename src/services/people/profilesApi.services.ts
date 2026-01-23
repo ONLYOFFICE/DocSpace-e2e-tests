@@ -458,11 +458,11 @@ export class ProfilesApi {
     });
   }
 
-  async resendActavationEmails(data: {
+  async ownerResendActavationEmails(data: {
     userIds: string[];
     resendAll: boolean;
   }) {
-    return test.step("Resend activation emails", async () => {
+    return test.step("Owner resend activation emails", async () => {
       const userData = {
         userIds: data.userIds,
         resendAll: data.resendAll,
@@ -472,6 +472,69 @@ export class ProfilesApi {
         `https://${this.portalDomain}/api/2.0/people/invite`,
         {
           headers: { Authorization: `Bearer ${this.authTokenOwner}` },
+          data: userData,
+        },
+      );
+      return response;
+    });
+  }
+
+  async docSpaceAdminResendActavationEmails(data: {
+    userIds: string[];
+    resendAll: boolean;
+  }) {
+    return test.step("DocSpace admin resend activation emails", async () => {
+      const userData = {
+        userIds: data.userIds,
+        resendAll: data.resendAll,
+      };
+
+      const response = await this.request.put(
+        `https://${this.portalDomain}/api/2.0/people/invite`,
+        {
+          headers: { Authorization: `Bearer ${this.authTokenDocSpaceAdmin}` },
+          data: userData,
+        },
+      );
+      return response;
+    });
+  }
+
+  async roomAdminResendActavationEmails(data: {
+    userIds: string[];
+    resendAll: boolean;
+  }) {
+    return test.step("Room admin resend activation emails", async () => {
+      const userData = {
+        userIds: data.userIds,
+        resendAll: data.resendAll,
+      };
+
+      const response = await this.request.put(
+        `https://${this.portalDomain}/api/2.0/people/invite`,
+        {
+          headers: { Authorization: `Bearer ${this.authTokenRoomAdmin}` },
+          data: userData,
+        },
+      );
+      return response;
+    });
+  }
+
+  async UserResendActavationEmails(data: {
+    userIds: string[];
+    resendAll: boolean;
+  }) {
+    return test.step("User resend activation emails", async () => {
+      const userData = {
+        userIds: data.userIds,
+        resendAll: data.resendAll,
+      };
+
+      const response = await this.request.put(
+        `https://${this.portalDomain}/api/2.0/people/invite`,
+        {
+          headers: { Authorization: `Bearer ${this.authTokenUser}` },
           data: userData,
         },
       );

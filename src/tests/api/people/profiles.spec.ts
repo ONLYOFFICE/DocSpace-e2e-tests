@@ -596,8 +596,7 @@ test.describe("API profile methods", () => {
     expect(invitedUser.isAnonim).toBe(false);
   });
 
-  // TODO: Bug 79500
-  test.skip("DocSpace admin invites docspace admin", async ({
+  test("DocSpace admin invites docspace admin", async ({
     apiSdk,
     api,
   }) => {
@@ -611,11 +610,8 @@ test.describe("API profile methods", () => {
 
     const response = await apiSdk.profiles.docSpaceAdminInviteUser(userData);
     const body = await response.json();
-    console.log(body);
     expect(response.status()).toBe(403);
-    expect(body.error.message).toContain(
-      "No permissions to perform this action",
-    );
+    expect(body.error.message).toContain("Access denied");
   });
 
   test("Room admin invites user", async ({ apiSdk, api }) => {
@@ -642,8 +638,7 @@ test.describe("API profile methods", () => {
     expect(invitedUser.isAnonim).toBe(false);
   });
 
-  // TODO: Bug 79500
-  test.skip("Room admin invites room admin", async ({ apiSdk, api }) => {
+  test("Room admin invites room admin", async ({ apiSdk, api }) => {
     await apiSdk.profiles.addMemberRoomAdmin();
     await api.auth.authenticateRoomAdmin();
 
@@ -654,15 +649,11 @@ test.describe("API profile methods", () => {
 
     const response = await apiSdk.profiles.roomAdminInviteUser(userData);
     const body = await response.json();
-    console.log(body);
     expect(response.status()).toBe(403);
-    expect(body.error.message).toContain(
-      "No permissions to perform this action",
-    );
+    expect(body.error.message).toContain("Access denied");
   });
 
-  // TODO: Bug 79500
-  test.skip("User invites user", async ({ apiSdk, api }) => {
+  test("User invites user", async ({ apiSdk, api }) => {
     await apiSdk.profiles.addMemberUser();
     await api.auth.authenticateUser();
 
@@ -673,14 +664,11 @@ test.describe("API profile methods", () => {
 
     const response = await apiSdk.profiles.userInviteUser(userData);
     const body = await response.json();
-    console.log(body);
     expect(response.status()).toBe(403);
-    expect(body.error.message).toContain(
-      "No permissions to perform this action",
-    );
+    expect(body.error.message).toContain("Access denied");
   });
 
-  // TODO: Bug 79500
+  // TODO: Bug 79527 - Api: Incorrect response from POST method /api/2.0/people/invite when inviting a user with an email length exceeding the allowed values.
   test.skip("Invite user for long email", async ({ apiSdk }) => {
     const localPart = faker.string.alpha({ length: 260, casing: "lower" });
     const domain = faker.internet.domainName();
@@ -690,28 +678,31 @@ test.describe("API profile methods", () => {
     };
     const response = await apiSdk.profiles.inviteUserForLongEmail(userData);
     const body = await response.json();
+    console.log(body);
     expect(response.status()).toBe(400);
-    expect(body.response.errors.Email).toContain(
+    expect(body.error.message).toContain(
       "The field Email must be a string with a maximum length of 255.",
     );
   });
 
-  test("Resend activation emails ", async ({ apiSdk }) => {
+  test("Owner resend activation emails ", async ({ apiSdk }) => {
     const email = faker.internet.email();
     const response = await apiSdk.profiles.ownerInviteUser({
       type: "DocSpaceAdmin",
       email,
     });
     const body = await response.json();
-    const invitedUser = body.response[0];
+    const invitedUser = body.response.find(
+      (u: UsersListItem) => u.displayName === email,
+    )!;
 
     const userData = {
       userIds: [invitedUser.id],
-      resendAll: true,
+      resendAll: false,
     };
 
     const responseResent =
-      await apiSdk.profiles.resendActavationEmails(userData);
+      await apiSdk.profiles.ownerResendActavationEmails(userData);
     const bodyResent = await responseResent.json();
     const resendUser = bodyResent.response[0];
     expect(responseResent.status()).toBe(200);
@@ -723,5 +714,102 @@ test.describe("API profile methods", () => {
     expect(resendUser.isAnonim).toBe(false);
     expect(resendUser.status).toBe(4);
     expect(resendUser.activationStatus).toBe(2);
+  });
+
+  test("DocSpace admin resend activation emails ", async ({ apiSdk, api }) => {
+    await apiSdk.profiles.addMemberDocSpaceAdmin();
+    await api.auth.authenticateDocSpaceAdmin();
+
+    const email = faker.internet.email();
+    const response = await apiSdk.profiles.docSpaceAdminInviteUser({
+      type: "RoomAdmin",
+      email,
+    });
+    const body = await response.json();
+    const invitedUser = body.response.find(
+      (u: UsersListItem) => u.displayName === email,
+    )!;
+
+    const userData = {
+      userIds: [invitedUser.id],
+      resendAll: false,
+    };
+
+    const responseResent =
+      await apiSdk.profiles.docSpaceAdminResendActavationEmails(userData);
+    const bodyResent = await responseResent.json();
+    const resendUser = bodyResent.response[0];
+    expect(responseResent.status()).toBe(200);
+    expect(resendUser.id).toMatch(
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
+    );
+    expect(resendUser.email).toBe(email);
+    expect(resendUser.hasAvatar).toBe(false);
+    expect(resendUser.isAnonim).toBe(false);
+    expect(resendUser.status).toBe(4);
+    expect(resendUser.activationStatus).toBe(2);
+  });
+
+  test("Room admin resend activation emails ", async ({ apiSdk, api }) => {
+    await apiSdk.profiles.addMemberRoomAdmin();
+    await api.auth.authenticateRoomAdmin();
+
+    const email = faker.internet.email();
+    const response = await apiSdk.profiles.roomAdminInviteUser({
+      type: "User",
+      email,
+    });
+    const body = await response.json();
+    const invitedUser = body.response.find(
+      (u: UsersListItem) => u.displayName === email,
+    )!;
+    const userData = {
+      userIds: [invitedUser.id],
+      resendAll: false,
+    };
+
+    const responseResent =
+      await apiSdk.profiles.roomAdminResendActavationEmails(userData);
+    const bodyResent = await responseResent.json();
+    const resendUser = bodyResent.response[0];
+    expect(responseResent.status()).toBe(200);
+    expect(resendUser.id).toMatch(
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
+    );
+    expect(resendUser.email).toBe(email);
+    expect(resendUser.hasAvatar).toBe(false);
+    expect(resendUser.isAnonim).toBe(false);
+    expect(resendUser.status).toBe(4);
+    expect(resendUser.activationStatus).toBe(2);
+  });
+
+  //Bug 79545 - Api: Incorrect response from the PUT /api/2.0/people/invite method when executed under the user's User.
+  test.skip("User resend activation emails ", async ({ apiSdk, api }) => {
+    await apiSdk.profiles.addMemberUser();
+
+    const email = faker.internet.email();
+    const response = await apiSdk.profiles.ownerInviteUser({
+      type: "User",
+      email,
+    });
+    const body = await response.json();
+    const invitedUser = body.response.find(
+      (u: UsersListItem) => u.displayName === email,
+    )!;
+    const userData = {
+      userIds: [invitedUser.id],
+      resendAll: false,
+    };
+
+    await api.auth.authenticateUser();
+
+    const responseResent =
+      await apiSdk.profiles.UserResendActavationEmails(userData);
+    const bodyResent = await responseResent.json();
+    console.log(bodyResent);
+    expect(bodyResent.status).toBe(403);
+    expect(bodyResent.error).toContain(
+      "No permissions to perform this action",
+    );
   });
 });
