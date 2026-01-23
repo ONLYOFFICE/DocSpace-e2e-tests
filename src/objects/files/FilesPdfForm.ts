@@ -24,12 +24,11 @@ class FilesPdfForm {
       .locator(SUBMIT_BUTTON);
   }
 
-  async clickSubmitButton() {
+  async clickSubmitButton(): Promise<RoomPDFCompleted> {
+    await this.checkSubmitButtonExist();
     await this.submitButton.click();
-    // Create an instance of RoomPDFCompleted and check the button
-    const completedForm = new RoomPDFCompleted(this.page!);
-    await expect(completedForm.isReadyFormButtonVisible()).toBeTruthy();
-    return completedForm;
+    await this.page!.waitForLoadState("networkidle");
+    return new RoomPDFCompleted(this.page!);
   }
 
   async checkSubmitButtonExist() {
