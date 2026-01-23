@@ -596,10 +596,7 @@ test.describe("API profile methods", () => {
     expect(invitedUser.isAnonim).toBe(false);
   });
 
-  test("DocSpace admin invites docspace admin", async ({
-    apiSdk,
-    api,
-  }) => {
+  test("DocSpace admin invites docspace admin", async ({ apiSdk, api }) => {
     await apiSdk.profiles.addMemberDocSpaceAdmin();
     await api.auth.authenticateDocSpaceAdmin();
 
@@ -808,8 +805,6 @@ test.describe("API profile methods", () => {
     const bodyResent = await responseResent.json();
     console.log(bodyResent);
     expect(bodyResent.status).toBe(403);
-    expect(bodyResent.error).toContain(
-      "No permissions to perform this action",
-    );
+    expect(bodyResent.error).toContain("No permissions to perform this action");
   });
 });
