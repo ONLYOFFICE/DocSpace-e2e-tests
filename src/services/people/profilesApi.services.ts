@@ -541,4 +541,25 @@ export class ProfilesApi {
       return response;
     });
   }
+
+  async ownerDeleteUser(data: {
+    userIds: string[];
+  }) {
+    return test.step("Owner delete user", async () => {
+      const userData = {
+        userIds: data.userIds,
+      };
+
+      const response = await this.request.delete(
+        `https://${this.portalDomain}/api/2.0/people/${data.userIds}`,
+        {
+          headers: { Authorization: `Bearer ${this.authTokenOwner}` },
+          data: userData,
+        },
+      );
+      return response;
+    });
+  }
+
+
 }

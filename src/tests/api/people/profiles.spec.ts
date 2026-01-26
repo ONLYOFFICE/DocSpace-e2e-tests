@@ -16,13 +16,6 @@ type UsersListItem = {
 };
 
 test.describe("API profile methods", () => {
-  /*
-  toDo - write tests for different types of users:
-  - User (collaborator)
-  - Room Admin 
-  - DocSpace Admin
-  - Owner
-  */
 
   test("Owner create User", async ({ apiSdk }) => {
     const { response } = await apiSdk.profiles.addMemberUser();
@@ -807,4 +800,20 @@ test.describe("API profile methods", () => {
     expect(bodyResent.status).toBe(403);
     expect(bodyResent.error).toContain("No permissions to perform this action");
   });
+
+  //Bug 79560 - Api: Method DELETE /api/2.0/people/:userid is not returning a valid response code when attempting to delete a non-deactivated user.
+  test.skip("Owner deletes a non-deactivated user", async ({ apiSdk }) => {
+    const user = await apiSdk.profiles.addMemberUser();
+    const response = await user.response.json();
+
+    const userData = {
+      userIds: [response.response.id],
+    };
+
+    const responseDelete = await apiSdk.profiles.ownerDeleteUser(userData);
+    const bodyDelete = await responseDelete.json();
+    expect(responseDelete.status()).toBe(500);
+    expect(bodyDelete.error.message).toContain("The user is not suspended");
+  });
+
 });
