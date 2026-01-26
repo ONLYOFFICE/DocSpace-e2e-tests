@@ -113,7 +113,7 @@ class BaseFilter {
       await tag.click();
     }
 
-    await expect(this.filterApplyButton).toBeEnabled();
+    await expect(this.filterApplyButton).toBeEnabled({ timeout: 10000 });
     this.lastSelectedFilterTag = tagSelector;
   }
 

@@ -86,6 +86,18 @@ class FilesFilter extends BaseFilter {
     await super.applyFilter();
     await promise;
   }
+
+  async applyFilterWithoutCountWait() {
+    const promise = this.page.waitForResponse((response) => {
+      return (
+        response.url().includes("api/2.0/files") &&
+        response.request().method() === "GET" &&
+        response.status() === 200
+      );
+    });
+    await super.applyFilter();
+    await promise;
+  }
   async clearFilter() {
     const promise = waitForGetFilesResponse(this.page);
     await super.clearFilter();
