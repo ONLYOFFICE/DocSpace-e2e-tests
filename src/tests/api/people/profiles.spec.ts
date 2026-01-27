@@ -858,7 +858,7 @@ test.describe("API profile methods", () => {
     expect(bodyDelete.error.message).toContain("Access denied");
   });
 
-  test.only("User deletes a non-deactivated user", async ({ apiSdk, api }) => {
+  test("User deletes a non-deactivated user", async ({ apiSdk, api }) => {
     const user = await apiSdk.profiles.ownerAddMember("User");
     const response = await user.response.json();
     const userId = response.response.id;
