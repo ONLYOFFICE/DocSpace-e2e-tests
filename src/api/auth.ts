@@ -1,6 +1,6 @@
 import { APIRequestContext } from "@playwright/test";
 import config from "../../config";
-import { ProfilesApi } from "../services/people/profilesApi.services";
+import { ProfilesApi } from "../services/people/profiles.services";
 
 class Auth {
   apiRequestContext: APIRequestContext;
@@ -54,34 +54,36 @@ class Auth {
     return this.authTokenOwner;
   }
 
-  async authenticateDocSpaceAdmin() {
-    if (!this.profilesApi) {
-      throw new Error(
-        "ProfilesApi is not provided to Auth; cannot authenticate DocSpace admin",
-      );
+  async authenticateDocSpaceAdmin(email?: string, password?: string) {
+    if (!email || !password) {
+      if (!this.profilesApi) {
+        throw new Error(
+          "ProfilesApi is not provided to Auth; cannot authenticate DocSpace admin"
+        );
+      }
     }
-
-    const email = this.profilesApi.getDocSpaceAdminEmail();
-    const password = this.profilesApi.getDocSpaceAdminPassword();
+    
+    const userEmail = email ?? this.profilesApi!.getDocSpaceAdminEmail();
+    const userPassword = password ?? this.profilesApi!.getDocSpaceAdminPassword();
 
     const authResponse = await this.apiRequestContext.post(
       `https://${this.portalDomain}/api/2.0/authentication`,
-      {
-        data: { userName: email, password },
-      },
+      { data: { userName: userEmail, password: userPassword } }
     );
 
     const authBody = await authResponse.json();
 
     if (!authResponse.ok()) {
       throw new Error(
-        `Authentication failed: ${authResponse.status()} - ${authBody.error || authBody.message}`,
+        `Authentication failed: ${authResponse.status()} - ${JSON.stringify(authBody)}`
       );
     }
 
     this.authTokenDocSpaceAdmin = authBody.response.token;
-
-    this.profilesApi.setAuthTokenDocSpaceAdmin(this.authTokenDocSpaceAdmin);
+    
+    if (this.profilesApi) {
+      this.profilesApi.setAuthTokenDocSpaceAdmin(this.authTokenDocSpaceAdmin);
+    }
 
     return this.authTokenDocSpaceAdmin;
   }
