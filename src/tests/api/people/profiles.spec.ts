@@ -805,7 +805,7 @@ test.describe("API profile methods", () => {
   });
 
   //Bug 79560 - Api: Method DELETE /api/2.0/people/:userid is not returning a valid response code when attempting to delete a non-deactivated user.
-  test.skip("Owner deletes a non-deactivated user", async ({ apiSdk }) => {
+  test("Owner deletes a non-deactivated user", async ({ apiSdk }) => {
     const user = await apiSdk.profiles.ownerAddMember("User");
     const response = await user.response.json();
     const userId = response.response.id;
@@ -817,6 +817,59 @@ test.describe("API profile methods", () => {
     const bodyDelete = await responseDelete.json();
     expect(bodyDelete.statusCode).toBe(500);
     expect(bodyDelete.error.message).toContain("The user is not suspended");
+  });
+
+  //Bug 79560 - Api: Method DELETE /api/2.0/people/:userid is not returning a valid response code when attempting to delete a non-deactivated user.
+  test("DocSpace admin deletes a non-deactivated user", async ({ apiSdk, api }) => {
+    const user = await apiSdk.profiles.ownerAddMember("User");
+    const response = await user.response.json();
+    const userId = response.response.id;
+    const userData = {
+      userIds: [userId],
+    };
+
+    await apiSdk.profiles.ownerAddMember("DocSpaceAdmin");
+    await api.auth.authenticateDocSpaceAdmin();
+
+    const responseDelete = await apiSdk.profiles.docSpaceAdminDeleteUser(userData);
+    const bodyDelete = await responseDelete.json();
+    expect(bodyDelete.statusCode).toBe(500);
+    expect(bodyDelete.error.message).toContain("The user is not suspended");
+  });
+
+  test("Room admin deletes a non-deactivated user", async ({ apiSdk, api }) => {
+    const user = await apiSdk.profiles.ownerAddMember("User");
+    const response = await user.response.json();
+    const userId = response.response.id;
+    const userData = {
+      userIds: [userId],
+    };
+
+    await apiSdk.profiles.ownerAddMember("RoomAdmin");
+    await api.auth.authenticateRoomAdmin();
+
+    const responseDelete = await apiSdk.profiles.roomAdminDeleteUser(userData);
+    const bodyDelete = await responseDelete.json();
+    expect(bodyDelete.statusCode).toBe(403);
+    expect(bodyDelete.error.message).toContain("Access denied");
+  });
+
+  test.only("User deletes a non-deactivated user", async ({ apiSdk, api }) => {
+    const user = await apiSdk.profiles.ownerAddMember("User");
+    const response = await user.response.json();
+    const userId = response.response.id;
+    const userData = {
+      userIds: [userId],
+    };
+
+    await apiSdk.profiles.ownerAddMember("User");
+    await api.auth.authenticateUser();
+
+    const responseDelete = await apiSdk.profiles.userDeleteUser(userData);
+    const bodyDelete = await responseDelete.json();
+    console.log(bodyDelete);
+    expect(bodyDelete.statusCode).toBe(403);
+    expect(bodyDelete.error.message).toContain("Access denied");
   });
 
   test("Owner deletes a deactivated user", async ({ apiSdk }) => {
