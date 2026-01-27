@@ -820,7 +820,10 @@ test.describe("API profile methods", () => {
   });
 
   //Bug 79560 - Api: Method DELETE /api/2.0/people/:userid is not returning a valid response code when attempting to delete a non-deactivated user.
-  test("DocSpace admin deletes a non-deactivated user", async ({ apiSdk, api }) => {
+  test("DocSpace admin deletes a non-deactivated user", async ({
+    apiSdk,
+    api,
+  }) => {
     const user = await apiSdk.profiles.ownerAddMember("User");
     const response = await user.response.json();
     const userId = response.response.id;
@@ -831,7 +834,8 @@ test.describe("API profile methods", () => {
     await apiSdk.profiles.ownerAddMember("DocSpaceAdmin");
     await api.auth.authenticateDocSpaceAdmin();
 
-    const responseDelete = await apiSdk.profiles.docSpaceAdminDeleteUser(userData);
+    const responseDelete =
+      await apiSdk.profiles.docSpaceAdminDeleteUser(userData);
     const bodyDelete = await responseDelete.json();
     expect(bodyDelete.statusCode).toBe(500);
     expect(bodyDelete.error.message).toContain("The user is not suspended");
