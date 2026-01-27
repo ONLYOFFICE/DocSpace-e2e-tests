@@ -70,13 +70,12 @@ export class ProfilesApi {
 
   async ownerAddMember(type: UserType) {
     return test.step("Create User", async () => {
+      const fakeUser = this.faker.generateUser();
 
-    const fakeUser = this.faker.generateUser();
-
-    const userData = {
-      ...fakeUser,
-      type,
-    };
+      const userData = {
+        ...fakeUser,
+        type,
+      };
 
       if (type === "DocSpaceAdmin") {
         this.docSpaceAdminEmail = userData.email;
@@ -504,9 +503,7 @@ export class ProfilesApi {
     });
   }
 
-  async ownerDeleteUser(data: {
-    userIds: string[];
-  }) {
+  async ownerDeleteUser(data: { userIds: string[] }) {
     return test.step("Owner delete user", async () => {
       const userData = {
         userIds: data.userIds,
@@ -523,9 +520,7 @@ export class ProfilesApi {
     });
   }
 
-  async docSpaceAdminDeleteUser(data: {
-    userIds: string[];
-  }) {
+  async docSpaceAdminDeleteUser(data: { userIds: string[] }) {
     return test.step("DocSpace admin delete user", async () => {
       const userData = {
         userIds: data.userIds,
@@ -541,10 +536,8 @@ export class ProfilesApi {
       return response;
     });
   }
-  
-  async roomAdminDeleteUser(data: {
-    userIds: string[];
-  }) {
+
+  async roomAdminDeleteUser(data: { userIds: string[] }) {
     return test.step("Room admin delete user", async () => {
       const userData = {
         userIds: data.userIds,
@@ -561,9 +554,7 @@ export class ProfilesApi {
     });
   }
 
-  async userDeleteUser(data: {
-    userIds: string[];
-  }) {
+  async userDeleteUser(data: { userIds: string[] }) {
     return test.step("Room admin delete user", async () => {
       const userData = {
         userIds: data.userIds,
@@ -579,5 +570,4 @@ export class ProfilesApi {
       return response;
     });
   }
-
 }

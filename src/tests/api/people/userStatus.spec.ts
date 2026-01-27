@@ -15,17 +15,20 @@ import { UserStatus } from "@/src/services/people/userStatus.services";
 // };
 
 test.describe("API user status methods", () => {
-    test("Owner deactivates the user", async ({ apiSdk }) => {
-        const user = await apiSdk.profiles.ownerAddMember("User");
-        const body = await user.response.json();
-        const userId = body.response.id;
+  test("Owner deactivates the user", async ({ apiSdk }) => {
+    const user = await apiSdk.profiles.ownerAddMember("User");
+    const body = await user.response.json();
+    const userId = body.response.id;
 
     const userData = {
-      userIds: [userId],    
+      userIds: [userId],
       resendAll: false,
     };
 
-    const response = await apiSdk.userStatus.changeUserStatus(UserStatus.Disabled, userData);
+    const response = await apiSdk.userStatus.changeUserStatus(
+      UserStatus.Disabled,
+      userData,
+    );
     const bodyResponse = await response.json();
     const userInfo = bodyResponse.response[0];
     expect(bodyResponse.statusCode).toBe(200);
@@ -51,7 +54,10 @@ test.describe("API user status methods", () => {
       resendAll: false,
     };
     await apiSdk.userStatus.changeUserStatus(UserStatus.Disabled, userData);
-    const activateResponse = await apiSdk.userStatus.changeUserStatus(UserStatus.Active, userData);
+    const activateResponse = await apiSdk.userStatus.changeUserStatus(
+      UserStatus.Active,
+      userData,
+    );
     const bodyResponse = await activateResponse.json();
     const userInfo = bodyResponse.response[0];
     expect(bodyResponse.statusCode).toBe(200);

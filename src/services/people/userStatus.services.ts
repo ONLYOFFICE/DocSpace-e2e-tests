@@ -1,8 +1,8 @@
 import { test, APIRequestContext } from "@playwright/test";
 
 export enum UserStatus {
-Active = 1,
-Disabled = 2,
+  Active = 1,
+  Disabled = 2,
 }
 
 export class UserStatusApi {
@@ -31,12 +31,15 @@ export class UserStatusApi {
     this.portalDomain = portalDomain;
   }
 
-  async changeUserStatus(status: UserStatus, data: {
-    userIds: string[];
-    resendAll: boolean;
-  }) {
+  async changeUserStatus(
+    status: UserStatus,
+    data: {
+      userIds: string[];
+      resendAll: boolean;
+    },
+  ) {
     return test.step("Change user status", async () => {
-     const response = await this.request.put(
+      const response = await this.request.put(
         `https://${this.portalDomain}/api/2.0/people/status/${status}`,
         {
           headers: { Authorization: `Bearer ${this.authTokenOwner}` },
@@ -46,5 +49,4 @@ export class UserStatusApi {
       return response;
     });
   }
-
 }

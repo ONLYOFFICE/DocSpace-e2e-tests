@@ -58,29 +58,30 @@ class Auth {
     if (!email || !password) {
       if (!this.profilesApi) {
         throw new Error(
-          "ProfilesApi is not provided to Auth; cannot authenticate DocSpace admin"
+          "ProfilesApi is not provided to Auth; cannot authenticate DocSpace admin",
         );
       }
     }
-    
+
     const userEmail = email ?? this.profilesApi!.getDocSpaceAdminEmail();
-    const userPassword = password ?? this.profilesApi!.getDocSpaceAdminPassword();
+    const userPassword =
+      password ?? this.profilesApi!.getDocSpaceAdminPassword();
 
     const authResponse = await this.apiRequestContext.post(
       `https://${this.portalDomain}/api/2.0/authentication`,
-      { data: { userName: userEmail, password: userPassword } }
+      { data: { userName: userEmail, password: userPassword } },
     );
 
     const authBody = await authResponse.json();
 
     if (!authResponse.ok()) {
       throw new Error(
-        `Authentication failed: ${authResponse.status()} - ${JSON.stringify(authBody)}`
+        `Authentication failed: ${authResponse.status()} - ${JSON.stringify(authBody)}`,
       );
     }
 
     this.authTokenDocSpaceAdmin = authBody.response.token;
-    
+
     if (this.profilesApi) {
       this.profilesApi.setAuthTokenDocSpaceAdmin(this.authTokenDocSpaceAdmin);
     }

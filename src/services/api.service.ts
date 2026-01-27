@@ -13,7 +13,7 @@ export class ApiSDK {
     authTokenDocSpaceAdmin: string,
     portalDomain: string,
   ) {
-    this.request = request; 
+    this.request = request;
     this.profiles = new ProfilesApi(
       request,
       authToken,
