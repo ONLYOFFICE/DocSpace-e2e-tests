@@ -4,6 +4,7 @@ const TABLE_CONTAINER = "#table-container";
 const TABLE_LIST_ITEM = ".table-list-item.window-item";
 const SETTINGS_ICON = '[data-iconname*="settings.desc.react.svg"]';
 const TABLE_SETTING_CONTAINER = ".table-container_settings";
+const TABLE_SETTINGS_BUTTON = "[data-testid='table-settings-button']";
 
 export type TBaseTableLocators = {
   tableContainer?: Locator;
@@ -29,6 +30,28 @@ class BaseTable {
 
   get tableSettings() {
     return this.page.locator(TABLE_SETTING_CONTAINER);
+  }
+
+  protected get tableSettingsButton() {
+    return this.page.locator(TABLE_SETTINGS_BUTTON);
+  }
+
+  async openTableSettingsDropdown(dropdown: Locator) {
+    if (await dropdown.isVisible()) {
+      return;
+    }
+
+    await this.tableSettingsButton.click();
+    await expect(dropdown).toBeVisible();
+  }
+
+  async closeTableSettingsDropdown(dropdown: Locator) {
+    if (!(await dropdown.isVisible())) {
+      return;
+    }
+
+    await this.page.mouse.click(1, 1);
+    await expect(dropdown).not.toBeVisible();
   }
 
   async openSettings() {
