@@ -179,4 +179,24 @@ test.describe("My documents: Base", () => {
       await myDocuments.renameFile("Blank", "Blank (renamed)");
     });
   });
+
+  test("Table settings", async () => {
+    await myDocuments.filesTable.openTableSettings();
+    await myDocuments.filesTable.expectColumnVisible("Modified");
+    await myDocuments.filesTable.expectColumnVisible("Size");
+
+    await myDocuments.filesTable.setColumnVisible("Author");
+    await myDocuments.filesTable.setColumnVisible("Created");
+    await myDocuments.filesTable.setColumnVisible("Type");
+
+    await myDocuments.filesTable.setColumnNotVisible("Modified");
+    await myDocuments.filesTable.setColumnNotVisible("Size");
+    await myDocuments.filesTable.setColumnNotVisible("Author");
+    await myDocuments.filesTable.setColumnNotVisible("Created");
+    await myDocuments.filesTable.setColumnNotVisible("Type");
+
+    await myDocuments.filesTable.setColumnVisible("Modified");
+    await myDocuments.filesTable.setColumnVisible("Size");
+    await myDocuments.filesTable.closeTableSettings();
+  });
 });
