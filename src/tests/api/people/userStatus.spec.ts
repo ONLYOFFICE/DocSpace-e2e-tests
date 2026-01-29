@@ -61,7 +61,9 @@ test.describe("API user status methods", () => {
     );
   });
 
-  test("Owner deactivates the user without authorization", async ({ apiSdk }) => {
+  test("Owner deactivates the user without authorization", async ({
+    apiSdk,
+  }) => {
     const user = await apiSdk.profiles.ownerAddMember("User");
     const body = await user.response.json();
     const userId = body.response.id;
@@ -71,10 +73,11 @@ test.describe("API user status methods", () => {
       resendAll: false,
     };
 
-    const response = await apiSdk.userStatus.changeUserStatusWithoutAuthorization(
-      UserStatus.Disabled,
-      userData,
-    );
+    const response =
+      await apiSdk.userStatus.changeUserStatusWithoutAuthorization(
+        UserStatus.Disabled,
+        userData,
+      );
     expect(response.status()).toBe(401);
   });
 });

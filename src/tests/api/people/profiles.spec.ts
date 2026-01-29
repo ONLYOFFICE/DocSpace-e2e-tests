@@ -493,7 +493,8 @@ test.describe("API profile methods", () => {
   });
 
   test("Return all users list without authorization", async ({ apiSdk }) => {
-    const response = await apiSdk.profiles.returnAllUsersListWithoutAuthorization();
+    const response =
+      await apiSdk.profiles.returnAllUsersListWithoutAuthorization();
     expect(response.status()).toBe(401);
   });
 
@@ -817,8 +818,11 @@ test.describe("API profile methods", () => {
     expect(bodyResent.error).toContain("No permissions to perform this action");
   });
 
-  test("Resending activation email by unauthorized user", async ({ apiSdk }) => {
-    const response = await apiSdk.profiles.resendingActivationEmailByUnauthorizedUser();
+  test("Resending activation email by unauthorized user", async ({
+    apiSdk,
+  }) => {
+    const response =
+      await apiSdk.profiles.resendingActivationEmailByUnauthorizedUser();
     expect(response.status()).toBe(401);
   });
 
@@ -1222,7 +1226,9 @@ test.describe("API profile methods", () => {
     };
 
     const responseDelete =
-      await apiSdk.profiles.deletingAUserWithoutAuthorization(userDataDeleteUser);
+      await apiSdk.profiles.deletingAUserWithoutAuthorization(
+        userDataDeleteUser,
+      );
     expect(responseDelete.status()).toBe(401);
   });
 
@@ -1239,15 +1245,17 @@ test.describe("API profile methods", () => {
     expect(bodyReturnInfo.response.email).toBe(response.response.email);
   });
 
-  test("Returns detailed information about a non-existent user", async ({ apiSdk }) => {
+  test("Returns detailed information about a non-existent user", async ({
+    apiSdk,
+  }) => {
     const user = await apiSdk.profiles.ownerAddMember("RoomAdmin");
     const response = await user.response.json();
     const userId = response.response.id;
 
-      const userDataChangeStatus = {
-        userIds: [userId],
-        resendAll: false,
-      };
+    const userDataChangeStatus = {
+      userIds: [userId],
+      resendAll: false,
+    };
 
     await apiSdk.userStatus.changeUserStatus(
       UserStatus.Disabled,
@@ -1264,19 +1272,29 @@ test.describe("API profile methods", () => {
       await apiSdk.profiles.OwnerReturnUserDetailedInformation(userId);
     const bodyReturnInfo = await responseReturnInfo.json();
     expect(bodyReturnInfo.statusCode).toBe(404);
-    expect(bodyReturnInfo.error.message).toContain("The user could not be found");
+    expect(bodyReturnInfo.error.message).toContain(
+      "The user could not be found",
+    );
   });
 
-  test("DocSpace admin returns detailed information of a user", async ({ apiSdk, api }) => {
+  test("DocSpace admin returns detailed information of a user", async ({
+    apiSdk,
+    api,
+  }) => {
     await apiSdk.profiles.ownerAddMember("DocSpaceAdmin");
     await api.auth.authenticateDocSpaceAdmin();
-    const returnAllUsersList = await apiSdk.profiles.docSpaceAdminReturnAllUsersList();
-    const body = (await returnAllUsersList.json()) as { response: UsersListItem[] };
+    const returnAllUsersList =
+      await apiSdk.profiles.docSpaceAdminReturnAllUsersList();
+    const body = (await returnAllUsersList.json()) as {
+      response: UsersListItem[];
+    };
     const owner = body.response.find(
       (u: UsersListItem) => u.email === config.DOCSPACE_OWNER_EMAIL,
     );
     if (!owner) {
-      throw new Error(`Owner not found with email: ${config.DOCSPACE_OWNER_EMAIL}`);
+      throw new Error(
+        `Owner not found with email: ${config.DOCSPACE_OWNER_EMAIL}`,
+      );
     }
     const userId = owner.id;
     const responseReturnInfo =
@@ -1289,16 +1307,24 @@ test.describe("API profile methods", () => {
     expect(bodyReturnInfo.response.lastName).toBe(owner.lastName);
   });
 
-  test("Room admin returns detailed information of a user", async ({ apiSdk, api }) => {
+  test("Room admin returns detailed information of a user", async ({
+    apiSdk,
+    api,
+  }) => {
     await apiSdk.profiles.ownerAddMember("RoomAdmin");
     await api.auth.authenticateRoomAdmin();
-    const returnAllUsersList = await apiSdk.profiles.roomAdminReturnAllUsersList();
-    const body = (await returnAllUsersList.json()) as { response: UsersListItem[] };
+    const returnAllUsersList =
+      await apiSdk.profiles.roomAdminReturnAllUsersList();
+    const body = (await returnAllUsersList.json()) as {
+      response: UsersListItem[];
+    };
     const owner = body.response.find(
       (u: UsersListItem) => u.email === config.DOCSPACE_OWNER_EMAIL,
     );
     if (!owner) {
-      throw new Error(`Owner not found with email: ${config.DOCSPACE_OWNER_EMAIL}`);
+      throw new Error(
+        `Owner not found with email: ${config.DOCSPACE_OWNER_EMAIL}`,
+      );
     }
     const userId = owner.id;
     const responseReturnInfo =
@@ -1311,13 +1337,17 @@ test.describe("API profile methods", () => {
     expect(bodyReturnInfo.response.lastName).toBe(owner.lastName);
   });
 
-  test("Returns detailed information of a user without authorization", async ({ apiSdk }) => {
+  test("Returns detailed information of a user without authorization", async ({
+    apiSdk,
+  }) => {
     const user = await apiSdk.profiles.ownerAddMember("RoomAdmin");
     const response = await user.response.json();
     const userId = response.response.id;
 
     const responseReturnInfo =
-      await apiSdk.profiles.returnUserDetailedInformationAboutAUsetWithoutAuthorization(userId);
+      await apiSdk.profiles.returnUserDetailedInformationAboutAUsetWithoutAuthorization(
+        userId,
+      );
     expect(responseReturnInfo.status()).toBe(401);
   });
 });

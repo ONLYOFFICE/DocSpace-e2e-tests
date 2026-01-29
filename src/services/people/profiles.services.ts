@@ -263,7 +263,6 @@ export class ProfilesApi {
 
   async addingAUserWithoutAuthorization() {
     return test.step("Adding a user without authorization", async () => {
-
       const response = await this.request.post(
         `https://${this.portalDomain}/api/2.0/people`,
       );
@@ -321,15 +320,12 @@ export class ProfilesApi {
 
   async returnAllUsersListWithoutAuthorization() {
     return test.step("Return all users list without authorization", async () => {
-
       const response = await this.request.get(
         `https://${this.portalDomain}/api/2.0/people`,
       );
       return response;
     });
   }
-
-
 
   async ownerInviteUser(data: { type: string; email: string }) {
     return test.step("Owner invite user", async () => {
@@ -444,7 +440,7 @@ export class ProfilesApi {
   async invitingAUserWithoutAuthorization() {
     return test.step("Inviting a user without authorization", async () => {
       const response = await this.request.post(
-        `https://${this.portalDomain}/api/2.0/people/invite`
+        `https://${this.portalDomain}/api/2.0/people/invite`,
       );
       return response;
     });
@@ -536,7 +532,6 @@ export class ProfilesApi {
 
   async resendingActivationEmailByUnauthorizedUser() {
     return test.step("Resending activation email by unauthorized user", async () => {
-
       const response = await this.request.put(
         `https://${this.portalDomain}/api/2.0/people/invite`,
       );
@@ -664,7 +659,9 @@ export class ProfilesApi {
     });
   }
 
-  async returnUserDetailedInformationAboutAUsetWithoutAuthorization(userId: string) {
+  async returnUserDetailedInformationAboutAUsetWithoutAuthorization(
+    userId: string,
+  ) {
     return test.step("Returns the detailed information of the user", async () => {
       const response = await this.request.get(
         `https://${this.portalDomain}/api/2.0/people/${userId}`,
