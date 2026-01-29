@@ -7,10 +7,6 @@ const BACK_BUTTON = "#form-filling_tips_back";
 const MODAL_CLOSE_BUTTON = '#modal-dialog [data-testid="icon-button-svg"]';
 const MODAL_WINDOW_COPY_PUBLIC_LINK =
   '#modal-dialog [data-testid="created_pdf_form_dialog_copy_public_link"]';
-const MODAL_WINDOW_LATER =
-  '#modal-dialog [data-testid="created_pdf_form_dialog_later"]';
-const MODAL_WINDOW_DONT_SHOW_AGAIN =
-  '#modal-dialog [data-testid="created_pdf_form_dialog_dont_show_again"]';
 
 export class ShortTour {
   private page: Page;
