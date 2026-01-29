@@ -81,13 +81,13 @@ test.describe("My documents: Base", () => {
 
       // Quick tag filters should limit to folders first
       await myDocuments.filesFilter.selectFilterByFolders();
-      await myDocuments.filesFilter.applyFilter();
+      await myDocuments.filesFilter.applyFilterWithoutCountWait();
       await myDocuments.filesTable.checkRowExist("Folder");
 
       // Media preset returns empty when no assets exist
       await myDocuments.filesFilter.openFilterDialog();
       await myDocuments.filesFilter.selectFilterByMedia();
-      await myDocuments.filesFilter.applyFilter();
+      await myDocuments.filesFilter.applyFilterWithoutCountWait();
       await myDocuments.filesFilter.checkFilesEmptyViewExist();
 
       await myDocuments.filesFilter.clearFilter();
@@ -96,13 +96,13 @@ test.describe("My documents: Base", () => {
       // All files view should list at least the generated document
       await myDocuments.filesFilter.openFilterDialog();
       await myDocuments.filesFilter.selectFilterByFiles();
-      await myDocuments.filesFilter.applyFilter();
+      await myDocuments.filesFilter.applyFilterWithoutCountWait();
       await myDocuments.filesTable.checkRowExist("Document");
 
       // Documents filter hides other file types
       await myDocuments.filesFilter.openFilterDialog();
       await myDocuments.filesFilter.selectFilterByDocuments();
-      await myDocuments.filesFilter.applyFilter();
+      await myDocuments.filesFilter.applyFilterWithoutCountWait();
 
       await myDocuments.filesTable.checkRowExist("Document");
       await myDocuments.filesTable.checkRowNotExist("Spreadsheet");
@@ -111,7 +111,7 @@ test.describe("My documents: Base", () => {
       await myDocuments.filesFilter.openFilterDialog();
       await myDocuments.filesFilter.clearFilterDialog();
       await myDocuments.filesFilter.selectFilterBySpreadsheets();
-      await myDocuments.filesFilter.applyFilter();
+      await myDocuments.filesFilter.applyFilterWithoutCountWait();
       await myDocuments.filesTable.checkRowExist("Spreadsheet");
       await myDocuments.filesTable.checkRowNotExist("Presentation");
 
@@ -119,7 +119,7 @@ test.describe("My documents: Base", () => {
       await myDocuments.filesFilter.openFilterDialog();
       await myDocuments.filesFilter.clearFilterDialog();
       await myDocuments.filesFilter.selectFilterByPresentations();
-      await myDocuments.filesFilter.applyFilter();
+      await myDocuments.filesFilter.applyFilterWithoutCountWait();
       await myDocuments.filesTable.checkRowExist("Presentation");
       await myDocuments.filesTable.checkRowNotExist("Document");
 
@@ -127,32 +127,32 @@ test.describe("My documents: Base", () => {
       await myDocuments.filesFilter.openFilterDialog();
       await myDocuments.filesFilter.clearFilterDialog();
       await myDocuments.filesFilter.selectFilterByPdfForms();
-      await myDocuments.filesFilter.applyFilter();
+      await myDocuments.filesFilter.applyFilterWithoutCountWait();
       await myDocuments.filesTable.checkRowExist("Blank");
 
       // Remaining categories should show empty state if no assets
       await myDocuments.filesFilter.openFilterDialog();
       await myDocuments.filesFilter.clearFilterDialog();
       await myDocuments.filesFilter.selectFilterByDiagrams();
-      await myDocuments.filesFilter.applyFilter();
+      await myDocuments.filesFilter.applyFilterWithoutCountWait();
       await myDocuments.filesFilter.checkFilesEmptyViewExist();
 
       await myDocuments.filesFilter.openFilterDialog();
       await myDocuments.filesFilter.clearFilterDialog();
       await myDocuments.filesFilter.selectFilterByPdfDocuments();
-      await myDocuments.filesFilter.applyFilter();
+      await myDocuments.filesFilter.applyFilterWithoutCountWait();
       await myDocuments.filesFilter.checkFilesEmptyViewExist();
 
       await myDocuments.filesFilter.openFilterDialog();
       await myDocuments.filesFilter.clearFilterDialog();
       await myDocuments.filesFilter.selectFilterByArchives();
-      await myDocuments.filesFilter.applyFilter();
+      await myDocuments.filesFilter.applyFilterWithoutCountWait();
       await myDocuments.filesFilter.checkFilesEmptyViewExist();
 
       await myDocuments.filesFilter.openFilterDialog();
       await myDocuments.filesFilter.clearFilterDialog();
       await myDocuments.filesFilter.selectFilterByImages();
-      await myDocuments.filesFilter.applyFilter();
+      await myDocuments.filesFilter.applyFilterWithoutCountWait();
       await myDocuments.filesFilter.checkFilesEmptyViewExist();
       await myDocuments.filesFilter.clearFilterFromEmptyView();
     });
@@ -178,5 +178,25 @@ test.describe("My documents: Base", () => {
       await myDocuments.renameFile("Folder", "Folder (renamed)");
       await myDocuments.renameFile("Blank", "Blank (renamed)");
     });
+  });
+
+  test("Table settings", async () => {
+    await myDocuments.filesTable.openTableSettings();
+    await myDocuments.filesTable.expectColumnVisible("Modified");
+    await myDocuments.filesTable.expectColumnVisible("Size");
+
+    await myDocuments.filesTable.setColumnVisible("Author");
+    await myDocuments.filesTable.setColumnVisible("Created");
+    await myDocuments.filesTable.setColumnVisible("Type");
+
+    await myDocuments.filesTable.setColumnNotVisible("Modified");
+    await myDocuments.filesTable.setColumnNotVisible("Size");
+    await myDocuments.filesTable.setColumnNotVisible("Author");
+    await myDocuments.filesTable.setColumnNotVisible("Created");
+    await myDocuments.filesTable.setColumnNotVisible("Type");
+
+    await myDocuments.filesTable.setColumnVisible("Modified");
+    await myDocuments.filesTable.setColumnVisible("Size");
+    await myDocuments.filesTable.closeTableSettings();
   });
 });
