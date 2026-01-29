@@ -5,6 +5,8 @@ const SKIP_BUTTON = "#form-filling_tips_skip";
 const NEXT_BUTTON = "#form-filling_tips_next";
 const BACK_BUTTON = "#form-filling_tips_back";
 const MODAL_CLOSE_BUTTON = '#modal-dialog [data-testid="icon-button-svg"]';
+const MODAL_WINDOW_COPY_PUBLIC_LINK =
+  '#modal-dialog [data-testid="created_pdf_form_dialog_copy_public_link"]';
 
 export class ShortTour {
   private page: Page;
@@ -31,6 +33,14 @@ export class ShortTour {
 
   private get modalCloseButton() {
     return this.page.locator(MODAL_CLOSE_BUTTON);
+  }
+  private get modalWindowCopyPublicLink() {
+    return this.page.locator(MODAL_WINDOW_COPY_PUBLIC_LINK);
+  }
+
+  async clickCopyPublicLink() {
+    await expect(this.modalWindowCopyPublicLink).toBeVisible();
+    await this.modalWindowCopyPublicLink.click();
   }
 
   async clickStartTour() {
@@ -68,9 +78,7 @@ export class ShortTour {
   }
 
   async clickModalCloseButton() {
-    const button = this.page.locator(MODAL_CLOSE_BUTTON);
-    await expect(button).toBeVisible();
-    await expect(button).toBeEnabled();
+    await expect(this.modalCloseButton).toBeVisible();
     await this.modalCloseButton.click();
   }
   async isTourVisible(timeout = 3000): Promise<boolean> {
