@@ -15,6 +15,7 @@ import RoomSelectPanel from "@/src/objects/rooms/RoomSelectPanel";
 import { INFO_PANEL_TABS } from "@/src/utils/types/common";
 import RoomInfoPanel from "@/src/objects/rooms/RoomInfoPanel";
 import RoomsInviteDialog from "@/src/objects/rooms/RoomsInviteDialog";
+import Login from "@/src/objects/common/Login";
 
 function ensureIncognitoPage(
   incognitoPage: Page | null,
@@ -65,8 +66,9 @@ test.describe("FormFilling room tests", () => {
   let roomsInviteDialog: RoomsInviteDialog;
   let incognitoContext: BrowserContext | null = null;
   let incognitoPage: Page | null = null;
+  let login: Login;
 
-  test.beforeEach(async ({ page, api, login }) => {
+  test.beforeEach(async ({ page, api }) => {
     myRooms = new MyRooms(page, api.portalDomain);
     shortTour = new ShortTour(page);
     roomEmptyView = new RoomEmptyView(page);
@@ -75,6 +77,7 @@ test.describe("FormFilling room tests", () => {
     infoPanel = new InfoPanel(page);
     roomInfoPanel = new RoomInfoPanel(page);
     roomsInviteDialog = new RoomsInviteDialog(page);
+    login = new Login(page, api.portalDomain);
     await login.loginToPortal();
     await myRooms.createFormFillingRoom("FormFillingRoom");
   });
@@ -246,13 +249,10 @@ test.describe("FormFilling room tests", () => {
       await filesTable.openContextMenuRow(item);
       await filesTable.contextMenu.clickOption("Preview");
       const xlsxPage = await newPage.waitForEvent("popup");
-      await xlsxPage
-        .waitForLoadState("networkidle", { timeout: 60000 })
-        .catch(() => {
-          console.warn(
-            "networkidle did not happen in 60 seconds, continuing test",
-          );
-        });
+      await xlsxPage.waitForSelector('iframe[name="frameEditor"]', {
+        state: "attached",
+        timeout: 60000,
+      });
       const frameEditor = xlsxPage.frameLocator('iframe[name="frameEditor"]');
       const canvasOverlay = frameEditor.locator("#ws-canvas-graphic-overlay");
       await expect(frameEditor.locator("#box-doc-name")).toBeVisible({
@@ -452,6 +452,121 @@ test.describe("FormFilling room tests", () => {
       expect(fileName).toMatch(/ONLYOFFICE Resume Sample.*\.pdf$/i);
       // cancel download to avoid file saving
       await download.cancel();
+    });
+  });
+  test("Copy shared link in modal window for PDF Form", async ({
+    page,
+    browser,
+  }) => {
+    let shareLink: string;
+    await test.step("Upload PDF Form from My Documents", async () => {
+      await shortTour.clickSkipTour();
+      await roomEmptyView.uploadPdfFromDocSpace();
+      await selectPanel.checkSelectorExist();
+      await selectPanel.select("documents");
+      await selectPanel.selectItemByText("ONLYOFFICE Resume Sample");
+      await selectPanel.confirmSelection();
+    });
+
+    await test.step("Copy shared link in modal window", async () => {
+      await setupClipboardPermissions(page);
+      await shortTour.clickCopyPublicLink();
+      await myRooms.toast.dismissToastSafely("Link copied to clipboard", 5000);
+
+      shareLink = await page.evaluate(() => navigator.clipboard.readText());
+      if (!shareLink)
+        throw new Error("Failed to get share link from clipboard");
+    });
+    await test.step("Open PDF form in incognito", async () => {
+      const url = await page.evaluate(() => navigator.clipboard.readText());
+      if (!url) throw new Error("Clipboard is empty");
+      incognitoContext = await browser.newContext();
+      incognitoPage = await incognitoContext.newPage();
+      await incognitoPage.goto(url, { waitUntil: "domcontentloaded" });
+    });
+
+    await test.step("Check Submit button exist", async () => {
+      ensureIncognitoPage(incognitoPage);
+      const pdfForm = new FilesPdfForm(incognitoPage);
+      await pdfForm.checkSubmitButtonExist();
+    });
+  });
+  test("Open shared link pdf form for Docspace users only", async ({
+    page,
+    browser,
+  }) => {
+    let shareLink: string;
+    await test.step("Upload PDF form from My Documents", async () => {
+      await shortTour.clickSkipTour();
+      await roomEmptyView.uploadPdfFromDocSpace();
+      await selectPanel.checkSelectorExist();
+      await selectPanel.select("documents");
+      await selectPanel.selectItemByText("ONLYOFFICE Resume Sample");
+      await selectPanel.confirmSelection();
+      await shortTour.clickModalCloseButton().catch(() => {});
+      await myRooms.infoPanel.close();
+      await expect(page.getByLabel("ONLYOFFICE Resume Sample,")).toBeVisible();
+    });
+    await test.step("Change and copy link to file access docspace users only", async () => {
+      await filesTable.openContextMenuForItem("ONLYOFFICE Resume Sample");
+      await filesTable.contextMenu.clickSubmenuOption(
+        "Share",
+        "Sharing settings",
+      );
+      await setupClipboardPermissions(page);
+      await infoPanel.selectLinkAccess("docspace users only");
+      await myRooms.toast.dismissToastSafely("Link copied to clipboard", 10000);
+      shareLink = await page.evaluate(() => navigator.clipboard.readText());
+      if (!shareLink)
+        throw new Error("Failed to get share link from clipboard");
+    });
+    await test.step("Open PDF form in incognito and check login button", async () => {
+      const url = await page.evaluate(() => navigator.clipboard.readText());
+      if (!url) throw new Error("Clipboard is empty");
+      incognitoContext = await browser.newContext();
+      incognitoPage = await incognitoContext.newPage();
+      await incognitoPage.goto(url, { waitUntil: "domcontentloaded" });
+      const incognitoLogin = new Login(incognitoPage, "docspace");
+      await incognitoLogin.loginButtonVisible();
+    });
+  });
+  test("Open shared link Room for Docspace users only", async ({
+    page,
+    browser,
+  }) => {
+    await test.step("Upload PDF form from My Documents", async () => {
+      await shortTour.clickSkipTour();
+      await roomEmptyView.uploadPdfFromDocSpace();
+      await selectPanel.checkSelectorExist();
+      await selectPanel.select("documents");
+      await selectPanel.selectItemByText("ONLYOFFICE Resume Sample");
+      await selectPanel.confirmSelection();
+      await shortTour.clickModalCloseButton().catch(() => {});
+      await myRooms.infoPanel.close();
+      await expect(page.getByLabel("ONLYOFFICE Resume Sample,")).toBeVisible();
+    });
+    let shareLink: string;
+    //
+    await test.step("Change and copy link to Room", async () => {
+      await myRooms.infoPanel.open();
+      const membersTab = page.getByTestId(INFO_PANEL_TABS.Contacts.testId);
+      await expect(membersTab).toBeVisible();
+      await setupClipboardPermissions(page);
+      await infoPanel.selectLinkAccess("docspace users only");
+      await myRooms.toast.dismissToastSafely("Link copied to clipboard", 10000);
+      shareLink = await page.evaluate(() => navigator.clipboard.readText());
+      if (!shareLink)
+        throw new Error("Failed to get share link from clipboard");
+      await myRooms.infoPanel.close();
+    });
+    await test.step("Open PDF form in incognito and check login button", async () => {
+      const url = await page.evaluate(() => navigator.clipboard.readText());
+      if (!url) throw new Error("Clipboard is empty");
+      incognitoContext = await browser.newContext();
+      incognitoPage = await incognitoContext.newPage();
+      await incognitoPage.goto(url, { waitUntil: "domcontentloaded" });
+      const incognitoLogin = new Login(incognitoPage, "docspace");
+      await incognitoLogin.loginButtonVisible();
     });
   });
 });

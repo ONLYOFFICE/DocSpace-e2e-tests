@@ -74,6 +74,9 @@ export class Login extends BasePage {
     await this.forgotPasswordEmailInput.fill(email);
     await this.forgotPasswordSendButton.click();
   }
+  async loginButtonVisible() {
+    await expect(this.loginButton).toBeVisible();
+  }
 }
 
 export default Login;
