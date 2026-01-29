@@ -232,6 +232,11 @@ test.describe("API profile methods", () => {
     expect(body.error.message).toContain("Access denied");
   });
 
+  test("Adding a user without authorization", async ({ apiSdk }) => {
+    const response = await apiSdk.profiles.addingAUserWithoutAuthorization();
+    expect(response.status()).toBe(401);
+  });
+
   test("Owner returns all users list", async ({ apiSdk }) => {
     const { userData: docSpaceAdminUserData } =
       await apiSdk.profiles.ownerAddMember("DocSpaceAdmin");
@@ -487,6 +492,11 @@ test.describe("API profile methods", () => {
     expect(body.error.message).toContain("Access denied");
   });
 
+  test("Return all users list without authorization", async ({ apiSdk }) => {
+    const response = await apiSdk.profiles.returnAllUsersListWithoutAuthorization();
+    expect(response.status()).toBe(401);
+  });
+
   test("Owner invites docspace admin", async ({ apiSdk }) => {
     const userData = {
       type: "DocSpaceAdmin",
@@ -671,11 +681,15 @@ test.describe("API profile methods", () => {
     };
     const response = await apiSdk.profiles.inviteUserForLongEmail(userData);
     const body = await response.json();
-    console.log(body);
     expect(body.statusCode).toBe(400);
     expect(body.error.message).toContain(
       "The field Email must be a string with a maximum length of 255.",
     );
+  });
+
+  test("Inviting a user without authorization", async ({ apiSdk }) => {
+    const response = await apiSdk.profiles.invitingAUserWithoutAuthorization();
+    expect(response.status()).toBe(401);
   });
 
   test("Owner resend activation emails ", async ({ apiSdk }) => {
@@ -799,9 +813,13 @@ test.describe("API profile methods", () => {
     const responseResent =
       await apiSdk.profiles.UserResendActavationEmails(userData);
     const bodyResent = await responseResent.json();
-    console.log(bodyResent);
     expect(bodyResent.statusCode).toBe(403);
     expect(bodyResent.error).toContain("No permissions to perform this action");
+  });
+
+  test("Resending activation email by unauthorized user", async ({ apiSdk }) => {
+    const response = await apiSdk.profiles.resendingActivationEmailByUnauthorizedUser();
+    expect(response.status()).toBe(401);
   });
 
   //Bug 79560 - Api: Method DELETE /api/2.0/people/:userid is not returning a valid response code when attempting to delete a non-deactivated user.
@@ -871,7 +889,6 @@ test.describe("API profile methods", () => {
 
     const responseDelete = await apiSdk.profiles.userDeleteUser(userData);
     const bodyDelete = await responseDelete.json();
-    console.log(bodyDelete);
     expect(bodyDelete.statusCode).toBe(403);
     expect(bodyDelete.error.message).toContain("Access denied");
   });
@@ -1155,5 +1172,152 @@ test.describe("API profile methods", () => {
     const bodyDelete = await responseDelete.json();
     expect(bodyDelete.statusCode).toBe(403);
     expect(bodyDelete.error.message).toContain("Access denied");
+  });
+
+  test("Deleting a non-existent user", async ({ apiSdk }) => {
+    const user = await apiSdk.profiles.ownerAddMember("RoomAdmin");
+    const response = await user.response.json();
+    const userId = response.response.id;
+
+    const userDataChangeStatus = {
+      userIds: [userId],
+      resendAll: false,
+    };
+
+    const userDataDeleteUser = {
+      userIds: [userId],
+    };
+
+    await apiSdk.userStatus.changeUserStatus(
+      UserStatus.Disabled,
+      userDataChangeStatus,
+    );
+    await apiSdk.profiles.ownerDeleteUser(userDataDeleteUser);
+    const responseDelete =
+      await apiSdk.profiles.ownerDeleteUser(userDataDeleteUser);
+    const bodyDelete = await responseDelete.json();
+    expect(bodyDelete.statusCode).toBe(404);
+    expect(bodyDelete.error.message).toContain("The user could not be found");
+  });
+
+  test("Deleting a user without authorization", async ({ apiSdk }) => {
+    // Create first user that will be deleted
+    const userToDelete = await apiSdk.profiles.ownerAddMember("User");
+    const responseToDelete = await userToDelete.response.json();
+    const userIdToDelete = responseToDelete.response.id;
+
+    // Disable the first user
+    const userDataChangeStatus = {
+      userIds: [userIdToDelete],
+      resendAll: false,
+    };
+    await apiSdk.userStatus.changeUserStatus(
+      UserStatus.Disabled,
+      userDataChangeStatus,
+    );
+
+    // Delete the disabled user
+    const userDataDeleteUser = {
+      userIds: [userIdToDelete],
+    };
+
+    const responseDelete =
+      await apiSdk.profiles.deletingAUserWithoutAuthorization(userDataDeleteUser);
+    expect(responseDelete.status()).toBe(401);
+  });
+
+  test("Owner returns detailed information of a user", async ({ apiSdk }) => {
+    const user = await apiSdk.profiles.ownerAddMember("RoomAdmin");
+    const response = await user.response.json();
+    const userId = response.response.id;
+
+    const responseReturnInfo =
+      await apiSdk.profiles.OwnerReturnUserDetailedInformation(userId);
+    const bodyReturnInfo = await responseReturnInfo.json();
+    expect(bodyReturnInfo.statusCode).toBe(200);
+    expect(bodyReturnInfo.response.id).toBe(userId);
+    expect(bodyReturnInfo.response.email).toBe(response.response.email);
+  });
+
+  test("Returns detailed information about a non-existent user", async ({ apiSdk }) => {
+    const user = await apiSdk.profiles.ownerAddMember("RoomAdmin");
+    const response = await user.response.json();
+    const userId = response.response.id;
+
+      const userDataChangeStatus = {
+        userIds: [userId],
+        resendAll: false,
+      };
+
+    await apiSdk.userStatus.changeUserStatus(
+      UserStatus.Disabled,
+      userDataChangeStatus,
+    );
+
+    const userDataDeleteUser = {
+      userIds: [userId],
+    };
+
+    await apiSdk.profiles.ownerDeleteUser(userDataDeleteUser);
+
+    const responseReturnInfo =
+      await apiSdk.profiles.OwnerReturnUserDetailedInformation(userId);
+    const bodyReturnInfo = await responseReturnInfo.json();
+    expect(bodyReturnInfo.statusCode).toBe(404);
+    expect(bodyReturnInfo.error.message).toContain("The user could not be found");
+  });
+
+  test("DocSpace admin returns detailed information of a user", async ({ apiSdk, api }) => {
+    await apiSdk.profiles.ownerAddMember("DocSpaceAdmin");
+    await api.auth.authenticateDocSpaceAdmin();
+    const returnAllUsersList = await apiSdk.profiles.docSpaceAdminReturnAllUsersList();
+    const body = (await returnAllUsersList.json()) as { response: UsersListItem[] };
+    const owner = body.response.find(
+      (u: UsersListItem) => u.email === config.DOCSPACE_OWNER_EMAIL,
+    );
+    if (!owner) {
+      throw new Error(`Owner not found with email: ${config.DOCSPACE_OWNER_EMAIL}`);
+    }
+    const userId = owner.id;
+    const responseReturnInfo =
+      await apiSdk.profiles.DocSpaceAdminReturnUserDetailedInformation(userId);
+    const bodyReturnInfo = await responseReturnInfo.json();
+    expect(bodyReturnInfo.statusCode).toBe(200);
+    expect(bodyReturnInfo.response.id).toBe(userId);
+    expect(bodyReturnInfo.response.email).toBe(owner.email);
+    expect(bodyReturnInfo.response.firstName).toBe(owner.firstName);
+    expect(bodyReturnInfo.response.lastName).toBe(owner.lastName);
+  });
+
+  test("Room admin returns detailed information of a user", async ({ apiSdk, api }) => {
+    await apiSdk.profiles.ownerAddMember("RoomAdmin");
+    await api.auth.authenticateRoomAdmin();
+    const returnAllUsersList = await apiSdk.profiles.roomAdminReturnAllUsersList();
+    const body = (await returnAllUsersList.json()) as { response: UsersListItem[] };
+    const owner = body.response.find(
+      (u: UsersListItem) => u.email === config.DOCSPACE_OWNER_EMAIL,
+    );
+    if (!owner) {
+      throw new Error(`Owner not found with email: ${config.DOCSPACE_OWNER_EMAIL}`);
+    }
+    const userId = owner.id;
+    const responseReturnInfo =
+      await apiSdk.profiles.RoomAdminReturnUserDetailedInformation(userId);
+    const bodyReturnInfo = await responseReturnInfo.json();
+    expect(bodyReturnInfo.statusCode).toBe(200);
+    expect(bodyReturnInfo.response.id).toBe(userId);
+    expect(bodyReturnInfo.response.email).toBe(owner.email);
+    expect(bodyReturnInfo.response.firstName).toBe(owner.firstName);
+    expect(bodyReturnInfo.response.lastName).toBe(owner.lastName);
+  });
+
+  test("Returns detailed information of a user without authorization", async ({ apiSdk }) => {
+    const user = await apiSdk.profiles.ownerAddMember("RoomAdmin");
+    const response = await user.response.json();
+    const userId = response.response.id;
+
+    const responseReturnInfo =
+      await apiSdk.profiles.returnUserDetailedInformationAboutAUsetWithoutAuthorization(userId);
+    expect(responseReturnInfo.status()).toBe(401);
   });
 });

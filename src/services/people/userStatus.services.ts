@@ -49,4 +49,22 @@ export class UserStatusApi {
       return response;
     });
   }
+
+  async changeUserStatusWithoutAuthorization(
+    status: UserStatus,
+    data: {
+      userIds: string[];
+      resendAll: boolean;
+    },
+  ) {
+    return test.step("Change user status", async () => {
+      const response = await this.request.put(
+        `https://${this.portalDomain}/api/2.0/people/status/${status}`,
+        {
+          data,
+        },
+      );
+      return response;
+    });
+  }
 }

@@ -261,6 +261,16 @@ export class ProfilesApi {
     });
   }
 
+  async addingAUserWithoutAuthorization() {
+    return test.step("Adding a user without authorization", async () => {
+
+      const response = await this.request.post(
+        `https://${this.portalDomain}/api/2.0/people`,
+      );
+      return response;
+    });
+  }
+
   async ownerReturnAllUsersList() {
     return test.step("Return all users list", async () => {
       const response = await this.request.get(
@@ -308,6 +318,18 @@ export class ProfilesApi {
       return response;
     });
   }
+
+  async returnAllUsersListWithoutAuthorization() {
+    return test.step("Return all users list without authorization", async () => {
+
+      const response = await this.request.get(
+        `https://${this.portalDomain}/api/2.0/people`,
+      );
+      return response;
+    });
+  }
+
+
 
   async ownerInviteUser(data: { type: string; email: string }) {
     return test.step("Owner invite user", async () => {
@@ -419,6 +441,15 @@ export class ProfilesApi {
     });
   }
 
+  async invitingAUserWithoutAuthorization() {
+    return test.step("Inviting a user without authorization", async () => {
+      const response = await this.request.post(
+        `https://${this.portalDomain}/api/2.0/people/invite`
+      );
+      return response;
+    });
+  }
+
   async ownerResendActavationEmails(data: {
     userIds: string[];
     resendAll: boolean;
@@ -503,6 +534,16 @@ export class ProfilesApi {
     });
   }
 
+  async resendingActivationEmailByUnauthorizedUser() {
+    return test.step("Resending activation email by unauthorized user", async () => {
+
+      const response = await this.request.put(
+        `https://${this.portalDomain}/api/2.0/people/invite`,
+      );
+      return response;
+    });
+  }
+
   async ownerDeleteUser(data: { userIds: string[] }) {
     return test.step("Owner delete user", async () => {
       const userData = {
@@ -566,6 +607,67 @@ export class ProfilesApi {
           headers: { Authorization: `Bearer ${this.authTokenUser}` },
           data: userData,
         },
+      );
+      return response;
+    });
+  }
+
+  async deletingAUserWithoutAuthorization(data: { userIds: string[] }) {
+    return test.step("Room admin delete user", async () => {
+      const userData = {
+        userIds: data.userIds,
+      };
+
+      const response = await this.request.delete(
+        `https://${this.portalDomain}/api/2.0/people/${data.userIds}`,
+        {
+          data: userData,
+        },
+      );
+      return response;
+    });
+  }
+
+  async OwnerReturnUserDetailedInformation(userId: string) {
+    return test.step("Owner returns the detailed information of the user", async () => {
+      const response = await this.request.get(
+        `https://${this.portalDomain}/api/2.0/people/${userId}`,
+        {
+          headers: { Authorization: `Bearer ${this.authTokenOwner}` },
+        },
+      );
+      return response;
+    });
+  }
+
+  async DocSpaceAdminReturnUserDetailedInformation(userId: string) {
+    return test.step("DocSpace admin returns the detailed information of the user", async () => {
+      const response = await this.request.get(
+        `https://${this.portalDomain}/api/2.0/people/${userId}`,
+        {
+          headers: { Authorization: `Bearer ${this.authTokenDocSpaceAdmin}` },
+        },
+      );
+      return response;
+    });
+  }
+
+  async RoomAdminReturnUserDetailedInformation(userId: string) {
+    return test.step("Room admin returns the detailed information of the user", async () => {
+      const response = await this.request.get(
+        `https://${this.portalDomain}/api/2.0/people/${userId}`,
+        {
+          headers: { Authorization: `Bearer ${this.authTokenRoomAdmin}` },
+        },
+      );
+      return response;
+    });
+  }
+
+  async returnUserDetailedInformationAboutAUsetWithoutAuthorization(userId: string) {
+    return test.step("Returns the detailed information of the user", async () => {
+      const response = await this.request.get(
+        `https://${this.portalDomain}/api/2.0/people/${userId}`,
       );
       return response;
     });

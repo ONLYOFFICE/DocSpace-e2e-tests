@@ -12,7 +12,7 @@ export class FAKER {
     const stamp = Date.now();
     return {
       password: faker.internet.password({ length: 12 }),
-      email: `user_${stamp}_${faker.internet.userName()}@test.com`,
+      email: `user_${stamp}_${faker.internet.username()}@test.com`,
       firstName: faker.person.firstName(),
       lastName: faker.person.lastName(),
     };

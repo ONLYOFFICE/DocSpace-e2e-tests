@@ -2,18 +2,6 @@ import { expect } from "@playwright/test";
 import { test } from "@/src/fixtures/index";
 import { UserStatus } from "@/src/services/people/userStatus.services";
 
-// type UsersListItem = {
-//   id: string;
-//   email: string;
-//   firstName?: string;
-//   lastName?: string;
-//   displayName?: string;
-//   isOwner?: boolean;
-//   isAdmin?: boolean;
-//   isRoomAdmin?: boolean;
-//   isCollaborator?: boolean;
-// };
-
 test.describe("API user status methods", () => {
   test("Owner deactivates the user", async ({ apiSdk }) => {
     const user = await apiSdk.profiles.ownerAddMember("User");
@@ -71,6 +59,23 @@ test.describe("API user status methods", () => {
     expect(userInfo.id).toMatch(
       /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
     );
+  });
+
+  test("Owner deactivates the user without authorization", async ({ apiSdk }) => {
+    const user = await apiSdk.profiles.ownerAddMember("User");
+    const body = await user.response.json();
+    const userId = body.response.id;
+
+    const userData = {
+      userIds: [userId],
+      resendAll: false,
+    };
+
+    const response = await apiSdk.userStatus.changeUserStatusWithoutAuthorization(
+      UserStatus.Disabled,
+      userData,
+    );
+    expect(response.status()).toBe(401);
   });
 });
 
