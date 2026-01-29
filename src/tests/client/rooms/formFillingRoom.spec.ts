@@ -249,13 +249,10 @@ test.describe("FormFilling room tests", () => {
       await filesTable.openContextMenuRow(item);
       await filesTable.contextMenu.clickOption("Preview");
       const xlsxPage = await newPage.waitForEvent("popup");
-      await xlsxPage
-        .waitForLoadState("networkidle", { timeout: 60000 })
-        .catch(() => {
-          console.warn(
-            "networkidle did not happen in 60 seconds, continuing test",
-          );
-        });
+      await xlsxPage.waitForSelector('iframe[name="frameEditor"]', {
+        state: "attached",
+        timeout: 60000,
+      });
       const frameEditor = xlsxPage.frameLocator('iframe[name="frameEditor"]');
       const canvasOverlay = frameEditor.locator("#ws-canvas-graphic-overlay");
       await expect(frameEditor.locator("#box-doc-name")).toBeVisible({
@@ -549,6 +546,7 @@ test.describe("FormFilling room tests", () => {
       await expect(page.getByLabel("ONLYOFFICE Resume Sample,")).toBeVisible();
     });
     let shareLink: string;
+    //
     await test.step("Change and copy link to Room", async () => {
       await myRooms.infoPanel.open();
       const membersTab = page.getByTestId(INFO_PANEL_TABS.Contacts.testId);
