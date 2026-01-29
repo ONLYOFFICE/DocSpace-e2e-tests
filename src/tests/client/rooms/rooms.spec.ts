@@ -256,4 +256,27 @@ test.describe("Rooms", () => {
       await myRooms.roomsEmptyView.checkNoTemplatesExist();
     });
   });
+
+  test("Table settings", async () => {
+    await myRooms.openWithoutEmptyCheck();
+    await myRooms.openRoomsTab();
+    await myRooms.createRooms();
+    await myRooms.infoPanel.close();
+
+    await myRooms.roomsTable.openTableSettings();
+    await myRooms.roomsTable.expectColumnVisible("Tags");
+    await myRooms.roomsTable.expectColumnVisible("Last activity");
+
+    await myRooms.roomsTable.setColumnVisible("Type");
+    await myRooms.roomsTable.setColumnVisible("Owner");
+
+    await myRooms.roomsTable.setColumnNotVisible("Tags");
+    await myRooms.roomsTable.setColumnNotVisible("Last activity");
+    await myRooms.roomsTable.setColumnNotVisible("Type");
+    await myRooms.roomsTable.setColumnNotVisible("Owner");
+
+    await myRooms.roomsTable.setColumnVisible("Tags");
+    await myRooms.roomsTable.setColumnVisible("Last activity");
+    await myRooms.roomsTable.closeTableSettings();
+  });
 });
