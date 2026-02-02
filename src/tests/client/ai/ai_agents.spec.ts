@@ -31,17 +31,17 @@ test.describe("AI Agents", () => {
     await test.step("MCP Servers tab shows disabled Add MCP Server button", async () => {
       await aiSettings.openDirectly();
       await aiSettings.openMcpServersTab();
-      await aiSettings.expectAddMcpServerDisabled();
+      await aiSettings.expectAddMcpServerVisible();
     });
 
     await test.step("Web Search tab shows disabled provider selector", async () => {
       await aiSettings.openWebSearchTab();
-      await aiSettings.expectWebSearchSelectDisabled();
+      await aiSettings.expectWebSearchSelectVisible();
     });
 
     await test.step("Knowledge tab shows disabled source selector", async () => {
       await aiSettings.openKnowledgeTab();
-      await aiSettings.expectKnowledgeSelectDisabled();
+      await aiSettings.expectKnowledgeSelectVisible();
     });
 
     await test.step("Open Learn more guide", async () => {

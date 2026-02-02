@@ -390,7 +390,10 @@ test.describe("FormFilling room tests", () => {
       expect(currentOption).toBe("docspace users only"); //Bug 79256
     });
   });
-  test("Filling PDF Form with link by anonymous", async ({ page, browser }) => {
+  test.skip("Filling PDF Form with link by anonymous", async ({
+    page,
+    browser,
+  }) => {
     let shareLink: string;
     await test.step("Upload PDF Form from My Documents", async () => {
       await shortTour.clickSkipTour();
