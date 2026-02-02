@@ -90,13 +90,20 @@ class AiSettings extends BasePage {
     await this.openTab(this.knowledgeTab);
   }
 
-  async expectAddMcpServerDisabled() {
+  async expectAddMcpServerVisible() {
     await expect(this.addMcpServerButton).toBeVisible();
-    await expect(this.addMcpServerButton).toBeDisabled();
+  }
+
+  async expectWebSearchSelectVisible() {
+    await this.expectComboVisible(this.webSearchCombo);
   }
 
   async expectWebSearchSelectDisabled() {
     await this.expectComboDisabled(this.webSearchCombo);
+  }
+
+  async expectKnowledgeSelectVisible() {
+    await this.expectComboVisible(this.knowledgeCombo);
   }
 
   async expectKnowledgeSelectDisabled() {
@@ -105,6 +112,10 @@ class AiSettings extends BasePage {
 
   private async openTab(tab: Locator) {
     await tab.click();
+  }
+
+  private async expectComboVisible(combo: Locator) {
+    await expect(combo).toBeVisible();
   }
 
   private async expectComboDisabled(combo: Locator) {
