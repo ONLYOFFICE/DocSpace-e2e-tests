@@ -669,4 +669,192 @@ export class ProfilesApi {
       return response;
     });
   }
+
+  async ownerUpdatesData(
+    userId: string,
+    data: {
+      firstName: string;
+      lastName: string;
+    },
+  ) {
+    return test.step("Owner update himself", async () => {
+      const userData = {
+        firstName: data.firstName,
+        lastName: data.lastName,
+      };
+
+      const response = await this.request.put(
+        `https://${this.portalDomain}/api/2.0/people/${userId}`,
+        {
+          headers: { Authorization: `Bearer ${this.authTokenOwner}` },
+          data: userData,
+        },
+      );
+      return response;
+    });
+  }
+
+  async updateUserDataWithoutAuthorization(
+    userId: string,
+    data: {
+      firstName: string;
+      lastName: string;
+    },
+  ) {
+    return test.step("Update a user without authorization", async () => {
+      const userData = {
+        firstName: data.firstName,
+        lastName: data.lastName,
+      };
+
+      const response = await this.request.put(
+        `https://${this.portalDomain}/api/2.0/people/${userId}`,
+        {
+          data: userData,
+        },
+      );
+      return response;
+    });
+  }
+
+  async docSpaceAdminUpdateUserData(
+    userId: string,
+    data: {
+      firstName: string;
+      lastName: string;
+    },
+  ) {
+    return test.step("DocSpace admin update another user", async () => {
+      const userData = {
+        firstName: data.firstName,
+        lastName: data.lastName,
+      };
+
+      const response = await this.request.put(
+        `https://${this.portalDomain}/api/2.0/people/${userId}`,
+        {
+          headers: { Authorization: `Bearer ${this.authTokenDocSpaceAdmin}` },
+          data: userData,
+        },
+      );
+      return response;
+    });
+  }
+
+  async roomAdminUpdateUserData(
+    userId: string,
+    data: {
+      firstName: string;
+      lastName: string;
+    },
+  ) {
+    return test.step("Room admin update another user", async () => {
+      const userData = {
+        firstName: data.firstName,
+        lastName: data.lastName,
+      };
+
+      const response = await this.request.put(
+        `https://${this.portalDomain}/api/2.0/people/${userId}`,
+        {
+          headers: { Authorization: `Bearer ${this.authTokenRoomAdmin}` },
+          data: userData,
+        },
+      );
+      return response;
+    });
+  }
+
+  async userUpdateUserData(
+    userId: string,
+    data: {
+      firstName: string;
+      lastName: string;
+    },
+  ) {
+    return test.step("User update another user", async () => {
+      const userData = {
+        firstName: data.firstName,
+        lastName: data.lastName,
+      };
+
+      const response = await this.request.put(
+        `https://${this.portalDomain}/api/2.0/people/${userId}`,
+        {
+          headers: { Authorization: `Bearer ${this.authTokenUser}` },
+          data: userData,
+        },
+      );
+      return response;
+    });
+  }
+
+  async ownerReturnHimselfInformation() {
+    return test.step("Owner return himself information", async () => {
+      const response = await this.request.get(
+        `https://${this.portalDomain}/api/2.0/people/@self`,
+        {
+          headers: { Authorization: `Bearer ${this.authTokenOwner}` },
+        },
+      );
+      return response;
+    });
+  }
+
+  async docSpaceAdminReturnHimselfInformation() {
+    return test.step("DocSpace admin return himself information", async () => {
+      const response = await this.request.get(
+        `https://${this.portalDomain}/api/2.0/people/@self`,
+        {
+          headers: { Authorization: `Bearer ${this.authTokenDocSpaceAdmin}` },
+        },
+      );
+      return response;
+    });
+  }
+
+  async roomAdminReturnHimselfInformation() {
+    return test.step("Room admin return himself information", async () => {
+      const response = await this.request.get(
+        `https://${this.portalDomain}/api/2.0/people/@self`,
+        {
+          headers: { Authorization: `Bearer ${this.authTokenRoomAdmin}` },
+        },
+      );
+      return response;
+    });
+  }
+
+  async userReturnHimselfInformation() {
+    return test.step("User return himself information", async () => {
+      const response = await this.request.get(
+        `https://${this.portalDomain}/api/2.0/people/@self`,
+        {
+          headers: { Authorization: `Bearer ${this.authTokenUser}` },
+        },
+      );
+      return response;
+    });
+  }
+
+  async ownerReturnsUserInfoViaEmail(data: { email: string[] }) {
+    return test.step("Owner returns user information via email", async () => {
+      const response = await this.request.get(
+        `https://${this.portalDomain}/api/2.0/people/email?email=${data.email}`,
+        {
+          headers: { Authorization: `Bearer ${this.authTokenOwner}` },
+        },
+      );
+      return response;
+    });
+  }
+
+  async returnsUserInfoViaEmailWithoutAuthorization(data: { email: string[] }) {
+    return test.step("Returns user information via email without authorization", async () => {
+      const response = await this.request.get(
+        `https://${this.portalDomain}/api/2.0/people/email?email=${data.email}`,
+      );
+      return response;
+    });
+  }
 }
