@@ -35,6 +35,13 @@ const navActions = {
   },
 } as const;
 
+const FormFillingFolder = {
+  complete: "Complete",
+  inProgress: "In progress",
+} as const;
+
+const DRAFT_LABEL = "badge-text";
+
 class MyRooms extends BasePage {
   private portalDomain: string;
 
@@ -187,6 +194,19 @@ class MyRooms extends BasePage {
   async openRoom(roomName: string) {
     await this.roomsTable.openContextMenu(roomName);
     await this.roomsTable.contextMenu.clickOption("Open");
+  }
+  async verifyCompleteFolderNotVisible() {
+    await expect(
+      this.page.getByText(FormFillingFolder.complete),
+    ).not.toBeVisible();
+  }
+  async verifyInProgressFolderNotVisible() {
+    await expect(
+      this.page.getByText(FormFillingFolder.inProgress),
+    ).not.toBeVisible();
+  }
+  async verifyDraftLabelVisible() {
+    await expect(this.page.getByTestId(DRAFT_LABEL)).toBeVisible();
   }
 }
 
