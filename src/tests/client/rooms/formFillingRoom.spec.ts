@@ -682,7 +682,7 @@ test.describe("FormFilling room tests", () => {
     });
   });
   //Check that Progress folders can't be deleted
-  test("Can't deleted Progress folders", async ({ page }) => {
+  test("Progress folders can't be deleted", async ({ page }) => {
     //Upload the document so that the progress folders appear.
     await test.step("UploadPDFFormFromMyDocuments", async () => {
       await shortTour.clickSkipTour();
