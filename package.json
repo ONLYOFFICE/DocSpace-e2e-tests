@@ -8,9 +8,14 @@
   "scripts": {
     "start": "node scripts/playwright-test-runner.js",
     "testUI": "npx playwright test --ui",
+    "test:api": "npx playwright test --project=api-tests",
+    "test:e2e": "npx playwright test --project=chromium --project=firefox",
+    "test:all": "(npm run test:api || true) && npm run test:e2e",
     "docker:build": "docker-compose build",
     "docker:start": "docker-compose run --rm tests-local npx playwright test",
     "docker:start:screenshots": "docker-compose run --rm tests-local npx playwright test --update-snapshots",
+    "docker:start:api": "docker-compose run --rm tests-local npm run test:api",
+    "docker:start:e2e": "docker-compose run --rm tests-local npm run test:e2e",
     "lint": "eslint \"./src/**/*.{ts,js}\"",
     "lint:fix": "eslint \"./src/**/*.{ts,js}\" --fix",
     "tsc": "tsc --noEmit"
@@ -21,6 +26,7 @@
   "description": "",
   "devDependencies": {
     "@eslint/js": "^9.18.0",
+    "@faker-js/faker": "^9.9.0",
     "@playwright/test": "^1.49.1",
     "@reportportal/agent-js-playwright": "^5.1.11",
     "@types/imapflow": "^1.0.22",
@@ -41,10 +47,11 @@
   },
   "dependencies": {
     "@inquirer/prompts": "^7.5.3",
+    "@onlyoffice/docspace-api-sdk": "^3.5.0",
     "docx": "^9.2.0",
     "dotenv": "^16.4.7",
     "fs-extra": "^11.3.0",
-    "imapflow": "1.0.181",
+    "imapflow": "^1.0.200",
     "loglevel": "^1.9.2",
     "pdfkit": "^0.16.0",
     "pptxgenjs": "^3.12.0",

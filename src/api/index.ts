@@ -6,7 +6,8 @@ import People from "./people";
 import File from "./file";
 
 class API {
-  apiRequestContext: APIRequestContext;
+  ownerContext: APIRequestContext;
+  userContext: APIRequestContext;
 
   portalDomain: string = "";
   adminUserId: string = "";
@@ -16,12 +17,22 @@ class API {
   people: People;
   file: File;
 
-  constructor(apiRequestContext: APIRequestContext) {
-    this.apiRequestContext = apiRequestContext;
-    this.apisystem = new Apisystem(apiRequestContext);
-    this.auth = new Auth(apiRequestContext, "");
-    this.people = new People(apiRequestContext);
-    this.file = new File(apiRequestContext);
+  get apiContext(): APIRequestContext {
+    return this.ownerContext;
+  }
+
+  get apiRequestContext(): APIRequestContext {
+    return this.ownerContext;
+  }
+
+  constructor(ownerContext: APIRequestContext, userContext: APIRequestContext) {
+    this.ownerContext = ownerContext;
+    this.userContext = userContext;
+
+    this.auth = new Auth(ownerContext, "");
+    this.apisystem = new Apisystem(ownerContext, this.auth);
+    this.people = new People(userContext);
+    this.file = new File(userContext);
   }
 
   async setup() {
@@ -30,19 +41,15 @@ class API {
     this.portalDomain = portal.tenant.domain;
     this.adminUserId = portal.tenant.ownerId;
 
-    this.auth.setPortalDomain(portal.tenant.domain);
+    this.auth.setPortalDomain(this.portalDomain);
+    const ownerToken = await this.auth.authenticateOwner();
 
-    const authToken = await this.auth.authenticate();
+    this.people.setPortalDomain(this.portalDomain);
+    this.people.setAdminUserId(this.adminUserId);
+    this.people.setAuthToken(ownerToken);
 
-    this.apisystem.setAuthToken(authToken);
-    this.people.setAuthToken(authToken);
-    this.people.setPortalDomain(portal.tenant.domain);
-    this.people.setAdminUserId(portal.tenant.ownerId);
-
-    this.file.setAuthToken(authToken);
-    this.file.setPortalDomain(portal.tenant.domain);
-
-    await this.people.activateAdminUser();
+    this.file.setPortalDomain(this.portalDomain);
+    this.file.setAuthToken(ownerToken);
   }
 
   async cleanup() {

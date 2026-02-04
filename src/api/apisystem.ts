@@ -1,20 +1,19 @@
 import { APIRequestContext } from "@playwright/test";
-
 import config from "../../config";
+import Auth from "./auth";
 
 class Apisystem {
   apiContext: APIRequestContext;
-
   portalDomain: string = "";
-
   adminUserId: string = "";
-
   portalName: string = "";
-
   authToken: string = "";
 
-  constructor(apiContext: APIRequestContext) {
+  private auth: Auth;
+
+  constructor(apiContext: APIRequestContext, auth: Auth) {
     this.apiContext = apiContext;
+    this.auth = auth;
   }
 
   setAuthToken(authToken: string) {
@@ -27,6 +26,10 @@ class Apisystem {
 
   setPortalName(portalName: string) {
     this.portalName = portalName;
+  }
+
+  getOwnerAuthToken(): string {
+    return this.auth.authTokenOwner;
   }
 
   async createPortal(portalNamePrefix = "test-portal") {
@@ -42,8 +45,8 @@ class Apisystem {
           portalName: this.portalName,
           firstName: "admin-zero",
           lastName: "admin-zero",
-          email: config.DOCSPACE_ADMIN_EMAIL,
-          password: config.DOCSPACE_ADMIN_PASSWORD,
+          email: config.DOCSPACE_OWNER_EMAIL,
+          password: config.DOCSPACE_OWNER_PASSWORD,
           language: "en",
         },
       },
@@ -64,12 +67,23 @@ class Apisystem {
   }
 
   async deletePortal() {
+    if (!this.auth.authTokenOwner) {
+      throw new Error("Owner token is missing. Cannot delete portal.");
+    }
+
     const deleteUrl = `https://${this.portalDomain}/api/2.0/portal/deleteportalimmediately`;
 
-    await this.apiContext.delete(deleteUrl, {
-      headers: { Authorization: `Bearer ${this.authToken}` },
+    const response = await this.apiContext.delete(deleteUrl, {
+      headers: { Authorization: `Bearer ${this.auth.authTokenOwner}` },
       data: { reference: `${this.portalName}.onlyoffice.io` },
     });
+    const body = await response.json();
+
+    if (!response.ok()) {
+      throw new Error(
+        `Failed to delete portal: ${response.status()} - ${body.error || body.message}`,
+      );
+    }
   }
 }
 

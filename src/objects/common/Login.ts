@@ -45,8 +45,8 @@ export class Login extends BasePage {
     });
 
     await expect(async () => {
-      await this.emailInput.fill(config.DOCSPACE_ADMIN_EMAIL);
-      await this.passwordInput.fill(config.DOCSPACE_ADMIN_PASSWORD);
+      await this.emailInput.fill(config.DOCSPACE_OWNER_EMAIL);
+      await this.passwordInput.fill(config.DOCSPACE_OWNER_PASSWORD);
 
       await Promise.all([
         this.page.waitForRequest(

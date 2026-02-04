@@ -79,7 +79,7 @@ export class PaymentApi {
 
       const data = {
         portalId: portalId,
-        customerEmail: config.DOCSPACE_ADMIN_EMAIL,
+        customerEmail: config.DOCSPACE_OWNER_EMAIL,
         quantity: quantity,
       };
 
@@ -103,14 +103,15 @@ export class PaymentApi {
   }
 
   async refreshPaymentInfo(portalDomain: string) {
-    if (!this.portalSetupApi?.authToken) {
+    const ownerToken = this.portalSetupApi.getOwnerAuthToken();
+    if (!ownerToken) {
       throw new Error(
         "Portal authentication token is not set. Please authenticate first.",
       );
     }
 
     const headers = {
-      Authorization: `Bearer ${this.portalSetupApi.authToken}`,
+      Authorization: `Bearer ${ownerToken}`,
       Accept: "application/json",
     };
 

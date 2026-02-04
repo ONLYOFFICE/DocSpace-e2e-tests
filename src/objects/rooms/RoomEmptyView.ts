@@ -1,5 +1,7 @@
 import { expect, Page } from "@playwright/test";
 import BaseToast from "../common/BaseToast";
+import path from "path";
+import fs from "fs";
 
 const UPLOAD_FORM_DOCSPACE = "#upload-pdf-form";
 const UPLOAD_FORM_DEVICE = "#create-form";
@@ -45,11 +47,17 @@ class RoomEmptyView {
   }
 
   async uploadPdfForm(filePath: string) {
+    const resolvedPath = path.resolve(process.cwd(), filePath);
+
+    if (!fs.existsSync(resolvedPath)) {
+      throw new Error(`File not found: ${resolvedPath}`);
+    }
+
     await Promise.all([
       this.page.waitForResponse(
         (res) => res.url().includes("/upload/check") && res.status() === 200,
       ),
-      this.fileInput.first().setInputFiles(filePath),
+      this.fileInput.first().setInputFiles(resolvedPath),
     ]);
   }
   async shareRoomClick() {

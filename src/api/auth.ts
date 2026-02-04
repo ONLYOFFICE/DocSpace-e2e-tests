@@ -1,27 +1,38 @@
 import { APIRequestContext } from "@playwright/test";
-
 import config from "../../config";
+import { ProfilesApi } from "../services/people/profiles.services";
 
 class Auth {
   apiRequestContext: APIRequestContext;
-
-  authToken: string = "";
-
+  authTokenOwner: string = "";
+  authTokenDocSpaceAdmin: string = "";
+  authTokenRoomAdmin: string = "";
+  authTokenUser: string = "";
   portalDomain: string;
 
-  constructor(apiRequestContext: APIRequestContext, portalDomain: string) {
-    this.apiRequestContext = apiRequestContext;
+  private profilesApi?: ProfilesApi;
 
+  constructor(
+    apiRequestContext: APIRequestContext,
+    portalDomain: string,
+    profilesApi?: ProfilesApi,
+  ) {
+    this.apiRequestContext = apiRequestContext;
     this.portalDomain = portalDomain;
+    this.profilesApi = profilesApi;
   }
 
   setPortalDomain(portalDomain: string) {
     this.portalDomain = portalDomain;
   }
 
-  async authenticate() {
-    const userName = config.DOCSPACE_ADMIN_EMAIL;
-    const password = config.DOCSPACE_ADMIN_PASSWORD;
+  setProfilesApi(profilesApi: ProfilesApi) {
+    this.profilesApi = profilesApi;
+  }
+
+  async authenticateOwner() {
+    const userName = config.DOCSPACE_OWNER_EMAIL;
+    const password = config.DOCSPACE_OWNER_PASSWORD;
 
     const authResponse = await this.apiRequestContext.post(
       `https://${this.portalDomain}/api/2.0/authentication`,
@@ -38,9 +49,108 @@ class Auth {
       );
     }
 
-    this.authToken = authBody.response.token;
+    this.authTokenOwner = authBody.response.token;
 
-    return this.authToken;
+    return this.authTokenOwner;
+  }
+
+  async authenticateDocSpaceAdmin(email?: string, password?: string) {
+    if (!email || !password) {
+      if (!this.profilesApi) {
+        throw new Error(
+          "ProfilesApi is not provided to Auth; cannot authenticate DocSpace admin",
+        );
+      }
+    }
+
+    const userEmail = email ?? this.profilesApi!.getDocSpaceAdminEmail();
+    const userPassword =
+      password ?? this.profilesApi!.getDocSpaceAdminPassword();
+
+    const authResponse = await this.apiRequestContext.post(
+      `https://${this.portalDomain}/api/2.0/authentication`,
+      { data: { userName: userEmail, password: userPassword } },
+    );
+
+    const authBody = await authResponse.json();
+
+    if (!authResponse.ok()) {
+      throw new Error(
+        `Authentication failed: ${authResponse.status()} - ${JSON.stringify(authBody)}`,
+      );
+    }
+
+    this.authTokenDocSpaceAdmin = authBody.response.token;
+
+    if (this.profilesApi) {
+      this.profilesApi.setAuthTokenDocSpaceAdmin(this.authTokenDocSpaceAdmin);
+    }
+
+    return this.authTokenDocSpaceAdmin;
+  }
+
+  async authenticateRoomAdmin() {
+    if (!this.profilesApi) {
+      throw new Error(
+        "ProfilesApi is not provided to Auth; cannot authenticate Room admin",
+      );
+    }
+
+    const email = this.profilesApi.getRoomAdminEmail();
+    const password = this.profilesApi.getRoomAdminPassword();
+
+    const authResponse = await this.apiRequestContext.post(
+      `https://${this.portalDomain}/api/2.0/authentication`,
+      {
+        data: { userName: email, password },
+      },
+    );
+
+    const authBody = await authResponse.json();
+
+    if (!authResponse.ok()) {
+      throw new Error(
+        `Authentication failed: ${authResponse.status()} - ${authBody.error || authBody.message}`,
+      );
+    }
+
+    this.authTokenRoomAdmin = authBody.response.token;
+
+    this.profilesApi.setAuthTokenRoomAdmin(this.authTokenRoomAdmin);
+
+    return this.authTokenRoomAdmin;
+  }
+
+  async authenticateUser() {
+    if (!this.profilesApi) {
+      throw new Error(
+        "ProfilesApi is not provided to Auth; cannot authenticate User",
+      );
+    }
+
+    const email = this.profilesApi.getUserEmail();
+    const password = this.profilesApi.getUserPassword();
+
+    const authResponse = await this.apiRequestContext.post(
+      `https://${this.portalDomain}/api/2.0/authentication`,
+      {
+        data: { userName: email, password },
+      },
+    );
+
+    const authBody = await authResponse.json();
+
+    if (!authResponse.ok()) {
+      throw new Error(
+        `Authentication failed: ${authResponse.status()} - ${authBody.error || authBody.message}`,
+      );
+    }
+
+    this.authTokenUser = authBody.response.token;
+
+    this.profilesApi.setAuthTokenUser(this.authTokenUser);
+
+    return this.authTokenUser;
   }
 }
 

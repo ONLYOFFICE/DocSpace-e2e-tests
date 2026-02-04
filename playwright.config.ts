@@ -63,7 +63,12 @@ export default defineConfig({
 
   projects: [
     {
+      name: "api-tests",
+      testMatch: "**/api/**/*.spec.ts",
+    },
+    {
       name: "chromium",
+      testMatch: "**/e2e/**/*.spec.ts",
       use: {
         headless: true,
         ...devices["Desktop Chrome"],
@@ -73,6 +78,7 @@ export default defineConfig({
     },
     {
       name: "firefox",
+      testMatch: "**/e2e/**/*.spec.ts",
       use: {
         ...devices["Desktop Firefox"],
         viewport: { width: 1440, height: 1024 },
