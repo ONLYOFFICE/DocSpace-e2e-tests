@@ -43,25 +43,25 @@ export default defineConfig({
   // Ignore tests in the site directory
   testIgnore: ["**/site/**/*.spec.ts"],
   // Directory for screenshots
-  outputDir: `./test-output/${process.env.JOB_NAME ?? 'local'}`,
+  outputDir: `./test-output/${process.env.JOB_NAME ?? "local"}`,
   // Proper snapshot path template with placeholders and file extension
   snapshotPathTemplate: "./screenshots/{projectName}/{arg}{ext}",
   reporter: [
-  [
-    "html",
-    {
-      outputFolder: `./playwright-report/${process.env.JOB_NAME ?? 'local'}`,
-      open: "never",
-    },
+    [
+      "html",
+      {
+        outputFolder: `./playwright-report/${process.env.JOB_NAME ?? "local"}`,
+        open: "never",
+      },
+    ],
+    [
+      "junit",
+      {
+        outputFile: `./playwright-report/${process.env.JOB_NAME ?? "local"}/test-results.xml`,
+      },
+    ],
+    ...rpReporter,
   ],
-  [
-    "junit",
-    {
-      outputFile: `./playwright-report/${process.env.JOB_NAME ?? 'local'}/test-results.xml`,
-    },
-  ],
-  ...rpReporter,
-],
   use: {
     trace: "retain-on-failure",
   },

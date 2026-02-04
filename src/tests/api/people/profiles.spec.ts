@@ -1819,13 +1819,14 @@ test.describe("API profile methods", () => {
   });
 
   test("DocSpace admin receives information about himself via email.", async ({
-    apiSdk, api
+    apiSdk,
+    api,
   }) => {
-
     await apiSdk.profiles.ownerAddMember("DocSpaceAdmin");
     await api.auth.authenticateDocSpaceAdmin();
 
-    const docSpaceAdminData = await apiSdk.profiles.docSpaceAdminReturnHimselfInformation();
+    const docSpaceAdminData =
+      await apiSdk.profiles.docSpaceAdminReturnHimselfInformation();
     const docSpaceAdminDataJson = await docSpaceAdminData.json();
     const docSpaceAdminEmail = docSpaceAdminDataJson.response.email;
 
@@ -1845,7 +1846,9 @@ test.describe("API profile methods", () => {
     expect(bodyHimselfInfo.response.displayName).toBe(
       docSpaceAdminDataJson.response.displayName,
     );
-    expect(bodyHimselfInfo.response.email).toBe(docSpaceAdminDataJson.response.email);
+    expect(bodyHimselfInfo.response.email).toBe(
+      docSpaceAdminDataJson.response.email,
+    );
     expect(bodyHimselfInfo.response.isAdmin).toBe(true);
     expect(bodyHimselfInfo.response.id).toMatch(
       /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
@@ -1853,7 +1856,8 @@ test.describe("API profile methods", () => {
   });
 
   test("DocSpace admin receives information about another user via email.", async ({
-    apiSdk, api
+    apiSdk,
+    api,
   }) => {
     await apiSdk.profiles.ownerAddMember("DocSpaceAdmin");
     const roomAdminData = await apiSdk.profiles.ownerAddMember("RoomAdmin");
@@ -1888,7 +1892,8 @@ test.describe("API profile methods", () => {
   });
 
   test("Room admin receives information about another user via email.", async ({
-    apiSdk, api
+    apiSdk,
+    api,
   }) => {
     await apiSdk.profiles.ownerAddMember("RoomAdmin");
     const userData = await apiSdk.profiles.ownerAddMember("User");
@@ -1904,18 +1909,10 @@ test.describe("API profile methods", () => {
       await apiSdk.profiles.roomAdminReturnsUserInfoViaEmail(userRequestData);
     const userInfo = await response.json();
     expect(userInfo.statusCode).toBe(200);
-    expect(userInfo.response.firstName).toBe(
-      userJson.response.firstName,
-    );
-    expect(userInfo.response.lastName).toBe(
-      userJson.response.lastName,
-    );
-    expect(userInfo.response.displayName).toBe(
-      userJson.response.displayName,
-    );
-    expect(userInfo.response.email).toBe(
-      userJson.response.email,
-    );
+    expect(userInfo.response.firstName).toBe(userJson.response.firstName);
+    expect(userInfo.response.lastName).toBe(userJson.response.lastName);
+    expect(userInfo.response.displayName).toBe(userJson.response.displayName);
+    expect(userInfo.response.email).toBe(userJson.response.email);
     expect(userInfo.response.isCollaborator).toBe(true);
     expect(userInfo.response.id).toMatch(
       /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
@@ -1923,9 +1920,9 @@ test.describe("API profile methods", () => {
   });
 
   test.only("User receives information about himself via email.", async ({
-    apiSdk, api
+    apiSdk,
+    api,
   }) => {
-
     await apiSdk.profiles.ownerAddMember("User");
     await api.auth.authenticateUser();
 
@@ -1943,9 +1940,7 @@ test.describe("API profile methods", () => {
     expect(bodyHimselfInfo.response.firstName).toBe(
       userJson.response.firstName,
     );
-    expect(bodyHimselfInfo.response.lastName).toBe(
-      userJson.response.lastName,
-    );
+    expect(bodyHimselfInfo.response.lastName).toBe(userJson.response.lastName);
     expect(bodyHimselfInfo.response.displayName).toBe(
       userJson.response.displayName,
     );
