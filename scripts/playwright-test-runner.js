@@ -36,7 +36,7 @@ function readLastRun(lastRunPath) {
   return null;
 }
 
-// Получаем все тестовые файлы и возвращаем путь от категории (/e2e/... или /api/...)
+// We get all test files and return the path from the category (/e2e/... or /api/...)
 function getSpecFiles(dir, files = []) {
   if (!fs.existsSync(dir)) return files;
   fs.readdirSync(dir).forEach((file) => {
@@ -51,7 +51,7 @@ function getSpecFiles(dir, files = []) {
   return files;
 }
 
-// Выбор верхнего уровня (категории или All tests)
+// Select the top level (category or All tests)
 async function getTopLevelAnswer(lastRun) {
   const choices = [
     { name: "All tests", value: "all" },
@@ -74,7 +74,7 @@ async function getTopLevelAnswer(lastRun) {
   });
 }
 
-// Выбор теста внутри категории
+// Select test inside category
 async function getTestSelectAnswer(category, lastRun) {
   const specs = getSpecFiles(`./src/tests/${category}`);
   const testChoices = [
@@ -97,7 +97,7 @@ async function getTestSelectAnswer(category, lastRun) {
   });
 }
 
-// Выбор окружения
+// Select environment
 async function getRunEnvironment(skip) {
   if (skip) return false;
   return await select({
@@ -109,7 +109,7 @@ async function getRunEnvironment(skip) {
   });
 }
 
-// Выбор флагов Playwright (только для e2e)
+// Select Playwright flags (only for e2e)
 async function getPlaywrightFlags(skip, isDockerEnv, category) {
   if (skip || category === "api") return [];
   const flags = [
@@ -123,7 +123,7 @@ async function getPlaywrightFlags(skip, isDockerEnv, category) {
   return await checkbox({ message: "Playwright flags", choices: flags });
 }
 
-// Локальный запуск
+// Local run
 function runPlaywrightLocal(playwrightArgs) {
   const child = spawn("npx", ["playwright", "test", ...playwrightArgs], {
     stdio: "inherit",
@@ -132,7 +132,7 @@ function runPlaywrightLocal(playwrightArgs) {
   child.on("exit", (code) => process.exit(code));
 }
 
-// Запуск в Docker
+// Run in Docker
 function runPlaywrightDocker(playwrightArgs) {
   const dockerArgs = [
     "run",
@@ -147,7 +147,7 @@ function runPlaywrightDocker(playwrightArgs) {
   child.on("exit", (code) => process.exit(code));
 }
 
-// Повтор последнего запуска
+// Repeat last run
 function lastAnswerVariant(lastRun) {
   const arg =
     lastRun.answer === "all" ? "" : `^${escapeRegex(lastRun.answer)}$`;
@@ -155,7 +155,7 @@ function lastAnswerVariant(lastRun) {
   runner([arg, ...(lastRun.playwrightFlags || [])]);
 }
 
-// Новый запуск
+// New run
 function newAnswerVariant(
   category,
   answer,
@@ -178,7 +178,7 @@ function newAnswerVariant(
   });
 }
 
-// Главная функция
+// Main function
 const run = async () => {
   process.on("uncaughtException", (error) => {
     if (error instanceof Error && error.name === "ExitPromptError") {
@@ -193,7 +193,7 @@ const run = async () => {
   const lastRunPath = path.join(__dirname, "last-run.json");
   const lastRun = readLastRun(lastRunPath);
 
-  // 1️⃣ Выбор верхнего уровня
+  // Select top level
   const topLevel = await getTopLevelAnswer(lastRun);
   const isLastRun = topLevel === "last";
 
@@ -202,14 +202,14 @@ const run = async () => {
     return;
   }
 
-  // 2️⃣ Если выбрали All tests на верхнем уровне, то объединяем все тесты
+  // If you selected All tests at the top level, then combine all tests
   let category = topLevel;
   let answer;
   if (topLevel === "all") {
     category = "all";
-    answer = "all"; // запуск всех тестов сразу
+    answer = "all"; // run all tests at once
   } else {
-    // 3️⃣ Выбор теста внутри категории
+    // Select test inside category
     answer = await getTestSelectAnswer(category, lastRun);
     if (answer === "last") {
       lastAnswerVariant(lastRun);
@@ -217,7 +217,7 @@ const run = async () => {
     }
   }
 
-  // 4️⃣ Выбор окружения и флагов
+  // Select environment and flags
   const isDockerEnv = await getRunEnvironment(false);
   const playwrightFlags = await getPlaywrightFlags(
     false,
@@ -225,9 +225,9 @@ const run = async () => {
     category,
   );
 
-  // 5️⃣ Запуск
+  // Run
   if (category === "all") {
-    // Объединяем все тесты из api и e2e
+    // Combine all tests from api and e2e
     const allSpecs = [
       ...getSpecFiles("./src/tests/api"),
       ...getSpecFiles("./src/tests/e2e"),
