@@ -37,24 +37,29 @@ if (process.env.RP_API_KEY) {
 
 export default defineConfig({
   testDir: "./src/tests",
-  retries: 0,
-  workers: 1,
+  retries: process.env.CI ? 1 : 0,
+  workers: process.env.CI ? 4 : undefined,
 
   // Ignore tests in the site directory
   testIgnore: ["**/site/**/*.spec.ts"],
   // Directory for screenshots
-  outputDir: "./test-output",
+  outputDir: `./test-output/${process.env.JOB_NAME ?? "local"}`,
   // Proper snapshot path template with placeholders and file extension
   snapshotPathTemplate: "./screenshots/{projectName}/{arg}{ext}",
   reporter: [
     [
       "html",
       {
-        outputFolder: "./playwright-report",
+        outputFolder: `./playwright-report/${process.env.JOB_NAME ?? "local"}`,
         open: "never",
       },
     ],
-    ["junit", { outputFile: "./playwright-report/test-results.xml" }],
+    [
+      "junit",
+      {
+        outputFile: `./playwright-report/${process.env.JOB_NAME ?? "local"}/test-results.xml`,
+      },
+    ],
     ...rpReporter,
   ],
   use: {
@@ -65,6 +70,7 @@ export default defineConfig({
     {
       name: "api-tests",
       testMatch: "**/api/**/*.spec.ts",
+      workers: 1,
     },
     {
       name: "chromium",

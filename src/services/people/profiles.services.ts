@@ -849,6 +849,42 @@ export class ProfilesApi {
     });
   }
 
+  async docSpaceAdminReturnsUserInfoViaEmail(data: { email: string[] }) {
+    return test.step("Owner returns user information via email", async () => {
+      const response = await this.request.get(
+        `https://${this.portalDomain}/api/2.0/people/email?email=${data.email}`,
+        {
+          headers: { Authorization: `Bearer ${this.authTokenDocSpaceAdmin}` },
+        },
+      );
+      return response;
+    });
+  }
+
+  async roomAdminReturnsUserInfoViaEmail(data: { email: string[] }) {
+    return test.step("Owner returns user information via email", async () => {
+      const response = await this.request.get(
+        `https://${this.portalDomain}/api/2.0/people/email?email=${data.email}`,
+        {
+          headers: { Authorization: `Bearer ${this.authTokenRoomAdmin}` },
+        },
+      );
+      return response;
+    });
+  }
+
+  async userReturnsUserInfoViaEmail(data: { email: string[] }) {
+    return test.step("User returns user information via email", async () => {
+      const response = await this.request.get(
+        `https://${this.portalDomain}/api/2.0/people/email?email=${data.email}`,
+        {
+          headers: { Authorization: `Bearer ${this.authTokenUser}` },
+        },
+      );
+      return response;
+    });
+  }
+
   async returnsUserInfoViaEmailWithoutAuthorization(data: { email: string[] }) {
     return test.step("Returns user information via email without authorization", async () => {
       const response = await this.request.get(

@@ -672,8 +672,7 @@ test.describe("API profile methods", () => {
     expect(body.error.message).toContain("Access denied");
   });
 
-  // TODO: Bug 79527 - Api: Incorrect response from POST method /api/2.0/people/invite when inviting a user with an email length exceeding the allowed values.
-  test.skip("Invite user for long email", async ({ apiSdk }) => {
+  test("Invite user for long email", async ({ apiSdk }) => {
     const localPart = faker.string.alpha({ length: 260, casing: "lower" });
     const domain = faker.internet.domainName();
     const userData = {
@@ -682,9 +681,9 @@ test.describe("API profile methods", () => {
     };
     const response = await apiSdk.profiles.inviteUserForLongEmail(userData);
     const body = await response.json();
-    expect(body.statusCode).toBe(400);
-    expect(body.error.message).toContain(
-      "The field Email must be a string with a maximum length of 255.",
+    expect(body.response.status).toBe(400);
+    expect(body.response.errors?.["Invitations[0].Email"]?.[0]).toContain(
+      "The field Email must be a string or array type with a maximum length of '255'.",
     );
   });
 
@@ -837,6 +836,7 @@ test.describe("API profile methods", () => {
 
     const responseDelete = await apiSdk.profiles.ownerDeleteUser(userData);
     const bodyDelete = await responseDelete.json();
+    console.log(bodyDelete);
     expect(bodyDelete.statusCode).toBe(500);
     expect(bodyDelete.error.message).toContain("The user is not suspended");
   });
@@ -1427,16 +1427,13 @@ test.describe("API profile methods", () => {
     );
   });
 
-  // Bug 79724 - API: Incorrect response from the PUT /api/2.0/people/:userid method executed from DocSpace admin to the Owner address.
-  test.skip("DocSpace admin updating profile data owner", async ({
+  test("DocSpace admin updating profile data owner", async ({
     apiSdk,
     api,
   }) => {
     const returnAllUsersList = await apiSdk.profiles.ownerReturnAllUsersList();
     const response = await returnAllUsersList.json();
     const userId = response.response[0].id;
-    console.log(userId);
-    console.log(response);
 
     await apiSdk.profiles.ownerAddMember("DocSpaceAdmin");
     await api.auth.authenticateDocSpaceAdmin();
@@ -1448,7 +1445,6 @@ test.describe("API profile methods", () => {
     const responseUpdateInfo =
       await apiSdk.profiles.docSpaceAdminUpdateUserData(userId, userData);
     const bodyUpdateInfo = await responseUpdateInfo.json();
-    console.log(bodyUpdateInfo);
     expect(bodyUpdateInfo.statusCode).toBe(403);
     expect(bodyUpdateInfo.error.message).toContain("Access denied");
   });
@@ -1710,7 +1706,6 @@ test.describe("API profile methods", () => {
     expect(bodyHimselfInfo.response.hasPersonalFolder).toBe(true);
   });
 
-  // Bug 79740 - API: Method GET /api/2.0/people/email returns false in parameter "hasPersonalFolder".
   test("Owner receives information about himself via email.", async ({
     apiSdk,
   }) => {
@@ -1739,10 +1734,8 @@ test.describe("API profile methods", () => {
     expect(bodyHimselfInfo.response.id).toMatch(
       /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
     );
-    expect(bodyHimselfInfo.response.hasPersonalFolder).toBe(false); // Bug, should be true
   });
 
-  // Bug 79740 - API: Method GET /api/2.0/people/email returns false in parameter "hasPersonalFolder".
   test("Owner receives information about another user via email.", async ({
     apiSdk,
   }) => {
@@ -1773,7 +1766,6 @@ test.describe("API profile methods", () => {
     expect(bodyDocSpaceAdminInfo.response.id).toMatch(
       /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
     );
-    expect(bodyDocSpaceAdminInfo.response.hasPersonalFolder).toBe(false); // Bug, should be true
   });
 
   test("Receives information about another user via email without authorization.", async ({
@@ -1824,6 +1816,139 @@ test.describe("API profile methods", () => {
     const bodyDelete = await responseDelete.json();
     expect(bodyDelete.statusCode).toBe(404);
     expect(bodyDelete.error.message).toContain("The user could not be found");
+  });
+
+  test("DocSpace admin receives information about himself via email.", async ({
+    apiSdk,
+    api,
+  }) => {
+    await apiSdk.profiles.ownerAddMember("DocSpaceAdmin");
+    await api.auth.authenticateDocSpaceAdmin();
+
+    const docSpaceAdminData =
+      await apiSdk.profiles.docSpaceAdminReturnHimselfInformation();
+    const docSpaceAdminDataJson = await docSpaceAdminData.json();
+    const docSpaceAdminEmail = docSpaceAdminDataJson.response.email;
+
+    const userData = {
+      email: [docSpaceAdminEmail],
+    };
+    const response =
+      await apiSdk.profiles.docSpaceAdminReturnsUserInfoViaEmail(userData);
+    const bodyHimselfInfo = await response.json();
+    expect(bodyHimselfInfo.statusCode).toBe(200);
+    expect(bodyHimselfInfo.response.firstName).toBe(
+      docSpaceAdminDataJson.response.firstName,
+    );
+    expect(bodyHimselfInfo.response.lastName).toBe(
+      docSpaceAdminDataJson.response.lastName,
+    );
+    expect(bodyHimselfInfo.response.displayName).toBe(
+      docSpaceAdminDataJson.response.displayName,
+    );
+    expect(bodyHimselfInfo.response.email).toBe(
+      docSpaceAdminDataJson.response.email,
+    );
+    expect(bodyHimselfInfo.response.isAdmin).toBe(true);
+    expect(bodyHimselfInfo.response.id).toMatch(
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
+    );
+  });
+
+  test("DocSpace admin receives information about another user via email.", async ({
+    apiSdk,
+    api,
+  }) => {
+    await apiSdk.profiles.ownerAddMember("DocSpaceAdmin");
+    const roomAdminData = await apiSdk.profiles.ownerAddMember("RoomAdmin");
+    const roomAdminDataJson = await roomAdminData.response.json();
+    const roomAdminEmail = roomAdminDataJson.response.email;
+
+    const userData = {
+      email: [roomAdminEmail],
+    };
+
+    await api.auth.authenticateDocSpaceAdmin();
+    const response =
+      await apiSdk.profiles.docSpaceAdminReturnsUserInfoViaEmail(userData);
+    const bodyDocSpaceAdminInfo = await response.json();
+    expect(bodyDocSpaceAdminInfo.statusCode).toBe(200);
+    expect(bodyDocSpaceAdminInfo.response.firstName).toBe(
+      roomAdminDataJson.response.firstName,
+    );
+    expect(bodyDocSpaceAdminInfo.response.lastName).toBe(
+      roomAdminDataJson.response.lastName,
+    );
+    expect(bodyDocSpaceAdminInfo.response.displayName).toBe(
+      roomAdminDataJson.response.displayName,
+    );
+    expect(bodyDocSpaceAdminInfo.response.email).toBe(
+      roomAdminDataJson.response.email,
+    );
+    expect(bodyDocSpaceAdminInfo.response.isRoomAdmin).toBe(true);
+    expect(bodyDocSpaceAdminInfo.response.id).toMatch(
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
+    );
+  });
+
+  test("Room admin receives information about another user via email.", async ({
+    apiSdk,
+    api,
+  }) => {
+    await apiSdk.profiles.ownerAddMember("RoomAdmin");
+    const userData = await apiSdk.profiles.ownerAddMember("User");
+    const userJson = await userData.response.json();
+    const userEmail = userJson.response.email;
+
+    const userRequestData = {
+      email: [userEmail],
+    };
+
+    await api.auth.authenticateRoomAdmin();
+    const response =
+      await apiSdk.profiles.roomAdminReturnsUserInfoViaEmail(userRequestData);
+    const userInfo = await response.json();
+    expect(userInfo.statusCode).toBe(200);
+    expect(userInfo.response.firstName).toBe(userJson.response.firstName);
+    expect(userInfo.response.lastName).toBe(userJson.response.lastName);
+    expect(userInfo.response.displayName).toBe(userJson.response.displayName);
+    expect(userInfo.response.email).toBe(userJson.response.email);
+    expect(userInfo.response.isCollaborator).toBe(true);
+    expect(userInfo.response.id).toMatch(
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
+    );
+  });
+
+  test.only("User receives information about himself via email.", async ({
+    apiSdk,
+    api,
+  }) => {
+    await apiSdk.profiles.ownerAddMember("User");
+    await api.auth.authenticateUser();
+
+    const userData = await apiSdk.profiles.userReturnHimselfInformation();
+    const userJson = await userData.json();
+    const userEmail = userJson.response.email;
+
+    const userRequestData = {
+      email: [userEmail],
+    };
+    const response =
+      await apiSdk.profiles.userReturnsUserInfoViaEmail(userRequestData);
+    const bodyHimselfInfo = await response.json();
+    expect(bodyHimselfInfo.statusCode).toBe(200);
+    expect(bodyHimselfInfo.response.firstName).toBe(
+      userJson.response.firstName,
+    );
+    expect(bodyHimselfInfo.response.lastName).toBe(userJson.response.lastName);
+    expect(bodyHimselfInfo.response.displayName).toBe(
+      userJson.response.displayName,
+    );
+    expect(bodyHimselfInfo.response.email).toBe(userJson.response.email);
+    expect(bodyHimselfInfo.response.isCollaborator).toBe(true);
+    expect(bodyHimselfInfo.response.id).toMatch(
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
+    );
   });
 
   // TODO: Add tests from other users for the GET /api/2.0/people/email method
