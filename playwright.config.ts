@@ -38,7 +38,7 @@ if (process.env.RP_API_KEY) {
 export default defineConfig({
   testDir: "./src/tests",
   retries: process.env.CI ? 1 : 0,
-  workers: process.env.CI ? 4 : undefined,
+  workers: process.env.CI ? 4 : 1,
 
   // Ignore tests in the site directory
   testIgnore: ["**/site/**/*.spec.ts"],
