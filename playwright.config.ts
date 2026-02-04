@@ -65,7 +65,6 @@ export default defineConfig({
     {
       name: "api-tests",
       testMatch: "**/api/**/*.spec.ts",
-      workers: 1,
     },
     {
       name: "chromium",

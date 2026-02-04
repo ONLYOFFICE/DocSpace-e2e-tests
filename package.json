@@ -14,6 +14,8 @@
     "docker:build": "docker-compose build",
     "docker:start": "docker-compose run --rm tests-local npx playwright test",
     "docker:start:screenshots": "docker-compose run --rm tests-local npx playwright test --update-snapshots",
+    "docker:start:api": "docker-compose run --rm tests-local npm run test:api",
+    "docker:start:e2e": "docker-compose run --rm tests-local npm run test:e2e",
     "lint": "eslint \"./src/**/*.{ts,js}\"",
     "lint:fix": "eslint \"./src/**/*.{ts,js}\" --fix",
     "tsc": "tsc --noEmit"

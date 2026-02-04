@@ -1,19 +1,26 @@
+version: "3.9"
 services:
   tests-ci:
-    image: e2e-tests
+    image: playwright-test-runner
     build:
       context: .
       dockerfile: Dockerfile
+    environment:
+      TEST_COMMAND: ${TEST_COMMAND}
+      JOB_NAME: ${JOB_NAME}
+    command: sh -c "$TEST_COMMAND"
     volumes:
-      - ./playwright-report:/app/playwright-report
-      - ./test-output:/app/test-output
+      - ./playwright-report/${JOB_NAME}:/app/playwright-report
+      - ./test-output/${JOB_NAME}:/app/test-output
+
   tests-local:
-    image: e2e-tests
+    image: playwright-test-runner
     build:
       context: .
       dockerfile: Dockerfile
+    command: sh -c "$TEST_COMMAND"
     volumes:
+      - .:/app
       - ./screenshots:/app/screenshots
-      - ./playwright.config.ts:/app/playwright.config.ts
       - ./playwright-report:/app/playwright-report
       - ./test-output:/app/test-output
