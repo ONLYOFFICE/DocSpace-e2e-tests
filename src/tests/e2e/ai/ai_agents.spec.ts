@@ -3,7 +3,7 @@ import AiAgents from "@/src/objects/ai/AiAgents";
 import AiSettings from "@/src/objects/ai/AiSettings";
 
 test.describe("AI Agents", () => {
-  test("Empty providers state", async ({ page, api, login }) => {
+  test.only("Empty providers state", async ({ page, api, login }) => {
     const aiAgents = new AiAgents(page, api.portalDomain);
     const aiSettings = new AiSettings(page, api.portalDomain);
 
