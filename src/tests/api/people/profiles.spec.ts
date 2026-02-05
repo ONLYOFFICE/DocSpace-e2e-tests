@@ -1919,7 +1919,7 @@ test.describe("API profile methods", () => {
     );
   });
 
-  test.only("User receives information about himself via email.", async ({
+  test("User receives information about himself via email.", async ({
     apiSdk,
     api,
   }) => {
