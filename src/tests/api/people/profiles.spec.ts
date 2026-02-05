@@ -825,7 +825,7 @@ test.describe("API profile methods", () => {
     expect(response.status()).toBe(401);
   });
 
-  //Bug 79560 - Api: Method DELETE /api/2.0/people/:userid is not returning a valid response code when attempting to delete a non-deactivated user.
+  //Bug 79560 - Fixed
   test("Owner deletes a non-deactivated user", async ({ apiSdk }) => {
     const user = await apiSdk.profiles.ownerAddMember("User");
     const response = await user.response.json();
@@ -836,12 +836,11 @@ test.describe("API profile methods", () => {
 
     const responseDelete = await apiSdk.profiles.ownerDeleteUser(userData);
     const bodyDelete = await responseDelete.json();
-    console.log(bodyDelete);
-    expect(bodyDelete.statusCode).toBe(500);
+    expect(bodyDelete.statusCode).toBe(403);
     expect(bodyDelete.error.message).toContain("The user is not suspended");
   });
 
-  //Bug 79560 - Api: Method DELETE /api/2.0/people/:userid is not returning a valid response code when attempting to delete a non-deactivated user.
+  //Bug 79560 - Fixed
   test("DocSpace admin deletes a non-deactivated user", async ({
     apiSdk,
     api,
@@ -859,7 +858,7 @@ test.describe("API profile methods", () => {
     const responseDelete =
       await apiSdk.profiles.docSpaceAdminDeleteUser(userData);
     const bodyDelete = await responseDelete.json();
-    expect(bodyDelete.statusCode).toBe(500);
+    expect(bodyDelete.statusCode).toBe(403);
     expect(bodyDelete.error.message).toContain("The user is not suspended");
   });
 
@@ -1949,6 +1948,522 @@ test.describe("API profile methods", () => {
     expect(bodyHimselfInfo.response.id).toMatch(
       /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
     );
+  });
+
+  test("User receives information about another user via email.", async ({
+    apiSdk,
+    api,
+  }) => {
+    await apiSdk.profiles.ownerAddMember("User");
+    const roomAdminData = await apiSdk.profiles.ownerAddMember("RoomAdmin");
+    const roomAdminJson = await roomAdminData.response.json();
+    const roomAdminEmail = roomAdminJson.response.email;
+
+    const userRequestData = {
+      email: [roomAdminEmail],
+    };
+
+    await api.auth.authenticateUser();
+    const response =
+      await apiSdk.profiles.userReturnsUserInfoViaEmail(userRequestData);
+    const userInfo = await response.json();
+    expect(userInfo.statusCode).toBe(403);
+    expect(userInfo.error.message).toContain("Access denied");
+  });
+
+  test("Owner sent himself instructions on how to change his email address", async ({
+    apiSdk,
+    api,
+  }) => {
+    const ownerData = await apiSdk.profiles.ownerReturnHimselfInformation();
+    const ownerJson = await ownerData.json();
+    const ownerId = ownerJson.response.id;
+
+    const ownerRequestData = {
+      userId: ownerId,
+      email: faker.internet.email(),
+    };
+    const response =
+      await apiSdk.profiles.ownerSendInstructionToChangeEmail(ownerRequestData);
+    const dataResponse = await response.json();
+    expect(dataResponse.statusCode).toBe(200);
+    expect(dataResponse.response).toBe(
+      "The email change instructions have been successfully sent",
+    );
+
+    const ownerReturn = {
+      userId: ownerId,
+      email: config.DOCSPACE_OWNER_EMAIL,
+    };
+    await apiSdk.profiles.ownerSendInstructionToChangeEmail(ownerReturn);
+    await api.auth.authenticateOwner();
+  });
+
+  test("Owner sent DocSpace admin user instructions on how to change his email address", async ({
+    apiSdk,
+  }) => {
+    const docSpaceAdminData =
+      await apiSdk.profiles.ownerAddMember("DocSpaceAdmin");
+    const docSpaceAdminJson = await docSpaceAdminData.response.json();
+    const docSpaceAdminId = docSpaceAdminJson.response.id;
+
+    const ownerRequestData = {
+      userId: docSpaceAdminId,
+      email: faker.internet.email(),
+    };
+    const response =
+      await apiSdk.profiles.ownerSendInstructionToChangeEmail(ownerRequestData);
+    const dataResponse = await response.json();
+    expect(dataResponse.statusCode).toBe(200);
+    expect(dataResponse.response).toBe(
+      "The email change instructions have been successfully sent",
+    );
+  });
+
+  test("Owner sent Room admin user instructions on how to change his email address", async ({
+    apiSdk,
+  }) => {
+    const roomAdminData = await apiSdk.profiles.ownerAddMember("RoomAdmin");
+    const roomAdminJson = await roomAdminData.response.json();
+    const roomAdminId = roomAdminJson.response.id;
+
+    const ownerRequestData = {
+      userId: roomAdminId,
+      email: faker.internet.email(),
+    };
+    const response =
+      await apiSdk.profiles.ownerSendInstructionToChangeEmail(ownerRequestData);
+    const dataResponse = await response.json();
+    expect(dataResponse.statusCode).toBe(200);
+    expect(dataResponse.response).toBe(
+      "The email change instructions have been successfully sent",
+    );
+  });
+
+  test("Owner sent user instructions on how to change his email address", async ({
+    apiSdk,
+  }) => {
+    const userData = await apiSdk.profiles.ownerAddMember("User");
+    const userJson = await userData.response.json();
+    const userId = userJson.response.id;
+
+    const ownerRequestData = {
+      userId: userId,
+      email: faker.internet.email(),
+    };
+    const response =
+      await apiSdk.profiles.ownerSendInstructionToChangeEmail(ownerRequestData);
+    const dataResponse = await response.json();
+    expect(dataResponse.statusCode).toBe(200);
+    expect(dataResponse.response).toBe(
+      "The email change instructions have been successfully sent",
+    );
+  });
+
+  test("Sent instructions on changing an email address to a non-existent user", async ({
+    apiSdk,
+  }) => {
+    const userId = faker.string.uuid();
+    const ownerRequestData = {
+      userId: userId,
+      email: faker.internet.email(),
+    };
+    const response =
+      await apiSdk.profiles.ownerSendInstructionToChangeEmail(ownerRequestData);
+    const dataResponse = await response.json();
+    expect(dataResponse.statusCode).toBe(404);
+    expect(dataResponse.error.message).toContain("The user could not be found");
+  });
+
+  test("Sent instructions on how to change your email address with an incorrect email address", async ({
+    apiSdk,
+  }) => {
+    const userData = await apiSdk.profiles.ownerAddMember("User");
+    const userJson = await userData.response.json();
+    const userId = userJson.response.id;
+    const incorrectEmail = apiSdk.faker.generateString(20);
+
+    const ownerRequestData = {
+      userId: userId,
+      email: incorrectEmail,
+    };
+    const response =
+      await apiSdk.profiles.ownerSendInstructionToChangeEmail(ownerRequestData);
+    const dataResponse = await response.json();
+    expect(dataResponse.response.status).toBe(400);
+    expect(dataResponse.response.title).toContain(
+      "One or more validation errors occurred.",
+    );
+    expect(dataResponse.response.errors.Email[0]).toContain(
+      "The Email field is not a valid e-mail address.",
+    );
+  });
+
+  test("DocSpace admin sent instructions on how to change his email address", async ({
+    apiSdk,
+    api,
+  }) => {
+    const docSpaceAdminData =
+      await apiSdk.profiles.ownerAddMember("DocSpaceAdmin");
+    const docSpaceAdminJson = await docSpaceAdminData.response.json();
+    const docSpaceAdminId = docSpaceAdminJson.response.id;
+    await api.auth.authenticateDocSpaceAdmin();
+
+    const docSpaceAdminRequestData = {
+      userId: docSpaceAdminId,
+      email: faker.internet.email(),
+    };
+    const response =
+      await apiSdk.profiles.docSpaceAdminSendInstructionToChangeEmail(
+        docSpaceAdminRequestData,
+      );
+    const dataResponse = await response.json();
+    expect(dataResponse.statusCode).toBe(200);
+    expect(dataResponse.response).toBe(
+      "The email change instructions have been successfully sent",
+    );
+  });
+
+  test("DocSpace admin sent Room admin user instructions on how to change his email address", async ({
+    apiSdk,
+    api,
+  }) => {
+    await apiSdk.profiles.ownerAddMember("DocSpaceAdmin");
+    const roomAdminData = await apiSdk.profiles.ownerAddMember("RoomAdmin");
+    const roomAdminJson = await roomAdminData.response.json();
+    const roomAdminId = roomAdminJson.response.id;
+    await api.auth.authenticateDocSpaceAdmin();
+
+    const roomAdminRequestData = {
+      userId: roomAdminId,
+      email: faker.internet.email(),
+    };
+    const response =
+      await apiSdk.profiles.docSpaceAdminSendInstructionToChangeEmail(
+        roomAdminRequestData,
+      );
+    const dataResponse = await response.json();
+    expect(dataResponse.statusCode).toBe(200);
+    expect(dataResponse.response).toBe(
+      "The email change instructions have been successfully sent",
+    );
+  });
+
+  test("DocSpace admin sent User instructions on how to change his email address", async ({
+    apiSdk,
+    api,
+  }) => {
+    await apiSdk.profiles.ownerAddMember("DocSpaceAdmin");
+    const userData = await apiSdk.profiles.ownerAddMember("User");
+    const userJson = await userData.response.json();
+    const userId = userJson.response.id;
+    await api.auth.authenticateDocSpaceAdmin();
+
+    const userRequestData = {
+      userId: userId,
+      email: faker.internet.email(),
+    };
+    const response =
+      await apiSdk.profiles.docSpaceAdminSendInstructionToChangeEmail(
+        userRequestData,
+      );
+    const dataResponse = await response.json();
+    expect(dataResponse.statusCode).toBe(200);
+    expect(dataResponse.response).toBe(
+      "The email change instructions have been successfully sent",
+    );
+  });
+
+  test("DocSpace admin sent DocSpace admin user instructions on how to change his email address", async ({
+    apiSdk,
+    api,
+  }) => {
+    const docSpaceAdminData =
+      await apiSdk.profiles.ownerAddMember("DocSpaceAdmin");
+    const docSpaceAdminJson = await docSpaceAdminData.response.json();
+    const docSpaceAdminId = docSpaceAdminJson.response.id;
+    await apiSdk.profiles.ownerAddMember("DocSpaceAdmin");
+    await api.auth.authenticateDocSpaceAdmin();
+
+    const docSpaceAdminRequestData = {
+      userId: docSpaceAdminId,
+      email: faker.internet.email(),
+    };
+    const response =
+      await apiSdk.profiles.docSpaceAdminSendInstructionToChangeEmail(
+        docSpaceAdminRequestData,
+      );
+    const dataResponse = await response.json();
+    expect(dataResponse.statusCode).toBe(403);
+    expect(dataResponse.error.message).toBe("Access denied");
+  });
+
+  test("DocSpace admin sent Owner user instructions on how to change his email address", async ({
+    apiSdk,
+    api,
+  }) => {
+    const ownerData = await apiSdk.profiles.ownerReturnHimselfInformation();
+    const ownerJson = await ownerData.json();
+    const ownerId = ownerJson.response.id;
+    await apiSdk.profiles.ownerAddMember("DocSpaceAdmin");
+    await api.auth.authenticateDocSpaceAdmin();
+
+    const ownerRequestData = {
+      userId: ownerId,
+      email: faker.internet.email(),
+    };
+    const response =
+      await apiSdk.profiles.docSpaceAdminSendInstructionToChangeEmail(
+        ownerRequestData,
+      );
+    const dataResponse = await response.json();
+    expect(dataResponse.statusCode).toBe(403);
+    expect(dataResponse.error.message).toBe("Access denied");
+  });
+
+  test("Room admin sent instructions on how to change his email address", async ({
+    apiSdk,
+    api,
+  }) => {
+    const roomAdminData = await apiSdk.profiles.ownerAddMember("RoomAdmin");
+    const roomAdminJson = await roomAdminData.response.json();
+    const roomAdminId = roomAdminJson.response.id;
+    await api.auth.authenticateRoomAdmin();
+
+    const roomAdminRequestData = {
+      userId: roomAdminId,
+      email: faker.internet.email(),
+    };
+    const response =
+      await apiSdk.profiles.roomAdminSendInstructionToChangeEmail(
+        roomAdminRequestData,
+      );
+    const dataResponse = await response.json();
+    expect(dataResponse.statusCode).toBe(200);
+    expect(dataResponse.response).toBe(
+      "The email change instructions have been successfully sent",
+    );
+  });
+
+  test("Room admin sent Owner user instructions on how to change his email address", async ({
+    apiSdk,
+    api,
+  }) => {
+    const ownerData = await apiSdk.profiles.ownerReturnHimselfInformation();
+    const ownerJson = await ownerData.json();
+    const ownerId = ownerJson.response.id;
+    await apiSdk.profiles.ownerAddMember("RoomAdmin");
+    await api.auth.authenticateRoomAdmin();
+
+    const ownerRequestData = {
+      userId: ownerId,
+      email: faker.internet.email(),
+    };
+    const response =
+      await apiSdk.profiles.roomAdminSendInstructionToChangeEmail(
+        ownerRequestData,
+      );
+    const dataResponse = await response.json();
+    expect(dataResponse.statusCode).toBe(403);
+    expect(dataResponse.error.message).toBe("Access denied");
+  });
+
+  test("Room admin sent DocSpace admin user instructions on how to change his email address", async ({
+    apiSdk,
+    api,
+  }) => {
+    const docSpaceAdminData =
+      await apiSdk.profiles.ownerAddMember("DocSpaceAdmin");
+    const docSpaceAdminJson = await docSpaceAdminData.response.json();
+    const docSpaceAdminId = docSpaceAdminJson.response.id;
+    await apiSdk.profiles.ownerAddMember("RoomAdmin");
+    await api.auth.authenticateRoomAdmin();
+
+    const docSpaceAdminRequestData = {
+      userId: docSpaceAdminId,
+      email: faker.internet.email(),
+    };
+    const response =
+      await apiSdk.profiles.roomAdminSendInstructionToChangeEmail(
+        docSpaceAdminRequestData,
+      );
+    const dataResponse = await response.json();
+    expect(dataResponse.statusCode).toBe(403);
+    expect(dataResponse.error.message).toBe("Access denied");
+  });
+
+  test("Room admin sent Room admin user instructions on how to change his email address", async ({
+    apiSdk,
+    api,
+  }) => {
+    const roomAdminData = await apiSdk.profiles.ownerAddMember("RoomAdmin");
+    const roomAdminJson = await roomAdminData.response.json();
+    const roomAdminId = roomAdminJson.response.id;
+    await apiSdk.profiles.ownerAddMember("RoomAdmin");
+    await api.auth.authenticateRoomAdmin();
+
+    const roomAdminRequestData = {
+      userId: roomAdminId,
+      email: faker.internet.email(),
+    };
+    const response =
+      await apiSdk.profiles.roomAdminSendInstructionToChangeEmail(
+        roomAdminRequestData,
+      );
+    const dataResponse = await response.json();
+    expect(dataResponse.statusCode).toBe(403);
+    expect(dataResponse.error.message).toBe("Access denied");
+  });
+
+  test("Room admin sent User instructions on how to change his email address", async ({
+    apiSdk,
+    api,
+  }) => {
+    await apiSdk.profiles.ownerAddMember("RoomAdmin");
+    const userData = await apiSdk.profiles.ownerAddMember("User");
+    const userJson = await userData.response.json();
+    const userId = userJson.response.id;
+    await api.auth.authenticateRoomAdmin();
+
+    const userRequestData = {
+      userId: userId,
+      email: faker.internet.email(),
+    };
+    const response =
+      await apiSdk.profiles.roomAdminSendInstructionToChangeEmail(
+        userRequestData,
+      );
+    const dataResponse = await response.json();
+    expect(dataResponse.statusCode).toBe(403);
+    expect(dataResponse.error.message).toBe("Access denied");
+  });
+
+  test("User sent instructions on how to change his email address", async ({
+    apiSdk,
+    api,
+  }) => {
+    const userData = await apiSdk.profiles.ownerAddMember("User");
+    const userJson = await userData.response.json();
+    const userId = userJson.response.id;
+    await api.auth.authenticateUser();
+
+    const userRequestData = {
+      userId: userId,
+      email: faker.internet.email(),
+    };
+    const response =
+      await apiSdk.profiles.userSendInstructionToChangeEmail(userRequestData);
+    const dataResponse = await response.json();
+    expect(dataResponse.statusCode).toBe(200);
+    expect(dataResponse.response).toBe(
+      "The email change instructions have been successfully sent",
+    );
+  });
+
+  test("User sent Owner user instructions on how to change his email address", async ({
+    apiSdk,
+    api,
+  }) => {
+    const ownerData = await apiSdk.profiles.ownerReturnHimselfInformation();
+    const ownerJson = await ownerData.json();
+    const ownerId = ownerJson.response.id;
+    await apiSdk.profiles.ownerAddMember("User");
+    await api.auth.authenticateUser();
+
+    const ownerRequestData = {
+      userId: ownerId,
+      email: faker.internet.email(),
+    };
+    const response =
+      await apiSdk.profiles.userSendInstructionToChangeEmail(ownerRequestData);
+    const dataResponse = await response.json();
+    expect(dataResponse.statusCode).toBe(403);
+    expect(dataResponse.error.message).toBe("Access denied");
+  });
+
+  test("User sent DocSpace admin user instructions on how to change his email address", async ({
+    apiSdk,
+    api,
+  }) => {
+    const docSpaceAdminData =
+      await apiSdk.profiles.ownerAddMember("DocSpaceAdmin");
+    const docSpaceAdminJson = await docSpaceAdminData.response.json();
+    const docSpaceAdminId = docSpaceAdminJson.response.id;
+    await apiSdk.profiles.ownerAddMember("User");
+    await api.auth.authenticateUser();
+
+    const docSpaceAdminRequestData = {
+      userId: docSpaceAdminId,
+      email: faker.internet.email(),
+    };
+    const response = await apiSdk.profiles.userSendInstructionToChangeEmail(
+      docSpaceAdminRequestData,
+    );
+    const dataResponse = await response.json();
+    expect(dataResponse.statusCode).toBe(403);
+    expect(dataResponse.error.message).toBe("Access denied");
+  });
+
+  test("User sent Room admin user instructions on how to change his email address", async ({
+    apiSdk,
+    api,
+  }) => {
+    const roomAdminData = await apiSdk.profiles.ownerAddMember("RoomAdmin");
+    const roomAdminJson = await roomAdminData.response.json();
+    const roomAdminId = roomAdminJson.response.id;
+    await apiSdk.profiles.ownerAddMember("User");
+    await api.auth.authenticateUser();
+
+    const roomAdminRequestData = {
+      userId: roomAdminId,
+      email: faker.internet.email(),
+    };
+    const response =
+      await apiSdk.profiles.userSendInstructionToChangeEmail(
+        roomAdminRequestData,
+      );
+    const dataResponse = await response.json();
+    expect(dataResponse.statusCode).toBe(403);
+    expect(dataResponse.error.message).toBe("Access denied");
+  });
+
+  test("User sent User user instructions on how to change his email address", async ({
+    apiSdk,
+    api,
+  }) => {
+    const userData = await apiSdk.profiles.ownerAddMember("User");
+    const userJson = await userData.response.json();
+    const userId = userJson.response.id;
+    await apiSdk.profiles.ownerAddMember("User");
+    await api.auth.authenticateUser();
+
+    const userRequestData = {
+      userId: userId,
+      email: faker.internet.email(),
+    };
+    const response =
+      await apiSdk.profiles.userSendInstructionToChangeEmail(userRequestData);
+    const dataResponse = await response.json();
+    expect(dataResponse.statusCode).toBe(403);
+    expect(dataResponse.error.message).toBe("Access denied");
+  });
+
+  test("Sent instructions on how to change email address without authorization", async ({
+    apiSdk,
+  }) => {
+    const ownerData = await apiSdk.profiles.ownerReturnHimselfInformation();
+    const ownerJson = await ownerData.json();
+    const ownerId = ownerJson.response.id;
+
+    const ownerRequestData = {
+      userId: ownerId,
+      email: faker.internet.email(),
+    };
+    const response =
+      await apiSdk.profiles.sendInstructionToChangeEmailWithoutAuthorization(
+        ownerRequestData,
+      );
+    expect(response.status()).toBe(401);
   });
 
   // TODO: Add tests from other users for the GET /api/2.0/people/email method
