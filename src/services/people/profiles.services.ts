@@ -28,7 +28,6 @@ export class ProfilesApi {
     this.faker = new FAKER();
     this.authTokenOwner = authToken;
     this.authTokenDocSpaceAdmin = authTokenDocSpaceAdmin;
-
     this.portalDomain = portalDomain;
   }
 
@@ -889,6 +888,110 @@ export class ProfilesApi {
     return test.step("Returns user information via email without authorization", async () => {
       const response = await this.request.get(
         `https://${this.portalDomain}/api/2.0/people/email?email=${data.email}`,
+      );
+      return response;
+    });
+  }
+
+  async ownerSendInstructionToChangeEmail(data: {
+    userId: string;
+    email: string;
+  }) {
+    return test.step("Owner send instructions to change email", async () => {
+      const userData = {
+        userId: data.userId,
+        email: data.email,
+      };
+
+      const response = await this.request.post(
+        `https://${this.portalDomain}/api/2.0/people/email`,
+        {
+          headers: { Authorization: `Bearer ${this.authTokenOwner}` },
+          data: userData,
+        },
+      );
+      return response;
+    });
+  }
+
+  async docSpaceAdminSendInstructionToChangeEmail(data: {
+    userId: string;
+    email: string;
+  }) {
+    return test.step("DocSpace admin send instructions to change email", async () => {
+      const userData = {
+        userId: data.userId,
+        email: data.email,
+      };
+
+      const response = await this.request.post(
+        `https://${this.portalDomain}/api/2.0/people/email`,
+        {
+          headers: { Authorization: `Bearer ${this.authTokenDocSpaceAdmin}` },
+          data: userData,
+        },
+      );
+      return response;
+    });
+  }
+
+  async roomAdminSendInstructionToChangeEmail(data: {
+    userId: string;
+    email: string;
+  }) {
+    return test.step("Room admin send instructions to change email", async () => {
+      const userData = {
+        userId: data.userId,
+        email: data.email,
+      };
+
+      const response = await this.request.post(
+        `https://${this.portalDomain}/api/2.0/people/email`,
+        {
+          headers: { Authorization: `Bearer ${this.authTokenRoomAdmin}` },
+          data: userData,
+        },
+      );
+      return response;
+    });
+  }
+
+  async userSendInstructionToChangeEmail(data: {
+    userId: string;
+    email: string;
+  }) {
+    return test.step("Room admin send instructions to change email", async () => {
+      const userData = {
+        userId: data.userId,
+        email: data.email,
+      };
+
+      const response = await this.request.post(
+        `https://${this.portalDomain}/api/2.0/people/email`,
+        {
+          headers: { Authorization: `Bearer ${this.authTokenUser}` },
+          data: userData,
+        },
+      );
+      return response;
+    });
+  }
+
+  async sendInstructionToChangeEmailWithoutAuthorization(data: {
+    userId: string;
+    email: string;
+  }) {
+    return test.step("Room admin send instructions to change email", async () => {
+      const userData = {
+        userId: data.userId,
+        email: data.email,
+      };
+
+      const response = await this.request.post(
+        `https://${this.portalDomain}/api/2.0/people/email`,
+        {
+          data: userData,
+        },
       );
       return response;
     });
