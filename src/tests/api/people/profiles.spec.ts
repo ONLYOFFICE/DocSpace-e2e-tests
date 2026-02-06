@@ -2427,7 +2427,7 @@ test.describe("API profile methods", () => {
     expect(dataResponse.error.message).toBe("Access denied");
   });
 
-  test("User sent User user instructions on how to change his email address", async ({
+  test("User sent another User instructions on how to change his email address", async ({
     apiSdk,
     api,
   }) => {
@@ -2448,7 +2448,7 @@ test.describe("API profile methods", () => {
     expect(dataResponse.error.message).toBe("Access denied");
   });
 
-  test("Sent instructions on how to change email address without authorization", async ({
+  test.only("Sent instructions on how to change email address without authorization", async ({
     apiSdk,
   }) => {
     const ownerData = await apiSdk.profiles.ownerReturnHimselfInformation();
@@ -2467,4 +2467,5 @@ test.describe("API profile methods", () => {
   });
 
   // TODO: Add tests from other users for the GET /api/2.0/people/email method
+  // !!!!!!Send test for the metod change very long email,
 });
