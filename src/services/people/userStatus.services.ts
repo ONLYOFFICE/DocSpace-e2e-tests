@@ -31,18 +31,111 @@ export class UserStatusApi {
     this.portalDomain = portalDomain;
   }
 
-  async changeUserStatus(
+  public getDocSpaceAdminEmail(): string {
+    return this.docSpaceAdminEmail;
+  }
+
+  public getDocSpaceAdminPassword(): string {
+    return this.docSpaceAdminPassword;
+  }
+
+  public setAuthTokenDocSpaceAdmin(token: string) {
+    this.authTokenDocSpaceAdmin = token;
+  }
+
+  public getRoomAdminEmail(): string {
+    return this.roomAdminEmail;
+  }
+
+  public getRoomAdminPassword(): string {
+    return this.roomAdminPassword;
+  }
+
+  public setAuthTokenRoomAdmin(token: string) {
+    this.authTokenRoomAdmin = token;
+  }
+
+  public getUserEmail(): string {
+    return this.userEmail;
+  }
+
+  public getUserPassword(): string {
+    return this.userPassword;
+  }
+
+  public setAuthTokenUser(token: string) {
+    this.authTokenUser = token;
+  }
+
+  async ownerChangeUserStatus(
     status: UserStatus,
     data: {
       userIds: string[];
       resendAll: boolean;
     },
   ) {
-    return test.step("Change user status", async () => {
+    return test.step("Owner change user status", async () => {
       const response = await this.request.put(
         `https://${this.portalDomain}/api/2.0/people/status/${status}`,
         {
           headers: { Authorization: `Bearer ${this.authTokenOwner}` },
+          data,
+        },
+      );
+      return response;
+    });
+  }
+
+  async docSpaceAdminChangeUserStatus(
+    status: UserStatus,
+    data: {
+      userIds: string[];
+      resendAll: boolean;
+    },
+  ) {
+    return test.step("DocSpace admin change user status", async () => {
+      const response = await this.request.put(
+        `https://${this.portalDomain}/api/2.0/people/status/${status}`,
+        {
+          headers: { Authorization: `Bearer ${this.authTokenDocSpaceAdmin}` },
+          data,
+        },
+      );
+      return response;
+    });
+  }
+
+  async roomAdminChangeUserStatus(
+    status: UserStatus,
+    data: {
+      userIds: string[];
+      resendAll: boolean;
+    },
+  ) {
+    return test.step("Room admin change user status", async () => {
+      const response = await this.request.put(
+        `https://${this.portalDomain}/api/2.0/people/status/${status}`,
+        {
+          headers: { Authorization: `Bearer ${this.authTokenRoomAdmin}` },
+          data,
+        },
+      );
+      return response;
+    });
+  }
+
+  async userChangeUserStatus(
+    status: UserStatus,
+    data: {
+      userIds: string[];
+      resendAll: boolean;
+    },
+  ) {
+    return test.step("Room admin change user status", async () => {
+      const response = await this.request.put(
+        `https://${this.portalDomain}/api/2.0/people/status/${status}`,
+        {
+          headers: { Authorization: `Bearer ${this.authTokenUser}` },
           data,
         },
       );
