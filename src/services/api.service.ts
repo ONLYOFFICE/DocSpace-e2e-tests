@@ -6,6 +6,7 @@ export class ApiSDK {
   readonly profiles: ProfilesApi;
   readonly userStatus: UserStatusApi;
   readonly faker: FAKER;
+  private authApi?: any;
 
   constructor(
     request: APIRequestContext,
@@ -27,5 +28,10 @@ export class ApiSDK {
       portalDomain,
     );
     this.faker = new FAKER();
+  }
+
+  public updateDocSpaceAdminToken(token: string) {
+    this.profiles.setAuthTokenDocSpaceAdmin(token);
+    this.userStatus.setAuthTokenDocSpaceAdmin(token);
   }
 }

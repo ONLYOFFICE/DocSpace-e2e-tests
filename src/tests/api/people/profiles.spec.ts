@@ -790,8 +790,8 @@ test.describe("API profile methods", () => {
     expect(resendUser.activationStatus).toBe(2);
   });
 
-  //Bug 79545 - Api: Incorrect response from the PUT /api/2.0/people/invite method when executed under the user's User.
-  test.skip("User resend activation emails ", async ({ apiSdk, api }) => {
+  // 79545 - Fix
+  test("User resend activation emails ", async ({ apiSdk, api }) => {
     await apiSdk.profiles.ownerAddMember("User");
 
     const email = faker.internet.email();
@@ -814,7 +814,7 @@ test.describe("API profile methods", () => {
       await apiSdk.profiles.UserResendActavationEmails(userData);
     const bodyResent = await responseResent.json();
     expect(bodyResent.statusCode).toBe(403);
-    expect(bodyResent.error).toContain("No permissions to perform this action");
+    expect(bodyResent.error.message).toContain("Access denied");
   });
 
   test("Resending activation email by unauthorized user", async ({
@@ -825,7 +825,7 @@ test.describe("API profile methods", () => {
     expect(response.status()).toBe(401);
   });
 
-  //Bug 79560 - Fixed
+  // 79560 - Fixed
   test("Owner deletes a non-deactivated user", async ({ apiSdk }) => {
     const user = await apiSdk.profiles.ownerAddMember("User");
     const response = await user.response.json();
@@ -840,7 +840,7 @@ test.describe("API profile methods", () => {
     expect(bodyDelete.error.message).toContain("The user is not suspended");
   });
 
-  //Bug 79560 - Fixed
+  // 79560 - Fixed
   test("DocSpace admin deletes a non-deactivated user", async ({
     apiSdk,
     api,
@@ -910,7 +910,7 @@ test.describe("API profile methods", () => {
       userIds: [userId],
     };
 
-    await apiSdk.userStatus.changeUserStatus(
+    await apiSdk.userStatus.ownerChangeUserStatus(
       UserStatus.Disabled,
       userDataChangeStatus,
     );
@@ -936,7 +936,7 @@ test.describe("API profile methods", () => {
       userIds: [userId],
     };
 
-    await apiSdk.userStatus.changeUserStatus(
+    await apiSdk.userStatus.ownerChangeUserStatus(
       UserStatus.Disabled,
       userDataChangeStatus,
     );
@@ -962,7 +962,7 @@ test.describe("API profile methods", () => {
       userIds: [userId],
     };
 
-    await apiSdk.userStatus.changeUserStatus(
+    await apiSdk.userStatus.ownerChangeUserStatus(
       UserStatus.Disabled,
       userDataChangeStatus,
     );
@@ -988,7 +988,7 @@ test.describe("API profile methods", () => {
       userIds: [userIdToDelete],
       resendAll: false,
     };
-    await apiSdk.userStatus.changeUserStatus(
+    await apiSdk.userStatus.ownerChangeUserStatus(
       UserStatus.Disabled,
       userDataChangeStatus,
     );
@@ -1023,7 +1023,7 @@ test.describe("API profile methods", () => {
       userIds: [userIdToDelete],
       resendAll: false,
     };
-    await apiSdk.userStatus.changeUserStatus(
+    await apiSdk.userStatus.ownerChangeUserStatus(
       UserStatus.Disabled,
       userDataChangeStatus,
     );
@@ -1055,7 +1055,7 @@ test.describe("API profile methods", () => {
       userIds: [userIdToDelete],
       resendAll: false,
     };
-    await apiSdk.userStatus.changeUserStatus(
+    await apiSdk.userStatus.ownerChangeUserStatus(
       UserStatus.Disabled,
       userDataChangeStatus,
     );
@@ -1090,7 +1090,7 @@ test.describe("API profile methods", () => {
       userIds: [userIdToDelete],
       resendAll: false,
     };
-    await apiSdk.userStatus.changeUserStatus(
+    await apiSdk.userStatus.ownerChangeUserStatus(
       UserStatus.Disabled,
       userDataChangeStatus,
     );
@@ -1123,7 +1123,7 @@ test.describe("API profile methods", () => {
       userIds: [userIdToDelete],
       resendAll: false,
     };
-    await apiSdk.userStatus.changeUserStatus(
+    await apiSdk.userStatus.ownerChangeUserStatus(
       UserStatus.Disabled,
       userDataChangeStatus,
     );
@@ -1156,7 +1156,7 @@ test.describe("API profile methods", () => {
       userIds: [userIdToDelete],
       resendAll: false,
     };
-    await apiSdk.userStatus.changeUserStatus(
+    await apiSdk.userStatus.ownerChangeUserStatus(
       UserStatus.Disabled,
       userDataChangeStatus,
     );
@@ -1191,7 +1191,7 @@ test.describe("API profile methods", () => {
       userIds: [userId],
     };
 
-    await apiSdk.userStatus.changeUserStatus(
+    await apiSdk.userStatus.ownerChangeUserStatus(
       UserStatus.Disabled,
       userDataChangeStatus,
     );
@@ -1214,7 +1214,7 @@ test.describe("API profile methods", () => {
       userIds: [userIdToDelete],
       resendAll: false,
     };
-    await apiSdk.userStatus.changeUserStatus(
+    await apiSdk.userStatus.ownerChangeUserStatus(
       UserStatus.Disabled,
       userDataChangeStatus,
     );
@@ -1256,7 +1256,7 @@ test.describe("API profile methods", () => {
       resendAll: false,
     };
 
-    await apiSdk.userStatus.changeUserStatus(
+    await apiSdk.userStatus.ownerChangeUserStatus(
       UserStatus.Disabled,
       userDataChangeStatus,
     );
@@ -1401,7 +1401,7 @@ test.describe("API profile methods", () => {
       userIds: [userId],
       resendAll: false,
     };
-    await apiSdk.userStatus.changeUserStatus(
+    await apiSdk.userStatus.ownerChangeUserStatus(
       UserStatus.Disabled,
       userDataChangeStatus,
     );
@@ -1805,7 +1805,7 @@ test.describe("API profile methods", () => {
       userIds: [userId],
     };
 
-    await apiSdk.userStatus.changeUserStatus(
+    await apiSdk.userStatus.ownerChangeUserStatus(
       UserStatus.Disabled,
       userDataChangeStatus,
     );
@@ -2448,7 +2448,7 @@ test.describe("API profile methods", () => {
     expect(dataResponse.error.message).toBe("Access denied");
   });
 
-  test.only("Sent instructions on how to change email address without authorization", async ({
+  test("Sent instructions on how to change email address without authorization", async ({
     apiSdk,
   }) => {
     const ownerData = await apiSdk.profiles.ownerReturnHimselfInformation();
@@ -2466,6 +2466,162 @@ test.describe("API profile methods", () => {
     expect(response.status()).toBe(401);
   });
 
-  // TODO: Add tests from other users for the GET /api/2.0/people/email method
-  // !!!!!!Send test for the metod change very long email,
+  test("Sending instructions on how to change a very long email address.", async ({
+    apiSdk,
+  }) => {
+    const docSpaceAdminData =
+      await apiSdk.profiles.ownerAddMember("DocSpaceAdmin");
+    const docSpaceAdminJson = await docSpaceAdminData.response.json();
+    const docSpaceAdminId = docSpaceAdminJson.response.id;
+    const veryLongEmail = apiSdk.faker.generateEmailWithLength(260);
+
+    const ownerRequestData = {
+      userId: docSpaceAdminId,
+      email: veryLongEmail,
+    };
+    const response =
+      await apiSdk.profiles.ownerSendInstructionToChangeEmail(ownerRequestData);
+    const dataResponse = await response.json();
+    expect(dataResponse.response.status).toBe(400);
+    expect(dataResponse.response.title).toContain(
+      "One or more validation errors occurred.",
+    );
+    expect(dataResponse.response.errors.Email[0]).toContain(
+      "The field Email must be a string with a maximum length of 255.",
+    );
+  });
+
+  // 79876 - NEW
+  test.skip("Owner delete non-deactivated users", async ({ apiSdk }) => {
+    const docSpaceAdmin = await apiSdk.profiles.ownerAddMember("DocSpaceAdmin");
+    const docSpaceAdminJson = await docSpaceAdmin.response.json();
+    const docSpaceAdminId = docSpaceAdminJson.response.id;
+
+    const roomAdmin = await apiSdk.profiles.ownerAddMember("RoomAdmin");
+    const roomAdminJson = await roomAdmin.response.json();
+    const roomAdminId = roomAdminJson.response.id;
+
+    const usersRequestData = {
+      userIds: [docSpaceAdminId, roomAdminId],
+      resendAll: false,
+    };
+    const response = await apiSdk.profiles.ownerDeleteUsers(usersRequestData);
+    const dataResponse = await response.json();
+    expect(dataResponse.statusCode).toBe(403);
+    expect(dataResponse.error.message).toBe("Access denied");
+  });
+
+  test("Owner removes deactivated users", async ({ apiSdk }) => {
+    const docSpaceAdmin = await apiSdk.profiles.ownerAddMember("DocSpaceAdmin");
+    const docSpaceAdminJson = await docSpaceAdmin.response.json();
+    const docSpaceAdminId = docSpaceAdminJson.response.id;
+
+    const roomAdmin = await apiSdk.profiles.ownerAddMember("RoomAdmin");
+    const roomAdminJson = await roomAdmin.response.json();
+    const roomAdminId = roomAdminJson.response.id;
+
+    const usersRequestData = {
+      userIds: [docSpaceAdminId, roomAdminId],
+      resendAll: false,
+    };
+
+    await apiSdk.userStatus.ownerChangeUserStatus(
+      UserStatus.Disabled,
+      usersRequestData,
+    );
+    const response = await apiSdk.profiles.ownerDeleteUsers(usersRequestData);
+    const dataResponse = await response.json();
+    expect(dataResponse.statusCode).toBe(200);
+    expect(dataResponse.response[0].id).toBe(docSpaceAdminId);
+    expect(dataResponse.response[1].id).toBe(roomAdminId);
+    expect(dataResponse.response[0].status).toBe(2);
+    expect(dataResponse.response[1].status).toBe(2);
+    expect(dataResponse.response[0].isAdmin).toBe(true);
+    expect(dataResponse.response[1].isRoomAdmin).toBe(true);
+  });
+
+  test("DocSpace admin removes deactivated users", async ({ apiSdk, api }) => {
+    const roomAdmin = await apiSdk.profiles.ownerAddMember("RoomAdmin");
+    const roomAdminJson = await roomAdmin.response.json();
+    const roomAdminId = roomAdminJson.response.id;
+
+    const user = await apiSdk.profiles.ownerAddMember("User");
+    const userJson = await user.response.json();
+    const userId = userJson.response.id;
+
+    const usersRequestData = {
+      userIds: [roomAdminId, userId],
+      resendAll: false,
+    };
+
+    await apiSdk.userStatus.ownerChangeUserStatus(
+      UserStatus.Disabled,
+      usersRequestData,
+    );
+    await apiSdk.profiles.ownerAddMember("DocSpaceAdmin");
+    await api.auth.authenticateDocSpaceAdmin();
+    const response = await apiSdk.profiles.ownerDeleteUsers(usersRequestData);
+    const dataResponse = await response.json();
+    expect(dataResponse.statusCode).toBe(200);
+    expect(dataResponse.response[0].id).toBe(roomAdminId);
+    expect(dataResponse.response[1].id).toBe(userId);
+    expect(dataResponse.response[0].status).toBe(2);
+    expect(dataResponse.response[1].status).toBe(2);
+    expect(dataResponse.response[0].isRoomAdmin).toBe(true);
+    expect(dataResponse.response[1].isCollaborator).toBe(true);
+  });
+
+  test("Room admin removes deactivated users", async ({ apiSdk, api }) => {
+    const user1 = await apiSdk.profiles.ownerAddMember("User");
+    const user1Json = await user1.response.json();
+    const user1Id = user1Json.response.id;
+
+    const user2 = await apiSdk.profiles.ownerAddMember("User");
+    const user2Json = await user2.response.json();
+    const user2Id = user2Json.response.id;
+
+    const usersRequestData = {
+      userIds: [user1Id, user2Id],
+      resendAll: false,
+    };
+
+    await apiSdk.userStatus.ownerChangeUserStatus(
+      UserStatus.Disabled,
+      usersRequestData,
+    );
+    await apiSdk.profiles.ownerAddMember("RoomAdmin");
+    await api.auth.authenticateRoomAdmin();
+    const response =
+      await apiSdk.profiles.roomAdminDeleteUser(usersRequestData);
+    const dataResponse = await response.json();
+    expect(dataResponse.statusCode).toBe(403);
+    expect(dataResponse.error.message).toContain("Access denied");
+  });
+
+  test("User removes deactivated users", async ({ apiSdk, api }) => {
+    const user1 = await apiSdk.profiles.ownerAddMember("User");
+    const user1Json = await user1.response.json();
+    const user1Id = user1Json.response.id;
+
+    const user2 = await apiSdk.profiles.ownerAddMember("User");
+    const user2Json = await user2.response.json();
+    const user2Id = user2Json.response.id;
+
+    const usersRequestData = {
+      userIds: [user1Id, user2Id],
+      resendAll: false,
+    };
+
+    await apiSdk.userStatus.ownerChangeUserStatus(
+      UserStatus.Disabled,
+      usersRequestData,
+    );
+    await apiSdk.profiles.ownerAddMember("User");
+    await api.auth.authenticateUser();
+    const response = await apiSdk.profiles.userDeleteUser(usersRequestData);
+    const dataResponse = await response.json();
+    expect(dataResponse.statusCode).toBe(403);
+    expect(dataResponse.error.message).toContain("Access denied");
+  });
 });
+// TODO: Write tests to remove users at a higher rank
