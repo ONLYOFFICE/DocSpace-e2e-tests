@@ -131,7 +131,7 @@ export class UserStatusApi {
       resendAll: boolean;
     },
   ) {
-    return test.step("Room admin change user status", async () => {
+    return test.step("User change user status", async () => {
       const response = await this.request.put(
         `https://${this.portalDomain}/api/2.0/people/status/${status}`,
         {
@@ -155,6 +155,18 @@ export class UserStatusApi {
         `https://${this.portalDomain}/api/2.0/people/status/${status}`,
         {
           data,
+        },
+      );
+      return response;
+    });
+  }
+
+  async ownerGetPlofilesByStatus(status: UserStatus) {
+    return test.step("Owner returns a list of profiles filtered by the user status", async () => {
+      const response = await this.request.get(
+        `https://${this.portalDomain}/api/2.0/people/status/${status}`,
+        {
+          headers: { Authorization: `Bearer ${this.authTokenOwner}` },
         },
       );
       return response;

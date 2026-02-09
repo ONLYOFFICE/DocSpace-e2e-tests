@@ -1039,4 +1039,87 @@ export class ProfilesApi {
       return response;
     });
   }
+
+  async ownerUpdateCultureCode(data: { cultureName: string; userId: string }) {
+    return test.step("Owner update culture code", async () => {
+      const response = await this.request.put(
+        `https://${this.portalDomain}/api/2.0/people/${data.userId}/culture`,
+        {
+          headers: { Authorization: `Bearer ${this.authTokenOwner}` },
+          data: {
+            cultureName: data.cultureName,
+          },
+        },
+      );
+      return response;
+    });
+  }
+
+  async docSpaceAdminUpdateCultureCode(data: {
+    cultureName: string;
+    userId: string;
+  }) {
+    return test.step("DocSpace admin update culture code", async () => {
+      const response = await this.request.put(
+        `https://${this.portalDomain}/api/2.0/people/${data.userId}/culture`,
+        {
+          headers: { Authorization: `Bearer ${this.authTokenDocSpaceAdmin}` },
+          data: {
+            cultureName: data.cultureName,
+          },
+        },
+      );
+      return response;
+    });
+  }
+
+  async roomAdminUpdateCultureCode(data: {
+    cultureName: string;
+    userId: string;
+  }) {
+    return test.step("Room admin update culture code", async () => {
+      const response = await this.request.put(
+        `https://${this.portalDomain}/api/2.0/people/${data.userId}/culture`,
+        {
+          headers: { Authorization: `Bearer ${this.authTokenRoomAdmin}` },
+          data: {
+            cultureName: data.cultureName,
+          },
+        },
+      );
+      return response;
+    });
+  }
+
+  async userUpdateCultureCode(data: { cultureName: string; userId: string }) {
+    return test.step("User update culture code", async () => {
+      const response = await this.request.put(
+        `https://${this.portalDomain}/api/2.0/people/${data.userId}/culture`,
+        {
+          headers: { Authorization: `Bearer ${this.authTokenUser}` },
+          data: {
+            cultureName: data.cultureName,
+          },
+        },
+      );
+      return response;
+    });
+  }
+
+  async updateCultureCodeWithoutAuthorization(data: {
+    cultureName: string;
+    userId: string;
+  }) {
+    return test.step("User update culture code", async () => {
+      const response = await this.request.put(
+        `https://${this.portalDomain}/api/2.0/people/${data.userId}/culture`,
+        {
+          data: {
+            cultureName: data.cultureName,
+          },
+        },
+      );
+      return response;
+    });
+  }
 }

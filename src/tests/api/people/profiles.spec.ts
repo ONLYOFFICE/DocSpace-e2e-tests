@@ -2623,5 +2623,372 @@ test.describe("API profile methods", () => {
     expect(dataResponse.statusCode).toBe(403);
     expect(dataResponse.error.message).toContain("Access denied");
   });
+
+  test("Owner update a culture code of himself", async ({ apiSdk }) => {
+    const ownerData = await apiSdk.profiles.ownerReturnHimselfInformation();
+    const ownerJson = await ownerData.json();
+    const ownerId = ownerJson.response.id;
+
+    const ownerRequestData = {
+      userId: ownerId,
+      cultureName: "es",
+    };
+    const response =
+      await apiSdk.profiles.ownerUpdateCultureCode(ownerRequestData);
+    const dataResponse = await response.json();
+    expect(dataResponse.statusCode).toBe(200);
+    expect(dataResponse.response.id).toBe(ownerId);
+    expect(dataResponse.response.email).toBe(ownerJson.response.email);
+    expect(dataResponse.response.firstName).toBe(ownerJson.response.firstName);
+    expect(dataResponse.response.lastName).toBe(ownerJson.response.lastName);
+    expect(dataResponse.response.cultureName).toBe("es");
+  });
+
+  test("DocSpace admin update a culture code of himself", async ({
+    apiSdk,
+    api,
+  }) => {
+    const docSpaceAdmin = await apiSdk.profiles.ownerAddMember("DocSpaceAdmin");
+    const docSpaceAdminJson = await docSpaceAdmin.response.json();
+    const docSpaceAdminId = docSpaceAdminJson.response.id;
+
+    const docSpaceAdminRequestData = {
+      userId: docSpaceAdminId,
+      cultureName: "es",
+    };
+    await api.auth.authenticateDocSpaceAdmin();
+    const response = await apiSdk.profiles.docSpaceAdminUpdateCultureCode(
+      docSpaceAdminRequestData,
+    );
+    const dataResponse = await response.json();
+    expect(dataResponse.statusCode).toBe(200);
+    expect(dataResponse.response.id).toBe(docSpaceAdminId);
+    expect(dataResponse.response.email).toBe(docSpaceAdminJson.response.email);
+    expect(dataResponse.response.firstName).toBe(
+      docSpaceAdminJson.response.firstName,
+    );
+    expect(dataResponse.response.lastName).toBe(
+      docSpaceAdminJson.response.lastName,
+    );
+    expect(dataResponse.response.cultureName).toBe("es");
+  });
+
+  test("Room admin update a culture code of himself", async ({
+    apiSdk,
+    api,
+  }) => {
+    const roomAdmin = await apiSdk.profiles.ownerAddMember("RoomAdmin");
+    const roomAdminJson = await roomAdmin.response.json();
+    const roomAdminId = roomAdminJson.response.id;
+
+    const roomAdminRequestData = {
+      userId: roomAdminId,
+      cultureName: "es",
+    };
+    await api.auth.authenticateRoomAdmin();
+    const response =
+      await apiSdk.profiles.roomAdminUpdateCultureCode(roomAdminRequestData);
+    const dataResponse = await response.json();
+    expect(dataResponse.statusCode).toBe(200);
+    expect(dataResponse.response.id).toBe(roomAdminId);
+    expect(dataResponse.response.email).toBe(roomAdminJson.response.email);
+    expect(dataResponse.response.firstName).toBe(
+      roomAdminJson.response.firstName,
+    );
+    expect(dataResponse.response.lastName).toBe(
+      roomAdminJson.response.lastName,
+    );
+    expect(dataResponse.response.cultureName).toBe("es");
+  });
+
+  test("User update a culture code of himself", async ({ apiSdk, api }) => {
+    const user = await apiSdk.profiles.ownerAddMember("User");
+    const userJson = await user.response.json();
+    const userId = userJson.response.id;
+
+    const userRequestData = {
+      userId: userId,
+      cultureName: "es",
+    };
+    await api.auth.authenticateUser();
+    const response =
+      await apiSdk.profiles.userUpdateCultureCode(userRequestData);
+    const dataResponse = await response.json();
+    expect(dataResponse.statusCode).toBe(200);
+    expect(dataResponse.response.id).toBe(userId);
+    expect(dataResponse.response.email).toBe(userJson.response.email);
+    expect(dataResponse.response.firstName).toBe(userJson.response.firstName);
+    expect(dataResponse.response.lastName).toBe(userJson.response.lastName);
+    expect(dataResponse.response.cultureName).toBe("es");
+  });
+
+  test("Update a culture code of himself without authorization", async ({
+    apiSdk,
+  }) => {
+    const ownerData = await apiSdk.profiles.ownerReturnHimselfInformation();
+    const ownerJson = await ownerData.json();
+    const ownerId = ownerJson.response.id;
+
+    const ownerRequestData = {
+      userId: ownerId,
+      cultureName: "es",
+    };
+    const response =
+      await apiSdk.profiles.updateCultureCodeWithoutAuthorization(
+        ownerRequestData,
+      );
+    expect(response.status()).toBe(401);
+  });
+
+  // 65478 - FIX
+  test("Owner update a culture code another's users", async ({ apiSdk }) => {
+    const docSpaceAdminData =
+      await apiSdk.profiles.ownerAddMember("DocSpaceAdmin");
+    const docSpaceAdminJson = await docSpaceAdminData.response.json();
+    const docSpaceAdminId = docSpaceAdminJson.response.id;
+
+    const docSpaceAdminRequestData = {
+      userId: docSpaceAdminId,
+      cultureName: "es",
+    };
+
+    const roomAdminData = await apiSdk.profiles.ownerAddMember("RoomAdmin");
+    const roomAdminJson = await roomAdminData.response.json();
+    const roomAdminId = roomAdminJson.response.id;
+
+    const roomAdminRequestData = {
+      userId: roomAdminId,
+      cultureName: "es",
+    };
+
+    const user = await apiSdk.profiles.ownerAddMember("User");
+    const userJson = await user.response.json();
+    const userId = userJson.response.id;
+
+    const userRequestData = {
+      userId: userId,
+      cultureName: "es",
+    };
+
+    const docSpaceAdminResponse = await apiSdk.profiles.ownerUpdateCultureCode(
+      docSpaceAdminRequestData,
+    );
+    const docSpaceAdminDataResponse = await docSpaceAdminResponse.json();
+    expect(docSpaceAdminDataResponse.statusCode).toBe(403);
+    expect(docSpaceAdminDataResponse.error.message).toBe("Access denied");
+
+    const roomAdminResponse =
+      await apiSdk.profiles.ownerUpdateCultureCode(roomAdminRequestData);
+    const roomAdminDataResponse = await roomAdminResponse.json();
+    expect(roomAdminDataResponse.statusCode).toBe(403);
+    expect(roomAdminDataResponse.error.message).toBe("Access denied");
+
+    const userResponse =
+      await apiSdk.profiles.ownerUpdateCultureCode(userRequestData);
+    const userDataResponse = await userResponse.json();
+    expect(userDataResponse.statusCode).toBe(403);
+    expect(userDataResponse.error.message).toBe("Access denied");
+  });
+
+  // 65478 - FIX
+  test("DocSpace admin update a culture code another's users", async ({
+    apiSdk,
+    api,
+  }) => {
+    const ownerData = await apiSdk.profiles.ownerReturnHimselfInformation();
+    const ownerJson = await ownerData.json();
+    const ownerId = ownerJson.response.id;
+
+    const ownerRequestData = {
+      userId: ownerId,
+      cultureName: "es",
+    };
+
+    const roomAdminData = await apiSdk.profiles.ownerAddMember("RoomAdmin");
+    const roomAdminJson = await roomAdminData.response.json();
+    const roomAdminId = roomAdminJson.response.id;
+
+    const roomAdminRequestData = {
+      userId: roomAdminId,
+      cultureName: "es",
+    };
+
+    const user = await apiSdk.profiles.ownerAddMember("User");
+    const userJson = await user.response.json();
+    const userId = userJson.response.id;
+
+    const userRequestData = {
+      userId: userId,
+      cultureName: "es",
+    };
+
+    await apiSdk.profiles.ownerAddMember("DocSpaceAdmin");
+    await api.auth.authenticateDocSpaceAdmin();
+    const ownerResponse =
+      await apiSdk.profiles.docSpaceAdminUpdateCultureCode(ownerRequestData);
+    const ownerDataResponse = await ownerResponse.json();
+    expect(ownerDataResponse.statusCode).toBe(403);
+    expect(ownerDataResponse.error.message).toBe("Access denied");
+
+    const roomAdminResponse =
+      await apiSdk.profiles.docSpaceAdminUpdateCultureCode(
+        roomAdminRequestData,
+      );
+    const roomAdminDataResponse = await roomAdminResponse.json();
+    expect(roomAdminDataResponse.statusCode).toBe(403);
+    expect(roomAdminDataResponse.error.message).toBe("Access denied");
+
+    const userResponse =
+      await apiSdk.profiles.docSpaceAdminUpdateCultureCode(userRequestData);
+    const userDataResponse = await userResponse.json();
+    expect(userDataResponse.statusCode).toBe(403);
+    expect(userDataResponse.error.message).toBe("Access denied");
+  });
+
+  // 65478 - FIX
+  test("Room admin update a culture code another's users", async ({
+    apiSdk,
+    api,
+  }) => {
+    const ownerData = await apiSdk.profiles.ownerReturnHimselfInformation();
+    const ownerJson = await ownerData.json();
+    const ownerId = ownerJson.response.id;
+
+    const ownerRequestData = {
+      userId: ownerId,
+      cultureName: "es",
+    };
+
+    const docSpaceAdminData =
+      await apiSdk.profiles.ownerAddMember("DocSpaceAdmin");
+    const docSpaceAdminJson = await docSpaceAdminData.response.json();
+    const docSpaceAdminId = docSpaceAdminJson.response.id;
+
+    const docSpaceAdminRequestData = {
+      userId: docSpaceAdminId,
+      cultureName: "es",
+    };
+
+    const user = await apiSdk.profiles.ownerAddMember("User");
+    const userJson = await user.response.json();
+    const userId = userJson.response.id;
+
+    const userRequestData = {
+      userId: userId,
+      cultureName: "es",
+    };
+
+    await apiSdk.profiles.ownerAddMember("RoomAdmin");
+    await api.auth.authenticateRoomAdmin();
+    const ownerResponse =
+      await apiSdk.profiles.roomAdminUpdateCultureCode(ownerRequestData);
+    const ownerDataResponse = await ownerResponse.json();
+    expect(ownerDataResponse.statusCode).toBe(403);
+    expect(ownerDataResponse.error.message).toBe("Access denied");
+
+    const docSpaceAdminResponse =
+      await apiSdk.profiles.roomAdminUpdateCultureCode(
+        docSpaceAdminRequestData,
+      );
+    const docSpaceAdminDataResponse = await docSpaceAdminResponse.json();
+    expect(docSpaceAdminDataResponse.statusCode).toBe(403);
+    expect(docSpaceAdminDataResponse.error.message).toBe("Access denied");
+
+    const userResponse =
+      await apiSdk.profiles.roomAdminUpdateCultureCode(userRequestData);
+    const userDataResponse = await userResponse.json();
+    expect(userDataResponse.statusCode).toBe(403);
+    expect(userDataResponse.error.message).toBe("Access denied");
+  });
+
+  // 65478 - FIX
+  test("User update a culture code another's users", async ({
+    apiSdk,
+    api,
+  }) => {
+    const ownerData = await apiSdk.profiles.ownerReturnHimselfInformation();
+    const ownerJson = await ownerData.json();
+    const ownerId = ownerJson.response.id;
+
+    const ownerRequestData = {
+      userId: ownerId,
+      cultureName: "es",
+    };
+
+    const docSpaceAdminData =
+      await apiSdk.profiles.ownerAddMember("DocSpaceAdmin");
+    const docSpaceAdminJson = await docSpaceAdminData.response.json();
+    const docSpaceAdminId = docSpaceAdminJson.response.id;
+
+    const docSpaceAdminRequestData = {
+      userId: docSpaceAdminId,
+      cultureName: "es",
+    };
+
+    const roomAdminData = await apiSdk.profiles.ownerAddMember("RoomAdmin");
+    const roomAdminJson = await roomAdminData.response.json();
+    const roomAdminId = roomAdminJson.response.id;
+
+    const roomAdminRequestData = {
+      userId: roomAdminId,
+      cultureName: "es",
+    };
+
+    await apiSdk.profiles.ownerAddMember("User");
+    await api.auth.authenticateUser();
+    const ownerResponse =
+      await apiSdk.profiles.userUpdateCultureCode(ownerRequestData);
+    const ownerDataResponse = await ownerResponse.json();
+    expect(ownerDataResponse.statusCode).toBe(403);
+    expect(ownerDataResponse.error.message).toBe("Access denied");
+
+    const docSpaceAdminResponse = await apiSdk.profiles.userUpdateCultureCode(
+      docSpaceAdminRequestData,
+    );
+    const docSpaceAdminDataResponse = await docSpaceAdminResponse.json();
+    expect(docSpaceAdminDataResponse.statusCode).toBe(403);
+    expect(docSpaceAdminDataResponse.error.message).toBe("Access denied");
+
+    const roomAdminResponse =
+      await apiSdk.profiles.userUpdateCultureCode(roomAdminRequestData);
+    const roomAdminDataResponse = await roomAdminResponse.json();
+    expect(roomAdminDataResponse.statusCode).toBe(403);
+    expect(roomAdminDataResponse.error.message).toBe("Access denied");
+  });
+
+  test("Owner update a culture code of non-existent user", async ({
+    apiSdk,
+  }) => {
+    const userId = faker.string.uuid();
+    const ownerRequestData = {
+      userId: userId,
+      cultureName: "es",
+    };
+    const response =
+      await apiSdk.profiles.ownerUpdateCultureCode(ownerRequestData);
+    const dataResponse = await response.json();
+    expect(dataResponse.statusCode).toBe(404);
+    expect(dataResponse.error.message).toContain("The user could not be found");
+  });
+
+  // 79918 - NEW
+  test.skip("Update culture code with long string", async ({ apiSdk }) => {
+    const ownerData = await apiSdk.profiles.ownerReturnHimselfInformation();
+    const ownerJson = await ownerData.json();
+    const ownerId = ownerJson.response.id;
+    const longString = apiSdk.faker.generateString(260);
+
+    const ownerRequestData = {
+      userId: ownerId,
+      cultureName: longString,
+    };
+    const response =
+      await apiSdk.profiles.ownerUpdateCultureCode(ownerRequestData);
+    const dataResponse = await response.json();
+    console.log(dataResponse);
+    // expect(dataResponse.statusCode).toBe(404);
+    // expect(dataResponse.error.message).toContain("The user could not be found");
+  });
 });
+
 // TODO: Write tests to remove users at a higher rank
