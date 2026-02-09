@@ -298,7 +298,7 @@ class InfoPanel {
     await this.page.getByTestId(LINK_SETTINGS).waitFor({ state: "visible" });
     await this.page.getByTestId(LINK_SETTINGS).click();
   }
-  //Delete or revoke link
+  //button name Delete or Revoke(Form Fillng room) link
   async clickDeleteLink() {
     await this.page.getByTestId(DELETE_LINK).waitFor({ state: "visible" });
     await this.page.getByTestId(DELETE_LINK).click();
