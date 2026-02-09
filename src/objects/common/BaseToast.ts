@@ -59,6 +59,10 @@ class BaseToast {
       throw error;
     }
   }
+  async checkToastMessage(text: string) {
+    const toast = this.toast.filter({ hasText: text }).first();
+    await toast.waitFor({ state: "visible" });
+  }
 }
 
 export default BaseToast;

@@ -30,6 +30,10 @@ const FORMFILLING_SHARED_LINK = "Link to fill out";
 const SHARED_LINK_COMBOBOX_ACCESS = '[data-test-id="combo-button"]';
 const SHARING_ACCESS_ANYONE_WITH_LINK = "drop_down_item_anyone";
 const SHARING_ACCESS_DOCSPACE_USERS = "drop_down_item_users";
+const CONTEXT_MENU_BUTTON = "context-menu-button";
+const LINK_SETTINGS = "edit-link-key_item";
+const DELETE_LINK = "delete-link-key_item";
+const REVOKE_LINK_SUBMIT_BUTTON = "Revoke link";
 
 class InfoPanel {
   protected page: Page;
@@ -282,6 +286,35 @@ class InfoPanel {
     const optionLocator = this.page.getByText(option).first();
     await optionLocator.waitFor({ state: "visible" });
     await optionLocator.click();
+  }
+  async openLinkContextMenu() {
+    const contextMenuButton = this.page.locator(
+      `.members-list-item [data-testid="${CONTEXT_MENU_BUTTON}"]`,
+    );
+    await contextMenuButton.waitFor({ state: "visible" });
+    await contextMenuButton.click();
+  }
+  async clickLinkSettings() {
+    await this.page.getByTestId(LINK_SETTINGS).waitFor({ state: "visible" });
+    await this.page.getByTestId(LINK_SETTINGS).click();
+  }
+  //Delete or revoke link
+  async clickDeleteLink() {
+    await this.page.getByTestId(DELETE_LINK).waitFor({ state: "visible" });
+    await this.page.getByTestId(DELETE_LINK).click();
+  }
+
+  get revokeLinkSubmitButton() {
+    this.page
+      .getByRole("button", { name: REVOKE_LINK_SUBMIT_BUTTON })
+      .waitFor({ state: "visible" });
+    return this.page.getByRole("button", { name: REVOKE_LINK_SUBMIT_BUTTON });
+  }
+  async revokeRoomLink() {
+    await this.openLinkContextMenu();
+    await this.clickDeleteLink();
+    await this.revokeLinkSubmitButton.click();
+    await this.toast.checkToastMessage("New general link created successfully");
   }
 }
 

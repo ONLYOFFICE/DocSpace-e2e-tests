@@ -6,7 +6,7 @@ import FilesPdfForm from "@/src/objects/files/FilesPdfForm";
 import RoomPDFCompleted from "@/src/objects/rooms/RoomPDFCompleted";
 import InfoPanel from "@/src/objects/common/InfoPanel";
 import path from "path";
-import { BrowserContext, Page } from "@playwright/test";
+import { Browser, BrowserContext, Page } from "@playwright/test";
 import { expect } from "@playwright/test";
 import FilesTable from "@/src/objects/files/FilesTable";
 import RoomEmptyView from "@/src/objects/rooms/RoomEmptyView";
@@ -25,6 +25,8 @@ function ensureIncognitoPage(
     throw new Error("incognitoPage is not initialized");
   }
 }
+
+// Sets up clipboard permissions for Firefox/Chrome
 async function setupClipboardPermissions(page: Page) {
   const origin = new URL(page.url()).origin;
   const isFirefox =
@@ -54,6 +56,119 @@ async function setupClipboardPermissions(page: Page) {
       );
     }
   }
+}
+
+// Creates incognito context and page
+async function setupIncognitoContext(
+  browser: Browser,
+): Promise<{ context: BrowserContext; page: Page }> {
+  const context = await browser.newContext();
+  const page = await context.newPage();
+  return { context, page };
+}
+
+// Safely closes incognito context and page
+async function cleanupIncognitoContext(
+  context: BrowserContext | null,
+  page: Page | null,
+) {
+  if (page) {
+    await page.close().catch(() => {});
+  }
+  if (context) {
+    await context.close().catch(() => {});
+  }
+}
+
+// Gets link from clipboard
+async function getLinkFromClipboard(page: Page): Promise<string> {
+  const link = await page.evaluate(() => navigator.clipboard.readText());
+  if (!link) throw new Error("Failed to get link from clipboard");
+  return link;
+}
+
+// Opens link in incognito and checks Login button visibility
+async function verifyLoginPageInIncognito(
+  browser: Browser,
+  link: string,
+): Promise<void> {
+  const { context, page } = await setupIncognitoContext(browser);
+  await page.goto(link, { waitUntil: "domcontentloaded" });
+  const incognitoLogin = new Login(page, "");
+  await incognitoLogin.loginButtonVisible();
+  await cleanupIncognitoContext(context, page);
+}
+
+// For anonymous page (Sign In button) - returns context and page for further use
+async function verifyAnonymousPageInIncognito(
+  browser: Browser,
+  link: string,
+): Promise<{ context: BrowserContext; page: Page }> {
+  const { context, page } = await setupIncognitoContext(browser);
+  await page.goto(link, { waitUntil: "domcontentloaded" });
+  const roomAnonymousView = new RoomAnonymousView(page);
+  await roomAnonymousView.singInButtonVisible();
+  return { context, page };
+}
+
+// Opens link in incognito and checks "Invalid link" message
+async function verifyInvalidLinkMessageInIncognito(
+  browser: Browser,
+  link: string,
+  expectedText = "Invalid link",
+): Promise<void> {
+  const { context, page } = await setupIncognitoContext(browser);
+  await page.goto(link, { waitUntil: "domcontentloaded" });
+  await expect(page.getByText(expectedText)).toBeVisible();
+  await cleanupIncognitoContext(context, page);
+}
+// Opens file link in incognito and checks "Access denied" in iframe
+async function verifyAccessDeniedInIncognito(
+  browser: Browser,
+  link: string,
+): Promise<void> {
+  const { context, page } = await setupIncognitoContext(browser);
+  await page.goto(link, { waitUntil: "domcontentloaded" });
+  const iframeLocator = page.locator('iframe[name="frameEditor"]');
+  await iframeLocator.waitFor({ state: "visible" });
+  const frame = iframeLocator.contentFrame();
+  await expect(frame.getByText("Access denied Click to close")).toBeVisible();
+  await cleanupIncognitoContext(context, page);
+}
+
+// Copies shared link for a file using context menu
+async function copyFileLink(
+  page: Page,
+  filesTable: FilesTable,
+  myRooms: MyRooms,
+): Promise<string> {
+  await setupClipboardPermissions(page);
+  await filesTable.openContextMenuForItem("ONLYOFFICE Resume Sample");
+  await filesTable.contextMenu.clickSubmenuOption("Share", "Copy shared link");
+  await myRooms.toast.dismissToastSafely("Link copied to clipboard", 5000);
+  return await getLinkFromClipboard(page);
+}
+
+// Uploads PDF and verifies it's visible
+async function uploadAndVerifyPDF(
+  shortTour: ShortTour,
+  roomEmptyView: RoomEmptyView,
+  selectPanel: RoomSelectPanel,
+  myRooms: MyRooms,
+  page: Page,
+  skipTour = true,
+): Promise<void> {
+  if (skipTour) {
+    await shortTour.clickSkipTour();
+  }
+  await roomEmptyView.uploadPdfFromDocSpace();
+  await selectPanel.checkSelectorExist();
+  await selectPanel.select("documents");
+  await selectPanel.selectItemByText("ONLYOFFICE Resume Sample");
+  await selectPanel.confirmSelection();
+  await shortTour.clickModalCloseButton().catch(() => {});
+  await myRooms.infoPanel.close();
+  await expect(page.getByLabel("ONLYOFFICE Resume Sample,")).toBeVisible();
 }
 test.describe("FormFilling room tests", () => {
   let myRooms: MyRooms;
@@ -85,14 +200,7 @@ test.describe("FormFilling room tests", () => {
     await myRooms.createFormFillingRoom("FormFillingRoom");
   });
   test.afterEach(async () => {
-    if (incognitoPage) {
-      await incognitoPage.close().catch(() => {});
-      incognitoPage = null;
-    }
-    if (incognitoContext) {
-      await incognitoContext.close().catch(() => {});
-      incognitoContext = null;
-    }
+    await cleanupIncognitoContext(incognitoContext, incognitoPage);
   });
 
   test("Take A Tour", async () => {
@@ -185,15 +293,13 @@ test.describe("FormFilling room tests", () => {
   });
   test("Submit Not Filling PDF Form", async ({ page }) => {
     await test.step("UploadPDFFormFromMyDocuments", async () => {
-      await shortTour.clickSkipTour();
-      await roomEmptyView.uploadPdfFromDocSpace();
-      await selectPanel.checkSelectorExist();
-      await selectPanel.select("documents");
-      await selectPanel.selectItemByText("ONLYOFFICE Resume Sample");
-      await selectPanel.confirmSelection();
-      await shortTour.clickModalCloseButton().catch(() => {});
-      await myRooms.infoPanel.close();
-      await expect(page.getByLabel("ONLYOFFICE Resume Sample,")).toBeVisible();
+      await uploadAndVerifyPDF(
+        shortTour,
+        roomEmptyView,
+        selectPanel,
+        myRooms,
+        page,
+      );
     });
 
     // Submit Form
@@ -267,15 +373,13 @@ test.describe("FormFilling room tests", () => {
   });
   test("Check work with Draft PDF Form", async ({ page }) => {
     await test.step("UploadPDFFormFromMyDocuments", async () => {
-      await shortTour.clickSkipTour();
-      await roomEmptyView.uploadPdfFromDocSpace();
-      await selectPanel.checkSelectorExist();
-      await selectPanel.select("documents");
-      await selectPanel.selectItemByText("ONLYOFFICE Resume Sample");
-      await selectPanel.confirmSelection();
-      await shortTour.clickModalCloseButton().catch(() => {});
-      await myRooms.infoPanel.close();
-      await expect(page.getByLabel("ONLYOFFICE Resume Sample,")).toBeVisible();
+      await uploadAndVerifyPDF(
+        shortTour,
+        roomEmptyView,
+        selectPanel,
+        myRooms,
+        page,
+      );
     });
     await test.step("Open and close pdf form", async () => {
       const context = page.context();
@@ -419,83 +523,63 @@ test.describe("FormFilling room tests", () => {
       expect(currentOption).toBe("docspace users only"); //Bug 79256
     });
   });
-  test.describe.skip("Bug 79751", () => {
-    // Сheck the page after filling does not contain Back to Room button
-    test.skip("Filling PDF Form with link by anonymous", async ({
-      page,
-      browser,
-    }) => {
-      let shareLink: string;
-      await test.step("Upload PDF Form from My Documents", async () => {
-        await shortTour.clickSkipTour();
-        await roomEmptyView.uploadPdfFromDocSpace();
-        await selectPanel.checkSelectorExist();
-        await selectPanel.select("documents");
-        await selectPanel.selectItemByText("ONLYOFFICE Resume Sample");
-        await selectPanel.confirmSelection();
-        await shortTour.clickModalCloseButton().catch(() => {});
-        await myRooms.infoPanel.close();
-        await expect(
-          page.getByLabel("ONLYOFFICE Resume Sample,"),
-        ).toBeVisible();
-      });
 
-      await test.step("Copy shared link for PDF form", async () => {
-        // Setup clipboard permissions to allow copying the shared link
-        await setupClipboardPermissions(page);
-        // Copy link to file in context menu
-        await filesTable.openContextMenuForItem("ONLYOFFICE Resume Sample");
-        await filesTable.contextMenu.clickSubmenuOption(
-          "Share",
-          "Copy shared link",
-        );
-        await myRooms.toast.dismissToastSafely(
-          "Link copied to clipboard",
-          5000,
-        );
-        // Retrieve the shared link from clipboard for later use
-        shareLink = await page.evaluate(() => navigator.clipboard.readText());
-        if (!shareLink)
-          throw new Error("Failed to get share link from clipboard");
-      });
+  // Сheck the page after filling does not contain Back to Room button
+  test("Filling PDF Form with link by anonymous", async ({ page, browser }) => {
+    let shareLink: string;
+    let incognitoContext: BrowserContext;
+    let incognitoPage: Page;
 
-      await test.step("Open PDF form in incognito", async () => {
-        const url = await page.evaluate(() => navigator.clipboard.readText());
-        if (!url) throw new Error("Clipboard is empty");
-        incognitoContext = await browser.newContext();
-        incognitoPage = await incognitoContext.newPage();
-        //Wait for page with pdf loaded
-        await incognitoPage.goto(url, { waitUntil: "domcontentloaded" });
-      });
-      let completedForm: RoomPDFCompleted;
-      await test.step("Submit not filled PDF Form", async () => {
-        ensureIncognitoPage(incognitoPage);
-        const pdfForm = new FilesPdfForm(incognitoPage);
-        //Submit form with empty fields
-        completedForm = await pdfForm.clickSubmitButton();
-        //Check document title on completed form page
-        await completedForm.checkDocumentTitleIsVisible(
-          "1 - ONLYOFFICE Resume Sample",
-        );
-      });
-      await test.step("Check back to room button is hidden", async () => {
-        await completedForm.checkBackToRoomButtonHidden();
-      });
-      await test.step("Check download button is visible and clickable", async () => {
-        ensureIncognitoPage(incognitoPage);
-        await completedForm.checkDownloadButtonVisible();
-      });
-      await test.step("Click download button and verify download starts", async () => {
-        ensureIncognitoPage(incognitoPage);
-        const [download] = await Promise.all([
-          incognitoPage.waitForEvent("download"),
-          completedForm.clickDownloadButton(),
-        ]);
-        const fileName = await download.suggestedFilename();
-        expect(fileName).toMatch(/ONLYOFFICE Resume Sample.*\.pdf$/i);
-        // cancel download to avoid file saving
-        await download.cancel();
-      });
+    await test.step("Upload PDF Form from My Documents", async () => {
+      await uploadAndVerifyPDF(
+        shortTour,
+        roomEmptyView,
+        selectPanel,
+        myRooms,
+        page,
+      );
+    });
+
+    await test.step("Copy shared link for PDF form", async () => {
+      shareLink = await copyFileLink(page, filesTable, myRooms);
+    });
+
+    await test.step("Open PDF form in incognito", async () => {
+      const url = await getLinkFromClipboard(page);
+      if (!url) throw new Error("Clipboard is empty");
+      const result = await setupIncognitoContext(browser);
+      incognitoContext = result.context;
+      incognitoPage = result.page;
+      await incognitoPage.goto(url, { waitUntil: "domcontentloaded" });
+    });
+    let completedForm: RoomPDFCompleted;
+    await test.step("Submit not filled PDF Form", async () => {
+      ensureIncognitoPage(incognitoPage);
+      const pdfForm = new FilesPdfForm(incognitoPage);
+      //Submit form with empty fields
+      completedForm = await pdfForm.clickSubmitButton();
+      //Check document title on completed form page
+      await completedForm.checkDocumentTitleIsVisible(
+        "1 - ONLYOFFICE Resume Sample",
+      );
+    });
+    await test.step("Check back to room button is hidden", async () => {
+      await completedForm.checkBackToRoomButtonHidden();
+    });
+    await test.step("Check download button is visible and clickable", async () => {
+      ensureIncognitoPage(incognitoPage);
+      await completedForm.checkDownloadButtonVisible();
+    });
+    await test.step("Click download button and verify download starts", async () => {
+      ensureIncognitoPage(incognitoPage);
+      const [download] = await Promise.all([
+        incognitoPage.waitForEvent("download"),
+        completedForm.clickDownloadButton(),
+      ]);
+      const fileName = await download.suggestedFilename();
+      expect(fileName).toMatch(/ONLYOFFICE Resume Sample.*\.pdf$/i);
+      // cancel download to avoid file saving
+      await download.cancel();
     });
   });
   //Check copy shared link in modal window after Pdf form uploaded to Room
@@ -571,17 +655,10 @@ test.describe("FormFilling room tests", () => {
       if (!shareLink)
         throw new Error("Failed to get share link from clipboard");
     });
-    await test.step("Open PDF form in incognito and check login button", async () => {
-      const url = await page.evaluate(() => navigator.clipboard.readText());
-      if (!url) throw new Error("Clipboard is empty");
-      incognitoContext = await browser.newContext();
-      incognitoPage = await incognitoContext.newPage();
-      // Navigate to the shared link - should redirect to login page for unauthorized users
-      await incognitoPage.goto(url, { waitUntil: "domcontentloaded" });
-      const incognitoLogin = new Login(incognitoPage, "docspace");
-      // Verify login button is visible on the authorization page
-      await incognitoLogin.loginButtonVisible();
-    });
+    await test.step("Open PDF form in incognito and check login button", async () => {});
+    const url = await page.evaluate(() => navigator.clipboard.readText());
+    if (!url) throw new Error("Clipboard is empty");
+    await verifyLoginPageInIncognito(browser, url);
   });
   //Checking the link to the Room will open the authorization page.
   test("Open shared link Room for Docspace users only", async ({
@@ -617,18 +694,11 @@ test.describe("FormFilling room tests", () => {
       await myRooms.infoPanel.close();
     });
     //Check opening link at login Page
-    await test.step("Open PDF form in incognito and check login button", async () => {
-      // Get the shared link from clipboard
-      const url = await page.evaluate(() => navigator.clipboard.readText());
-      if (!url) throw new Error("Clipboard is empty");
-      incognitoContext = await browser.newContext();
-      incognitoPage = await incognitoContext.newPage();
-      // Navigate to the shared link in incognito mode
-      await incognitoPage.goto(url, { waitUntil: "domcontentloaded" });
-      // Verify login button is visible
-      const incognitoLogin = new Login(incognitoPage, "docspace");
-      await incognitoLogin.loginButtonVisible();
-    });
+    await test.step("Open PDF form in incognito and check login button", async () => {});
+    // Get shared link from clipboard
+    const url = await page.evaluate(() => navigator.clipboard.readText());
+    if (!url) throw new Error("Clipboard is empty");
+    await verifyLoginPageInIncognito(browser, url);
   });
   //Checking the link to the Room will open with file and Sing In button
   test("Open shared link Room for Anyone with link", async ({
@@ -636,6 +706,8 @@ test.describe("FormFilling room tests", () => {
     browser,
   }) => {
     let shareLink: string;
+    let incognitoPage: Page;
+
     //Copy link to the room
     await test.step("Click Share room in empty view", async () => {
       await shortTour.clickSkipTour();
@@ -647,6 +719,7 @@ test.describe("FormFilling room tests", () => {
       if (!shareLink)
         throw new Error("Failed to get share link from clipboard");
     });
+
     await test.step("Upload PDF form from My Documents", async () => {
       await roomEmptyView.uploadPdfFromDocSpace();
       await selectPanel.checkSelectorExist();
@@ -661,20 +734,19 @@ test.describe("FormFilling room tests", () => {
     await test.step("Open Room in incognito and check Sign In button", async () => {
       const url = await page.evaluate(() => navigator.clipboard.readText());
       if (!url) throw new Error("Clipboard is empty");
-      incognitoContext = await browser.newContext();
-      incognitoPage = await incognitoContext.newPage();
-      //Open room in incognito by link
-      await incognitoPage.goto(url, { waitUntil: "domcontentloaded" });
-      //Verify Sign In button is visible
-      await roomAnonymousView.singInButtonVisible();
+      const result = await verifyAnonymousPageInIncognito(browser, url);
+      incognitoContext = result.context;
+      incognitoPage = result.page;
     });
+
     await test.step("Validate pdf form is visible", async () => {
       await expect(
-        incognitoPage!.getByLabel("ONLYOFFICE Resume Sample,"),
+        incognitoPage.getByLabel("ONLYOFFICE Resume Sample,"),
       ).toBeVisible();
     });
-    await test.step("Validate that Complete and In progress folders do not exist ", async () => {
-      const incognitoMyRooms = new MyRooms(incognitoPage!, "docspace");
+
+    await test.step("Validate that Complete and In progress folders do not exist", async () => {
+      const incognitoMyRooms = new MyRooms(incognitoPage, "docspace");
       // Verify the "Complete" folder is not visible
       await incognitoMyRooms.verifyCompleteFolderNotVisible();
       // Verify the "In progress" folder is not visible
@@ -685,15 +757,13 @@ test.describe("FormFilling room tests", () => {
   test("Progress folders can't be deleted", async ({ page }) => {
     //Upload the document so that the progress folders appear.
     await test.step("UploadPDFFormFromMyDocuments", async () => {
-      await shortTour.clickSkipTour();
-      await roomEmptyView.uploadPdfFromDocSpace();
-      await selectPanel.checkSelectorExist();
-      await selectPanel.select("documents");
-      await selectPanel.selectItemByText("ONLYOFFICE Resume Sample");
-      await selectPanel.confirmSelection();
-      await shortTour.clickModalCloseButton().catch(() => {});
-      await myRooms.infoPanel.close();
-      await expect(page.getByLabel("ONLYOFFICE Resume Sample,")).toBeVisible();
+      await uploadAndVerifyPDF(
+        shortTour,
+        roomEmptyView,
+        selectPanel,
+        myRooms,
+        page,
+      );
     });
     await test.step("Check Delete doesn't exist for Complete folder", async () => {
       const filesTable = new FilesTable(page);
@@ -718,6 +788,181 @@ test.describe("FormFilling room tests", () => {
       // Check Delete button is not visible on the page
       filesTable.selectFolderByName("In process");
       await expect(page.getByText("Delete")).not.toBeVisible();
+    });
+  });
+  //Check that room can't be open after revoking link
+  test("Revoke link Room and open it", async ({ page, browser }) => {
+    let shareLink: string;
+
+    await test.step("Copy link to the room", async () => {
+      await shortTour.clickSkipTour();
+      await setupClipboardPermissions(page);
+      await roomEmptyView.shareRoomClick();
+      await myRooms.toast.dismissToastSafely("Link copied to clipboard", 10000);
+      shareLink = await getLinkFromClipboard(page);
+    });
+
+    await test.step("Revoke link", async () => {
+      await myRooms.infoPanel.revokeRoomLink();
+    });
+
+    await test.step("Verify old link is invalid", async () => {
+      await verifyInvalidLinkMessageInIncognito(browser, shareLink);
+    });
+  });
+  //Check new link after revoke old link
+  test("Check new room link after revoke old link", async ({
+    page,
+    browser,
+  }) => {
+    let oldShareLink: string;
+    let newShareLink: string;
+
+    await test.step("Copy initial link", async () => {
+      await shortTour.clickSkipTour();
+      await setupClipboardPermissions(page);
+      await roomEmptyView.shareRoomClick();
+      await myRooms.toast.dismissToastSafely("Link copied to clipboard", 10000);
+      oldShareLink = await getLinkFromClipboard(page);
+    });
+
+    await test.step("Revoke and generate new link", async () => {
+      await myRooms.infoPanel.revokeRoomLink();
+
+      await setupClipboardPermissions(page);
+      await roomEmptyView.shareRoomClick();
+      await myRooms.toast.dismissToastSafely("Link copied to clipboard", 10000);
+      newShareLink = await getLinkFromClipboard(page);
+
+      if (oldShareLink === newShareLink) {
+        throw new Error("New link should be different from old link");
+      }
+    });
+
+    await test.step("Verify new link works", async () => {
+      const { context, page: incognitoPage } =
+        await setupIncognitoContext(browser);
+      await incognitoPage.goto(newShareLink, { waitUntil: "domcontentloaded" });
+      await roomAnonymousView.singInButtonVisible();
+      await cleanupIncognitoContext(context, incognitoPage);
+    });
+  });
+  test("Check new file link after revoke old link", async ({
+    page,
+    browser,
+  }) => {
+    let oldFileLink: string;
+    let newFileLink: string;
+
+    await test.step("Upload PDF form and copy file link", async () => {
+      await shortTour.clickSkipTour();
+      await roomEmptyView.uploadPdfFromDocSpace();
+      await selectPanel.checkSelectorExist();
+      await selectPanel.select("documents");
+      await selectPanel.selectItemByText("ONLYOFFICE Resume Sample");
+      await selectPanel.confirmSelection();
+      await shortTour.clickModalCloseButton().catch(() => {});
+      await myRooms.infoPanel.close();
+      await expect(page.getByLabel("ONLYOFFICE Resume Sample,")).toBeVisible();
+
+      const filesTable = new FilesTable(page);
+      oldFileLink = await copyFileLink(page, filesTable, myRooms);
+    });
+
+    await test.step("Revoke file link", async () => {
+      const filesTable = new FilesTable(page);
+      await filesTable.openContextMenuForItem("ONLYOFFICE Resume Sample");
+      await filesTable.contextMenu.clickSubmenuOption(
+        "Share",
+        "Sharing settings",
+      );
+      await myRooms.infoPanel.openLinkContextMenu();
+      await myRooms.infoPanel.clickDeleteLink();
+      await myRooms.toast.checkToastMessage(
+        "New general link created successfully",
+      );
+    });
+
+    await test.step("Verify old file link is invalid", async () => {
+      await verifyAccessDeniedInIncognito(browser, oldFileLink);
+    });
+
+    await test.step("Copy new file link", async () => {
+      const filesTable = new FilesTable(page);
+      newFileLink = await copyFileLink(page, filesTable, myRooms);
+    });
+
+    await test.step("Verify new file link works", async () => {
+      const { context, page } = await setupIncognitoContext(browser);
+      await page.goto(newFileLink, { waitUntil: "domcontentloaded" });
+      const pdfForm = new FilesPdfForm(page);
+      await pdfForm.checkSubmitButtonExist();
+      await expect(page.getByText("Invalid link")).not.toBeVisible();
+      await cleanupIncognitoContext(context, page);
+    });
+  });
+  test("Revoke file link invalidates room link", async ({ page, browser }) => {
+    let roomLink: string;
+    let fileLink: string;
+
+    await test.step("Copy initial room link", async () => {
+      await shortTour.clickSkipTour();
+      await setupClipboardPermissions(page);
+      await roomEmptyView.shareRoomClick();
+      await myRooms.toast.dismissToastSafely("Link copied to clipboard", 10000);
+      roomLink = await getLinkFromClipboard(page);
+    });
+
+    await test.step("Upload PDF and copy file link", async () => {
+      await uploadAndVerifyPDF(
+        shortTour,
+        roomEmptyView,
+        selectPanel,
+        myRooms,
+        page,
+        false,
+      );
+      const filesTable = new FilesTable(page);
+      fileLink = await copyFileLink(page, filesTable, myRooms);
+    });
+
+    await test.step("Verify both links work initially", async () => {
+      // Verify room link works
+      const { context: roomContext, page: roomPage } =
+        await setupIncognitoContext(browser);
+      await roomPage.goto(roomLink, { waitUntil: "domcontentloaded" });
+      await roomAnonymousView.singInButtonVisible();
+      await cleanupIncognitoContext(roomContext, roomPage);
+
+      // Verify file link works
+      const { context: fileContext, page: filePage } =
+        await setupIncognitoContext(browser);
+      await filePage.goto(fileLink, { waitUntil: "domcontentloaded" });
+      const pdfForm = new FilesPdfForm(filePage);
+      await pdfForm.checkSubmitButtonExist();
+      await cleanupIncognitoContext(fileContext, filePage);
+    });
+
+    await test.step("Revoke file link", async () => {
+      const filesTable = new FilesTable(page);
+      await filesTable.openContextMenuForItem("ONLYOFFICE Resume Sample");
+      await filesTable.contextMenu.clickSubmenuOption(
+        "Share",
+        "Sharing settings",
+      );
+      await myRooms.infoPanel.openLinkContextMenu();
+      await myRooms.infoPanel.clickDeleteLink();
+      await myRooms.toast.checkToastMessage(
+        "New general link created successfully",
+      );
+    });
+
+    await test.step("Verify room link becomes invalid", async () => {
+      await verifyInvalidLinkMessageInIncognito(browser, roomLink);
+    });
+
+    await test.step("Verify file link becomes invalid", async () => {
+      await verifyAccessDeniedInIncognito(browser, fileLink);
     });
   });
 });
