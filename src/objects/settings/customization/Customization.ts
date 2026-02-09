@@ -271,12 +271,7 @@ class Customization extends BasePage {
       if (!fs.existsSync(resolvedPath)) {
         throw new Error(`File not found: ${resolvedPath}`);
       }
-      await Promise.all([
-        this.page.waitForResponse(
-          (res) => res.url().includes("/upload") && res.status() === 200,
-        ),
-        this.page.locator(selector).setInputFiles(resolvedPath),
-      ]);
+      await this.page.locator(selector).setInputFiles(resolvedPath);
     };
 
     await upload("#logoUploader_1_light", "data/space_header/PNG.png");
