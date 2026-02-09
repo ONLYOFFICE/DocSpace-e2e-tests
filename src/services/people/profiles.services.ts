@@ -996,4 +996,47 @@ export class ProfilesApi {
       return response;
     });
   }
+
+  async ownerDeleteUsers(data: { userIds: string[]; resendAll: boolean }) {
+    return test.step("Owner delete users", async () => {
+      const userData = {
+        userIds: data.userIds,
+        resendAll: data.resendAll,
+      };
+
+      const response = await this.request.put(
+        `https://${this.portalDomain}/api/2.0/people/delete`,
+        {
+          headers: {
+            Authorization: `Bearer ${this.authTokenOwner}`,
+          },
+          data: userData,
+        },
+      );
+      return response;
+    });
+  }
+
+  async docSpaceAdminDeleteUsers(data: {
+    userIds: string[];
+    resendAll: boolean;
+  }) {
+    return test.step("Owner delete users", async () => {
+      const userData = {
+        userIds: data.userIds,
+        resendAll: data.resendAll,
+      };
+
+      const response = await this.request.put(
+        `https://${this.portalDomain}/api/2.0/people/delete`,
+        {
+          headers: {
+            Authorization: `Bearer ${this.authTokenDocSpaceAdmin}`,
+          },
+          data: userData,
+        },
+      );
+      return response;
+    });
+  }
 }

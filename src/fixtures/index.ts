@@ -96,6 +96,7 @@ export const test = base.extend<TestFixtures>({
       api.portalDomain,
     );
     api.auth.setProfilesApi(sdk.profiles);
+    api.auth.setUserStatusApi(sdk.userStatus);
     await use(sdk);
   },
 });

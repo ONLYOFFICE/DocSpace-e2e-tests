@@ -118,6 +118,13 @@ class BaseFilter {
   }
 
   protected async applyFilter() {
+    if (!(await this.filterApplyButton.isEnabled())) {
+      if (this.lastSelectedFilterTag) {
+        await this.clearFilterDialog();
+        await this.page.locator(this.lastSelectedFilterTag).click();
+      }
+      await expect(this.filterApplyButton).toBeEnabled({ timeout: 10000 });
+    }
     await this.filterApplyButton.click();
     try {
       await expect(this.filterDialog).not.toBeVisible();

@@ -1,6 +1,6 @@
 import { APIRequestContext } from "@playwright/test";
 import config from "../../config";
-import { ProfilesApi } from "../services/people/profiles.services";
+import { ProfilesApi, UserStatusApi } from "../services/index";
 
 class Auth {
   apiRequestContext: APIRequestContext;
@@ -11,15 +11,18 @@ class Auth {
   portalDomain: string;
 
   private profilesApi?: ProfilesApi;
+  private userStatusApi?: UserStatusApi;
 
   constructor(
     apiRequestContext: APIRequestContext,
     portalDomain: string,
     profilesApi?: ProfilesApi,
+    userStatusApi?: UserStatusApi,
   ) {
     this.apiRequestContext = apiRequestContext;
     this.portalDomain = portalDomain;
     this.profilesApi = profilesApi;
+    this.userStatusApi = userStatusApi;
   }
 
   setPortalDomain(portalDomain: string) {
@@ -28,6 +31,10 @@ class Auth {
 
   setProfilesApi(profilesApi: ProfilesApi) {
     this.profilesApi = profilesApi;
+  }
+
+  setUserStatusApi(api: UserStatusApi) {
+    this.userStatusApi = api;
   }
 
   async authenticateOwner() {
@@ -56,9 +63,9 @@ class Auth {
 
   async authenticateDocSpaceAdmin(email?: string, password?: string) {
     if (!email || !password) {
-      if (!this.profilesApi) {
+      if (!this.profilesApi || !this.userStatusApi) {
         throw new Error(
-          "ProfilesApi is not provided to Auth; cannot authenticate DocSpace admin",
+          "ProfilesApi or UserStatusApi is not provided to Auth; cannot authenticate DocSpace admin",
         );
       }
     }
@@ -86,13 +93,17 @@ class Auth {
       this.profilesApi.setAuthTokenDocSpaceAdmin(this.authTokenDocSpaceAdmin);
     }
 
+    if (this.userStatusApi) {
+      this.userStatusApi.setAuthTokenDocSpaceAdmin(this.authTokenDocSpaceAdmin);
+    }
+
     return this.authTokenDocSpaceAdmin;
   }
 
   async authenticateRoomAdmin() {
-    if (!this.profilesApi) {
+    if (!this.profilesApi || !this.userStatusApi) {
       throw new Error(
-        "ProfilesApi is not provided to Auth; cannot authenticate Room admin",
+        "ProfilesApi or UserStatusApi is not provided to Auth; cannot authenticate Room admin",
       );
     }
 
@@ -117,14 +128,15 @@ class Auth {
     this.authTokenRoomAdmin = authBody.response.token;
 
     this.profilesApi.setAuthTokenRoomAdmin(this.authTokenRoomAdmin);
+    this.userStatusApi.setAuthTokenRoomAdmin(this.authTokenRoomAdmin);
 
     return this.authTokenRoomAdmin;
   }
 
   async authenticateUser() {
-    if (!this.profilesApi) {
+    if (!this.profilesApi || !this.userStatusApi) {
       throw new Error(
-        "ProfilesApi is not provided to Auth; cannot authenticate User",
+        "ProfilesApi or UserStatusApi is not provided to Auth; cannot authenticate User",
       );
     }
 
@@ -149,6 +161,7 @@ class Auth {
     this.authTokenUser = authBody.response.token;
 
     this.profilesApi.setAuthTokenUser(this.authTokenUser);
+    this.userStatusApi.setAuthTokenUser(this.authTokenUser);
 
     return this.authTokenUser;
   }
