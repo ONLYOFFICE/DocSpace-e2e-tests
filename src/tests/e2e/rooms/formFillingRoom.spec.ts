@@ -526,8 +526,6 @@ test.describe("FormFilling room tests", () => {
 
   // Сheck the page after filling does not contain Back to Room button
   test("Filling PDF Form with link by anonymous", async ({ page, browser }) => {
-    let shareLink: string;
-    let incognitoContext: BrowserContext;
     let incognitoPage: Page;
 
     await test.step("Upload PDF Form from My Documents", async () => {
@@ -541,14 +539,13 @@ test.describe("FormFilling room tests", () => {
     });
 
     await test.step("Copy shared link for PDF form", async () => {
-      shareLink = await copyFileLink(page, filesTable, myRooms);
+      await copyFileLink(page, filesTable, myRooms);
     });
 
     await test.step("Open PDF form in incognito", async () => {
       const url = await getLinkFromClipboard(page);
       if (!url) throw new Error("Clipboard is empty");
       const result = await setupIncognitoContext(browser);
-      incognitoContext = result.context;
       incognitoPage = result.page;
       await incognitoPage.goto(url, { waitUntil: "domcontentloaded" });
     });
