@@ -30,6 +30,7 @@ export const test = base.extend<TestFixtures>({
     await use(api);
 
     await api.auth.authenticateOwner();
+    console.log(`Deleting portal: ${api.portalDomain}`);
     await api.cleanup();
 
     await ownerContext.dispose();
