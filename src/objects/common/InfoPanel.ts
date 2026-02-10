@@ -316,6 +316,10 @@ class InfoPanel {
     await this.revokeLinkSubmitButton.click();
     await this.toast.checkToastMessage("New general link created successfully");
   }
+  async openLinkSettings() {
+    await this.openLinkContextMenu();
+    await this.clickLinkSettings();
+  }
 }
 
 export default InfoPanel;

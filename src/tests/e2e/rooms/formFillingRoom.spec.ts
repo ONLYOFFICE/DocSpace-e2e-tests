@@ -17,6 +17,9 @@ import RoomInfoPanel from "@/src/objects/rooms/RoomInfoPanel";
 import RoomsInviteDialog from "@/src/objects/rooms/RoomsInviteDialog";
 import Login from "@/src/objects/common/Login";
 import RoomAnonymousView from "@/src/objects/rooms/RoomAnonymousView";
+import FilesNavigation from "@/src/objects/files/FilesNavigation";
+import BaseToast from "@/src/objects/common/BaseToast";
+import BaseEditLink from "@/src/objects/common/BaseLinkSettings";
 
 function ensureIncognitoPage(
   incognitoPage: Page | null,
@@ -619,22 +622,48 @@ test.describe("FormFilling room tests", () => {
       await pdfForm.checkSubmitButtonExist();
     });
   });
+  test("Verify file links are identical on repeated copying", async ({
+    page,
+  }) => {
+    let firstLink: string;
+    let secondLink: string;
+
+    await test.step("Upload PDF form", async () => {
+      await uploadAndVerifyPDF(
+        shortTour,
+        roomEmptyView,
+        selectPanel,
+        myRooms,
+        page,
+      );
+    });
+
+    await test.step("Copy file link first time", async () => {
+      firstLink = await copyFileLink(page, filesTable, myRooms);
+    });
+
+    await test.step("Copy file link second time", async () => {
+      secondLink = await copyFileLink(page, filesTable, myRooms);
+    });
+
+    await test.step("Verify links are identical", async () => {
+      expect(firstLink).toBe(secondLink);
+    });
+  });
+  //Checking the link to the file will open the authorization page.
   test("Open shared link pdf form for Docspace users only", async ({
     page,
     browser,
   }) => {
     let shareLink: string;
-    //Checking the link to the file will open the authorization page.
     await test.step("Upload PDF form from My Documents", async () => {
-      await shortTour.clickSkipTour();
-      await roomEmptyView.uploadPdfFromDocSpace();
-      await selectPanel.checkSelectorExist();
-      await selectPanel.select("documents");
-      await selectPanel.selectItemByText("ONLYOFFICE Resume Sample");
-      await selectPanel.confirmSelection();
-      await shortTour.clickModalCloseButton().catch(() => {});
-      await myRooms.infoPanel.close();
-      await expect(page.getByLabel("ONLYOFFICE Resume Sample,")).toBeVisible();
+      await uploadAndVerifyPDF(
+        shortTour,
+        roomEmptyView,
+        selectPanel,
+        myRooms,
+        page,
+      );
     });
     await test.step("Change and copy link to file access docspace users only", async () => {
       await filesTable.openContextMenuForItem("ONLYOFFICE Resume Sample");
@@ -647,15 +676,11 @@ test.describe("FormFilling room tests", () => {
       //the link is automatically copied along with the change of access rights
       await infoPanel.selectLinkAccess("docspace users only");
       await myRooms.toast.dismissToastSafely("Link copied to clipboard", 10000);
-      // Get the shared link from clipboard
-      shareLink = await page.evaluate(() => navigator.clipboard.readText());
-      if (!shareLink)
-        throw new Error("Failed to get share link from clipboard");
+      shareLink = await getLinkFromClipboard(page);
     });
-    await test.step("Open PDF form in incognito and check login button", async () => {});
-    const url = await page.evaluate(() => navigator.clipboard.readText());
-    if (!url) throw new Error("Clipboard is empty");
-    await verifyLoginPageInIncognito(browser, url);
+    await test.step("Open PDF form in incognito and check login button", async () => {
+      await verifyLoginPageInIncognito(browser, shareLink);
+    });
   });
   //Checking the link to the Room will open the authorization page.
   test("Open shared link Room for Docspace users only", async ({
@@ -960,6 +985,151 @@ test.describe("FormFilling room tests", () => {
 
     await test.step("Verify file link becomes invalid", async () => {
       await verifyAccessDeniedInIncognito(browser, fileLink);
+    });
+  });
+  //Check Access Denied when opening deleted file link
+  test("Delete pdf form from room and verify link Access denied", async ({
+    page,
+    browser,
+  }) => {
+    let fileLink: string;
+
+    await test.step("UploadPDFFormFromMyDocuments", async () => {
+      await uploadAndVerifyPDF(
+        shortTour,
+        roomEmptyView,
+        selectPanel,
+        myRooms,
+        page,
+      );
+    });
+
+    await test.step("Copy file link before deletion", async () => {
+      fileLink = await copyFileLink(page, filesTable, myRooms);
+    });
+
+    await test.step("Delete pdf in the context menu", async () => {
+      const filesTable = new FilesTable(page);
+      await filesTable.selectPdfFile();
+      const filesNavigation = new FilesNavigation(page);
+      await filesNavigation.delete();
+      const toast = new BaseToast(page);
+      await toast.removeToast("successfully moved to Trash");
+      await expect(
+        page.getByText("ONLYOFFICE Resume Sample"),
+      ).not.toBeVisible();
+    });
+
+    await test.step("Verify Access denied when opening deleted file link", async () => {
+      await verifyAccessDeniedInIncognito(browser, fileLink);
+    });
+  });
+  test("Check link settings panel for file", async ({ page }) => {
+    let baseEditLink: BaseEditLink;
+
+    await test.step("Upload PDF form", async () => {
+      await uploadAndVerifyPDF(
+        shortTour,
+        roomEmptyView,
+        selectPanel,
+        myRooms,
+        page,
+      );
+    });
+
+    await test.step("Open file sharing settings", async () => {
+      await filesTable.openContextMenuForItem("ONLYOFFICE Resume Sample");
+      await filesTable.contextMenu.clickSubmenuOption(
+        "Share",
+        "Sharing settings",
+      );
+    });
+
+    await test.step("Open link settings panel", async () => {
+      await myRooms.infoPanel.openLinkSettings();
+      baseEditLink = new BaseEditLink(page);
+    });
+
+    await test.step("Set link name", async () => {
+      await baseEditLink.newLinkName("Test Link");
+    });
+
+    await test.step("Set access level to DocSpace users only", async () => {
+      await baseEditLink.selectLinkAccess("docspace");
+    });
+
+    await test.step("Set up password protection", async () => {
+      await baseEditLink.clickTogglePassword();
+      await baseEditLink.fillPassword("TestPassword123");
+    });
+
+    await test.step("Test password visibility toggle", async () => {
+      await baseEditLink.clickShowPassword();
+    });
+
+    await test.step("Test password clear and regenerate", async () => {
+      await baseEditLink.clickCleanPassword();
+      await baseEditLink.generatePassword();
+    });
+
+    await test.step("Copy password to clipboard", async () => {
+      await baseEditLink.clickCopyPassword();
+      await myRooms.toast.checkToastMessage("Password successfully copied");
+    });
+
+    await test.step("Verify date period is not visible", async () => {
+      expect(await baseEditLink.dataLinkPeriod).not.toBeVisible();
+    });
+
+    await test.step("Save link settings", async () => {
+      await baseEditLink.clickSaveButton();
+    });
+  });
+
+  test("Edit share link to room", async ({ page }) => {
+    let baseEditLink: BaseEditLink;
+
+    await test.step("Open sharing settings and click link settings", async () => {
+      await shortTour.clickSkipTour();
+      await myRooms.infoPanel.open();
+      const membersTab = page.getByTestId(INFO_PANEL_TABS.Contacts.testId);
+      await expect(membersTab).toBeVisible();
+      await myRooms.infoPanel.openLinkSettings();
+      baseEditLink = new BaseEditLink(page);
+    });
+
+    await test.step("Configure link settings", async () => {
+      await baseEditLink.configureLinkSettings({
+        name: "Test Link",
+        access: "docspace",
+        password: "TestPassword123",
+        save: true,
+      });
+    });
+
+    await test.step("Reopen link settings for verification", async () => {
+      await myRooms.infoPanel.open();
+      const membersTab = page.getByTestId(INFO_PANEL_TABS.Contacts.testId);
+      await expect(membersTab).toBeVisible();
+      await myRooms.infoPanel.openLinkSettings();
+      baseEditLink = new BaseEditLink(page);
+    });
+
+    await test.step("Verify all settings are saved correctly", async () => {
+      await expect(baseEditLink.linkNameInput).toHaveValue("Test Link");
+
+      const combo = baseEditLink.comboLinkAccess;
+      await expect(combo).toContainText("DocSpace users only");
+
+      await expect(baseEditLink.passwordInput).toBeVisible();
+      const passwordValue = await baseEditLink.passwordInput.inputValue();
+      expect(passwordValue).not.toBe("");
+
+      expect(await baseEditLink.dataLinkPeriod).not.toBeVisible();
+    });
+
+    await test.step("Close settings", async () => {
+      await baseEditLink.clickCancelButton();
     });
   });
 });
