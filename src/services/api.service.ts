@@ -1,10 +1,11 @@
-import { ProfilesApi, FAKER, UserStatusApi } from "./index";
+import { ProfilesApi, FAKER, UserStatusApi, RoomsApi } from "./index";
 import { APIRequestContext } from "@playwright/test";
 
 export class ApiSDK {
   private request: APIRequestContext;
   readonly profiles: ProfilesApi;
   readonly userStatus: UserStatusApi;
+  readonly rooms: RoomsApi;
   readonly faker: FAKER;
   private authApi?: any;
 
@@ -27,11 +28,18 @@ export class ApiSDK {
       authTokenDocSpaceAdmin,
       portalDomain,
     );
+    this.rooms = new RoomsApi(
+      request,
+      authToken,
+      authTokenDocSpaceAdmin,
+      portalDomain,
+    );
     this.faker = new FAKER();
   }
 
   public updateDocSpaceAdminToken(token: string) {
     this.profiles.setAuthTokenDocSpaceAdmin(token);
     this.userStatus.setAuthTokenDocSpaceAdmin(token);
+    this.rooms.setAuthTokenDocSpaceAdmin(token);
   }
 }
