@@ -24,10 +24,12 @@ import {
   verifyAnonymousPageInIncognito,
   verifyInvalidLinkMessageInIncognito,
   verifyAccessDeniedInIncognito,
+  ensureIncognitoPage,
+} from "@/src/utils/helpers/linkTest";
+import {
   copyFileLink,
   uploadAndVerifyPDF,
-  ensureIncognitoPage,
-} from "./formFillingRoomHelpers";
+} from "@/src/utils/helpers/formFillingRoom";
 
 test.describe("FormFilling room - Link tests", () => {
   let myRooms: MyRooms;
@@ -673,7 +675,6 @@ test.describe("FormFilling room - Link tests", () => {
     });
 
     await test.step("Reopen link settings for verification", async () => {
-      await page.waitForTimeout(15000);
       await myRooms.infoPanel.open();
       const membersTab = page.getByTestId(INFO_PANEL_TABS.Contacts.testId);
       await expect(membersTab).toBeVisible();

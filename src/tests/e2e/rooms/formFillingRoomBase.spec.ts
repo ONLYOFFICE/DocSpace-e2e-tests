@@ -15,7 +15,7 @@ import RoomSelectPanel from "@/src/objects/rooms/RoomSelectPanel";
 import RoomInfoPanel from "@/src/objects/rooms/RoomInfoPanel";
 import RoomsInviteDialog from "@/src/objects/rooms/RoomsInviteDialog";
 import Login from "@/src/objects/common/Login";
-import { uploadAndVerifyPDF } from "./formFillingRoomHelpers";
+import { uploadAndVerifyPDF } from "@/src/utils/helpers/formFillingRoom";
 
 test.describe("FormFilling base tests", () => {
   let myRooms: MyRooms;
@@ -24,7 +24,6 @@ test.describe("FormFilling base tests", () => {
   let roomEmptyView: RoomEmptyView;
   let filesTable: FilesTable;
   let selectPanel: RoomSelectPanel;
-  let infoPanel: InfoPanel;
   let roomInfoPanel: RoomInfoPanel;
   let roomsInviteDialog: RoomsInviteDialog;
   let login: Login;
@@ -35,7 +34,6 @@ test.describe("FormFilling base tests", () => {
     roomEmptyView = new RoomEmptyView(page);
     filesTable = new FilesTable(page);
     selectPanel = new RoomSelectPanel(page);
-    infoPanel = new InfoPanel(page);
     roomInfoPanel = new RoomInfoPanel(page);
     roomsInviteDialog = new RoomsInviteDialog(page);
     login = new Login(page, api.portalDomain);
