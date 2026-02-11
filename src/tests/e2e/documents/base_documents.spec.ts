@@ -109,7 +109,6 @@ test.describe("My documents: Base", () => {
 
       // Spreadsheet filter restores spreadsheet entries
       await myDocuments.filesFilter.openFilterDialog();
-      await myDocuments.filesFilter.clearFilterDialog();
       await myDocuments.filesFilter.selectFilterBySpreadsheets();
       await myDocuments.filesFilter.applyFilterNoWait();
       await myDocuments.filesTable.checkRowExist("Spreadsheet");
@@ -117,7 +116,6 @@ test.describe("My documents: Base", () => {
 
       // Presentation filter isolates presentation file
       await myDocuments.filesFilter.openFilterDialog();
-      await myDocuments.filesFilter.clearFilterDialog();
       await myDocuments.filesFilter.selectFilterByPresentations();
       await myDocuments.filesFilter.applyFilterNoWait();
       await myDocuments.filesTable.checkRowExist("Presentation");
@@ -125,32 +123,27 @@ test.describe("My documents: Base", () => {
 
       // PDF documents filter should surface Blank file
       await myDocuments.filesFilter.openFilterDialog();
-      await myDocuments.filesFilter.clearFilterDialog();
       await myDocuments.filesFilter.selectFilterByPdfForms();
       await myDocuments.filesFilter.applyFilterNoWait();
       await myDocuments.filesTable.checkRowExist("Blank");
 
       // Remaining categories should show empty state if no assets
       await myDocuments.filesFilter.openFilterDialog();
-      await myDocuments.filesFilter.clearFilterDialog();
       await myDocuments.filesFilter.selectFilterByDiagrams();
       await myDocuments.filesFilter.applyFilterNoWait();
       await myDocuments.filesFilter.checkFilesEmptyViewExist();
 
       await myDocuments.filesFilter.openFilterDialog();
-      await myDocuments.filesFilter.clearFilterDialog();
       await myDocuments.filesFilter.selectFilterByPdfDocuments();
       await myDocuments.filesFilter.applyFilterNoWait();
       await myDocuments.filesFilter.checkFilesEmptyViewExist();
 
       await myDocuments.filesFilter.openFilterDialog();
-      await myDocuments.filesFilter.clearFilterDialog();
       await myDocuments.filesFilter.selectFilterByArchives();
       await myDocuments.filesFilter.applyFilterNoWait();
       await myDocuments.filesFilter.checkFilesEmptyViewExist();
 
       await myDocuments.filesFilter.openFilterDialog();
-      await myDocuments.filesFilter.clearFilterDialog();
       await myDocuments.filesFilter.selectFilterByImages();
       await myDocuments.filesFilter.applyFilterNoWait();
       await myDocuments.filesFilter.checkFilesEmptyViewExist();

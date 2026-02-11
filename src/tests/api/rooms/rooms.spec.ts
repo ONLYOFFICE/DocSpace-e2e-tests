@@ -78,6 +78,109 @@ test.describe("API rooms methods", () => {
     expect(body.response.id).toBeGreaterThan(0);
   });
 
+  test("GET /files/rooms - Owner gets rooms list", async ({ api, apiSdk }) => {
+    await apiSdk.rooms.createAllRoomTypes("owner");
+
+    await test.step("returns all created rooms with correct count", async () => {
+      const response = await apiSdk.rooms.getRooms("owner");
+      const body = await response.json();
+
+      expect(response.status()).toBe(200);
+      expect(body.statusCode).toBe(200);
+      expect(body.response.folders).toHaveLength(5);
+      expect(body.response.files).toHaveLength(0);
+      expect(body.response.count).toBe(5);
+      expect(body.response.total).toBe(5);
+      expect(body.response.startIndex).toBe(0);
+      expect(body.response.folders[0].ownedBy.id).toBe(api.adminUserId);
+    });
+
+    await test.step("filter by type returns only matching rooms", async () => {
+      const response = await apiSdk.rooms.getRooms("owner", {
+        type: RoomType.CustomRoom,
+      });
+      const body = await response.json();
+
+      expect(response.status()).toBe(200);
+      expect(body.response.total).toBe(1);
+      expect(body.response.folders[0].roomType).toBe(RoomType.CustomRoom);
+    });
+
+    await test.step("filterValue search by title", async () => {
+      const response = await apiSdk.rooms.getRooms("owner", {
+        filterValue: "Autotest VDR",
+      });
+      const body = await response.json();
+
+      expect(response.status()).toBe(200);
+      expect(body.response.count).toBe(1);
+      expect(body.response.folders[0].title).toContain("Autotest VDR");
+    });
+  });
+
+  test("PUT /files/rooms/:id/archive and unarchive", async ({ apiSdk }) => {
+    const response = await apiSdk.rooms.createRoom("owner", {
+      title: "Autotest Archive Room",
+      roomType: "CustomRoom",
+    });
+    const body = await response.json();
+    const roomId = body.response.id;
+
+    await test.step("archive room", async () => {
+      const result = await apiSdk.rooms.archiveRoom("owner", roomId);
+
+      expect(result.response.status()).toBe(200);
+      expect(result.finished).toBe(true);
+    });
+
+    await test.step("unarchive room", async () => {
+      const result = await apiSdk.rooms.unarchiveRoom("owner", roomId);
+
+      expect(result.response.status()).toBe(200);
+      expect(result.finished).toBe(true);
+    });
+  });
+
+  test("PUT /files/rooms/:id/pin and unpin", async ({ apiSdk }) => {
+    const response = await apiSdk.rooms.createRoom("owner", {
+      title: "Autotest Pin Room",
+      roomType: "CustomRoom",
+    });
+    const roomId = (await response.json()).response.id;
+
+    await test.step("pin room", async () => {
+      const pinResponse = await apiSdk.rooms.pinRoom("owner", roomId);
+      const pinBody = await pinResponse.json();
+
+      expect(pinResponse.status()).toBe(200);
+      expect(pinBody.statusCode).toBe(200);
+    });
+
+    await test.step("unpin room", async () => {
+      const unpinResponse = await apiSdk.rooms.unpinRoom("owner", roomId);
+      const unpinBody = await unpinResponse.json();
+
+      expect(unpinResponse.status()).toBe(200);
+      expect(unpinBody.statusCode).toBe(200);
+    });
+  });
+
+  //TODO: Add async wait for DELETE /files/rooms/:id
+  // test("DELETE /files/rooms/:id - Owner deletes a room", async ({ apiSdk }) => {
+  //   const response = await apiSdk.rooms.createRoom("owner", {
+  //     title: "Autotest Delete Room",
+  //     roomType: "CustomRoom",
+  //   });
+  //   const body = await response.json();
+  //   const roomId = body.response.id;
+
+  //   const deleteResponse = await apiSdk.rooms.deleteRoom("owner", roomId);
+  //   const deleteBody = await deleteResponse.json();
+
+  //   console.log("DELETE response:", JSON.stringify(deleteBody, null, 2));
+  //   expect(deleteResponse.status()).toBe(200);
+  // });
+
   test("Owner creates a room template", async ({ apiSdk }) => {
     const roomResponse = await apiSdk.rooms.createRoom("owner", {
       title: "Autotest Room",
