@@ -33,6 +33,7 @@ export default class BaseEditLink {
     copyPasswordButton: "edit_link_panel_copy_password_link",
     showPasswordButton: "password_input_eye_off_icon",
     generatePasswordButton: "edit_link_panel_generate_password_button",
+    denyDownloadToggle: "edit_link_panel_deny_download_toggle",
     dateLinkPeriod: "date-selector",
     saveButton: "edit_link_panel_save_button",
     cancelButton: "edit_link_panel_cancel_button",
@@ -143,6 +144,16 @@ export default class BaseEditLink {
       BaseEditLink.SELECTORS.generatePasswordButton,
     );
     await this.clickElement(button);
+  }
+
+  // ==================== Deny Download Toggle ====================
+
+  get denyDownloadToggle() {
+    return this.page.getByTestId(BaseEditLink.SELECTORS.denyDownloadToggle);
+  }
+
+  async clickDenyDownloadToggle() {
+    await this.clickElement(this.denyDownloadToggle);
   }
 
   // ==================== Link Expiration ====================
