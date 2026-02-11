@@ -58,6 +58,32 @@ export class RoomsApi {
     });
   }
 
+  async createAllRoomTypes(
+    role: "owner" | "docSpaceAdmin" | "roomAdmin" | "user",
+  ) {
+    const configs = [
+      { title: "Autotest Custom", roomType: "CustomRoom" },
+      { title: "Autotest Collaboration", roomType: "EditingRoom" },
+      { title: "Autotest FormFilling", roomType: "FillingFormsRoom" },
+      { title: "Autotest Public", roomType: "PublicRoom" },
+      { title: "Autotest VDR", roomType: "VirtualDataRoom" },
+    ];
+
+    const rooms: { id: number; title: string; roomType: number }[] = [];
+
+    for (const cfg of configs) {
+      const response = await this.createRoom(role, cfg);
+      const body = await response.json();
+      rooms.push({
+        id: body.response.id,
+        title: body.response.title,
+        roomType: body.response.roomType,
+      });
+    }
+
+    return rooms;
+  }
+
   async createRoomTemplate(
     role: "owner" | "docSpaceAdmin" | "roomAdmin" | "user",
     data: { roomId: number; title: string },
@@ -68,6 +94,118 @@ export class RoomsApi {
         {
           headers: { Authorization: `Bearer ${this.getToken(role)}` },
           data,
+        },
+      );
+      return response;
+    });
+  }
+
+  async archiveRoom(
+    role: "owner" | "docSpaceAdmin" | "roomAdmin" | "user",
+    roomId: number,
+  ) {
+    return test.step(`${role} archive room ${roomId}`, async () => {
+      const response = await this.request.put(
+        `https://${this.portalDomain}/api/2.0/files/rooms/${roomId}/archive`,
+        {
+          headers: { Authorization: `Bearer ${this.getToken(role)}` },
+          data: { deleteAfter: false },
+        },
+      );
+      const operation = await this.waitForOperation(role);
+      return { response, ...operation };
+    });
+  }
+
+  async unarchiveRoom(
+    role: "owner" | "docSpaceAdmin" | "roomAdmin" | "user",
+    roomId: number,
+  ) {
+    return test.step(`${role} unarchive room ${roomId}`, async () => {
+      const response = await this.request.put(
+        `https://${this.portalDomain}/api/2.0/files/rooms/${roomId}/unarchive`,
+        {
+          headers: { Authorization: `Bearer ${this.getToken(role)}` },
+          data: { deleteAfter: false },
+        },
+      );
+      const operation = await this.waitForOperation(role);
+      return { response, ...operation };
+    });
+  }
+
+  async deleteRoom(
+    role: "owner" | "docSpaceAdmin" | "roomAdmin" | "user",
+    roomId: number,
+  ) {
+    return test.step(`${role} delete room ${roomId}`, async () => {
+      const response = await this.request.delete(
+        `https://${this.portalDomain}/api/2.0/files/rooms/${roomId}`,
+        {
+          headers: { Authorization: `Bearer ${this.getToken(role)}` },
+          data: { deleteAfter: false },
+        },
+      );
+      return response;
+    });
+  }
+
+  // Archive/unarchive/delete are async — PUT/DELETE starts the operation, GET /fileops polls until finished
+  private async waitForOperation(
+    role: "owner" | "docSpaceAdmin" | "roomAdmin" | "user",
+  ) {
+    let result: {
+      id: string;
+      finished: boolean;
+      error: string;
+      progress: number;
+      folders: { id: number; title: string }[];
+    } = { id: "", finished: false, error: "", progress: 0, folders: [] };
+
+    await expect(async () => {
+      const response = await this.request.get(
+        `https://${this.portalDomain}/api/2.0/files/fileops`,
+        {
+          headers: { Authorization: `Bearer ${this.getToken(role)}` },
+        },
+      );
+      const body = await response.json();
+      const ops = body.response;
+      const op = ops[ops.length - 1];
+      expect(op.finished).toBe(true);
+      result = op;
+    }).toPass({
+      intervals: [1_000, 2_000, 5_000],
+      timeout: 30_000,
+    });
+
+    return result;
+  }
+
+  async pinRoom(
+    role: "owner" | "docSpaceAdmin" | "roomAdmin" | "user",
+    roomId: number,
+  ) {
+    return test.step(`${role} pin room ${roomId}`, async () => {
+      const response = await this.request.put(
+        `https://${this.portalDomain}/api/2.0/files/rooms/${roomId}/pin`,
+        {
+          headers: { Authorization: `Bearer ${this.getToken(role)}` },
+        },
+      );
+      return response;
+    });
+  }
+
+  async unpinRoom(
+    role: "owner" | "docSpaceAdmin" | "roomAdmin" | "user",
+    roomId: number,
+  ) {
+    return test.step(`${role} unpin room ${roomId}`, async () => {
+      const response = await this.request.put(
+        `https://${this.portalDomain}/api/2.0/files/rooms/${roomId}/unpin`,
+        {
+          headers: { Authorization: `Bearer ${this.getToken(role)}` },
         },
       );
       return response;
@@ -130,6 +268,37 @@ export class RoomsApi {
     return test.step(`${role} get room template public`, async () => {
       const response = await this.request.get(
         `https://${this.portalDomain}/api/2.0/files/roomtemplate/${templateId}/public`,
+        {
+          headers: { Authorization: `Bearer ${this.getToken(role)}` },
+        },
+      );
+      return response;
+    });
+  }
+
+  async getRooms(
+    role: "owner" | "docSpaceAdmin" | "roomAdmin" | "user",
+    params?: Record<string, string | number | boolean>,
+  ) {
+    return test.step(`${role} get rooms`, async () => {
+      const response = await this.request.get(
+        `https://${this.portalDomain}/api/2.0/files/rooms`,
+        {
+          headers: { Authorization: `Bearer ${this.getToken(role)}` },
+          params,
+        },
+      );
+      return response;
+    });
+  }
+
+  async getRoomInfo(
+    role: "owner" | "docSpaceAdmin" | "roomAdmin" | "user",
+    roomId: number,
+  ) {
+    return test.step(`${role} get room info ${roomId}`, async () => {
+      const response = await this.request.get(
+        `https://${this.portalDomain}/api/2.0/files/rooms/${roomId}`,
         {
           headers: { Authorization: `Bearer ${this.getToken(role)}` },
         },
