@@ -904,7 +904,7 @@ test.describe("API profile methods", () => {
     expect(bodyUpdateInfo.response.isRoomAdmin).toBe(true);
   });
 
-  test.only("Updating user profile data", async ({ apiSdk, api }) => {
+  test("Updating user profile data", async ({ apiSdk, api }) => {
     const user = await apiSdk.profiles.ownerAddMember("User");
     const response = await user.response.json();
     const userId = response.response.id;
