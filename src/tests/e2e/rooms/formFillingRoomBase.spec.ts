@@ -322,6 +322,38 @@ test.describe("FormFilling base tests", () => {
       await roomsInviteDialog.submitInviteDialog();
     });
   });
+  test("Verify download and print buttons visible in PDF form", async ({
+    page,
+  }) => {
+    let newPage: Page;
+
+    await test.step("Upload PDF form", async () => {
+      await uploadAndVerifyPDF(
+        shortTour,
+        roomEmptyView,
+        selectPanel,
+        myRooms,
+        page,
+      );
+    });
+
+    await test.step("Open PDF form for filling", async () => {
+      const context = page.context();
+      const pagePromise = context.waitForEvent("page");
+      await filesTable.openContextMenuForItem("ONLYOFFICE Resume Sample");
+      await filesTable.contextMenu.clickOption("Fill");
+      newPage = await pagePromise;
+      await newPage.waitForLoadState("load");
+    });
+
+    await test.step("Open menu and verify download and print buttons are visible", async () => {
+      const pdfForm = new FilesPdfForm(newPage);
+      await pdfForm.checkSubmitButtonExist();
+      await pdfForm.openMenu();
+      await pdfForm.verifyDownloadAndPrintButtonsVisible();
+    });
+  });
+
   //Check that Progress folders can't be deleted
   test("Progress folders can't be deleted", async ({ page }) => {
     //Upload the document so that the progress folders appear.

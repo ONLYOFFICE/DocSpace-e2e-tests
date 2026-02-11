@@ -15,6 +15,7 @@ import RoomAnonymousView from "@/src/objects/rooms/RoomAnonymousView";
 import FilesNavigation from "@/src/objects/files/FilesNavigation";
 import BaseToast from "@/src/objects/common/BaseToast";
 import BaseEditLink from "@/src/objects/common/BaseLinkSettings";
+import BasePasswordRequire from "@/src/objects/common/BasePasswordRequire";
 import {
   setupClipboardPermissions,
   setupIncognitoContext,
@@ -344,43 +345,6 @@ test.describe("FormFilling room - Link tests", () => {
       await incognitoMyRooms.verifyInProgressFolderNotVisible();
     });
   });
-  //Check that Progress folders can't be deleted
-  test("Progress folders can't be deleted", async ({ page }) => {
-    //Upload the document so that the progress folders appear.
-    await test.step("UploadPDFFormFromMyDocuments", async () => {
-      await uploadAndVerifyPDF(
-        shortTour,
-        roomEmptyView,
-        selectPanel,
-        myRooms,
-        page,
-      );
-    });
-    await test.step("Check Delete doesn't exist for Complete folder", async () => {
-      const filesTable = new FilesTable(page);
-      await filesTable.openContextMenuForItem("Complete");
-      // Verify Delete option is not visible in the context menu
-      await expect(
-        filesTable.contextMenu.menu.getByText("Delete"),
-      ).not.toBeVisible();
-      await page.keyboard.press("Escape");
-      // Check Delete button is not visible on the page
-      filesTable.selectFolderByName("Complete");
-      await expect(page.getByText("Delete")).not.toBeVisible();
-    });
-    await test.step("Check Delete doesn't exist for In Progress folder", async () => {
-      const filesTable = new FilesTable(page);
-      await filesTable.openContextMenuForItem("In process");
-      // Verify Delete option is not visible in the context menu
-      await expect(
-        filesTable.contextMenu.menu.getByText("Delete"),
-      ).not.toBeVisible();
-      await page.keyboard.press("Escape");
-      // Check Delete button is not visible on the page
-      filesTable.selectFolderByName("In process");
-      await expect(page.getByText("Delete")).not.toBeVisible();
-    });
-  });
   //Check that room can't be open after revoking link
   test("Revoke link Room and open it", async ({ page, browser }) => {
     let shareLink: string;
@@ -697,6 +661,473 @@ test.describe("FormFilling room - Link tests", () => {
 
     await test.step("Close settings", async () => {
       await baseEditLink.clickCancelButton();
+    });
+  });
+
+  test("Password protected room link in incognito", async ({
+    page,
+    browser,
+  }) => {
+    const testPassword = "SecurePass123";
+    let roomLink: string;
+    let incognitoPage: Page;
+
+    await test.step("Setup password for room link", async () => {
+      await shortTour.clickSkipTour();
+      await myRooms.infoPanel.open();
+      const membersTab = page.getByTestId(INFO_PANEL_TABS.Contacts.testId);
+      await expect(membersTab).toBeVisible();
+
+      await myRooms.infoPanel.openLinkSettings();
+      const baseEditLink = new BaseEditLink(page);
+
+      await baseEditLink.configureLinkSettings({
+        password: testPassword,
+        save: true,
+      });
+    });
+
+    await test.step("Copy room link to clipboard", async () => {
+      await setupClipboardPermissions(page);
+      await roomEmptyView.shareRoomClick();
+      await myRooms.toast.dismissToastSafely("Link copied to clipboard", 10000);
+      roomLink = await getLinkFromClipboard(page);
+    });
+
+    await test.step("Open link in incognito and verify page elements", async () => {
+      const result = await setupIncognitoContext(browser);
+      incognitoContext = result.context;
+      incognitoPage = result.page;
+
+      await incognitoPage.goto(roomLink, { waitUntil: "domcontentloaded" });
+
+      const passwordRequirePage = new BasePasswordRequire(incognitoPage);
+
+      await passwordRequirePage.verifyPasswordRequiredPageVisible();
+      await expect(passwordRequirePage.linkName).toBeVisible();
+      await passwordRequirePage.verifyRoomDescription();
+      await expect(passwordRequirePage.passwordInput).toBeVisible();
+      await expect(passwordRequirePage.showPasswordButton).toBeVisible();
+      await expect(passwordRequirePage.continueButton).toBeVisible();
+    });
+
+    await test.step("Click show password button", async () => {
+      ensureIncognitoPage(incognitoPage);
+      const passwordRequirePage = new BasePasswordRequire(incognitoPage);
+      await passwordRequirePage.clickShowPassword();
+    });
+
+    await test.step("Enter correct password and verify access", async () => {
+      ensureIncognitoPage(incognitoPage);
+      const passwordRequirePage = new BasePasswordRequire(incognitoPage);
+
+      await passwordRequirePage.enterPasswordAndContinue(testPassword);
+
+      const roomAnonymousView = new RoomAnonymousView(incognitoPage);
+      await roomAnonymousView.singInButtonVisible();
+    });
+
+    await test.step("Verify wrong password is rejected", async () => {
+      await cleanupIncognitoContext(incognitoContext, incognitoPage);
+
+      const result = await setupIncognitoContext(browser);
+      incognitoContext = result.context;
+      incognitoPage = result.page;
+
+      await incognitoPage.goto(roomLink, { waitUntil: "domcontentloaded" });
+
+      const passwordRequirePage = new BasePasswordRequire(incognitoPage);
+      await passwordRequirePage.enterPasswordAndContinue("WrongPassword123");
+
+      await expect(
+        incognitoPage.getByText(/incorrect|invalid|wrong/i),
+      ).toBeVisible({ timeout: 5000 });
+    });
+  });
+
+  test("Password protected file link in incognito", async ({
+    page,
+    browser,
+  }) => {
+    const testPassword = "FilePass123";
+    const fileName = "ONLYOFFICE Resume Sample";
+    let fileLink: string;
+    let incognitoPage: Page;
+
+    await test.step("Upload PDF form", async () => {
+      await uploadAndVerifyPDF(
+        shortTour,
+        roomEmptyView,
+        selectPanel,
+        myRooms,
+        page,
+      );
+    });
+
+    await test.step("Set password for file link", async () => {
+      await filesTable.openContextMenuForItem(fileName);
+      await filesTable.contextMenu.clickSubmenuOption(
+        "Share",
+        "Sharing settings",
+      );
+      await myRooms.infoPanel.openLinkSettings();
+      const baseEditLink = new BaseEditLink(page);
+
+      await baseEditLink.configureLinkSettings({
+        password: testPassword,
+        save: true,
+      });
+    });
+
+    await test.step("Copy file link", async () => {
+      fileLink = await copyFileLink(page, filesTable, myRooms);
+    });
+
+    await test.step("Open file link in incognito and verify page elements", async () => {
+      const result = await setupIncognitoContext(browser);
+      incognitoContext = result.context;
+      incognitoPage = result.page;
+
+      await incognitoPage.goto(fileLink, { waitUntil: "domcontentloaded" });
+
+      const passwordRequirePage = new BasePasswordRequire(incognitoPage);
+
+      await passwordRequirePage.verifyPasswordRequiredPageVisible();
+      await expect(passwordRequirePage.linkName).toBeVisible();
+      await passwordRequirePage.verifyDescriptionContainsFileName(fileName);
+      await expect(passwordRequirePage.passwordInput).toBeVisible();
+      await expect(passwordRequirePage.showPasswordButton).toBeVisible();
+      await expect(passwordRequirePage.continueButton).toBeVisible();
+    });
+
+    await test.step("Enter correct password and verify file opens", async () => {
+      ensureIncognitoPage(incognitoPage);
+      const passwordRequirePage = new BasePasswordRequire(incognitoPage);
+
+      await passwordRequirePage.enterPasswordAndContinue(testPassword);
+
+      const pdfForm = new FilesPdfForm(incognitoPage);
+      await pdfForm.checkSubmitButtonExist();
+    });
+
+    await test.step("Verify wrong password is rejected", async () => {
+      await cleanupIncognitoContext(incognitoContext, incognitoPage);
+
+      const result = await setupIncognitoContext(browser);
+      incognitoContext = result.context;
+      incognitoPage = result.page;
+
+      await incognitoPage.goto(fileLink, { waitUntil: "domcontentloaded" });
+
+      const passwordRequirePage = new BasePasswordRequire(incognitoPage);
+      await passwordRequirePage.enterPasswordAndContinue("WrongPassword123");
+
+      await expect(
+        incognitoPage.getByText(/incorrect|invalid|wrong/i),
+      ).toBeVisible({ timeout: 5000 });
+    });
+  });
+
+  test("Deny download and print for file link", async ({ page, browser }) => {
+    const fileName = "ONLYOFFICE Resume Sample";
+    let fileLink: string;
+    let incognitoPage: Page;
+
+    await test.step("Upload PDF form", async () => {
+      await uploadAndVerifyPDF(
+        shortTour,
+        roomEmptyView,
+        selectPanel,
+        myRooms,
+        page,
+      );
+    });
+
+    await test.step("Enable deny download toggle for file link", async () => {
+      await filesTable.openContextMenuForItem(fileName);
+      await filesTable.contextMenu.clickSubmenuOption(
+        "Share",
+        "Sharing settings",
+      );
+      await myRooms.infoPanel.openLinkSettings();
+      const baseEditLink = new BaseEditLink(page);
+
+      await baseEditLink.clickDenyDownloadToggle();
+      await baseEditLink.clickSaveButton();
+    });
+
+    await test.step("Copy file link", async () => {
+      fileLink = await copyFileLink(page, filesTable, myRooms);
+    });
+
+    await test.step("Open file link in incognito", async () => {
+      const result = await setupIncognitoContext(browser);
+      incognitoContext = result.context;
+      incognitoPage = result.page;
+
+      await incognitoPage.goto(fileLink, { waitUntil: "domcontentloaded" });
+
+      const pdfForm = new FilesPdfForm(incognitoPage);
+      await pdfForm.checkSubmitButtonExist();
+    });
+
+    await test.step("Open menu and verify download and print buttons are hidden", async () => {
+      ensureIncognitoPage(incognitoPage);
+      const pdfForm = new FilesPdfForm(incognitoPage);
+
+      await pdfForm.openMenu();
+      await pdfForm.verifyDownloadAndPrintButtonsHidden();
+    });
+  });
+
+  test("File link URL unchanged after editing link settings", async ({
+    page,
+  }) => {
+    const fileName = "ONLYOFFICE Resume Sample";
+    let originalLink: string;
+
+    await test.step("Upload PDF form", async () => {
+      await uploadAndVerifyPDF(
+        shortTour,
+        roomEmptyView,
+        selectPanel,
+        myRooms,
+        page,
+      );
+    });
+
+    await test.step("Copy original file link", async () => {
+      originalLink = await copyFileLink(page, filesTable, myRooms);
+    });
+
+    await test.step("Edit link name and copy link", async () => {
+      await filesTable.openContextMenuForItem(fileName);
+      await filesTable.contextMenu.clickSubmenuOption(
+        "Share",
+        "Sharing settings",
+      );
+      await myRooms.infoPanel.openLinkSettings();
+      const baseEditLink = new BaseEditLink(page);
+
+      await baseEditLink.newLinkName("Renamed Link");
+      await baseEditLink.clickSaveButton();
+    });
+
+    await test.step("Verify link unchanged after renaming", async () => {
+      const linkAfterRename = await copyFileLink(page, filesTable, myRooms);
+      expect(linkAfterRename).toBe(originalLink);
+    });
+
+    await test.step("Edit link password and save", async () => {
+      await filesTable.openContextMenuForItem(fileName);
+      await filesTable.contextMenu.clickSubmenuOption(
+        "Share",
+        "Sharing settings",
+      );
+      await myRooms.infoPanel.openLinkSettings();
+      const baseEditLink = new BaseEditLink(page);
+
+      await baseEditLink.clickTogglePassword();
+      await baseEditLink.fillPassword("NewPass123");
+      await baseEditLink.clickSaveButton();
+    });
+
+    await test.step("Verify link unchanged after adding password", async () => {
+      const linkAfterPassword = await copyFileLink(page, filesTable, myRooms);
+      expect(linkAfterPassword).toBe(originalLink);
+    });
+
+    await test.step("Enable deny download and save", async () => {
+      await filesTable.openContextMenuForItem(fileName);
+      await filesTable.contextMenu.clickSubmenuOption(
+        "Share",
+        "Sharing settings",
+      );
+      await myRooms.infoPanel.openLinkSettings();
+      const baseEditLink = new BaseEditLink(page);
+
+      await baseEditLink.clickDenyDownloadToggle();
+      await baseEditLink.clickSaveButton();
+    });
+
+    await test.step("Verify link unchanged after deny download", async () => {
+      const linkAfterDeny = await copyFileLink(page, filesTable, myRooms);
+      expect(linkAfterDeny).toBe(originalLink);
+    });
+  });
+
+  test("Change password on existing protected room link", async ({
+    page,
+    browser,
+  }) => {
+    const oldPassword = "OldPass123";
+    const newPassword = "NewPass456";
+    let roomLink: string;
+    let incognitoPage: Page;
+
+    await test.step("Setup password for room link", async () => {
+      await shortTour.clickSkipTour();
+      await myRooms.infoPanel.open();
+      const membersTab = page.getByTestId(INFO_PANEL_TABS.Contacts.testId);
+      await expect(membersTab).toBeVisible();
+
+      await myRooms.infoPanel.openLinkSettings();
+      const baseEditLink = new BaseEditLink(page);
+
+      await baseEditLink.configureLinkSettings({
+        password: oldPassword,
+        save: true,
+      });
+    });
+
+    await test.step("Copy room link", async () => {
+      await setupClipboardPermissions(page);
+      await roomEmptyView.shareRoomClick();
+      await myRooms.toast.dismissToastSafely("Link copied to clipboard", 10000);
+      roomLink = await getLinkFromClipboard(page);
+    });
+
+    await test.step("Verify old password works", async () => {
+      const result = await setupIncognitoContext(browser);
+      incognitoContext = result.context;
+      incognitoPage = result.page;
+
+      await incognitoPage.goto(roomLink, { waitUntil: "domcontentloaded" });
+
+      const passwordRequirePage = new BasePasswordRequire(incognitoPage);
+      await passwordRequirePage.verifyPasswordRequiredPageVisible();
+      await passwordRequirePage.enterPasswordAndContinue(oldPassword);
+
+      const anonView = new RoomAnonymousView(incognitoPage);
+      await anonView.singInButtonVisible();
+
+      await cleanupIncognitoContext(incognitoContext, incognitoPage);
+    });
+
+    await test.step("Change password to new one", async () => {
+      await myRooms.infoPanel.open();
+      const membersTab = page.getByTestId(INFO_PANEL_TABS.Contacts.testId);
+      await expect(membersTab).toBeVisible();
+
+      await myRooms.infoPanel.openLinkSettings();
+      const baseEditLink = new BaseEditLink(page);
+
+      await baseEditLink.clickCleanPassword();
+      await baseEditLink.fillPassword(newPassword);
+      await baseEditLink.clickSaveButton();
+    });
+
+    await test.step("Verify old password is rejected", async () => {
+      const result = await setupIncognitoContext(browser);
+      incognitoContext = result.context;
+      incognitoPage = result.page;
+
+      await incognitoPage.goto(roomLink, { waitUntil: "domcontentloaded" });
+
+      const passwordRequirePage = new BasePasswordRequire(incognitoPage);
+      await passwordRequirePage.verifyPasswordRequiredPageVisible();
+      await passwordRequirePage.enterPasswordAndContinue(oldPassword);
+
+      await expect(
+        incognitoPage.getByText(/incorrect|invalid|wrong/i),
+      ).toBeVisible({ timeout: 5000 });
+
+      await cleanupIncognitoContext(incognitoContext, incognitoPage);
+    });
+
+    await test.step("Verify new password works", async () => {
+      const result = await setupIncognitoContext(browser);
+      incognitoContext = result.context;
+      incognitoPage = result.page;
+
+      await incognitoPage.goto(roomLink, { waitUntil: "domcontentloaded" });
+
+      const passwordRequirePage = new BasePasswordRequire(incognitoPage);
+      await passwordRequirePage.verifyPasswordRequiredPageVisible();
+      await passwordRequirePage.enterPasswordAndContinue(newPassword);
+
+      const anonView = new RoomAnonymousView(incognitoPage);
+      await anonView.singInButtonVisible();
+    });
+  });
+
+  test("File inherits link settings from room", async ({ page }) => {
+    const linkName = "Inherited Link";
+    const linkPassword = "InheritedPass123";
+    const linkAccess = "docspace";
+    let roomLink: string;
+    let fileLink: string;
+
+    await test.step("Configure room link settings", async () => {
+      await shortTour.clickSkipTour();
+      await myRooms.infoPanel.open();
+      const membersTab = page.getByTestId(INFO_PANEL_TABS.Contacts.testId);
+      await expect(membersTab).toBeVisible();
+
+      await myRooms.infoPanel.openLinkSettings();
+      const baseEditLink = new BaseEditLink(page);
+
+      // Configure room link with custom settings
+      await baseEditLink.configureLinkSettings({
+        name: linkName,
+        access: linkAccess,
+        password: linkPassword,
+        save: true,
+      });
+    });
+
+    await test.step("Copy room link", async () => {
+      await setupClipboardPermissions(page);
+      await roomEmptyView.shareRoomClick();
+      await myRooms.toast.dismissToastSafely("Link copied to clipboard", 10000);
+      roomLink = await getLinkFromClipboard(page);
+    });
+
+    await test.step("Upload PDF to room", async () => {
+      await uploadAndVerifyPDF(
+        shortTour,
+        roomEmptyView,
+        selectPanel,
+        myRooms,
+        page,
+        false, // don't skip tour - already skipped
+      );
+    });
+
+    await test.step("Copy file link", async () => {
+      fileLink = await copyFileLink(page, filesTable, myRooms);
+    });
+
+    await test.step("Verify room and file links are different", async () => {
+      // Both links use short format /s/{shareId}, but should be different URLs
+      expect(roomLink).not.toBe(fileLink);
+      expect(roomLink).toBeTruthy();
+      expect(fileLink).toBeTruthy();
+    });
+
+    await test.step("Verify file link settings match room settings", async () => {
+      // Open file link settings
+      await filesTable.openContextMenuForItem("ONLYOFFICE Resume Sample");
+      await filesTable.contextMenu.clickSubmenuOption(
+        "Share",
+        "Sharing settings",
+      );
+      await myRooms.infoPanel.openLinkSettings();
+
+      const baseEditLink = new BaseEditLink(page);
+
+      // Verify link name is inherited
+      await expect(baseEditLink.linkNameInput).toHaveValue(linkName);
+
+      // Verify access level is inherited
+      const combo = baseEditLink.comboLinkAccess;
+      await expect(combo).toContainText("DocSpace users only");
+
+      // Verify password is inherited - click show password to verify exact value
+      await expect(baseEditLink.passwordInput).toBeVisible();
+      await baseEditLink.clickShowPassword();
+      const filePassword = await baseEditLink.passwordInput.inputValue();
+      expect(filePassword).toBe(linkPassword);
     });
   });
 });
