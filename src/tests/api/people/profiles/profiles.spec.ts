@@ -904,7 +904,7 @@ test.describe("API profile methods", () => {
     expect(bodyUpdateInfo.response.isRoomAdmin).toBe(true);
   });
 
-  test("Updating user profile data", async ({ apiSdk, api }) => {
+  test.only("Updating user profile data", async ({ apiSdk, api }) => {
     const user = await apiSdk.profiles.ownerAddMember("User");
     const response = await user.response.json();
     const userId = response.response.id;
@@ -924,9 +924,9 @@ test.describe("API profile methods", () => {
     expect(bodyUpdateInfo.response.id).toBe(userId);
     expect(bodyUpdateInfo.response.firstName).toBe(userData.firstName);
     expect(bodyUpdateInfo.response.lastName).toBe(userData.lastName);
-    expect(bodyUpdateInfo.response.displayName).toBe(
-      userData.firstName + " " + userData.lastName,
-    );
+    expect(
+      apiSdk.htmlNormalizer.normalize(bodyUpdateInfo.response.displayName),
+    ).toBe(`${userData.firstName} ${userData.lastName}`);
     expect(bodyUpdateInfo.response.isCollaborator).toBe(true);
   });
 

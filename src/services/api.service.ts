@@ -1,4 +1,10 @@
-import { ProfilesApi, FAKER, UserStatusApi, RoomsApi } from "./index";
+import {
+  ProfilesApi,
+  FAKER,
+  UserStatusApi,
+  RoomsApi,
+  HtmlNormalizer,
+} from "./index";
 import { APIRequestContext } from "@playwright/test";
 
 export class ApiSDK {
@@ -7,6 +13,7 @@ export class ApiSDK {
   readonly userStatus: UserStatusApi;
   readonly rooms: RoomsApi;
   readonly faker: FAKER;
+  readonly htmlNormalizer: HtmlNormalizer;
   private authApi?: any;
 
   constructor(
@@ -35,6 +42,7 @@ export class ApiSDK {
       portalDomain,
     );
     this.faker = new FAKER();
+    this.htmlNormalizer = new HtmlNormalizer();
   }
 
   public updateDocSpaceAdminToken(token: string) {
