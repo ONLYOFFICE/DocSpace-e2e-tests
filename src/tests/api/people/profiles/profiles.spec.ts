@@ -692,7 +692,7 @@ test.describe("API profile methods", () => {
       userDataChangeStatus,
     );
     const responseDelete = await apiSdk.profiles.deleteUser(
-      "docSpaceAdmin",
+      "owner",
       userDataDeleteUser,
     );
     const bodyDelete = await responseDelete.json();
