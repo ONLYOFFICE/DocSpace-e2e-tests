@@ -12,7 +12,7 @@ test.describe("POST /files/rooms - access control", () => {
   });
 
   test("DocSpaceAdmin can create a room", async ({ apiSdk, api }) => {
-    await apiSdk.profiles.ownerAddMember("DocSpaceAdmin");
+    await apiSdk.profiles.addMember("owner", "DocSpaceAdmin");
     await api.auth.authenticateDocSpaceAdmin();
     apiSdk.rooms.setAuthTokenDocSpaceAdmin(api.auth.authTokenDocSpaceAdmin);
 
@@ -25,7 +25,7 @@ test.describe("POST /files/rooms - access control", () => {
   });
 
   test("User cannot create a room", async ({ apiSdk, api }) => {
-    await apiSdk.profiles.ownerAddMember("User");
+    await apiSdk.profiles.addMember("owner", "User");
     await api.auth.authenticateUser();
     apiSdk.rooms.setAuthTokenUser(api.auth.authTokenUser);
 
@@ -60,7 +60,7 @@ test.describe.skip("DELETE /files/rooms/:id - access control", () => {
   });
 
   test.skip("DocSpaceAdmin can delete a room", async ({ apiSdk, api }) => {
-    await apiSdk.profiles.ownerAddMember("DocSpaceAdmin");
+    await apiSdk.profiles.addMember("owner", "DocSpaceAdmin");
     await api.auth.authenticateDocSpaceAdmin();
     apiSdk.rooms.setAuthTokenDocSpaceAdmin(api.auth.authTokenDocSpaceAdmin);
 
@@ -78,7 +78,7 @@ test.describe.skip("DELETE /files/rooms/:id - access control", () => {
   });
 
   test.skip("User cannot delete a room", async ({ apiSdk, api }) => {
-    await apiSdk.profiles.ownerAddMember("User");
+    await apiSdk.profiles.addMember("owner", "User");
     await api.auth.authenticateUser();
     apiSdk.rooms.setAuthTokenUser(api.auth.authTokenUser);
 
@@ -109,7 +109,7 @@ test.describe("POST /files/tags - access control", () => {
   });
 
   test("DocSpaceAdmin can create a tag", async ({ apiSdk, api }) => {
-    await apiSdk.profiles.ownerAddMember("DocSpaceAdmin");
+    await apiSdk.profiles.addMember("owner", "DocSpaceAdmin");
     await api.auth.authenticateDocSpaceAdmin();
     apiSdk.rooms.setAuthTokenDocSpaceAdmin(api.auth.authTokenDocSpaceAdmin);
 
@@ -126,7 +126,7 @@ test.describe("POST /files/tags - access control", () => {
   });
 
   test("User cannot create a tag", async ({ apiSdk, api }) => {
-    await apiSdk.profiles.ownerAddMember("User");
+    await apiSdk.profiles.addMember("owner", "User");
     await api.auth.authenticateUser();
     apiSdk.rooms.setAuthTokenUser(api.auth.authTokenUser);
 

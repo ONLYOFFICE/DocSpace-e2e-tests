@@ -17,15 +17,18 @@ type UsersListItem = {
 
 test.describe("API user status methods", () => {
   test("Owner deactivates the different type of users", async ({ apiSdk }) => {
-    const user = await apiSdk.profiles.ownerAddMember("User");
+    const user = await apiSdk.profiles.addMember("owner", "User");
     const body = await user.response.json();
     const userId = body.response.id;
 
-    const roomAdmin = await apiSdk.profiles.ownerAddMember("RoomAdmin");
+    const roomAdmin = await apiSdk.profiles.addMember("owner", "RoomAdmin");
     const roomAdminBody = await roomAdmin.response.json();
     const roomAdminId = roomAdminBody.response.id;
 
-    const docSpaceAdmin = await apiSdk.profiles.ownerAddMember("DocSpaceAdmin");
+    const docSpaceAdmin = await apiSdk.profiles.addMember(
+      "owner",
+      "DocSpaceAdmin",
+    );
     const docSpaceAdminBody = await docSpaceAdmin.response.json();
     const docSpaceAdminId = docSpaceAdminBody.response.id;
 
@@ -34,7 +37,8 @@ test.describe("API user status methods", () => {
       resendAll: false,
     };
 
-    const response = await apiSdk.userStatus.ownerChangeUserStatus(
+    const response = await apiSdk.userStatus.changeUserStatus(
+      "owner",
       UserStatus.Disabled,
       userData,
     );
@@ -57,15 +61,18 @@ test.describe("API user status methods", () => {
   });
 
   test("Owner activates the different type of users", async ({ apiSdk }) => {
-    const user = await apiSdk.profiles.ownerAddMember("User");
+    const user = await apiSdk.profiles.addMember("owner", "User");
     const body = await user.response.json();
     const userId = body.response.id;
 
-    const roomAdmin = await apiSdk.profiles.ownerAddMember("RoomAdmin");
+    const roomAdmin = await apiSdk.profiles.addMember("owner", "RoomAdmin");
     const roomAdminBody = await roomAdmin.response.json();
     const roomAdminId = roomAdminBody.response.id;
 
-    const docSpaceAdmin = await apiSdk.profiles.ownerAddMember("DocSpaceAdmin");
+    const docSpaceAdmin = await apiSdk.profiles.addMember(
+      "owner",
+      "DocSpaceAdmin",
+    );
     const docSpaceAdminBody = await docSpaceAdmin.response.json();
     const docSpaceAdminId = docSpaceAdminBody.response.id;
 
@@ -73,11 +80,13 @@ test.describe("API user status methods", () => {
       userIds: [userId, roomAdminId, docSpaceAdminId],
       resendAll: false,
     };
-    await apiSdk.userStatus.ownerChangeUserStatus(
+    await apiSdk.userStatus.changeUserStatus(
+      "owner",
       UserStatus.Disabled,
       userData,
     );
-    const activateResponse = await apiSdk.userStatus.ownerChangeUserStatus(
+    const activateResponse = await apiSdk.userStatus.changeUserStatus(
+      "owner",
       UserStatus.Active,
       userData,
     );
@@ -102,7 +111,7 @@ test.describe("API user status methods", () => {
   test("Owner deactivates the user without authorization", async ({
     apiSdk,
   }) => {
-    const user = await apiSdk.profiles.ownerAddMember("User");
+    const user = await apiSdk.profiles.addMember("owner", "User");
     const body = await user.response.json();
     const userId = body.response.id;
 
@@ -123,11 +132,11 @@ test.describe("API user status methods", () => {
     apiSdk,
     api,
   }) => {
-    const user = await apiSdk.profiles.ownerAddMember("User");
+    const user = await apiSdk.profiles.addMember("owner", "User");
     const body = await user.response.json();
     const userId = body.response.id;
 
-    const roomAdmin = await apiSdk.profiles.ownerAddMember("RoomAdmin");
+    const roomAdmin = await apiSdk.profiles.addMember("owner", "RoomAdmin");
     const roomAdminBody = await roomAdmin.response.json();
     const roomAdminId = roomAdminBody.response.id;
 
@@ -136,10 +145,11 @@ test.describe("API user status methods", () => {
       resendAll: false,
     };
 
-    await apiSdk.profiles.ownerAddMember("DocSpaceAdmin");
+    await apiSdk.profiles.addMember("owner", "DocSpaceAdmin");
     await api.auth.authenticateDocSpaceAdmin();
 
-    const response = await apiSdk.userStatus.docSpaceAdminChangeUserStatus(
+    const response = await apiSdk.userStatus.changeUserStatus(
+      "docSpaceAdmin",
       UserStatus.Disabled,
       userData,
     );
@@ -158,11 +168,11 @@ test.describe("API user status methods", () => {
     apiSdk,
     api,
   }) => {
-    const user = await apiSdk.profiles.ownerAddMember("User");
+    const user = await apiSdk.profiles.addMember("owner", "User");
     const body = await user.response.json();
     const userId = body.response.id;
 
-    const roomAdmin = await apiSdk.profiles.ownerAddMember("RoomAdmin");
+    const roomAdmin = await apiSdk.profiles.addMember("owner", "RoomAdmin");
     const roomAdminBody = await roomAdmin.response.json();
     const roomAdminId = roomAdminBody.response.id;
 
@@ -171,15 +181,17 @@ test.describe("API user status methods", () => {
       resendAll: false,
     };
 
-    await apiSdk.userStatus.ownerChangeUserStatus(
+    await apiSdk.userStatus.changeUserStatus(
+      "owner",
       UserStatus.Disabled,
       userData,
     );
 
-    await apiSdk.profiles.ownerAddMember("DocSpaceAdmin");
+    await apiSdk.profiles.addMember("owner", "DocSpaceAdmin");
     await api.auth.authenticateDocSpaceAdmin();
 
-    const response = await apiSdk.userStatus.docSpaceAdminChangeUserStatus(
+    const response = await apiSdk.userStatus.changeUserStatus(
+      "docSpaceAdmin",
       UserStatus.Active,
       userData,
     );
@@ -197,12 +209,18 @@ test.describe("API user status methods", () => {
   test("Owner returns a list of profiles filtered by the active user status", async ({
     apiSdk,
   }) => {
-    const { userData: docSpaceAdminUserData } =
-      await apiSdk.profiles.ownerAddMember("DocSpaceAdmin");
-    const { userData: roomAdminUserData } =
-      await apiSdk.profiles.ownerAddMember("RoomAdmin");
-    const { userData: userUserData } =
-      await apiSdk.profiles.ownerAddMember("User");
+    const { userData: docSpaceAdminUserData } = await apiSdk.profiles.addMember(
+      "owner",
+      "DocSpaceAdmin",
+    );
+    const { userData: roomAdminUserData } = await apiSdk.profiles.addMember(
+      "owner",
+      "RoomAdmin",
+    );
+    const { userData: userUserData } = await apiSdk.profiles.addMember(
+      "owner",
+      "User",
+    );
 
     const response = await apiSdk.userStatus.ownerGetPlofilesByStatus(
       UserStatus.Active,
@@ -252,15 +270,18 @@ test.describe("API user status methods", () => {
   test("Owner returns a list of profiles filtered by the disabled user status", async ({
     apiSdk,
   }) => {
-    const docSpaceAdmin = await apiSdk.profiles.ownerAddMember("DocSpaceAdmin");
+    const docSpaceAdmin = await apiSdk.profiles.addMember(
+      "owner",
+      "DocSpaceAdmin",
+    );
     const docSpaceAdminJson = await docSpaceAdmin.response.json();
     const docSpaceAdminId = docSpaceAdminJson.response.id;
 
-    const roomAdmin = await apiSdk.profiles.ownerAddMember("RoomAdmin");
+    const roomAdmin = await apiSdk.profiles.addMember("owner", "RoomAdmin");
     const roomAdminJson = await roomAdmin.response.json();
     const roomAdminId = roomAdminJson.response.id;
 
-    const user = await apiSdk.profiles.ownerAddMember("User");
+    const user = await apiSdk.profiles.addMember("owner", "User");
     const userJson = await user.response.json();
     const userId = userJson.response.id;
 
@@ -269,7 +290,11 @@ test.describe("API user status methods", () => {
       resendAll: false,
     };
 
-    await apiSdk.userStatus.ownerChangeUserStatus(UserStatus.Disabled, data);
+    await apiSdk.userStatus.changeUserStatus(
+      "owner",
+      UserStatus.Disabled,
+      data,
+    );
 
     const response = await apiSdk.userStatus.ownerGetPlofilesByStatus(
       UserStatus.Disabled,
