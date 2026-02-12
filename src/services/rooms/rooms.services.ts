@@ -146,7 +146,8 @@ export class RoomsApi {
           data: { deleteAfter: false },
         },
       );
-      return response;
+      const operation = await this.waitForOperation(role);
+      return { response, ...operation };
     });
   }
 
@@ -317,6 +318,84 @@ export class RoomsApi {
         {
           headers: { Authorization: `Bearer ${this.getToken(role)}` },
           data,
+        },
+      );
+      return response;
+    });
+  }
+
+  async addRoomTags(
+    role: "owner" | "docSpaceAdmin" | "roomAdmin" | "user",
+    roomId: number,
+    tags: string[],
+  ) {
+    return test.step(`${role} add tags to room ${roomId}`, async () => {
+      const response = await this.request.put(
+        `https://${this.portalDomain}/api/2.0/files/rooms/${roomId}/tags`,
+        {
+          headers: { Authorization: `Bearer ${this.getToken(role)}` },
+          data: { names: tags },
+        },
+      );
+      return response;
+    });
+  }
+
+  async removeRoomTags(
+    role: "owner" | "docSpaceAdmin" | "roomAdmin" | "user",
+    roomId: number,
+    tags: string[],
+  ) {
+    return test.step(`${role} remove tags from room ${roomId}`, async () => {
+      const response = await this.request.delete(
+        `https://${this.portalDomain}/api/2.0/files/rooms/${roomId}/tags`,
+        {
+          headers: { Authorization: `Bearer ${this.getToken(role)}` },
+          data: { names: tags },
+        },
+      );
+      return response;
+    });
+  }
+
+  async createTag(
+    role: "owner" | "docSpaceAdmin" | "roomAdmin" | "user",
+    tagName: string,
+  ) {
+    return test.step(`${role} create tag "${tagName}"`, async () => {
+      const response = await this.request.post(
+        `https://${this.portalDomain}/api/2.0/files/tags`,
+        {
+          headers: { Authorization: `Bearer ${this.getToken(role)}` },
+          data: { name: tagName },
+        },
+      );
+      return response;
+    });
+  }
+
+  async deleteTag(
+    role: "owner" | "docSpaceAdmin" | "roomAdmin" | "user",
+    tagName: string,
+  ) {
+    return test.step(`${role} delete tag "${tagName}"`, async () => {
+      const response = await this.request.delete(
+        `https://${this.portalDomain}/api/2.0/files/tags`,
+        {
+          headers: { Authorization: `Bearer ${this.getToken(role)}` },
+          data: { names: [tagName] },
+        },
+      );
+      return response;
+    });
+  }
+
+  async getTags(role: "owner" | "docSpaceAdmin" | "roomAdmin" | "user") {
+    return test.step(`${role} get all tags`, async () => {
+      const response = await this.request.get(
+        `https://${this.portalDomain}/api/2.0/files/tags`,
+        {
+          headers: { Authorization: `Bearer ${this.getToken(role)}` },
         },
       );
       return response;
