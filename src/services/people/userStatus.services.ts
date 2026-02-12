@@ -97,63 +97,6 @@ export class UserStatusApi {
     });
   }
 
-  // async docSpaceAdminChangeUserStatus(
-  //   status: UserStatus,
-  //   data: {
-  //     userIds: string[];
-  //     resendAll: boolean;
-  //   },
-  // ) {
-  //   return test.step("DocSpace admin change user status", async () => {
-  //     const response = await this.request.put(
-  //       `https://${this.portalDomain}/api/2.0/people/status/${status}`,
-  //       {
-  //         headers: { Authorization: `Bearer ${this.authTokenDocSpaceAdmin}` },
-  //         data,
-  //       },
-  //     );
-  //     return response;
-  //   });
-  // }
-
-  // async roomAdminChangeUserStatus(
-  //   status: UserStatus,
-  //   data: {
-  //     userIds: string[];
-  //     resendAll: boolean;
-  //   },
-  // ) {
-  //   return test.step("Room admin change user status", async () => {
-  //     const response = await this.request.put(
-  //       `https://${this.portalDomain}/api/2.0/people/status/${status}`,
-  //       {
-  //         headers: { Authorization: `Bearer ${this.authTokenRoomAdmin}` },
-  //         data,
-  //       },
-  //     );
-  //     return response;
-  //   });
-  // }
-
-  // async userChangeUserStatus(
-  //   status: UserStatus,
-  //   data: {
-  //     userIds: string[];
-  //     resendAll: boolean;
-  //   },
-  // ) {
-  //   return test.step("User change user status", async () => {
-  //     const response = await this.request.put(
-  //       `https://${this.portalDomain}/api/2.0/people/status/${status}`,
-  //       {
-  //         headers: { Authorization: `Bearer ${this.authTokenUser}` },
-  //         data,
-  //       },
-  //     );
-  //     return response;
-  //   });
-  // }
-
   async changeUserStatusWithoutAuthorization(
     status: UserStatus,
     data: {
