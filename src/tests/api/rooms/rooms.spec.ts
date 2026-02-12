@@ -264,4 +264,78 @@ test.describe("API rooms methods", () => {
       expect(body.response).toBe(true);
     });
   });
+
+  test("Owner creates and deletes tags", async ({ apiSdk }) => {
+    await test.step("POST /files/tags - create a tag", async () => {
+      const response = await apiSdk.rooms.createTag("owner", "Autotest Tag");
+      const body = await response.json();
+
+      expect(body.statusCode).toBe(200);
+      expect(body.response).toBe("Autotest Tag");
+      expect(body.count).toBe(1);
+    });
+
+    await test.step("GET /files/tags - verify tag exists", async () => {
+      const response = await apiSdk.rooms.getTags("owner");
+      const body = await response.json();
+
+      expect(body.statusCode).toBe(200);
+      expect(body.response).toContain("Autotest Tag");
+    });
+    // TODO: BUG - API returns 500 NullReferenceException if data is { name: "..." } instead of { names: [...] }
+    await test.step("DELETE /files/tags - delete a tag", async () => {
+      const response = await apiSdk.rooms.deleteTag("owner", "Autotest Tag");
+      const body = await response.json();
+
+      expect(body.statusCode).toBe(200);
+      expect(body.count).toBe(0);
+    });
+
+    await test.step("GET /files/tags - verify tag deleted", async () => {
+      const response = await apiSdk.rooms.getTags("owner");
+      const body = await response.json();
+
+      expect(body.statusCode).toBe(200);
+      expect(body.response).not.toContain("Autotest Tag");
+    });
+  });
+
+  test("Owner adds and removes tags from a room", async ({ apiSdk }) => {
+    await apiSdk.rooms.createTag("owner", "Tag1");
+    await apiSdk.rooms.createTag("owner", "Tag2");
+
+    const roomResponse = await apiSdk.rooms.createRoom("owner", {
+      title: "Autotest Room with Tags",
+      roomType: "CustomRoom",
+    });
+    const roomId = (await roomResponse.json()).response.id;
+
+    await test.step("PUT /files/rooms/:id/tags - add tags to room", async () => {
+      const response = await apiSdk.rooms.addRoomTags("owner", roomId, [
+        "Tag1",
+        "Tag2",
+      ]);
+      const body = await response.json();
+
+      expect(body.statusCode).toBe(200);
+      expect(body.response.id).toBe(roomId);
+      expect(body.response.title).toBe("Autotest Room with Tags");
+      expect(body.response.tags).toHaveLength(2);
+      expect(body.response.tags).toContain("Tag1");
+      expect(body.response.tags).toContain("Tag2");
+    });
+
+    await test.step("DELETE /files/rooms/:id/tags - remove tag from room", async () => {
+      const response = await apiSdk.rooms.removeRoomTags("owner", roomId, [
+        "Tag1",
+      ]);
+      const body = await response.json();
+
+      expect(body.statusCode).toBe(200);
+      expect(body.response.id).toBe(roomId);
+      expect(body.response.tags).toHaveLength(1);
+      expect(body.response.tags).not.toContain("Tag1");
+      expect(body.response.tags).toContain("Tag2");
+    });
+  });
 });
