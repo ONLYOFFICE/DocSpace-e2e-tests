@@ -953,9 +953,9 @@ test.describe("API profile methods", () => {
     expect(bodyUpdateInfo.response.id).toBe(userId);
     expect(bodyUpdateInfo.response.firstName).toBe(userData.firstName);
     expect(bodyUpdateInfo.response.lastName).toBe(userData.lastName);
-    expect(
-      apiSdk.htmlNormalizer.normalize(bodyUpdateInfo.response.displayName),
-    ).toBe(`${userData.firstName} ${userData.lastName}`);
+    expect(bodyUpdateInfo.response.displayName).toBe(
+      userData.firstName + " " + userData.lastName,
+    );
     expect(bodyUpdateInfo.response.isCollaborator).toBe(true);
   });
 
