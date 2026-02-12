@@ -16,6 +16,7 @@ import RoomInfoPanel from "@/src/objects/rooms/RoomInfoPanel";
 import RoomsInviteDialog from "@/src/objects/rooms/RoomsInviteDialog";
 import Login from "@/src/objects/common/Login";
 import { uploadAndVerifyPDF } from "@/src/utils/helpers/formFillingRoom";
+import TemplateGallery from "@/src/objects/rooms/TemplateGallery";
 
 test.describe("FormFilling base tests", () => {
   let myRooms: MyRooms;
@@ -351,6 +352,57 @@ test.describe("FormFilling base tests", () => {
       await pdfForm.checkSubmitButtonExist();
       await pdfForm.openMenu();
       await pdfForm.verifyDownloadAndPrintButtonsVisible();
+    });
+  });
+
+  test("Add PDF template from Template Gallery", async ({ page }) => {
+    const templateTitle = "30-day eviction notice form";
+
+    await test.step("Skip tour and close info panel", async () => {
+      await shortTour.clickSkipTour();
+      await myRooms.infoPanel.close();
+    });
+
+    await test.step("Open Template Gallery from plus menu", async () => {
+      await myRooms.filesNavigation.openCreateDropdown();
+      await myRooms.filesNavigation.contextMenu.openRoomTemplateGallery();
+    });
+
+    let editorPage: Page;
+
+    await test.step("Select template and create PDF form", async () => {
+      const templateGallery = new TemplateGallery(page);
+      await templateGallery.selectTemplate(templateTitle);
+      await templateGallery.verifyNewPdfFormModalVisible();
+
+      const context = page.context();
+      const pagePromise = context.waitForEvent("page");
+      await templateGallery.clickCreate();
+      editorPage = await pagePromise;
+      await editorPage.waitForLoadState("load");
+    });
+
+    // TODO: Bug 79932 - form opens for editing instead of filling
+    // await test.step("Verify PDF form opened for filling", async () => {
+    //   const pdfForm = new FilesPdfForm(editorPage);
+    //   await pdfForm.checkSubmitButtonExist();
+    // });
+
+    await test.step("Close editor", async () => {
+      await editorPage.close();
+    });
+
+    await test.step("Verify PDF form modal with copy public link", async () => {
+      await shortTour.clickCopyPublicLink();
+      await shortTour.clickModalCloseButton();
+    });
+
+    await test.step("Verify room contains folders and PDF file", async () => {
+      await expect(page.getByLabel("Complete")).toBeVisible();
+      await expect(page.getByLabel("In process")).toBeVisible();
+      await expect(
+        page.getByLabel(templateTitle, { exact: false }),
+      ).toBeVisible();
     });
   });
 
