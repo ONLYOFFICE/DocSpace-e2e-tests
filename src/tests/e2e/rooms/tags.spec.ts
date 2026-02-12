@@ -19,7 +19,6 @@ test.describe("Tags", () => {
     await login.loginToPortal();
   });
   test("Tags", async ({ page }) => {
-    // TODO: Fails due to a bug on io (develop).
     await test.step("CreateRoomWithTag", async () => {
       await myRooms.roomsArticle.openCreateDialog();
       await myRooms.roomsCreateDialog.openRoomType(
