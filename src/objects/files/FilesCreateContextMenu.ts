@@ -3,6 +3,9 @@ import { DOC_ACTIONS } from "../../utils/constants/files";
 import FilesCreateModal from "./FilesCreateModal";
 import { BaseContextMenu } from "../common/BaseContextMenu";
 
+const ROOM_TEMPLATE_GALLERY = "actions_form-room_template_from-file";
+const TEMPLATE_GALLERY = "template-gallery";
+
 class FilesCreateContextMenu extends BaseContextMenu {
   modal: FilesCreateModal;
 
@@ -18,6 +21,14 @@ class FilesCreateContextMenu extends BaseContextMenu {
     } else {
       await this.clickOption(actionText);
     }
+  }
+
+  async openRoomTemplateGallery() {
+    await this.clickOption({ type: "id", value: ROOM_TEMPLATE_GALLERY });
+  }
+
+  async openTemplateGallery() {
+    await this.clickOption({ type: "data-testid", value: TEMPLATE_GALLERY });
   }
 }
 
