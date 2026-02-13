@@ -16,7 +16,9 @@ type UsersListItem = {
 };
 
 test.describe("API user status methods", () => {
-  test("Owner deactivates the different type of users", async ({ apiSdk }) => {
+  test("PUT /people/status/:status - Owner deactivates the different type of users", async ({
+    apiSdk,
+  }) => {
     const user = await apiSdk.profiles.addMember("owner", "User");
     const body = await user.response.json();
     const userId = body.response.id;
@@ -60,7 +62,9 @@ test.describe("API user status methods", () => {
     expect(docSpaceAdminInfo.isAdmin).toBe(true);
   });
 
-  test("Owner activates the different type of users", async ({ apiSdk }) => {
+  test("PUT /people/status/:status - Owner activates the different type of users", async ({
+    apiSdk,
+  }) => {
     const user = await apiSdk.profiles.addMember("owner", "User");
     const body = await user.response.json();
     const userId = body.response.id;
@@ -108,7 +112,7 @@ test.describe("API user status methods", () => {
     expect(docSpaceAdminInfo.isAdmin).toBe(true);
   });
 
-  test("Owner deactivates the user without authorization", async ({
+  test("PUT /people/status/:status - Owner deactivates the user without authorization", async ({
     apiSdk,
   }) => {
     const user = await apiSdk.profiles.addMember("owner", "User");
@@ -128,7 +132,7 @@ test.describe("API user status methods", () => {
     expect(response.status()).toBe(401);
   });
 
-  test("DocSpace admin deactivates the different type of user", async ({
+  test("PUT /people/status/:status - DocSpace admin deactivates the different type of user", async ({
     apiSdk,
     api,
   }) => {
@@ -164,7 +168,7 @@ test.describe("API user status methods", () => {
     expect(bodyResponse.response[1].id).toBe(roomAdminId);
   });
 
-  test("DocSpace admin activates the different type of user", async ({
+  test("PUT /people/status/:status - DocSpace admin activates the different type of user", async ({
     apiSdk,
     api,
   }) => {
@@ -206,7 +210,7 @@ test.describe("API user status methods", () => {
     expect(bodyResponse.response[1].id).toBe(roomAdminId);
   });
 
-  test("Owner returns a list of profiles filtered by the active user status", async ({
+  test("GET /people/status/:status - Owner returns a list of profiles filtered by the active user status", async ({
     apiSdk,
   }) => {
     const { userData: docSpaceAdminUserData } = await apiSdk.profiles.addMember(
@@ -222,7 +226,8 @@ test.describe("API user status methods", () => {
       "User",
     );
 
-    const response = await apiSdk.userStatus.ownerGetPlofilesByStatus(
+    const response = await apiSdk.userStatus.getPlofilesByStatus(
+      "owner",
       UserStatus.Active,
     );
     const body = (await response.json()) as { response: UsersListItem[] };
@@ -267,7 +272,7 @@ test.describe("API user status methods", () => {
     expect(userData.isCollaborator).toBe(true);
   });
 
-  test("Owner returns a list of profiles filtered by the disabled user status", async ({
+  test("GET /people/status/:status - Owner returns a list of profiles filtered by the disabled user status", async ({
     apiSdk,
   }) => {
     const docSpaceAdmin = await apiSdk.profiles.addMember(
@@ -296,7 +301,8 @@ test.describe("API user status methods", () => {
       data,
     );
 
-    const response = await apiSdk.userStatus.ownerGetPlofilesByStatus(
+    const response = await apiSdk.userStatus.getPlofilesByStatus(
+      "owner",
       UserStatus.Disabled,
     );
     const body = (await response.json()) as { response: UsersListItem[] };

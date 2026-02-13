@@ -85,7 +85,7 @@ export class UserStatusApi {
       resendAll: boolean;
     },
   ) {
-    return test.step("Owner change user status", async () => {
+    return test.step(`${role} change user status`, async () => {
       const response = await this.request.put(
         `https://${this.portalDomain}/api/2.0/people/status/${status}`,
         {
@@ -115,12 +115,15 @@ export class UserStatusApi {
     });
   }
 
-  async ownerGetPlofilesByStatus(status: UserStatus) {
-    return test.step("Owner returns a list of profiles filtered by the user status", async () => {
+  async getPlofilesByStatus(
+    role: "owner" | "docSpaceAdmin" | "roomAdmin" | "user",
+    status: UserStatus,
+  ) {
+    return test.step(`${role} returns a list of profiles filtered by the user status`, async () => {
       const response = await this.request.get(
         `https://${this.portalDomain}/api/2.0/people/status/${status}`,
         {
-          headers: { Authorization: `Bearer ${this.authTokenOwner}` },
+          headers: { Authorization: `Bearer ${this.getToken(role)}` },
         },
       );
       return response;
