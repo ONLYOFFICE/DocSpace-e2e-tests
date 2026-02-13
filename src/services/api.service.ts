@@ -1,4 +1,4 @@
-import { ProfilesApi, FAKER, UserStatusApi, RoomsApi } from "./index";
+import { ProfilesApi, FAKER, UserStatusApi, RoomsApi, FilesApi } from "./index";
 import { APIRequestContext } from "@playwright/test";
 
 export class ApiSDK {
@@ -6,6 +6,7 @@ export class ApiSDK {
   readonly profiles: ProfilesApi;
   readonly userStatus: UserStatusApi;
   readonly rooms: RoomsApi;
+  readonly files: FilesApi;
   readonly faker: FAKER;
   private authApi?: any;
 
@@ -34,6 +35,12 @@ export class ApiSDK {
       authTokenDocSpaceAdmin,
       portalDomain,
     );
+    this.files = new FilesApi(
+      request,
+      authToken,
+      authTokenDocSpaceAdmin,
+      portalDomain,
+    );
     this.faker = new FAKER();
   }
 
@@ -41,5 +48,6 @@ export class ApiSDK {
     this.profiles.setAuthTokenDocSpaceAdmin(token);
     this.userStatus.setAuthTokenDocSpaceAdmin(token);
     this.rooms.setAuthTokenDocSpaceAdmin(token);
+    this.files.setAuthTokenDocSpaceAdmin(token);
   }
 }
