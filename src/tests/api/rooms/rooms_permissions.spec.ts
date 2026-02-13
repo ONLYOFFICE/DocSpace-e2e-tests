@@ -137,3 +137,126 @@ test.describe("POST /files/tags - access control", () => {
     expect(body.error.message).toContain("Access denied");
   });
 });
+
+test.describe("PUT /files/rooms/:id/share - access control", () => {
+  test("Owner can set room access rights", async ({ apiSdk }) => {
+    const { response: memberResponse } = await apiSdk.profiles.addMember(
+      "owner",
+      "User",
+    );
+    const memberBody = await memberResponse.json();
+    const userId = memberBody.response.id;
+
+    const roomResponse = await apiSdk.rooms.createRoom("owner", {
+      title: "Autotest Share Room",
+      roomType: "CustomRoom",
+    });
+    const roomId = (await roomResponse.json()).response.id;
+
+    const response = await apiSdk.rooms.setRoomAccessRights("owner", roomId, {
+      invitations: [{ id: userId, access: "Editing" }],
+      notify: false,
+    });
+    const body = await response.json();
+
+    expect(response.status()).toBe(200);
+    expect(body.statusCode).toBe(200);
+    expect(body.response.members).toBeDefined();
+    expect(body.response.members.length).toBeGreaterThan(0);
+  });
+
+  test("DocSpaceAdmin can set access rights on own room", async ({
+    apiSdk,
+    api,
+  }) => {
+    await apiSdk.profiles.addMember("owner", "DocSpaceAdmin");
+    await api.auth.authenticateDocSpaceAdmin();
+    apiSdk.rooms.setAuthTokenDocSpaceAdmin(api.auth.authTokenDocSpaceAdmin);
+
+    const { response: memberResponse } = await apiSdk.profiles.addMember(
+      "owner",
+      "User",
+    );
+    const memberBody = await memberResponse.json();
+    const userId = memberBody.response.id;
+
+    const roomResponse = await apiSdk.rooms.createRoom("docSpaceAdmin", {
+      title: "Autotest Share Room",
+      roomType: "CustomRoom",
+    });
+    const roomId = (await roomResponse.json()).response.id;
+
+    const response = await apiSdk.rooms.setRoomAccessRights(
+      "docSpaceAdmin",
+      roomId,
+      {
+        invitations: [{ id: userId, access: "Editing" }],
+        notify: false,
+      },
+    );
+    const body = await response.json();
+
+    expect(response.status()).toBe(200);
+    expect(body.statusCode).toBe(200);
+    expect(body.response.members).toBeDefined();
+  });
+
+  test("DocSpaceAdmin cannot set access rights on other's room", async ({
+    apiSdk,
+    api,
+  }) => {
+    await apiSdk.profiles.addMember("owner", "DocSpaceAdmin");
+    await api.auth.authenticateDocSpaceAdmin();
+    apiSdk.rooms.setAuthTokenDocSpaceAdmin(api.auth.authTokenDocSpaceAdmin);
+
+    const { response: memberResponse } = await apiSdk.profiles.addMember(
+      "owner",
+      "User",
+    );
+    const memberBody = await memberResponse.json();
+    const userId = memberBody.response.id;
+
+    const roomResponse = await apiSdk.rooms.createRoom("owner", {
+      title: "Autotest Share Room",
+      roomType: "CustomRoom",
+    });
+    const roomId = (await roomResponse.json()).response.id;
+
+    const response = await apiSdk.rooms.setRoomAccessRights(
+      "docSpaceAdmin",
+      roomId,
+      {
+        invitations: [{ id: userId, access: "Editing" }],
+        notify: false,
+      },
+    );
+    const body = await response.json();
+
+    expect(body.statusCode).toBe(403);
+  });
+
+  test("User cannot set room access rights", async ({ apiSdk, api }) => {
+    const { response: memberResponse } = await apiSdk.profiles.addMember(
+      "owner",
+      "User",
+    );
+    const memberBody = await memberResponse.json();
+    const userId = memberBody.response.id;
+    await api.auth.authenticateUser();
+    apiSdk.rooms.setAuthTokenUser(api.auth.authTokenUser);
+
+    const roomResponse = await apiSdk.rooms.createRoom("owner", {
+      title: "Autotest Share Room",
+      roomType: "CustomRoom",
+    });
+    const roomId = (await roomResponse.json()).response.id;
+
+    const response = await apiSdk.rooms.setRoomAccessRights("user", roomId, {
+      invitations: [{ id: userId, access: "Editing" }],
+      notify: false,
+    });
+    const body = await response.json();
+
+    expect(body.statusCode).toBe(403);
+  });
+});
