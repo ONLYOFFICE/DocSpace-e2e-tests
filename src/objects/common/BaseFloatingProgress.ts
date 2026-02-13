@@ -28,7 +28,9 @@ class BaseFloatingProgress {
   }
 
   get errorTooltip() {
-    return this.page.locator(`[data-tooltip-content="${ERROR_UPLOAD_TO_ROOM}"]`);
+    return this.page.locator(
+      `[data-tooltip-content="${ERROR_UPLOAD_TO_ROOM}"]`,
+    );
   }
 
   async waitForButton(timeout = 30000) {
