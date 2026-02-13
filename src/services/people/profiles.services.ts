@@ -67,7 +67,20 @@ export class ProfilesApi {
     this.authTokenDocSpaceAdmin = token;
   }
 
-  async ownerAddMember(type: UserType) {
+  private getToken(role: "owner" | "docSpaceAdmin" | "roomAdmin" | "user") {
+    const tokens = {
+      owner: this.authTokenOwner,
+      docSpaceAdmin: this.authTokenDocSpaceAdmin,
+      roomAdmin: this.authTokenRoomAdmin,
+      user: this.authTokenUser,
+    };
+    return tokens[role];
+  }
+
+  async addMember(
+    role: "owner" | "docSpaceAdmin" | "roomAdmin" | "user",
+    type: UserType,
+  ) {
     return test.step("Create User", async () => {
       const fakeUser = this.faker.generateUser();
 
@@ -90,7 +103,7 @@ export class ProfilesApi {
       const response = await this.request.post(
         `https://${this.portalDomain}/api/2.0/people`,
         {
-          headers: { Authorization: `Bearer ${this.authTokenOwner}` },
+          headers: { Authorization: `Bearer ${this.getToken(role)}` },
           data: userData,
         },
       );
@@ -152,114 +165,6 @@ export class ProfilesApi {
     });
   }
 
-  async docSpaceAdminAddsUsers(data: {
-    password: string;
-    email: string;
-    firstName: string;
-    lastName: string;
-    type: string;
-  }) {
-    return test.step("DocSpace admin adds DocSpace admin", async () => {
-      const userData = {
-        password: data.password,
-        email: data.email,
-        firstName: data.firstName,
-        lastName: data.lastName,
-        type: data.type,
-      };
-
-      const response = await this.request.post(
-        `https://${this.portalDomain}/api/2.0/people`,
-        {
-          headers: { Authorization: `Bearer ${this.authTokenDocSpaceAdmin}` },
-          data: userData,
-        },
-      );
-      return response;
-    });
-  }
-
-  async roomAdminAddsDocSpaceUser(data: {
-    password: string;
-    email: string;
-    firstName: string;
-    lastName: string;
-    type: string;
-  }) {
-    return test.step("Room admin adds DocSpace User", async () => {
-      const userData = {
-        password: data.password,
-        email: data.email,
-        firstName: data.firstName,
-        lastName: data.lastName,
-        type: data.type,
-      };
-
-      const response = await this.request.post(
-        `https://${this.portalDomain}/api/2.0/people`,
-        {
-          headers: { Authorization: `Bearer ${this.authTokenRoomAdmin}` },
-          data: userData,
-        },
-      );
-      return response;
-    });
-  }
-
-  async userAddsUser(data: {
-    password: string;
-    email: string;
-    firstName: string;
-    lastName: string;
-    type: string;
-  }) {
-    return test.step("User adds User", async () => {
-      const userData = {
-        password: data.password,
-        email: data.email,
-        firstName: data.firstName,
-        lastName: data.lastName,
-        type: data.type,
-      };
-
-      const response = await this.request.post(
-        `https://${this.portalDomain}/api/2.0/people`,
-        {
-          headers: { Authorization: `Bearer ${this.authTokenUser}` },
-          data: userData,
-        },
-      );
-      return response;
-    });
-  }
-
-  async roomAdminAddsUser(data: {
-    password: string;
-    email: string;
-    firstName: string;
-    lastName: string;
-    type: string;
-  }) {
-    return test.step("Room admin add User", async () => {
-      const userData = {
-        password: data.password,
-        email: data.email,
-        firstName: data.firstName,
-        lastName: data.lastName,
-        type: data.type,
-      };
-
-      const response = await this.request.post(
-        `https://${this.portalDomain}/api/2.0/people`,
-        {
-          headers: { Authorization: `Bearer ${this.authTokenRoomAdmin}` },
-          data: userData,
-        },
-      );
-      return response;
-    });
-  }
-
   async addingAUserWithoutAuthorization() {
     return test.step("Adding a user without authorization", async () => {
       const response = await this.request.post(
@@ -269,48 +174,14 @@ export class ProfilesApi {
     });
   }
 
-  async ownerReturnAllUsersList() {
+  async returnAllUsersList(
+    role: "owner" | "docSpaceAdmin" | "roomAdmin" | "user",
+  ) {
     return test.step("Return all users list", async () => {
       const response = await this.request.get(
         `https://${this.portalDomain}/api/2.0/people`,
         {
-          headers: { Authorization: `Bearer ${this.authTokenOwner}` },
-        },
-      );
-      return response;
-    });
-  }
-
-  async docSpaceAdminReturnAllUsersList() {
-    return test.step("Return all users list", async () => {
-      const response = await this.request.get(
-        `https://${this.portalDomain}/api/2.0/people`,
-        {
-          headers: { Authorization: `Bearer ${this.authTokenDocSpaceAdmin}` },
-        },
-      );
-      return response;
-    });
-  }
-
-  async roomAdminReturnAllUsersList() {
-    return test.step("Return all users list", async () => {
-      const response = await this.request.get(
-        `https://${this.portalDomain}/api/2.0/people`,
-        {
-          headers: { Authorization: `Bearer ${this.authTokenRoomAdmin}` },
-        },
-      );
-      return response;
-    });
-  }
-
-  async userReturnAllUsersList() {
-    return test.step("Return all users list", async () => {
-      const response = await this.request.get(
-        `https://${this.portalDomain}/api/2.0/people`,
-        {
-          headers: { Authorization: `Bearer ${this.authTokenUser}` },
+          headers: { Authorization: `Bearer ${this.getToken(role)}` },
         },
       );
       return response;
@@ -326,7 +197,10 @@ export class ProfilesApi {
     });
   }
 
-  async ownerInviteUser(data: { type: string; email: string }) {
+  async inviteUser(
+    role: "owner" | "docSpaceAdmin" | "roomAdmin" | "user",
+    data: { type: string; email: string },
+  ) {
     return test.step("Owner invite user", async () => {
       const userData = {
         invitations: [
@@ -340,73 +214,7 @@ export class ProfilesApi {
       const response = await this.request.post(
         `https://${this.portalDomain}/api/2.0/people/invite`,
         {
-          headers: { Authorization: `Bearer ${this.authTokenOwner}` },
-          data: userData,
-        },
-      );
-      return response;
-    });
-  }
-
-  async docSpaceAdminInviteUser(data: { type: string; email: string }) {
-    return test.step("DocSpace admin invite user", async () => {
-      const userData = {
-        invitations: [
-          {
-            type: data.type,
-            email: data.email,
-          },
-        ],
-      };
-
-      const response = await this.request.post(
-        `https://${this.portalDomain}/api/2.0/people/invite`,
-        {
-          headers: { Authorization: `Bearer ${this.authTokenDocSpaceAdmin}` },
-          data: userData,
-        },
-      );
-      return response;
-    });
-  }
-
-  async roomAdminInviteUser(data: { type: string; email: string }) {
-    return test.step("Room admin invite user", async () => {
-      const userData = {
-        invitations: [
-          {
-            type: data.type,
-            email: data.email,
-          },
-        ],
-      };
-
-      const response = await this.request.post(
-        `https://${this.portalDomain}/api/2.0/people/invite`,
-        {
-          headers: { Authorization: `Bearer ${this.authTokenRoomAdmin}` },
-          data: userData,
-        },
-      );
-      return response;
-    });
-  }
-
-  async userInviteUser(data: { type: string; email: string }) {
-    return test.step("User invite user", async () => {
-      const userData = {
-        invitations: [
-          {
-            type: data.type,
-            email: data.email,
-          },
-        ],
-      };
-
-      const response = await this.request.post(
-        `https://${this.portalDomain}/api/2.0/people/invite`,
-        {
-          headers: { Authorization: `Bearer ${this.authTokenUser}` },
+          headers: { Authorization: `Bearer ${this.getToken(role)}` },
           data: userData,
         },
       );
@@ -445,10 +253,13 @@ export class ProfilesApi {
     });
   }
 
-  async ownerResendActavationEmails(data: {
-    userIds: string[];
-    resendAll: boolean;
-  }) {
+  async resendActavationEmails(
+    role: "owner" | "docSpaceAdmin" | "roomAdmin" | "user",
+    data: {
+      userIds: string[];
+      resendAll: boolean;
+    },
+  ) {
     return test.step("Owner resend activation emails", async () => {
       const userData = {
         userIds: data.userIds,
@@ -458,70 +269,7 @@ export class ProfilesApi {
       const response = await this.request.put(
         `https://${this.portalDomain}/api/2.0/people/invite`,
         {
-          headers: { Authorization: `Bearer ${this.authTokenOwner}` },
-          data: userData,
-        },
-      );
-      return response;
-    });
-  }
-
-  async docSpaceAdminResendActavationEmails(data: {
-    userIds: string[];
-    resendAll: boolean;
-  }) {
-    return test.step("DocSpace admin resend activation emails", async () => {
-      const userData = {
-        userIds: data.userIds,
-        resendAll: data.resendAll,
-      };
-
-      const response = await this.request.put(
-        `https://${this.portalDomain}/api/2.0/people/invite`,
-        {
-          headers: { Authorization: `Bearer ${this.authTokenDocSpaceAdmin}` },
-          data: userData,
-        },
-      );
-      return response;
-    });
-  }
-
-  async roomAdminResendActavationEmails(data: {
-    userIds: string[];
-    resendAll: boolean;
-  }) {
-    return test.step("Room admin resend activation emails", async () => {
-      const userData = {
-        userIds: data.userIds,
-        resendAll: data.resendAll,
-      };
-
-      const response = await this.request.put(
-        `https://${this.portalDomain}/api/2.0/people/invite`,
-        {
-          headers: { Authorization: `Bearer ${this.authTokenRoomAdmin}` },
-          data: userData,
-        },
-      );
-      return response;
-    });
-  }
-
-  async UserResendActavationEmails(data: {
-    userIds: string[];
-    resendAll: boolean;
-  }) {
-    return test.step("User resend activation emails", async () => {
-      const userData = {
-        userIds: data.userIds,
-        resendAll: data.resendAll,
-      };
-
-      const response = await this.request.put(
-        `https://${this.portalDomain}/api/2.0/people/invite`,
-        {
-          headers: { Authorization: `Bearer ${this.authTokenUser}` },
+          headers: { Authorization: `Bearer ${this.getToken(role)}` },
           data: userData,
         },
       );
@@ -538,7 +286,10 @@ export class ProfilesApi {
     });
   }
 
-  async ownerDeleteUser(data: { userIds: string[] }) {
+  async deleteUser(
+    role: "owner" | "docSpaceAdmin" | "roomAdmin" | "user",
+    data: { userIds: string[] },
+  ) {
     return test.step("Owner delete user", async () => {
       const userData = {
         userIds: data.userIds,
@@ -547,58 +298,7 @@ export class ProfilesApi {
       const response = await this.request.delete(
         `https://${this.portalDomain}/api/2.0/people/${data.userIds}`,
         {
-          headers: { Authorization: `Bearer ${this.authTokenOwner}` },
-          data: userData,
-        },
-      );
-      return response;
-    });
-  }
-
-  async docSpaceAdminDeleteUser(data: { userIds: string[] }) {
-    return test.step("DocSpace admin delete user", async () => {
-      const userData = {
-        userIds: data.userIds,
-      };
-
-      const response = await this.request.delete(
-        `https://${this.portalDomain}/api/2.0/people/${data.userIds}`,
-        {
-          headers: { Authorization: `Bearer ${this.authTokenDocSpaceAdmin}` },
-          data: userData,
-        },
-      );
-      return response;
-    });
-  }
-
-  async roomAdminDeleteUser(data: { userIds: string[] }) {
-    return test.step("Room admin delete user", async () => {
-      const userData = {
-        userIds: data.userIds,
-      };
-
-      const response = await this.request.delete(
-        `https://${this.portalDomain}/api/2.0/people/${data.userIds}`,
-        {
-          headers: { Authorization: `Bearer ${this.authTokenRoomAdmin}` },
-          data: userData,
-        },
-      );
-      return response;
-    });
-  }
-
-  async userDeleteUser(data: { userIds: string[] }) {
-    return test.step("Room admin delete user", async () => {
-      const userData = {
-        userIds: data.userIds,
-      };
-
-      const response = await this.request.delete(
-        `https://${this.portalDomain}/api/2.0/people/${data.userIds}`,
-        {
-          headers: { Authorization: `Bearer ${this.authTokenUser}` },
+          headers: { Authorization: `Bearer ${this.getToken(role)}` },
           data: userData,
         },
       );
@@ -622,36 +322,15 @@ export class ProfilesApi {
     });
   }
 
-  async OwnerReturnUserDetailedInformation(userId: string) {
+  async returnUserDetailedInformation(
+    role: "owner" | "docSpaceAdmin" | "roomAdmin" | "user",
+    userId: string,
+  ) {
     return test.step("Owner returns the detailed information of the user", async () => {
       const response = await this.request.get(
         `https://${this.portalDomain}/api/2.0/people/${userId}`,
         {
-          headers: { Authorization: `Bearer ${this.authTokenOwner}` },
-        },
-      );
-      return response;
-    });
-  }
-
-  async DocSpaceAdminReturnUserDetailedInformation(userId: string) {
-    return test.step("DocSpace admin returns the detailed information of the user", async () => {
-      const response = await this.request.get(
-        `https://${this.portalDomain}/api/2.0/people/${userId}`,
-        {
-          headers: { Authorization: `Bearer ${this.authTokenDocSpaceAdmin}` },
-        },
-      );
-      return response;
-    });
-  }
-
-  async RoomAdminReturnUserDetailedInformation(userId: string) {
-    return test.step("Room admin returns the detailed information of the user", async () => {
-      const response = await this.request.get(
-        `https://${this.portalDomain}/api/2.0/people/${userId}`,
-        {
-          headers: { Authorization: `Bearer ${this.authTokenRoomAdmin}` },
+          headers: { Authorization: `Bearer ${this.getToken(role)}` },
         },
       );
       return response;
@@ -669,7 +348,8 @@ export class ProfilesApi {
     });
   }
 
-  async ownerUpdatesData(
+  async updatesData(
+    role: "owner" | "docSpaceAdmin" | "roomAdmin" | "user",
     userId: string,
     data: {
       firstName: string;
@@ -685,7 +365,7 @@ export class ProfilesApi {
       const response = await this.request.put(
         `https://${this.portalDomain}/api/2.0/people/${userId}`,
         {
-          headers: { Authorization: `Bearer ${this.authTokenOwner}` },
+          headers: { Authorization: `Bearer ${this.getToken(role)}` },
           data: userData,
         },
       );
@@ -716,168 +396,29 @@ export class ProfilesApi {
     });
   }
 
-  async docSpaceAdminUpdateUserData(
-    userId: string,
-    data: {
-      firstName: string;
-      lastName: string;
-    },
+  async returnHimselfInformation(
+    role: "owner" | "docSpaceAdmin" | "roomAdmin" | "user",
   ) {
-    return test.step("DocSpace admin update another user", async () => {
-      const userData = {
-        firstName: data.firstName,
-        lastName: data.lastName,
-      };
-
-      const response = await this.request.put(
-        `https://${this.portalDomain}/api/2.0/people/${userId}`,
-        {
-          headers: { Authorization: `Bearer ${this.authTokenDocSpaceAdmin}` },
-          data: userData,
-        },
-      );
-      return response;
-    });
-  }
-
-  async roomAdminUpdateUserData(
-    userId: string,
-    data: {
-      firstName: string;
-      lastName: string;
-    },
-  ) {
-    return test.step("Room admin update another user", async () => {
-      const userData = {
-        firstName: data.firstName,
-        lastName: data.lastName,
-      };
-
-      const response = await this.request.put(
-        `https://${this.portalDomain}/api/2.0/people/${userId}`,
-        {
-          headers: { Authorization: `Bearer ${this.authTokenRoomAdmin}` },
-          data: userData,
-        },
-      );
-      return response;
-    });
-  }
-
-  async userUpdateUserData(
-    userId: string,
-    data: {
-      firstName: string;
-      lastName: string;
-    },
-  ) {
-    return test.step("User update another user", async () => {
-      const userData = {
-        firstName: data.firstName,
-        lastName: data.lastName,
-      };
-
-      const response = await this.request.put(
-        `https://${this.portalDomain}/api/2.0/people/${userId}`,
-        {
-          headers: { Authorization: `Bearer ${this.authTokenUser}` },
-          data: userData,
-        },
-      );
-      return response;
-    });
-  }
-
-  async ownerReturnHimselfInformation() {
     return test.step("Owner return himself information", async () => {
       const response = await this.request.get(
         `https://${this.portalDomain}/api/2.0/people/@self`,
         {
-          headers: { Authorization: `Bearer ${this.authTokenOwner}` },
+          headers: { Authorization: `Bearer ${this.getToken(role)}` },
         },
       );
       return response;
     });
   }
 
-  async docSpaceAdminReturnHimselfInformation() {
-    return test.step("DocSpace admin return himself information", async () => {
-      const response = await this.request.get(
-        `https://${this.portalDomain}/api/2.0/people/@self`,
-        {
-          headers: { Authorization: `Bearer ${this.authTokenDocSpaceAdmin}` },
-        },
-      );
-      return response;
-    });
-  }
-
-  async roomAdminReturnHimselfInformation() {
-    return test.step("Room admin return himself information", async () => {
-      const response = await this.request.get(
-        `https://${this.portalDomain}/api/2.0/people/@self`,
-        {
-          headers: { Authorization: `Bearer ${this.authTokenRoomAdmin}` },
-        },
-      );
-      return response;
-    });
-  }
-
-  async userReturnHimselfInformation() {
-    return test.step("User return himself information", async () => {
-      const response = await this.request.get(
-        `https://${this.portalDomain}/api/2.0/people/@self`,
-        {
-          headers: { Authorization: `Bearer ${this.authTokenUser}` },
-        },
-      );
-      return response;
-    });
-  }
-
-  async ownerReturnsUserInfoViaEmail(data: { email: string[] }) {
+  async returnsUserInfoViaEmail(
+    role: "owner" | "docSpaceAdmin" | "roomAdmin" | "user",
+    data: { email: string[] },
+  ) {
     return test.step("Owner returns user information via email", async () => {
       const response = await this.request.get(
         `https://${this.portalDomain}/api/2.0/people/email?email=${data.email}`,
         {
-          headers: { Authorization: `Bearer ${this.authTokenOwner}` },
-        },
-      );
-      return response;
-    });
-  }
-
-  async docSpaceAdminReturnsUserInfoViaEmail(data: { email: string[] }) {
-    return test.step("Owner returns user information via email", async () => {
-      const response = await this.request.get(
-        `https://${this.portalDomain}/api/2.0/people/email?email=${data.email}`,
-        {
-          headers: { Authorization: `Bearer ${this.authTokenDocSpaceAdmin}` },
-        },
-      );
-      return response;
-    });
-  }
-
-  async roomAdminReturnsUserInfoViaEmail(data: { email: string[] }) {
-    return test.step("Owner returns user information via email", async () => {
-      const response = await this.request.get(
-        `https://${this.portalDomain}/api/2.0/people/email?email=${data.email}`,
-        {
-          headers: { Authorization: `Bearer ${this.authTokenRoomAdmin}` },
-        },
-      );
-      return response;
-    });
-  }
-
-  async userReturnsUserInfoViaEmail(data: { email: string[] }) {
-    return test.step("User returns user information via email", async () => {
-      const response = await this.request.get(
-        `https://${this.portalDomain}/api/2.0/people/email?email=${data.email}`,
-        {
-          headers: { Authorization: `Bearer ${this.authTokenUser}` },
+          headers: { Authorization: `Bearer ${this.getToken(role)}` },
         },
       );
       return response;
@@ -893,10 +434,13 @@ export class ProfilesApi {
     });
   }
 
-  async ownerSendInstructionToChangeEmail(data: {
-    userId: string;
-    email: string;
-  }) {
+  async sendInstructionToChangeEmail(
+    role: "owner" | "docSpaceAdmin" | "roomAdmin" | "user",
+    data: {
+      userId: string;
+      email: string;
+    },
+  ) {
     return test.step("Owner send instructions to change email", async () => {
       const userData = {
         userId: data.userId,
@@ -906,70 +450,7 @@ export class ProfilesApi {
       const response = await this.request.post(
         `https://${this.portalDomain}/api/2.0/people/email`,
         {
-          headers: { Authorization: `Bearer ${this.authTokenOwner}` },
-          data: userData,
-        },
-      );
-      return response;
-    });
-  }
-
-  async docSpaceAdminSendInstructionToChangeEmail(data: {
-    userId: string;
-    email: string;
-  }) {
-    return test.step("DocSpace admin send instructions to change email", async () => {
-      const userData = {
-        userId: data.userId,
-        email: data.email,
-      };
-
-      const response = await this.request.post(
-        `https://${this.portalDomain}/api/2.0/people/email`,
-        {
-          headers: { Authorization: `Bearer ${this.authTokenDocSpaceAdmin}` },
-          data: userData,
-        },
-      );
-      return response;
-    });
-  }
-
-  async roomAdminSendInstructionToChangeEmail(data: {
-    userId: string;
-    email: string;
-  }) {
-    return test.step("Room admin send instructions to change email", async () => {
-      const userData = {
-        userId: data.userId,
-        email: data.email,
-      };
-
-      const response = await this.request.post(
-        `https://${this.portalDomain}/api/2.0/people/email`,
-        {
-          headers: { Authorization: `Bearer ${this.authTokenRoomAdmin}` },
-          data: userData,
-        },
-      );
-      return response;
-    });
-  }
-
-  async userSendInstructionToChangeEmail(data: {
-    userId: string;
-    email: string;
-  }) {
-    return test.step("Room admin send instructions to change email", async () => {
-      const userData = {
-        userId: data.userId,
-        email: data.email,
-      };
-
-      const response = await this.request.post(
-        `https://${this.portalDomain}/api/2.0/people/email`,
-        {
-          headers: { Authorization: `Bearer ${this.authTokenUser}` },
+          headers: { Authorization: `Bearer ${this.getToken(role)}` },
           data: userData,
         },
       );
@@ -997,7 +478,10 @@ export class ProfilesApi {
     });
   }
 
-  async ownerDeleteUsers(data: { userIds: string[]; resendAll: boolean }) {
+  async deleteUsers(
+    role: "owner" | "docSpaceAdmin" | "roomAdmin" | "user",
+    data: { userIds: string[]; resendAll: boolean },
+  ) {
     return test.step("Owner delete users", async () => {
       const userData = {
         userIds: data.userIds,
@@ -1008,7 +492,7 @@ export class ProfilesApi {
         `https://${this.portalDomain}/api/2.0/people/delete`,
         {
           headers: {
-            Authorization: `Bearer ${this.authTokenOwner}`,
+            Authorization: `Bearer ${this.getToken(role)}`,
           },
           data: userData,
         },
@@ -1017,86 +501,15 @@ export class ProfilesApi {
     });
   }
 
-  async docSpaceAdminDeleteUsers(data: {
-    userIds: string[];
-    resendAll: boolean;
-  }) {
-    return test.step("Owner delete users", async () => {
-      const userData = {
-        userIds: data.userIds,
-        resendAll: data.resendAll,
-      };
-
-      const response = await this.request.put(
-        `https://${this.portalDomain}/api/2.0/people/delete`,
-        {
-          headers: {
-            Authorization: `Bearer ${this.authTokenDocSpaceAdmin}`,
-          },
-          data: userData,
-        },
-      );
-      return response;
-    });
-  }
-
-  async ownerUpdateCultureCode(data: { cultureName: string; userId: string }) {
+  async updateCultureCode(
+    role: "owner" | "docSpaceAdmin" | "roomAdmin" | "user",
+    data: { cultureName: string; userId: string },
+  ) {
     return test.step("Owner update culture code", async () => {
       const response = await this.request.put(
         `https://${this.portalDomain}/api/2.0/people/${data.userId}/culture`,
         {
-          headers: { Authorization: `Bearer ${this.authTokenOwner}` },
-          data: {
-            cultureName: data.cultureName,
-          },
-        },
-      );
-      return response;
-    });
-  }
-
-  async docSpaceAdminUpdateCultureCode(data: {
-    cultureName: string;
-    userId: string;
-  }) {
-    return test.step("DocSpace admin update culture code", async () => {
-      const response = await this.request.put(
-        `https://${this.portalDomain}/api/2.0/people/${data.userId}/culture`,
-        {
-          headers: { Authorization: `Bearer ${this.authTokenDocSpaceAdmin}` },
-          data: {
-            cultureName: data.cultureName,
-          },
-        },
-      );
-      return response;
-    });
-  }
-
-  async roomAdminUpdateCultureCode(data: {
-    cultureName: string;
-    userId: string;
-  }) {
-    return test.step("Room admin update culture code", async () => {
-      const response = await this.request.put(
-        `https://${this.portalDomain}/api/2.0/people/${data.userId}/culture`,
-        {
-          headers: { Authorization: `Bearer ${this.authTokenRoomAdmin}` },
-          data: {
-            cultureName: data.cultureName,
-          },
-        },
-      );
-      return response;
-    });
-  }
-
-  async userUpdateCultureCode(data: { cultureName: string; userId: string }) {
-    return test.step("User update culture code", async () => {
-      const response = await this.request.put(
-        `https://${this.portalDomain}/api/2.0/people/${data.userId}/culture`,
-        {
-          headers: { Authorization: `Bearer ${this.authTokenUser}` },
+          headers: { Authorization: `Bearer ${this.getToken(role)}` },
           data: {
             cultureName: data.cultureName,
           },
