@@ -1,4 +1,4 @@
-import { ProfilesApi, FAKER, UserStatusApi, RoomsApi } from "./index";
+import { ProfilesApi, FAKER, UserStatusApi, RoomsApi, FilesApi } from "./index";
 import { TokenStore } from "./token-store";
 import { APIRequestContext } from "@playwright/test";
 
@@ -6,12 +6,19 @@ export class ApiSDK {
   readonly profiles: ProfilesApi;
   readonly userStatus: UserStatusApi;
   readonly rooms: RoomsApi;
+  readonly files: FilesApi;
   readonly faker: FAKER;
 
   constructor(request: APIRequestContext, tokenStore: TokenStore) {
     this.profiles = new ProfilesApi(request, tokenStore);
     this.userStatus = new UserStatusApi(request, tokenStore);
     this.rooms = new RoomsApi(request, tokenStore);
+    this.files = new FilesApi(
+      request,
+      tokenStore.authTokenOwner,
+      tokenStore.authTokenDocSpaceAdmin,
+      tokenStore.portalDomain,
+    );
     this.faker = new FAKER();
   }
 }
