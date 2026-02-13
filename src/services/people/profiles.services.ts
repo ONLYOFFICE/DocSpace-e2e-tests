@@ -81,7 +81,7 @@ export class ProfilesApi {
     role: "owner" | "docSpaceAdmin" | "roomAdmin" | "user",
     type: UserType,
   ) {
-    return test.step("Create User", async () => {
+    return test.step(`${role} create User`, async () => {
       const fakeUser = this.faker.generateUser();
 
       const userData = {
@@ -177,7 +177,7 @@ export class ProfilesApi {
   async returnAllUsersList(
     role: "owner" | "docSpaceAdmin" | "roomAdmin" | "user",
   ) {
-    return test.step("Return all users list", async () => {
+    return test.step(`${role} Return all users list`, async () => {
       const response = await this.request.get(
         `https://${this.portalDomain}/api/2.0/people`,
         {
@@ -201,7 +201,7 @@ export class ProfilesApi {
     role: "owner" | "docSpaceAdmin" | "roomAdmin" | "user",
     data: { type: string; email: string },
   ) {
-    return test.step("Owner invite user", async () => {
+    return test.step(`${role} invite user`, async () => {
       const userData = {
         invitations: [
           {
@@ -260,7 +260,7 @@ export class ProfilesApi {
       resendAll: boolean;
     },
   ) {
-    return test.step("Owner resend activation emails", async () => {
+    return test.step(`${role} resend activation emails`, async () => {
       const userData = {
         userIds: data.userIds,
         resendAll: data.resendAll,
@@ -290,7 +290,7 @@ export class ProfilesApi {
     role: "owner" | "docSpaceAdmin" | "roomAdmin" | "user",
     data: { userIds: string[] },
   ) {
-    return test.step("Owner delete user", async () => {
+    return test.step(`${role} delete user`, async () => {
       const userData = {
         userIds: data.userIds,
       };
@@ -326,7 +326,7 @@ export class ProfilesApi {
     role: "owner" | "docSpaceAdmin" | "roomAdmin" | "user",
     userId: string,
   ) {
-    return test.step("Owner returns the detailed information of the user", async () => {
+    return test.step(`${role} returns the detailed information of the user`, async () => {
       const response = await this.request.get(
         `https://${this.portalDomain}/api/2.0/people/${userId}`,
         {
@@ -356,7 +356,7 @@ export class ProfilesApi {
       lastName: string;
     },
   ) {
-    return test.step("Owner update himself", async () => {
+    return test.step(`${role} update himself`, async () => {
       const userData = {
         firstName: data.firstName,
         lastName: data.lastName,
@@ -399,7 +399,7 @@ export class ProfilesApi {
   async returnHimselfInformation(
     role: "owner" | "docSpaceAdmin" | "roomAdmin" | "user",
   ) {
-    return test.step("Owner return himself information", async () => {
+    return test.step(`${role} return himself information`, async () => {
       const response = await this.request.get(
         `https://${this.portalDomain}/api/2.0/people/@self`,
         {
@@ -414,7 +414,7 @@ export class ProfilesApi {
     role: "owner" | "docSpaceAdmin" | "roomAdmin" | "user",
     data: { email: string[] },
   ) {
-    return test.step("Owner returns user information via email", async () => {
+    return test.step(`${role} returns user information via email`, async () => {
       const response = await this.request.get(
         `https://${this.portalDomain}/api/2.0/people/email?email=${data.email}`,
         {
@@ -441,7 +441,7 @@ export class ProfilesApi {
       email: string;
     },
   ) {
-    return test.step("Owner send instructions to change email", async () => {
+    return test.step(`${role} send instructions to change email`, async () => {
       const userData = {
         userId: data.userId,
         email: data.email,
@@ -482,7 +482,7 @@ export class ProfilesApi {
     role: "owner" | "docSpaceAdmin" | "roomAdmin" | "user",
     data: { userIds: string[]; resendAll: boolean },
   ) {
-    return test.step("Owner delete users", async () => {
+    return test.step(`${role} delete users`, async () => {
       const userData = {
         userIds: data.userIds,
         resendAll: data.resendAll,
@@ -505,7 +505,7 @@ export class ProfilesApi {
     role: "owner" | "docSpaceAdmin" | "roomAdmin" | "user",
     data: { cultureName: string; userId: string },
   ) {
-    return test.step("Owner update culture code", async () => {
+    return test.step(`${role} update culture code`, async () => {
       const response = await this.request.put(
         `https://${this.portalDomain}/api/2.0/people/${data.userId}/culture`,
         {

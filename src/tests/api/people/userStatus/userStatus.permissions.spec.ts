@@ -6,7 +6,7 @@ import { UserStatus } from "@/src/services/people/userStatus.services";
 
 test.describe("API user status methods", () => {
   // 79900 - FIX
-  test("DocSpace admin deactivates the DocSpace admin", async ({
+  test("PUT /people/status/:status - DocSpace admin deactivates the DocSpace admin", async ({
     apiSdk,
     api,
   }) => {
@@ -37,7 +37,10 @@ test.describe("API user status methods", () => {
   });
 
   // 79900 - FIX
-  test("DocSpace admin deactivates Owner", async ({ apiSdk, api }) => {
+  test("PUT /people/status/:status - DocSpace admin deactivates Owner", async ({
+    apiSdk,
+    api,
+  }) => {
     const owner = await apiSdk.profiles.returnHimselfInformation("owner");
     const ownerBody = await owner.json();
     const ownerId = ownerBody.response.id;
@@ -62,7 +65,7 @@ test.describe("API user status methods", () => {
     expect(bodyResponse.error.message).toContain("Access denied");
   });
 
-  test("Room admin deactivates the different type of users", async ({
+  test("PUT /people/status/:status - Room admin deactivates the different type of users", async ({
     apiSdk,
     api,
   }) => {
@@ -96,7 +99,7 @@ test.describe("API user status methods", () => {
     expect(bodyResponse.error.message).toBe("Access denied");
   });
 
-  test("Room admin activates the different type of users", async ({
+  test("PUT /people/status/:status - Room admin activates the different type of users", async ({
     apiSdk,
     api,
   }) => {
@@ -134,7 +137,10 @@ test.describe("API user status methods", () => {
     expect(bodyResponse.error.message).toBe("Access denied");
   });
 
-  test("Room admin deactivates Room Admin", async ({ apiSdk, api }) => {
+  test("PUT /people/status/:status - Room admin deactivates Room Admin", async ({
+    apiSdk,
+    api,
+  }) => {
     const roomAdmin = await apiSdk.profiles.addMember("owner", "RoomAdmin");
     const roomAdminBody = await roomAdmin.response.json();
     const roomAdminId = roomAdminBody.response.id;
@@ -158,7 +164,10 @@ test.describe("API user status methods", () => {
     expect(bodyResponse.error.message).toBe("Access denied");
   });
 
-  test("Room admin deactivates DocSpace Admin", async ({ apiSdk, api }) => {
+  test("PUT /people/status/:status - Room admin deactivates DocSpace Admin", async ({
+    apiSdk,
+    api,
+  }) => {
     const docSpaceAdmin = await apiSdk.profiles.addMember(
       "owner",
       "DocSpaceAdmin",
@@ -185,7 +194,10 @@ test.describe("API user status methods", () => {
     expect(bodyResponse.error.message).toBe("Access denied");
   });
 
-  test("Room admin deactivates Owner", async ({ apiSdk, api }) => {
+  test("PUT /people/status/:status - Room admin deactivates Owner", async ({
+    apiSdk,
+    api,
+  }) => {
     const owner = await apiSdk.profiles.returnHimselfInformation("owner");
     const ownerBody = await owner.json();
     const ownerId = ownerBody.response.id;
@@ -209,7 +221,10 @@ test.describe("API user status methods", () => {
     expect(bodyResponse.error.message).toContain("Access denied");
   });
 
-  test("User deactivates Owner", async ({ apiSdk, api }) => {
+  test("PUT /people/status/:status - User deactivates Owner", async ({
+    apiSdk,
+    api,
+  }) => {
     const owner = await apiSdk.profiles.returnHimselfInformation("owner");
     const ownerBody = await owner.json();
     const ownerId = ownerBody.response.id;
@@ -233,7 +248,10 @@ test.describe("API user status methods", () => {
     expect(bodyResponse.error.message).toContain("Access denied");
   });
 
-  test("User deactivates DocSpace Admin", async ({ apiSdk, api }) => {
+  test("PUT /people/status/:status - User deactivates DocSpace Admin", async ({
+    apiSdk,
+    api,
+  }) => {
     const docSpaceAdmin = await apiSdk.profiles.addMember(
       "owner",
       "DocSpaceAdmin",
@@ -260,7 +278,10 @@ test.describe("API user status methods", () => {
     expect(bodyResponse.error.message).toBe("Access denied");
   });
 
-  test("User deactivates Room admin", async ({ apiSdk, api }) => {
+  test("PUT /people/status/:status - User deactivates Room admin", async ({
+    apiSdk,
+    api,
+  }) => {
     const roomAdmin = await apiSdk.profiles.addMember("owner", "RoomAdmin");
     const roomAdminBody = await roomAdmin.response.json();
     const roomAdminId = roomAdminBody.response.id;
@@ -284,7 +305,10 @@ test.describe("API user status methods", () => {
     expect(bodyResponse.error.message).toBe("Access denied");
   });
 
-  test("User deactivates User", async ({ apiSdk, api }) => {
+  test("PUT /people/status/:status - User deactivates User", async ({
+    apiSdk,
+    api,
+  }) => {
     const user = await apiSdk.profiles.addMember("owner", "User");
     const userBody = await user.response.json();
     const userId = userBody.response.id;
@@ -308,7 +332,7 @@ test.describe("API user status methods", () => {
     expect(bodyResponse.error.message).toBe("Access denied");
   });
 
-  test("User activates the different type of users", async ({
+  test("PUT /people/status/:status - User activates the different type of users", async ({
     apiSdk,
     api,
   }) => {

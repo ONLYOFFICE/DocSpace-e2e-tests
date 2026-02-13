@@ -17,7 +17,7 @@ type UsersListItem = {
   isCollaborator?: boolean;
 };
 
-test.describe("API profiling tests for access rights", () => {
+test.describe("POST /people - API profiling tests for access rights", () => {
   test("Owner create User for long first and last name", async ({ apiSdk }) => {
     const userData = {
       password: faker.internet.password({ length: 12 }),
@@ -38,7 +38,9 @@ test.describe("API profiling tests for access rights", () => {
     );
   });
 
-  test("Owner create User for long email", async ({ apiSdk }) => {
+  test("POST /people - Owner create User for long email", async ({
+    apiSdk,
+  }) => {
     const email = apiSdk.faker.generateEmailWithLength(260);
     const userData = {
       password: faker.internet.password({ length: 12 }),
@@ -56,7 +58,10 @@ test.describe("API profiling tests for access rights", () => {
     );
   });
 
-  test("DocSpace admin creates DocSpace admin", async ({ apiSdk, api }) => {
+  test("POST /people - DocSpace admin creates DocSpace admin", async ({
+    apiSdk,
+    api,
+  }) => {
     await apiSdk.profiles.addMember("owner", "DocSpaceAdmin");
     await api.auth.authenticateDocSpaceAdmin();
 
@@ -69,7 +74,10 @@ test.describe("API profiling tests for access rights", () => {
     expect(body.error.message).toContain("Access denied");
   });
 
-  test("Room admin creates Room admin", async ({ apiSdk, api }) => {
+  test("POST /people - Room admin creates Room admin", async ({
+    apiSdk,
+    api,
+  }) => {
     await apiSdk.profiles.addMember("owner", "RoomAdmin");
     await api.auth.authenticateRoomAdmin();
 
@@ -82,7 +90,7 @@ test.describe("API profiling tests for access rights", () => {
     expect(body.error.message).toContain("Access denied");
   });
 
-  test("User creates User", async ({ apiSdk, api }) => {
+  test("POST /people - User creates User", async ({ apiSdk, api }) => {
     await apiSdk.profiles.addMember("owner", "User");
     await api.auth.authenticateUser();
 
@@ -92,12 +100,14 @@ test.describe("API profiling tests for access rights", () => {
     expect(body.error.message).toContain("Access denied");
   });
 
-  test("Adding a user without authorization", async ({ apiSdk }) => {
+  test("POST /people - Adding a user without authorization", async ({
+    apiSdk,
+  }) => {
     const response = await apiSdk.profiles.addingAUserWithoutAuthorization();
     expect(response.status()).toBe(401);
   });
 
-  test("User returns all users list", async ({ apiSdk, api }) => {
+  test("GET /people - User returns all users list", async ({ apiSdk, api }) => {
     await apiSdk.profiles.addMember("owner", "DocSpaceAdmin");
     await apiSdk.profiles.addMember("owner", "RoomAdmin");
     await apiSdk.profiles.addMember("owner", "User");
@@ -108,13 +118,18 @@ test.describe("API profiling tests for access rights", () => {
     expect(body.error.message).toContain("Access denied");
   });
 
-  test("Return all users list without authorization", async ({ apiSdk }) => {
+  test("GET /people - Return all users list without authorization", async ({
+    apiSdk,
+  }) => {
     const response =
       await apiSdk.profiles.returnAllUsersListWithoutAuthorization();
     expect(response.status()).toBe(401);
   });
 
-  test("DocSpace admin invites docspace admin", async ({ apiSdk, api }) => {
+  test("POST /people/invite - DocSpace admin invites docspace admin", async ({
+    apiSdk,
+    api,
+  }) => {
     await apiSdk.profiles.addMember("owner", "DocSpaceAdmin");
     await api.auth.authenticateDocSpaceAdmin();
 
@@ -132,7 +147,10 @@ test.describe("API profiling tests for access rights", () => {
     expect(body.error.message).toContain("Access denied");
   });
 
-  test("Room admin invites room admin", async ({ apiSdk, api }) => {
+  test("POST /people/invite - Room admin invites room admin", async ({
+    apiSdk,
+    api,
+  }) => {
     await apiSdk.profiles.addMember("owner", "RoomAdmin");
     await api.auth.authenticateRoomAdmin();
 
@@ -147,7 +165,7 @@ test.describe("API profiling tests for access rights", () => {
     expect(body.error.message).toContain("Access denied");
   });
 
-  test("User invites user", async ({ apiSdk, api }) => {
+  test("POST /people/invite - User invites user", async ({ apiSdk, api }) => {
     await apiSdk.profiles.addMember("owner", "User");
     await api.auth.authenticateUser();
 
@@ -162,7 +180,9 @@ test.describe("API profiling tests for access rights", () => {
     expect(body.error.message).toContain("Access denied");
   });
 
-  test("Invite user for long email", async ({ apiSdk }) => {
+  test("POST /people/invite - Invite user for long email", async ({
+    apiSdk,
+  }) => {
     const localPart = faker.string.alpha({ length: 260, casing: "lower" });
     const domain = faker.internet.domainName();
     const userData = {
@@ -177,13 +197,18 @@ test.describe("API profiling tests for access rights", () => {
     );
   });
 
-  test("Inviting a user without authorization", async ({ apiSdk }) => {
+  test("POST /people/invite - Inviting a user without authorization", async ({
+    apiSdk,
+  }) => {
     const response = await apiSdk.profiles.invitingAUserWithoutAuthorization();
     expect(response.status()).toBe(401);
   });
 
   // 79545 - Fix
-  test("User resend activation emails ", async ({ apiSdk, api }) => {
+  test("PUT /people/invite - User resend activation emails ", async ({
+    apiSdk,
+    api,
+  }) => {
     await apiSdk.profiles.addMember("owner", "User");
     const email = faker.internet.email();
 
@@ -211,7 +236,7 @@ test.describe("API profiling tests for access rights", () => {
     expect(bodyResent.error.message).toContain("Access denied");
   });
 
-  test("Resending activation email by unauthorized user", async ({
+  test("PUT /people/invite - Resending activation email by unauthorized user", async ({
     apiSdk,
   }) => {
     const response =
@@ -220,7 +245,9 @@ test.describe("API profiling tests for access rights", () => {
   });
 
   // 79560 - Fixed
-  test("Owner deletes a non-deactivated user", async ({ apiSdk }) => {
+  test("DELETE /people/:userIds - Owner deletes a non-deactivated user", async ({
+    apiSdk,
+  }) => {
     const user = await apiSdk.profiles.addMember("owner", "User");
     const response = await user.response.json();
     const userId = response.response.id;
@@ -235,7 +262,7 @@ test.describe("API profiling tests for access rights", () => {
   });
 
   // 79560 - Fixed
-  test("DocSpace admin deletes a non-deactivated user", async ({
+  test("DELETE /people/:userIds - DocSpace admin deletes a non-deactivated user", async ({
     apiSdk,
     api,
   }) => {
@@ -258,7 +285,10 @@ test.describe("API profiling tests for access rights", () => {
     expect(bodyDelete.error.message).toContain("The user is not suspended");
   });
 
-  test("Room admin deletes a non-deactivated user", async ({ apiSdk, api }) => {
+  test("DELETE /people/:userIds - Room admin deletes a non-deactivated user", async ({
+    apiSdk,
+    api,
+  }) => {
     const user = await apiSdk.profiles.addMember("owner", "User");
     const response = await user.response.json();
     const userId = response.response.id;
@@ -278,7 +308,10 @@ test.describe("API profiling tests for access rights", () => {
     expect(bodyDelete.error.message).toContain("Access denied");
   });
 
-  test("User deletes a non-deactivated user", async ({ apiSdk, api }) => {
+  test("DELETE /people/:userIds - User deletes a non-deactivated user", async ({
+    apiSdk,
+    api,
+  }) => {
     const user = await apiSdk.profiles.addMember("owner", "User");
     const response = await user.response.json();
     const userId = response.response.id;
@@ -295,7 +328,7 @@ test.describe("API profiling tests for access rights", () => {
     expect(bodyDelete.error.message).toContain("Access denied");
   });
 
-  test("DocSpace admin deletes a deactivated docspace admin", async ({
+  test("DELETE /people/:userIds - DocSpace admin deletes a deactivated docspace admin", async ({
     apiSdk,
     api,
   }) => {
@@ -336,7 +369,7 @@ test.describe("API profiling tests for access rights", () => {
     expect(bodyDelete.error.message).toContain("Access denied");
   });
 
-  test("Room admin deletes a deactivated room admin", async ({
+  test("DELETE /people/:userIds - Room admin deletes a deactivated room admin", async ({
     apiSdk,
     api,
   }) => {
@@ -374,7 +407,10 @@ test.describe("API profiling tests for access rights", () => {
     expect(bodyDelete.error.message).toContain("Access denied");
   });
 
-  test("User deletes a deactivated user", async ({ apiSdk, api }) => {
+  test("DELETE /people/:userIds - User deletes a deactivated user", async ({
+    apiSdk,
+    api,
+  }) => {
     // Create first User that will be deleted
     const userToDelete = await apiSdk.profiles.addMember("owner", "User");
     const responseToDelete = await userToDelete.response.json();
@@ -409,7 +445,10 @@ test.describe("API profiling tests for access rights", () => {
     expect(bodyDelete.error.message).toContain("Access denied");
   });
 
-  test("Room admin deletes a deactivated user", async ({ apiSdk, api }) => {
+  test("DELETE /people/:userIds - Room admin deletes a deactivated user", async ({
+    apiSdk,
+    api,
+  }) => {
     // Create first user that will be deleted
     const userToDelete = await apiSdk.profiles.addMember("owner", "User");
     const responseToDelete = await userToDelete.response.json();
@@ -444,7 +483,9 @@ test.describe("API profiling tests for access rights", () => {
     expect(bodyDelete.error.message).toContain("Access denied");
   });
 
-  test("Deleting a non-existent user", async ({ apiSdk }) => {
+  test("DELETE /people/:userIds - Deleting a non-existent user", async ({
+    apiSdk,
+  }) => {
     const user = await apiSdk.profiles.addMember("owner", "RoomAdmin");
     const response = await user.response.json();
     const userId = response.response.id;
@@ -473,7 +514,9 @@ test.describe("API profiling tests for access rights", () => {
     expect(bodyDelete.error.message).toContain("The user could not be found");
   });
 
-  test("Deleting a user without authorization", async ({ apiSdk }) => {
+  test("DELETE /people/:userIds - Deleting a user without authorization", async ({
+    apiSdk,
+  }) => {
     // Create first user that will be deleted
     const userToDelete = await apiSdk.profiles.addMember("owner", "User");
     const responseToDelete = await userToDelete.response.json();
@@ -502,7 +545,7 @@ test.describe("API profiling tests for access rights", () => {
     expect(responseDelete.status()).toBe(401);
   });
 
-  test("Returns detailed information about a non-existent user", async ({
+  test("GET /people/:userId - Returns detailed information about a non-existent user", async ({
     apiSdk,
   }) => {
     const user = await apiSdk.profiles.addMember("owner", "RoomAdmin");
@@ -535,7 +578,7 @@ test.describe("API profiling tests for access rights", () => {
     );
   });
 
-  test("Returns detailed information of a user without authorization", async ({
+  test("GET /people/:userId - Returns detailed information of a user without authorization", async ({
     apiSdk,
   }) => {
     const user = await apiSdk.profiles.addMember("owner", "RoomAdmin");
@@ -549,7 +592,7 @@ test.describe("API profiling tests for access rights", () => {
     expect(responseReturnInfo.status()).toBe(401);
   });
 
-  test("Updating owner profile data without authorization", async ({
+  test("PUT /people/:userId - Updating owner profile data without authorization", async ({
     apiSdk,
   }) => {
     const returnAllUsersList =
@@ -569,7 +612,9 @@ test.describe("API profiling tests for access rights", () => {
     expect(responseUpdateInfo.status()).toBe(401);
   });
 
-  test("Updating profile data non-existent user", async ({ apiSdk }) => {
+  test("PUT /people/:userId - Updating profile data non-existent user", async ({
+    apiSdk,
+  }) => {
     const user = await apiSdk.profiles.addMember("owner", "RoomAdmin");
     const response = await user.response.json();
     const userId = response.response.id;
@@ -605,7 +650,7 @@ test.describe("API profiling tests for access rights", () => {
     );
   });
 
-  test("DocSpace admin updating profile data owner", async ({
+  test("PUT /people/:userId - DocSpace admin updating profile data owner", async ({
     apiSdk,
     api,
   }) => {
@@ -631,7 +676,10 @@ test.describe("API profiling tests for access rights", () => {
     expect(bodyUpdateInfo.error.message).toContain("Access denied");
   });
 
-  test("Room admin updating profile data owner", async ({ apiSdk, api }) => {
+  test("PUT /people/:userId - Room admin updating profile data owner", async ({
+    apiSdk,
+    api,
+  }) => {
     const returnAllUsersList =
       await apiSdk.profiles.returnAllUsersList("owner");
     const response = await returnAllUsersList.json();
@@ -654,7 +702,10 @@ test.describe("API profiling tests for access rights", () => {
     expect(bodyUpdateInfo.error.message).toContain("Access denied");
   });
 
-  test("User updating profile data owner", async ({ apiSdk, api }) => {
+  test("PUT /people/:userId - User updating profile data owner", async ({
+    apiSdk,
+    api,
+  }) => {
     const returnAllUsersList =
       await apiSdk.profiles.returnAllUsersList("owner");
     const response = await returnAllUsersList.json();
@@ -677,7 +728,7 @@ test.describe("API profiling tests for access rights", () => {
     expect(bodyUpdateInfo.error.message).toContain("Access denied");
   });
 
-  test("Updating owner profile data with incorrect name", async ({
+  test("PUT /people/:userId - Updating owner profile data with incorrect name", async ({
     apiSdk,
   }) => {
     const returnAllUsersList =
@@ -702,7 +753,7 @@ test.describe("API profiling tests for access rights", () => {
     );
   });
 
-  test("Updating user profile data with incorrect data", async ({
+  test("PUT /people/:userId - Updating user profile data with incorrect data", async ({
     apiSdk,
     api,
   }) => {
@@ -731,7 +782,7 @@ test.describe("API profiling tests for access rights", () => {
     );
   });
 
-  test("Receives information about another user via email without authorization.", async ({
+  test("GET /people/email?email= - Receives information about another user via email without authorization.", async ({
     apiSdk,
   }) => {
     const ownerData = await apiSdk.profiles.returnHimselfInformation("owner");
@@ -748,7 +799,7 @@ test.describe("API profiling tests for access rights", () => {
     expect(response.status()).toBe(401);
   });
 
-  test("Receives information about another user via email with a non-existent user", async ({
+  test("GET /people/email?email= - Receives information about another user via email with a non-existent user", async ({
     apiSdk,
   }) => {
     const user = await apiSdk.profiles.addMember("owner", "RoomAdmin");
@@ -784,7 +835,7 @@ test.describe("API profiling tests for access rights", () => {
     expect(bodyDelete.error.message).toContain("The user could not be found");
   });
 
-  test("User receives information about another user via email.", async ({
+  test("GET /people/email?email= - User receives information about another user via email.", async ({
     apiSdk,
     api,
   }) => {
@@ -807,7 +858,7 @@ test.describe("API profiling tests for access rights", () => {
     expect(userInfo.error.message).toContain("Access denied");
   });
 
-  test("Sent instructions on changing an email address to a non-existent user", async ({
+  test("POST /people/email - Sent instructions on changing an email address to a non-existent user", async ({
     apiSdk,
   }) => {
     const userId = faker.string.uuid();
@@ -824,7 +875,7 @@ test.describe("API profiling tests for access rights", () => {
     expect(dataResponse.error.message).toContain("The user could not be found");
   });
 
-  test("Sent instructions on how to change your email address with an incorrect email address", async ({
+  test("POST /people/email - Sent instructions on how to change your email address with an incorrect email address", async ({
     apiSdk,
   }) => {
     const userData = await apiSdk.profiles.addMember("owner", "User");
@@ -850,7 +901,7 @@ test.describe("API profiling tests for access rights", () => {
     );
   });
 
-  test("DocSpace admin sent DocSpace admin user instructions on how to change his email address", async ({
+  test("POST /people/email - DocSpace admin sent DocSpace admin user instructions on how to change his email address", async ({
     apiSdk,
     api,
   }) => {
@@ -876,7 +927,7 @@ test.describe("API profiling tests for access rights", () => {
     expect(dataResponse.error.message).toBe("Access denied");
   });
 
-  test("DocSpace admin sent Owner user instructions on how to change his email address", async ({
+  test("POST /people/email - DocSpace admin sent Owner user instructions on how to change his email address", async ({
     apiSdk,
     api,
   }) => {
@@ -899,7 +950,7 @@ test.describe("API profiling tests for access rights", () => {
     expect(dataResponse.error.message).toBe("Access denied");
   });
 
-  test("Room admin sent Owner user instructions on how to change his email address", async ({
+  test("POST /people/email - Room admin sent Owner user instructions on how to change his email address", async ({
     apiSdk,
     api,
   }) => {
@@ -922,7 +973,7 @@ test.describe("API profiling tests for access rights", () => {
     expect(dataResponse.error.message).toBe("Access denied");
   });
 
-  test("Room admin sent DocSpace admin user instructions on how to change his email address", async ({
+  test("POST /people/email - Room admin sent DocSpace admin user instructions on how to change his email address", async ({
     apiSdk,
     api,
   }) => {
@@ -948,7 +999,7 @@ test.describe("API profiling tests for access rights", () => {
     expect(dataResponse.error.message).toBe("Access denied");
   });
 
-  test("Room admin sent Room admin user instructions on how to change his email address", async ({
+  test("POST /people/email - Room admin sent Room admin user instructions on how to change his email address", async ({
     apiSdk,
     api,
   }) => {
@@ -971,7 +1022,7 @@ test.describe("API profiling tests for access rights", () => {
     expect(dataResponse.error.message).toBe("Access denied");
   });
 
-  test("Room admin sent User instructions on how to change his email address", async ({
+  test("POST /people/email - Room admin sent User instructions on how to change his email address", async ({
     apiSdk,
     api,
   }) => {
@@ -994,7 +1045,7 @@ test.describe("API profiling tests for access rights", () => {
     expect(dataResponse.error.message).toBe("Access denied");
   });
 
-  test("User sent Owner user instructions on how to change his email address", async ({
+  test("POST /people/email - User sent Owner user instructions on how to change his email address", async ({
     apiSdk,
     api,
   }) => {
@@ -1017,7 +1068,7 @@ test.describe("API profiling tests for access rights", () => {
     expect(dataResponse.error.message).toBe("Access denied");
   });
 
-  test("User sent DocSpace admin user instructions on how to change his email address", async ({
+  test("POST /people/email - User sent DocSpace admin user instructions on how to change his email address", async ({
     apiSdk,
     api,
   }) => {
@@ -1043,7 +1094,7 @@ test.describe("API profiling tests for access rights", () => {
     expect(dataResponse.error.message).toBe("Access denied");
   });
 
-  test("User sent Room admin user instructions on how to change his email address", async ({
+  test("POST /people/email - User sent Room admin user instructions on how to change his email address", async ({
     apiSdk,
     api,
   }) => {
@@ -1066,7 +1117,7 @@ test.describe("API profiling tests for access rights", () => {
     expect(dataResponse.error.message).toBe("Access denied");
   });
 
-  test("User sent another User instructions on how to change his email address", async ({
+  test("POST /people/email - User sent another User instructions on how to change his email address", async ({
     apiSdk,
     api,
   }) => {
@@ -1089,7 +1140,7 @@ test.describe("API profiling tests for access rights", () => {
     expect(dataResponse.error.message).toBe("Access denied");
   });
 
-  test("Sent instructions on how to change email address without authorization", async ({
+  test("POST /people/email - Sent instructions on how to change email address without authorization", async ({
     apiSdk,
   }) => {
     const ownerData = await apiSdk.profiles.returnHimselfInformation("owner");
@@ -1107,7 +1158,7 @@ test.describe("API profiling tests for access rights", () => {
     expect(response.status()).toBe(401);
   });
 
-  test("Sending instructions on how to change a very long email address.", async ({
+  test("POST /people/email - Sending instructions on how to change a very long email address.", async ({
     apiSdk,
   }) => {
     const docSpaceAdminData = await apiSdk.profiles.addMember(
@@ -1137,7 +1188,9 @@ test.describe("API profiling tests for access rights", () => {
   });
 
   // 79876 - FIX
-  test("Owner delete non-deactivated users", async ({ apiSdk }) => {
+  test("PUT /people/delete - Owner delete non-deactivated users", async ({
+    apiSdk,
+  }) => {
     const docSpaceAdmin = await apiSdk.profiles.addMember(
       "owner",
       "DocSpaceAdmin",
@@ -1162,7 +1215,10 @@ test.describe("API profiling tests for access rights", () => {
     expect(dataResponse.error.message).toBe("Users are not suspended");
   });
 
-  test("Room admin removes deactivated users", async ({ apiSdk, api }) => {
+  test("PUT /people/delete - Room admin removes deactivated users", async ({
+    apiSdk,
+    api,
+  }) => {
     const user1 = await apiSdk.profiles.addMember("owner", "User");
     const user1Json = await user1.response.json();
     const user1Id = user1Json.response.id;
@@ -1192,7 +1248,10 @@ test.describe("API profiling tests for access rights", () => {
     expect(dataResponse.error.message).toContain("Access denied");
   });
 
-  test("User removes deactivated users", async ({ apiSdk, api }) => {
+  test("PUT /people/delete - User removes deactivated users", async ({
+    apiSdk,
+    api,
+  }) => {
     const user1 = await apiSdk.profiles.addMember("owner", "User");
     const user1Json = await user1.response.json();
     const user1Id = user1Json.response.id;
@@ -1222,7 +1281,7 @@ test.describe("API profiling tests for access rights", () => {
     expect(dataResponse.error.message).toContain("Access denied");
   });
 
-  test("Update a culture code of himself without authorization", async ({
+  test("PUT /people/:userId/culture - Update a culture code of himself without authorization", async ({
     apiSdk,
   }) => {
     const ownerData = await apiSdk.profiles.returnHimselfInformation("owner");
@@ -1241,7 +1300,9 @@ test.describe("API profiling tests for access rights", () => {
   });
 
   // 65478 - FIX
-  test("Owner update a culture code another's users", async ({ apiSdk }) => {
+  test("PUT /people/:userId/culture - Owner update a culture code another's users", async ({
+    apiSdk,
+  }) => {
     const docSpaceAdminData = await apiSdk.profiles.addMember(
       "owner",
       "DocSpaceAdmin",
@@ -1298,7 +1359,7 @@ test.describe("API profiling tests for access rights", () => {
   });
 
   // 65478 - FIX
-  test("DocSpace admin update a culture code another's users", async ({
+  test("PUT /people/:userId/culture - DocSpace admin update a culture code another's users", async ({
     apiSdk,
     api,
   }) => {
@@ -1357,7 +1418,7 @@ test.describe("API profiling tests for access rights", () => {
   });
 
   // 65478 - FIX
-  test("Room admin update a culture code another's users", async ({
+  test("PUT /people/:userId/culture - Room admin update a culture code another's users", async ({
     apiSdk,
     api,
   }) => {
@@ -1419,7 +1480,7 @@ test.describe("API profiling tests for access rights", () => {
   });
 
   // 65478 - FIX
-  test("User update a culture code another's users", async ({
+  test("PUT /people/:userId/culture - User update a culture code another's users", async ({
     apiSdk,
     api,
   }) => {
@@ -1480,7 +1541,7 @@ test.describe("API profiling tests for access rights", () => {
     expect(roomAdminDataResponse.error.message).toBe("Access denied");
   });
 
-  test("Owner update a culture code of non-existent user", async ({
+  test("PUT /people/:userId/culture - Owner update a culture code of non-existent user", async ({
     apiSdk,
   }) => {
     const userId = faker.string.uuid();
@@ -1498,7 +1559,9 @@ test.describe("API profiling tests for access rights", () => {
   });
 
   // 79918 - FIX
-  test("Update culture code with long string", async ({ apiSdk }) => {
+  test("PUT /people/:userId/culture - Update culture code with long string", async ({
+    apiSdk,
+  }) => {
     const ownerData = await apiSdk.profiles.returnHimselfInformation("owner");
     const ownerJson = await ownerData.json();
     const ownerId = ownerJson.response.id;

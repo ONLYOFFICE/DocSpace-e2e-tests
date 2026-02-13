@@ -18,7 +18,7 @@ type UsersListItem = {
 
 test.describe("API profile methods", () => {
   // 80020 - NEW
-  test("Owner create User", async ({ apiSdk }) => {
+  test("POST /people - Owner create User", async ({ apiSdk }) => {
     const { response } = await apiSdk.profiles.addMember("owner", "User");
     const body = await response.json();
     expect(body.statusCode).toBe(200);
@@ -33,7 +33,7 @@ test.describe("API profile methods", () => {
     );
   });
 
-  test("Owner create Room Admin", async ({ apiSdk }) => {
+  test("POST /people - Owner create Room Admin", async ({ apiSdk }) => {
     const { response } = await apiSdk.profiles.addMember("owner", "RoomAdmin");
     const body = await response.json();
     expect(body.statusCode).toBe(200);
@@ -48,7 +48,7 @@ test.describe("API profile methods", () => {
     );
   });
 
-  test("Owner create DocSpace Admin", async ({ apiSdk }) => {
+  test("POST /people - Owner create DocSpace Admin", async ({ apiSdk }) => {
     const { response } = await apiSdk.profiles.addMember(
       "owner",
       "DocSpaceAdmin",
@@ -66,7 +66,10 @@ test.describe("API profile methods", () => {
     );
   });
 
-  test("DocSpace admin creates Room admin", async ({ apiSdk, api }) => {
+  test("POST /people - DocSpace admin creates Room admin", async ({
+    apiSdk,
+    api,
+  }) => {
     await apiSdk.profiles.addMember("owner", "DocSpaceAdmin");
     await api.auth.authenticateDocSpaceAdmin();
 
@@ -87,7 +90,10 @@ test.describe("API profile methods", () => {
     );
   });
 
-  test("DocSpace admin creates user", async ({ apiSdk, api }) => {
+  test("POST /people - DocSpace admin creates user", async ({
+    apiSdk,
+    api,
+  }) => {
     await apiSdk.profiles.addMember("owner", "DocSpaceAdmin");
     await api.auth.authenticateDocSpaceAdmin();
 
@@ -108,7 +114,7 @@ test.describe("API profile methods", () => {
     );
   });
 
-  test("Room admin creates User", async ({ apiSdk, api }) => {
+  test("POST /people - Room admin creates User", async ({ apiSdk, api }) => {
     await apiSdk.profiles.addMember("owner", "RoomAdmin");
     await api.auth.authenticateRoomAdmin();
 
@@ -126,7 +132,7 @@ test.describe("API profile methods", () => {
     );
   });
 
-  test("Owner returns all users list", async ({ apiSdk }) => {
+  test("GET /people - Owner returns all users list", async ({ apiSdk }) => {
     const { userData: docSpaceAdminUserData } = await apiSdk.profiles.addMember(
       "owner",
       "DocSpaceAdmin",
@@ -212,7 +218,10 @@ test.describe("API profile methods", () => {
     );
   });
 
-  test("DocSpace admin returns all users list", async ({ apiSdk, api }) => {
+  test("GET /people - DocSpace admin returns all users list", async ({
+    apiSdk,
+    api,
+  }) => {
     const { userData: docSpaceAdminUserData } = await apiSdk.profiles.addMember(
       "owner",
       "DocSpaceAdmin",
@@ -300,7 +309,10 @@ test.describe("API profile methods", () => {
     );
   });
 
-  test("Room admin returns all users list", async ({ apiSdk, api }) => {
+  test("GET /people - Room admin returns all users list", async ({
+    apiSdk,
+    api,
+  }) => {
     const { userData: docSpaceAdminUserData } = await apiSdk.profiles.addMember(
       "owner",
       "DocSpaceAdmin",
@@ -388,7 +400,9 @@ test.describe("API profile methods", () => {
     );
   });
 
-  test("Owner invites docspace admin", async ({ apiSdk }) => {
+  test("POST /people/invite - Owner invites docspace admin", async ({
+    apiSdk,
+  }) => {
     const userData = {
       type: "DocSpaceAdmin",
       email: faker.internet.email(),
@@ -407,7 +421,7 @@ test.describe("API profile methods", () => {
     expect(invitedUser.isAnonim).toBe(false);
   });
 
-  test("Owner invites room admin", async ({ apiSdk }) => {
+  test("POST /people/invite - Owner invites room admin", async ({ apiSdk }) => {
     const userData = {
       type: "RoomAdmin",
       email: faker.internet.email(),
@@ -426,7 +440,7 @@ test.describe("API profile methods", () => {
     expect(invitedUser.isAnonim).toBe(false);
   });
 
-  test("Owner invites user", async ({ apiSdk }) => {
+  test("POST /people/invite - Owner invites user", async ({ apiSdk }) => {
     const email = faker.internet.email();
     const response = await apiSdk.profiles.inviteUser("owner", {
       type: "User",
@@ -444,7 +458,10 @@ test.describe("API profile methods", () => {
     expect(invitedUser.isAnonim).toBe(false);
   });
 
-  test("DocSpace admin invites room admin", async ({ apiSdk, api }) => {
+  test("POST /people/invite - DocSpace admin invites room admin", async ({
+    apiSdk,
+    api,
+  }) => {
     await apiSdk.profiles.addMember("owner", "DocSpaceAdmin");
     await api.auth.authenticateDocSpaceAdmin();
     const email = faker.internet.email();
@@ -468,7 +485,10 @@ test.describe("API profile methods", () => {
     expect(invitedUser.isAnonim).toBe(false);
   });
 
-  test("DocSpace admin invites user", async ({ apiSdk, api }) => {
+  test("POST /people/invite - DocSpace admin invites user", async ({
+    apiSdk,
+    api,
+  }) => {
     await apiSdk.profiles.addMember("owner", "DocSpaceAdmin");
     await api.auth.authenticateDocSpaceAdmin();
     const email = faker.internet.email();
@@ -492,7 +512,10 @@ test.describe("API profile methods", () => {
     expect(invitedUser.isAnonim).toBe(false);
   });
 
-  test("Room admin invites user", async ({ apiSdk, api }) => {
+  test("POST /people/invite - Room admin invites user", async ({
+    apiSdk,
+    api,
+  }) => {
     await apiSdk.profiles.addMember("owner", "RoomAdmin");
     await api.auth.authenticateRoomAdmin();
     const email = faker.internet.email();
@@ -515,7 +538,9 @@ test.describe("API profile methods", () => {
     expect(invitedUser.isAnonim).toBe(false);
   });
 
-  test("Owner resend activation emails ", async ({ apiSdk }) => {
+  test("PUT /people/invite - Owner resend activation emails ", async ({
+    apiSdk,
+  }) => {
     const email = faker.internet.email();
     const response = await apiSdk.profiles.inviteUser("owner", {
       type: "DocSpaceAdmin",
@@ -546,7 +571,10 @@ test.describe("API profile methods", () => {
     expect(resendUser.activationStatus).toBe(2);
   });
 
-  test("DocSpace admin resend activation emails ", async ({ apiSdk, api }) => {
+  test("PUT /people/invite - DocSpace admin resend activation emails ", async ({
+    apiSdk,
+    api,
+  }) => {
     await apiSdk.profiles.addMember("owner", "DocSpaceAdmin");
     await api.auth.authenticateDocSpaceAdmin();
 
@@ -580,7 +608,10 @@ test.describe("API profile methods", () => {
     expect(resendUser.activationStatus).toBe(2);
   });
 
-  test("Room admin resend activation emails ", async ({ apiSdk, api }) => {
+  test("PUT /people/invite - Room admin resend activation emails ", async ({
+    apiSdk,
+    api,
+  }) => {
     await apiSdk.profiles.addMember("owner", "RoomAdmin");
     await api.auth.authenticateRoomAdmin();
 
@@ -614,7 +645,9 @@ test.describe("API profile methods", () => {
     expect(resendUser.activationStatus).toBe(2);
   });
 
-  test("Owner deletes a deactivated user", async ({ apiSdk }) => {
+  test("DELETE /people/:userIds - Owner deletes a deactivated user", async ({
+    apiSdk,
+  }) => {
     const user = await apiSdk.profiles.addMember("owner", "User");
     const response = await user.response.json();
     const userId = response.response.id;
@@ -643,7 +676,9 @@ test.describe("API profile methods", () => {
     expect(bodyDelete.response.id).toBe(userId);
   });
 
-  test("Owner deletes a deactivated docspace admin", async ({ apiSdk }) => {
+  test("DELETE /people/:userIds - Owner deletes a deactivated docspace admin", async ({
+    apiSdk,
+  }) => {
     const user = await apiSdk.profiles.addMember("owner", "DocSpaceAdmin");
     const response = await user.response.json();
     const userId = response.response.id;
@@ -672,7 +707,9 @@ test.describe("API profile methods", () => {
     expect(bodyDelete.response.id).toBe(userId);
   });
 
-  test("Owner deletes a deactivated room admin", async ({ apiSdk }) => {
+  test("DELETE /people/:userIds - Owner deletes a deactivated room admin", async ({
+    apiSdk,
+  }) => {
     const user = await apiSdk.profiles.addMember("owner", "RoomAdmin");
     const response = await user.response.json();
     const userId = response.response.id;
@@ -701,7 +738,7 @@ test.describe("API profile methods", () => {
     expect(bodyDelete.response.id).toBe(userId);
   });
 
-  test("DocSpace admin deletes a deactivated room admin", async ({
+  test("DELETE /people/:userIds - DocSpace admin deletes a deactivated room admin", async ({
     apiSdk,
     api,
   }) => {
@@ -740,7 +777,10 @@ test.describe("API profile methods", () => {
     expect(bodyDelete.response.id).toBe(userIdToDelete);
   });
 
-  test("DocSpace admin deletes a deactivated user", async ({ apiSdk, api }) => {
+  test("DELETE /people/:userIds - DocSpace admin deletes a deactivated user", async ({
+    apiSdk,
+    api,
+  }) => {
     // Create first DocSpace admin that will be deleted
     const userToDelete = await apiSdk.profiles.addMember("owner", "User");
     const responseToDelete = await userToDelete.response.json();
@@ -776,7 +816,9 @@ test.describe("API profile methods", () => {
     expect(bodyDelete.response.id).toBe(userIdToDelete);
   });
 
-  test("Owner returns detailed information of a user", async ({ apiSdk }) => {
+  test("GET /people/:userIds - Owner returns detailed information of a user", async ({
+    apiSdk,
+  }) => {
     const user = await apiSdk.profiles.addMember("owner", "RoomAdmin");
     const response = await user.response.json();
     const userId = response.response.id;
@@ -789,7 +831,7 @@ test.describe("API profile methods", () => {
     expect(bodyReturnInfo.response.email).toBe(response.response.email);
   });
 
-  test("DocSpace admin returns detailed information of a user", async ({
+  test("GET /people/:userIds - DocSpace admin returns detailed information of a user", async ({
     apiSdk,
     api,
   }) => {
@@ -822,7 +864,7 @@ test.describe("API profile methods", () => {
     expect(bodyReturnInfo.response.lastName).toBe(owner.lastName);
   });
 
-  test("Room admin returns detailed information of a user", async ({
+  test("GET /people/:userIds - Room admin returns detailed information of a user", async ({
     apiSdk,
     api,
   }) => {
@@ -852,7 +894,9 @@ test.describe("API profile methods", () => {
     expect(bodyReturnInfo.response.lastName).toBe(owner.lastName);
   });
 
-  test("Updating owner profile data", async ({ apiSdk }) => {
+  test("PUT /people/:userId - Updating owner profile data", async ({
+    apiSdk,
+  }) => {
     const returnAllUsersList =
       await apiSdk.profiles.returnAllUsersList("owner");
     const response = await returnAllUsersList.json();
@@ -877,7 +921,10 @@ test.describe("API profile methods", () => {
     );
   });
 
-  test("Updating DocSpace admin profile data", async ({ apiSdk, api }) => {
+  test("PUT /people/:userId - Updating DocSpace admin profile data", async ({
+    apiSdk,
+    api,
+  }) => {
     const user = await apiSdk.profiles.addMember("owner", "DocSpaceAdmin");
     const response = await user.response.json();
     const userId = response.response.id;
@@ -904,7 +951,10 @@ test.describe("API profile methods", () => {
     expect(bodyUpdateInfo.response.isAdmin).toBe(true);
   });
 
-  test("Updating room admin profile data", async ({ apiSdk, api }) => {
+  test("PUT /people/:userId - Updating room admin profile data", async ({
+    apiSdk,
+    api,
+  }) => {
     const user = await apiSdk.profiles.addMember("owner", "RoomAdmin");
     const response = await user.response.json();
     const userId = response.response.id;
@@ -932,7 +982,10 @@ test.describe("API profile methods", () => {
   });
 
   // 79994 - NEW
-  test("Updating user profile data", async ({ apiSdk, api }) => {
+  test("PUT /people/:userId - Updating user profile data", async ({
+    apiSdk,
+    api,
+  }) => {
     const user = await apiSdk.profiles.addMember("owner", "User");
     const response = await user.response.json();
     const userId = response.response.id;
@@ -959,7 +1012,9 @@ test.describe("API profile methods", () => {
     expect(bodyUpdateInfo.response.isCollaborator).toBe(true);
   });
 
-  test("Owner receives information about himself", async ({ apiSdk }) => {
+  test("GET /people/@self - Owner receives information about himself", async ({
+    apiSdk,
+  }) => {
     const response = await apiSdk.profiles.returnHimselfInformation("owner");
     const bodyHimselfInfo = await response.json();
     expect(bodyHimselfInfo.statusCode).toBe(200);
@@ -973,7 +1028,7 @@ test.describe("API profile methods", () => {
     expect(bodyHimselfInfo.response.hasPersonalFolder).toBe(true);
   });
 
-  test("DocSpace admin receives information about himself", async ({
+  test("GET /people/@self - DocSpace admin receives information about himself", async ({
     apiSdk,
     api,
   }) => {
@@ -1000,7 +1055,7 @@ test.describe("API profile methods", () => {
     expect(bodyHimselfInfo.response.hasPersonalFolder).toBe(true);
   });
 
-  test("Room admin receives information about himself", async ({
+  test("GET /people/@self - Room admin receives information about himself", async ({
     apiSdk,
     api,
   }) => {
@@ -1027,7 +1082,10 @@ test.describe("API profile methods", () => {
     expect(bodyHimselfInfo.response.hasPersonalFolder).toBe(true);
   });
 
-  test("User receives information about himself", async ({ apiSdk, api }) => {
+  test("GET /people/@self - User receives information about himself", async ({
+    apiSdk,
+    api,
+  }) => {
     const user = await apiSdk.profiles.addMember("owner", "User");
     const userInfo = await user.response.json();
     await api.auth.authenticateUser();
@@ -1048,7 +1106,7 @@ test.describe("API profile methods", () => {
     expect(bodyHimselfInfo.response.hasPersonalFolder).toBe(true);
   });
 
-  test("Owner receives information about himself via email.", async ({
+  test("GET /people/email?email= - Owner receives information about himself via email.", async ({
     apiSdk,
   }) => {
     const ownerData = await apiSdk.profiles.returnHimselfInformation("owner");
@@ -1080,7 +1138,7 @@ test.describe("API profile methods", () => {
     );
   });
 
-  test("Owner receives information about another user via email.", async ({
+  test("GET /people/email?email= - Owner receives information about another user via email.", async ({
     apiSdk,
   }) => {
     const docSpaceData = await apiSdk.profiles.addMember(
@@ -1117,7 +1175,7 @@ test.describe("API profile methods", () => {
     );
   });
 
-  test("DocSpace admin receives information about himself via email.", async ({
+  test("GET /people/email?email= - DocSpace admin receives information about himself via email.", async ({
     apiSdk,
     api,
   }) => {
@@ -1156,7 +1214,7 @@ test.describe("API profile methods", () => {
     );
   });
 
-  test("DocSpace admin receives information about another user via email.", async ({
+  test("GET /people/email?email= - DocSpace admin receives information about another user via email.", async ({
     apiSdk,
     api,
   }) => {
@@ -1194,7 +1252,7 @@ test.describe("API profile methods", () => {
     );
   });
 
-  test("Room admin receives information about another user via email.", async ({
+  test("GET /people/email?email= - Room admin receives information about another user via email.", async ({
     apiSdk,
     api,
   }) => {
@@ -1224,7 +1282,7 @@ test.describe("API profile methods", () => {
     );
   });
 
-  test("User receives information about himself via email.", async ({
+  test("GET /people/email?email= - User receives information about himself via email.", async ({
     apiSdk,
     api,
   }) => {
@@ -1258,7 +1316,7 @@ test.describe("API profile methods", () => {
     );
   });
 
-  test("Owner sent himself instructions on how to change his email address", async ({
+  test("POST /people/email - Owner sent himself instructions on how to change his email address", async ({
     apiSdk,
     api,
   }) => {
@@ -1288,7 +1346,7 @@ test.describe("API profile methods", () => {
     await api.auth.authenticateOwner();
   });
 
-  test("Owner sent DocSpace admin user instructions on how to change his email address", async ({
+  test("POST /people/email - Owner sent DocSpace admin user instructions on how to change his email address", async ({
     apiSdk,
   }) => {
     const docSpaceAdminData = await apiSdk.profiles.addMember(
@@ -1313,7 +1371,7 @@ test.describe("API profile methods", () => {
     );
   });
 
-  test("Owner sent Room admin user instructions on how to change his email address", async ({
+  test("POST /people/email - Owner sent Room admin user instructions on how to change his email address", async ({
     apiSdk,
   }) => {
     const roomAdminData = await apiSdk.profiles.addMember("owner", "RoomAdmin");
@@ -1335,7 +1393,7 @@ test.describe("API profile methods", () => {
     );
   });
 
-  test("Owner sent user instructions on how to change his email address", async ({
+  test("POST /people/email - Owner sent user instructions on how to change his email address", async ({
     apiSdk,
   }) => {
     const userData = await apiSdk.profiles.addMember("owner", "User");
@@ -1357,7 +1415,7 @@ test.describe("API profile methods", () => {
     );
   });
 
-  test("DocSpace admin sent instructions on how to change his email address", async ({
+  test("POST /people/email - DocSpace admin sent instructions on how to change his email address", async ({
     apiSdk,
     api,
   }) => {
@@ -1384,7 +1442,7 @@ test.describe("API profile methods", () => {
     );
   });
 
-  test("DocSpace admin sent Room admin user instructions on how to change his email address", async ({
+  test("POST /people/email - DocSpace admin sent Room admin user instructions on how to change his email address", async ({
     apiSdk,
     api,
   }) => {
@@ -1409,7 +1467,7 @@ test.describe("API profile methods", () => {
     );
   });
 
-  test("DocSpace admin sent User instructions on how to change his email address", async ({
+  test("POST /people/email - DocSpace admin sent User instructions on how to change his email address", async ({
     apiSdk,
     api,
   }) => {
@@ -1434,7 +1492,7 @@ test.describe("API profile methods", () => {
     );
   });
 
-  test("Room admin sent instructions on how to change his email address", async ({
+  test("POST /people/email - Room admin sent instructions on how to change his email address", async ({
     apiSdk,
     api,
   }) => {
@@ -1458,7 +1516,7 @@ test.describe("API profile methods", () => {
     );
   });
 
-  test("User sent instructions on how to change his email address", async ({
+  test("POST /people/email - User sent instructions on how to change his email address", async ({
     apiSdk,
     api,
   }) => {
@@ -1482,7 +1540,9 @@ test.describe("API profile methods", () => {
     );
   });
 
-  test("Owner removes deactivated users", async ({ apiSdk }) => {
+  test("PUT /people/delete - Owner removes deactivated users", async ({
+    apiSdk,
+  }) => {
     const docSpaceAdmin = await apiSdk.profiles.addMember(
       "owner",
       "DocSpaceAdmin",
@@ -1518,7 +1578,10 @@ test.describe("API profile methods", () => {
     expect(dataResponse.response[1].isRoomAdmin).toBe(true);
   });
 
-  test("DocSpace admin removes deactivated users", async ({ apiSdk, api }) => {
+  test("PUT /people/delete - DocSpace admin removes deactivated users", async ({
+    apiSdk,
+    api,
+  }) => {
     const roomAdmin = await apiSdk.profiles.addMember("owner", "RoomAdmin");
     const roomAdminJson = await roomAdmin.response.json();
     const roomAdminId = roomAdminJson.response.id;
@@ -1553,7 +1616,9 @@ test.describe("API profile methods", () => {
     expect(dataResponse.response[1].isCollaborator).toBe(true);
   });
 
-  test("Owner update a culture code of himself", async ({ apiSdk }) => {
+  test("PUT /people/:userId/culture - Owner update a culture code of himself", async ({
+    apiSdk,
+  }) => {
     const ownerData = await apiSdk.profiles.returnHimselfInformation("owner");
     const ownerJson = await ownerData.json();
     const ownerId = ownerJson.response.id;
@@ -1575,7 +1640,7 @@ test.describe("API profile methods", () => {
     expect(dataResponse.response.cultureName).toBe("es");
   });
 
-  test("DocSpace admin update a culture code of himself", async ({
+  test("PUT /people/:userId/culture - DocSpace admin update a culture code of himself", async ({
     apiSdk,
     api,
   }) => {
@@ -1608,7 +1673,7 @@ test.describe("API profile methods", () => {
     expect(dataResponse.response.cultureName).toBe("es");
   });
 
-  test("Room admin update a culture code of himself", async ({
+  test("PUT /people/:userId/culture - Room admin update a culture code of himself", async ({
     apiSdk,
     api,
   }) => {
@@ -1638,7 +1703,10 @@ test.describe("API profile methods", () => {
     expect(dataResponse.response.cultureName).toBe("es");
   });
 
-  test("User update a culture code of himself", async ({ apiSdk, api }) => {
+  test("PUT /people/:userId/culture - User update a culture code of himself", async ({
+    apiSdk,
+    api,
+  }) => {
     const user = await apiSdk.profiles.addMember("owner", "User");
     const userJson = await user.response.json();
     const userId = userJson.response.id;
