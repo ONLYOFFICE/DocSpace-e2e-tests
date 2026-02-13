@@ -17,6 +17,7 @@ import RoomsInviteDialog from "@/src/objects/rooms/RoomsInviteDialog";
 import Login from "@/src/objects/common/Login";
 import { uploadAndVerifyPDF } from "@/src/utils/helpers/formFillingRoom";
 import TemplateGallery from "@/src/objects/rooms/TemplateGallery";
+import BaseFloatingProgress from "@/src/objects/common/BaseFloatingProgress";
 
 test.describe("FormFilling base tests", () => {
   let myRooms: MyRooms;
@@ -403,6 +404,37 @@ test.describe("FormFilling base tests", () => {
       await expect(
         page.getByLabel(templateTitle, { exact: false }),
       ).toBeVisible();
+    });
+  });
+
+  // Verifies that uploading a simple PDF (not an ONLYOFFICE form) shows a warning message
+  test("Upload simple PDF from device shows warning", async ({ page }) => {
+    await test.step("Skip tour and close info panel", async () => {
+      await shortTour.clickSkipTour();
+      await myRooms.infoPanel.close();
+    });
+
+    await test.step("Upload simple PDF from device", async () => {
+      const pdfPath = path.resolve(process.cwd(), "data/rooms/PDF simple.pdf");
+      await roomEmptyView.uploadPdfForm(pdfPath);
+    });
+
+    await test.step("Verify warning toast message", async () => {
+      await myRooms.toast.checkToastMessage(
+        "The file cannot be uploaded to this room. Please try to upload the ONLYOFFICE PDF form.",
+      );
+    });
+
+    await test.step("Verify floating progress button shows error", async () => {
+      const floatingProgress = new BaseFloatingProgress(page);
+      await floatingProgress.waitForButton();
+      await floatingProgress.openErrorPanel();
+      await floatingProgress.verifyFileNameVisible("PDF simple");
+      await floatingProgress.verifyErrorTooltipVisible();
+    });
+
+    await test.step("Verify file is not in the room", async () => {
+      await expect(page.getByLabel("PDF simple,")).not.toBeVisible();
     });
   });
 
