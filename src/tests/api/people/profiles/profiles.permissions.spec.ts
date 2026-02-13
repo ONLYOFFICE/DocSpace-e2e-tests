@@ -17,8 +17,10 @@ type UsersListItem = {
   isCollaborator?: boolean;
 };
 
-test.describe("POST /people - API profiling tests for access rights", () => {
-  test("Owner create User for long first and last name", async ({ apiSdk }) => {
+test.describe("API profiling tests for access rights", () => {
+  test("POST /people - Owner create User for long first and last name", async ({
+    apiSdk,
+  }) => {
     const userData = {
       password: faker.internet.password({ length: 12 }),
       email: faker.internet.email(),
