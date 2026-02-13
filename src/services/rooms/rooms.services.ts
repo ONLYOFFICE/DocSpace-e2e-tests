@@ -324,6 +324,59 @@ export class RoomsApi {
     });
   }
 
+  async changeOwner(
+    role: "owner" | "docSpaceAdmin" | "roomAdmin" | "user",
+    roomId: number,
+    userId: string,
+  ) {
+    return test.step(`${role} change owner of room ${roomId}`, async () => {
+      const response = await this.request.post(
+        `https://${this.portalDomain}/api/2.0/files/owner`,
+        {
+          headers: { Authorization: `Bearer ${this.getToken(role)}` },
+          data: { folderIds: [roomId], userId },
+        },
+      );
+      return response;
+    });
+  }
+
+  async setRoomAccessRights(
+    role: "owner" | "docSpaceAdmin" | "roomAdmin" | "user",
+    roomId: number,
+    data: {
+      invitations: { id: string; access: string }[];
+      notify?: boolean;
+      message?: string;
+    },
+  ) {
+    return test.step(`${role} set room access rights ${roomId}`, async () => {
+      const response = await this.request.put(
+        `https://${this.portalDomain}/api/2.0/files/rooms/${roomId}/share`,
+        {
+          headers: { Authorization: `Bearer ${this.getToken(role)}` },
+          data,
+        },
+      );
+      return response;
+    });
+  }
+
+  async getRoomAccessRights(
+    role: "owner" | "docSpaceAdmin" | "roomAdmin" | "user",
+    roomId: number,
+  ) {
+    return test.step(`${role} get room access rights ${roomId}`, async () => {
+      const response = await this.request.get(
+        `https://${this.portalDomain}/api/2.0/files/rooms/${roomId}/share`,
+        {
+          headers: { Authorization: `Bearer ${this.getToken(role)}` },
+        },
+      );
+      return response;
+    });
+  }
+
   async addRoomTags(
     role: "owner" | "docSpaceAdmin" | "roomAdmin" | "user",
     roomId: number,

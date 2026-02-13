@@ -300,6 +300,87 @@ test.describe("API rooms methods", () => {
     });
   });
 
+  test("PUT /files/rooms/:id/share - Owner sets room access rights", async ({
+    apiSdk,
+  }) => {
+    const { response: memberResponse } = await apiSdk.profiles.addMember(
+      "owner",
+      "User",
+    );
+    const memberBody = await memberResponse.json();
+    const userId = memberBody.response.id;
+
+    const roomResponse = await apiSdk.rooms.createRoom("owner", {
+      title: "Autotest Share Room",
+      roomType: "CustomRoom",
+    });
+    const roomId = (await roomResponse.json()).response.id;
+
+    await test.step("set access rights for user", async () => {
+      const response = await apiSdk.rooms.setRoomAccessRights("owner", roomId, {
+        invitations: [{ id: userId, access: "Editing" }],
+        notify: false,
+      });
+      const body = await response.json();
+
+      expect(body.statusCode).toBe(200);
+      expect(body.response.members).toBeDefined();
+      expect(body.response.members).toHaveLength(1);
+    });
+
+    await test.step("GET /files/rooms/:id/share - verify access rights", async () => {
+      const response = await apiSdk.rooms.getRoomAccessRights("owner", roomId);
+      const body = await response.json();
+
+      expect(response.status()).toBe(200);
+      expect(body.statusCode).toBe(200);
+
+      expect(body.response).toHaveLength(2);
+      expect(body.response[1].sharedToUser.id).toBe(userId);
+    });
+  });
+
+  test("PUT /files/rooms/:id/share - Owner revokes room access rights", async ({
+    apiSdk,
+  }) => {
+    const { response: memberResponse } = await apiSdk.profiles.addMember(
+      "owner",
+      "User",
+    );
+    const userId = (await memberResponse.json()).response.id;
+
+    const roomResponse = await apiSdk.rooms.createRoom("owner", {
+      title: "Autotest Share Room",
+      roomType: "CustomRoom",
+    });
+    const roomId = (await roomResponse.json()).response.id;
+
+    await apiSdk.rooms.setRoomAccessRights("owner", roomId, {
+      invitations: [{ id: userId, access: "Editing" }],
+      notify: false,
+    });
+
+    await test.step("PUT /files/rooms/:id/share - revoke access rights", async () => {
+      const response = await apiSdk.rooms.setRoomAccessRights("owner", roomId, {
+        invitations: [{ id: userId, access: "None" }],
+        notify: false,
+      });
+      const body = await response.json();
+
+      expect(response.status()).toBe(200);
+      expect(body.statusCode).toBe(200);
+    });
+
+    await test.step("GET /files/rooms/:id/share - verify access revoked", async () => {
+      const response = await apiSdk.rooms.getRoomAccessRights("owner", roomId);
+      const body = await response.json();
+
+      expect(response.status()).toBe(200);
+      expect(body.response).toHaveLength(1);
+      expect(body.response[0].sharedToUser.id).not.toBe(userId);
+    });
+  });
+
   test("Owner adds and removes tags from a room", async ({ apiSdk }) => {
     await apiSdk.rooms.createTag("owner", "Tag1");
     await apiSdk.rooms.createTag("owner", "Tag2");
