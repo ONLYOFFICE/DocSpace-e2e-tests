@@ -13,12 +13,7 @@ export class ApiSDK {
     this.profiles = new ProfilesApi(request, tokenStore);
     this.userStatus = new UserStatusApi(request, tokenStore);
     this.rooms = new RoomsApi(request, tokenStore);
-    this.files = new FilesApi(
-      request,
-      tokenStore.authTokenOwner,
-      tokenStore.authTokenDocSpaceAdmin,
-      tokenStore.portalDomain,
-    );
+    this.files = new FilesApi(request, tokenStore);
     this.faker = new FAKER();
   }
 }

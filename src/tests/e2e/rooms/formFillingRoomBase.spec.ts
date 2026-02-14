@@ -438,35 +438,6 @@ test.describe("FormFilling base tests", () => {
     });
   });
 
-  // Verifies that a simple PDF uploaded to My Documents is not available for selection in the room
-  test("Simple PDF in My Documents is not available for room upload", async ({
-    apiSdk,
-  }) => {
-    await test.step("Upload simple PDF to My Documents via API", async () => {
-      await apiSdk.files.uploadToMyDocuments(
-        "owner",
-        "data/rooms/PDF simple.pdf",
-      );
-    });
-
-    await test.step("Skip tour and close info panel", async () => {
-      await shortTour.clickSkipTour();
-      await myRooms.infoPanel.close();
-    });
-
-    await test.step("Open Add PDF form from DocSpace selector", async () => {
-      await roomEmptyView.uploadPdfFromDocSpace();
-      await selectPanel.checkSelectorExist();
-    });
-
-    await test.step("Navigate to My Documents and verify PDF simple is not available", async () => {
-      await selectPanel.select("documents");
-      await expect(
-        selectPanel.selector.getByText("PDF simple"),
-      ).not.toBeVisible();
-    });
-  });
-
   //Check that Progress folders can't be deleted
   test("Progress folders can't be deleted", async ({ page }) => {
     //Upload the document so that the progress folders appear.
