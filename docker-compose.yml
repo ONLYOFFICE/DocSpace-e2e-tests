@@ -1,7 +1,7 @@
 version: "3.9"
 services:
   tests-ci:
-    image: playwright-test-runner
+    image: playwright-test-runner:ci
     build:
       context: .
       dockerfile: Dockerfile
@@ -14,7 +14,7 @@ services:
       - ./test-output/${JOB_NAME}:/app/test-output
 
   tests-local:
-    image: playwright-test-runner
+    image: playwright-test-runner:local
     build:
       context: .
       dockerfile: Dockerfile
