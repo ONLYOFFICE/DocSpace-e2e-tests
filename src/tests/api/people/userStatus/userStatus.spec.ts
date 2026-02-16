@@ -213,18 +213,12 @@ test.describe("API user status methods", () => {
   test("GET /people/status/:status - Owner returns a list of profiles filtered by the active user status", async ({
     apiSdk,
   }) => {
-    const { userData: docSpaceAdminUserData } = await apiSdk.profiles.addMember(
+    const docSpaceAdmin = await apiSdk.profiles.addMember(
       "owner",
       "DocSpaceAdmin",
     );
-    const { userData: roomAdminUserData } = await apiSdk.profiles.addMember(
-      "owner",
-      "RoomAdmin",
-    );
-    const { userData: userUserData } = await apiSdk.profiles.addMember(
-      "owner",
-      "User",
-    );
+    const roomAdmin = await apiSdk.profiles.addMember("owner", "RoomAdmin");
+    const user = await apiSdk.profiles.addMember("owner", "User");
 
     const response = await apiSdk.userStatus.getPlofilesByStatus(
       "owner",
@@ -233,41 +227,41 @@ test.describe("API user status methods", () => {
     const body = (await response.json()) as { response: UsersListItem[] };
 
     const docSpaceAdminData = body.response.find(
-      (u: UsersListItem) => u.email === docSpaceAdminUserData.email,
+      (u: UsersListItem) => u.email === docSpaceAdmin.userData.email,
     );
     expect(docSpaceAdminData).toBeTruthy();
     if (!docSpaceAdminData) {
       throw new Error(
-        `DocSpace admin user not found in users list by email: ${docSpaceAdminUserData.email}`,
+        `DocSpace admin user not found in users list by email: ${docSpaceAdmin.userData.email}`,
       );
     }
-    expect(docSpaceAdminData.email).toBe(docSpaceAdminUserData.email);
+    expect(docSpaceAdminData.email).toBe(docSpaceAdmin.userData.email);
     expect(docSpaceAdminData.status).toBe(1);
     expect(docSpaceAdminData.isAdmin).toBe(true);
 
     const roomAdminData = body.response.find(
-      (u: UsersListItem) => u.email === roomAdminUserData.email,
+      (u: UsersListItem) => u.email === roomAdmin.userData.email,
     );
     expect(roomAdminData).toBeTruthy();
     if (!roomAdminData) {
       throw new Error(
-        `Room admin user not found in users list by email: ${roomAdminUserData.email}`,
+        `Room admin user not found in users list by email: ${roomAdmin.userData.email}`,
       );
     }
-    expect(roomAdminData.email).toBe(roomAdminUserData.email);
+    expect(roomAdminData.email).toBe(roomAdmin.userData.email);
     expect(roomAdminData.status).toBe(1);
     expect(roomAdminData.isRoomAdmin).toBe(true);
 
     const userData = body.response.find(
-      (u: UsersListItem) => u.email === userUserData.email,
+      (u: UsersListItem) => u.email === user.userData.email,
     );
     expect(userData).toBeTruthy();
     if (!userData) {
       throw new Error(
-        `User not found in users list by email: ${userUserData.email}`,
+        `User not found in users list by email: ${user.userData.email}`,
       );
     }
-    expect(userData.email).toBe(userUserData.email);
+    expect(userData.email).toBe(user.userData.email);
     expect(userData.status).toBe(1);
     expect(userData.isCollaborator).toBe(true);
   });
@@ -346,6 +340,242 @@ test.describe("API user status methods", () => {
     expect(userData.status).toBe(2);
     expect(userData.isCollaborator).toBe(true);
   });
+
+  test("GET /people/status/:status - DocSpace admin returns a list of profiles filtered by the active user status", async ({
+    apiSdk,
+    api,
+  }) => {
+    const docSpaceAdmin = await apiSdk.profiles.addMember(
+      "owner",
+      "DocSpaceAdmin",
+    );
+    const roomAdmin = await apiSdk.profiles.addMember("owner", "RoomAdmin");
+    const user = await apiSdk.profiles.addMember("owner", "User");
+
+    await api.auth.authenticateDocSpaceAdmin();
+    const response = await apiSdk.userStatus.getPlofilesByStatus(
+      "docSpaceAdmin",
+      UserStatus.Active,
+    );
+    const body = (await response.json()) as { response: UsersListItem[] };
+
+    const docSpaceAdminData = body.response.find(
+      (u: UsersListItem) => u.email === docSpaceAdmin.userData.email,
+    );
+    expect(docSpaceAdminData).toBeTruthy();
+    if (!docSpaceAdminData) {
+      throw new Error(
+        `DocSpace admin user not found in users list by email: ${docSpaceAdmin.userData.email}`,
+      );
+    }
+    expect(docSpaceAdminData.email).toBe(docSpaceAdmin.userData.email);
+    expect(docSpaceAdminData.status).toBe(1);
+    expect(docSpaceAdminData.isAdmin).toBe(true);
+
+    const roomAdminData = body.response.find(
+      (u: UsersListItem) => u.email === roomAdmin.userData.email,
+    );
+    expect(roomAdminData).toBeTruthy();
+    if (!roomAdminData) {
+      throw new Error(
+        `Room admin user not found in users list by email: ${roomAdmin.userData.email}`,
+      );
+    }
+    expect(roomAdminData.email).toBe(roomAdmin.userData.email);
+    expect(roomAdminData.status).toBe(1);
+    expect(roomAdminData.isRoomAdmin).toBe(true);
+
+    const userData = body.response.find(
+      (u: UsersListItem) => u.email === user.userData.email,
+    );
+    expect(userData).toBeTruthy();
+    if (!userData) {
+      throw new Error(
+        `User not found in users list by email: ${user.userData.email}`,
+      );
+    }
+    expect(userData.email).toBe(user.userData.email);
+    expect(userData.status).toBe(1);
+    expect(userData.isCollaborator).toBe(true);
+  });
+
+  test("GET /people/status/:status - DocSpace admin returns a list of profiles filtered by the disabled user status", async ({
+    apiSdk,
+    api,
+  }) => {
+    const docSpaceAdmin = await apiSdk.profiles.addMember(
+      "owner",
+      "DocSpaceAdmin",
+    );
+    const docSpaceAdminJson = await docSpaceAdmin.response.json();
+    const docSpaceAdminId = docSpaceAdminJson.response.id;
+
+    const roomAdmin = await apiSdk.profiles.addMember("owner", "RoomAdmin");
+    const roomAdminJson = await roomAdmin.response.json();
+    const roomAdminId = roomAdminJson.response.id;
+
+    const user = await apiSdk.profiles.addMember("owner", "User");
+    const userJson = await user.response.json();
+    const userId = userJson.response.id;
+
+    const data = {
+      userIds: [docSpaceAdminId, roomAdminId, userId],
+      resendAll: false,
+    };
+
+    await apiSdk.userStatus.changeUserStatus(
+      "owner",
+      UserStatus.Disabled,
+      data,
+    );
+
+    await apiSdk.profiles.addMember("owner", "DocSpaceAdmin");
+    await api.auth.authenticateDocSpaceAdmin();
+    const response = await apiSdk.userStatus.getPlofilesByStatus(
+      "docSpaceAdmin",
+      UserStatus.Disabled,
+    );
+    const body = (await response.json()) as { response: UsersListItem[] };
+
+    const docSpaceAdminData = body.response.find(
+      (u: UsersListItem) => u.email === docSpaceAdminJson.response.email,
+    );
+    expect(docSpaceAdminData).toBeTruthy();
+    if (!docSpaceAdminData) {
+      throw new Error(
+        `DocSpace admin user not found in users list by email: ${docSpaceAdminJson.response.email}`,
+      );
+    }
+    expect(docSpaceAdminData.email).toBe(docSpaceAdminJson.response.email);
+    expect(docSpaceAdminData.status).toBe(2);
+    expect(docSpaceAdminData.isAdmin).toBe(true);
+
+    const roomAdminData = body.response.find(
+      (u: UsersListItem) => u.email === roomAdminJson.response.email,
+    );
+    expect(roomAdminData).toBeTruthy();
+    if (!roomAdminData) {
+      throw new Error(
+        `Room admin user not found in users list by email: ${roomAdminJson.response.email}`,
+      );
+    }
+    expect(roomAdminData.email).toBe(roomAdminJson.response.email);
+    expect(roomAdminData.status).toBe(2);
+    expect(roomAdminData.isRoomAdmin).toBe(true);
+
+    const userData = body.response.find(
+      (u: UsersListItem) => u.email === userJson.response.email,
+    );
+    expect(userData).toBeTruthy();
+    if (!userData) {
+      throw new Error(
+        `User not found in users list by email: ${userJson.response.email}`,
+      );
+    }
+    expect(userData.email).toBe(userJson.response.email);
+    expect(userData.status).toBe(2);
+    expect(userData.isCollaborator).toBe(true);
+  });
+
+  test("GET /people/status/:status - Room admin returns a list of profiles filtered by the active user status", async ({
+    apiSdk,
+    api,
+  }) => {
+    const docSpaceAdmin = await apiSdk.profiles.addMember(
+      "owner",
+      "DocSpaceAdmin",
+    );
+    const roomAdmin = await apiSdk.profiles.addMember("owner", "RoomAdmin");
+    const user = await apiSdk.profiles.addMember("owner", "User");
+
+    await api.auth.authenticateRoomAdmin();
+    const response = await apiSdk.userStatus.getPlofilesByStatus(
+      "roomAdmin",
+      UserStatus.Active,
+    );
+    const body = (await response.json()) as { response: UsersListItem[] };
+
+    const docSpaceAdminData = body.response.find(
+      (u: UsersListItem) => u.email === docSpaceAdmin.userData.email,
+    );
+    expect(docSpaceAdminData).toBeTruthy();
+    if (!docSpaceAdminData) {
+      throw new Error(
+        `DocSpace admin user not found in users list by email: ${docSpaceAdmin.userData.email}`,
+      );
+    }
+    expect(docSpaceAdminData.email).toBe(docSpaceAdmin.userData.email);
+    expect(docSpaceAdminData.status).toBe(1);
+    expect(docSpaceAdminData.isAdmin).toBe(true);
+
+    const roomAdminData = body.response.find(
+      (u: UsersListItem) => u.email === roomAdmin.userData.email,
+    );
+    expect(roomAdminData).toBeTruthy();
+    if (!roomAdminData) {
+      throw new Error(
+        `Room admin user not found in users list by email: ${roomAdmin.userData.email}`,
+      );
+    }
+    expect(roomAdminData.email).toBe(roomAdmin.userData.email);
+    expect(roomAdminData.status).toBe(1);
+    expect(roomAdminData.isRoomAdmin).toBe(true);
+
+    const userData = body.response.find(
+      (u: UsersListItem) => u.email === user.userData.email,
+    );
+    expect(userData).toBeTruthy();
+    if (!userData) {
+      throw new Error(
+        `User not found in users list by email: ${user.userData.email}`,
+      );
+    }
+    expect(userData.email).toBe(user.userData.email);
+    expect(userData.status).toBe(1);
+    expect(userData.isCollaborator).toBe(true);
+  });
+
+  test("GET /people/status/:status - Room admin returns a list of profiles filtered by the disabled user status", async ({
+    apiSdk,
+    api,
+  }) => {
+    const docSpaceAdmin = await apiSdk.profiles.addMember(
+      "owner",
+      "DocSpaceAdmin",
+    );
+    const docSpaceAdminJson = await docSpaceAdmin.response.json();
+    const docSpaceAdminId = docSpaceAdminJson.response.id;
+
+    const roomAdmin = await apiSdk.profiles.addMember("owner", "RoomAdmin");
+    const roomAdminJson = await roomAdmin.response.json();
+    const roomAdminId = roomAdminJson.response.id;
+
+    const user = await apiSdk.profiles.addMember("owner", "User");
+    const userJson = await user.response.json();
+    const userId = userJson.response.id;
+
+    const data = {
+      userIds: [docSpaceAdminId, roomAdminId, userId],
+      resendAll: false,
+    };
+
+    await apiSdk.userStatus.changeUserStatus(
+      "owner",
+      UserStatus.Disabled,
+      data,
+    );
+
+    await apiSdk.profiles.addMember("owner", "RoomAdmin");
+    await api.auth.authenticateRoomAdmin();
+    const response = await apiSdk.userStatus.getPlofilesByStatus(
+      "roomAdmin",
+      UserStatus.Disabled,
+    );
+    const responseData = await response.json();
+    expect(responseData.statusCode).toBe(200);
+    expect(responseData.count).toBe(0);
+    expect(responseData.total).toBe(0);
+  });
 });
 
-//TODO: Write tests from different users to activate disabled users
+//TODO: Write tests from different users to activate / disabled users
