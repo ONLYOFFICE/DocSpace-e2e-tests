@@ -1,86 +1,35 @@
 import { test, APIRequestContext } from "@playwright/test";
 import { FAKER } from "@/src/utils/helpers/faker";
+import { TokenStore, Role } from "../token-store";
 
 type UserType = "DocSpaceAdmin" | "RoomAdmin" | "User";
+
+const USER_TYPE_TO_ROLE: Record<UserType, Role> = {
+  DocSpaceAdmin: "docSpaceAdmin",
+  RoomAdmin: "roomAdmin",
+  User: "user",
+};
 
 export class ProfilesApi {
   private request: APIRequestContext;
   private faker: FAKER;
-  private authTokenOwner: string = "";
-  private authTokenDocSpaceAdmin: string = "";
-  private authTokenRoomAdmin: string = "";
-  private authTokenUser: string = "";
-  private portalDomain: string = "";
-  private docSpaceAdminEmail: string = "";
-  private docSpaceAdminPassword: string = "";
-  private roomAdminEmail: string = "";
-  private roomAdminPassword: string = "";
-  private userEmail: string = "";
-  private userPassword: string = "";
+  private tokenStore: TokenStore;
 
-  constructor(
-    request: APIRequestContext,
-    authToken: string,
-    authTokenDocSpaceAdmin: string,
-    portalDomain: string,
-  ) {
+  constructor(request: APIRequestContext, tokenStore: TokenStore) {
     this.request = request;
     this.faker = new FAKER();
-    this.authTokenOwner = authToken;
-    this.authTokenDocSpaceAdmin = authTokenDocSpaceAdmin;
-    this.portalDomain = portalDomain;
+    this.tokenStore = tokenStore;
   }
 
-  public getUserEmail(): string {
-    return this.userEmail;
+  private getToken(role: Role) {
+    return this.tokenStore.getToken(role);
   }
 
-  public getUserPassword(): string {
-    return this.userPassword;
+  private get portalDomain() {
+    return this.tokenStore.portalDomain;
   }
 
-  public setAuthTokenUser(token: string) {
-    this.authTokenUser = token;
-  }
-
-  public getRoomAdminEmail(): string {
-    return this.roomAdminEmail;
-  }
-
-  public getRoomAdminPassword(): string {
-    return this.roomAdminPassword;
-  }
-
-  public setAuthTokenRoomAdmin(token: string) {
-    this.authTokenRoomAdmin = token;
-  }
-
-  public getDocSpaceAdminEmail(): string {
-    return this.docSpaceAdminEmail;
-  }
-
-  public getDocSpaceAdminPassword(): string {
-    return this.docSpaceAdminPassword;
-  }
-
-  public setAuthTokenDocSpaceAdmin(token: string) {
-    this.authTokenDocSpaceAdmin = token;
-  }
-
-  private getToken(role: "owner" | "docSpaceAdmin" | "roomAdmin" | "user") {
-    const tokens = {
-      owner: this.authTokenOwner,
-      docSpaceAdmin: this.authTokenDocSpaceAdmin,
-      roomAdmin: this.authTokenRoomAdmin,
-      user: this.authTokenUser,
-    };
-    return tokens[role];
-  }
-
-  async addMember(
-    role: "owner" | "docSpaceAdmin" | "roomAdmin" | "user",
-    type: UserType,
-  ) {
+  async addMember(role: Role, type: UserType) {
     return test.step(`${role} create User`, async () => {
       const fakeUser = this.faker.generateUser();
 
@@ -89,16 +38,12 @@ export class ProfilesApi {
         type,
       };
 
-      if (type === "DocSpaceAdmin") {
-        this.docSpaceAdminEmail = userData.email;
-        this.docSpaceAdminPassword = userData.password;
-      } else if (type === "RoomAdmin") {
-        this.roomAdminEmail = userData.email;
-        this.roomAdminPassword = userData.password;
-      } else {
-        this.userEmail = userData.email;
-        this.userPassword = userData.password;
-      }
+      const credentialRole = USER_TYPE_TO_ROLE[type];
+      this.tokenStore.setCredentials(
+        credentialRole,
+        userData.email,
+        userData.password,
+      );
 
       const response = await this.request.post(
         `https://${this.portalDomain}/api/2.0/people`,
@@ -130,7 +75,7 @@ export class ProfilesApi {
       const response = await this.request.post(
         `https://${this.portalDomain}/api/2.0/people`,
         {
-          headers: { Authorization: `Bearer ${this.authTokenOwner}` },
+          headers: { Authorization: `Bearer ${this.getToken("owner")}` },
           data: userData,
         },
       );
@@ -157,7 +102,7 @@ export class ProfilesApi {
       const response = await this.request.post(
         `https://${this.portalDomain}/api/2.0/people`,
         {
-          headers: { Authorization: `Bearer ${this.authTokenOwner}` },
+          headers: { Authorization: `Bearer ${this.getToken("owner")}` },
           data: userData,
         },
       );
@@ -174,9 +119,7 @@ export class ProfilesApi {
     });
   }
 
-  async returnAllUsersList(
-    role: "owner" | "docSpaceAdmin" | "roomAdmin" | "user",
-  ) {
+  async returnAllUsersList(role: Role) {
     return test.step(`${role} Return all users list`, async () => {
       const response = await this.request.get(
         `https://${this.portalDomain}/api/2.0/people`,
@@ -197,10 +140,7 @@ export class ProfilesApi {
     });
   }
 
-  async inviteUser(
-    role: "owner" | "docSpaceAdmin" | "roomAdmin" | "user",
-    data: { type: string; email: string },
-  ) {
+  async inviteUser(role: Role, data: { type: string; email: string }) {
     return test.step(`${role} invite user`, async () => {
       const userData = {
         invitations: [
@@ -236,7 +176,7 @@ export class ProfilesApi {
       const response = await this.request.post(
         `https://${this.portalDomain}/api/2.0/people/invite`,
         {
-          headers: { Authorization: `Bearer ${this.authTokenOwner}` },
+          headers: { Authorization: `Bearer ${this.getToken("owner")}` },
           data: userData,
         },
       );
@@ -254,7 +194,7 @@ export class ProfilesApi {
   }
 
   async resendActavationEmails(
-    role: "owner" | "docSpaceAdmin" | "roomAdmin" | "user",
+    role: Role,
     data: {
       userIds: string[];
       resendAll: boolean;
@@ -286,10 +226,7 @@ export class ProfilesApi {
     });
   }
 
-  async deleteUser(
-    role: "owner" | "docSpaceAdmin" | "roomAdmin" | "user",
-    data: { userIds: string[] },
-  ) {
+  async deleteUser(role: Role, data: { userIds: string[] }) {
     return test.step(`${role} delete user`, async () => {
       const userData = {
         userIds: data.userIds,
@@ -322,10 +259,7 @@ export class ProfilesApi {
     });
   }
 
-  async returnUserDetailedInformation(
-    role: "owner" | "docSpaceAdmin" | "roomAdmin" | "user",
-    userId: string,
-  ) {
+  async returnUserDetailedInformation(role: Role, userId: string) {
     return test.step(`${role} returns the detailed information of the user`, async () => {
       const response = await this.request.get(
         `https://${this.portalDomain}/api/2.0/people/${userId}`,
@@ -349,7 +283,7 @@ export class ProfilesApi {
   }
 
   async updatesData(
-    role: "owner" | "docSpaceAdmin" | "roomAdmin" | "user",
+    role: Role,
     userId: string,
     data: {
       firstName: string;
@@ -396,9 +330,7 @@ export class ProfilesApi {
     });
   }
 
-  async returnHimselfInformation(
-    role: "owner" | "docSpaceAdmin" | "roomAdmin" | "user",
-  ) {
+  async returnHimselfInformation(role: Role) {
     return test.step(`${role} return himself information`, async () => {
       const response = await this.request.get(
         `https://${this.portalDomain}/api/2.0/people/@self`,
@@ -410,10 +342,7 @@ export class ProfilesApi {
     });
   }
 
-  async returnsUserInfoViaEmail(
-    role: "owner" | "docSpaceAdmin" | "roomAdmin" | "user",
-    data: { email: string[] },
-  ) {
+  async returnsUserInfoViaEmail(role: Role, data: { email: string[] }) {
     return test.step(`${role} returns user information via email`, async () => {
       const response = await this.request.get(
         `https://${this.portalDomain}/api/2.0/people/email?email=${data.email}`,
@@ -435,7 +364,7 @@ export class ProfilesApi {
   }
 
   async sendInstructionToChangeEmail(
-    role: "owner" | "docSpaceAdmin" | "roomAdmin" | "user",
+    role: Role,
     data: {
       userId: string;
       email: string;
@@ -479,7 +408,7 @@ export class ProfilesApi {
   }
 
   async deleteUsers(
-    role: "owner" | "docSpaceAdmin" | "roomAdmin" | "user",
+    role: Role,
     data: { userIds: string[]; resendAll: boolean },
   ) {
     return test.step(`${role} delete users`, async () => {
@@ -502,7 +431,7 @@ export class ProfilesApi {
   }
 
   async updateCultureCode(
-    role: "owner" | "docSpaceAdmin" | "roomAdmin" | "user",
+    role: Role,
     data: { cultureName: string; userId: string },
   ) {
     return test.step(`${role} update culture code`, async () => {

@@ -1,40 +1,22 @@
 import { APIRequestContext } from "@playwright/test";
 import config from "../../config";
-import { ProfilesApi, UserStatusApi } from "../services/index";
+import { TokenStore, Role } from "../services/token-store";
 
 class Auth {
   apiRequestContext: APIRequestContext;
-  authTokenOwner: string = "";
-  authTokenDocSpaceAdmin: string = "";
-  authTokenRoomAdmin: string = "";
-  authTokenUser: string = "";
-  portalDomain: string;
+  private tokenStore: TokenStore;
 
-  private profilesApi?: ProfilesApi;
-  private userStatusApi?: UserStatusApi;
-
-  constructor(
-    apiRequestContext: APIRequestContext,
-    portalDomain: string,
-    profilesApi?: ProfilesApi,
-    userStatusApi?: UserStatusApi,
-  ) {
+  constructor(apiRequestContext: APIRequestContext, tokenStore: TokenStore) {
     this.apiRequestContext = apiRequestContext;
-    this.portalDomain = portalDomain;
-    this.profilesApi = profilesApi;
-    this.userStatusApi = userStatusApi;
+    this.tokenStore = tokenStore;
   }
 
-  setPortalDomain(portalDomain: string) {
-    this.portalDomain = portalDomain;
+  get authTokenOwner(): string {
+    return this.tokenStore.getToken("owner");
   }
 
-  setProfilesApi(profilesApi: ProfilesApi) {
-    this.profilesApi = profilesApi;
-  }
-
-  setUserStatusApi(api: UserStatusApi) {
-    this.userStatusApi = api;
+  get portalDomain(): string {
+    return this.tokenStore.portalDomain;
   }
 
   async authenticateOwner() {
@@ -56,92 +38,25 @@ class Auth {
       );
     }
 
-    this.authTokenOwner = authBody.response.token;
+    this.tokenStore.setToken("owner", authBody.response.token);
 
     return this.authTokenOwner;
   }
 
-  async authenticateDocSpaceAdmin(email?: string, password?: string) {
-    if (!email || !password) {
-      if (!this.profilesApi || !this.userStatusApi) {
-        throw new Error(
-          "ProfilesApi or UserStatusApi is not provided to Auth; cannot authenticate DocSpace admin",
-        );
-      }
-    }
-
-    const userEmail = email ?? this.profilesApi!.getDocSpaceAdminEmail();
-    const userPassword =
-      password ?? this.profilesApi!.getDocSpaceAdminPassword();
-
-    const authResponse = await this.apiRequestContext.post(
-      `https://${this.portalDomain}/api/2.0/authentication`,
-      { data: { userName: userEmail, password: userPassword } },
-    );
-
-    const authBody = await authResponse.json();
-
-    if (!authResponse.ok()) {
-      throw new Error(
-        `Authentication failed: ${authResponse.status()} - ${JSON.stringify(authBody)}`,
-      );
-    }
-
-    this.authTokenDocSpaceAdmin = authBody.response.token;
-
-    if (this.profilesApi) {
-      this.profilesApi.setAuthTokenDocSpaceAdmin(this.authTokenDocSpaceAdmin);
-    }
-
-    if (this.userStatusApi) {
-      this.userStatusApi.setAuthTokenDocSpaceAdmin(this.authTokenDocSpaceAdmin);
-    }
-
-    return this.authTokenDocSpaceAdmin;
+  async authenticateDocSpaceAdmin() {
+    return this.authenticateRole("docSpaceAdmin");
   }
 
   async authenticateRoomAdmin() {
-    if (!this.profilesApi || !this.userStatusApi) {
-      throw new Error(
-        "ProfilesApi or UserStatusApi is not provided to Auth; cannot authenticate Room admin",
-      );
-    }
-
-    const email = this.profilesApi.getRoomAdminEmail();
-    const password = this.profilesApi.getRoomAdminPassword();
-
-    const authResponse = await this.apiRequestContext.post(
-      `https://${this.portalDomain}/api/2.0/authentication`,
-      {
-        data: { userName: email, password },
-      },
-    );
-
-    const authBody = await authResponse.json();
-
-    if (!authResponse.ok()) {
-      throw new Error(
-        `Authentication failed: ${authResponse.status()} - ${authBody.error || authBody.message}`,
-      );
-    }
-
-    this.authTokenRoomAdmin = authBody.response.token;
-
-    this.profilesApi.setAuthTokenRoomAdmin(this.authTokenRoomAdmin);
-    this.userStatusApi.setAuthTokenRoomAdmin(this.authTokenRoomAdmin);
-
-    return this.authTokenRoomAdmin;
+    return this.authenticateRole("roomAdmin");
   }
 
   async authenticateUser() {
-    if (!this.profilesApi || !this.userStatusApi) {
-      throw new Error(
-        "ProfilesApi or UserStatusApi is not provided to Auth; cannot authenticate User",
-      );
-    }
+    return this.authenticateRole("user");
+  }
 
-    const email = this.profilesApi.getUserEmail();
-    const password = this.profilesApi.getUserPassword();
+  private async authenticateRole(role: Role) {
+    const { email, password } = this.tokenStore.getCredentials(role);
 
     const authResponse = await this.apiRequestContext.post(
       `https://${this.portalDomain}/api/2.0/authentication`,
@@ -158,12 +73,9 @@ class Auth {
       );
     }
 
-    this.authTokenUser = authBody.response.token;
+    this.tokenStore.setToken(role, authBody.response.token);
 
-    this.profilesApi.setAuthTokenUser(this.authTokenUser);
-    this.userStatusApi.setAuthTokenUser(this.authTokenUser);
-
-    return this.authTokenUser;
+    return this.tokenStore.getToken(role);
   }
 }
 

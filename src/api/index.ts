@@ -4,6 +4,7 @@ import Apisystem from "./apisystem";
 import Auth from "./auth";
 import People from "./people";
 import File from "./file";
+import { TokenStore } from "../services/token-store";
 
 class API {
   ownerContext: APIRequestContext;
@@ -12,6 +13,7 @@ class API {
   portalDomain: string = "";
   adminUserId: string = "";
 
+  tokenStore: TokenStore;
   apisystem: Apisystem;
   auth: Auth;
   people: People;
@@ -29,7 +31,8 @@ class API {
     this.ownerContext = ownerContext;
     this.userContext = userContext;
 
-    this.auth = new Auth(ownerContext, "");
+    this.tokenStore = new TokenStore();
+    this.auth = new Auth(ownerContext, this.tokenStore);
     this.apisystem = new Apisystem(ownerContext, this.auth);
     this.people = new People(userContext);
     this.file = new File(userContext);
@@ -41,7 +44,7 @@ class API {
     this.portalDomain = portal.tenant.domain;
     this.adminUserId = portal.tenant.ownerId;
 
-    this.auth.setPortalDomain(this.portalDomain);
+    this.tokenStore.portalDomain = this.portalDomain;
     const ownerToken = await this.auth.authenticateOwner();
 
     this.people.setPortalDomain(this.portalDomain);

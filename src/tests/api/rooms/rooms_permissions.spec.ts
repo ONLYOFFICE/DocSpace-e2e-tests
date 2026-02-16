@@ -14,7 +14,6 @@ test.describe("POST /files/rooms - access control", () => {
   test("DocSpaceAdmin can create a room", async ({ apiSdk, api }) => {
     await apiSdk.profiles.addMember("owner", "DocSpaceAdmin");
     await api.auth.authenticateDocSpaceAdmin();
-    apiSdk.rooms.setAuthTokenDocSpaceAdmin(api.auth.authTokenDocSpaceAdmin);
 
     const response = await apiSdk.rooms.createRoom("docSpaceAdmin", {
       title: "Autotest Room",
@@ -27,7 +26,6 @@ test.describe("POST /files/rooms - access control", () => {
   test("User cannot create a room", async ({ apiSdk, api }) => {
     await apiSdk.profiles.addMember("owner", "User");
     await api.auth.authenticateUser();
-    apiSdk.rooms.setAuthTokenUser(api.auth.authTokenUser);
 
     const response = await apiSdk.rooms.createRoom("user", {
       title: "Autotest Room",
@@ -62,7 +60,6 @@ test.describe.skip("DELETE /files/rooms/:id - access control", () => {
   test.skip("DocSpaceAdmin can delete a room", async ({ apiSdk, api }) => {
     await apiSdk.profiles.addMember("owner", "DocSpaceAdmin");
     await api.auth.authenticateDocSpaceAdmin();
-    apiSdk.rooms.setAuthTokenDocSpaceAdmin(api.auth.authTokenDocSpaceAdmin);
 
     const createResponse = await apiSdk.rooms.createRoom("docSpaceAdmin", {
       title: "Autotest Room to Delete",
@@ -80,7 +77,6 @@ test.describe.skip("DELETE /files/rooms/:id - access control", () => {
   test.skip("User cannot delete a room", async ({ apiSdk, api }) => {
     await apiSdk.profiles.addMember("owner", "User");
     await api.auth.authenticateUser();
-    apiSdk.rooms.setAuthTokenUser(api.auth.authTokenUser);
 
     const createResponse = await apiSdk.rooms.createRoom("owner", {
       title: "Autotest Room to Delete",
@@ -111,7 +107,6 @@ test.describe("POST /files/tags - access control", () => {
   test("DocSpaceAdmin can create a tag", async ({ apiSdk, api }) => {
     await apiSdk.profiles.addMember("owner", "DocSpaceAdmin");
     await api.auth.authenticateDocSpaceAdmin();
-    apiSdk.rooms.setAuthTokenDocSpaceAdmin(api.auth.authTokenDocSpaceAdmin);
 
     const response = await apiSdk.rooms.createTag(
       "docSpaceAdmin",
@@ -128,7 +123,6 @@ test.describe("POST /files/tags - access control", () => {
   test("User cannot create a tag", async ({ apiSdk, api }) => {
     await apiSdk.profiles.addMember("owner", "User");
     await api.auth.authenticateUser();
-    apiSdk.rooms.setAuthTokenUser(api.auth.authTokenUser);
 
     const response = await apiSdk.rooms.createTag("user", "Autotest Tag");
     const body = await response.json();
@@ -171,7 +165,6 @@ test.describe("PUT /files/rooms/:id/share - access control", () => {
   }) => {
     await apiSdk.profiles.addMember("owner", "DocSpaceAdmin");
     await api.auth.authenticateDocSpaceAdmin();
-    apiSdk.rooms.setAuthTokenDocSpaceAdmin(api.auth.authTokenDocSpaceAdmin);
 
     const { response: memberResponse } = await apiSdk.profiles.addMember(
       "owner",
@@ -207,7 +200,6 @@ test.describe("PUT /files/rooms/:id/share - access control", () => {
   }) => {
     await apiSdk.profiles.addMember("owner", "DocSpaceAdmin");
     await api.auth.authenticateDocSpaceAdmin();
-    apiSdk.rooms.setAuthTokenDocSpaceAdmin(api.auth.authTokenDocSpaceAdmin);
 
     const { response: memberResponse } = await apiSdk.profiles.addMember(
       "owner",
@@ -243,7 +235,6 @@ test.describe("PUT /files/rooms/:id/share - access control", () => {
     const memberBody = await memberResponse.json();
     const userId = memberBody.response.id;
     await api.auth.authenticateUser();
-    apiSdk.rooms.setAuthTokenUser(api.auth.authTokenUser);
 
     const roomResponse = await apiSdk.rooms.createRoom("owner", {
       title: "Autotest Share Room",
