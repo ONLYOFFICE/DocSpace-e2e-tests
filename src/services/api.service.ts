@@ -1,45 +1,17 @@
 import { ProfilesApi, FAKER, UserStatusApi, RoomsApi } from "./index";
+import { TokenStore } from "./token-store";
 import { APIRequestContext } from "@playwright/test";
 
 export class ApiSDK {
-  private request: APIRequestContext;
   readonly profiles: ProfilesApi;
   readonly userStatus: UserStatusApi;
   readonly rooms: RoomsApi;
   readonly faker: FAKER;
-  private authApi?: any;
 
-  constructor(
-    request: APIRequestContext,
-    authToken: string,
-    authTokenDocSpaceAdmin: string,
-    portalDomain: string,
-  ) {
-    this.request = request;
-    this.profiles = new ProfilesApi(
-      request,
-      authToken,
-      authTokenDocSpaceAdmin,
-      portalDomain,
-    );
-    this.userStatus = new UserStatusApi(
-      request,
-      authToken,
-      authTokenDocSpaceAdmin,
-      portalDomain,
-    );
-    this.rooms = new RoomsApi(
-      request,
-      authToken,
-      authTokenDocSpaceAdmin,
-      portalDomain,
-    );
+  constructor(request: APIRequestContext, tokenStore: TokenStore) {
+    this.profiles = new ProfilesApi(request, tokenStore);
+    this.userStatus = new UserStatusApi(request, tokenStore);
+    this.rooms = new RoomsApi(request, tokenStore);
     this.faker = new FAKER();
-  }
-
-  public updateDocSpaceAdminToken(token: string) {
-    this.profiles.setAuthTokenDocSpaceAdmin(token);
-    this.userStatus.setAuthTokenDocSpaceAdmin(token);
-    this.rooms.setAuthTokenDocSpaceAdmin(token);
   }
 }

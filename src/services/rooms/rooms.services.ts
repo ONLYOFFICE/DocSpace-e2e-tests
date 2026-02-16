@@ -1,51 +1,24 @@
 import { test, expect, APIRequestContext } from "@playwright/test";
+import { TokenStore, Role } from "../token-store";
 
 export class RoomsApi {
   private request: APIRequestContext;
-  private authTokenOwner: string = "";
-  private authTokenDocSpaceAdmin: string = "";
-  private authTokenRoomAdmin: string = "";
-  private authTokenUser: string = "";
-  private portalDomain: string = "";
+  private tokenStore: TokenStore;
 
-  constructor(
-    request: APIRequestContext,
-    authToken: string,
-    authTokenDocSpaceAdmin: string,
-    portalDomain: string,
-  ) {
+  constructor(request: APIRequestContext, tokenStore: TokenStore) {
     this.request = request;
-    this.authTokenOwner = authToken;
-    this.authTokenDocSpaceAdmin = authTokenDocSpaceAdmin;
-    this.portalDomain = portalDomain;
+    this.tokenStore = tokenStore;
   }
 
-  public setAuthTokenDocSpaceAdmin(token: string) {
-    this.authTokenDocSpaceAdmin = token;
+  private getToken(role: Role) {
+    return this.tokenStore.getToken(role);
   }
 
-  public setAuthTokenRoomAdmin(token: string) {
-    this.authTokenRoomAdmin = token;
+  private get portalDomain() {
+    return this.tokenStore.portalDomain;
   }
 
-  public setAuthTokenUser(token: string) {
-    this.authTokenUser = token;
-  }
-
-  private getToken(role: "owner" | "docSpaceAdmin" | "roomAdmin" | "user") {
-    const tokens = {
-      owner: this.authTokenOwner,
-      docSpaceAdmin: this.authTokenDocSpaceAdmin,
-      roomAdmin: this.authTokenRoomAdmin,
-      user: this.authTokenUser,
-    };
-    return tokens[role];
-  }
-
-  async createRoom(
-    role: "owner" | "docSpaceAdmin" | "roomAdmin" | "user",
-    data: { title: string; roomType: string },
-  ) {
+  async createRoom(role: Role, data: { title: string; roomType: string }) {
     return test.step(`${role} create room`, async () => {
       const response = await this.request.post(
         `https://${this.portalDomain}/api/2.0/files/rooms`,
@@ -58,9 +31,7 @@ export class RoomsApi {
     });
   }
 
-  async createAllRoomTypes(
-    role: "owner" | "docSpaceAdmin" | "roomAdmin" | "user",
-  ) {
+  async createAllRoomTypes(role: Role) {
     const configs = [
       { title: "Autotest Custom", roomType: "CustomRoom" },
       { title: "Autotest Collaboration", roomType: "EditingRoom" },
@@ -85,7 +56,7 @@ export class RoomsApi {
   }
 
   async createRoomTemplate(
-    role: "owner" | "docSpaceAdmin" | "roomAdmin" | "user",
+    role: Role,
     data: { roomId: number; title: string },
   ) {
     return test.step(`${role} create room template`, async () => {
@@ -100,10 +71,7 @@ export class RoomsApi {
     });
   }
 
-  async archiveRoom(
-    role: "owner" | "docSpaceAdmin" | "roomAdmin" | "user",
-    roomId: number,
-  ) {
+  async archiveRoom(role: Role, roomId: number) {
     return test.step(`${role} archive room ${roomId}`, async () => {
       const response = await this.request.put(
         `https://${this.portalDomain}/api/2.0/files/rooms/${roomId}/archive`,
@@ -117,10 +85,7 @@ export class RoomsApi {
     });
   }
 
-  async unarchiveRoom(
-    role: "owner" | "docSpaceAdmin" | "roomAdmin" | "user",
-    roomId: number,
-  ) {
+  async unarchiveRoom(role: Role, roomId: number) {
     return test.step(`${role} unarchive room ${roomId}`, async () => {
       const response = await this.request.put(
         `https://${this.portalDomain}/api/2.0/files/rooms/${roomId}/unarchive`,
@@ -134,10 +99,7 @@ export class RoomsApi {
     });
   }
 
-  async deleteRoom(
-    role: "owner" | "docSpaceAdmin" | "roomAdmin" | "user",
-    roomId: number,
-  ) {
+  async deleteRoom(role: Role, roomId: number) {
     return test.step(`${role} delete room ${roomId}`, async () => {
       const response = await this.request.delete(
         `https://${this.portalDomain}/api/2.0/files/rooms/${roomId}`,
@@ -152,9 +114,7 @@ export class RoomsApi {
   }
 
   // Archive/unarchive/delete are async — PUT/DELETE starts the operation, GET /fileops polls until finished
-  private async waitForOperation(
-    role: "owner" | "docSpaceAdmin" | "roomAdmin" | "user",
-  ) {
+  private async waitForOperation(role: Role) {
     let result: {
       id: string;
       finished: boolean;
@@ -183,10 +143,7 @@ export class RoomsApi {
     return result;
   }
 
-  async pinRoom(
-    role: "owner" | "docSpaceAdmin" | "roomAdmin" | "user",
-    roomId: number,
-  ) {
+  async pinRoom(role: Role, roomId: number) {
     return test.step(`${role} pin room ${roomId}`, async () => {
       const response = await this.request.put(
         `https://${this.portalDomain}/api/2.0/files/rooms/${roomId}/pin`,
@@ -198,10 +155,7 @@ export class RoomsApi {
     });
   }
 
-  async unpinRoom(
-    role: "owner" | "docSpaceAdmin" | "roomAdmin" | "user",
-    roomId: number,
-  ) {
+  async unpinRoom(role: Role, roomId: number) {
     return test.step(`${role} unpin room ${roomId}`, async () => {
       const response = await this.request.put(
         `https://${this.portalDomain}/api/2.0/files/rooms/${roomId}/unpin`,
@@ -213,9 +167,7 @@ export class RoomsApi {
     });
   }
 
-  async getRoomTemplateStatus(
-    role: "owner" | "docSpaceAdmin" | "roomAdmin" | "user",
-  ) {
+  async getRoomTemplateStatus(role: Role) {
     return test.step(`${role} get room template status`, async () => {
       const response = await this.request.get(
         `https://${this.portalDomain}/api/2.0/files/roomtemplate/status`,
@@ -227,9 +179,7 @@ export class RoomsApi {
     });
   }
 
-  async waitForRoomTemplateReady(
-    role: "owner" | "docSpaceAdmin" | "roomAdmin" | "user",
-  ) {
+  async waitForRoomTemplateReady(role: Role) {
     return test.step(`${role} wait for room template ready`, async () => {
       let templateId: number = -1;
 
@@ -253,7 +203,7 @@ export class RoomsApi {
   }
 
   async createRoomTemplateAndWait(
-    role: "owner" | "docSpaceAdmin" | "roomAdmin" | "user",
+    role: Role,
     data: { roomId: number; title: string },
   ) {
     return test.step(`${role} create room template and wait`, async () => {
@@ -262,10 +212,7 @@ export class RoomsApi {
     });
   }
 
-  async getRoomTemplatePublic(
-    role: "owner" | "docSpaceAdmin" | "roomAdmin" | "user",
-    templateId: number,
-  ) {
+  async getRoomTemplatePublic(role: Role, templateId: number) {
     return test.step(`${role} get room template public`, async () => {
       const response = await this.request.get(
         `https://${this.portalDomain}/api/2.0/files/roomtemplate/${templateId}/public`,
@@ -278,7 +225,7 @@ export class RoomsApi {
   }
 
   async getRooms(
-    role: "owner" | "docSpaceAdmin" | "roomAdmin" | "user",
+    role: Role,
     params?: Record<string, string | number | boolean>,
   ) {
     return test.step(`${role} get rooms`, async () => {
@@ -293,10 +240,7 @@ export class RoomsApi {
     });
   }
 
-  async getRoomInfo(
-    role: "owner" | "docSpaceAdmin" | "roomAdmin" | "user",
-    roomId: number,
-  ) {
+  async getRoomInfo(role: Role, roomId: number) {
     return test.step(`${role} get room info ${roomId}`, async () => {
       const response = await this.request.get(
         `https://${this.portalDomain}/api/2.0/files/rooms/${roomId}`,
@@ -309,7 +253,7 @@ export class RoomsApi {
   }
 
   async setRoomTemplatePublic(
-    role: "owner" | "docSpaceAdmin" | "roomAdmin" | "user",
+    role: Role,
     data: { id: number; public: boolean },
   ) {
     return test.step(`${role} set room template public`, async () => {
@@ -324,11 +268,7 @@ export class RoomsApi {
     });
   }
 
-  async changeOwner(
-    role: "owner" | "docSpaceAdmin" | "roomAdmin" | "user",
-    roomId: number,
-    userId: string,
-  ) {
+  async changeOwner(role: Role, roomId: number, userId: string) {
     return test.step(`${role} change owner of room ${roomId}`, async () => {
       const response = await this.request.post(
         `https://${this.portalDomain}/api/2.0/files/owner`,
@@ -342,7 +282,7 @@ export class RoomsApi {
   }
 
   async setRoomAccessRights(
-    role: "owner" | "docSpaceAdmin" | "roomAdmin" | "user",
+    role: Role,
     roomId: number,
     data: {
       invitations: { id: string; access: string }[];
@@ -362,10 +302,7 @@ export class RoomsApi {
     });
   }
 
-  async getRoomAccessRights(
-    role: "owner" | "docSpaceAdmin" | "roomAdmin" | "user",
-    roomId: number,
-  ) {
+  async getRoomAccessRights(role: Role, roomId: number) {
     return test.step(`${role} get room access rights ${roomId}`, async () => {
       const response = await this.request.get(
         `https://${this.portalDomain}/api/2.0/files/rooms/${roomId}/share`,
@@ -377,11 +314,7 @@ export class RoomsApi {
     });
   }
 
-  async addRoomTags(
-    role: "owner" | "docSpaceAdmin" | "roomAdmin" | "user",
-    roomId: number,
-    tags: string[],
-  ) {
+  async addRoomTags(role: Role, roomId: number, tags: string[]) {
     return test.step(`${role} add tags to room ${roomId}`, async () => {
       const response = await this.request.put(
         `https://${this.portalDomain}/api/2.0/files/rooms/${roomId}/tags`,
@@ -394,11 +327,7 @@ export class RoomsApi {
     });
   }
 
-  async removeRoomTags(
-    role: "owner" | "docSpaceAdmin" | "roomAdmin" | "user",
-    roomId: number,
-    tags: string[],
-  ) {
+  async removeRoomTags(role: Role, roomId: number, tags: string[]) {
     return test.step(`${role} remove tags from room ${roomId}`, async () => {
       const response = await this.request.delete(
         `https://${this.portalDomain}/api/2.0/files/rooms/${roomId}/tags`,
@@ -411,10 +340,7 @@ export class RoomsApi {
     });
   }
 
-  async createTag(
-    role: "owner" | "docSpaceAdmin" | "roomAdmin" | "user",
-    tagName: string,
-  ) {
+  async createTag(role: Role, tagName: string) {
     return test.step(`${role} create tag "${tagName}"`, async () => {
       const response = await this.request.post(
         `https://${this.portalDomain}/api/2.0/files/tags`,
@@ -427,10 +353,7 @@ export class RoomsApi {
     });
   }
 
-  async deleteTag(
-    role: "owner" | "docSpaceAdmin" | "roomAdmin" | "user",
-    tagName: string,
-  ) {
+  async deleteTag(role: Role, tagName: string) {
     return test.step(`${role} delete tag "${tagName}"`, async () => {
       const response = await this.request.delete(
         `https://${this.portalDomain}/api/2.0/files/tags`,
@@ -443,7 +366,7 @@ export class RoomsApi {
     });
   }
 
-  async getTags(role: "owner" | "docSpaceAdmin" | "roomAdmin" | "user") {
+  async getTags(role: Role) {
     return test.step(`${role} get all tags`, async () => {
       const response = await this.request.get(
         `https://${this.portalDomain}/api/2.0/files/tags`,

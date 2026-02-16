@@ -90,14 +90,7 @@ export const test = base.extend<TestFixtures>({
   },
 
   apiSdk: async ({ api, request }, use) => {
-    const sdk = new ApiSDK(
-      request,
-      api.auth.authTokenOwner,
-      api.auth.authTokenDocSpaceAdmin,
-      api.portalDomain,
-    );
-    api.auth.setProfilesApi(sdk.profiles);
-    api.auth.setUserStatusApi(sdk.userStatus);
+    const sdk = new ApiSDK(request, api.tokenStore);
     await use(sdk);
   },
 });

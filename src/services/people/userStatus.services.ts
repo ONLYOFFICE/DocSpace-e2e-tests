@@ -1,4 +1,5 @@
 import { test, APIRequestContext } from "@playwright/test";
+import { TokenStore, Role } from "../token-store";
 
 export enum UserStatus {
   Active = 1,
@@ -7,78 +8,23 @@ export enum UserStatus {
 
 export class UserStatusApi {
   private request: APIRequestContext;
-  private authTokenOwner: string = "";
-  private authTokenDocSpaceAdmin: string = "";
-  private authTokenRoomAdmin: string = "";
-  private authTokenUser: string = "";
-  private portalDomain: string = "";
-  private docSpaceAdminEmail: string = "";
-  private docSpaceAdminPassword: string = "";
-  private roomAdminEmail: string = "";
-  private roomAdminPassword: string = "";
-  private userEmail: string = "";
-  private userPassword: string = "";
+  private tokenStore: TokenStore;
 
-  constructor(
-    request: APIRequestContext,
-    authToken: string,
-    authTokenDocSpaceAdmin: string,
-    portalDomain: string,
-  ) {
+  constructor(request: APIRequestContext, tokenStore: TokenStore) {
     this.request = request;
-    this.authTokenOwner = authToken;
-    this.authTokenDocSpaceAdmin = authTokenDocSpaceAdmin;
-    this.portalDomain = portalDomain;
+    this.tokenStore = tokenStore;
   }
 
-  public getDocSpaceAdminEmail(): string {
-    return this.docSpaceAdminEmail;
+  private getToken(role: Role) {
+    return this.tokenStore.getToken(role);
   }
 
-  public getDocSpaceAdminPassword(): string {
-    return this.docSpaceAdminPassword;
-  }
-
-  public setAuthTokenDocSpaceAdmin(token: string) {
-    this.authTokenDocSpaceAdmin = token;
-  }
-
-  public getRoomAdminEmail(): string {
-    return this.roomAdminEmail;
-  }
-
-  public getRoomAdminPassword(): string {
-    return this.roomAdminPassword;
-  }
-
-  public setAuthTokenRoomAdmin(token: string) {
-    this.authTokenRoomAdmin = token;
-  }
-
-  public getUserEmail(): string {
-    return this.userEmail;
-  }
-
-  public getUserPassword(): string {
-    return this.userPassword;
-  }
-
-  public setAuthTokenUser(token: string) {
-    this.authTokenUser = token;
-  }
-
-  private getToken(role: "owner" | "docSpaceAdmin" | "roomAdmin" | "user") {
-    const tokens = {
-      owner: this.authTokenOwner,
-      docSpaceAdmin: this.authTokenDocSpaceAdmin,
-      roomAdmin: this.authTokenRoomAdmin,
-      user: this.authTokenUser,
-    };
-    return tokens[role];
+  private get portalDomain() {
+    return this.tokenStore.portalDomain;
   }
 
   async changeUserStatus(
-    role: "owner" | "docSpaceAdmin" | "roomAdmin" | "user",
+    role: Role,
     status: UserStatus,
     data: {
       userIds: string[];
@@ -115,10 +61,7 @@ export class UserStatusApi {
     });
   }
 
-  async getPlofilesByStatus(
-    role: "owner" | "docSpaceAdmin" | "roomAdmin" | "user",
-    status: UserStatus,
-  ) {
+  async getPlofilesByStatus(role: Role, status: UserStatus) {
     return test.step(`${role} returns a list of profiles filtered by the user status`, async () => {
       const response = await this.request.get(
         `https://${this.portalDomain}/api/2.0/people/status/${status}`,
