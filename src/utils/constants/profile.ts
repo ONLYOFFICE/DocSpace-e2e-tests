@@ -3,8 +3,5 @@ export const toastMessages = {
 } as const;
 
 export const avatarConstants = {
-  dataAttribute: "data-is-default",
-  uploadedValue: "false",
-  deletedValue: "true",
   storagePathPattern: /storage\/userPhotos/,
 } as const;

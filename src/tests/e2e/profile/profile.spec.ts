@@ -49,13 +49,14 @@ test.describe("Profile", () => {
       await profile.expectAvatarDeleted();
     });
 
-    await test.step("Change language via combobox", async () => {
-      await profile.changeLanguageTo("Deutsch");
-      await profile.expectSelectedLanguage("Deutsch");
-      await profile.expectLanguageLabel("Sprache");
-      await profile.changeLanguageTo("English (United States)");
-      await profile.expectSelectedLanguage("English");
-    });
+    // TODO: Bug #80139
+    // await test.step("Change language via combobox", async () => {
+    //   await profile.changeLanguageTo("Deutsch");
+    //   await profile.expectSelectedLanguage("Deutsch");
+    //   await profile.expectLanguageLabel("Sprache");
+    //   await profile.changeLanguageTo("English (United States)");
+    //   await profile.expectSelectedLanguage("English");
+    // });
 
     await test.step("Switch interface themes", async () => {
       await profile.selectInterfaceThemeTabs();

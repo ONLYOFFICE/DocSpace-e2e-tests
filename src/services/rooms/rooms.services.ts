@@ -143,6 +143,67 @@ export class RoomsApi {
     return result;
   }
 
+  async updateRoom(
+    role: Role,
+    roomId: number,
+    data: {
+      title?: string;
+      quota?: number;
+      indexing?: boolean;
+      denyDownload?: boolean;
+      lifetime?: {
+        deletePermanently?: boolean;
+        period?: number;
+        value?: number;
+        enabled?: boolean;
+      };
+      watermark?: {
+        enabled?: boolean;
+        additions?: number;
+        text?: string;
+        rotate?: number;
+        imageScale?: number;
+        imageUrl?: string;
+        imageHeight?: number;
+        imageWidth?: number;
+      };
+      logo?: {
+        tmpFile?: string;
+        x?: number;
+        y?: number;
+        width?: number;
+        height?: number;
+      };
+      tags?: string[];
+      color?: string;
+      cover?: string;
+    },
+  ) {
+    return test.step(`${role} update room ${roomId}`, async () => {
+      const response = await this.request.put(
+        `https://${this.portalDomain}/api/2.0/files/rooms/${roomId}`,
+        {
+          headers: { Authorization: `Bearer ${this.getToken(role)}` },
+          data,
+        },
+      );
+      return response;
+    });
+  }
+
+  async updateRoomWithoutAuthorization(
+    roomId: number,
+    data: { title?: string },
+  ) {
+    return test.step(`update room ${roomId} without authorization`, async () => {
+      const response = await this.request.put(
+        `https://${this.portalDomain}/api/2.0/files/rooms/${roomId}`,
+        { data },
+      );
+      return response;
+    });
+  }
+
   async pinRoom(role: Role, roomId: number) {
     return test.step(`${role} pin room ${roomId}`, async () => {
       const response = await this.request.put(

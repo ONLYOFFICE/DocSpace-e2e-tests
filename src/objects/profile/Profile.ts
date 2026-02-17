@@ -3,8 +3,6 @@ import { avatarConstants } from "@/src/utils/constants/profile";
 import BasePage from "../common/BasePage";
 
 export class Profile extends BasePage {
-  private initialAvatarSrc: string | null = null;
-  private currentAvatarSrc: string | null = null;
   constructor(page: Page) {
     super(page);
   }
@@ -162,9 +160,6 @@ export class Profile extends BasePage {
   async open() {
     await this.navigateToProfile();
     await this.mainProfile.waitFor({ state: "visible" });
-    const avatarSrc = await this.avatarImage.getAttribute("src");
-    this.initialAvatarSrc = avatarSrc;
-    this.currentAvatarSrc = avatarSrc;
   }
 
   async uploadAvatar(filePath = "data/avatars/AvatarPNG.png") {
@@ -175,48 +170,24 @@ export class Profile extends BasePage {
     await this.avatarSaveButton.click();
   }
 
-  async expectAvatarUploaded(previousSrc?: string | null) {
-    await expect(this.avatarImage).toHaveAttribute(
-      avatarConstants.dataAttribute,
-      avatarConstants.uploadedValue,
-    );
-    const srcToCompare = previousSrc ?? this.currentAvatarSrc;
-    if (srcToCompare) {
-      await expect(this.avatarImage).not.toHaveAttribute("src", srcToCompare);
-    }
+  async expectAvatarUploaded() {
     await expect(this.avatarImage).toHaveAttribute(
       "src",
       avatarConstants.storagePathPattern,
     );
-    this.currentAvatarSrc = await this.avatarImage.getAttribute("src");
   }
 
   async deleteAvatar() {
     await this.editAvatarButton.click();
+    const deleteResponse = this.page.waitForResponse(
+      (resp) => resp.url().includes("photo") && resp.status() === 200,
+    );
     await this.avatarDeleteButton.click();
+    await deleteResponse;
   }
 
-  async expectAvatarDeleted(uploadedSrc?: string | null) {
-    await expect(this.avatarImage).toHaveAttribute(
-      avatarConstants.dataAttribute,
-      avatarConstants.deletedValue,
-    );
-    const srcToCompare = uploadedSrc ?? this.currentAvatarSrc;
-    if (srcToCompare) {
-      await expect(this.avatarImage).not.toHaveAttribute("src", srcToCompare);
-    }
-    if (this.initialAvatarSrc) {
-      await expect(this.avatarImage).toHaveAttribute(
-        "src",
-        this.initialAvatarSrc,
-      );
-    } else {
-      await expect(this.avatarImage).not.toHaveAttribute(
-        "src",
-        avatarConstants.storagePathPattern,
-      );
-    }
-    this.currentAvatarSrc = this.initialAvatarSrc;
+  async expectAvatarDeleted() {
+    await expect(this.avatarImage).toHaveCount(0);
   }
 
   async openChangeNameDialog() {

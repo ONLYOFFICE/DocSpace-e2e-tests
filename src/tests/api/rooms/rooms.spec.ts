@@ -118,6 +118,163 @@ test.describe("API rooms methods", () => {
     });
   });
 
+  test("PUT /files/rooms/:id - Owner updates room title", async ({
+    apiSdk,
+  }) => {
+    const response = await apiSdk.rooms.createRoom("owner", {
+      title: "Autotest Room Before Update",
+      roomType: "CustomRoom",
+    });
+    const roomId = (await response.json()).response.id;
+
+    await test.step("PUT /files/rooms/:id - update title", async () => {
+      const updateResponse = await apiSdk.rooms.updateRoom("owner", roomId, {
+        title: "Autotest Room After Update",
+      });
+      const updateBody = await updateResponse.json();
+
+      expect(updateResponse.status()).toBe(200);
+      expect(updateBody.response.title).toBe("Autotest Room After Update");
+      expect(updateBody.response.id).toBe(roomId);
+    });
+
+    await test.step("GET /files/rooms/:id - confirms title changed", async () => {
+      const infoResponse = await apiSdk.rooms.getRoomInfo("owner", roomId);
+      const infoBody = await infoResponse.json();
+
+      expect(infoResponse.status()).toBe(200);
+      expect(infoBody.response.title).toBe("Autotest Room After Update");
+    });
+  });
+
+  test("PUT /files/rooms/:id - Owner updates all allowed fields for VDR room", async ({
+    apiSdk,
+  }) => {
+    const response = await apiSdk.rooms.createRoom("owner", {
+      title: "Autotest VDR Room",
+      roomType: "VirtualDataRoom",
+    });
+    const roomId = (await response.json()).response.id;
+
+    await test.step("PUT /files/rooms/:id - update all fields", async () => {
+      const updateResponse = await apiSdk.rooms.updateRoom("owner", roomId, {
+        title: "Updated VDR Room",
+        indexing: true,
+        denyDownload: true,
+        lifetime: {
+          deletePermanently: true,
+          period: 0,
+          value: 30,
+          enabled: true,
+        },
+        watermark: {
+          enabled: true,
+          additions: 1,
+          text: "Confidential",
+          rotate: 0,
+          imageScale: 100,
+        },
+        color: "FF5733",
+      });
+      const updateBody = await updateResponse.json();
+
+      expect(updateResponse.status()).toBe(200);
+      expect(updateBody.response.title).toBe("Updated VDR Room");
+      expect(updateBody.response.indexing).toBe(true);
+      expect(updateBody.response.denyDownload).toBe(true);
+      expect(updateBody.response.logo.color).toBe("FF5733");
+      expect(updateBody.response.lifetime.period).toBe(0);
+      expect(updateBody.response.lifetime.value).toBe(30);
+      expect(updateBody.response.lifetime.deletePermanently).toBe(true);
+      expect(updateBody.response.watermark.additions).toBe(1);
+      expect(updateBody.response.watermark.text).toBe("Confidential");
+      expect(updateBody.response.watermark.rotate).toBe(0);
+      expect(updateBody.response.watermark.imageScale).toBe(100);
+    });
+
+    await test.step("GET /files/rooms/:id - verify all fields saved", async () => {
+      const infoResponse = await apiSdk.rooms.getRoomInfo("owner", roomId);
+      const infoBody = await infoResponse.json();
+
+      expect(infoResponse.status()).toBe(200);
+      expect(infoBody.response.title).toBe("Updated VDR Room");
+      expect(infoBody.response.indexing).toBe(true);
+      expect(infoBody.response.denyDownload).toBe(true);
+      expect(infoBody.response.logo.color).toBe("FF5733");
+      expect(infoBody.response.lifetime.period).toBe(0);
+      expect(infoBody.response.lifetime.value).toBe(30);
+      expect(infoBody.response.watermark.additions).toBe(1);
+      expect(infoBody.response.watermark.text).toBe("Confidential");
+    });
+  });
+
+  // TODO: Need clarification — should API reject VDR-only fields on non-VDR rooms or is this expected behavior?
+  test.skip("PUT /files/rooms/:id - Set VDR-only fields on CustomRoom", async ({
+    apiSdk,
+  }) => {
+    const response = await apiSdk.rooms.createRoom("owner", {
+      title: "Autotest Custom Room",
+      roomType: "CustomRoom",
+    });
+    const roomId = (await response.json()).response.id;
+
+    const updateResponse = await apiSdk.rooms.updateRoom("owner", roomId, {
+      indexing: true,
+      denyDownload: true,
+      lifetime: {
+        deletePermanently: true,
+        period: 0,
+        value: 30,
+        enabled: true,
+      },
+      watermark: {
+        enabled: true,
+        additions: 1,
+        text: "Confidential",
+        rotate: 0,
+        imageScale: 100,
+      },
+    });
+    const updateBody = await updateResponse.json();
+    expect(updateResponse.status()).toBe(200);
+    expect(updateBody.response.indexing).toBe(true);
+    expect(updateBody.response.denyDownload).toBe(true);
+    expect(updateBody.response.lifetime.value).toBe(30);
+    expect(updateBody.response.watermark.text).toBe("Confidential");
+  });
+
+  test("PUT /files/rooms/:id - Update room with empty title", async ({
+    apiSdk,
+  }) => {
+    const response = await apiSdk.rooms.createRoom("owner", {
+      title: "Autotest Room",
+      roomType: "CustomRoom",
+    });
+    const roomId = (await response.json()).response.id;
+
+    const updateResponse = await apiSdk.rooms.updateRoom("owner", roomId, {
+      title: "",
+    });
+    const updateBody = await updateResponse.json();
+
+    // API ignores empty title and keeps the original value
+    expect(updateResponse.status()).toBe(200);
+    expect(updateBody.response.title).toBe("Autotest Room");
+  });
+
+  // Room IDs are globally unique, so the API returns 403 instead of 404
+  // to prevent enumeration of existing room IDs
+  test("PUT /files/rooms/:id - Update non-existent room", async ({
+    apiSdk,
+  }) => {
+    const updateResponse = await apiSdk.rooms.updateRoom("owner", 999999999, {
+      title: "Does Not Exist",
+    });
+    const updateBody = await updateResponse.json();
+
+    expect(updateBody.statusCode).toBe(403);
+  });
+
   test("PUT /files/rooms/:id/archive and unarchive", async ({ apiSdk }) => {
     const response = await apiSdk.rooms.createRoom("owner", {
       title: "Autotest Archive Room",
