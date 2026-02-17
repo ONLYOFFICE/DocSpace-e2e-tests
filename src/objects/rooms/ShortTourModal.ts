@@ -4,7 +4,7 @@ const TAKE_A_TOUR_BUTTON = "#form-filling_tips_start";
 const SKIP_BUTTON = "#form-filling_tips_skip";
 const NEXT_BUTTON = "#form-filling_tips_next";
 const BACK_BUTTON = "#form-filling_tips_back";
-const MODAL_CLOSE_BUTTON = '#modal-dialog [data-testid="icon-button-svg"]';
+const MODAL_CLOSE_BUTTON = "#modal-header-swipe svg";
 const MODAL_WINDOW_COPY_PUBLIC_LINK =
   '#modal-dialog [data-testid="created_pdf_form_dialog_copy_public_link"]';
 
