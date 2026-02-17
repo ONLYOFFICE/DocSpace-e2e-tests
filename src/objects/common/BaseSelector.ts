@@ -84,11 +84,7 @@ class BaseSelector {
 
   async acceptCreate() {
     await expect(this.newSelectorItem).toBeVisible();
-    // TODO ACCEPT BUTTON BY TEST ID;
-    await this.page
-      .locator(".Selector-module__inputWrapper--PcjcU")
-      .first()
-      .click();
+    await this.page.getByTestId("selector_new_item_accept").click();
     await expect(this.newSelectorItem).not.toBeVisible();
   }
 

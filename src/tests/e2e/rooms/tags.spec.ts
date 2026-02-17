@@ -34,10 +34,8 @@ test.describe("Tags", () => {
       await expect(page.getByText("Tag1")).toBeVisible();
       await myRooms.roomsCreateDialog.clickRoomDialogSubmit();
       await myRooms.infoPanel.openTab("Details");
-      await myRooms.infoPanel.hideDatePropertiesDetails();
       await myRooms.backToRooms();
       await myRooms.infoPanel.close();
-      await myRooms.roomsTable.hideLastActivityColumn();
       await myRooms.roomsTable.selectRow("Tag Room");
     });
 

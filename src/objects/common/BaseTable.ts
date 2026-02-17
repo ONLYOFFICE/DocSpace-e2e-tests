@@ -2,7 +2,6 @@ import { expect, Locator, Page } from "@playwright/test";
 
 const TABLE_CONTAINER = "#table-container";
 const TABLE_LIST_ITEM = ".table-list-item.window-item";
-const SETTINGS_ICON = '[data-iconname*="settings.desc.react.svg"]';
 const TABLE_SETTING_CONTAINER = ".table-container_settings";
 const TABLE_SETTINGS_BUTTON = "[data-testid='table-settings-button']";
 
@@ -57,7 +56,7 @@ class BaseTable {
   async openSettings() {
     const isSettingsVisible = await this.tableSettings.isVisible();
     if (!isSettingsVisible) {
-      await this.tableContainer.locator(SETTINGS_ICON).click();
+      await this.tableSettingsButton.click();
     }
   }
 

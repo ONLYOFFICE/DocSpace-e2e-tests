@@ -123,7 +123,6 @@ test.describe("FormFilling base tests", () => {
       await roomEmptyView.uploadPdfForm(pdfPath);
       await shortTour.clickModalCloseButton();
       await myRooms.infoPanel.close();
-      await myRooms.filesTable.hideModifiedColumn();
       await myRooms.filesTable.selectPdfFile();
       await expect(page.getByLabel("PDF from device,")).toBeVisible();
       await expect(page.getByLabel("In process")).toBeVisible();

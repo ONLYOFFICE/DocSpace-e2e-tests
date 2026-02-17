@@ -36,6 +36,103 @@ test.describe("POST /files/rooms - access control", () => {
   });
 });
 
+test.describe("PUT /files/rooms/:id - access control", () => {
+  test("Owner can update own room", async ({ apiSdk }) => {
+    const response = await apiSdk.rooms.createRoom("owner", {
+      title: "Autotest Room",
+      roomType: "CustomRoom",
+    });
+    const roomId = (await response.json()).response.id;
+
+    const updateResponse = await apiSdk.rooms.updateRoom("owner", roomId, {
+      title: "Updated Room",
+    });
+    const updateBody = await updateResponse.json();
+
+    expect(updateResponse.status()).toBe(200);
+    expect(updateBody.response.title).toBe("Updated Room");
+  });
+
+  test("DocSpaceAdmin can update own room", async ({ apiSdk, api }) => {
+    await apiSdk.profiles.addMember("owner", "DocSpaceAdmin");
+    await api.auth.authenticateDocSpaceAdmin();
+
+    const response = await apiSdk.rooms.createRoom("docSpaceAdmin", {
+      title: "Autotest Room",
+      roomType: "CustomRoom",
+    });
+    const roomId = (await response.json()).response.id;
+
+    const updateResponse = await apiSdk.rooms.updateRoom(
+      "docSpaceAdmin",
+      roomId,
+      { title: "Updated Room" },
+    );
+    const updateBody = await updateResponse.json();
+
+    expect(updateResponse.status()).toBe(200);
+    expect(updateBody.response.title).toBe("Updated Room");
+  });
+
+  test("DocSpaceAdmin cannot update other's room", async ({ apiSdk, api }) => {
+    await apiSdk.profiles.addMember("owner", "DocSpaceAdmin");
+    await api.auth.authenticateDocSpaceAdmin();
+
+    const response = await apiSdk.rooms.createRoom("owner", {
+      title: "Autotest Room",
+      roomType: "CustomRoom",
+    });
+    const roomId = (await response.json()).response.id;
+
+    const updateResponse = await apiSdk.rooms.updateRoom(
+      "docSpaceAdmin",
+      roomId,
+      { title: "Updated Room" },
+    );
+    const updateBody = await updateResponse.json();
+
+    expect(updateBody.statusCode).toBe(403);
+  });
+
+  test("User without room access cannot update room", async ({
+    apiSdk,
+    api,
+  }) => {
+    await apiSdk.profiles.addMember("owner", "User");
+    await api.auth.authenticateUser();
+
+    const response = await apiSdk.rooms.createRoom("owner", {
+      title: "Autotest Room",
+      roomType: "CustomRoom",
+    });
+    const roomId = (await response.json()).response.id;
+
+    const updateResponse = await apiSdk.rooms.updateRoom("user", roomId, {
+      title: "Updated by User",
+    });
+    const updateBody = await updateResponse.json();
+
+    expect(updateBody.statusCode).toBe(403);
+  });
+
+  test("Updating room without authorization", async ({ apiSdk }) => {
+    const response = await apiSdk.rooms.createRoom("owner", {
+      title: "Autotest Room",
+      roomType: "CustomRoom",
+    });
+    const roomId = (await response.json()).response.id;
+
+    const updateResponse = await apiSdk.rooms.updateRoomWithoutAuthorization(
+      roomId,
+      {
+        title: "Updated without auth",
+      },
+    );
+
+    expect(updateResponse.status()).toBe(401);
+  });
+});
+
 // TODO: Investigate expected behavior for room deletion permissions
 // DELETE /files/rooms/:id works asynchronously:
 // 1. Controller has NO permission checks
