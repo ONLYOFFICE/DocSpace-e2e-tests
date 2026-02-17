@@ -22,7 +22,9 @@ class BaseDialog {
   }
 
   async clickBackArrow() {
-    await this.dialogHeader.getByTestId("icon-button-svg").first().click();
+    await this.dialogHeader
+      .getByTestId("aside_header_back_icon_button")
+      .click();
   }
 
   async close() {
