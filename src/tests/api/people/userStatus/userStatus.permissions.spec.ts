@@ -369,4 +369,63 @@ test.describe("API user status methods", () => {
     expect(bodyResponse.statusCode).toBe(403);
     expect(bodyResponse.error.message).toBe("Access denied");
   });
+
+  test("GET /people/status/:status - User returns a list of profiles filtered by the active user status", async ({
+    apiSdk,
+    api,
+  }) => {
+    await apiSdk.profiles.addMember("owner", "DocSpaceAdmin");
+    await apiSdk.profiles.addMember("owner", "RoomAdmin");
+    await apiSdk.profiles.addMember("owner", "User");
+
+    await api.auth.authenticateUser();
+    const response = await apiSdk.userStatus.getPlofilesByStatus(
+      "user",
+      UserStatus.Active,
+    );
+    const responseData = await response.json();
+    expect(responseData.statusCode).toBe(403);
+    expect(responseData.error.message).toBe("Access denied");
+  });
+
+  test("GET /people/status/:status - User returns a list of profiles filtered by the disabled user status", async ({
+    apiSdk,
+    api,
+  }) => {
+    const docSpaceAdmin = await apiSdk.profiles.addMember(
+      "owner",
+      "DocSpaceAdmin",
+    );
+    const docSpaceAdminJson = await docSpaceAdmin.response.json();
+    const docSpaceAdminId = docSpaceAdminJson.response.id;
+
+    const roomAdmin = await apiSdk.profiles.addMember("owner", "RoomAdmin");
+    const roomAdminJson = await roomAdmin.response.json();
+    const roomAdminId = roomAdminJson.response.id;
+
+    const user = await apiSdk.profiles.addMember("owner", "User");
+    const userJson = await user.response.json();
+    const userId = userJson.response.id;
+
+    const data = {
+      userIds: [docSpaceAdminId, roomAdminId, userId],
+      resendAll: false,
+    };
+
+    await apiSdk.userStatus.changeUserStatus(
+      "owner",
+      UserStatus.Disabled,
+      data,
+    );
+
+    await apiSdk.profiles.addMember("owner", "User");
+    await api.auth.authenticateUser();
+    const response = await apiSdk.userStatus.getPlofilesByStatus(
+      "user",
+      UserStatus.Disabled,
+    );
+    const responseData = await response.json();
+    expect(responseData.statusCode).toBe(403);
+    expect(responseData.error.message).toBe("Access denied");
+  });
 });

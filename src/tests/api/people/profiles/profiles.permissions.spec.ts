@@ -6,15 +6,8 @@ import { faker } from "@faker-js/faker";
 import { UserStatus } from "@/src/services/people/userStatus.services";
 
 type UsersListItem = {
-  id: string;
   email: string;
-  firstName?: string;
-  lastName?: string;
   displayName?: string;
-  isOwner?: boolean;
-  isAdmin?: boolean;
-  isRoomAdmin?: boolean;
-  isCollaborator?: boolean;
 };
 
 test.describe("API profiling tests for access rights", () => {

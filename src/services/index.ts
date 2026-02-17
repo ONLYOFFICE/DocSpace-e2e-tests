@@ -4,5 +4,6 @@ export * from "../utils/helpers/faker";
 export * from "./people/userStatus.services";
 export * from "./rooms/rooms.services";
 export * from "./token-store";
+export * from "./people/password.services";
 
 export { UserStatus } from "./people/userStatus.services";
