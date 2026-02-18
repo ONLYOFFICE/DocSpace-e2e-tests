@@ -158,10 +158,6 @@ class MyRooms extends BasePage {
   async createFormFillingRoom(roomName: string, tags?: string[]) {
     await this.roomsArticle.openCreateDialog();
     await this.roomsCreateDialog.openRoomType(roomCreateTitles.formFilling);
-    await this.roomsCreateDialog.openRoomCover();
-    await this.roomsCreateDialog.selectCoverColor();
-    await this.roomsCreateDialog.selectCoverIcon();
-    await this.roomsCreateDialog.saveCover();
     await this.roomsCreateDialog.fillRoomName(roomName);
 
     // Add tags if they are provided
