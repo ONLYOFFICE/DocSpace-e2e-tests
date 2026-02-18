@@ -24,11 +24,6 @@ test.describe("Tags", () => {
       await myRooms.roomsCreateDialog.openRoomType(
         roomCreateTitles.collaboration,
       );
-      await myRooms.roomsCreateDialog.openRoomIconDropdown();
-      await myRooms.roomsCreateDialog.openRoomCover();
-      await myRooms.roomsCreateDialog.selectCoverColor();
-      await myRooms.roomsCreateDialog.selectCoverIcon();
-      await myRooms.roomsCreateDialog.saveCover();
       await myRooms.roomsCreateDialog.fillRoomName("Tag Room");
       await myRooms.roomsCreateDialog.createTag("Tag1");
       await expect(page.getByText("Tag1")).toBeVisible();
@@ -69,11 +64,6 @@ test.describe("Tags", () => {
       await myRooms.roomsCreateDialog.openRoomType(
         roomCreateTitles.collaboration,
       );
-      await myRooms.roomsCreateDialog.openRoomIconDropdown();
-      await myRooms.roomsCreateDialog.openRoomCover();
-      await myRooms.roomsCreateDialog.selectCoverColor();
-      await myRooms.roomsCreateDialog.selectCoverIcon();
-      await myRooms.roomsCreateDialog.saveCover();
       await myRooms.roomsCreateDialog.fillRoomName(
         "ManyTags RoomManyTags RoomManyTags RoomManyTags RoomManyTags RoomManyTags Room",
       );
@@ -89,11 +79,6 @@ test.describe("Tags", () => {
       await myRooms.roomsCreateDialog.openRoomType(
         roomCreateTitles.collaboration,
       );
-      await myRooms.roomsCreateDialog.openRoomIconDropdown();
-      await myRooms.roomsCreateDialog.openRoomCover();
-      await myRooms.roomsCreateDialog.selectCoverColor();
-      await myRooms.roomsCreateDialog.selectCoverIcon();
-      await myRooms.roomsCreateDialog.saveCover();
       await myRooms.roomsCreateDialog.fillRoomName("LongNameTag Room");
       await myRooms.roomsCreateDialog.createTag(
         "0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789",

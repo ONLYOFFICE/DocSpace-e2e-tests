@@ -140,8 +140,7 @@ class MyRooms extends BasePage {
       }
       await this.openCreateRoomDialog(roomDialogSource.navigation);
       await this.roomsCreateDialog.openRoomType(roomType);
-      await this.roomsCreateDialog.openRoomCover();
-      await this.roomsCreateDialog.createRoomWithCover(roomType);
+      await this.roomsCreateDialog.createRoom(roomType);
 
       if (roomType === roomCreateTitles.formFilling) {
         const tipsModal = this.page.getByText(

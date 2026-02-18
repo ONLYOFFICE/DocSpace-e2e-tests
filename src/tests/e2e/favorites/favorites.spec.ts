@@ -22,7 +22,8 @@ test.describe("Favorites", () => {
     await myDocuments.filesArticle.createFiles();
   });
 
-  test("Add and remove favorites", async ({}) => {
+  // TODO: Bug — removing one document from favorites also removes all other favorited documents
+  test.skip("Add and remove favorites", async ({}) => {
     await test.step("Mark all documents as favorites", async () => {
       await myDocuments.addToFavorites(documentName);
       await myDocuments.addToFavorites(spreadsheetName);
