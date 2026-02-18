@@ -55,6 +55,10 @@ class Auth {
     return this.authenticateRole("user");
   }
 
+  async authenticateGuest() {
+    return this.authenticateRole("guest");
+  }
+
   private async authenticateRole(role: Role) {
     const { email, password } = this.tokenStore.getCredentials(role);
 

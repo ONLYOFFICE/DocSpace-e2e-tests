@@ -57,6 +57,22 @@ test.describe("API password methods", () => {
     expect(body.error.message).toBe("No permissions to perform this action");
   });
 
+  test("POST /people/password - Guest reminds the owner of the password.", async ({
+    apiSdk,
+    api,
+  }) => {
+    const ownerEmail = config.DOCSPACE_OWNER_EMAIL;
+    await apiSdk.profiles.addMember("owner", "Guest");
+    await api.auth.authenticateGuest();
+
+    const response = await apiSdk.password.remindAUserPassword("guest", {
+      email: ownerEmail,
+    });
+    const body = await response.json();
+    expect(body.statusCode).toBe(403);
+    expect(body.error.message).toBe("No permissions to perform this action");
+  });
+
   // 80157 - NEW
   test.skip("POST /people/password - DocSpace admin reminds the docspace admin of the password.", async ({
     apiSdk,
@@ -121,6 +137,25 @@ test.describe("API password methods", () => {
     expect(body.error.message).toBe("No permissions to perform this action");
   });
 
+  test("POST /people/password - Guest reminds the guest of the password.", async ({
+    apiSdk,
+    api,
+  }) => {
+    const guest = await apiSdk.profiles.addMember("owner", "Guest");
+    const responseGuest = await guest.response.json();
+    const email = responseGuest.response.email;
+
+    await apiSdk.profiles.addMember("owner", "Guest");
+    await api.auth.authenticateGuest();
+
+    const response = await apiSdk.password.remindAUserPassword("guest", {
+      email: email,
+    });
+    const body = await response.json();
+    expect(body.statusCode).toBe(403);
+    expect(body.error.message).toBe("No permissions to perform this action");
+  });
+
   test("POST /people/password - Room admin reminds the user of the password.", async ({
     apiSdk,
     api,
@@ -128,6 +163,25 @@ test.describe("API password methods", () => {
     const user = await apiSdk.profiles.addMember("owner", "User");
     const responseUser = await user.response.json();
     const email = responseUser.response.email;
+
+    await apiSdk.profiles.addMember("owner", "RoomAdmin");
+    await api.auth.authenticateRoomAdmin();
+
+    const response = await apiSdk.password.remindAUserPassword("roomAdmin", {
+      email: email,
+    });
+    const body = await response.json();
+    expect(body.statusCode).toBe(403);
+    expect(body.error.message).toBe("No permissions to perform this action");
+  });
+
+  test("POST /people/password - Room admin reminds the guest of the password.", async ({
+    apiSdk,
+    api,
+  }) => {
+    const guest = await apiSdk.profiles.addMember("owner", "Guest");
+    const responseGuest = await guest.response.json();
+    const email = responseGuest.response.email;
 
     await apiSdk.profiles.addMember("owner", "RoomAdmin");
     await api.auth.authenticateRoomAdmin();

@@ -17,6 +17,20 @@ type UsersListItem = {
 };
 
 test.describe("API profile methods", () => {
+  test("Owner create Guest", async ({ apiSdk }) => {
+    const { response } = await apiSdk.profiles.addMember("owner", "Guest");
+    const body = await response.json();
+    expect(body.statusCode).toBe(200);
+    expect(body.response.isCollaborator).toBe(false);
+    expect(body.response.isOwner).toBe(false);
+    expect(body.response.isVisitor).toBe(true);
+    expect(body.response.isAdmin).toBe(false);
+    expect(body.response.isRoomAdmin).toBe(false);
+    expect(body.response.isLDAP).toBe(false);
+    expect(body.response.id).toMatch(
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
+    );
+  });
   // 80020 - NEW
   test("POST /people - Owner create User", async ({ apiSdk }) => {
     const { response } = await apiSdk.profiles.addMember("owner", "User");
@@ -676,6 +690,37 @@ test.describe("API profile methods", () => {
     expect(bodyDelete.response.id).toBe(userId);
   });
 
+  test("DELETE /people/:userIds - Owner deletes a deactivated guest", async ({
+    apiSdk,
+  }) => {
+    const user = await apiSdk.profiles.addMember("owner", "Guest");
+    const response = await user.response.json();
+    const userId = response.response.id;
+
+    const userDataChangeStatus = {
+      userIds: [userId],
+      resendAll: false,
+    };
+
+    const userDataDeleteUser = {
+      userIds: [userId],
+    };
+
+    await apiSdk.userStatus.changeUserStatus(
+      "owner",
+      UserStatus.Disabled,
+      userDataChangeStatus,
+    );
+    const responseDelete = await apiSdk.profiles.deleteUser(
+      "owner",
+      userDataDeleteUser,
+    );
+    const bodyDelete = await responseDelete.json();
+    expect(bodyDelete.statusCode).toBe(200);
+    expect(bodyDelete.links[0].action).toBe("DELETE");
+    expect(bodyDelete.response.id).toBe(userId);
+  });
+
   test("DELETE /people/:userIds - Owner deletes a deactivated docspace admin", async ({
     apiSdk,
   }) => {
@@ -1012,6 +1057,36 @@ test.describe("API profile methods", () => {
     expect(bodyUpdateInfo.response.isCollaborator).toBe(true);
   });
 
+  test("PUT /people/:userId - Updating guest profile data", async ({
+    apiSdk,
+    api,
+  }) => {
+    const user = await apiSdk.profiles.addMember("owner", "Guest");
+    const response = await user.response.json();
+    const userId = response.response.id;
+    await api.auth.authenticateGuest();
+
+    const userData = {
+      firstName: faker.person.firstName(),
+      lastName: faker.person.lastName(),
+    };
+
+    const responseUpdateInfo = await apiSdk.profiles.updatesData(
+      "guest",
+      userId,
+      userData,
+    );
+    const bodyUpdateInfo = await responseUpdateInfo.json();
+    expect(bodyUpdateInfo.statusCode).toBe(200);
+    expect(bodyUpdateInfo.response.id).toBe(userId);
+    expect(bodyUpdateInfo.response.firstName).toBe(userData.firstName);
+    expect(bodyUpdateInfo.response.lastName).toBe(userData.lastName);
+    expect(bodyUpdateInfo.response.displayName).toBe(
+      userData.firstName + " " + userData.lastName,
+    );
+    expect(bodyUpdateInfo.response.isVisitor).toBe(true);
+  });
+
   test("GET /people/@self - Owner receives information about himself", async ({
     apiSdk,
   }) => {
@@ -1104,6 +1179,30 @@ test.describe("API profile methods", () => {
       /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
     );
     expect(bodyHimselfInfo.response.hasPersonalFolder).toBe(true);
+  });
+
+  test("GET /people/@self - Guest receives information about himself", async ({
+    apiSdk,
+    api,
+  }) => {
+    const user = await apiSdk.profiles.addMember("owner", "Guest");
+    const userInfo = await user.response.json();
+    await api.auth.authenticateGuest();
+    const response = await apiSdk.profiles.returnHimselfInformation("guest");
+    const bodyHimselfInfo = await response.json();
+    expect(bodyHimselfInfo.statusCode).toBe(200);
+    expect(bodyHimselfInfo.response.firstName).toBe(
+      userInfo.response.firstName,
+    );
+    expect(bodyHimselfInfo.response.lastName).toBe(userInfo.response.lastName);
+    expect(bodyHimselfInfo.response.displayName).toBe(
+      userInfo.response.displayName,
+    );
+    expect(bodyHimselfInfo.response.isVisitor).toBe(true);
+    expect(bodyHimselfInfo.response.id).toMatch(
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
+    );
+    expect(bodyHimselfInfo.response.hasPersonalFolder).toBe(false);
   });
 
   test("GET /people/email?email= - Owner receives information about himself via email.", async ({
@@ -1311,6 +1410,40 @@ test.describe("API profile methods", () => {
     );
     expect(bodyHimselfInfo.response.email).toBe(userJson.response.email);
     expect(bodyHimselfInfo.response.isCollaborator).toBe(true);
+    expect(bodyHimselfInfo.response.id).toMatch(
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
+    );
+  });
+
+  test("GET /people/email?email= - Guest receives information about himself via email.", async ({
+    apiSdk,
+    api,
+  }) => {
+    await apiSdk.profiles.addMember("owner", "Guest");
+    await api.auth.authenticateGuest();
+
+    const userData = await apiSdk.profiles.returnHimselfInformation("guest");
+    const userJson = await userData.json();
+    const userEmail = userJson.response.email;
+
+    const userRequestData = {
+      email: [userEmail],
+    };
+    const response = await apiSdk.profiles.returnsUserInfoViaEmail(
+      "guest",
+      userRequestData,
+    );
+    const bodyHimselfInfo = await response.json();
+    expect(bodyHimselfInfo.statusCode).toBe(200);
+    expect(bodyHimselfInfo.response.firstName).toBe(
+      userJson.response.firstName,
+    );
+    expect(bodyHimselfInfo.response.lastName).toBe(userJson.response.lastName);
+    expect(bodyHimselfInfo.response.displayName).toBe(
+      userJson.response.displayName,
+    );
+    expect(bodyHimselfInfo.response.email).toBe(userJson.response.email);
+    expect(bodyHimselfInfo.response.isVisitor).toBe(true);
     expect(bodyHimselfInfo.response.id).toMatch(
       /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
     );
@@ -1540,6 +1673,30 @@ test.describe("API profile methods", () => {
     );
   });
 
+  test("POST /people/email - Guest sent instructions on how to change his email address", async ({
+    apiSdk,
+    api,
+  }) => {
+    const userData = await apiSdk.profiles.addMember("owner", "Guest");
+    const userJson = await userData.response.json();
+    const userId = userJson.response.id;
+    await api.auth.authenticateGuest();
+
+    const userRequestData = {
+      userId: userId,
+      email: faker.internet.email(),
+    };
+    const response = await apiSdk.profiles.sendInstructionToChangeEmail(
+      "guest",
+      userRequestData,
+    );
+    const dataResponse = await response.json();
+    expect(dataResponse.statusCode).toBe(200);
+    expect(dataResponse.response).toBe(
+      "The email change instructions have been successfully sent",
+    );
+  });
+
   test("PUT /people/delete - Owner removes deactivated users", async ({
     apiSdk,
   }) => {
@@ -1726,6 +1883,32 @@ test.describe("API profile methods", () => {
     expect(dataResponse.response.email).toBe(userJson.response.email);
     expect(dataResponse.response.firstName).toBe(userJson.response.firstName);
     expect(dataResponse.response.lastName).toBe(userJson.response.lastName);
+    expect(dataResponse.response.cultureName).toBe("es");
+  });
+
+  test("PUT /people/:userId/culture - Guest update a culture code of himself", async ({
+    apiSdk,
+    api,
+  }) => {
+    const guest = await apiSdk.profiles.addMember("owner", "Guest");
+    const guestJson = await guest.response.json();
+    const userId = guestJson.response.id;
+
+    const guestRequestData = {
+      userId: userId,
+      cultureName: "es",
+    };
+    await api.auth.authenticateGuest();
+    const response = await apiSdk.profiles.updateCultureCode(
+      "guest",
+      guestRequestData,
+    );
+    const dataResponse = await response.json();
+    expect(dataResponse.statusCode).toBe(200);
+    expect(dataResponse.response.id).toBe(userId);
+    expect(dataResponse.response.email).toBe(guestJson.response.email);
+    expect(dataResponse.response.firstName).toBe(guestJson.response.firstName);
+    expect(dataResponse.response.lastName).toBe(guestJson.response.lastName);
     expect(dataResponse.response.cultureName).toBe("es");
   });
 });
