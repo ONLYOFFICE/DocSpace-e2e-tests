@@ -73,3 +73,9 @@ export class UserStatusApi {
     });
   }
 }
+
+/*
+TODO: It's impossible to write tests for the
+PUT /api/2.0/people/activationstatus/:activationstatus method,
+since it's triggered by clicking a link in an email. We can't retrieve the email.
+*/
