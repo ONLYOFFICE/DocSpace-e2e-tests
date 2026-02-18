@@ -257,6 +257,23 @@ test.describe("Rooms", () => {
     });
   });
 
+  // Skipped: room cover is UI feature that fails in Firefox
+  // due to SVG <rect> intercepting pointer events on the empty-icon element
+  test.skip("Room cover - Create room with cover color and icon", async () => {
+    await myRooms.roomsArticle.openCreateDialog();
+    await myRooms.roomsCreateDialog.openRoomType(
+      roomCreateTitles.collaboration,
+    );
+    await myRooms.roomsCreateDialog.openRoomCover();
+    await myRooms.roomsCreateDialog.selectCoverColor();
+    await myRooms.roomsCreateDialog.selectCoverIcon();
+    await myRooms.roomsCreateDialog.saveCover();
+    await myRooms.roomsCreateDialog.createRoom(roomCreateTitles.collaboration);
+    await myRooms.roomsEmptyView.checkEmptyRoomExist(
+      roomCreateTitles.collaboration,
+    );
+  });
+
   test("Table settings", async () => {
     await myRooms.openWithoutEmptyCheck();
     await myRooms.openRoomsTab();
