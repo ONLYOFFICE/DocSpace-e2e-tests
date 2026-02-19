@@ -5,8 +5,8 @@ import { test } from "@/src/fixtures/index";
 import config from "@/config";
 
 test.describe("API password methods", () => {
-  // 80157 - NEW
-  test.skip("POST /people/password - DocSpace administrator reminds the owner of the password.", async ({
+  // 80157 - FIX
+  test("POST /people/password - DocSpace administrator reminds the owner of the password.", async ({
     apiSdk,
     api,
   }) => {
@@ -21,8 +21,9 @@ test.describe("API password methods", () => {
       },
     );
     const body = await response.json();
+    console.log(body);
     expect(body.statusCode).toBe(403);
-    expect(body.response).toBe("No permissions to perform this action");
+    expect(body.error.message).toBe("Access denied");
   });
 
   test("POST /people/password - Room admin reminds the owner of the password.", async ({
@@ -38,7 +39,7 @@ test.describe("API password methods", () => {
     });
     const body = await response.json();
     expect(body.statusCode).toBe(403);
-    expect(body.error.message).toBe("No permissions to perform this action");
+    expect(body.error.message).toBe("Access denied");
   });
 
   test("POST /people/password - User reminds the owner of the password.", async ({
@@ -54,7 +55,7 @@ test.describe("API password methods", () => {
     });
     const body = await response.json();
     expect(body.statusCode).toBe(403);
-    expect(body.error.message).toBe("No permissions to perform this action");
+    expect(body.error.message).toBe("Access denied");
   });
 
   test("POST /people/password - Guest reminds the owner of the password.", async ({
@@ -73,8 +74,8 @@ test.describe("API password methods", () => {
     expect(body.error.message).toBe("No permissions to perform this action");
   });
 
-  // 80157 - NEW
-  test.skip("POST /people/password - DocSpace admin reminds the docspace admin of the password.", async ({
+  // 80157 - FIX
+  test("POST /people/password - DocSpace admin reminds the docspace admin of the password.", async ({
     apiSdk,
     api,
   }) => {
@@ -96,7 +97,7 @@ test.describe("API password methods", () => {
     );
     const body = await response.json();
     expect(body.statusCode).toBe(403);
-    expect(body.error.message).toBe("No permissions to perform this action");
+    expect(body.error.message).toBe("Access denied");
   });
 
   test("POST /people/password - Room admin reminds the room admin of the password.", async ({
@@ -115,7 +116,7 @@ test.describe("API password methods", () => {
     });
     const body = await response.json();
     expect(body.statusCode).toBe(403);
-    expect(body.error.message).toBe("No permissions to perform this action");
+    expect(body.error.message).toBe("Access denied");
   });
 
   test("POST /people/password - User reminds the user of the password.", async ({
@@ -134,7 +135,7 @@ test.describe("API password methods", () => {
     });
     const body = await response.json();
     expect(body.statusCode).toBe(403);
-    expect(body.error.message).toBe("No permissions to perform this action");
+    expect(body.error.message).toBe("Access denied");
   });
 
   test("POST /people/password - Guest reminds the guest of the password.", async ({
@@ -172,7 +173,7 @@ test.describe("API password methods", () => {
     });
     const body = await response.json();
     expect(body.statusCode).toBe(403);
-    expect(body.error.message).toBe("No permissions to perform this action");
+    expect(body.error.message).toBe("Access denied");
   });
 
   test("POST /people/password - Room admin reminds the guest of the password.", async ({
