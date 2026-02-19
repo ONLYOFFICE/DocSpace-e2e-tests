@@ -34,6 +34,22 @@ test.describe("POST /files/rooms - access control", () => {
 
     expect(response.status()).toBe(403);
   });
+
+  test("Guest cannot create a room", async ({ apiSdk, api }) => {
+    await apiSdk.profiles.addMember("owner", "Guest");
+    await api.auth.authenticateGuest();
+
+    const response = await apiSdk.rooms.createRoom("guest", {
+      title: "Autotest Room",
+      roomType: "CustomRoom",
+    });
+    const body = await response.json();
+
+    expect(body.statusCode).toBe(403);
+    expect(body.error.message).toContain(
+      "You don't have enough permission to create",
+    );
+  });
 });
 
 test.describe("PUT /files/rooms/:id - access control", () => {
@@ -115,6 +131,30 @@ test.describe("PUT /files/rooms/:id - access control", () => {
     expect(updateBody.statusCode).toBe(403);
   });
 
+  test("Guest without room access cannot update room", async ({
+    apiSdk,
+    api,
+  }) => {
+    await apiSdk.profiles.addMember("owner", "Guest");
+    await api.auth.authenticateGuest();
+
+    const response = await apiSdk.rooms.createRoom("owner", {
+      title: "Autotest Room",
+      roomType: "CustomRoom",
+    });
+    const roomId = (await response.json()).response.id;
+
+    const updateResponse = await apiSdk.rooms.updateRoom("guest", roomId, {
+      title: "Updated by Guest",
+    });
+    const updateBody = await updateResponse.json();
+
+    expect(updateBody.statusCode).toBe(403);
+    expect(updateBody.error.message).toContain(
+      "You don't have enough permission to create",
+    );
+  });
+
   test("Updating room without authorization", async ({ apiSdk }) => {
     const response = await apiSdk.rooms.createRoom("owner", {
       title: "Autotest Room",
@@ -188,6 +228,24 @@ test.describe.skip("DELETE /files/rooms/:id - access control", () => {
       "You don't have enough permission to delete the folder",
     );
   });
+
+  test.skip("Guest cannot delete a room", async ({ apiSdk, api }) => {
+    await apiSdk.profiles.addMember("owner", "Guest");
+    await api.auth.authenticateGuest();
+
+    const createResponse = await apiSdk.rooms.createRoom("owner", {
+      title: "Autotest Room to Delete",
+      roomType: "CustomRoom",
+    });
+    const roomId = (await createResponse.json()).response.id;
+
+    const result = await apiSdk.rooms.deleteRoom("guest", roomId);
+    expect(result.response.status()).toBe(200);
+    expect(result.finished).toBe(true);
+    expect(result.error).toContain(
+      "You don't have enough permission to delete the folder",
+    );
+  });
 });
 
 test.describe("POST /files/tags - access control", () => {
@@ -222,6 +280,17 @@ test.describe("POST /files/tags - access control", () => {
     await api.auth.authenticateUser();
 
     const response = await apiSdk.rooms.createTag("user", "Autotest Tag");
+    const body = await response.json();
+
+    expect(body.statusCode).toBe(403);
+    expect(body.error.message).toContain("Access denied");
+  });
+
+  test("Guest cannot create a tag", async ({ apiSdk, api }) => {
+    await apiSdk.profiles.addMember("owner", "Guest");
+    await api.auth.authenticateGuest();
+
+    const response = await apiSdk.rooms.createTag("guest", "Autotest Tag");
     const body = await response.json();
 
     expect(body.statusCode).toBe(403);
@@ -346,5 +415,32 @@ test.describe("PUT /files/rooms/:id/share - access control", () => {
     const body = await response.json();
 
     expect(body.statusCode).toBe(403);
+  });
+
+  test("Guest cannot set room access rights", async ({ apiSdk, api }) => {
+    const { response: memberResponse } = await apiSdk.profiles.addMember(
+      "owner",
+      "Guest",
+    );
+    const memberBody = await memberResponse.json();
+    const userId = memberBody.response.id;
+    await api.auth.authenticateGuest();
+
+    const roomResponse = await apiSdk.rooms.createRoom("owner", {
+      title: "Autotest Share Room",
+      roomType: "CustomRoom",
+    });
+    const roomId = (await roomResponse.json()).response.id;
+
+    const response = await apiSdk.rooms.setRoomAccessRights("guest", roomId, {
+      invitations: [{ id: userId, access: "Editing" }],
+      notify: false,
+    });
+    const body = await response.json();
+
+    expect(body.statusCode).toBe(403);
+    expect(body.error.message).toContain(
+      "You don't have enough permission to view the folder content",
+    );
   });
 });
