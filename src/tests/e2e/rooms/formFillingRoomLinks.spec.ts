@@ -636,6 +636,7 @@ test.describe("FormFilling room - Link tests", () => {
         password: "TestPassword123",
         save: true,
       });
+      await myRooms.toast.dismissToastSafely("Link copied to clipboard", 10000);
     });
 
     await test.step("Reopen link settings for verification", async () => {
@@ -672,7 +673,7 @@ test.describe("FormFilling room - Link tests", () => {
     let roomLink: string;
     let incognitoPage: Page;
 
-    await test.step("Setup password for room link", async () => {
+    await test.step("Setup password for room link and get link", async () => {
       await shortTour.clickSkipTour();
       await myRooms.infoPanel.open();
       const membersTab = page.getByTestId(INFO_PANEL_TABS.Contacts.testId);
@@ -681,16 +682,16 @@ test.describe("FormFilling room - Link tests", () => {
       await myRooms.infoPanel.openLinkSettings();
       const baseEditLink = new BaseEditLink(page);
 
+      await setupClipboardPermissions(page);
+
+      // Configure link settings - link is automatically copied to clipboard when saved
       await baseEditLink.configureLinkSettings({
         password: testPassword,
         save: true,
       });
-    });
-
-    await test.step("Copy room link to clipboard", async () => {
-      await setupClipboardPermissions(page);
-      await roomEmptyView.shareRoomClick();
       await myRooms.toast.dismissToastSafely("Link copied to clipboard", 10000);
+
+      // Get link from clipboard (already copied by configureLinkSettings)
       roomLink = await getLinkFromClipboard(page);
     });
 
@@ -773,6 +774,7 @@ test.describe("FormFilling room - Link tests", () => {
       await myRooms.infoPanel.openLinkSettings();
       const baseEditLink = new BaseEditLink(page);
 
+      // Configure file link settings (note: file links don't auto-copy to clipboard like room links)
       await baseEditLink.configureLinkSettings({
         password: testPassword,
         save: true,
@@ -965,7 +967,7 @@ test.describe("FormFilling room - Link tests", () => {
     let roomLink: string;
     let incognitoPage: Page;
 
-    await test.step("Setup password for room link", async () => {
+    await test.step("Setup password for room link and get link", async () => {
       await shortTour.clickSkipTour();
       await myRooms.infoPanel.open();
       const membersTab = page.getByTestId(INFO_PANEL_TABS.Contacts.testId);
@@ -974,16 +976,16 @@ test.describe("FormFilling room - Link tests", () => {
       await myRooms.infoPanel.openLinkSettings();
       const baseEditLink = new BaseEditLink(page);
 
+      await setupClipboardPermissions(page);
+
+      // Configure link settings - link is automatically copied to clipboard when saved
       await baseEditLink.configureLinkSettings({
         password: oldPassword,
         save: true,
       });
-    });
-
-    await test.step("Copy room link", async () => {
-      await setupClipboardPermissions(page);
-      await roomEmptyView.shareRoomClick();
       await myRooms.toast.dismissToastSafely("Link copied to clipboard", 10000);
+
+      // Get link from clipboard (already copied by configureLinkSettings)
       roomLink = await getLinkFromClipboard(page);
     });
 
@@ -1058,7 +1060,7 @@ test.describe("FormFilling room - Link tests", () => {
     let roomLink: string;
     let fileLink: string;
 
-    await test.step("Configure room link settings", async () => {
+    await test.step("Configure room link settings and get link", async () => {
       await shortTour.clickSkipTour();
       await myRooms.infoPanel.open();
       const membersTab = page.getByTestId(INFO_PANEL_TABS.Contacts.testId);
@@ -1067,19 +1069,18 @@ test.describe("FormFilling room - Link tests", () => {
       await myRooms.infoPanel.openLinkSettings();
       const baseEditLink = new BaseEditLink(page);
 
-      // Configure room link with custom settings
+      await setupClipboardPermissions(page);
+
+      // Configure room link with custom settings - link is automatically copied to clipboard when saved
       await baseEditLink.configureLinkSettings({
         name: linkName,
         access: linkAccess,
         password: linkPassword,
         save: true,
       });
-    });
-
-    await test.step("Copy room link", async () => {
-      await setupClipboardPermissions(page);
-      await roomEmptyView.shareRoomClick();
       await myRooms.toast.dismissToastSafely("Link copied to clipboard", 10000);
+
+      // Get link from clipboard (already copied by configureLinkSettings)
       roomLink = await getLinkFromClipboard(page);
     });
 
