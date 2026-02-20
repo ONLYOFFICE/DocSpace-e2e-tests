@@ -53,8 +53,12 @@ class BaseInviteDialog extends BaseDialog {
   }
 
   async checkAddedUserExist(value: string) {
+    // Email is displayed as "User | email@example.com", so use partial match
     await expect(
-      this.dialog.locator(ROW_ITEM).locator(INVITE_USER_BOX).getByText(value),
+      this.dialog
+        .locator(ROW_ITEM)
+        .locator(INVITE_USER_BOX)
+        .getByText(value, { exact: false }),
     ).toBeVisible();
   }
 

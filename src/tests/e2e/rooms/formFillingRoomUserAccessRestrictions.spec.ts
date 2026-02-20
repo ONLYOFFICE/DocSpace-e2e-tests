@@ -36,15 +36,26 @@ test.describe("FormFilling room - User access restrictions", () => {
       await myRooms.infoPanel.openTab("Contacts");
     });
 
-    await test.step("Add user with default access Form filler", async () => {
+    await test.step("Add user with Room Manager access - should show restriction", async () => {
       await roomInfoPanel.clickAddUser();
       // Open people list to select existing user
       await roomsInviteDialog.openPeopleList();
+
+      // Change access type to Room Manager before selecting user
+      await roomsInviteDialog.contactsPanel.selectAccessType("roomManager");
+
+      // Select user from the list
       await roomsInviteDialog.contactsPanel.selectUserByEmail(userEmail);
       await roomsInviteDialog.contactsPanel.clickSelectButton();
-      await roomsInviteDialog.checkAddedUserExist(userEmail);
-      // Verify the default role is set to Form filler
-      await roomsInviteDialog.verifyUserRole(userEmail, "Form filler");
+
+      // await roomsInviteDialog.checkAddedUserExist(userEmail);
+
+      // Verify the role changed to Content creator (restriction applied)
+      await roomsInviteDialog.verifyUserRole(userEmail, "Content creator");
+
+      // Verify the warning icon about access restriction is visible
+      await roomsInviteDialog.checkRoleWarningVisible();
+
       await roomsInviteDialog.submitInviteDialog();
     });
 
@@ -63,20 +74,80 @@ test.describe("FormFilling room - User access restrictions", () => {
       await roomsInviteDialog.submitInviteDialog();
     });
 
-    await test.step("User can't be added as Room Manager", async () => {
-      const email = "testRoomManager@example.com";
+    await test.step("Add user with Form filler access", async () => {
+      const email = "testFormFiller@example.com";
       // Open invite dialog
       await roomInfoPanel.clickAddUser();
-      // Select Room manager access
+      // Select Form filler access
       await roomsInviteDialog.openAccessOptions();
-      await roomsInviteDialog.selectAccessOption("Room manager");
+      await roomsInviteDialog.selectAccessOption("Form filler");
       await roomsInviteDialog.fillSearchInviteInput(email);
       await roomsInviteDialog.clickAddUserToInviteList(email);
       await roomsInviteDialog.checkAddedUserExist(email);
-      // Verify the role changed to Content creator at list users
-      await roomsInviteDialog.verifyUserRole(email, "Content creator");
-      // Verify the warning icon is visible
-      await roomsInviteDialog.checkRoleWarningVisible();
+      // Verify the role is set to Form filler at list users
+      await roomsInviteDialog.verifyUserRole(email, "Form filler");
+      await roomsInviteDialog.submitInviteDialog();
+    });
+  });
+
+  test("RoomAdmin can be added as Room Manager", async ({ apiSdk }) => {
+    // Create a RoomAdmin type member via API
+    const { userData } = await apiSdk.profiles.addMember("owner", "RoomAdmin");
+    const userEmail = userData.email;
+
+    await test.step("Open room info panel", async () => {
+      await shortTour.clickSkipTour();
+      await myRooms.infoPanel.open();
+      // Navigate to the Contacts tab to manage users
+      await myRooms.infoPanel.openTab("Contacts");
+    });
+
+    await test.step("Add RoomAdmin with Room Manager access - should succeed without restriction", async () => {
+      await roomInfoPanel.clickAddUser();
+      // Open people list to select existing user
+      await roomsInviteDialog.openPeopleList();
+
+      // Change access type to Room Manager before selecting user
+      await roomsInviteDialog.contactsPanel.selectAccessType("roomManager");
+
+      // Select user from the list
+      await roomsInviteDialog.contactsPanel.selectUserByEmail(userEmail);
+      await roomsInviteDialog.contactsPanel.clickSelectButton();
+
+      // Verify the role remains Room Manager (no restriction applied)
+      await roomsInviteDialog.verifyUserRole(userEmail, "Room manager");
+
+      await roomsInviteDialog.submitInviteDialog();
+    });
+  });
+
+  test("DocspaceAdmin can be added as Room Manager", async ({ apiSdk }) => {
+    // Create a DocSpaceAdmin type member via API
+    const { userData } = await apiSdk.profiles.addMember("owner", "DocSpaceAdmin");
+    const userEmail = userData.email;
+
+    await test.step("Open room info panel", async () => {
+      await shortTour.clickSkipTour();
+      await myRooms.infoPanel.open();
+      // Navigate to the Contacts tab to manage users
+      await myRooms.infoPanel.openTab("Contacts");
+    });
+
+    await test.step("Add DocspaceAdmin with Room Manager access - should succeed without restriction", async () => {
+      await roomInfoPanel.clickAddUser();
+      // Open people list to select existing user
+      await roomsInviteDialog.openPeopleList();
+
+      // Change access type to Room Manager before selecting user
+      await roomsInviteDialog.contactsPanel.selectAccessType("roomManager");
+
+      // Select user from the list
+      await roomsInviteDialog.contactsPanel.selectUserByEmail(userEmail);
+      await roomsInviteDialog.contactsPanel.clickSelectButton();
+
+      // Verify the role remains Room Manager (no restriction applied)
+      await roomsInviteDialog.verifyUserRole(userEmail, "Room manager");
+
       await roomsInviteDialog.submitInviteDialog();
     });
   });

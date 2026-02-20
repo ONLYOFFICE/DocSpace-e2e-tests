@@ -1,16 +1,16 @@
 import { Page } from "@playwright/test";
 import BaseInviteDialog from "../common/BaseInviteDialog";
-import ContactsPanel from "./ContactsPanel";
+import RoomContactsPanel from "./RoomContactsPanel";
 
 const ROLE_WARNING = "help-button";
 const CHOOSE_FROM_LIST_LINK = "invite_panel_choose_from_list_link";
 
 class RoomsInviteDialog extends BaseInviteDialog {
-  readonly contactsPanel: ContactsPanel;
+  readonly contactsPanel: RoomContactsPanel;
 
   constructor(page: Page) {
     super(page);
-    this.contactsPanel = new ContactsPanel(page);
+    this.contactsPanel = new RoomContactsPanel(page);
   }
 
   private get roleWarning() {
