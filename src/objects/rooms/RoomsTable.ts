@@ -117,7 +117,7 @@ class RoomsTable extends BaseTable {
   }
 
   async clickTag(tagValue: string) {
-    await this.page.locator(`[data-tag="${tagValue}"]`).click();
+    await this.page.getByText(tagValue, { exact: true }).click();
   }
 
   async checkRoomPinnedToTopExist() {

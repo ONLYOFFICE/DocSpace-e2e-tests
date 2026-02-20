@@ -2,12 +2,13 @@ import { test, APIRequestContext } from "@playwright/test";
 import { FAKER } from "@/src/utils/helpers/faker";
 import { TokenStore, Role } from "../token-store";
 
-type UserType = "DocSpaceAdmin" | "RoomAdmin" | "User";
+type UserType = "DocSpaceAdmin" | "RoomAdmin" | "User" | "Guest";
 
 const USER_TYPE_TO_ROLE: Record<UserType, Role> = {
   DocSpaceAdmin: "docSpaceAdmin",
   RoomAdmin: "roomAdmin",
   User: "user",
+  Guest: "guest",
 };
 
 export class ProfilesApi {
@@ -45,8 +46,10 @@ export class ProfilesApi {
         userData.password,
       );
 
+      // Guests are created via a different endpoint, so we need to handle them separately (api/2.0/people/active = api/2.0/people)
+      const endpoint = type === "Guest" ? "people/active" : "people";
       const response = await this.request.post(
-        `https://${this.portalDomain}/api/2.0/people`,
+        `https://${this.portalDomain}/api/2.0/${endpoint}`,
         {
           headers: { Authorization: `Bearer ${this.getToken(role)}` },
           data: userData,

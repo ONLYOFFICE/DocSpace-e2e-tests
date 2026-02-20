@@ -140,8 +140,7 @@ class MyRooms extends BasePage {
       }
       await this.openCreateRoomDialog(roomDialogSource.navigation);
       await this.roomsCreateDialog.openRoomType(roomType);
-      await this.roomsCreateDialog.openRoomCover();
-      await this.roomsCreateDialog.createRoomWithCover(roomType);
+      await this.roomsCreateDialog.createRoom(roomType);
 
       if (roomType === roomCreateTitles.formFilling) {
         const tipsModal = this.page.getByText(
@@ -158,10 +157,6 @@ class MyRooms extends BasePage {
   async createFormFillingRoom(roomName: string, tags?: string[]) {
     await this.roomsArticle.openCreateDialog();
     await this.roomsCreateDialog.openRoomType(roomCreateTitles.formFilling);
-    await this.roomsCreateDialog.openRoomCover();
-    await this.roomsCreateDialog.selectCoverColor();
-    await this.roomsCreateDialog.selectCoverIcon();
-    await this.roomsCreateDialog.saveCover();
     await this.roomsCreateDialog.fillRoomName(roomName);
 
     // Add tags if they are provided

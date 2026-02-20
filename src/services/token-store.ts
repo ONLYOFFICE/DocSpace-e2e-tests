@@ -1,4 +1,4 @@
-export type Role = "owner" | "docSpaceAdmin" | "roomAdmin" | "user";
+export type Role = "owner" | "docSpaceAdmin" | "roomAdmin" | "user" | "guest";
 
 export type Credentials = { email: string; password: string };
 
@@ -8,6 +8,7 @@ export class TokenStore {
     docSpaceAdmin: "",
     roomAdmin: "",
     user: "",
+    guest: "",
   };
 
   private credentials: Partial<Record<Role, Credentials>> = {};

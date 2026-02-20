@@ -145,7 +145,7 @@ class OAuth extends BasePage {
   }
 
   get openScopes() {
-    return this.page.getByTestId("tag_container");
+    return this.page.getByTestId("tag_item");
   }
 
   get backdrop() {

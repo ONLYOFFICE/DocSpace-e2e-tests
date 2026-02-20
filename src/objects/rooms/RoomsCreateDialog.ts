@@ -155,6 +155,13 @@ class RoomsCreateDialog extends BaseDialog {
     await this.roomTemplateSubmitButton.click();
   }
 
+  async createRoom(roomName: string) {
+    await this.fillRoomName(roomName);
+    const createRoomPromise = waitForCreateRoomResponse(this.page);
+    await this.clickRoomDialogSubmit();
+    await createRoomPromise;
+  }
+
   async createRoomWithCover(roomName: string) {
     await this.selectCoverColor();
     await this.selectCoverIcon();

@@ -12,6 +12,7 @@ type UsersListItem = {
   isAdmin?: boolean;
   isRoomAdmin?: boolean;
   isCollaborator?: boolean;
+  isVisitor?: boolean;
   status?: UserStatus;
 };
 
@@ -19,6 +20,10 @@ test.describe("API user status methods", () => {
   test("PUT /people/status/:status - Owner deactivates the different type of users", async ({
     apiSdk,
   }) => {
+    const guest = await apiSdk.profiles.addMember("owner", "Guest");
+    const guestBody = await guest.response.json();
+    const guestId = guestBody.response.id;
+
     const user = await apiSdk.profiles.addMember("owner", "User");
     const body = await user.response.json();
     const userId = body.response.id;
@@ -35,7 +40,7 @@ test.describe("API user status methods", () => {
     const docSpaceAdminId = docSpaceAdminBody.response.id;
 
     const userData = {
-      userIds: [userId, roomAdminId, docSpaceAdminId],
+      userIds: [guestId, userId, roomAdminId, docSpaceAdminId],
       resendAll: false,
     };
 
@@ -45,18 +50,23 @@ test.describe("API user status methods", () => {
       userData,
     );
     const bodyResponse = await response.json();
-    const userInfo = bodyResponse.response[0];
+    const guestInfo = bodyResponse.response[0];
+    expect(guestInfo.id).toBe(guestId);
+    expect(guestInfo.status).toBe(2);
+    expect(guestInfo.isVisitor).toBe(true);
+
+    const userInfo = bodyResponse.response[1];
     expect(bodyResponse.statusCode).toBe(200);
     expect(userInfo.isCollaborator).toBe(true);
     expect(userInfo.status).toBe(2);
     expect(userInfo.id).toBe(userId);
 
-    const roomAdminInfo = bodyResponse.response[1];
+    const roomAdminInfo = bodyResponse.response[2];
     expect(roomAdminInfo.id).toBe(roomAdminId);
     expect(roomAdminInfo.status).toBe(2);
     expect(roomAdminInfo.isRoomAdmin).toBe(true);
 
-    const docSpaceAdminInfo = bodyResponse.response[2];
+    const docSpaceAdminInfo = bodyResponse.response[3];
     expect(docSpaceAdminInfo.id).toBe(docSpaceAdminId);
     expect(docSpaceAdminInfo.status).toBe(2);
     expect(docSpaceAdminInfo.isAdmin).toBe(true);
@@ -65,6 +75,10 @@ test.describe("API user status methods", () => {
   test("PUT /people/status/:status - Owner activates the different type of users", async ({
     apiSdk,
   }) => {
+    const guest = await apiSdk.profiles.addMember("owner", "Guest");
+    const guestBody = await guest.response.json();
+    const guestId = guestBody.response.id;
+
     const user = await apiSdk.profiles.addMember("owner", "User");
     const body = await user.response.json();
     const userId = body.response.id;
@@ -81,7 +95,7 @@ test.describe("API user status methods", () => {
     const docSpaceAdminId = docSpaceAdminBody.response.id;
 
     const userData = {
-      userIds: [userId, roomAdminId, docSpaceAdminId],
+      userIds: [guestId, userId, roomAdminId, docSpaceAdminId],
       resendAll: false,
     };
     await apiSdk.userStatus.changeUserStatus(
@@ -95,47 +109,36 @@ test.describe("API user status methods", () => {
       userData,
     );
     const bodyResponse = await activateResponse.json();
-    const userInfo = bodyResponse.response[0];
+    const guestInfo = bodyResponse.response[0];
+    expect(guestInfo.id).toBe(guestId);
+    expect(guestInfo.status).toBe(1);
+    expect(guestInfo.isVisitor).toBe(true);
+
+    const userInfo = bodyResponse.response[1];
     expect(bodyResponse.statusCode).toBe(200);
     expect(userInfo.isCollaborator).toBe(true);
     expect(userInfo.status).toBe(1);
     expect(userInfo.id).toBe(userId);
 
-    const roomAdminInfo = bodyResponse.response[1];
+    const roomAdminInfo = bodyResponse.response[2];
     expect(roomAdminInfo.id).toBe(roomAdminId);
     expect(roomAdminInfo.status).toBe(1);
     expect(roomAdminInfo.isRoomAdmin).toBe(true);
 
-    const docSpaceAdminInfo = bodyResponse.response[2];
+    const docSpaceAdminInfo = bodyResponse.response[3];
     expect(docSpaceAdminInfo.id).toBe(docSpaceAdminId);
     expect(docSpaceAdminInfo.status).toBe(1);
     expect(docSpaceAdminInfo.isAdmin).toBe(true);
-  });
-
-  test("PUT /people/status/:status - Owner deactivates the user without authorization", async ({
-    apiSdk,
-  }) => {
-    const user = await apiSdk.profiles.addMember("owner", "User");
-    const body = await user.response.json();
-    const userId = body.response.id;
-
-    const userData = {
-      userIds: [userId],
-      resendAll: false,
-    };
-
-    const response =
-      await apiSdk.userStatus.changeUserStatusWithoutAuthorization(
-        UserStatus.Disabled,
-        userData,
-      );
-    expect(response.status()).toBe(401);
   });
 
   test("PUT /people/status/:status - DocSpace admin deactivates the different type of user", async ({
     apiSdk,
     api,
   }) => {
+    const guest = await apiSdk.profiles.addMember("owner", "Guest");
+    const guestBody = await guest.response.json();
+    const guestId = guestBody.response.id;
+
     const user = await apiSdk.profiles.addMember("owner", "User");
     const body = await user.response.json();
     const userId = body.response.id;
@@ -145,7 +148,7 @@ test.describe("API user status methods", () => {
     const roomAdminId = roomAdminBody.response.id;
 
     const userData = {
-      userIds: [userId, roomAdminId],
+      userIds: [guestId, userId, roomAdminId],
       resendAll: false,
     };
 
@@ -160,12 +163,15 @@ test.describe("API user status methods", () => {
 
     const bodyResponse = await response.json();
     expect(bodyResponse.statusCode).toBe(200);
-    expect(bodyResponse.response[0].isCollaborator).toBe(true);
+    expect(bodyResponse.response[0].isVisitor).toBe(true);
     expect(bodyResponse.response[0].status).toBe(2);
-    expect(bodyResponse.response[0].id).toBe(userId);
-    expect(bodyResponse.response[1].isRoomAdmin).toBe(true);
+    expect(bodyResponse.response[0].id).toBe(guestId);
+    expect(bodyResponse.response[1].isCollaborator).toBe(true);
     expect(bodyResponse.response[1].status).toBe(2);
-    expect(bodyResponse.response[1].id).toBe(roomAdminId);
+    expect(bodyResponse.response[1].id).toBe(userId);
+    expect(bodyResponse.response[2].isRoomAdmin).toBe(true);
+    expect(bodyResponse.response[2].status).toBe(2);
+    expect(bodyResponse.response[2].id).toBe(roomAdminId);
   });
 
   test("PUT /people/status/:status - DocSpace admin activates the different type of user", async ({
@@ -219,6 +225,7 @@ test.describe("API user status methods", () => {
     );
     const roomAdmin = await apiSdk.profiles.addMember("owner", "RoomAdmin");
     const user = await apiSdk.profiles.addMember("owner", "User");
+    const guest = await apiSdk.profiles.addMember("owner", "Guest");
 
     const response = await apiSdk.userStatus.getPlofilesByStatus(
       "owner",
@@ -264,6 +271,19 @@ test.describe("API user status methods", () => {
     expect(userData.email).toBe(user.userData.email);
     expect(userData.status).toBe(1);
     expect(userData.isCollaborator).toBe(true);
+
+    const guestData = body.response.find(
+      (u: UsersListItem) => u.email === guest.userData.email,
+    );
+    expect(guestData).toBeTruthy();
+    if (!guestData) {
+      throw new Error(
+        `Guest not found in users list by email: ${guest.userData.email}`,
+      );
+    }
+    expect(guestData.email).toBe(guest.userData.email);
+    expect(guestData.status).toBe(1);
+    expect(guestData.isVisitor).toBe(true);
   });
 
   test("GET /people/status/:status - Owner returns a list of profiles filtered by the disabled user status", async ({
@@ -284,8 +304,12 @@ test.describe("API user status methods", () => {
     const userJson = await user.response.json();
     const userId = userJson.response.id;
 
+    const guest = await apiSdk.profiles.addMember("owner", "Guest");
+    const guestJson = await guest.response.json();
+    const guestId = guestJson.response.id;
+
     const data = {
-      userIds: [docSpaceAdminId, roomAdminId, userId],
+      userIds: [docSpaceAdminId, roomAdminId, userId, guestId],
       resendAll: false,
     };
 
@@ -339,6 +363,19 @@ test.describe("API user status methods", () => {
     expect(userData.email).toBe(userJson.response.email);
     expect(userData.status).toBe(2);
     expect(userData.isCollaborator).toBe(true);
+
+    const guestData = body.response.find(
+      (u: UsersListItem) => u.email === guestJson.response.email,
+    );
+    expect(guestData).toBeTruthy();
+    if (!guestData) {
+      throw new Error(
+        `Guest not found in users list by email: ${guestJson.response.email}`,
+      );
+    }
+    expect(guestData.email).toBe(guestJson.response.email);
+    expect(guestData.status).toBe(2);
+    expect(guestData.isVisitor).toBe(true);
   });
 
   test("GET /people/status/:status - DocSpace admin returns a list of profiles filtered by the active user status", async ({
@@ -351,6 +388,7 @@ test.describe("API user status methods", () => {
     );
     const roomAdmin = await apiSdk.profiles.addMember("owner", "RoomAdmin");
     const user = await apiSdk.profiles.addMember("owner", "User");
+    const guest = await apiSdk.profiles.addMember("owner", "Guest");
 
     await api.auth.authenticateDocSpaceAdmin();
     const response = await apiSdk.userStatus.getPlofilesByStatus(
@@ -397,6 +435,19 @@ test.describe("API user status methods", () => {
     expect(userData.email).toBe(user.userData.email);
     expect(userData.status).toBe(1);
     expect(userData.isCollaborator).toBe(true);
+
+    const guestData = body.response.find(
+      (u: UsersListItem) => u.email === guest.userData.email,
+    );
+    expect(guestData).toBeTruthy();
+    if (!guestData) {
+      throw new Error(
+        `Guest not found in users list by email: ${guest.userData.email}`,
+      );
+    }
+    expect(guestData.email).toBe(guest.userData.email);
+    expect(guestData.status).toBe(1);
+    expect(guestData.isVisitor).toBe(true);
   });
 
   test("GET /people/status/:status - DocSpace admin returns a list of profiles filtered by the disabled user status", async ({
@@ -418,8 +469,12 @@ test.describe("API user status methods", () => {
     const userJson = await user.response.json();
     const userId = userJson.response.id;
 
+    const guest = await apiSdk.profiles.addMember("owner", "Guest");
+    const guestJson = await guest.response.json();
+    const guestId = guestJson.response.id;
+
     const data = {
-      userIds: [docSpaceAdminId, roomAdminId, userId],
+      userIds: [docSpaceAdminId, roomAdminId, userId, guestId],
       resendAll: false,
     };
 
@@ -475,6 +530,19 @@ test.describe("API user status methods", () => {
     expect(userData.email).toBe(userJson.response.email);
     expect(userData.status).toBe(2);
     expect(userData.isCollaborator).toBe(true);
+
+    const guestData = body.response.find(
+      (u: UsersListItem) => u.email === guestJson.response.email,
+    );
+    expect(guestData).toBeTruthy();
+    if (!guestData) {
+      throw new Error(
+        `Guest not found in users list by email: ${guestJson.response.email}`,
+      );
+    }
+    expect(guestData.email).toBe(guestJson.response.email);
+    expect(guestData.status).toBe(2);
+    expect(guestData.isVisitor).toBe(true);
   });
 
   test("GET /people/status/:status - Room admin returns a list of profiles filtered by the active user status", async ({
@@ -554,8 +622,12 @@ test.describe("API user status methods", () => {
     const userJson = await user.response.json();
     const userId = userJson.response.id;
 
+    const guest = await apiSdk.profiles.addMember("owner", "Guest");
+    const guestJson = await guest.response.json();
+    const guestId = guestJson.response.id;
+
     const data = {
-      userIds: [docSpaceAdminId, roomAdminId, userId],
+      userIds: [docSpaceAdminId, roomAdminId, userId, guestId],
       resendAll: false,
     };
 

@@ -63,7 +63,7 @@ class ContactsGroupDialog extends BaseDialog {
   // }
 
   async submitSelectContacts() {
-    const selectButton = this.page.getByRole("button", { name: /^Select/ });
+    const selectButton = this.page.getByTestId("selector_submit_button");
 
     await expect(selectButton).toBeVisible();
     await selectButton.click();
