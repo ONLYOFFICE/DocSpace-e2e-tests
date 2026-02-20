@@ -21,9 +21,7 @@ test.describe("Integration tests - SSO", () => {
   test.beforeEach(async ({ page, api, login }) => {
     paymentApi = new PaymentApi(api.apiRequestContext, api.apisystem);
 
-    const portalInfo = await paymentApi.getPortalInfo(api.portalDomain);
-    await paymentApi.makePortalPayment(portalInfo.tenantId, 10);
-    await paymentApi.refreshPaymentInfo(api.portalDomain);
+    await paymentApi.setupPayment();
     await page.waitForTimeout(2000); // give billing changes time to propagate before hitting SSO endpoints
 
     sso = new Sso(page);

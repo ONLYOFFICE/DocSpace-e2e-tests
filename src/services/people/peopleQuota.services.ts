@@ -1,7 +1,7 @@
 import { test, APIRequestContext } from "@playwright/test";
 import { TokenStore, Role } from "../token-store";
 
-export class PasswordApi {
+export class PeopleQuotaApi {
   private request: APIRequestContext;
   private tokenStore: TokenStore;
 
@@ -18,14 +18,18 @@ export class PasswordApi {
     return this.tokenStore.portalDomain;
   }
 
-  async remindAUserPassword(role: Role, data: { email: string }) {
-    return test.step("Remind a user password", async () => {
+  async changeUserQuotaLimit(
+    role: Role,
+    data: { userIds: string[]; quota: number },
+  ) {
+    return test.step("Change a user quota limit", async () => {
       const userData = {
-        email: data.email,
+        userIds: data.userIds,
+        quota: data.quota,
       };
 
-      const response = await this.request.post(
-        `https://${this.portalDomain}/api/2.0/people/password`,
+      const response = await this.request.put(
+        `https://${this.portalDomain}/api/2.0/people/userquota`,
         {
           headers: { Authorization: `Bearer ${this.getToken(role)}` },
           data: userData,
@@ -35,15 +39,16 @@ export class PasswordApi {
     });
   }
 
-  async remindAUserPasswordWithoutAuthorization(data: { email: string }) {
-    return test.step("Remind a user password", async () => {
+  async resetUserQuotaLimit(role: Role, data: { userIds: string[] }) {
+    return test.step("Reset a user quota limit", async () => {
       const userData = {
-        email: data.email,
+        userIds: data.userIds,
       };
 
-      const response = await this.request.post(
-        `https://${this.portalDomain}/api/2.0/people/password`,
+      const response = await this.request.put(
+        `https://${this.portalDomain}/api/2.0/people/resetquota`,
         {
+          headers: { Authorization: `Bearer ${this.getToken(role)}` },
           data: userData,
         },
       );
@@ -51,4 +56,3 @@ export class PasswordApi {
     });
   }
 }
-// TODO: PUT /api/2.0/people/:userid/password - need to get the confirm link from the link in the email

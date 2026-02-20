@@ -14,16 +14,14 @@ test.describe("Customization", () => {
   test.beforeEach(async ({ page, api, login }) => {
     paymentApi = new PaymentApi(api.apiRequestContext, api.apisystem);
 
-    const portalInfo = await paymentApi.getPortalInfo(api.portalDomain);
-    await paymentApi.makePortalPayment(portalInfo.tenantId, 10);
-    await paymentApi.refreshPaymentInfo(api.portalDomain);
+    await paymentApi.setupPayment();
     customization = new Customization(page);
 
     await login.loginToPortal();
     await customization.open();
   });
 
-  test("Customization full flow", async ({ api, page }) => {
+  test.only("Customization full flow", async ({ api, page }) => {
     await test.step("Change lang&time", async () => {
       await customization.changeLanguage("English (United States)");
       await customization.changeTimezone("(UTC+05:00) Maldives Time");

@@ -167,4 +167,19 @@ test.describe("API password methods", () => {
       `The password change instruction has been sent to ${email} email address.`,
     );
   });
+
+  test("POST /people/password - Reminds himself of the password in the login page.", async ({
+    apiSdk,
+  }) => {
+    const email = config.DOCSPACE_OWNER_EMAIL;
+    const response =
+      await apiSdk.password.remindAUserPasswordWithoutAuthorization({
+        email,
+      });
+    const body = await response.json();
+    expect(body.statusCode).toBe(200);
+    expect(body.response).toBe(
+      `If a user with the ${email} email exists, the password change instruction has been sent to this email address.`,
+    );
+  });
 });

@@ -6,5 +6,7 @@ export * from "./rooms/rooms.services";
 export * from "./token-store";
 export * from "./files/files.services";
 export * from "./people/password.services";
+export * from "./settings/quota.services";
+export * from "./people/peopleQuota.services"
 
 export { UserStatus } from "./people/userStatus.services";

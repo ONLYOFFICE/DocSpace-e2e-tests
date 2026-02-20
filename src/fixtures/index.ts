@@ -4,6 +4,7 @@ import { ApiSDK } from "../services/index";
 import Login from "@/src/objects/common/Login";
 import { Payments } from "@/src/objects/settings/payments/Payments";
 import Services from "@/src/objects/settings/services/services";
+import { PaymentApi } from "@/src/api/payment";
 
 type TestFixtures = {
   api: API;
@@ -15,6 +16,7 @@ type TestFixtures = {
   ownerAuth: void;
   createDocSpaceAdmin: void;
   docSpaceAdminAuth: void;
+  paymentsApi: PaymentApi;
 };
 
 // Extend the base Playwright test with our fixtures
@@ -82,6 +84,11 @@ export const test = base.extend<TestFixtures>({
   payments: async ({ page }, use) => {
     const payments = new Payments(page);
     await use(payments);
+  },
+
+  paymentsApi: async ({ api }, use) => {
+    const paymentsApi = new PaymentApi(api.ownerContext, api.apisystem);
+    await use(paymentsApi);
   },
 
   services: async ({ page }, use) => {
