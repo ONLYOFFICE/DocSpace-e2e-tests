@@ -22,7 +22,7 @@ test.describe("Customization", () => {
     await customization.open();
   });
 
-  test.only("Customization full flow", async ({ api, page }) => {
+  test("Customization full flow", async ({ api, page }) => {
     await test.step("Change lang&time", async () => {
       await customization.changeLanguage("English (United States)");
       await customization.changeTimezone("(UTC+05:00) Maldives Time");
