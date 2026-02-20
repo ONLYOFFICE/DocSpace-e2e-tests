@@ -38,35 +38,26 @@ test.describe("OAuth tests", () => {
     await test.step("Create application", async () => {
       await oauth.createApplication();
       await oauth.checkApplicationName();
-      await oauth.hideDate();
     });
 
-    await test.step("Scopes render", async () => {
+    await test.step("Open and close application scopes popup", async () => {
       await oauth.openScopes.last().click();
-      await oauth.hideDate();
       await oauth.backdrop.nth(1).click();
     });
 
-    await test.step("Action menu render", async () => {
-      await oauth.oauthActionMenu.click();
-    });
-
     await test.step("Edit application", async () => {
+      await oauth.oauthActionMenu.click();
       await oauth.editOAuthApplication();
       await oauth.checkNewApplicationName();
-      await oauth.hideDate();
     });
 
     await test.step("Disable / Enable appliction", async () => {
       await oauth.disableApplication();
-      await oauth.hideDate();
       await oauth.enableApplication();
-      await oauth.hideDate();
     });
 
     await test.step("Info panel oauth render", async () => {
       await oauth.openInfoPanel();
-      await oauth.hideDateInfoPanel();
     });
 
     await test.step("Info panel links", async () => {

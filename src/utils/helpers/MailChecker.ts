@@ -338,13 +338,14 @@ class MailChecker {
       let foundEmail: EmailResult | null = null;
 
       while ((Date.now() - startTime) / 1000 < timeoutSeconds) {
-        const searchResult = await this.imapClient.search({ all: true });
+        const searchResult = await this.imapClient.search({
+          subject: subject,
+        });
         const uids: (string | number)[] = Array.isArray(searchResult)
           ? searchResult
           : [];
-        const lastEmails = uids.slice(-5);
 
-        for (const uid of lastEmails) {
+        for (const uid of uids) {
           const message = await this.imapClient.fetchOne(String(uid), {
             envelope: true,
             source: true,
@@ -353,32 +354,28 @@ class MailChecker {
 
           const envelope: MessageEnvelopeObject | undefined = message?.envelope;
           if (!envelope) continue;
-          const emailSubject = envelope.subject || "";
           const emailBody = message?.source?.toString() || "";
 
-          if (emailSubject.toUpperCase().includes(subject.toUpperCase())) {
-            const portalUrlMatch = emailBody.match(
-              /https:\/\/([\w-]+\.onlyoffice\.io)/,
-            );
-            if (portalUrlMatch) {
-              const extractedPortalUrl = portalUrlMatch[1].toLowerCase();
-              const expectedPortalName = portalName.toLowerCase();
+          const portalUrlMatch = emailBody.match(
+            /https:\/\/([\w-]+\.onlyoffice\.io)/,
+          );
+          if (portalUrlMatch) {
+            const extractedPortalUrl = portalUrlMatch[1].toLowerCase();
+            const expectedPortalName = portalName.toLowerCase();
 
-              if (extractedPortalUrl.includes(expectedPortalName)) {
-                if (moveOut) {
-                  await this.imapClient.messageMove(
-                    String(uid),
-                    this.checkedFolder,
-                  );
-                } else {
-                  await this.imapClient.messageFlagsAdd(String(uid), [
-                    "\\Seen",
-                  ]);
-                }
-
-                foundEmail = { uid, subject: emailSubject, body: emailBody };
-                break;
+            if (extractedPortalUrl.includes(expectedPortalName)) {
+              if (moveOut) {
+                await this.imapClient.messageMove(
+                  String(uid),
+                  this.checkedFolder,
+                );
+              } else {
+                await this.imapClient.messageFlagsAdd(String(uid), ["\\Seen"]);
               }
+
+              const emailSubject = envelope.subject || "";
+              foundEmail = { uid, subject: emailSubject, body: emailBody };
+              break;
             }
           }
         }
@@ -421,7 +418,10 @@ class MailChecker {
     });
     if (!email) return null;
     const decodedBody = this.decodeQuotedPrintable(email.body ?? "");
-    const linkMatch = decodedBody.match(/https:\/\/[^\s/]+\/s\/[\w-]+/);
+    const escapedPortalName = portalName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const linkMatch = decodedBody.match(
+      new RegExp(`https://${escapedPortalName}/s/[\\w-]+`),
+    );
     return linkMatch ? linkMatch[0] : null;
   }
 
