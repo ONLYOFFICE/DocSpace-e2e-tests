@@ -21,7 +21,6 @@ test.describe("API password methods", () => {
       },
     );
     const body = await response.json();
-    console.log(body);
     expect(body.statusCode).toBe(403);
     expect(body.error.message).toBe("Access denied");
   });
@@ -71,7 +70,7 @@ test.describe("API password methods", () => {
     });
     const body = await response.json();
     expect(body.statusCode).toBe(403);
-    expect(body.error.message).toBe("No permissions to perform this action");
+    expect(body.error.message).toBe("Access denied");
   });
 
   // 80157 - FIX
@@ -154,7 +153,7 @@ test.describe("API password methods", () => {
     });
     const body = await response.json();
     expect(body.statusCode).toBe(403);
-    expect(body.error.message).toBe("No permissions to perform this action");
+    expect(body.error.message).toBe("Access denied");
   });
 
   test("POST /people/password - Room admin reminds the user of the password.", async ({
@@ -192,6 +191,6 @@ test.describe("API password methods", () => {
     });
     const body = await response.json();
     expect(body.statusCode).toBe(403);
-    expect(body.error.message).toBe("No permissions to perform this action");
+    expect(body.error.message).toBe("Access denied");
   });
 });

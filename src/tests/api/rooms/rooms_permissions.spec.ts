@@ -151,7 +151,7 @@ test.describe("PUT /files/rooms/:id - access control", () => {
 
     expect(updateBody.statusCode).toBe(403);
     expect(updateBody.error.message).toContain(
-      "You don't have enough permission to create",
+      "You don't have permission to edit the room",
     );
   });
 

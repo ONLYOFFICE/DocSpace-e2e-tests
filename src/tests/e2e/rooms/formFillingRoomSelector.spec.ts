@@ -39,7 +39,7 @@ test.describe("FormFilling room file selector tests", () => {
     });
 
     await test.step("Open FormFilling room", async () => {
-      await myRooms.openRoom("FormFillingRoom");
+      await myRooms.roomsTable.openRoomByName("FormFillingRoom");
     });
 
     await test.step("Skip tour and close info panel", async () => {
@@ -79,7 +79,7 @@ test.describe("FormFilling room file selector tests", () => {
     });
 
     await test.step("Open FormFilling room", async () => {
-      await myRooms.openRoom("FormFillingRoom");
+      await myRooms.roomsTable.openRoomByName("FormFillingRoom");
     });
 
     await test.step("Skip tour and close info panel", async () => {
@@ -117,7 +117,7 @@ test.describe("FormFilling room file selector tests", () => {
     });
 
     await test.step("Open FormFilling room", async () => {
-      await myRooms.openRoom("FormFillingRoom");
+      await myRooms.roomsTable.openRoomByName("FormFillingRoom");
     });
 
     await test.step("Skip tour and close info panel", async () => {
@@ -159,7 +159,7 @@ test.describe("FormFilling room file selector tests", () => {
     });
 
     await test.step("Open FormFilling room", async () => {
-      await myRooms.openRoom("FormFillingRoom");
+      await myRooms.roomsTable.openRoomByName("FormFillingRoom");
     });
 
     await test.step("Skip tour and close info panel", async () => {

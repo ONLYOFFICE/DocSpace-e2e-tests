@@ -16,6 +16,16 @@ export class PaymentApi {
     this.pKey = config.PKEY ?? "";
   }
 
+  private get portalDomain(): string {
+    const domain = this.portalSetupApi.portalDomain;
+    if (!domain) {
+      throw new Error(
+        "Portal domain is not set. Please create a portal first.",
+      );
+    }
+    return domain;
+  }
+
   createToken() {
     const now = new Date();
     const timestamp =
@@ -38,13 +48,9 @@ export class PaymentApi {
     return hash;
   }
 
-  async getPortalInfo(portalDomain: string) {
-    if (!portalDomain) {
-      throw new Error("Portal domain is required to get portal info");
-    }
-
+  async getPortalInfo() {
     const response = await this.apiContext.get(
-      `https://${portalDomain}/api/2.0/portal`,
+      `https://${this.portalDomain}/api/2.0/portal`,
     );
     if (!response.ok()) {
       const error = await response.json();
@@ -102,7 +108,7 @@ export class PaymentApi {
     }
   }
 
-  async refreshPaymentInfo(portalDomain: string) {
+  async refreshPaymentInfo() {
     const ownerToken = this.portalSetupApi.getOwnerAuthToken();
     if (!ownerToken) {
       throw new Error(
@@ -116,7 +122,7 @@ export class PaymentApi {
     };
 
     const tariffResponse = await this.apiContext.get(
-      `https://${portalDomain}/api/2.0/portal/tariff?refresh=true`,
+      `https://${this.portalDomain}/api/2.0/portal/tariff?refresh=true`,
       {
         headers: headers,
         params: { refresh: true },
@@ -131,7 +137,7 @@ export class PaymentApi {
     }
 
     const quotaResponse = await this.apiContext.get(
-      `https://${portalDomain}/api/2.0/portal/payment/quota?refresh=true`,
+      `https://${this.portalDomain}/api/2.0/portal/payment/quota?refresh=true`,
       {
         headers: headers,
         params: { refresh: true },
@@ -151,14 +157,14 @@ export class PaymentApi {
     };
   }
 
-  async setupPayment(portalDomain: string, quantity = 10) {
-    const portalInfo = await this.getPortalInfo(portalDomain);
+  async setupPayment(quantity = 10) {
+    const portalInfo = await this.getPortalInfo();
     const paymentResult = await this.makePortalPayment(
       portalInfo.tenantId,
       quantity,
     );
 
-    const refreshResult = await this.refreshPaymentInfo(portalDomain);
+    const refreshResult = await this.refreshPaymentInfo();
 
     return {
       payment: paymentResult,

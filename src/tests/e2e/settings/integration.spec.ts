@@ -10,9 +10,7 @@ test.describe("Integration tests", () => {
   test.beforeEach(async ({ page, api, login }) => {
     paymentApi = new PaymentApi(api.apiRequestContext, api.apisystem);
 
-    const portalInfo = await paymentApi.getPortalInfo(api.portalDomain);
-    await paymentApi.makePortalPayment(portalInfo.tenantId, 10);
-    await paymentApi.refreshPaymentInfo(api.portalDomain);
+    await paymentApi.setupPayment();
     integration = new Integration(page);
 
     await login.loginToPortal();
