@@ -2,6 +2,8 @@
 
 import { expect } from "@playwright/test";
 import { test } from "@/src/fixtures/index";
+import { QuotaPlan } from "@/src/services/people/peopleQuota.services";
+import { DefaultQuota } from "@/src/services/settings/quota.services";
 
 test.describe("API quota methods", () => {
   test("PUT /people/userquota - Change a roomAdmin quota limit himself", async ({
@@ -12,7 +14,7 @@ test.describe("API quota methods", () => {
     await paymentsApi.setupPayment();
     await apiSdk.settings.userquotasettings("owner", {
       enableQuota: true,
-      defaultQuota: 524288000,
+      defaultQuota: DefaultQuota.User,
     });
     const roomAdmin = await apiSdk.profiles.addMember("owner", "RoomAdmin");
     const roomAdminResponse = await roomAdmin.response.json();
@@ -22,7 +24,7 @@ test.describe("API quota methods", () => {
       "roomAdmin",
       {
         userIds: [roomAdminId],
-        quota: 104857600,
+        quota: QuotaPlan.Minimal,
       },
     );
     const body = await response.json();
@@ -38,7 +40,7 @@ test.describe("API quota methods", () => {
     await paymentsApi.setupPayment();
     await apiSdk.settings.userquotasettings("owner", {
       enableQuota: true,
-      defaultQuota: 524288000,
+      defaultQuota: DefaultQuota.User,
     });
     const owner = await apiSdk.profiles.returnHimselfInformation("owner");
     const ownerResponse = await owner.json();
@@ -62,7 +64,7 @@ test.describe("API quota methods", () => {
       "roomAdmin",
       {
         userIds: [ownerId, docSpaceAdminId, userId],
-        quota: 104857600,
+        quota: QuotaPlan.Minimal,
       },
     );
     const body = await response.json();
@@ -78,7 +80,7 @@ test.describe("API quota methods", () => {
     await paymentsApi.setupPayment();
     await apiSdk.settings.userquotasettings("owner", {
       enableQuota: true,
-      defaultQuota: 524288000,
+      defaultQuota: DefaultQuota.User,
     });
     const owner = await apiSdk.profiles.returnHimselfInformation("owner");
     const ownerResponse = await owner.json();
@@ -99,7 +101,7 @@ test.describe("API quota methods", () => {
     await api.auth.authenticateUser();
     const response = await apiSdk.peopleQuota.changeUserQuotaLimit("user", {
       userIds: [ownerId, docSpaceAdminId, roomAdminId],
-      quota: 104857600,
+      quota: QuotaPlan.Minimal,
     });
     const body = await response.json();
     expect(body.statusCode).toBe(403);
@@ -114,7 +116,7 @@ test.describe("API quota methods", () => {
     await paymentsApi.setupPayment();
     await apiSdk.settings.userquotasettings("owner", {
       enableQuota: true,
-      defaultQuota: 524288000,
+      defaultQuota: DefaultQuota.User,
     });
     const owner = await apiSdk.profiles.returnHimselfInformation("owner");
     const ownerResponse = await owner.json();
@@ -139,7 +141,7 @@ test.describe("API quota methods", () => {
     await api.auth.authenticateGuest();
     const response = await apiSdk.peopleQuota.changeUserQuotaLimit("guest", {
       userIds: [ownerId, docSpaceAdminId, roomAdminId, userId],
-      quota: 104857600,
+      quota: QuotaPlan.Minimal,
     });
     const body = await response.json();
     expect(body.statusCode).toBe(403);
@@ -154,14 +156,14 @@ test.describe("API quota methods", () => {
     await paymentsApi.setupPayment();
     await apiSdk.settings.userquotasettings("owner", {
       enableQuota: true,
-      defaultQuota: 524288000,
+      defaultQuota: DefaultQuota.User,
     });
     const roomAdmin = await apiSdk.profiles.addMember("owner", "RoomAdmin");
     const roomAdminResponse = await roomAdmin.response.json();
     const roomAdminId = roomAdminResponse.response.id;
     await apiSdk.peopleQuota.changeUserQuotaLimit("owner", {
       userIds: [roomAdminId],
-      quota: 104857600,
+      quota: QuotaPlan.Minimal,
     });
     await api.auth.authenticateRoomAdmin();
     const response = await apiSdk.peopleQuota.resetUserQuotaLimit("roomAdmin", {
@@ -173,7 +175,7 @@ test.describe("API quota methods", () => {
     expect(body.error.message).toBe("Access denied");
   });
 
-  test("PUT /people/resetquota - Room admin reset a other users quota limit", async ({
+  test("PUT /people/resetquota - Room admin has reset the quota limit of other users.", async ({
     apiSdk,
     paymentsApi,
     api,
@@ -181,7 +183,7 @@ test.describe("API quota methods", () => {
     await paymentsApi.setupPayment();
     await apiSdk.settings.userquotasettings("owner", {
       enableQuota: true,
-      defaultQuota: 524288000,
+      defaultQuota: DefaultQuota.User,
     });
     const owner = await apiSdk.profiles.returnHimselfInformation("owner");
     const ownerResponse = await owner.json();
@@ -200,7 +202,7 @@ test.describe("API quota methods", () => {
 
     await apiSdk.peopleQuota.changeUserQuotaLimit("owner", {
       userIds: [ownerId, docSpaceAdminId, userId],
-      quota: 104857600,
+      quota: QuotaPlan.Minimal,
     });
     await apiSdk.profiles.addMember("owner", "RoomAdmin");
     await api.auth.authenticateRoomAdmin();
@@ -214,7 +216,7 @@ test.describe("API quota methods", () => {
     expect(body.error.message).toBe("Access denied");
   });
 
-  test("PUT /people/resetquota - User reset a other users quota limit", async ({
+  test("PUT /people/resetquota - User has reset the quota limit of other users.", async ({
     apiSdk,
     paymentsApi,
     api,
@@ -222,7 +224,7 @@ test.describe("API quota methods", () => {
     await paymentsApi.setupPayment();
     await apiSdk.settings.userquotasettings("owner", {
       enableQuota: true,
-      defaultQuota: 524288000,
+      defaultQuota: DefaultQuota.User,
     });
     const owner = await apiSdk.profiles.returnHimselfInformation("owner");
     const ownerResponse = await owner.json();
@@ -241,7 +243,7 @@ test.describe("API quota methods", () => {
 
     await apiSdk.peopleQuota.changeUserQuotaLimit("owner", {
       userIds: [ownerId, docSpaceAdminId, roomAdminId],
-      quota: 104857600,
+      quota: QuotaPlan.Minimal,
     });
 
     await apiSdk.profiles.addMember("owner", "User");
@@ -255,7 +257,7 @@ test.describe("API quota methods", () => {
     expect(body.error.message).toBe("Access denied");
   });
 
-  test("PUT /people/resetquota - Guest reset a other users quota limit", async ({
+  test("PUT /people/resetquota - Guest has reset the quota limit of other users.", async ({
     apiSdk,
     paymentsApi,
     api,
@@ -263,7 +265,7 @@ test.describe("API quota methods", () => {
     await paymentsApi.setupPayment();
     await apiSdk.settings.userquotasettings("owner", {
       enableQuota: true,
-      defaultQuota: 524288000,
+      defaultQuota: DefaultQuota.User,
     });
     const owner = await apiSdk.profiles.returnHimselfInformation("owner");
     const ownerResponse = await owner.json();
@@ -286,7 +288,7 @@ test.describe("API quota methods", () => {
 
     await apiSdk.peopleQuota.changeUserQuotaLimit("owner", {
       userIds: [ownerId, docSpaceAdminId, roomAdminId, userId],
-      quota: 104857600,
+      quota: QuotaPlan.Minimal,
     });
 
     await apiSdk.profiles.addMember("owner", "Guest");
@@ -298,5 +300,78 @@ test.describe("API quota methods", () => {
     const body = await response.json();
     expect(body.statusCode).toBe(403);
     expect(body.error.message).toBe("Access denied");
+  });
+
+  test("PUT /people/userquota - Change a quota limit user without autorization", async ({
+    apiSdk,
+    paymentsApi,
+  }) => {
+    await paymentsApi.setupPayment();
+    await apiSdk.settings.userquotasettings("owner", {
+      enableQuota: true,
+      defaultQuota: DefaultQuota.User,
+    });
+    const roomAdmin = await apiSdk.profiles.addMember("owner", "RoomAdmin");
+    const roomAdminResponse = await roomAdmin.response.json();
+    const roomAdminId = roomAdminResponse.response.id;
+
+    const response =
+      await apiSdk.peopleQuota.changeUserQuotaLimitWithoutAutorization({
+        userIds: [roomAdminId],
+        quota: QuotaPlan.Minimal,
+      });
+    expect(response.status()).toBe(401);
+  });
+
+  test("PUT /people/resetquota - Reset a quota limit user without autorization", async ({
+    apiSdk,
+    paymentsApi,
+  }) => {
+    await paymentsApi.setupPayment();
+    await apiSdk.settings.userquotasettings("owner", {
+      enableQuota: true,
+      defaultQuota: DefaultQuota.User,
+    });
+    const roomAdmin = await apiSdk.profiles.addMember("owner", "RoomAdmin");
+    const roomAdminResponse = await roomAdmin.response.json();
+    const roomAdminId = roomAdminResponse.response.id;
+    await apiSdk.peopleQuota.changeUserQuotaLimit("owner", {
+      userIds: [roomAdminId],
+      quota: QuotaPlan.Minimal,
+    });
+
+    const response =
+      await apiSdk.peopleQuota.resetUserQuotaLimitWithoutAutorization({
+        userIds: [roomAdminId],
+      });
+    expect(response.status()).toBe(401);
+  });
+
+  // 80301 - NEW
+  test.skip("PUT /people/userquota - Owner changes the user's quota limit to a value higher than the total storage size", async ({
+    apiSdk,
+    paymentsApi,
+  }) => {
+    await paymentsApi.setupPayment();
+    await apiSdk.settings.userquotasettings("owner", {
+      enableQuota: true,
+      defaultQuota: DefaultQuota.User,
+    });
+    const docspaceAdmin = await apiSdk.profiles.addMember(
+      "owner",
+      "DocSpaceAdmin",
+    );
+    const docspaceAdminResponse = await docspaceAdmin.response.json();
+    const docspaceAdminId = docspaceAdminResponse.response.id;
+
+    const response = await apiSdk.peopleQuota.changeUserQuotaLimit("owner", {
+      userIds: [docspaceAdminId],
+      quota: QuotaPlan.OverSize,
+    });
+    const body = await response.json();
+    expect(body.statusCode).toBe(402);
+    expect(body.error.message).toBe(
+      "Failed to set quota per user. The entered value is greater than the total DocSpace storage.",
+    );
   });
 });
