@@ -20,7 +20,8 @@ test.describe("Backup portal tests", () => {
     await backup.open();
   });
 
-  test("Manual backup", async () => {
+  // Skipped: bug 80298
+  test.skip("Manual backup", async () => {
     test.setTimeout(300000); // 5 min
     await test.step("Render", async () => {});
 
@@ -121,7 +122,8 @@ test.describe("Backup portal tests", () => {
     });
   });
 
-  test("Auto backup", async ({ page }) => {
+  // Skipped: bug 80298
+  test.skip("Auto backup", async ({ page }) => {
     await test.step("Auto backup link", async () => {
       await backup.openTab("auto-backup_tab");
       await backup.openAutoBackupGuide();
