@@ -7,6 +7,7 @@ import RoomsTable from "./RoomsTable";
 import RoomsTypesDropdown from "./RoomsTypeDropdown";
 import FilesNavigation from "../files/FilesNavigation";
 import {
+  roomContextMenuOption,
   roomCreateTitles,
   roomDialogSource,
   roomToastMessages,
@@ -184,6 +185,18 @@ class MyRooms extends BasePage {
     await this.roomsTable.selectAllRows();
     await this.navigation.performAction(navActions.delete);
     await this.removeToast(roomToastMessages.selectedTemplatesDeleted);
+  }
+
+  async downloadRoom(title: string) {
+    const download = await this.waitForDownload(async () => {
+      await this.roomsTable.openContextMenu(title);
+      await this.roomsTable.clickContextMenuOption(
+        roomContextMenuOption.manage,
+      );
+      await this.roomsTable.contextMenu.clickOption("Download");
+    });
+    expect(download.suggestedFilename().toLowerCase()).toContain(".zip");
+    await download.delete();
   }
 
   async openRoom(roomName: string) {
