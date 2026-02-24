@@ -1,6 +1,18 @@
 import { test, APIRequestContext } from "@playwright/test";
 import { TokenStore, Role } from "../token-store";
 
+export enum QuotaPlan {
+  Minimal = "minimal",
+  Default = "default",
+  OverSize = "oversize",
+}
+
+export const quotaPlanToBytes: Record<QuotaPlan, number> = {
+  [QuotaPlan.Minimal]: 104857600,
+  [QuotaPlan.Default]: 524288000,
+  [QuotaPlan.OverSize]: 3298534883328,
+};
+
 export class PeopleQuotaApi {
   private request: APIRequestContext;
   private tokenStore: TokenStore;
@@ -20,12 +32,12 @@ export class PeopleQuotaApi {
 
   async changeUserQuotaLimit(
     role: Role,
-    data: { userIds: string[]; quota: number },
+    data: { userIds: string[]; quota: QuotaPlan },
   ) {
     return test.step("Change a user quota limit", async () => {
       const userData = {
         userIds: data.userIds,
-        quota: data.quota,
+        quota: quotaPlanToBytes[data.quota],
       };
 
       const response = await this.request.put(
@@ -49,6 +61,42 @@ export class PeopleQuotaApi {
         `https://${this.portalDomain}/api/2.0/people/resetquota`,
         {
           headers: { Authorization: `Bearer ${this.getToken(role)}` },
+          data: userData,
+        },
+      );
+      return response;
+    });
+  }
+
+  async changeUserQuotaLimitWithoutAutorization(data: {
+    userIds: string[];
+    quota: QuotaPlan;
+  }) {
+    return test.step("Change a user quota limit", async () => {
+      const userData = {
+        userIds: data.userIds,
+        quota: quotaPlanToBytes[data.quota],
+      };
+
+      const response = await this.request.put(
+        `https://${this.portalDomain}/api/2.0/people/userquota`,
+        {
+          data: userData,
+        },
+      );
+      return response;
+    });
+  }
+
+  async resetUserQuotaLimitWithoutAutorization(data: { userIds: string[] }) {
+    return test.step("Reset a user quota limit", async () => {
+      const userData = {
+        userIds: data.userIds,
+      };
+
+      const response = await this.request.put(
+        `https://${this.portalDomain}/api/2.0/people/resetquota`,
+        {
           data: userData,
         },
       );

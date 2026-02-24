@@ -1,6 +1,18 @@
 import { test, APIRequestContext } from "@playwright/test";
 import { TokenStore, Role } from "../token-store";
 
+export enum DefaultQuota {
+  Room = "room",
+  User = "user",
+  AI = "ai",
+}
+
+export const defaultQuotaToBytes: Record<DefaultQuota, number> = {
+  [DefaultQuota.Room]: 524288000,
+  [DefaultQuota.User]: 524288000,
+  [DefaultQuota.AI]: 524288000,
+};
+
 export class SettingsApi {
   private request: APIRequestContext;
   private tokenStore: TokenStore;
@@ -20,12 +32,12 @@ export class SettingsApi {
 
   async userquotasettings(
     role: Role,
-    data: { defaultQuota: number; enableQuota: boolean },
+    data: { defaultQuota: DefaultQuota; enableQuota: boolean },
   ) {
     return test.step("Set user quota settings", async () => {
       const userData = {
         enableQuota: data.enableQuota,
-        defaultQuota: data.defaultQuota,
+        defaultQuota: defaultQuotaToBytes[DefaultQuota.User],
       };
 
       const response = await this.request.post(
