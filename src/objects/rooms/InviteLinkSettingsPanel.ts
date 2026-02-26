@@ -1,4 +1,4 @@
-import { expect } from "@playwright/test";
+import { expect, Page } from "@playwright/test";
 import BaseCalendar from "../common/BaseCalendar";
 import BaseRoleAccess from "../common/BaseRoleAccess";
 
@@ -21,7 +21,7 @@ const USER_LIMIT_INPUT = "link-settings_users-limit";
 class InviteLinkSettingsPanel extends BaseCalendar {
   readonly roleAccess: BaseRoleAccess;
 
-  constructor(page: import("@playwright/test").Page) {
+  constructor(page: Page) {
     super(page);
     this.roleAccess = new BaseRoleAccess(page);
   }

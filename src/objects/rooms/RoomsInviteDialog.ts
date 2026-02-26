@@ -1,4 +1,4 @@
-import { expect } from "@playwright/test";
+import { expect, Page } from "@playwright/test";
 import BaseInviteDialog from "../common/BaseInviteDialog";
 import BaseToast from "../common/BaseToast";
 import BaseRoleAccess from "../common/BaseRoleAccess";
@@ -13,7 +13,7 @@ class RoomsInviteDialog extends BaseInviteDialog {
   readonly inviteLinkSettings: InviteLinkSettingsPanel;
   readonly roleAccess: BaseRoleAccess;
 
-  constructor(page: import("@playwright/test").Page) {
+  constructor(page: Page) {
     super(page);
     this.toast = new BaseToast(page);
     this.inviteLinkSettings = new InviteLinkSettingsPanel(page);
