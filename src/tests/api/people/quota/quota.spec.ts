@@ -1,5 +1,13 @@
 import { expect } from "@playwright/test";
 import { test } from "@/src/fixtures/index";
+import {
+  QuotaPlan,
+  quotaPlanToBytes,
+} from "@/src/services/people/peopleQuota.services";
+import {
+  DefaultQuota,
+  defaultQuotaToBytes,
+} from "@/src/services/settings/quota.services";
 
 test.describe("API quota methods", () => {
   test("PUT /people/userquota - Change a owner quota limit", async ({
@@ -9,19 +17,21 @@ test.describe("API quota methods", () => {
     await paymentsApi.setupPayment();
     await apiSdk.settings.userquotasettings("owner", {
       enableQuota: true,
-      defaultQuota: 524288000,
+      defaultQuota: DefaultQuota.User,
     });
     const owner = await apiSdk.profiles.returnHimselfInformation("owner");
     const ownerResponse = await owner.json();
     const ownerId = ownerResponse.response.id;
     const response = await apiSdk.peopleQuota.changeUserQuotaLimit("owner", {
       userIds: [ownerId],
-      quota: 104857600,
+      quota: QuotaPlan.Minimal,
     });
     const body = await response.json();
     expect(body.statusCode).toBe(200);
     expect(body.response[0].isOwner).toBe(true);
-    expect(body.response[0].quotaLimit).toBe(104857600);
+    expect(body.response[0].quotaLimit).toBe(
+      quotaPlanToBytes[QuotaPlan.Minimal],
+    );
   });
 
   test("PUT /people/userquota - Owner change a other users quota limit", async ({
@@ -31,7 +41,7 @@ test.describe("API quota methods", () => {
     await paymentsApi.setupPayment();
     await apiSdk.settings.userquotasettings("owner", {
       enableQuota: true,
-      defaultQuota: 524288000,
+      defaultQuota: DefaultQuota.User,
     });
     const docspaceAdmin = await apiSdk.profiles.addMember(
       "owner",
@@ -50,16 +60,22 @@ test.describe("API quota methods", () => {
 
     const response = await apiSdk.peopleQuota.changeUserQuotaLimit("owner", {
       userIds: [docspaceAdminId, roomAdminId, userId],
-      quota: 104857600,
+      quota: QuotaPlan.Minimal,
     });
     const body = await response.json();
     expect(body.statusCode).toBe(200);
     expect(body.response[0].isAdmin).toBe(true);
-    expect(body.response[0].quotaLimit).toBe(104857600);
+    expect(body.response[0].quotaLimit).toBe(
+      quotaPlanToBytes[QuotaPlan.Minimal],
+    );
     expect(body.response[1].isRoomAdmin).toBe(true);
-    expect(body.response[1].quotaLimit).toBe(104857600);
+    expect(body.response[1].quotaLimit).toBe(
+      quotaPlanToBytes[QuotaPlan.Minimal],
+    );
     expect(body.response[2].isCollaborator).toBe(true);
-    expect(body.response[2].quotaLimit).toBe(104857600);
+    expect(body.response[2].quotaLimit).toBe(
+      quotaPlanToBytes[QuotaPlan.Minimal],
+    );
   });
 
   test("PUT /people/userquota - DocSpaceAdmin change a other users quota limit", async ({
@@ -70,7 +86,7 @@ test.describe("API quota methods", () => {
     await paymentsApi.setupPayment();
     await apiSdk.settings.userquotasettings("owner", {
       enableQuota: true,
-      defaultQuota: 524288000,
+      defaultQuota: DefaultQuota.User,
     });
     const owner = await apiSdk.profiles.returnHimselfInformation("owner");
     const ownerResponse = await owner.json();
@@ -90,17 +106,23 @@ test.describe("API quota methods", () => {
       "docSpaceAdmin",
       {
         userIds: [ownerId, roomAdminId, userId],
-        quota: 104857600,
+        quota: QuotaPlan.Minimal,
       },
     );
     const body = await response.json();
     expect(body.statusCode).toBe(200);
     expect(body.response[0].isOwner).toBe(true);
-    expect(body.response[0].quotaLimit).toBe(104857600);
+    expect(body.response[0].quotaLimit).toBe(
+      quotaPlanToBytes[QuotaPlan.Minimal],
+    );
     expect(body.response[1].isRoomAdmin).toBe(true);
-    expect(body.response[1].quotaLimit).toBe(104857600);
+    expect(body.response[1].quotaLimit).toBe(
+      quotaPlanToBytes[QuotaPlan.Minimal],
+    );
     expect(body.response[2].isCollaborator).toBe(true);
-    expect(body.response[2].quotaLimit).toBe(104857600);
+    expect(body.response[2].quotaLimit).toBe(
+      quotaPlanToBytes[QuotaPlan.Minimal],
+    );
   });
 
   test("PUT /people/resetquota - Reset a owner quota limit", async ({
@@ -110,14 +132,14 @@ test.describe("API quota methods", () => {
     await paymentsApi.setupPayment();
     await apiSdk.settings.userquotasettings("owner", {
       enableQuota: true,
-      defaultQuota: 524288000,
+      defaultQuota: DefaultQuota.User,
     });
     const owner = await apiSdk.profiles.returnHimselfInformation("owner");
     const ownerResponse = await owner.json();
     const ownerId = ownerResponse.response.id;
     await apiSdk.peopleQuota.changeUserQuotaLimit("owner", {
       userIds: [ownerId],
-      quota: 104857600,
+      quota: QuotaPlan.Minimal,
     });
 
     const response = await apiSdk.peopleQuota.resetUserQuotaLimit("owner", {
@@ -126,7 +148,9 @@ test.describe("API quota methods", () => {
     const body = await response.json();
     expect(body.statusCode).toBe(200);
     expect(body.response[0].isOwner).toBe(true);
-    expect(body.response[0].quotaLimit).toBe(524288000);
+    expect(body.response[0].quotaLimit).toBe(
+      defaultQuotaToBytes[DefaultQuota.User],
+    );
   });
 
   test("PUT /people/resetquota - Owner reset a other users quota limit", async ({
@@ -136,7 +160,7 @@ test.describe("API quota methods", () => {
     await paymentsApi.setupPayment();
     await apiSdk.settings.userquotasettings("owner", {
       enableQuota: true,
-      defaultQuota: 524288000,
+      defaultQuota: DefaultQuota.User,
     });
     const docspaceAdmin = await apiSdk.profiles.addMember(
       "owner",
@@ -155,7 +179,7 @@ test.describe("API quota methods", () => {
 
     await apiSdk.peopleQuota.changeUserQuotaLimit("owner", {
       userIds: [docspaceAdminId, roomAdminId, userId],
-      quota: 104857600,
+      quota: QuotaPlan.Minimal,
     });
     const response = await apiSdk.peopleQuota.resetUserQuotaLimit("owner", {
       userIds: [docspaceAdminId, roomAdminId, userId],
@@ -163,11 +187,17 @@ test.describe("API quota methods", () => {
     const body = await response.json();
     expect(body.statusCode).toBe(200);
     expect(body.response[0].isAdmin).toBe(true);
-    expect(body.response[0].quotaLimit).toBe(524288000);
+    expect(body.response[0].quotaLimit).toBe(
+      defaultQuotaToBytes[DefaultQuota.User],
+    );
     expect(body.response[1].isRoomAdmin).toBe(true);
-    expect(body.response[1].quotaLimit).toBe(524288000);
+    expect(body.response[1].quotaLimit).toBe(
+      defaultQuotaToBytes[DefaultQuota.User],
+    );
     expect(body.response[2].isCollaborator).toBe(true);
-    expect(body.response[2].quotaLimit).toBe(524288000);
+    expect(body.response[2].quotaLimit).toBe(
+      defaultQuotaToBytes[DefaultQuota.User],
+    );
   });
 
   test("PUT /people/resetquota - DocSpaceAdmin reset a other users quota limit", async ({
@@ -178,7 +208,7 @@ test.describe("API quota methods", () => {
     await paymentsApi.setupPayment();
     await apiSdk.settings.userquotasettings("owner", {
       enableQuota: true,
-      defaultQuota: 524288000,
+      defaultQuota: DefaultQuota.User,
     });
     const owner = await apiSdk.profiles.returnHimselfInformation("owner");
     const ownerResponse = await owner.json();
@@ -196,7 +226,7 @@ test.describe("API quota methods", () => {
     await api.auth.authenticateDocSpaceAdmin();
     await apiSdk.peopleQuota.changeUserQuotaLimit("docSpaceAdmin", {
       userIds: [ownerId, roomAdminId, userId],
-      quota: 104857600,
+      quota: QuotaPlan.Minimal,
     });
     const response = await apiSdk.peopleQuota.resetUserQuotaLimit(
       "docSpaceAdmin",
@@ -207,10 +237,16 @@ test.describe("API quota methods", () => {
     const body = await response.json();
     expect(body.statusCode).toBe(200);
     expect(body.response[0].isOwner).toBe(true);
-    expect(body.response[0].quotaLimit).toBe(524288000);
+    expect(body.response[0].quotaLimit).toBe(
+      defaultQuotaToBytes[DefaultQuota.User],
+    );
     expect(body.response[1].isRoomAdmin).toBe(true);
-    expect(body.response[1].quotaLimit).toBe(524288000);
+    expect(body.response[1].quotaLimit).toBe(
+      defaultQuotaToBytes[DefaultQuota.User],
+    );
     expect(body.response[2].isCollaborator).toBe(true);
-    expect(body.response[2].quotaLimit).toBe(524288000);
+    expect(body.response[2].quotaLimit).toBe(
+      defaultQuotaToBytes[DefaultQuota.User],
+    );
   });
 });

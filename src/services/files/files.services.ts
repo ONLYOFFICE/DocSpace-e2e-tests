@@ -20,6 +20,49 @@ export class FilesApi {
     return this.tokenStore.portalDomain;
   }
 
+  async createFileInMyDocuments(
+    role: Role,
+    data: {
+      title: string;
+      templateId?: number;
+      enableExternalExt?: boolean;
+      formId?: number;
+    },
+  ) {
+    return test.step(`${role} create file in My Documents`, async () => {
+      const response = await this.request.post(
+        `https://${this.portalDomain}/api/2.0/files/@my/file`,
+        {
+          headers: { Authorization: `Bearer ${this.getToken(role)}` },
+          data,
+        },
+      );
+      return response;
+    });
+  }
+
+  async createFile(
+    role: Role,
+    folderId: number,
+    data: {
+      title: string;
+      templateId?: number;
+      enableExternalExt?: boolean;
+      formId?: number;
+    },
+  ) {
+    return test.step(`${role} create file in folder ${folderId}`, async () => {
+      const response = await this.request.post(
+        `https://${this.portalDomain}/api/2.0/files/${folderId}/file`,
+        {
+          headers: { Authorization: `Bearer ${this.getToken(role)}` },
+          data,
+        },
+      );
+      return response;
+    });
+  }
+
   async uploadToMyDocuments(role: Role, filePath: string) {
     return test.step(`${role} upload file to My Documents`, async () => {
       const resolvedPath = path.resolve(process.cwd(), filePath);
