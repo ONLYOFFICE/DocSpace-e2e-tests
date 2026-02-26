@@ -1,23 +1,15 @@
 import { expect, Locator, Page } from "@playwright/test";
 
-/**
- * Configuration options for link settings
- */
+// Configuration options for link settings
 export interface LinkSettingsConfig {
-  /** Link name */
   name?: string;
-  /** Access level: "docspace" or "anyone" */
   access?: "docspace" | "anyone";
-  /** Password to protect the link */
   password?: string;
-  /** Whether to save settings after configuration */
   save?: boolean;
 }
 
-/**
- * Page Object for working with the link settings edit panel
- * Used to manage shared links for files and rooms
- */
+// Page Object for working with the link settings edit panel.
+// Used to manage shared links for files and rooms.
 export default class BaseEditLink {
   protected page: Page;
 
@@ -52,10 +44,7 @@ export default class BaseEditLink {
     return this.page.getByTestId(BaseEditLink.SELECTORS.linkNameInput);
   }
 
-  /**
-   * Change link name
-   * @param newName - new link name
-   */
+  // Change link name
   async newLinkName(newName: string) {
     const input = this.linkNameInput;
     await expect(input).toBeVisible();
@@ -73,10 +62,7 @@ export default class BaseEditLink {
       .locator('[data-test-id="combo-button"]');
   }
 
-  /**
-   * Select access level for the link
-   * @param access - access type: "docspace" (DocSpace users only) or "anyone" (anyone with the link)
-   */
+  // Select access level for the link
   async selectLinkAccess(access: keyof typeof BaseEditLink.ACCESS_OPTIONS) {
     const combo = this.comboLinkAccess;
     await expect(combo).toBeVisible();
@@ -103,10 +89,7 @@ export default class BaseEditLink {
     return this.page.locator(`#${BaseEditLink.SELECTORS.passwordInput} input`);
   }
 
-  /**
-   * Fill password field
-   * @param password - password to protect the link
-   */
+  // Fill password field
   async fillPassword(password: string) {
     const input = this.passwordInput;
     await expect(input).toBeVisible();
@@ -180,35 +163,21 @@ export default class BaseEditLink {
 
   // ==================== High-Level Configuration ====================
 
-  /**
-   * Configure link settings with multiple parameters at once
-   * @param config - configuration object with link settings
-   * @example
-   * await baseEditLink.configureLinkSettings({
-   *   name: "My Link",
-   *   access: "docspace",
-   *   password: "SecurePass123",
-   *   save: true
-   * });
-   */
+  // Configure link settings with multiple parameters at once
   async configureLinkSettings(config: LinkSettingsConfig) {
-    // Set link name if provided
     if (config.name !== undefined) {
       await this.newLinkName(config.name);
     }
 
-    // Set access level if provided
     if (config.access !== undefined) {
       await this.selectLinkAccess(config.access);
     }
 
-    // Set password if provided
     if (config.password !== undefined) {
       await this.clickTogglePassword();
       await this.fillPassword(config.password);
     }
 
-    // Save settings if requested
     if (config.save === true) {
       await this.clickSaveButton();
     }
@@ -216,10 +185,7 @@ export default class BaseEditLink {
 
   // ==================== Private Helper Methods ====================
 
-  /**
-   * Universal method to click an element with visibility check
-   * @param element - element locator
-   */
+  // Click an element with visibility check
   private async clickElement(element: Locator) {
     await expect(element).toBeVisible();
     await element.click();
