@@ -1,12 +1,6 @@
 import { Page, expect } from "@playwright/test";
 
-/**
- * Page Object for the guest registration page.
- * Handles the flow when a non-existing user opens a room invite link
- * and needs to create a new DocSpace account:
- * 1. Fill first name, last name, and password
- * 2. Click "Sign up" to complete registration and join the room as a guest
- */
+// Page Object for the guest registration page
 export class RoomGuestRegistration {
   private page: Page;
 

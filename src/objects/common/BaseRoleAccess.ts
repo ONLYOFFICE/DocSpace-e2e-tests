@@ -14,12 +14,7 @@ const ROLE_ACCESS_OPTIONS = {
 
 export type RoleAccessType = keyof typeof ROLE_ACCESS_OPTIONS;
 
-/**
- * Base Page Object for role / access level selector.
- *
- * Provides role dropdown controls reused across
- * room invite dialogs and invite link settings panels.
- */
+// Base Page Object for role / access level selector
 export default class BaseRoleAccess {
   protected page: Page;
 

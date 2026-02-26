@@ -5,14 +5,7 @@ const CONTINUE_BUTTON = "email_continue_button";
 const PASSWORD_INPUT = "login_password";
 const SUBMIT_BUTTON = "login_submit";
 
-/**
- * Page Object for the invite link login page.
- * Handles the flow when a user opens a room invite link:
- * 1. Enter email on the invite email page
- * 2. Click Continue to proceed
- * 3. Enter password on the login page (for existing users)
- * 4. Submit to log in and join the room
- */
+// Page Object for the invite link login page
 export class RoomInviteLogin {
   private page: Page;
 

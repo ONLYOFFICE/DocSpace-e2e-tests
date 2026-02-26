@@ -3,12 +3,7 @@ import { expect, Locator, Page } from "@playwright/test";
 const DATE_PICKER = "date-picker";
 const DATE_SELECTOR = "date-selector";
 
-/**
- * Base Page Object for calendar / date picker component.
- *
- * Provides date selection and expiration period controls
- * reused across link settings panels.
- */
+// Base Page Object for calendar / date picker component
 export default class BaseCalendar {
   protected page: Page;
 

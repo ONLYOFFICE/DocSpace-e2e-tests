@@ -7,17 +7,7 @@ const CANCEL_BUTTON = "edit_link_panel_cancel_button";
 const USER_LIMIT_TOGGLE = "toggle-button-icon";
 const USER_LIMIT_INPUT = "link-settings_users-limit";
 
-/**
- * Page Object for the "Invite via link" settings panel.
- *
- * Opened by clicking the gear icon on an invite link
- * inside the room's Invite dialog.
- *
- * Contains 3 settings blocks:
- * 1. Access rights — via roleAccess (BaseRoleAccess)
- * 2. User limit — toggle + numeric input
- * 3. Limit by period — date picker / expiration selector (inherited from BaseCalendar)
- */
+// Page Object for the "Invite via link" settings panel
 class InviteLinkSettingsPanel extends BaseCalendar {
   readonly roleAccess: BaseRoleAccess;
 
