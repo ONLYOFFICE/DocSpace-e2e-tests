@@ -16,18 +16,7 @@ import {
   ensureIncognitoPage,
 } from "@/src/utils/helpers/linkTest";
 
-/**
- * Test suite for role-based form visibility in FormFilling rooms.
- *
- * Verifies that:
- * - FormFiller users can fill forms but only see their own completed forms
- * - ContentCreator users can see all completed forms (own and others')
- *
- * Prerequisites:
- * - Room and PDF form are created via API
- * - Two users are created via API and join the room via invite links
- * - FormFiller joins with default invite link, ContentCreator with changed access level
- */
+// Tests for role-based form visibility in FormFilling rooms
 test.describe("FormFillingRoomRoleBasedFormVisibility", () => {
   test("FormFiller sees only own completed forms, ContentCreator sees all", async ({
     page,
@@ -51,7 +40,7 @@ test.describe("FormFillingRoomRoleBasedFormVisibility", () => {
     let roomInfoPanel: RoomInfoPanel;
     let roomsInviteDialog: RoomsInviteDialog;
 
-    // --- Setup via API ---
+    // Setup via API
     await test.step("Create room, upload PDF, create users", async () => {
       const roomResponse = await apiSdk.rooms.createRoom("owner", {
         title: "FormFillingRoom",
@@ -72,7 +61,7 @@ test.describe("FormFillingRoomRoleBasedFormVisibility", () => {
       ccData = ccResult.userData;
     });
 
-    // --- Owner logs in, opens room ---
+    // Owner logs in, opens room
     await test.step("Owner logs in and opens room", async () => {
       const login = new Login(page, api.portalDomain);
       await login.loginToPortal();
@@ -88,7 +77,7 @@ test.describe("FormFillingRoomRoleBasedFormVisibility", () => {
       roomsInviteDialog = new RoomsInviteDialog(page);
     });
 
-    // --- Get FormFiller invite link (default access) ---
+    // Get FormFiller invite link (default access)
     let ffLink!: string;
     await test.step("Enable invite link with FormFiller access", async () => {
       await setupClipboardPermissions(page);
@@ -99,7 +88,7 @@ test.describe("FormFillingRoomRoleBasedFormVisibility", () => {
       ffLink = await getLinkFromClipboard(page);
     });
 
-    /** Join room via invite link in incognito */
+    // Join room via invite link in incognito
     async function joinViaInviteLink(
       link: string,
       email: string,
@@ -122,7 +111,7 @@ test.describe("FormFillingRoomRoleBasedFormVisibility", () => {
       return { context, page: userPage };
     }
 
-    /** Fill and submit the PDF form (opens in a new tab, then closes it) */
+    // Fill and submit the PDF form (opens in a new tab, then closes it)
     async function fillForm(userPage: Page) {
       ensureIncognitoPage(userPage);
       await expect(userPage.getByLabel("PDF from device,")).toBeVisible();
@@ -148,7 +137,7 @@ test.describe("FormFillingRoomRoleBasedFormVisibility", () => {
       await expect(userPage.getByLabel("PDF from device,")).toBeVisible();
     }
 
-    /** Navigate into Complete > PDF from device subfolder */
+    // Navigate into Complete > PDF from device subfolder
     async function openCompleteFolder(userPage: Page) {
       await userPage.reload({ waitUntil: "load" });
       await expect(userPage.getByLabel("PDF from device,")).toBeVisible();
@@ -164,7 +153,7 @@ test.describe("FormFillingRoomRoleBasedFormVisibility", () => {
       await filesTable.contextMenu.clickOption("Open");
     }
 
-    // --- FormFiller joins and fills the form ---
+    // FormFiller joins and fills the form
     let ffCtx!: BrowserContext;
     let ffPage!: Page;
 
@@ -177,7 +166,7 @@ test.describe("FormFillingRoomRoleBasedFormVisibility", () => {
       await fillForm(ffPage);
     });
 
-    // --- Change invite link to ContentCreator access ---
+    // Change invite link to ContentCreator access
     let ccLink!: string;
     await test.step("Change invite link to ContentCreator access", async () => {
       await page.reload({ waitUntil: "load" });
@@ -191,7 +180,7 @@ test.describe("FormFillingRoomRoleBasedFormVisibility", () => {
       ccLink = await getLinkFromClipboard(page);
     });
 
-    // --- ContentCreator joins and fills the form ---
+    // ContentCreator joins and fills the form
     let ccCtx!: BrowserContext;
     let ccPage!: Page;
 
@@ -204,7 +193,7 @@ test.describe("FormFillingRoomRoleBasedFormVisibility", () => {
       await fillForm(ccPage);
     });
 
-    // --- Verify visibility ---
+    // Verify visibility
     const ffName = `${ffData.firstName} ${ffData.lastName}`;
     const ccName = `${ccData.firstName} ${ccData.lastName}`;
 

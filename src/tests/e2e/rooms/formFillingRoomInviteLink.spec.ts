@@ -16,25 +16,7 @@ import {
   ensureIncognitoPage,
 } from "@/src/utils/helpers/linkTest";
 
-/**
- * Test suite for "Invite via link" functionality in FormFilling rooms.
- *
- * Covers:
- * - Enabling/disabling invite via link toggle and toast notification
- * - Changing access type for the invite link (Form Filler, Content Creator)
- * - Configuring link settings: user limit, expiration date
- * - Verifying that Room Manager role is disabled for invite links
- * - Enforcing user limit: "Link no longer available" after limit is reached
- * - Opening invite link in incognito: anonymous email input page
- * - Existing user login via invite link (Form Filler and Content Creator)
- * - New user registration via invite link as a guest
- * - Verifying that joined users appear in room contacts on the owner's page
- *
- * Prerequisites:
- * - Each test creates a new FormFilling room via API with a PDF form uploaded
- * - Owner logs in, opens the room, and closes the info panel before each test
- * - Incognito browser contexts are used to simulate anonymous/guest access
- */
+// Tests for "Invite via link" in FormFilling rooms
 test.describe("FormFilling room - Invite via link tests", () => {
   let myRooms: MyRooms;
   let shortTour: ShortTour;
