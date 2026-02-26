@@ -5,7 +5,6 @@ import { expect } from "@playwright/test";
 import RoomInfoPanel from "@/src/objects/rooms/RoomInfoPanel";
 import RoomsInviteDialog from "@/src/objects/rooms/RoomsInviteDialog";
 import Login from "@/src/objects/common/Login";
-import BasePasswordRequire from "@/src/objects/common/BasePasswordRequire";
 import RoomGuestRegistration from "@/src/objects/rooms/RoomGuestRegistration";
 import RoomInviteLogin from "@/src/objects/rooms/RoomInviteLogin";
 import { BrowserContext, Page } from "@playwright/test";
@@ -77,7 +76,7 @@ test.describe("FormFilling room - Invite via link tests", () => {
   });
 
   // Verify that enabling the toggle copies the link and shows a toast notification
-  test("Enable invite via link and verify toast", async ({ page }) => {
+  test("Enable invite via link and verify toast", async () => {
     await test.step("Open invite dialog from info panel", async () => {
       await myRooms.infoPanel.open();
       await myRooms.infoPanel.openTab("Contacts");
@@ -91,9 +90,7 @@ test.describe("FormFilling room - Invite via link tests", () => {
   });
 
   // Verify that the access type dropdown can be changed and the UI updates accordingly
-  test("Change invite link access type to Content Creator", async ({
-    page,
-  }) => {
+  test("Change invite link access type to Content Creator", async () => {
     await test.step("Open invite dialog and enable invite via link", async () => {
       await myRooms.infoPanel.open();
       await myRooms.infoPanel.openTab("Contacts");
@@ -117,7 +114,7 @@ test.describe("FormFilling room - Invite via link tests", () => {
   });
 
   // Verify link settings panel: set user limit to 10, change expiration date to tomorrow, save
-  test("Configure invite link settings", async ({ page }) => {
+  test("Configure invite link settings", async () => {
     await test.step("Open invite dialog and enable invite via link", async () => {
       await myRooms.infoPanel.open();
       await myRooms.infoPanel.openTab("Contacts");
@@ -163,7 +160,9 @@ test.describe("FormFilling room - Invite via link tests", () => {
     });
 
     await test.step("Verify Room Manager option is not available", async () => {
-      await roomsInviteDialog.roleAccess.checkRoleAccessTypeDisabled("roomManager");
+      await roomsInviteDialog.roleAccess.checkRoleAccessTypeDisabled(
+        "roomManager",
+      );
     });
   });
 
