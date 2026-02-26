@@ -10,8 +10,6 @@ export interface LinkSettingsConfig {
   access?: "docspace" | "anyone";
   /** Password to protect the link */
   password?: string;
-  /** Link expiration date (if supported) */
-  expirationDate?: string;
   /** Whether to save settings after configuration */
   save?: boolean;
 }
@@ -156,9 +154,9 @@ export default class BaseEditLink {
     await this.clickElement(this.denyDownloadToggle);
   }
 
-  // ==================== Link Expiration ====================
+  // ==================== Date Link Period ====================
 
-  get dataLinkPeriod() {
+  get dateLinkPeriod() {
     return this.page.getByTestId(BaseEditLink.SELECTORS.dateLinkPeriod);
   }
 
@@ -208,17 +206,6 @@ export default class BaseEditLink {
     if (config.password !== undefined) {
       await this.clickTogglePassword();
       await this.fillPassword(config.password);
-    }
-
-    // Set expiration date if provided and element is visible
-    if (config.expirationDate !== undefined) {
-      const datePicker = this.dataLinkPeriod;
-      const isVisible = await datePicker.isVisible().catch(() => false);
-      if (isVisible) {
-        // TODO: Implement date selection logic when date picker is available
-        // await this.selectExpirationDate(config.expirationDate);
-        console.warn("Date expiration setting is not yet implemented");
-      }
     }
 
     // Save settings if requested

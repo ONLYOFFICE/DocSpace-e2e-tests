@@ -609,7 +609,7 @@ test.describe("FormFilling room - Link tests", () => {
     });
 
     await test.step("Verify date period is not visible", async () => {
-      expect(await baseEditLink.dataLinkPeriod).not.toBeVisible();
+      await expect(baseEditLink.dateLinkPeriod).not.toBeVisible();
     });
 
     await test.step("Save link settings", async () => {
@@ -657,7 +657,7 @@ test.describe("FormFilling room - Link tests", () => {
       const passwordValue = await baseEditLink.passwordInput.inputValue();
       expect(passwordValue).not.toBe("");
 
-      expect(await baseEditLink.dataLinkPeriod).not.toBeVisible();
+      await expect(baseEditLink.dateLinkPeriod).not.toBeVisible();
     });
 
     await test.step("Close settings", async () => {
