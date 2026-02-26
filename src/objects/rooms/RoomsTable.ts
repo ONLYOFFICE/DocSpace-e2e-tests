@@ -132,9 +132,14 @@ class RoomsTable extends BaseTable {
     await this.contextMenu.clickOption(option);
   }
 
+  // Open a room by clicking its link and waiting for navigation
   async openRoomByName(roomName: string) {
-    await this.page.getByRole("link", { name: roomName }).click();
-    await this.page.waitForURL(/rooms\/shared\/.*\/filter\?folder=/);
+    const link = this.page.getByRole("link", { name: roomName });
+    await link.waitFor({ state: "visible" });
+    await link.click();
+    await this.page.waitForURL(/rooms\/shared\/.*\/filter\?folder=/, {
+      waitUntil: "domcontentloaded",
+    });
   }
 }
 
