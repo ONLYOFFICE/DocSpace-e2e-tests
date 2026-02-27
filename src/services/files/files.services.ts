@@ -185,6 +185,48 @@ export class FilesApi {
     });
   }
 
+  async createHtmlFile(
+    role: Role,
+    folderId: number,
+    data: {
+      title: string;
+      content?: string;
+      createNewIfExist?: boolean;
+    },
+  ) {
+    return test.step(`${role} create HTML file in folder ${folderId}`, async () => {
+      const response = await this.request.post(
+        `https://${this.portalDomain}/api/2.0/files/${folderId}/html`,
+        {
+          headers: { Authorization: `Bearer ${this.getToken(role)}` },
+          data,
+        },
+      );
+      return response;
+    });
+  }
+
+  async createTextFile(
+    role: Role,
+    folderId: number,
+    data: {
+      title: string;
+      content?: string;
+      createNewIfExist?: boolean;
+    },
+  ) {
+    return test.step(`${role} create text file in folder ${folderId}`, async () => {
+      const response = await this.request.post(
+        `https://${this.portalDomain}/api/2.0/files/${folderId}/text`,
+        {
+          headers: { Authorization: `Bearer ${this.getToken(role)}` },
+          data,
+        },
+      );
+      return response;
+    });
+  }
+
   async addToFavorites(role: Role, fileIds: number[]) {
     return test.step(`${role} add files to favorites`, async () => {
       const response = await this.request.post(
@@ -203,6 +245,18 @@ export class FilesApi {
       }
 
       return response.json();
+    });
+  }
+
+  async changeFavoriteStatus(role: Role, fileId: number, favorite: boolean) {
+    return test.step(`${role} set favorite=${favorite} for file ${fileId}`, async () => {
+      const response = await this.request.get(
+        `https://${this.portalDomain}/api/2.0/files/favorites/${fileId}?favorite=${favorite}`,
+        {
+          headers: { Authorization: `Bearer ${this.getToken(role)}` },
+        },
+      );
+      return response;
     });
   }
 }
