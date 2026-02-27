@@ -2,8 +2,8 @@ import { Page, expect } from "@playwright/test";
 
 const EMAIL_INPUT = "email-input-invite";
 const CONTINUE_BUTTON = "email_continue_button";
-const PASSWORD_INPUT = "login_password";
-const SUBMIT_BUTTON = "login_submit";
+const PASSWORD_INPUT = "text-input";
+const SIGN_IN_BUTTON = "login_button";
 
 // Page Object for the invite link login page
 export class RoomInviteLogin {
@@ -25,8 +25,8 @@ export class RoomInviteLogin {
     return this.page.getByTestId(PASSWORD_INPUT);
   }
 
-  get submitButton() {
-    return this.page.getByTestId(SUBMIT_BUTTON);
+  get signInButton() {
+    return this.page.getByTestId(SIGN_IN_BUTTON);
   }
 
   async fillEmail(email: string) {
@@ -44,16 +44,16 @@ export class RoomInviteLogin {
     await this.passwordInput.fill(password);
   }
 
-  async clickSubmit() {
-    await expect(this.submitButton).toBeVisible();
-    await this.submitButton.click();
+  async clickSignIn() {
+    await expect(this.signInButton).toBeVisible();
+    await this.signInButton.click();
   }
 
   async login(email: string, password: string) {
     await this.fillEmail(email);
     await this.clickContinue();
     await this.fillPassword(password);
-    await this.clickSubmit();
+    await this.clickSignIn();
   }
 }
 
