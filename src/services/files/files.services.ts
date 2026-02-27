@@ -248,6 +248,49 @@ export class FilesApi {
     });
   }
 
+  async saveAsPdf(
+    role: Role,
+    fileId: number,
+    data: {
+      folderId: number;
+      title: string;
+    },
+  ) {
+    return test.step(`${role} save file ${fileId} as PDF`, async () => {
+      const response = await this.request.post(
+        `https://${this.portalDomain}/api/2.0/files/file/${fileId}/saveaspdf`,
+        {
+          headers: { Authorization: `Bearer ${this.getToken(role)}` },
+          data,
+        },
+      );
+      return response;
+    });
+  }
+
+  async copyFileAs(
+    role: Role,
+    fileId: number,
+    data: {
+      destTitle: string;
+      destFolderId: number;
+      enableExternalExt?: boolean;
+      password?: string;
+      toForm?: boolean;
+    },
+  ) {
+    return test.step(`${role} copy file ${fileId} as "${data.destTitle}"`, async () => {
+      const response = await this.request.post(
+        `https://${this.portalDomain}/api/2.0/files/file/${fileId}/copyas`,
+        {
+          headers: { Authorization: `Bearer ${this.getToken(role)}` },
+          data,
+        },
+      );
+      return response;
+    });
+  }
+
   async changeFavoriteStatus(role: Role, fileId: number, favorite: boolean) {
     return test.step(`${role} set favorite=${favorite} for file ${fileId}`, async () => {
       const response = await this.request.get(
