@@ -105,6 +105,12 @@ export abstract class BaseMenu {
     await child.click();
   }
 
+  // Returns a Locator for the item — use with expect().toBeVisible() assertions.
+  public getItemLocator(selector: TMenuItem | string): Locator {
+    return this.getMenuItem(this.menu, selector);
+  }
+
+  // Closes the menu by clicking outside and waits until it disappears.
   async close() {
     await expect(async () => {
       await this.page.mouse.click(1, 1);
