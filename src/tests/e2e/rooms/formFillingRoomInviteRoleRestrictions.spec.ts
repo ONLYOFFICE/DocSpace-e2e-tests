@@ -5,7 +5,7 @@ import RoomInfoPanel from "@/src/objects/rooms/RoomInfoPanel";
 import RoomsInviteDialog from "@/src/objects/rooms/RoomsInviteDialog";
 import Login from "@/src/objects/common/Login";
 
-test.describe("FormFilling room - User access restrictions", () => {
+test.describe("FormFilling room - Invite role restrictions", () => {
   let myRooms: MyRooms;
   let shortTour: ShortTour;
   let roomInfoPanel: RoomInfoPanel;
@@ -24,7 +24,9 @@ test.describe("FormFilling room - User access restrictions", () => {
     await myRooms.createFormFillingRoom("FormFillingRoom");
   });
 
-  test("Add manually user to room", async ({ apiSdk }) => {
+  test("Regular user cannot be assigned Room Manager — role falls back to Content creator", async ({
+    apiSdk,
+  }) => {
     // Create a User type member via API
     const { userData } = await apiSdk.profiles.addMember("owner", "User");
     const userEmail = userData.email;
