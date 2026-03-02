@@ -3,7 +3,6 @@ import type { TMenuItem } from "@/src/objects/common/BaseMenu";
 
 const testId = (value: string): TMenuItem => ({ type: "data-testid", value });
 
-// ─── PDF Form context menu ────────────────────────────────────────────────────
 // Available in My Documents and rooms (except "fill" which is room-only).
 // markAsRead appears only after another user modifies the file.
 // blockVersion appears only in rooms.
@@ -68,7 +67,6 @@ export type TPdfFormShareSubmenu =
 export type TPdfFormDownloadSubmenu =
   (typeof pdfFormDownloadSubmenu)[keyof typeof pdfFormDownloadSubmenu];
 
-// ─── Document (.docx) context menu ───────────────────────────────────────────
 // markAsRead appears only after another user modifies the file.
 // blockVersion appears only in rooms.
 
@@ -87,7 +85,6 @@ export const documentContextMenuOption = {
   delete: testId("option_delete"),
 };
 
-// ─── Spreadsheet (.xlsx) context menu ────────────────────────────────────────
 // Same as document but includes "Enable custom filter".
 // markAsRead appears only after another user modifies the file.
 // blockVersion appears only in rooms.
@@ -108,7 +105,6 @@ export const spreadsheetContextMenuOption = {
   delete: testId("option_delete"),
 };
 
-// ─── Folder context menu ──────────────────────────────────────────────────────
 // markAsRead appears only after another user modifies a file inside the folder.
 
 export const folderContextMenuOption = {
@@ -131,8 +127,6 @@ export type TSpreadsheetContextMenuOption =
 export type TFolderContextMenuOption =
   (typeof folderContextMenuOption)[keyof typeof folderContextMenuOption];
 
-// ─── Initial document names ───────────────────────────────────────────────────
-
 export const mapInitialDocNames = {
   ONLYOFFICE_SAMPLE_PRESENTATION: "ONLYOFFICE Presentation Sample",
   ONLYOFFICE_SAMPLE_SPREADSHEETS: "ONLYOFFICE Spreadsheet Sample",
@@ -141,8 +135,6 @@ export const mapInitialDocNames = {
 } as const;
 
 export const initialDocNames = Object.values(mapInitialDocNames);
-
-// ─── Create dropdown actions ──────────────────────────────────────────────────
 
 export const DOC_ACTIONS = {
   CREATE_DOCUMENT: "New document",
