@@ -77,10 +77,7 @@ class RoomContactsPanel {
     await expect(this.page.getByText(email)).toBeVisible();
   }
 
-  /**
-   * Select access type for FormFilling room
-   * @param accessType - "roomManager" | "contentCreator" | "formFiller"
-   */
+  // Select access type for FormFilling room
   async selectAccessType(
     accessType: "roomManager" | "contentCreator" | "formFiller",
   ) {
