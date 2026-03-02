@@ -218,8 +218,8 @@ test.describe("FormFilling room - Invite via link tests", () => {
   });
 
   // Create a user via API, generate invite link with default Form Filler access,
-  // login in incognito, verify room with PDF opens, and check user in contacts
-  test("Existing user opens invite link with Form Filler access and logs in", async ({
+  // login in incognito, verify unstarted form is not visible, and check user in contacts
+  test("Form Filler sees no unstarted PDF form after joining via invite link", async ({
     page,
     browser,
     apiSdk,
@@ -273,10 +273,12 @@ test.describe("FormFilling room - Invite via link tests", () => {
       }
     });
 
-    await test.step("Verify PDF form is visible in room", async () => {
+    await test.step("Verify unstarted PDF form is not visible to Form Filler", async () => {
       ensureIncognitoPage(incognitoPage);
 
-      await expect(incognitoPage.getByLabel("PDF from device,")).toBeVisible();
+      await expect(
+        incognitoPage.getByLabel("PDF from device,"),
+      ).not.toBeVisible();
     });
 
     await test.step("Verify user appears in room contacts on owner page", async () => {
@@ -293,8 +295,10 @@ test.describe("FormFilling room - Invite via link tests", () => {
     });
   });
 
-  // Same as Form Filler test, but set Content Creator access type before copying the link
-  test("Existing user opens invite link with Content Creator access and logs in", async ({
+  // TODO: Add test - Form Filler sees PDF form after it is started for filling
+
+  // Content Creator has elevated access and can see uploaded forms without starting them
+  test("Content Creator sees unstarted PDF form after joining via invite link", async ({
     page,
     browser,
     apiSdk,
@@ -354,7 +358,7 @@ test.describe("FormFilling room - Invite via link tests", () => {
       }
     });
 
-    await test.step("Verify PDF form is visible in room", async () => {
+    await test.step("Verify unstarted PDF form is visible to Content Creator", async () => {
       ensureIncognitoPage(incognitoPage);
 
       await expect(incognitoPage.getByLabel("PDF from device,")).toBeVisible();
@@ -375,8 +379,8 @@ test.describe("FormFilling room - Invite via link tests", () => {
   });
 
   // Open invite link with a non-existing email, complete guest registration,
-  // verify room with PDF opens, and check guest appears in room contacts
-  test("Non-existing user registers via invite link and joins room as guest", async ({
+  // verify unstarted form is not visible, and check guest appears in room contacts
+  test("Guest sees no unstarted PDF form after registering via invite link", async ({
     page,
     browser,
   }) => {
@@ -436,10 +440,12 @@ test.describe("FormFilling room - Invite via link tests", () => {
       }
     });
 
-    await test.step("Verify PDF form is visible in room", async () => {
+    await test.step("Verify unstarted PDF form is not visible to guest", async () => {
       ensureIncognitoPage(incognitoPage);
 
-      await expect(incognitoPage.getByLabel("PDF from device,")).toBeVisible();
+      await expect(
+        incognitoPage.getByLabel("PDF from device,"),
+      ).not.toBeVisible();
     });
 
     await test.step("Verify guest appears in room contacts on owner page", async () => {
@@ -455,4 +461,6 @@ test.describe("FormFilling room - Invite via link tests", () => {
       ).toBeVisible();
     });
   });
+
+  // TODO: Add test - Guest sees PDF form after it is started for filling
 });

@@ -49,7 +49,6 @@ export async function uploadAndVerifyPDF(
   await selectPanel.select("documents");
   await selectPanel.selectItemByText("ONLYOFFICE Resume Sample");
   await selectPanel.confirmSelection();
-  await shortTour.clickModalCloseButton().catch(() => {});
   await myRooms.infoPanel.close();
   await expect(page.getByLabel("ONLYOFFICE Resume Sample,")).toBeVisible();
 }

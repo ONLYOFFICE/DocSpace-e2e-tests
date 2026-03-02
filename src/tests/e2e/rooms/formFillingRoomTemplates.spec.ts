@@ -37,7 +37,7 @@ test.describe("FormFilling Template Gallery tests", () => {
 
     await test.step("Open Template Gallery from plus menu", async () => {
       await myRooms.filesNavigation.openCreateDropdown();
-      await myRooms.filesNavigation.contextMenu.openRoomTemplateGallery();
+      await myRooms.filesNavigation.contextMenu.openTemplateGallery();
     });
 
     await test.step("Search for non-existing template", async () => {
@@ -74,7 +74,7 @@ test.describe("FormFilling Template Gallery tests", () => {
 
     await test.step("Open Template Gallery", async () => {
       await myRooms.filesNavigation.openCreateDropdown();
-      await myRooms.filesNavigation.contextMenu.openRoomTemplateGallery();
+      await myRooms.filesNavigation.contextMenu.openTemplateGallery();
     });
 
     await test.step("Verify gallery is open", async () => {
@@ -92,7 +92,7 @@ test.describe("FormFilling Template Gallery tests", () => {
 
     await test.step("Reopen Template Gallery", async () => {
       await myRooms.filesNavigation.openCreateDropdown();
-      await myRooms.filesNavigation.contextMenu.openRoomTemplateGallery();
+      await myRooms.filesNavigation.contextMenu.openTemplateGallery();
       const templateGallery = new TemplateGallery(page);
       await expect(templateGallery.searchInput).toBeVisible({
         timeout: 20000,
@@ -120,7 +120,7 @@ test.describe("FormFilling Template Gallery tests", () => {
 
     await test.step("Open Template Gallery from plus menu", async () => {
       await myRooms.filesNavigation.openCreateDropdown();
-      await myRooms.filesNavigation.contextMenu.openRoomTemplateGallery();
+      await myRooms.filesNavigation.contextMenu.openTemplateGallery();
     });
 
     await test.step("Verify English template is visible", async () => {
@@ -164,7 +164,7 @@ test.describe("FormFilling Template Gallery tests", () => {
 
     await test.step("Open Template Gallery from plus menu", async () => {
       await myRooms.filesNavigation.openCreateDropdown();
-      await myRooms.filesNavigation.contextMenu.openRoomTemplateGallery();
+      await myRooms.filesNavigation.contextMenu.openTemplateGallery();
     });
 
     await test.step("Search for Doctor's note form", async () => {
@@ -198,7 +198,7 @@ test.describe("FormFilling Template Gallery tests", () => {
 
     await test.step("Open Template Gallery from plus menu", async () => {
       await myRooms.filesNavigation.openCreateDropdown();
-      await myRooms.filesNavigation.contextMenu.openRoomTemplateGallery();
+      await myRooms.filesNavigation.contextMenu.openTemplateGallery();
     });
 
     await test.step("Click Submit to Template Gallery", async () => {
