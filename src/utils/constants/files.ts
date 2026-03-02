@@ -18,7 +18,7 @@ export const pdfFormContextMenuOption = {
   rename: testId("option_rename"),
   share: testId("option_share"),
   markAsFavorite: testId("option_mark-as-favorite"),
-  markAsRead: testId("option_mark-read"),       // conditional: visible after external edits
+  markAsRead: testId("option_mark-read"), // conditional: visible after external edits
   blockVersion: testId("block-unblock-version"), // rooms only
   moreOptions: testId("option_info"),
 };
@@ -81,7 +81,7 @@ export const documentContextMenuOption = {
   download: testId("option_download"),
   rename: testId("option_rename"),
   markAsFavorite: testId("option_mark-as-favorite"),
-  markAsRead: testId("option_mark-read"),       // conditional: visible after external edits
+  markAsRead: testId("option_mark-read"), // conditional: visible after external edits
   blockVersion: testId("block-unblock-version"), // rooms only
   moreOptions: testId("option_info"),
   delete: testId("option_delete"),
@@ -101,7 +101,7 @@ export const spreadsheetContextMenuOption = {
   download: testId("option_download"),
   rename: testId("option_rename"),
   markAsFavorite: testId("option_mark-as-favorite"),
-  markAsRead: testId("option_mark-read"),       // conditional: visible after external edits
+  markAsRead: testId("option_mark-read"), // conditional: visible after external edits
   blockVersion: testId("block-unblock-version"), // rooms only
   customFilter: testId("option_custom-filter"),
   moreOptions: testId("option_info"),

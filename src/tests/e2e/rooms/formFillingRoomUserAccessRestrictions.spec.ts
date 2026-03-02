@@ -123,7 +123,10 @@ test.describe("FormFilling room - User access restrictions", () => {
 
   test("DocspaceAdmin can be added as Room Manager", async ({ apiSdk }) => {
     // Create a DocSpaceAdmin type member via API
-    const { userData } = await apiSdk.profiles.addMember("owner", "DocSpaceAdmin");
+    const { userData } = await apiSdk.profiles.addMember(
+      "owner",
+      "DocSpaceAdmin",
+    );
     const userEmail = userData.email;
 
     await test.step("Open room info panel", async () => {
