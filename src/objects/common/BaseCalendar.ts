@@ -35,7 +35,8 @@ export default class BaseCalendar {
     const day = tomorrow.getDate().toString();
     await this.page
       .getByRole("button", { name: day, exact: true })
-      .and(this.page.locator("button:not([disabled])"))
+      // Exclude disabled buttons and secondary dates (days from adjacent months)
+      .and(this.page.locator("button:not([disabled]):not([class*='isSecondary'])"))
       .click();
   }
 
