@@ -55,6 +55,10 @@ class BaseNavigation {
     await this.headerAddButton.click();
   }
 
+  async checkAddButtonVisible() {
+    await expect(this.headerAddButton).toBeVisible();
+  }
+
   async clickSelectAllCheckbox() {
     await expect(this.selectAllCheckbox).toBeVisible();
     await this.selectAllCheckbox.click();

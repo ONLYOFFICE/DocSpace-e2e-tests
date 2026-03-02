@@ -68,6 +68,35 @@ export class Login extends BasePage {
     await this.page.waitForTimeout(3000);
   }
 
+  async loginWithCredentials(email: string, password: string) {
+    await this.page.goto(`https://${this.portalDomain}`, {
+      waitUntil: "load",
+    });
+
+    await expect(async () => {
+      await this.emailInput.fill(email);
+      await this.passwordInput.fill(password);
+
+      await Promise.all([
+        this.page.waitForRequest(
+          (request) => {
+            return (
+              request.url().includes("api/2.0/authentication") &&
+              request.method() === "POST"
+            );
+          },
+          { timeout: 4000 },
+        ),
+        this.loginButton.click(),
+      ]);
+    }).toPass();
+
+    await this.page.waitForURL(/.*rooms\/shared\/filter.*/, {
+      waitUntil: "load",
+    });
+    await this.page.waitForTimeout(3000);
+  }
+
   async resetPassword(email: string) {
     await this.forgotPasswordLink.click();
     await this.forgotPasswordEmailInput.waitFor({ state: "visible" });

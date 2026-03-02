@@ -20,6 +20,19 @@ export class FilesApi {
     return this.tokenStore.portalDomain;
   }
 
+  async createFolder(role: Role, parentId: number, title: string) {
+    return test.step(`${role} create folder "${title}" in folder ${parentId}`, async () => {
+      const response = await this.request.post(
+        `https://${this.portalDomain}/api/2.0/files/folder/${parentId}`,
+        {
+          headers: { Authorization: `Bearer ${this.getToken(role)}` },
+          data: { title },
+        },
+      );
+      return response;
+    });
+  }
+
   async createFileInMyDocuments(
     role: Role,
     data: {
