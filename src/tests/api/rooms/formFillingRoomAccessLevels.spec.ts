@@ -28,8 +28,7 @@ test.describe("FormFilling room access levels discovery", () => {
       notify: false,
     });
 
-    console.log("RoomAdmin response status:", response.status());
-    console.log("RoomAdmin response body:", await response.json());
+    await response.json();
   });
 
   test("Test Editing access level", async ({ apiSdk }) => {
@@ -38,8 +37,7 @@ test.describe("FormFilling room access levels discovery", () => {
       notify: false,
     });
 
-    console.log("Editing response status:", response.status());
-    console.log("Editing response body:", await response.json());
+    await response.json();
   });
 
   test("Test FormFilling access level", async ({ apiSdk }) => {
@@ -48,8 +46,7 @@ test.describe("FormFilling room access levels discovery", () => {
       notify: false,
     });
 
-    console.log("FormFilling response status:", response.status());
-    console.log("FormFilling response body:", await response.json());
+    await response.json();
   });
 
   test("Test FillingForms access level (alternative)", async ({ apiSdk }) => {
@@ -58,8 +55,7 @@ test.describe("FormFilling room access levels discovery", () => {
       notify: false,
     });
 
-    console.log("FillingForms response status:", response.status());
-    console.log("FillingForms response body:", await response.json());
+    await response.json();
 
     // This might fail, but we want to see the error
   });
@@ -70,8 +66,7 @@ test.describe("FormFilling room access levels discovery", () => {
       notify: false,
     });
 
-    console.log("Viewing response status:", response.status());
-    console.log("Viewing response body:", await response.json());
+    await response.json();
   });
 
   test("Test Read access level (alternative)", async ({ apiSdk }) => {
@@ -80,8 +75,7 @@ test.describe("FormFilling room access levels discovery", () => {
       notify: false,
     });
 
-    console.log("Read response status:", response.status());
-    console.log("Read response body:", await response.json());
+    await response.json();
 
     // This might fail, but we want to see the error
   });
@@ -97,17 +91,12 @@ test.describe("FormFilling room access levels discovery", () => {
     const response = await apiSdk.rooms.getRoomAccessRights("owner", roomId);
     const body = await response.json();
 
-    console.log("getRoomAccessRights response:", JSON.stringify(body, null, 2));
-
     // Find our user in the response
     const userAccess = body.response.find(
       (item: { sharedTo?: { id: string } }) => item.sharedTo?.id === userId,
     );
 
-    if (userAccess) {
-      console.log("User access object:", JSON.stringify(userAccess, null, 2));
-      console.log("Access level value:", userAccess.access);
-    }
+    void userAccess;
   });
 
   test("Test all possible numeric access values", async ({ apiSdk }) => {
@@ -115,20 +104,10 @@ test.describe("FormFilling room access levels discovery", () => {
     const numericValues = [0, 1, 2, 3, 4, 5, 6];
 
     for (const accessValue of numericValues) {
-      const response = await apiSdk.rooms.setRoomAccessRights("owner", roomId, {
+      await apiSdk.rooms.setRoomAccessRights("owner", roomId, {
         invitations: [{ id: userId, access: String(accessValue) }],
         notify: false,
       });
-
-      console.log(
-        `Numeric value ${accessValue} response status:`,
-        response.status(),
-      );
-      if (response.ok()) {
-        console.log(`Numeric value ${accessValue} WORKS!`);
-        const body = await response.json();
-        console.log("Response body:", JSON.stringify(body, null, 2));
-      }
     }
   });
 });
