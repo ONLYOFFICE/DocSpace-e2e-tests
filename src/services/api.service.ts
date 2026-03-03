@@ -7,6 +7,7 @@ import {
   PasswordApi,
   SettingsApi,
   PeopleQuotaApi,
+  FoldersApi,
 } from "./index";
 import { TokenStore } from "./token-store";
 import { APIRequestContext } from "@playwright/test";
@@ -20,6 +21,7 @@ export class ApiSDK {
   readonly faker: FAKER;
   readonly settings: SettingsApi;
   readonly peopleQuota: PeopleQuotaApi;
+  readonly folders: FoldersApi;
 
   constructor(request: APIRequestContext, tokenStore: TokenStore) {
     this.profiles = new ProfilesApi(request, tokenStore);
@@ -30,5 +32,6 @@ export class ApiSDK {
     this.faker = new FAKER();
     this.settings = new SettingsApi(request, tokenStore);
     this.peopleQuota = new PeopleQuotaApi(request, tokenStore);
+    this.folders = new FoldersApi(request, tokenStore);
   }
 }
