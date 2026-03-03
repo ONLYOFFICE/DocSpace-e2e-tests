@@ -7,11 +7,11 @@ import RoomsInviteDialog from "@/src/objects/rooms/RoomsInviteDialog";
 import Login from "@/src/objects/common/Login";
 import ConflictResolveDialog from "@/src/objects/files/ConflictResolveDialog";
 import FileVersionHistory from "@/src/objects/files/FileVersionHistory";
-// import FilesPdfForm from "@/src/objects/files/FilesPdfForm"; // used in disabled Print step
+import FilesPdfForm from "@/src/objects/files/FilesPdfForm";
 import RoomSelectPanel from "@/src/objects/rooms/RoomSelectPanel";
 import {
   folderContextMenuOption,
-  // formFillingRoomPdfContextMenuOption, // used in disabled Print step
+  formFillingRoomPdfContextMenuOption,
   pdfFormContextMenuOption,
   pdfFormMoreOptionsSubmenu,
 } from "@/src/utils/constants/files";
@@ -389,25 +389,53 @@ test.describe("FormFilling room - Content creator permissions", () => {
       await versionHistory.close();
     });
 
-    // TODO: step disabled due to a bug — re-enable once fixed
-    // await test.step("Verify Content creator CAN print PDF form in editor", async () => {
-    //   await myRooms.filesTable.openContextMenuForItem("PDF from device");
-    //   const [pdfPage] = await Promise.all([
-    //     page.context().waitForEvent("page"),
-    //     myRooms.filesTable.contextMenu.clickOption(
-    //       formFillingRoomPdfContextMenuOption.startFilling,
-    //     ),
-    //   ]);
-    //   await pdfPage.waitForLoadState("load");
-    //   await pdfPage.waitForSelector('iframe[name="frameEditor"]', {
-    //     state: "attached",
-    //     timeout: 60000,
-    //   });
-    //   const pdfForm = new FilesPdfForm(pdfPage);
-    //   await expect(pdfForm.submitButton).toBeVisible({ timeout: 60000 });
-    //   await pdfForm.openMenu();
-    //   await pdfForm.verifyDownloadAndPrintButtonsVisible();
-    //   await pdfPage.close();
-    // });
+    await test.step("Verify Content creator CAN start filling owner's PDF form", async () => {
+      await myRooms.filesTable.openContextMenuForItem("PDF from device");
+      await myRooms.filesTable.contextMenu.clickOption(
+        formFillingRoomPdfContextMenuOption.startFilling,
+      );
+      // Modal with copy link appears — confirms the action was allowed
+      await shortTour.clickModalCloseButton();
+    });
+
+    await test.step("Verify Content creator CAN print PDF form in editor", async () => {
+      await myRooms.filesTable.openContextMenuForItem("PDF from device");
+      const [pdfPage] = await Promise.all([
+        page.context().waitForEvent("page"),
+        myRooms.filesTable.contextMenu.clickOption(
+          formFillingRoomPdfContextMenuOption.fill,
+        ),
+      ]);
+      await pdfPage.waitForLoadState("load");
+      await pdfPage.waitForSelector('iframe[name="frameEditor"]', {
+        state: "attached",
+        timeout: 60000,
+      });
+      const pdfForm = new FilesPdfForm(pdfPage);
+      await expect(pdfForm.submitButton).toBeVisible({ timeout: 60000 });
+      await pdfForm.openMenu();
+      await pdfForm.verifyDownloadAndPrintButtonsVisible();
+      await pdfPage.close();
+    });
+
+    await test.step("Verify Content creator CAN submit the PDF form", async () => {
+      await myRooms.filesTable.openContextMenuForItem("PDF from device");
+      const [pdfPage] = await Promise.all([
+        page.context().waitForEvent("page"),
+        myRooms.filesTable.contextMenu.clickOption(
+          formFillingRoomPdfContextMenuOption.fill,
+        ),
+      ]);
+      await pdfPage.waitForLoadState("load");
+      await pdfPage.waitForSelector('iframe[name="frameEditor"]', {
+        state: "attached",
+        timeout: 60000,
+      });
+      const pdfForm = new FilesPdfForm(pdfPage);
+      await expect(pdfForm.submitButton).toBeVisible({ timeout: 60000 });
+      const completedPage = await pdfForm.clickSubmitButton();
+      await completedPage.waitForPageLoad();
+      await pdfPage.close();
+    });
   });
 });

@@ -1,0 +1,309 @@
+import { test } from "@/src/fixtures";
+import { expect, Page } from "@playwright/test";
+import FilesPdfForm from "@/src/objects/files/FilesPdfForm";
+import MyRooms from "@/src/objects/rooms/Rooms";
+import { ShortTour } from "@/src/objects/rooms/ShortTourModal";
+import RoomInfoPanel from "@/src/objects/rooms/RoomInfoPanel";
+import RoomsInviteDialog from "@/src/objects/rooms/RoomsInviteDialog";
+import Login from "@/src/objects/common/Login";
+import {
+  folderContextMenuOption,
+  formFillingRoomPdfContextMenuOption,
+  pdfFormContextMenuOption,
+} from "@/src/utils/constants/files";
+
+test.describe("FormFilling room - Form filler permissions", () => {
+  let myRooms: MyRooms;
+  let shortTour: ShortTour;
+  let roomInfoPanel: RoomInfoPanel;
+  let roomsInviteDialog: RoomsInviteDialog;
+  let login: Login;
+
+  let formFillerEmail: string;
+  let formFillerPassword: string;
+  let contentCreatorEmail: string;
+  let roomName: string;
+  let roomId: number;
+  let ownerFolderName: string;
+
+  test.beforeEach(async ({ page, api, apiSdk }) => {
+    myRooms = new MyRooms(page, api.portalDomain);
+    shortTour = new ShortTour(page);
+    roomInfoPanel = new RoomInfoPanel(page);
+    roomsInviteDialog = new RoomsInviteDialog(page);
+    login = new Login(page, api.portalDomain);
+
+    // Create FormFilling room via API
+    roomName = "FormFillingRoom_FormFiller";
+    const roomResponse = await apiSdk.rooms.createRoom("owner", {
+      title: roomName,
+      roomType: "FillingFormsRoom",
+    });
+    const roomBody = await roomResponse.json();
+    roomId = roomBody.response.id;
+
+    // Upload PDF file (version 1), then upload again to create version 2
+    await apiSdk.files.uploadToFolder(
+      "owner",
+      roomId,
+      "data/rooms/PDF from device.pdf",
+    );
+    await apiSdk.files.uploadToFolder(
+      "owner",
+      roomId,
+      "data/rooms/PDF from device.pdf",
+    );
+
+    // Create a folder owned by the owner
+    ownerFolderName = "OwnerFolder";
+    await apiSdk.files.createFolder("owner", roomId, ownerFolderName);
+
+    // Create Form filler user via API
+    const { userData } = await apiSdk.profiles.addMember("owner", "User");
+    formFillerEmail = userData.email;
+    formFillerPassword = userData.password;
+
+    // Create Content Creator user via API (used to verify participant list visibility)
+    const { userData: ccData } = await apiSdk.profiles.addMember(
+      "owner",
+      "User",
+    );
+    contentCreatorEmail = ccData.email;
+  });
+
+  test("Add user with Form filler role and verify permissions", async ({
+    page,
+  }) => {
+    let pdfPage: Page;
+    let pdfForm: FilesPdfForm;
+    await test.step("Setup: Login as owner and add Form filler user via UI", async () => {
+      await login.loginToPortal();
+      await myRooms.openWithoutEmptyCheck();
+      await myRooms.roomsTable.openRoomByName(roomName);
+
+      // Add user with Form filler role (default role in Form Filling rooms)
+      await myRooms.infoPanel.open();
+      await shortTour.clickSkipTour();
+      await myRooms.infoPanel.openTab("Contacts");
+      await roomInfoPanel.clickAddUser();
+      await roomsInviteDialog.openPeopleList();
+      await roomsInviteDialog.contactsPanel.selectUserByEmail(formFillerEmail);
+      await roomsInviteDialog.contactsPanel.clickSelectButton();
+      await roomsInviteDialog.verifyUserRole(formFillerEmail, "Form filler");
+      await roomsInviteDialog.submitInviteDialog();
+
+      await myRooms.infoPanel.openTab("Contacts");
+      await expect(roomInfoPanel.getMemberByEmail(formFillerEmail)).toBeVisible(
+        { timeout: 10000 },
+      );
+
+      // Add Content Creator user
+      await roomInfoPanel.clickAddUser();
+      await roomsInviteDialog.openPeopleList();
+      await roomsInviteDialog.contactsPanel.selectAccessType("contentCreator");
+      await roomsInviteDialog.contactsPanel.selectUserByEmail(
+        contentCreatorEmail,
+      );
+      await roomsInviteDialog.contactsPanel.clickSelectButton();
+      await roomsInviteDialog.verifyUserRole(
+        contentCreatorEmail,
+        "Content creator",
+      );
+      await roomsInviteDialog.submitInviteDialog();
+
+      await myRooms.infoPanel.openTab("Contacts");
+      await expect(
+        roomInfoPanel.getMemberByEmail(contentCreatorEmail),
+      ).toBeVisible({ timeout: 10000 });
+
+      // Start filling the PDF form so it becomes visible to Form filler
+      await myRooms.infoPanel.close();
+      await myRooms.filesTable.openContextMenuForItem("PDF from device");
+      await myRooms.filesTable.contextMenu.clickOption(
+        formFillingRoomPdfContextMenuOption.startFilling,
+      );
+      // Close the copy link modal that appears after starting the form
+      await shortTour.clickModalCloseButton();
+
+      // Clear cookies to logout from owner account
+      await page.context().clearCookies();
+    });
+
+    await test.step("Login as Form filler", async () => {
+      await login.loginWithCredentials(formFillerEmail, formFillerPassword);
+      await myRooms.roomsTable.openRoomByName(roomName);
+      const tourVisible = await shortTour.isTourVisible(6000);
+      if (tourVisible) {
+        await shortTour.clickSkipTour();
+      }
+    });
+
+    await test.step("Verify Form filler CANNOT invite users", async () => {
+      await myRooms.infoPanel.open();
+      await myRooms.infoPanel.openTab("Contacts");
+      await expect(roomInfoPanel.addUserButton).not.toBeVisible();
+    });
+
+    await test.step("Verify Form filler CANNOT change access level for participants", async () => {
+      await expect(roomInfoPanel.memberContextMenuButtons).toHaveCount(0);
+    });
+
+    await test.step("Verify Form filler CAN view participant list", async () => {
+      await expect(
+        roomInfoPanel.getMemberByEmail(formFillerEmail),
+      ).toBeVisible();
+      await expect(
+        roomInfoPanel.getMemberByEmail(contentCreatorEmail),
+      ).toBeVisible();
+    });
+
+    await test.step("Verify Form filler CAN view room history", async () => {
+      await myRooms.infoPanel.openTab("History");
+      await expect(page.getByTestId("info_history_tab")).toBeVisible();
+      await expect(page.getByText("Today")).toBeVisible();
+    });
+
+    await test.step("Verify Form filler CAN view Details tab", async () => {
+      await myRooms.infoPanel.openTab("Details");
+      await expect(page.getByTestId("info_details_tab")).toBeVisible();
+    });
+
+    await test.step("Verify Form filler CANNOT create/edit links", async () => {
+      await expect(page.getByText("Link to fill out")).not.toBeVisible();
+    });
+
+    await test.step("Verify room context menu has no 'Edit room' option", async () => {
+      await myRooms.infoPanel.close();
+      await myRooms.navigation.openContextMenu();
+      await expect(
+        myRooms.navigation.contextMenu.menu.getByText("Edit room"),
+      ).not.toBeVisible();
+    });
+
+    await test.step("Verify room context menu has no 'Delete room' option", async () => {
+      await expect(
+        myRooms.navigation.contextMenu.menu.getByText("Delete room"),
+      ).not.toBeVisible();
+    });
+
+    await test.step("Verify room context menu has no 'Move to archive' option", async () => {
+      await expect(
+        myRooms.navigation.contextMenu.menu.getByText("Move to archive"),
+      ).not.toBeVisible();
+      await myRooms.navigation.closeContextMenu();
+    });
+
+    await test.step("Verify Form filler has no create/upload button", async () => {
+      await expect(page.locator("#header_add-button")).not.toBeVisible();
+    });
+
+    await test.step("Verify Form filler CANNOT move or copy owner's folder", async () => {
+      await myRooms.filesTable.openContextMenuForItem(ownerFolderName);
+      await expect(
+        myRooms.filesTable.contextMenu.getItemLocator(
+          folderContextMenuOption.moveOrCopy,
+        ),
+      ).not.toBeVisible();
+      await myRooms.filesTable.contextMenu.close();
+    });
+
+    await test.step("Verify Form filler CANNOT delete owner's folder", async () => {
+      await myRooms.filesTable.openContextMenuForItem(ownerFolderName);
+      await expect(
+        myRooms.filesTable.contextMenu.getItemLocator(
+          folderContextMenuOption.delete,
+        ),
+      ).not.toBeVisible();
+      await myRooms.filesTable.contextMenu.close();
+    });
+
+    await test.step("Verify Form filler CANNOT rename owner's folder", async () => {
+      await myRooms.filesTable.openContextMenuForItem(ownerFolderName);
+      await expect(
+        myRooms.filesTable.contextMenu.getItemLocator(
+          folderContextMenuOption.rename,
+        ),
+      ).not.toBeVisible();
+      await myRooms.filesTable.contextMenu.close();
+    });
+
+    await test.step("Verify Form filler CANNOT view version history of PDF form", async () => {
+      await myRooms.filesTable.openContextMenuForItem("PDF from device");
+      // "More options" submenu (which contains Show version history) should not be visible
+      await expect(
+        myRooms.filesTable.contextMenu.getItemLocator(
+          pdfFormContextMenuOption.moreOptions,
+        ),
+      ).not.toBeVisible();
+      await myRooms.filesTable.contextMenu.close();
+    });
+
+    await test.step("Verify Form filler CANNOT move or copy PDF form", async () => {
+      await myRooms.filesTable.openContextMenuForItem("PDF from device");
+      await expect(
+        myRooms.filesTable.contextMenu.getItemLocator(
+          pdfFormContextMenuOption.moveOrCopy,
+        ),
+      ).not.toBeVisible();
+      await myRooms.filesTable.contextMenu.close();
+    });
+
+    await test.step("Verify Form filler CANNOT edit PDF form", async () => {
+      await myRooms.filesTable.openContextMenuForItem("PDF from device");
+      await expect(
+        myRooms.filesTable.contextMenu.getItemLocator(
+          pdfFormContextMenuOption.edit,
+        ),
+      ).not.toBeVisible();
+      await myRooms.filesTable.contextMenu.close();
+    });
+
+    await test.step("Verify Form filler CANNOT block version of PDF form", async () => {
+      await myRooms.filesTable.openContextMenuForItem("PDF from device");
+      await expect(
+        myRooms.filesTable.contextMenu.getItemLocator(
+          pdfFormContextMenuOption.blockVersion,
+        ),
+      ).not.toBeVisible();
+      await myRooms.filesTable.contextMenu.close();
+    });
+
+    await test.step("Verify Form filler CANNOT rename PDF form", async () => {
+      await myRooms.filesTable.openContextMenuForItem("PDF from device");
+      await expect(
+        myRooms.filesTable.contextMenu.getItemLocator(
+          pdfFormContextMenuOption.rename,
+        ),
+      ).not.toBeVisible();
+      await myRooms.filesTable.contextMenu.close();
+    });
+
+    await test.step("Verify Form filler CAN open PDF form for filling", async () => {
+      await myRooms.filesTable.openContextMenuForItem("PDF from device");
+      [pdfPage] = await Promise.all([
+        page.context().waitForEvent("page"),
+        myRooms.filesTable.contextMenu.clickOption(
+          formFillingRoomPdfContextMenuOption.fill,
+        ),
+      ]);
+      await pdfPage.waitForLoadState("load");
+      await pdfPage.waitForSelector('iframe[name="frameEditor"]', {
+        state: "attached",
+        timeout: 60000,
+      });
+      pdfForm = new FilesPdfForm(pdfPage);
+      await expect(pdfForm.submitButton).toBeVisible({ timeout: 60000 });
+    });
+
+    await test.step("Verify PDF form editor menu shows Download and Print options", async () => {
+      await pdfForm.openMenu();
+      await pdfForm.verifyDownloadAndPrintButtonsVisible();
+    });
+
+    await test.step("Verify Form filler CAN submit the form", async () => {
+      const completedPage = await pdfForm.clickSubmitButton();
+      await completedPage.waitForPageLoad();
+      await pdfPage.close();
+    });
+  });
+});
