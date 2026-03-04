@@ -1,12 +1,17 @@
 import BasePage from "../common/BasePage";
 import { expect, Locator, Page } from "@playwright/test";
+import { BaseDropdown } from "../common/BaseDropdown";
 
 class AiSettings extends BasePage {
   private portalDomain: string;
+  private dropdown: BaseDropdown;
 
   constructor(page: Page, portalDomain: string) {
     super(page);
     this.portalDomain = portalDomain;
+    this.dropdown = new BaseDropdown(page, {
+      menu: this.page.getByRole("listbox"),
+    });
   }
 
   private get addProviderButton() {
@@ -108,6 +113,63 @@ class AiSettings extends BasePage {
 
   async expectKnowledgeSelectDisabled() {
     await this.expectComboDisabled(this.knowledgeCombo);
+  }
+
+  async clickAddProviderButton() {
+    await this.addProviderButton.click();
+  }
+
+  async selectProviderType(providerName: string) {
+    await this.page.getByTestId("provider-type-combobox").click();
+    await this.dropdown.clickOption(providerName);
+  }
+
+  async fillProviderTitle(title: string) {
+    await this.page.getByTestId("provider-title-input").fill(title);
+  }
+
+  async fillProviderKey(key: string) {
+    await this.page
+      .getByTestId("provider-key-input")
+      .locator("input")
+      .fill(key);
+  }
+
+  async saveProvider() {
+    await this.page.getByTestId("provider-save-button").click();
+  }
+
+  async selectWebSearchEngine(engineName: string) {
+    await this.page.getByTestId("web-search-engine-combobox").click();
+    const webSearchDropdown = new BaseDropdown(this.page, {
+      menu: this.page.getByTestId("web-search-engine-dropdown"),
+    });
+    await webSearchDropdown.clickOption(engineName);
+  }
+
+  async fillWebSearchKey(key: string) {
+    await this.page
+      .getByTestId("web-search-key-input")
+      .locator("input")
+      .fill(key);
+  }
+
+  async saveWebSearch() {
+    await this.page.getByTestId("web-search-save-button").click();
+  }
+
+  async expectWebSearchSaved() {
+    await expect(
+      this.page.getByTestId("web-search-key-hidden-banner"),
+    ).toBeVisible();
+  }
+
+  async expectProviderInList(title: string) {
+    await expect(
+      this.page
+        .getByTestId("ai-provider-list")
+        .getByRole("heading", { name: title }),
+    ).toBeVisible();
   }
 
   private async openTab(tab: Locator) {

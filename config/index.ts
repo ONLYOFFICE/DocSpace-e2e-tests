@@ -49,6 +49,14 @@ interface Config {
   ONEDRIVE_PASSWORD?: string;
   DROPBOX_LOGIN?: string;
   DROPBOX_PASS?: string;
+  DEEPSEEK_API_KEY?: string;
+  XAI_API_KEY?: string;
+  GOOGLE_AI_API_KEY?: string;
+  OPENROUTER_API_KEY?: string;
+  OPENAI_API_KEY?: string;
+  ANTHROPIC_API_KEY?: string;
+  TOGETHER_AI_API_KEY?: string;
+  EXA_API_KEY?: string;
 }
 
 const config: Config = {
@@ -100,6 +108,14 @@ const config: Config = {
   ONEDRIVE_PASSWORD: process.env.ONEDRIVE_PASSWORD,
   DROPBOX_LOGIN: process.env.DROPBOX_LOGIN,
   DROPBOX_PASS: process.env.DROPBOX_PASS,
+  DEEPSEEK_API_KEY: process.env.DEEPSEEK_API_KEY,
+  XAI_API_KEY: process.env.XAI_API_KEY,
+  GOOGLE_AI_API_KEY: process.env.GOOGLE_AI_API_KEY,
+  OPENROUTER_API_KEY: process.env.OPENROUTER_API_KEY,
+  OPENAI_API_KEY: process.env.OPENAI_API_KEY,
+  ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY,
+  TOGETHER_AI_API_KEY: process.env.TOGETHER_AI_API_KEY,
+  EXA_API_KEY: process.env.EXA_API_KEY,
 };
 
 export default config;
