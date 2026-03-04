@@ -10,6 +10,7 @@ import {
   folderContextMenuOption,
   formFillingRoomPdfContextMenuOption,
   pdfFormContextMenuOption,
+  pdfFormDownloadSubmenu,
 } from "@/src/utils/constants/files";
 
 test.describe("FormFilling room - Form filler permissions", () => {
@@ -76,6 +77,7 @@ test.describe("FormFilling room - Form filler permissions", () => {
   }) => {
     let pdfPage: Page;
     let pdfForm: FilesPdfForm;
+
     await test.step("Setup: Login as owner and add Form filler user via UI", async () => {
       await login.loginToPortal();
       await myRooms.openWithoutEmptyCheck();
@@ -138,6 +140,22 @@ test.describe("FormFilling room - Form filler permissions", () => {
       }
     });
 
+    await test.step("Verify Form filler CANNOT see Complete folder before filling", async () => {
+      await expect(
+        page
+          .locator('[data-testid^="files-cell-name"]')
+          .getByText("Complete", { exact: true }),
+      ).not.toBeVisible();
+    });
+
+    await test.step("Verify Form filler CANNOT see In Process folder before filling", async () => {
+      await expect(
+        page
+          .locator('[data-testid^="files-cell-name"]')
+          .getByText("In process", { exact: true }),
+      ).not.toBeVisible();
+    });
+
     await test.step("Verify Form filler CANNOT invite users", async () => {
       await myRooms.infoPanel.open();
       await myRooms.infoPanel.openTab("Contacts");
@@ -197,8 +215,33 @@ test.describe("FormFilling room - Form filler permissions", () => {
       await expect(page.locator("#header_add-button")).not.toBeVisible();
     });
 
+    await test.step("Verify file context menu shows 'Download' option for PDF form", async () => {
+      await myRooms.filesTable.openContextMenuForItem("PDF from device");
+      await expect(
+        myRooms.filesTable.contextMenu.getItemLocator(
+          pdfFormContextMenuOption.download,
+        ),
+      ).toBeVisible();
+      await myRooms.filesTable.contextMenu.close();
+    });
+
+    await test.step("Verify file context menu shows 'Fill' option for PDF form", async () => {
+      await myRooms.filesTable.openContextMenuForItem("PDF from device");
+      await expect(
+        myRooms.filesTable.contextMenu.getItemLocator(
+          formFillingRoomPdfContextMenuOption.fill,
+        ),
+      ).toBeVisible();
+      await myRooms.filesTable.contextMenu.close();
+    });
+
     await test.step("Verify Form filler CANNOT move or copy owner's folder", async () => {
       await myRooms.filesTable.openContextMenuForItem(ownerFolderName);
+      await expect(
+        myRooms.filesTable.contextMenu.getItemLocator(
+          folderContextMenuOption.open,
+        ),
+      ).toBeVisible();
       await expect(
         myRooms.filesTable.contextMenu.getItemLocator(
           folderContextMenuOption.moveOrCopy,
@@ -211,6 +254,11 @@ test.describe("FormFilling room - Form filler permissions", () => {
       await myRooms.filesTable.openContextMenuForItem(ownerFolderName);
       await expect(
         myRooms.filesTable.contextMenu.getItemLocator(
+          folderContextMenuOption.open,
+        ),
+      ).toBeVisible();
+      await expect(
+        myRooms.filesTable.contextMenu.getItemLocator(
           folderContextMenuOption.delete,
         ),
       ).not.toBeVisible();
@@ -221,6 +269,11 @@ test.describe("FormFilling room - Form filler permissions", () => {
       await myRooms.filesTable.openContextMenuForItem(ownerFolderName);
       await expect(
         myRooms.filesTable.contextMenu.getItemLocator(
+          folderContextMenuOption.open,
+        ),
+      ).toBeVisible();
+      await expect(
+        myRooms.filesTable.contextMenu.getItemLocator(
           folderContextMenuOption.rename,
         ),
       ).not.toBeVisible();
@@ -229,7 +282,12 @@ test.describe("FormFilling room - Form filler permissions", () => {
 
     await test.step("Verify Form filler CANNOT view version history of PDF form", async () => {
       await myRooms.filesTable.openContextMenuForItem("PDF from device");
-      // "More options" submenu (which contains Show version history) should not be visible
+      // Anchor: fill option is visible, ensures menu is fully loaded
+      await expect(
+        myRooms.filesTable.contextMenu.getItemLocator(
+          formFillingRoomPdfContextMenuOption.fill,
+        ),
+      ).toBeVisible();
       await expect(
         myRooms.filesTable.contextMenu.getItemLocator(
           pdfFormContextMenuOption.moreOptions,
@@ -242,6 +300,11 @@ test.describe("FormFilling room - Form filler permissions", () => {
       await myRooms.filesTable.openContextMenuForItem("PDF from device");
       await expect(
         myRooms.filesTable.contextMenu.getItemLocator(
+          formFillingRoomPdfContextMenuOption.fill,
+        ),
+      ).toBeVisible();
+      await expect(
+        myRooms.filesTable.contextMenu.getItemLocator(
           pdfFormContextMenuOption.moveOrCopy,
         ),
       ).not.toBeVisible();
@@ -250,6 +313,11 @@ test.describe("FormFilling room - Form filler permissions", () => {
 
     await test.step("Verify Form filler CANNOT edit PDF form", async () => {
       await myRooms.filesTable.openContextMenuForItem("PDF from device");
+      await expect(
+        myRooms.filesTable.contextMenu.getItemLocator(
+          formFillingRoomPdfContextMenuOption.fill,
+        ),
+      ).toBeVisible();
       await expect(
         myRooms.filesTable.contextMenu.getItemLocator(
           pdfFormContextMenuOption.edit,
@@ -262,6 +330,11 @@ test.describe("FormFilling room - Form filler permissions", () => {
       await myRooms.filesTable.openContextMenuForItem("PDF from device");
       await expect(
         myRooms.filesTable.contextMenu.getItemLocator(
+          formFillingRoomPdfContextMenuOption.fill,
+        ),
+      ).toBeVisible();
+      await expect(
+        myRooms.filesTable.contextMenu.getItemLocator(
           pdfFormContextMenuOption.blockVersion,
         ),
       ).not.toBeVisible();
@@ -272,13 +345,18 @@ test.describe("FormFilling room - Form filler permissions", () => {
       await myRooms.filesTable.openContextMenuForItem("PDF from device");
       await expect(
         myRooms.filesTable.contextMenu.getItemLocator(
+          formFillingRoomPdfContextMenuOption.fill,
+        ),
+      ).toBeVisible();
+      await expect(
+        myRooms.filesTable.contextMenu.getItemLocator(
           pdfFormContextMenuOption.rename,
         ),
       ).not.toBeVisible();
       await myRooms.filesTable.contextMenu.close();
     });
 
-    await test.step("Verify Form filler CAN open PDF form for filling", async () => {
+    await test.step("Verify Form filler CAN open PDF form and save as draft", async () => {
       await myRooms.filesTable.openContextMenuForItem("PDF from device");
       [pdfPage] = await Promise.all([
         page.context().waitForEvent("page"),
@@ -293,17 +371,64 @@ test.describe("FormFilling room - Form filler permissions", () => {
       });
       pdfForm = new FilesPdfForm(pdfPage);
       await expect(pdfForm.submitButton).toBeVisible({ timeout: 60000 });
+      // Closing the form tab saves it as a draft and triggers In Process folder to appear
+      await pdfPage.close();
+      await page.reload({ waitUntil: "load" });
     });
 
-    await test.step("Verify PDF form editor menu shows Download and Print options", async () => {
+    await test.step("Verify In Process folder appears after opening and closing the form", async () => {
+      await expect(
+        page
+          .locator('[data-testid^="files-cell-name"]')
+          .getByText("In process", { exact: true }),
+      ).toBeVisible();
+    });
+
+    await test.step("Verify PDF form editor shows 'Download as PDF' and 'Print' buttons", async () => {
+      await myRooms.filesTable.openContextMenuForItem("PDF from device");
+      [pdfPage] = await Promise.all([
+        page.context().waitForEvent("page"),
+        myRooms.filesTable.contextMenu.clickOption(
+          formFillingRoomPdfContextMenuOption.fill,
+        ),
+      ]);
+      await pdfPage.waitForLoadState("load");
+      await pdfPage.waitForSelector('iframe[name="frameEditor"]', {
+        state: "attached",
+        timeout: 60000,
+      });
+      pdfForm = new FilesPdfForm(pdfPage);
+      await expect(pdfForm.submitButton).toBeVisible({ timeout: 60000 });
       await pdfForm.openMenu();
-      await pdfForm.verifyDownloadAndPrintButtonsVisible();
+      await expect(pdfForm.printButton).toBeVisible();
+      await expect(pdfForm.downloadAsPdfButton).toBeVisible();
     });
 
     await test.step("Verify Form filler CAN submit the form", async () => {
       const completedPage = await pdfForm.clickSubmitButton();
       await completedPage.waitForPageLoad();
       await pdfPage.close();
+      await page.reload({ waitUntil: "load" });
+    });
+
+    await test.step("Verify Complete folder appears in room after form submission", async () => {
+      await expect(
+        page
+          .locator('[data-testid^="files-cell-name"]')
+          .getByText("Complete", { exact: true }),
+      ).toBeVisible();
+    });
+
+    await test.step("Verify Form filler CAN download PDF form via context menu", async () => {
+      await myRooms.filesTable.openContextMenuForItem("PDF from device");
+      const [download] = await Promise.all([
+        page.waitForEvent("download"),
+        myRooms.filesTable.contextMenu.clickSubmenuOption(
+          pdfFormContextMenuOption.download,
+          pdfFormDownloadSubmenu.originalFormat,
+        ),
+      ]);
+      expect(download.suggestedFilename()).toBeTruthy();
     });
   });
 });

@@ -10,8 +10,17 @@ class FilesSelectPanel extends BaseSelector {
     return this.selector.locator("#select-file-modal-submit");
   }
 
+  private get rootDocSpaceFolder() {
+    return this.selector.getByTestId("selector_bread_crumb_item_0");
+  }
+
   async confirmSelection() {
     await this.confirmButton.click();
+  }
+
+  async gotoDocSpaceRoot() {
+    await expect(this.rootDocSpaceFolder).toBeVisible();
+    await this.rootDocSpaceFolder.click();
   }
 
   async checkFileSelectPanelExist() {

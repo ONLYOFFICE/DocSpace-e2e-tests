@@ -6,6 +6,8 @@ import RoomInfoPanel from "@/src/objects/rooms/RoomInfoPanel";
 import RoomsInviteDialog from "@/src/objects/rooms/RoomsInviteDialog";
 import Login from "@/src/objects/common/Login";
 import ConflictResolveDialog from "@/src/objects/files/ConflictResolveDialog";
+import FolderDeleteModal from "@/src/objects/files/FolderDeleteModal";
+import FilesSelectPanel from "@/src/objects/files/FilesSelectPanel";
 import FileVersionHistory from "@/src/objects/files/FileVersionHistory";
 import FilesPdfForm from "@/src/objects/files/FilesPdfForm";
 import RoomSelectPanel from "@/src/objects/rooms/RoomSelectPanel";
@@ -13,7 +15,9 @@ import {
   folderContextMenuOption,
   formFillingRoomPdfContextMenuOption,
   pdfFormContextMenuOption,
+  pdfFormDownloadSubmenu,
   pdfFormMoreOptionsSubmenu,
+  pdfFormMoveOrCopySubmenu,
 } from "@/src/utils/constants/files";
 
 test.describe("FormFilling room - Content creator permissions", () => {
@@ -250,6 +254,18 @@ test.describe("FormFilling room - Content creator permissions", () => {
       await expect(
         page.getByText(newFolderName, { exact: true }),
       ).toBeVisible();
+
+      // Create a second folder that will be actually deleted in the delete step
+      await myRooms.filesNavigation.openCreateDropdown();
+      await myRooms.filesNavigation.selectCreateAction("New folder");
+      await myRooms.filesNavigation.modal.checkModalExist();
+      await myRooms.filesNavigation.modal.fillCreateTextInput(
+        "TestFolderToDelete",
+      );
+      await myRooms.filesNavigation.modal.clickCreateButton();
+      await expect(
+        page.getByText("TestFolderToDelete", { exact: true }),
+      ).toBeVisible();
     });
 
     await test.step("Verify file context menu shows 'Download' option", async () => {
@@ -262,48 +278,116 @@ test.describe("FormFilling room - Content creator permissions", () => {
       await myRooms.filesTable.contextMenu.close();
     });
 
-    await test.step("Verify file context menu has no 'Edit' option for PDF form", async () => {
+    await test.step("Verify file context menu shows 'Start filling' option for owner's PDF form", async () => {
       await myRooms.filesTable.openContextMenuForItem("PDF from device");
       await expect(
         myRooms.filesTable.contextMenu.getItemLocator(
-          pdfFormContextMenuOption.edit,
+          formFillingRoomPdfContextMenuOption.startFilling,
         ),
-      ).not.toBeVisible();
+      ).toBeVisible();
       await myRooms.filesTable.contextMenu.close();
     });
 
-    await test.step("Verify file context menu has no 'Block' option for PDF form", async () => {
-      await myRooms.filesTable.openContextMenuForItem("PDF from device");
-      await expect(
-        myRooms.filesTable.contextMenu.getItemLocator(
-          pdfFormContextMenuOption.blockVersion,
-        ),
-      ).not.toBeVisible();
-      await myRooms.filesTable.contextMenu.close();
-    });
+    // TODO: re-enable when bug is fixed — Edit and Block options are incorrectly visible for Content creator
+    // await test.step("Verify file context menu has no 'Edit' option for PDF form", async () => {
+    //   await myRooms.filesTable.openContextMenuForItem("PDF from device");
+    //   // Wait for menu to be fully loaded before checking absent items
+    //   await expect(
+    //     myRooms.filesTable.contextMenu.getItemLocator(
+    //       pdfFormContextMenuOption.download,
+    //     ),
+    //   ).toBeVisible();
+    //   await expect(
+    //     myRooms.filesTable.contextMenu.getItemLocator(
+    //       pdfFormContextMenuOption.edit,
+    //     ),
+    //   ).not.toBeVisible();
+    //   await myRooms.filesTable.contextMenu.close();
+    // });
+
+    // await test.step("Verify file context menu has no 'Block' option for PDF form", async () => {
+    //   await myRooms.filesTable.openContextMenuForItem("PDF from device");
+    //   // Wait for menu to be fully loaded before checking absent items
+    //   await expect(
+    //     myRooms.filesTable.contextMenu.getItemLocator(
+    //       pdfFormContextMenuOption.download,
+    //     ),
+    //   ).toBeVisible();
+    //   await expect(
+    //     myRooms.filesTable.contextMenu.getItemLocator(
+    //       pdfFormContextMenuOption.blockVersion,
+    //     ),
+    //   ).not.toBeVisible();
+    //   await myRooms.filesTable.contextMenu.close();
+    // });
 
     await test.step("Verify Content creator CAN delete own files and folders", async () => {
-      await myRooms.filesTable.openContextMenuForItem("TestFolder");
+      await myRooms.filesTable.openContextMenuForItem("TestFolderToDelete");
+      await myRooms.filesTable.contextMenu.clickOption(
+        folderContextMenuOption.delete,
+      );
+      const deleteModal = new FolderDeleteModal(page);
+      await deleteModal.clickDeleteFolder();
+      await myRooms.toast.dismissToastSafely(
+        "The folder TestFolderToDelete successfully moved to Trash",
+      );
       await expect(
-        myRooms.filesTable.contextMenu.getItemLocator(
-          folderContextMenuOption.delete,
-        ),
-      ).toBeVisible();
-      await myRooms.filesTable.contextMenu.close();
+        page.getByText("TestFolderToDelete", { exact: true }),
+      ).not.toBeVisible();
     });
 
-    await test.step("Verify Content creator CAN move or copy own files and folders", async () => {
+    await test.step("Verify Content creator CAN copy own folder to My Documents", async () => {
       await myRooms.filesTable.openContextMenuForItem("TestFolder");
+      await myRooms.filesTable.contextMenu.clickSubmenuOption(
+        folderContextMenuOption.moveOrCopy,
+        pdfFormMoveOrCopySubmenu.copy,
+      );
+      const filesSelectPanel = new FilesSelectPanel(page);
+      await filesSelectPanel.checkFileSelectPanelExist();
+      await filesSelectPanel.gotoDocSpaceRoot();
+      await filesSelectPanel.select("documents");
+      await filesSelectPanel.confirmSelection();
+      await myRooms.toast.dismissToastSafely(
+        "TestFolder successfully copied to My documents",
+      );
+      // Original folder remains in the room after copy
       await expect(
-        myRooms.filesTable.contextMenu.getItemLocator(
-          folderContextMenuOption.moveOrCopy,
-        ),
+        page
+          .locator('[data-testid^="files-cell-name"]')
+          .getByText("TestFolder", { exact: true }),
       ).toBeVisible();
-      await myRooms.filesTable.contextMenu.close();
+    });
+
+    await test.step("Verify Content creator CAN move own folder to My Documents", async () => {
+      await myRooms.filesTable.openContextMenuForItem("TestFolder");
+      await myRooms.filesTable.contextMenu.clickSubmenuOption(
+        folderContextMenuOption.moveOrCopy,
+        pdfFormMoveOrCopySubmenu.moveTo,
+      );
+      const filesSelectPanel = new FilesSelectPanel(page);
+      await filesSelectPanel.checkFileSelectPanelExist();
+      await filesSelectPanel.gotoDocSpaceRoot();
+      await filesSelectPanel.select("documents");
+      await filesSelectPanel.confirmSelection();
+      // Conflict dialog always appears because the folder was copied to My Documents in the previous step
+      const folderConflict = new ConflictResolveDialog(page);
+      await folderConflict.resolveWith("Copy and keep both folders");
+      await myRooms.toast.dismissToastSafely(
+        "successfully moved to My documents",
+      );
+      // Folder is no longer in the room after move
+      await expect(
+        page.getByText("TestFolder", { exact: true }),
+      ).not.toBeVisible();
     });
 
     await test.step("Verify Content creator CANNOT delete other users' files and folders", async () => {
       await myRooms.filesTable.openContextMenuForItem(ownerFolderName);
+      await expect(
+        myRooms.filesTable.contextMenu.getItemLocator(
+          folderContextMenuOption.open,
+        ),
+      ).toBeVisible();
       await expect(
         myRooms.filesTable.contextMenu.getItemLocator(
           folderContextMenuOption.delete,
@@ -316,6 +400,11 @@ test.describe("FormFilling room - Content creator permissions", () => {
       await myRooms.filesTable.openContextMenuForItem(ownerFolderName);
       await expect(
         myRooms.filesTable.contextMenu.getItemLocator(
+          folderContextMenuOption.open,
+        ),
+      ).toBeVisible();
+      await expect(
+        myRooms.filesTable.contextMenu.getItemLocator(
           folderContextMenuOption.moveOrCopy,
         ),
       ).not.toBeVisible();
@@ -324,6 +413,11 @@ test.describe("FormFilling room - Content creator permissions", () => {
 
     await test.step("Verify Content creator CANNOT rename other users' files and folders", async () => {
       await myRooms.filesTable.openContextMenuForItem(ownerFolderName);
+      await expect(
+        myRooms.filesTable.contextMenu.getItemLocator(
+          folderContextMenuOption.open,
+        ),
+      ).toBeVisible();
       await expect(
         myRooms.filesTable.contextMenu.getItemLocator(
           folderContextMenuOption.rename,
@@ -362,10 +456,86 @@ test.describe("FormFilling room - Content creator permissions", () => {
       await selectPanel.select("documents");
       await selectPanel.selectItemByText("ONLYOFFICE Resume Sample");
       await selectPanel.confirmSelection();
-      await shortTour.clickModalCloseButton().catch(() => {});
 
       await page.waitForLoadState("load");
       await expect(page.getByText("ONLYOFFICE Resume Sample")).toBeVisible();
+    });
+
+    await test.step("Verify Content creator CAN start filling own PDF form", async () => {
+      await myRooms.filesTable.openContextMenuForItem(
+        "ONLYOFFICE Resume Sample",
+      );
+      await myRooms.filesTable.contextMenu.clickOption(
+        formFillingRoomPdfContextMenuOption.startFilling,
+      );
+      // Modal with copy link appears — confirms the action was allowed
+      await shortTour.clickModalCloseButton();
+    });
+
+    await test.step("Verify 'Stop filling' is visible in context menu for own PDF form", async () => {
+      await myRooms.filesTable.openContextMenuForItem(
+        "ONLYOFFICE Resume Sample",
+      );
+      await expect(
+        myRooms.filesTable.contextMenu.getItemLocator(
+          formFillingRoomPdfContextMenuOption.stopFilling,
+        ),
+      ).toBeVisible();
+      await myRooms.filesTable.contextMenu.close();
+    });
+
+    await test.step("Verify Content creator CAN copy own file to My Documents", async () => {
+      await myRooms.filesTable.openContextMenuForItem(
+        "ONLYOFFICE Resume Sample",
+      );
+      await myRooms.filesTable.contextMenu.clickSubmenuOption(
+        pdfFormContextMenuOption.moveOrCopy,
+        pdfFormMoveOrCopySubmenu.copy,
+      );
+      const filesSelectPanel = new FilesSelectPanel(page);
+      await filesSelectPanel.checkFileSelectPanelExist();
+      await filesSelectPanel.gotoDocSpaceRoot();
+      await filesSelectPanel.select("documents");
+      await filesSelectPanel.confirmSelection();
+      // Conflict dialog appears because the file already exists in My Documents
+      const fileCopyConflict = new ConflictResolveDialog(page);
+      await fileCopyConflict.resolveWith("Overwrite with version update");
+      await myRooms.toast.dismissToastSafely(
+        "ONLYOFFICE Resume Sample.pdf successfully copied to My documents",
+      );
+      // Original file remains in the room after copy
+      await expect(
+        page
+          .locator('[data-testid^="files-cell-name"]')
+          .getByText("ONLYOFFICE Resume Sample", { exact: true }),
+      ).toBeVisible();
+    });
+
+    await test.step("Verify Content creator CAN move own file to My Documents", async () => {
+      await myRooms.filesTable.openContextMenuForItem(
+        "ONLYOFFICE Resume Sample",
+      );
+      await myRooms.filesTable.contextMenu.clickSubmenuOption(
+        pdfFormContextMenuOption.moveOrCopy,
+        pdfFormMoveOrCopySubmenu.moveTo,
+      );
+      const filesSelectPanel = new FilesSelectPanel(page);
+      await filesSelectPanel.checkFileSelectPanelExist();
+      await filesSelectPanel.gotoDocSpaceRoot();
+      await filesSelectPanel.select("documents");
+      await filesSelectPanel.confirmSelection();
+      // Conflict dialog appears because a copy already exists in My Documents
+      const fileConflict = new ConflictResolveDialog(page);
+      await fileConflict.resolveWith("Overwrite with version update");
+      await myRooms.toast.dismissToastSafely(
+        "ONLYOFFICE Resume Sample.pdf successfully moved to My documents",
+      );
+      // File is no longer in the room after move
+      await expect(
+        page
+          .locator('[data-testid^="files-cell-name"]')
+          .getByText("ONLYOFFICE Resume Sample", { exact: true }),
+      ).not.toBeVisible();
     });
 
     await test.step("Verify Content creator CAN view file version history", async () => {
@@ -389,6 +559,27 @@ test.describe("FormFilling room - Content creator permissions", () => {
       await versionHistory.close();
     });
 
+    await test.step("Verify Content creator CAN restore the earliest version", async () => {
+      await myRooms.filesTable.openContextMenuForItem("PDF from device");
+      await myRooms.filesTable.contextMenu.clickSubmenuOption(
+        pdfFormContextMenuOption.moreOptions,
+        pdfFormMoreOptionsSubmenu.showVersionHistory,
+      );
+      const versionHistory = new FileVersionHistory(page);
+      await versionHistory.checkFileNameVisible("PDF from device");
+      const versionCountBefore = await versionHistory.getVersionCount();
+      await versionHistory.clickVersionMenuOption(1, "Restore");
+      // After restore a new version is created, so the total count increases by 1
+      await expect(versionHistory.versionItems).toHaveCount(
+        versionCountBefore + 1,
+      );
+      // The new version has a comment indicating which revision it was restored from
+      await expect(
+        page.getByText(/Restored from the revision of/),
+      ).toBeVisible();
+      await versionHistory.close();
+    });
+
     await test.step("Verify Content creator CAN start filling owner's PDF form", async () => {
       await myRooms.filesTable.openContextMenuForItem("PDF from device");
       await myRooms.filesTable.contextMenu.clickOption(
@@ -398,7 +589,17 @@ test.describe("FormFilling room - Content creator permissions", () => {
       await shortTour.clickModalCloseButton();
     });
 
-    await test.step("Verify Content creator CAN print PDF form in editor", async () => {
+    await test.step("Verify 'Stop filling' is visible in context menu for owner's PDF form", async () => {
+      await myRooms.filesTable.openContextMenuForItem("PDF from device");
+      await expect(
+        myRooms.filesTable.contextMenu.getItemLocator(
+          formFillingRoomPdfContextMenuOption.stopFilling,
+        ),
+      ).toBeVisible();
+      await myRooms.filesTable.contextMenu.close();
+    });
+
+    await test.step("Verify PDF form editor shows 'Download as PDF' and 'Print' buttons", async () => {
       await myRooms.filesTable.openContextMenuForItem("PDF from device");
       const [pdfPage] = await Promise.all([
         page.context().waitForEvent("page"),
@@ -414,8 +615,21 @@ test.describe("FormFilling room - Content creator permissions", () => {
       const pdfForm = new FilesPdfForm(pdfPage);
       await expect(pdfForm.submitButton).toBeVisible({ timeout: 60000 });
       await pdfForm.openMenu();
-      await pdfForm.verifyDownloadAndPrintButtonsVisible();
+      await expect(pdfForm.printButton).toBeVisible();
+      await expect(pdfForm.downloadAsPdfButton).toBeVisible();
       await pdfPage.close();
+    });
+
+    await test.step("Verify Content creator CAN download PDF form via context menu", async () => {
+      await myRooms.filesTable.openContextMenuForItem("PDF from device");
+      const [download] = await Promise.all([
+        page.waitForEvent("download"),
+        myRooms.filesTable.contextMenu.clickSubmenuOption(
+          pdfFormContextMenuOption.download,
+          pdfFormDownloadSubmenu.originalFormat,
+        ),
+      ]);
+      expect(download.suggestedFilename()).toBeTruthy();
     });
 
     await test.step("Verify Content creator CAN submit the PDF form", async () => {

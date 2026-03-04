@@ -27,6 +27,7 @@ export const pdfFormContextMenuOption = {
 export const formFillingRoomPdfContextMenuOption = {
   ...pdfFormContextMenuOption,
   startFilling: testId("option_start-filling"),
+  stopFilling: testId("option_stop-filling"),
   fill: testId("fill-form"),
 };
 
@@ -52,7 +53,7 @@ export const pdfFormShareSubmenu = {
 
 // "Download" submenu
 export const pdfFormDownloadSubmenu = {
-  originalFormat: testId("option_download"),
+  originalFormat: testId("download-original"),
   downloadAs: testId("download-as"),
 };
 

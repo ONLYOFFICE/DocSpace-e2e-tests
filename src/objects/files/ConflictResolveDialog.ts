@@ -6,9 +6,13 @@ const CANCEL_BUTTON = '[data-test-id="conflict-resolve-cancel-button"]';
 
 // Dialog shown when uploading a file whose name already exists in the destination.
 // The user must choose how to resolve the naming conflict before the upload proceeds.
+// File conflict options: "Overwrite with version update" | "Create file copy" | "Skip"
+// Folder conflict options: "Merge folders" | "Copy and keep both folders" | "Skip"
 export type TConflictResolveOption =
   | "Overwrite with version update"
   | "Create file copy"
+  | "Merge folders"
+  | "Copy and keep both folders"
   | "Skip";
 
 class ConflictResolveDialog extends BaseDialog {
