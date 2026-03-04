@@ -41,7 +41,6 @@ test.describe("FormFilling room - Content creator permissions", () => {
     roomsInviteDialog = new RoomsInviteDialog(page);
     login = new Login(page, api.portalDomain);
 
-    // Create FormFilling room via API
     roomName = "FormFillingRoom_ContentCreator";
     const roomResponse = await apiSdk.rooms.createRoom("owner", {
       title: roomName,
@@ -50,23 +49,19 @@ test.describe("FormFilling room - Content creator permissions", () => {
     const roomBody = await roomResponse.json();
     roomId = roomBody.response.id;
 
-    // Upload a PDF file to the room
     await apiSdk.files.uploadToFolder(
       "owner",
       roomId,
       "data/rooms/PDF from device.pdf",
     );
 
-    // Create a folder owned by the owner (used to verify CC cannot delete/move other users' items)
     ownerFolderName = "OwnerFolder";
     await apiSdk.files.createFolder("owner", roomId, ownerFolderName);
 
-    // Create Content creator user via API
     const { userData } = await apiSdk.profiles.addMember("owner", "User");
     contentCreatorEmail = userData.email;
     contentCreatorPassword = userData.password;
 
-    // Create a second user (will be added to room via UI in test Setup step)
     const { userData: formFillerData } = await apiSdk.profiles.addMember(
       "owner",
       "User",
@@ -74,14 +69,10 @@ test.describe("FormFilling room - Content creator permissions", () => {
     formFillerEmail = formFillerData.email;
   });
 
-  test("Add user with Content creator role and verify permissions", async ({
-    page,
-  }) => {
-    await test.step("Setup: Login as owner and add Content creator user via UI", async () => {
+  test("Verify info panel permissions", async ({ page }) => {
+    await test.step("Setup: Login as owner and add users via UI", async () => {
       // Login as owner
       await login.loginToPortal();
-
-      // Navigate to the room
       await myRooms.openWithoutEmptyCheck();
       await myRooms.roomsTable.openRoomByName(roomName);
       await shortTour.clickSkipTour();
@@ -90,19 +81,15 @@ test.describe("FormFilling room - Content creator permissions", () => {
       await myRooms.infoPanel.open();
       await myRooms.infoPanel.openTab("Contacts");
       await roomInfoPanel.clickAddUser();
-
       // Open people list to select existing user
       await roomsInviteDialog.openPeopleList();
-
       // Select Content creator access
       await roomsInviteDialog.contactsPanel.selectAccessType("contentCreator");
-
       // Select user from the list
       await roomsInviteDialog.contactsPanel.selectUserByEmail(
         contentCreatorEmail,
       );
       await roomsInviteDialog.contactsPanel.clickSelectButton();
-
       // Verify the role is set to Content creator
       await roomsInviteDialog.verifyUserRole(
         contentCreatorEmail,
@@ -114,9 +101,7 @@ test.describe("FormFilling room - Content creator permissions", () => {
       await myRooms.infoPanel.openTab("Contacts");
       await expect(
         roomInfoPanel.getMemberByEmail(contentCreatorEmail),
-      ).toBeVisible({
-        timeout: 10000,
-      });
+      ).toBeVisible({ timeout: 10000 });
 
       // Add second user (Form filler) via UI - formFiller is default access, no need to change
       await roomInfoPanel.clickAddUser();
@@ -128,9 +113,7 @@ test.describe("FormFilling room - Content creator permissions", () => {
 
       await myRooms.infoPanel.openTab("Contacts");
       await expect(roomInfoPanel.getMemberByEmail(formFillerEmail)).toBeVisible(
-        {
-          timeout: 10000,
-        },
+        { timeout: 10000 },
       );
 
       // Clear cookies to logout from owner account
@@ -142,31 +125,8 @@ test.describe("FormFilling room - Content creator permissions", () => {
         contentCreatorEmail,
         contentCreatorPassword,
       );
-      // Navigate to My Rooms page
-      // await myRooms.openWithoutEmptyCheck();
-      // Open the room
       await myRooms.roomsTable.openRoomByName(roomName);
-      // Skip tour
       await shortTour.clickSkipTour();
-    });
-    await test.step("Verify Content creator CAN access Complete folder", async () => {
-      await myRooms.filesTable.openContextMenuForItem("Complete");
-      await myRooms.filesTable.contextMenu.clickOption("Open");
-      await expect(
-        page.getByRole("heading", { name: "Complete" }),
-      ).toBeVisible();
-      await myRooms.navigation.gotoBack();
-      await page.waitForLoadState("domcontentloaded");
-    });
-
-    await test.step("Verify Content creator CAN access In Process folder", async () => {
-      await myRooms.filesTable.openContextMenuForItem("In process");
-      await myRooms.filesTable.contextMenu.clickOption("Open");
-      await expect(
-        page.getByRole("heading", { name: "In process" }),
-      ).toBeVisible();
-      await myRooms.navigation.gotoBack();
-      await page.waitForLoadState("load");
     });
 
     await test.step("Verify Content creator CANNOT invite users", async () => {
@@ -202,9 +162,52 @@ test.describe("FormFilling room - Content creator permissions", () => {
       await myRooms.infoPanel.openTab("Details");
       await expect(page.getByTestId("info_details_tab")).toBeVisible();
     });
+  });
+
+  test("Verify folder and room management permissions", async ({ page }) => {
+    await test.step("Setup: Login as owner and add Content creator user via UI", async () => {
+      // Login as owner
+      await login.loginToPortal();
+      await myRooms.openWithoutEmptyCheck();
+      await myRooms.roomsTable.openRoomByName(roomName);
+      await shortTour.clickSkipTour();
+
+      // Add user with Content creator role via UI
+      await myRooms.infoPanel.open();
+      await myRooms.infoPanel.openTab("Contacts");
+      await roomInfoPanel.clickAddUser();
+      await roomsInviteDialog.openPeopleList();
+      await roomsInviteDialog.contactsPanel.selectAccessType("contentCreator");
+      await roomsInviteDialog.contactsPanel.selectUserByEmail(
+        contentCreatorEmail,
+      );
+      await roomsInviteDialog.contactsPanel.clickSelectButton();
+      await roomsInviteDialog.verifyUserRole(
+        contentCreatorEmail,
+        "Content creator",
+      );
+      await roomsInviteDialog.submitInviteDialog();
+
+      // Verify user appears in Contacts list - wait for backend to process
+      await myRooms.infoPanel.openTab("Contacts");
+      await expect(
+        roomInfoPanel.getMemberByEmail(contentCreatorEmail),
+      ).toBeVisible({ timeout: 10000 });
+
+      // Clear cookies to logout from owner account
+      await page.context().clearCookies();
+    });
+
+    await test.step("Login as Content creator", async () => {
+      await login.loginWithCredentials(
+        contentCreatorEmail,
+        contentCreatorPassword,
+      );
+      await myRooms.roomsTable.openRoomByName(roomName);
+      await shortTour.clickSkipTour();
+    });
 
     await test.step("Verify room context menu has no 'Edit room' option", async () => {
-      await myRooms.infoPanel.close();
       await myRooms.navigation.openContextMenu();
       await expect(
         myRooms.navigation.contextMenu.menu.getByText("Edit room"),
@@ -244,6 +247,26 @@ test.describe("FormFilling room - Content creator permissions", () => {
       await myRooms.filesNavigation.contextMenu.close();
     });
 
+    await test.step("Verify Content creator CAN access Complete folder", async () => {
+      await myRooms.filesTable.openContextMenuForItem("Complete");
+      await myRooms.filesTable.contextMenu.clickOption("Open");
+      await expect(
+        page.getByRole("heading", { name: "Complete" }),
+      ).toBeVisible();
+      await myRooms.navigation.gotoBack();
+      await page.waitForLoadState("load");
+    });
+
+    await test.step("Verify Content creator CAN access In Process folder", async () => {
+      await myRooms.filesTable.openContextMenuForItem("In process");
+      await myRooms.filesTable.contextMenu.clickOption("Open");
+      await expect(
+        page.getByRole("heading", { name: "In process" }),
+      ).toBeVisible();
+      await myRooms.navigation.gotoBack();
+      await page.waitForLoadState("load");
+    });
+
     await test.step("Verify Content creator CAN create a new folder", async () => {
       const newFolderName = "TestFolder";
       await myRooms.filesNavigation.openCreateDropdown();
@@ -268,7 +291,7 @@ test.describe("FormFilling room - Content creator permissions", () => {
       ).toBeVisible();
     });
 
-    await test.step("Verify file context menu shows 'Download' option", async () => {
+    await test.step("Verify file context menu shows 'Download' option for owner's PDF form", async () => {
       await myRooms.filesTable.openContextMenuForItem("PDF from device");
       await expect(
         myRooms.filesTable.contextMenu.getItemLocator(
@@ -291,7 +314,6 @@ test.describe("FormFilling room - Content creator permissions", () => {
     // TODO: re-enable when bug is fixed — Edit and Block options are incorrectly visible for Content creator
     // await test.step("Verify file context menu has no 'Edit' option for PDF form", async () => {
     //   await myRooms.filesTable.openContextMenuForItem("PDF from device");
-    //   // Wait for menu to be fully loaded before checking absent items
     //   await expect(
     //     myRooms.filesTable.contextMenu.getItemLocator(
     //       pdfFormContextMenuOption.download,
@@ -307,7 +329,6 @@ test.describe("FormFilling room - Content creator permissions", () => {
 
     // await test.step("Verify file context menu has no 'Block' option for PDF form", async () => {
     //   await myRooms.filesTable.openContextMenuForItem("PDF from device");
-    //   // Wait for menu to be fully loaded before checking absent items
     //   await expect(
     //     myRooms.filesTable.contextMenu.getItemLocator(
     //       pdfFormContextMenuOption.download,
@@ -425,6 +446,50 @@ test.describe("FormFilling room - Content creator permissions", () => {
       ).not.toBeVisible();
       await myRooms.filesTable.contextMenu.close();
     });
+  });
+
+  test("Verify PDF file permissions and form filling", async ({ page }) => {
+    await test.step("Setup: Login as owner and add Content creator user via UI", async () => {
+      // Login as owner
+      await login.loginToPortal();
+      await myRooms.openWithoutEmptyCheck();
+      await myRooms.roomsTable.openRoomByName(roomName);
+      await shortTour.clickSkipTour();
+
+      // Add user with Content creator role via UI
+      await myRooms.infoPanel.open();
+      await myRooms.infoPanel.openTab("Contacts");
+      await roomInfoPanel.clickAddUser();
+      await roomsInviteDialog.openPeopleList();
+      await roomsInviteDialog.contactsPanel.selectAccessType("contentCreator");
+      await roomsInviteDialog.contactsPanel.selectUserByEmail(
+        contentCreatorEmail,
+      );
+      await roomsInviteDialog.contactsPanel.clickSelectButton();
+      await roomsInviteDialog.verifyUserRole(
+        contentCreatorEmail,
+        "Content creator",
+      );
+      await roomsInviteDialog.submitInviteDialog();
+
+      // Verify user appears in Contacts list - wait for backend to process
+      await myRooms.infoPanel.openTab("Contacts");
+      await expect(
+        roomInfoPanel.getMemberByEmail(contentCreatorEmail),
+      ).toBeVisible({ timeout: 10000 });
+
+      // Clear cookies to logout from owner account
+      await page.context().clearCookies();
+    });
+
+    await test.step("Login as Content creator", async () => {
+      await login.loginWithCredentials(
+        contentCreatorEmail,
+        contentCreatorPassword,
+      );
+      await myRooms.roomsTable.openRoomByName(roomName);
+      await shortTour.clickSkipTour();
+    });
 
     await test.step("Verify Content creator CAN upload PDF forms", async () => {
       await myRooms.filesNavigation.openCreateDropdown();
@@ -436,10 +501,8 @@ test.describe("FormFilling room - Content creator permissions", () => {
         ),
       ]);
       await fileChooser.setFiles("data/rooms/PDF from device.pdf");
-
       const conflictDialog = new ConflictResolveDialog(page);
       await conflictDialog.resolveWith("Overwrite with version update");
-
       await page.waitForLoadState("load");
       await expect(page.locator('[data-version-badge="true"]')).toBeVisible();
     });
@@ -450,13 +513,11 @@ test.describe("FormFilling room - Content creator permissions", () => {
         "Upload PDF form",
         "From DocSpace",
       );
-
       const selectPanel = new RoomSelectPanel(page);
       await selectPanel.checkSelectorExist();
       await selectPanel.select("documents");
       await selectPanel.selectItemByText("ONLYOFFICE Resume Sample");
       await selectPanel.confirmSelection();
-
       await page.waitForLoadState("load");
       await expect(page.getByText("ONLYOFFICE Resume Sample")).toBeVisible();
     });
@@ -484,6 +545,8 @@ test.describe("FormFilling room - Content creator permissions", () => {
       await myRooms.filesTable.contextMenu.close();
     });
 
+    // TODO: add test "Content creator CAN stop filling own PDF form" when Stop filling flow is finalized
+
     await test.step("Verify Content creator CAN copy own file to My Documents", async () => {
       await myRooms.filesTable.openContextMenuForItem(
         "ONLYOFFICE Resume Sample",
@@ -497,7 +560,6 @@ test.describe("FormFilling room - Content creator permissions", () => {
       await filesSelectPanel.gotoDocSpaceRoot();
       await filesSelectPanel.select("documents");
       await filesSelectPanel.confirmSelection();
-      // Conflict dialog appears because the file already exists in My Documents
       const fileCopyConflict = new ConflictResolveDialog(page);
       await fileCopyConflict.resolveWith("Overwrite with version update");
       await myRooms.toast.dismissToastSafely(
@@ -598,6 +660,8 @@ test.describe("FormFilling room - Content creator permissions", () => {
       ).toBeVisible();
       await myRooms.filesTable.contextMenu.close();
     });
+
+    // TODO: add test "Content creator CAN stop filling owner's PDF form" when Stop filling flow is finalized
 
     await test.step("Verify PDF form editor shows 'Download as PDF' and 'Print' buttons", async () => {
       await myRooms.filesTable.openContextMenuForItem("PDF from device");
