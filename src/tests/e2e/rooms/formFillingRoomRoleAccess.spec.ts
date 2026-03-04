@@ -15,11 +15,11 @@ import {
   getLinkFromClipboard,
   ensureIncognitoPage,
 } from "@/src/utils/helpers/linkTest";
+import { formFillingRoomPdfContextMenuOption } from "@/src/utils/constants/files";
 
 // Tests for role-based form visibility in FormFilling rooms
 test.describe("FormFillingRoomRoleBasedFormVisibility", () => {
-  // TODO: re-enable once Fill flow is fixed
-  test.skip("FormFiller sees only own completed forms, ContentCreator sees all", async ({
+  test("FormFiller sees only own completed forms, ContentCreator sees all", async ({
     page,
     browser,
     api,
@@ -76,6 +76,13 @@ test.describe("FormFillingRoomRoleBasedFormVisibility", () => {
 
       roomInfoPanel = new RoomInfoPanel(page);
       roomsInviteDialog = new RoomsInviteDialog(page);
+
+      // Start filling so the form becomes accessible to room members
+      await myRooms.filesTable.openContextMenuForItem("PDF from device");
+      await myRooms.filesTable.contextMenu.clickOption(
+        formFillingRoomPdfContextMenuOption.startFilling,
+      );
+      await shortTour.clickModalCloseButton();
     });
 
     // Get FormFiller invite link (default access)
