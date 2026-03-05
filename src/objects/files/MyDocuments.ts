@@ -8,7 +8,10 @@ import FilesFilter from "./FilesFilter";
 import FilesEmptyView from "./FilesEmptyView";
 import BasePage from "../common/BasePage";
 import DownloadDialog from "./DownloadDialog";
+import FilesSelectPanel from "./FilesSelectPanel";
+import FolderDeleteModal from "./FolderDeleteModal";
 import { ORIGINAL_DOC_EXTENSIONS } from "@/src/constants/downloadFormats";
+import { DOC_ACTIONS } from "@/src/utils/constants/files";
 
 class MyDocuments extends BasePage {
   private portalDomain: string;
@@ -20,6 +23,8 @@ class MyDocuments extends BasePage {
   filesFilter: FilesFilter;
   filesEmptyView: FilesEmptyView;
   downloadDialog: DownloadDialog;
+  filesSelectPanel: FilesSelectPanel;
+  folderDeleteModal: FolderDeleteModal;
 
   infoPanel: InfoPanel;
 
@@ -34,6 +39,8 @@ class MyDocuments extends BasePage {
     this.filesFilter = new FilesFilter(page);
     this.filesEmptyView = new FilesEmptyView(page);
     this.downloadDialog = new DownloadDialog(page);
+    this.filesSelectPanel = new FilesSelectPanel(page);
+    this.folderDeleteModal = new FolderDeleteModal(page);
   }
 
   async open() {
@@ -119,6 +126,53 @@ class MyDocuments extends BasePage {
 
     await download.delete();
     await this.downloadDialog.close();
+  }
+
+  async createDocumentFile(fileName = "Document") {
+    await this.filesNavigation.openCreateDropdown();
+    await this.filesNavigation.selectCreateAction(DOC_ACTIONS.CREATE_DOCUMENT);
+    await this.filesNavigation.modal.fillCreateTextInput(fileName);
+    const [newPage] = await Promise.all([
+      this.page.context().waitForEvent("page", { timeout: 5000 }),
+      this.filesNavigation.modal.clickCreateButton(),
+    ]).catch(() => [null]);
+    await newPage?.close();
+    await this.filesTable.checkRowExist(fileName);
+  }
+
+  async deleteFile(fileName: string) {
+    await this.filesTable.openContextMenuForItem(fileName);
+    await this.filesTable.contextMenu.clickOption("Delete");
+    await this.folderDeleteModal.clickDeleteFolder();
+    await this.removeToast("successfully moved to Trash");
+    await this.filesTable.checkRowNotExist(fileName);
+  }
+
+  async moveFileTo(fileName: string, folderName: string) {
+    await this.filesTable.openContextMenuForItem(fileName);
+    await this.filesTable.contextMenu.clickSubmenuOption("Move or copy", "Move to");
+    await this.filesSelectPanel.checkFileSelectPanelExist();
+    await this.filesSelectPanel.selectItemByText(folderName);
+    await this.filesSelectPanel.confirmSelection();
+    await this.filesTable.checkRowNotExist(fileName);
+  }
+
+  async copyFileTo(fileName: string, folderName: string) {
+    await this.filesTable.openContextMenuForItem(fileName);
+    await this.filesTable.contextMenu.clickSubmenuOption("Move or copy", "Copy");
+    await this.filesSelectPanel.checkFileSelectPanelExist();
+    await this.filesSelectPanel.selectItemByText(folderName);
+    await this.filesSelectPanel.confirmSelection();
+    await this.filesTable.checkRowExist(fileName);
+  }
+
+  async duplicateFile(fileName: string) {
+    await this.filesTable.openContextMenuForItem(fileName);
+    await this.filesTable.contextMenu.clickSubmenuOption("Move or copy", {
+      type: "data-testid",
+      value: "option_create-duplicate",
+    });
+    await this.filesTable.checkRowExist(`${fileName} (1)`);
   }
 }
 
