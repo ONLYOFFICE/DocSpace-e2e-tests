@@ -150,7 +150,10 @@ class MyDocuments extends BasePage {
 
   async moveFileTo(fileName: string, folderName: string) {
     await this.filesTable.openContextMenuForItem(fileName);
-    await this.filesTable.contextMenu.clickSubmenuOption("Move or copy", "Move to");
+    await this.filesTable.contextMenu.clickSubmenuOption(
+      "Move or copy",
+      "Move to",
+    );
     await this.filesSelectPanel.checkFileSelectPanelExist();
     await this.filesSelectPanel.selectItemByText(folderName);
     await this.filesSelectPanel.confirmSelection();
@@ -159,7 +162,10 @@ class MyDocuments extends BasePage {
 
   async copyFileTo(fileName: string, folderName: string) {
     await this.filesTable.openContextMenuForItem(fileName);
-    await this.filesTable.contextMenu.clickSubmenuOption("Move or copy", "Copy");
+    await this.filesTable.contextMenu.clickSubmenuOption(
+      "Move or copy",
+      "Copy",
+    );
     await this.filesSelectPanel.checkFileSelectPanelExist();
     await this.filesSelectPanel.selectItemByText(folderName);
     await this.filesSelectPanel.confirmSelection();

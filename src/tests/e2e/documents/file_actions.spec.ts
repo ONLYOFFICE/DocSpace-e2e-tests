@@ -66,7 +66,9 @@ test.describe("File actions", () => {
     await test.step("Create file and target folder", async () => {
       await myDocuments.createDocumentFile();
       await myDocuments.filesNavigation.openCreateDropdown();
-      await myDocuments.filesNavigation.selectCreateAction(DOC_ACTIONS.CREATE_FOLDER);
+      await myDocuments.filesNavigation.selectCreateAction(
+        DOC_ACTIONS.CREATE_FOLDER,
+      );
       await myDocuments.filesNavigation.modal.fillCreateTextInput(targetFolder);
       await myDocuments.filesNavigation.modal.clickCreateButton();
       await myDocuments.filesTable.checkRowExist(targetFolder);
@@ -83,7 +85,9 @@ test.describe("File actions", () => {
     await test.step("Create file and target folder", async () => {
       await myDocuments.createDocumentFile();
       await myDocuments.filesNavigation.openCreateDropdown();
-      await myDocuments.filesNavigation.selectCreateAction(DOC_ACTIONS.CREATE_FOLDER);
+      await myDocuments.filesNavigation.selectCreateAction(
+        DOC_ACTIONS.CREATE_FOLDER,
+      );
       await myDocuments.filesNavigation.modal.fillCreateTextInput(targetFolder);
       await myDocuments.filesNavigation.modal.clickCreateButton();
       await myDocuments.filesTable.checkRowExist(targetFolder);
