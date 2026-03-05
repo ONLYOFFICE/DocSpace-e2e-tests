@@ -96,6 +96,22 @@ class Trash extends BasePage {
     await this.removeToast(toastMessages.restored);
     await this.trashSelector.checkSelectorExist();
   }
+
+  async restoreFileTo(fileName: string) {
+    await this.trashTable.selectRow(fileName);
+    await this.navigation.performAction(navActions.restore);
+    await this.trashSelector.checkSelectorExist();
+    await this.trashSelector.select("documents");
+    await this.trashSelector.restore();
+    await this.trashTable.checkRowNotExist(fileName);
+  }
+
+  async deleteFileForever(fileName: string) {
+    await this.trashTable.selectRow(fileName);
+    await this.navigation.performAction(navActions.delete);
+    await this.removeToast(toastMessages.deleted);
+    await this.trashTable.checkRowNotExist(fileName);
+  }
 }
 
 export default Trash;
