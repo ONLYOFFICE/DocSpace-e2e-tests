@@ -79,6 +79,14 @@ class FileVersionHistory extends BaseDialog {
   async getVersionCount() {
     return this.versionItems.count();
   }
+
+  // Returns the revision ID of the earliest (last displayed) version row
+  async getEarliestVersionIndex(): Promise<number> {
+    const lastRow = this.versionItems.last();
+    const testId = await lastRow.getAttribute("data-testid");
+    const match = testId?.match(/version_row_(\d+)/);
+    return match ? parseInt(match[1]) : 1;
+  }
 }
 
 export default FileVersionHistory;

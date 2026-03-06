@@ -138,7 +138,7 @@ class RoomsTable extends BaseTable {
     await link.waitFor({ state: "visible" });
     await link.click();
     await this.page.waitForURL(/rooms\/shared\/.*\/filter\?folder=/, {
-      waitUntil: "domcontentloaded",
+      waitUntil: "load",
     });
   }
 }

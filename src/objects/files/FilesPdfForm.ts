@@ -38,6 +38,10 @@ class FilesPdfForm {
   async checkSubmitButtonExist() {
     await expect(this.submitButton).toBeVisible();
   }
+
+  async checkSubmitButtonNotVisible() {
+    await expect(this.submitButton).not.toBeVisible();
+  }
   get closeButton() {
     if (!this.page) {
       throw new Error("PDF form page not set. Please call setPdfPage() first");
