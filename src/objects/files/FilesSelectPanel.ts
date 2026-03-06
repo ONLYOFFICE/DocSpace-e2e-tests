@@ -26,6 +26,10 @@ class FilesSelectPanel extends BaseSelector {
   async checkFileSelectPanelExist() {
     await expect(this.selector.getByTestId("selector-item-1")).toBeVisible();
   }
+
+  async selectRoomTypeFromDropdown(roomType: string) {
+    await this.selector.getByText(new RegExp(roomType, "i")).click();
+  }
 }
 
 export default FilesSelectPanel;
