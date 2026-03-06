@@ -870,10 +870,11 @@ test.describe("FormFilling room - Link tests", () => {
       incognitoContext = result.context;
       incognitoPage = result.page;
 
-      await incognitoPage.goto(fileLink, { waitUntil: "domcontentloaded" });
+      await incognitoPage.goto(fileLink, { waitUntil: "load" });
 
+      // Filling was not started, so the submit button should not be present
       const pdfForm = new FilesPdfForm(incognitoPage);
-      await pdfForm.checkSubmitButtonExist();
+      await pdfForm.checkSubmitButtonNotVisible();
     });
 
     await test.step("Open menu and verify download and print buttons are hidden", async () => {

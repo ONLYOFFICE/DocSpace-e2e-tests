@@ -7,7 +7,7 @@ const SEARCH_CLOSE_BUTTON = "#search_close";
 const ADD_USER_BUTTON = "#info_add-user";
 // Context menu button inside each member row in the members list
 const MEMBER_CONTEXT_MENU_BUTTON =
-  '.members-list-item [data-testid="context-menu-button"]';
+  '.members-list-item [data-test-id="combo-button"]';
 class RoomInfoPanel extends InfoPanel {
   private get searchButton() {
     return this.infoPanel.locator(SEARCH_BUTTON);

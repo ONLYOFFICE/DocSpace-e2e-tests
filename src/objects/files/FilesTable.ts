@@ -62,8 +62,12 @@ class FilesTable extends BaseTable {
     await this.openContextMenuRow(this.docxFile);
   }
 
-  async openContextMenuForItem(name: string) {
-    const item = this.page.locator(TABLE_LIST_ITEM, { hasText: name });
+  async openContextMenuForItem(name: string, exact = false) {
+    const item = exact
+      ? this.page
+          .locator(TABLE_LIST_ITEM)
+          .filter({ has: this.page.getByText(name, { exact: true }) })
+      : this.page.locator(TABLE_LIST_ITEM, { hasText: name });
     await expect(item).toBeVisible();
     await this.openContextMenuRow(item);
   }

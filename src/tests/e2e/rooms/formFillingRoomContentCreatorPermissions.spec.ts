@@ -164,7 +164,7 @@ test.describe("FormFilling room - Content creator permissions", () => {
     });
   });
 
-  test("Verify folder and room management permissions", async ({ page }) => {
+  test("Verify folder management permissions", async ({ page }) => {
     await test.step("Setup: Login as owner and add Content creator user via UI", async () => {
       // Login as owner
       await login.loginToPortal();
@@ -290,57 +290,6 @@ test.describe("FormFilling room - Content creator permissions", () => {
         page.getByText("TestFolderToDelete", { exact: true }),
       ).toBeVisible();
     });
-
-    await test.step("Verify file context menu shows 'Download' option for owner's PDF form", async () => {
-      await myRooms.filesTable.openContextMenuForItem("PDF from device");
-      await expect(
-        myRooms.filesTable.contextMenu.getItemLocator(
-          pdfFormContextMenuOption.download,
-        ),
-      ).toBeVisible();
-      await myRooms.filesTable.contextMenu.close();
-    });
-
-    await test.step("Verify file context menu shows 'Start filling' option for owner's PDF form", async () => {
-      await myRooms.filesTable.openContextMenuForItem("PDF from device");
-      await expect(
-        myRooms.filesTable.contextMenu.getItemLocator(
-          formFillingRoomPdfContextMenuOption.startFilling,
-        ),
-      ).toBeVisible();
-      await myRooms.filesTable.contextMenu.close();
-    });
-
-    // TODO: re-enable when bug is fixed — Edit and Block options are incorrectly visible for Content creator
-    // await test.step("Verify file context menu has no 'Edit' option for PDF form", async () => {
-    //   await myRooms.filesTable.openContextMenuForItem("PDF from device");
-    //   await expect(
-    //     myRooms.filesTable.contextMenu.getItemLocator(
-    //       pdfFormContextMenuOption.download,
-    //     ),
-    //   ).toBeVisible();
-    //   await expect(
-    //     myRooms.filesTable.contextMenu.getItemLocator(
-    //       pdfFormContextMenuOption.edit,
-    //     ),
-    //   ).not.toBeVisible();
-    //   await myRooms.filesTable.contextMenu.close();
-    // });
-
-    // await test.step("Verify file context menu has no 'Block' option for PDF form", async () => {
-    //   await myRooms.filesTable.openContextMenuForItem("PDF from device");
-    //   await expect(
-    //     myRooms.filesTable.contextMenu.getItemLocator(
-    //       pdfFormContextMenuOption.download,
-    //     ),
-    //   ).toBeVisible();
-    //   await expect(
-    //     myRooms.filesTable.contextMenu.getItemLocator(
-    //       pdfFormContextMenuOption.blockVersion,
-    //     ),
-    //   ).not.toBeVisible();
-    //   await myRooms.filesTable.contextMenu.close();
-    // });
 
     await test.step("Verify Content creator CAN delete own files and folders", async () => {
       await myRooms.filesTable.openContextMenuForItem("TestFolderToDelete");
@@ -490,6 +439,56 @@ test.describe("FormFilling room - Content creator permissions", () => {
       await myRooms.roomsTable.openRoomByName(roomName);
       await shortTour.clickSkipTour();
     });
+
+    await test.step("Verify file context menu shows 'Download' option for owner's PDF form", async () => {
+      await myRooms.filesTable.openContextMenuForItem("PDF from device");
+      await expect(
+        myRooms.filesTable.contextMenu.getItemLocator(
+          pdfFormContextMenuOption.download,
+        ),
+      ).toBeVisible();
+      await myRooms.filesTable.contextMenu.close();
+    });
+
+    await test.step("Verify file context menu shows 'Start filling' option for owner's PDF form", async () => {
+      await myRooms.filesTable.openContextMenuForItem("PDF from device");
+      await expect(
+        myRooms.filesTable.contextMenu.getItemLocator(
+          formFillingRoomPdfContextMenuOption.startFilling,
+        ),
+      ).toBeVisible();
+      await myRooms.filesTable.contextMenu.close();
+    });
+
+    // TODO: re-enable when bug is fixed — Edit and Block options are incorrectly visible for Content creator
+    //   await myRooms.filesTable.openContextMenuForItem("PDF from device");
+    //   await expect(
+    //     myRooms.filesTable.contextMenu.getItemLocator(
+    //       pdfFormContextMenuOption.download,
+    //     ),
+    //   ).toBeVisible();
+    //   await expect(
+    //     myRooms.filesTable.contextMenu.getItemLocator(
+    //       pdfFormContextMenuOption.edit,
+    //     ),
+    //   ).not.toBeVisible();
+    //   await myRooms.filesTable.contextMenu.close();
+    // });
+
+    // await test.step("Verify file context menu has no 'Block' option for PDF form", async () => {
+    //   await myRooms.filesTable.openContextMenuForItem("PDF from device");
+    //   await expect(
+    //     myRooms.filesTable.contextMenu.getItemLocator(
+    //       pdfFormContextMenuOption.download,
+    //     ),
+    //   ).toBeVisible();
+    //   await expect(
+    //     myRooms.filesTable.contextMenu.getItemLocator(
+    //       pdfFormContextMenuOption.blockVersion,
+    //     ),
+    //   ).not.toBeVisible();
+    //   await myRooms.filesTable.contextMenu.close();
+    // });
 
     await test.step("Verify Content creator CAN upload PDF forms", async () => {
       await myRooms.filesNavigation.openCreateDropdown();
