@@ -12,6 +12,7 @@ import FilesSelectPanel from "./FilesSelectPanel";
 import FolderDeleteModal from "./FolderDeleteModal";
 import { ORIGINAL_DOC_EXTENSIONS } from "@/src/constants/downloadFormats";
 import { DOC_ACTIONS } from "@/src/utils/constants/files";
+import { TRoomCreateTitles } from "@/src/utils/constants/rooms";
 
 class MyDocuments extends BasePage {
   private portalDomain: string;
@@ -179,6 +180,30 @@ class MyDocuments extends BasePage {
       value: "option_create-duplicate",
     });
     await this.filesTable.checkRowExist(`${fileName} (1)`);
+  }
+
+  async moveFileToNewRoom(
+    fileName: string,
+    roomType: TRoomCreateTitles,
+    roomName: string,
+  ) {
+    await this.filesTable.openContextMenuForItem(fileName);
+    await this.filesTable.contextMenu.clickSubmenuOption(
+      "Move or copy",
+      "Move to",
+    );
+    await this.filesSelectPanel.checkFileSelectPanelExist();
+    await this.filesSelectPanel.gotoDocSpaceRoot();
+    await this.filesSelectPanel.select("rooms");
+    await this.filesSelectPanel.createNewItem();
+    await this.filesSelectPanel.selectRoomTypeFromDropdown(roomType);
+    await this.filesSelectPanel.fillNewItemName(roomName);
+    await this.filesSelectPanel.acceptCreate();
+    await this.filesSelectPanel.selectItemByText(roomName);
+  }
+
+  async confirmMoveToPublicRoom() {
+    await this.page.getByRole("button", { name: "OK" }).click();
   }
 }
 
