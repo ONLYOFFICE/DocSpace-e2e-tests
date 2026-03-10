@@ -4,6 +4,8 @@ import { BaseContextMenu } from "../common/BaseContextMenu";
 import { initialDocNames } from "@/src/utils/constants/files";
 
 const TABLE_LIST_ITEM = ".table-list-item.window-item";
+const EDITORS_ICON = '[data-tooltip-id^="editors-tooltip-"]';
+const EDITORS_TOOLTIP_HEADING = "File is currently edited by:";
 
 const DOCX_FILE_LINK = ".files-item [data-document-title$='.docx']";
 const PDF_FILE_LINK = ".files-item [data-document-title$='.pdf']";
@@ -167,6 +169,46 @@ class FilesTable extends BaseTable {
 
   async expectColumnNotVisible(column: string) {
     await this.expectColumnVisibility(column, false);
+  }
+
+  // Pencil icon that appears on a file row when the file is being edited
+  get editorsIcon() {
+    return this.page.locator(EDITORS_ICON);
+  }
+
+  async hoverEditorsIcon() {
+    await expect(this.editorsIcon).toBeVisible({ timeout: 30000 });
+    await this.editorsIcon.hover();
+  }
+
+  // Verifies the active editors tooltip content.
+  // Re-hovers periodically until all expected entries appear (editors connect via WebSocket gradually).
+  // Pass me: true to check the current user appears as "Me".
+  // Pass displayNames to check specific users by name.
+  async checkEditorsTooltip(
+    options: { me?: boolean; displayNames?: string[] },
+    timeout = 60000,
+  ) {
+    const tooltip = this.page.getByRole("tooltip", {
+      name: EDITORS_TOOLTIP_HEADING,
+    });
+
+    const requiredTexts: string[] = [];
+    if (options.me) requiredTexts.push("Me");
+    if (options.displayNames) requiredTexts.push(...options.displayNames);
+
+    await expect
+      .poll(
+        async () => {
+          // Re-hover each poll iteration to keep tooltip open and refresh its content
+          await this.editorsIcon.hover();
+          await tooltip.waitFor({ state: "visible", timeout: 5000 });
+          const tooltipText = await tooltip.innerText();
+          return requiredTexts.every((name) => tooltipText.includes(name));
+        },
+        { timeout, intervals: [2000, 2000, 2000, 3000, 3000, 5000] },
+      )
+      .toBe(true);
   }
 }
 
