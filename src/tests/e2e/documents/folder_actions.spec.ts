@@ -21,90 +21,105 @@ test.describe("Folder", () => {
     await folder.open();
   });
 
-  test("Folder actions", async () => {
-    await test.step("Create folder", async () => {
-      await folder.filesNavigation.openCreateDropdown();
-      await folder.filesNavigation.selectCreateAction(
-        DOC_ACTIONS.CREATE_FOLDER,
-      );
-      await folder.filesNavigation.modal.checkModalExist();
-      await folder.filesNavigation.modal.checkModalTitleExist("New folder");
-      await folder.filesNavigation.modal.fillCreateTextInput(baseFolder);
-      await folder.filesNavigation.modal.clickCreateButton();
-      await folder.expectFolderVisible(baseFolder);
+  test("Create folder", async () => {
+    await folder.filesNavigation.openCreateDropdown();
+    await folder.filesNavigation.selectCreateAction(DOC_ACTIONS.CREATE_FOLDER);
+    await folder.filesNavigation.modal.checkModalExist();
+    await folder.filesNavigation.modal.checkModalTitleExist("New folder");
+    await folder.filesNavigation.modal.fillCreateTextInput(baseFolder);
+    await folder.filesNavigation.modal.clickCreateButton();
+    await folder.expectFolderVisible(baseFolder);
+  });
+
+  test("Open folder", async () => {
+    await test.step("Precondition: create folder", async () => {
+      await folder.createNew(baseFolder);
     });
 
-    await test.step("Open folder", async () => {
-      await folder.filesTable.openContextMenuForItem(baseFolder);
-      await folder.filesTable.contextMenu.clickOption("Open");
-      await folder.filesNavigation.gotoBack();
+    await folder.filesTable.openContextMenuForItem(baseFolder);
+    await folder.filesTable.contextMenu.clickOption("Open");
+    await folder.filesNavigation.gotoBack();
+  });
+
+  test("Create room from folder", async () => {
+    await test.step("Precondition: create folder", async () => {
+      await folder.createNew(baseFolder);
     });
 
-    await test.step("Create room", async () => {
-      await folder.open();
-      await folder.filesTable.openContextMenuForItem(baseFolder);
-      await folder.filesTable.contextMenu.clickSubmenuOption(
-        "Share",
-        "Create room",
-      );
-      await folder.createRoomFromFolderAndWait(roomCreateTitles.public);
-      await myRooms.openWithoutEmptyCheck();
-      await myRooms.roomsTable.checkRowExist(baseFolder);
-    });
+    await folder.filesTable.openContextMenuForItem(baseFolder);
+    await folder.filesTable.contextMenu.clickSubmenuOption(
+      "Share",
+      "Create room",
+    );
+    await folder.createRoomFromFolderAndWait(roomCreateTitles.public);
+    await myRooms.openWithoutEmptyCheck();
+    await myRooms.roomsTable.checkRowExist(baseFolder);
+  });
 
-    await test.step("Move folder into another folder", async () => {
-      await folder.open();
+  test("Move folder", async () => {
+    await test.step("Precondition: create folders", async () => {
+      await folder.createNew(baseFolder);
       await folder.createNew(folderToMove);
-
-      await folder.filesTable.openContextMenuForItem(folderToMove);
-      await folder.filesTable.contextMenu.clickSubmenuOption(
-        "Move or copy",
-        "Move to",
-      );
-      await folder.filesSelectPanel.checkFileSelectPanelExist();
-      await folder.filesSelectPanel.selectItemByText(baseFolder);
-      await folder.filesSelectPanel.confirmSelection();
-      await folder.expectFolderNotVisible(folderToMove);
     });
 
-    await test.step("Copy", async () => {
+    await folder.filesTable.openContextMenuForItem(folderToMove);
+    await folder.filesTable.contextMenu.clickSubmenuOption(
+      "Move or copy",
+      "Move to",
+    );
+    await folder.filesSelectPanel.checkFileSelectPanelExist();
+    await folder.filesSelectPanel.selectItemByText(baseFolder);
+    await folder.filesSelectPanel.confirmSelection();
+    await folder.expectFolderNotVisible(folderToMove);
+  });
+
+  test("Copy folder", async () => {
+    await test.step("Precondition: create folders", async () => {
+      await folder.createNew(baseFolder);
       await folder.createNew(folderToCopy);
-
-      await folder.filesTable.openContextMenuForItem(folderToCopy);
-      await folder.filesTable.contextMenu.clickSubmenuOption(
-        "Move or copy",
-        "Copy",
-      );
-      await folder.filesSelectPanel.checkFileSelectPanelExist();
-      await folder.filesSelectPanel.selectItemByText(baseFolder);
-      await folder.filesSelectPanel.confirmSelection();
-
-      await folder.filesTable.openContextMenuForItem(baseFolder);
-      await folder.filesTable.contextMenu.clickOption("Open");
-      await folder.expectFolderVisible(folderToCopy);
     });
 
-    await test.step("RenameFolder", async () => {
-      await folder.open();
-      await folder.filesTable.openContextMenuForItem(baseFolder);
-      await folder.filesTable.contextMenu.clickOption("Rename");
-      await folder.filesNavigation.modal.checkModalExist();
-      await folder.filesNavigation.modal.fillCreateTextInput(renamedFolder);
-      await folder.filesNavigation.modal.clickCreateButton();
-      await folder.removeToast(
-        `The folder '${baseFolder}' is renamed to '${renamedFolder}'`,
-      );
-      await folder.expectFolderRenamed(baseFolder, renamedFolder);
+    await folder.filesTable.openContextMenuForItem(folderToCopy);
+    await folder.filesTable.contextMenu.clickSubmenuOption(
+      "Move or copy",
+      "Copy",
+    );
+    await folder.filesSelectPanel.checkFileSelectPanelExist();
+    await folder.filesSelectPanel.selectItemByText(baseFolder);
+    await folder.filesSelectPanel.confirmSelection();
+
+    await folder.filesTable.openContextMenuForItem(baseFolder);
+    await folder.filesTable.contextMenu.clickOption("Open");
+    await folder.expectFolderVisible(folderToCopy);
+  });
+
+  test("Rename folder", async () => {
+    await test.step("Precondition: create folder", async () => {
+      await folder.createNew(baseFolder);
     });
 
-    await test.step("Delete", async () => {
-      await folder.filesTable.openContextMenuForItem(renamedFolder);
-      await folder.filesTable.contextMenu.clickOption("Delete");
-      await folder.folderDeleteModal.clickDeleteFolder();
-      await folder.removeToast(
-        `The folder ${renamedFolder} successfully moved to Trash`,
-      );
-      await folder.expectFolderNotVisible(renamedFolder);
+    await folder.filesTable.openContextMenuForItem(baseFolder);
+    await folder.filesTable.contextMenu.clickOption("Rename");
+    await folder.filesNavigation.modal.checkModalExist();
+    await folder.filesNavigation.modal.fillCreateTextInput(renamedFolder);
+    await folder.filesNavigation.modal.clickCreateButton();
+    await folder.removeToast(
+      `The folder '${baseFolder}' is renamed to '${renamedFolder}'`,
+    );
+    await folder.expectFolderRenamed(baseFolder, renamedFolder);
+  });
+
+  test("Delete folder", async () => {
+    await test.step("Precondition: create folder", async () => {
+      await folder.createNew(baseFolder);
     });
+
+    await folder.filesTable.openContextMenuForItem(baseFolder);
+    await folder.filesTable.contextMenu.clickOption("Delete");
+    await folder.folderDeleteModal.clickDeleteFolder();
+    await folder.removeToast(
+      `The folder ${baseFolder} successfully moved to Trash`,
+    );
+    await folder.expectFolderNotVisible(baseFolder);
   });
 });
