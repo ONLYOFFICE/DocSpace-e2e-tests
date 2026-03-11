@@ -10,15 +10,15 @@ test.describe("Profile", () => {
     profile = new Profile(page);
 
     await login.loginToPortal();
+    await profile.open();
   });
 
-  test("Open profile and edit name", async () => {
-    await test.step("Open profile", async () => {
-      await profile.open();
-      await expect(profile.profileAvatar).toBeVisible();
-    });
+  test("Open profile", async () => {
+    await expect(profile.profileAvatar).toBeVisible();
+  });
 
-    await test.step("Open and cancel change name dialog", async () => {
+  test("Change name", async () => {
+    await test.step("Cancel change name dialog", async () => {
       await profile.openChangeNameDialog();
       await profile.changeNameCancelButton.click();
       await expect(profile.firstNameInput).not.toBeVisible();
@@ -37,7 +37,9 @@ test.describe("Profile", () => {
 
       await profile.expectNameVisible(updatedFullName);
     });
+  });
 
+  test("Avatar", async () => {
     await test.step("Upload avatar", async () => {
       await profile.uploadAvatar();
       await profile.dismissToastSafely(toastMessages.changesSaved);
@@ -48,22 +50,22 @@ test.describe("Profile", () => {
       await profile.deleteAvatar();
       await profile.expectAvatarDeleted();
     });
+  });
 
-    // TODO: Bug #80139
-    // await test.step("Change language via combobox", async () => {
-    //   await profile.changeLanguageTo("Deutsch");
-    //   await profile.expectSelectedLanguage("Deutsch");
-    //   await profile.expectLanguageLabel("Sprache");
-    //   await profile.changeLanguageTo("English (United States)");
-    //   await profile.expectSelectedLanguage("English");
-    // });
+  // 80139
+  test("Change language", async () => {
+    await profile.changeLanguageTo("Deutsch");
+    await profile.expectSelectedLanguage("Deutsch");
+    await profile.expectLanguageLabel("Sprache");
+    await profile.changeLanguageTo("English (United States)");
+    await profile.expectSelectedLanguage("English");
+  });
 
-    await test.step("Switch interface themes", async () => {
-      await profile.selectInterfaceThemeTabs();
-      await profile.selectTheme("Dark");
-      await profile.expectThemeApplied("Dark");
-      await profile.selectTheme("Light");
-      await profile.expectThemeApplied("Light");
-    });
+  test("Interface theme", async () => {
+    await profile.selectInterfaceThemeTabs();
+    await profile.selectTheme("Dark");
+    await profile.expectThemeApplied("Dark");
+    await profile.selectTheme("Light");
+    await profile.expectThemeApplied("Light");
   });
 });

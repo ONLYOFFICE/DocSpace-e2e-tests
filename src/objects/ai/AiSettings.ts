@@ -136,7 +136,9 @@ class AiSettings extends BasePage {
   }
 
   async saveProvider() {
-    await this.page.getByTestId("provider-save-button").click();
+    const button = this.page.getByTestId("provider-save-button");
+    await expect(button).toBeEnabled();
+    await button.click();
   }
 
   async selectWebSearchEngine(engineName: string) {
