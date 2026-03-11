@@ -14,49 +14,72 @@ test.describe("Archive", () => {
     await login.loginToPortal();
   });
 
-  test("Render", async () => {
-    await test.step("Render", async () => {
+  test("Archive rooms", async () => {
+    await myRooms.roomsEmptyView.checkNoRoomsExist();
+    await myRooms.createRooms();
+    await myRooms.moveAllRoomsToArchive();
+    await myRooms.roomsEmptyView.checkNoRoomsExist();
+
+    await myArchive.open();
+    await myRooms.roomsFilter.applyRoomsSort(roomSort.name);
+    await myArchive.archiveTable.checkRowExist(roomCreateTitles.public);
+    await myArchive.archiveTable.checkRowExist(roomCreateTitles.collaboration);
+    await myArchive.archiveTable.checkRowExist(roomCreateTitles.custom);
+  });
+
+  test("Archive info panel", async () => {
+    await test.step("Precondition: create rooms and move to archive", async () => {
       await myRooms.roomsEmptyView.checkNoRoomsExist();
       await myRooms.createRooms();
       await myRooms.moveAllRoomsToArchive();
-      await myRooms.roomsEmptyView.checkNoRoomsExist();
-
       await myArchive.open();
-      await myArchive.hideLastActivityColumn();
-      await myRooms.roomsFilter.applyRoomsSort(roomSort.name);
     });
 
-    await test.step("ContextMenu", async () => {
-      await myArchive.archiveTable.openContextMenuRow(
-        myArchive.archiveTable.tableRows.first(),
-      );
+    await myArchive.infoPanel.open();
+    await myArchive.infoPanel.checkInfoPanelExist();
+    await myArchive.archiveTable.selectRow(roomCreateTitles.public);
+    await myArchive.infoPanel.openTab("History");
+    await myArchive.infoPanel.checkHistoryExist("Room moved to Archive");
+    await myArchive.infoPanel.hideCreationDateHistory();
+    await myArchive.infoPanel.openOptions();
+    await myArchive.infoPanel.close();
+  });
+
+  test("Restore single room from archive", async () => {
+    await test.step("Precondition: create rooms and move to archive", async () => {
+      await myRooms.roomsEmptyView.checkNoRoomsExist();
+      await myRooms.createRooms();
+      await myRooms.moveAllRoomsToArchive();
+      await myArchive.open();
     });
 
-    await test.step("InfoPanel", async () => {
-      await myArchive.infoPanel.open();
-      await myArchive.infoPanel.checkInfoPanelExist();
-      await myArchive.archiveTable.selectRow(roomCreateTitles.public);
-      await myArchive.infoPanel.openTab("History");
-      await myArchive.infoPanel.checkHistoryExist("Room moved to Archive");
-      await myArchive.infoPanel.hideCreationDateHistory();
-      await myArchive.infoPanel.openOptions();
+    await myArchive.restoreSingleRoom(roomCreateTitles.public);
+    await myArchive.archiveTable.checkRowNotExist(roomCreateTitles.public);
+    await myArchive.archiveTable.checkRowExist(roomCreateTitles.collaboration);
+  });
+
+  test("Delete single room from archive", async () => {
+    await test.step("Precondition: create rooms and move to archive", async () => {
+      await myRooms.roomsEmptyView.checkNoRoomsExist();
+      await myRooms.createRooms();
+      await myRooms.moveAllRoomsToArchive();
+      await myArchive.open();
     });
 
-    await test.step("RestoreRooms", async () => {
-      await myArchive.restoreRooms();
-      await myArchive.archiveEmptyView.checkNoArchivedRoomsExist();
+    await myArchive.deleteSingleRoom(roomCreateTitles.public);
+    await myArchive.archiveTable.checkRowNotExist(roomCreateTitles.public);
+    await myArchive.archiveTable.checkRowExist(roomCreateTitles.collaboration);
+  });
+
+  test("Restore from archive", async () => {
+    await test.step("Precondition: create rooms and move to archive", async () => {
+      await myRooms.roomsEmptyView.checkNoRoomsExist();
+      await myRooms.createRooms();
+      await myRooms.moveAllRoomsToArchive();
+      await myArchive.open();
     });
 
-    // Group deletion of rooms from the archive is not supported
-    // so this part of the test is temporarily disabled.
-    // await test.step("DeleteRooms", async () => {
-    //   await myArchive.archiveEmptyView.gotoRooms();
-    //   await myRooms.roomsTable.checkRowExist(roomCreateTitles.public);
-    //   await myRooms.moveAllRoomsToArchive();
-    //   await myRooms.roomsEmptyView.checkNoRoomsExist();
-    //   await myArchive.open();
-    //   await myArchive.deleteRooms();
-    //   await myArchive.archiveEmptyView.checkNoArchivedRoomsExist();
-    // });
+    await myArchive.restoreRooms();
+    await myArchive.archiveEmptyView.checkNoArchivedRoomsExist();
   });
 });

@@ -6,7 +6,12 @@ import BaseTable from "../common/BaseTable";
 import ArchiveEmptyView from "./ArchiveEmptyView";
 import BaseFilter from "../common/BaseFilter";
 import BasePage from "../common/BasePage";
-import { archiveToastMessages } from "@/src/utils/constants/archive";
+
+import { BaseContextMenu } from "../common/BaseContextMenu";
+import {
+  archiveToastMessages,
+  archiveContextMenuOption,
+} from "@/src/utils/constants/archive";
 
 const navActions = {
   restore: {
@@ -16,6 +21,7 @@ const navActions = {
   delete: {
     button: '[data-testid="option_delete"]',
     submit: "#delete-file-modal_submit",
+    confirmCheckboxSelector: "#modal-dialog label[data-testid='checkbox']",
   },
 } as const;
 
@@ -28,6 +34,7 @@ class MyArchive extends BasePage {
   navigation: BaseNavigation;
   archiveTable: BaseTable;
   archiveEmptyView: ArchiveEmptyView;
+  contextMenu: BaseContextMenu;
 
   baseFilter: BaseFilter;
   infoPanel: InfoPanel;
@@ -39,6 +46,7 @@ class MyArchive extends BasePage {
     this.navigation = new BaseNavigation(page, navActions);
     this.archiveTable = new BaseTable(page);
     this.archiveEmptyView = new ArchiveEmptyView(page);
+    this.contextMenu = new BaseContextMenu(page);
     this.baseFilter = new BaseFilter(page);
     this.infoPanel = new InfoPanel(page);
   }
@@ -60,6 +68,20 @@ class MyArchive extends BasePage {
     await this.archiveTable.selectAllRows();
     await this.navigation.performAction(navActions.delete);
     await this.removeToast(archiveToastMessages.removed);
+  }
+
+  async restoreSingleRoom(roomName: string) {
+    await this.archiveTable.openContextMenu(roomName);
+    await this.contextMenu.clickOption(archiveContextMenuOption.restore);
+    await this.page.locator(navActions.restore.submit).click();
+  }
+
+  async deleteSingleRoom(roomName: string) {
+    await this.archiveTable.openContextMenu(roomName);
+    await this.contextMenu.clickOption(archiveContextMenuOption.delete);
+    await this.page.locator(navActions.delete.confirmCheckboxSelector).click();
+    await this.page.locator(navActions.delete.submit).click();
+    await this.removeToast(archiveToastMessages.roomRemoved);
   }
 
   async hideLastActivityColumn() {
