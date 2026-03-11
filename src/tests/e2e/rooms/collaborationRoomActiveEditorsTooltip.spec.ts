@@ -21,27 +21,14 @@ test.describe("Collaboration room - active editors tooltip", () => {
   test.beforeEach(async ({ api, apiSdk }) => {
     portalDomain = api.portalDomain;
 
-    // Create Collaboration room (retry up to 5 times — portal DB may not be ready immediately)
+    // Create Collaboration room
     roomName = "CollaborationRoom_SimultaneousEdit";
-    let roomId_: number | undefined;
-    for (let attempt = 1; attempt <= 5; attempt++) {
-      const roomResponse = await apiSdk.rooms.createRoom("owner", {
-        title: roomName,
-        roomType: "EditingRoom",
-      });
-      if (roomResponse.ok()) {
-        const roomBody = await roomResponse.json();
-        roomId_ = roomBody.response.id;
-        break;
-      }
-      if (attempt === 5) {
-        throw new Error(
-          `createRoom failed after ${attempt} attempts (${roomResponse.status()}): ${await roomResponse.text()}`,
-        );
-      }
-      await new Promise((r) => setTimeout(r, 3000));
-    }
-    roomId = roomId_!;
+    const roomResponse = await apiSdk.rooms.createRoom("owner", {
+      title: roomName,
+      roomType: "EditingRoom",
+    });
+    const roomBody = await roomResponse.json();
+    roomId = roomBody.response.id;
 
     // Create N users in batches of 5 to avoid overwhelming the server
     const BATCH_SIZE = 5;
