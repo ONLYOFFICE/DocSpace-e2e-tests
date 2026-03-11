@@ -1,22 +1,5 @@
-// Collaboration room — active editors tooltip
-//
-// Automated test: verifies that when multiple users open the same document for editing,
+// Verifies that when multiple users open the same document for editing,
 // the pencil icon on the file row shows a tooltip with the correct list of active editors.
-//
-// --- DEBUG / MANUAL TESTING MODE ---
-// This spec can be used to spin up a real test portal with multiple active editors
-// for manual verification on devices (mobile, tablet, etc.).
-//
-// Steps:
-//   1. Re-enable `page.pause()` in the last test step (after tooltip assertion).
-//   2. Set `test.setTimeout(0)` to prevent timeout during the pause.
-//   3. Run in headed mode:
-//        npx playwright test collaborationRoomActiveEditorsTooltip --project=chromium --headed
-//   4. Portal URL and owner credentials will be printed to the console.
-//   5. Open the portal on any device using the printed credentials.
-//   6. When done, click Resume in Playwright Inspector — the portal will be cleaned up.
-//
-// Increase N to create more simultaneous editors (e.g. N = 20 to test scroll in tooltip).
 import { test } from "@/src/fixtures";
 import { expect, BrowserContext, Page } from "@playwright/test";
 import MyRooms from "@/src/objects/rooms/Rooms";
@@ -37,12 +20,6 @@ test.describe("Collaboration room - active editors tooltip", () => {
 
   test.beforeEach(async ({ api, apiSdk }) => {
     portalDomain = api.portalDomain;
-
-    console.log("\n========== PORTAL CREDENTIALS ==========");
-    console.log(`URL:      https://${portalDomain}`);
-    console.log(`Email:    ${config.DOCSPACE_OWNER_EMAIL}`);
-    console.log(`Password: ${config.DOCSPACE_OWNER_PASSWORD}`);
-    console.log("=========================================\n");
 
     // Create Collaboration room (retry up to 5 times — portal DB may not be ready immediately)
     roomName = "CollaborationRoom_SimultaneousEdit";
