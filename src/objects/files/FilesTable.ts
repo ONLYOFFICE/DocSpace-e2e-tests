@@ -4,6 +4,8 @@ import { BaseContextMenu } from "../common/BaseContextMenu";
 import { initialDocNames } from "@/src/utils/constants/files";
 
 const TABLE_LIST_ITEM = ".table-list-item.window-item";
+const EDITORS_ICON = '[data-tooltip-id^="editors-tooltip-"]';
+const EDITORS_TOOLTIP_HEADING = "File is currently edited by:";
 
 const DOCX_FILE_LINK = ".files-item [data-document-title$='.docx']";
 const PDF_FILE_LINK = ".files-item [data-document-title$='.pdf']";
@@ -167,6 +169,54 @@ class FilesTable extends BaseTable {
 
   async expectColumnNotVisible(column: string) {
     await this.expectColumnVisibility(column, false);
+  }
+
+  // Pencil icon that appears on a file row when the file is being edited
+  get editorsIcon() {
+    return this.page.locator(EDITORS_ICON);
+  }
+
+  // Verifies the active editors tooltip content.
+  // Polls until all expected entries appear — the pencil icon and tooltip may take time
+  // to appear as editors connect via WebSocket. Also re-hovers the file row each iteration
+  // because the icon is hidden via CSS until the row is hovered (required for Firefox).
+  // Pass me: true to check the current user appears as "Me".
+  // Pass displayNames to check specific users by name.
+  async checkEditorsTooltip(
+    fileName: string,
+    options: { me?: boolean; displayNames?: string[] },
+    timeout = 60000,
+  ) {
+    const row = this.page
+      .locator(TABLE_LIST_ITEM)
+      .filter({ has: this.page.getByText(fileName, { exact: true }) });
+    const tooltip = this.page.getByRole("tooltip", {
+      name: EDITORS_TOOLTIP_HEADING,
+    });
+
+    const requiredTexts: string[] = [];
+    if (options.me) requiredTexts.push("Me");
+    if (options.displayNames) requiredTexts.push(...options.displayNames);
+
+    await expect
+      .poll(
+        async () => {
+          // Hover the row first to reveal the pencil icon (Firefox CSS requirement)
+          await row.hover();
+          const iconVisible = await this.editorsIcon.isVisible();
+          if (!iconVisible) return false;
+          await this.editorsIcon.hover();
+          try {
+            await tooltip.waitFor({ state: "visible", timeout: 3000 });
+          } catch {
+            return false;
+          }
+          const tooltipText = await tooltip.innerText();
+          return requiredTexts.every((name) => tooltipText.includes(name));
+        },
+        { timeout, intervals: [2000, 2000, 2000, 3000, 3000, 5000] },
+      )
+      .toBe(true);
   }
 }
 
