@@ -203,8 +203,7 @@ test.describe("Collaboration room - active editors tooltip", () => {
 
       await test.step("Owner hovers over the pencil icon and sees active editors tooltip", async () => {
         const ownerRooms = new MyRooms(ownerPage, portalDomain);
-        await ownerRooms.filesTable.hoverEditorsIcon();
-        await ownerRooms.filesTable.checkEditorsTooltip({
+        await ownerRooms.filesTable.checkEditorsTooltip(docName, {
           me: true,
           displayNames: [userDisplayNames[0]],
         });

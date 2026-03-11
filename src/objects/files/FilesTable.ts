@@ -176,19 +176,20 @@ class FilesTable extends BaseTable {
     return this.page.locator(EDITORS_ICON);
   }
 
-  async hoverEditorsIcon() {
-    await expect(this.editorsIcon).toBeVisible({ timeout: 30000 });
-    await this.editorsIcon.hover();
-  }
-
   // Verifies the active editors tooltip content.
-  // Re-hovers periodically until all expected entries appear (editors connect via WebSocket gradually).
+  // Polls until all expected entries appear — the pencil icon and tooltip may take time
+  // to appear as editors connect via WebSocket. Also re-hovers the file row each iteration
+  // because the icon is hidden via CSS until the row is hovered (required for Firefox).
   // Pass me: true to check the current user appears as "Me".
   // Pass displayNames to check specific users by name.
   async checkEditorsTooltip(
+    fileName: string,
     options: { me?: boolean; displayNames?: string[] },
     timeout = 60000,
   ) {
+    const row = this.page
+      .locator(TABLE_LIST_ITEM)
+      .filter({ has: this.page.getByText(fileName, { exact: true }) });
     const tooltip = this.page.getByRole("tooltip", {
       name: EDITORS_TOOLTIP_HEADING,
     });
@@ -200,9 +201,16 @@ class FilesTable extends BaseTable {
     await expect
       .poll(
         async () => {
-          // Re-hover each poll iteration to keep tooltip open and refresh its content
+          // Hover the row first to reveal the pencil icon (Firefox CSS requirement)
+          await row.hover();
+          const iconVisible = await this.editorsIcon.isVisible();
+          if (!iconVisible) return false;
           await this.editorsIcon.hover();
-          await tooltip.waitFor({ state: "visible", timeout: 5000 });
+          try {
+            await tooltip.waitFor({ state: "visible", timeout: 3000 });
+          } catch {
+            return false;
+          }
           const tooltipText = await tooltip.innerText();
           return requiredTexts.every((name) => tooltipText.includes(name));
         },
