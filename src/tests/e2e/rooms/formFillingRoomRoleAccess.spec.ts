@@ -19,6 +19,9 @@ import { formFillingRoomPdfContextMenuOption } from "@/src/utils/constants/files
 
 // Tests for role-based form visibility in FormFilling rooms
 test.describe("FormFillingRoomRoleBasedFormVisibility", () => {
+  // 5 minutes — test involves multiple browser contexts and form filling
+  test.describe.configure({ timeout: 300000 });
+
   test("FormFiller sees only own completed forms, ContentCreator sees all", async ({
     page,
     browser,
@@ -111,10 +114,7 @@ test.describe("FormFillingRoomRoleBasedFormVisibility", () => {
       await userPage.waitForURL(/.*rooms.*/, { waitUntil: "load" });
 
       const shortTour = new ShortTour(userPage);
-      const tourVisible = await shortTour.isTourVisible(6000);
-      if (tourVisible) {
-        await shortTour.clickSkipTour();
-      }
+      await shortTour.clickSkipTour();
 
       return { context, page: userPage };
     }
@@ -148,6 +148,13 @@ test.describe("FormFillingRoomRoleBasedFormVisibility", () => {
     // Navigate into Complete > PDF from device subfolder
     async function openCompleteFolder(userPage: Page) {
       await userPage.reload({ waitUntil: "load" });
+
+      // After reload ContentCreator may land on the rooms list — navigate into the room if needed
+      if (!userPage.url().includes("/rooms/shared/")) {
+        const userRooms = new MyRooms(userPage, api.portalDomain);
+        await userRooms.roomsTable.openRoomByName("FormFillingRoom");
+      }
+
       await expect(userPage.getByLabel("PDF from device,")).toBeVisible();
 
       const filesTable = new FilesTable(userPage);
