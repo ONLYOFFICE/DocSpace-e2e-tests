@@ -320,6 +320,9 @@ class Customization extends BasePage {
 
   private async waitForComboButtonEnabled(comboButton: Locator) {
     await expect(comboButton).toBeVisible();
+    await expect(
+      comboButton.locator('[aria-haspopup="listbox"]'),
+    ).not.toHaveAttribute("aria-disabled", "true");
   }
 }
 

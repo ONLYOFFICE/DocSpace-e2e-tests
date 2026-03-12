@@ -179,7 +179,7 @@ export class Payments extends BasePage {
   }
 
   get emptyViewText() {
-    return this.page.getByText("No findings found", {
+    return this.page.getByText("No transactions yet", {
       exact: true,
     });
   }
