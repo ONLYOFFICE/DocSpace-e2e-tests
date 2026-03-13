@@ -10,6 +10,10 @@ import BasePage from "../common/BasePage";
 import DownloadDialog from "./DownloadDialog";
 import FilesSelectPanel from "./FilesSelectPanel";
 import FolderDeleteModal from "./FolderDeleteModal";
+import DocumentEditor from "./DocumentEditor";
+import SpreadsheetEditor from "./SpreadsheetEditor";
+import PresentationEditor from "./PresentationEditor";
+import PdfFormEditor from "./PdfFormEditor";
 import { ORIGINAL_DOC_EXTENSIONS } from "@/src/constants/downloadFormats";
 import { DOC_ACTIONS } from "@/src/utils/constants/files";
 import { TRoomCreateTitles } from "@/src/utils/constants/rooms";
@@ -139,6 +143,58 @@ class MyDocuments extends BasePage {
     ]).catch(() => [null]);
     await newPage?.close();
     await this.filesTable.checkRowExist(fileName);
+  }
+
+  async createDocumentAndOpenEditor(fileName = "Document") {
+    await this.filesNavigation.openCreateDropdown();
+    await this.filesNavigation.selectCreateAction(DOC_ACTIONS.CREATE_DOCUMENT);
+    await this.filesNavigation.modal.fillCreateTextInput(fileName);
+    const [editorPage] = await Promise.all([
+      this.page.context().waitForEvent("page"),
+      this.filesNavigation.modal.clickCreateButton(),
+    ]);
+    await editorPage.waitForLoadState("load");
+    return new DocumentEditor(editorPage);
+  }
+
+  async createSpreadsheetAndOpenEditor(fileName = "Spreadsheet") {
+    await this.filesNavigation.openCreateDropdown();
+    await this.filesNavigation.selectCreateAction(
+      DOC_ACTIONS.CREATE_SPREADSHEET,
+    );
+    await this.filesNavigation.modal.fillCreateTextInput(fileName);
+    const [editorPage] = await Promise.all([
+      this.page.context().waitForEvent("page"),
+      this.filesNavigation.modal.clickCreateButton(),
+    ]);
+    await editorPage.waitForLoadState("load");
+    return new SpreadsheetEditor(editorPage);
+  }
+
+  async createPresentationAndOpenEditor(fileName = "Presentation") {
+    await this.filesNavigation.openCreateDropdown();
+    await this.filesNavigation.selectCreateAction(
+      DOC_ACTIONS.CREATE_PRESENTATION,
+    );
+    await this.filesNavigation.modal.fillCreateTextInput(fileName);
+    const [editorPage] = await Promise.all([
+      this.page.context().waitForEvent("page"),
+      this.filesNavigation.modal.clickCreateButton(),
+    ]);
+    await editorPage.waitForLoadState("load");
+    return new PresentationEditor(editorPage);
+  }
+
+  async createPdfFormAndOpenEditor(fileName = "PDF Form") {
+    await this.filesNavigation.openCreateDropdown();
+    await this.filesNavigation.selectCreateAction(DOC_ACTIONS.CREATE_PDF_BLANK);
+    await this.filesNavigation.modal.fillCreateTextInput(fileName);
+    const [editorPage] = await Promise.all([
+      this.page.context().waitForEvent("page"),
+      this.filesNavigation.modal.clickCreateButton(),
+    ]);
+    await editorPage.waitForLoadState("load");
+    return new PdfFormEditor(editorPage);
   }
 
   async deleteFile(fileName: string) {
