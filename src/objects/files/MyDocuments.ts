@@ -202,6 +202,46 @@ class MyDocuments extends BasePage {
     await this.filesSelectPanel.selectItemByText(roomName);
   }
 
+  async bulkDeleteFiles(fileNames: string[]) {
+    await this.filesTable.selectMultipleRows(fileNames);
+    await this.filesNavigation.delete();
+    await this.removeToast("successfully moved to Trash");
+    for (const fileName of fileNames) {
+      await this.filesTable.checkRowNotExist(fileName);
+    }
+  }
+
+  async bulkMoveTo(fileNames: string[], folderName: string) {
+    await this.filesTable.selectMultipleRows(fileNames);
+    await this.filesNavigation.bulkMoveTo();
+    await this.filesSelectPanel.checkFileSelectPanelExist();
+    await this.filesSelectPanel.selectItemByText(folderName);
+    await this.filesSelectPanel.confirmSelection();
+    for (const fileName of fileNames) {
+      await this.filesTable.checkRowNotExist(fileName);
+    }
+  }
+
+  async bulkCopyTo(fileNames: string[], folderName: string) {
+    await this.filesTable.selectMultipleRows(fileNames);
+    await this.filesNavigation.bulkCopy();
+    await this.filesSelectPanel.checkFileSelectPanelExist();
+    await this.filesSelectPanel.selectItemByText(folderName);
+    await this.filesSelectPanel.confirmSelection();
+    for (const fileName of fileNames) {
+      await this.filesTable.checkRowExist(fileName);
+    }
+  }
+
+  async bulkDownload(fileNames: string[]) {
+    const download = await this.waitForDownload(async () => {
+      await this.filesTable.selectMultipleRows(fileNames);
+      await this.filesNavigation.bulkDownload();
+    });
+    expect(download.suggestedFilename().toLowerCase()).toContain(".zip");
+    await download.delete();
+  }
+
   async confirmMoveToPublicRoom() {
     await this.page.getByRole("button", { name: "OK" }).click();
   }

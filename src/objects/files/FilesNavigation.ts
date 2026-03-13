@@ -13,6 +13,15 @@ const navActions = {
     button: "#menu-delete",
     submit: "#delete-file-modal_submit",
   },
+  bulkMoveTo: {
+    button: "[data-testid='table_group_menu_item_menu-move-to']",
+  },
+  bulkCopy: {
+    button: "[data-testid='table_group_menu_item_menu-copy']",
+  },
+  bulkDownload: {
+    button: "[data-testid='table_group_menu_item_menu-download']",
+  },
 } as const;
 
 class FilesNavigation extends BaseNavigation {
@@ -46,6 +55,18 @@ class FilesNavigation extends BaseNavigation {
 
   async delete() {
     await this.performAction(navActions.delete);
+  }
+
+  async bulkMoveTo() {
+    await this.performAction(navActions.bulkMoveTo);
+  }
+
+  async bulkCopy() {
+    await this.performAction(navActions.bulkCopy);
+  }
+
+  async bulkDownload() {
+    await this.performAction(navActions.bulkDownload);
   }
 
   async selectCreateAction(actionText: string) {
