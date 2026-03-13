@@ -64,6 +64,17 @@ class FilesTable extends BaseTable {
     await this.openContextMenuRow(this.docxFile);
   }
 
+  async selectMultipleRows(titles: string[]) {
+    if (titles.length === 0) return;
+
+    for (const title of titles) {
+      const row = await this.getRowByTitle(title);
+      await expect(row).toBeVisible();
+      await row.locator("[data-testid='table-cell']").first().click();
+      await this.expectRowIsChecked(row);
+    }
+  }
+
   async openContextMenuForItem(name: string, exact = false) {
     const item = exact
       ? this.page

@@ -143,6 +143,20 @@ class BaseTable {
     await expect(row).not.toBeVisible();
   }
 
+  async selectMultipleRows(titles: string[]) {
+    if (titles.length === 0) return;
+
+    for (const title of titles) {
+      const row = await this.getRowByTitle(title);
+      await expect(row).toBeVisible();
+      await row.hover();
+      const checkbox = row.getByRole("checkbox");
+      await expect(checkbox).toBeVisible();
+      await checkbox.click();
+      await this.expectRowIsChecked(row);
+    }
+  }
+
   async resetSelect() {
     await this.page.keyboard.press("Escape");
   }
