@@ -113,25 +113,25 @@ class Security extends BasePage {
     return this.page.getByPlaceholder(" ", { exact: true });
   }
   get passwordStrengthGuideLink() {
-    return this.page.locator(".category-item-description > a").first();
+    return this.page.getByTestId("password_strength_learn_more");
   }
   get twoFactorAuthenticationGuideLink() {
-    return this.page.locator("div:nth-child(7) > a");
+    return this.page.getByTestId("tfa_component_learn_more");
   }
   get trustedDomainGuideLink() {
-    return this.page.locator("div:nth-child(11) > a");
+    return this.page.getByTestId("trusted_mail_component_learn_more");
   }
   get ipSecurityGuideLink() {
-    return this.page.locator("div:nth-child(15) > a");
+    return this.page.getByTestId("ip_security_component_learn_more");
   }
   get bruteForceGuideLink() {
-    return this.page.locator(".description > a");
+    return this.page.getByTestId("brute_force_protection_learn_more");
   }
   get adminMessageGuideLink() {
-    return this.page.locator("div:nth-child(32) > a");
+    return this.page.getByTestId("administrator_message_component_learn_more");
   }
   get sessionLifetimeGuideLink() {
-    return this.page.locator("div:nth-child(36) > a");
+    return this.page.getByTestId("session_lifetime_component_learn_more");
   }
 
   async open() {
