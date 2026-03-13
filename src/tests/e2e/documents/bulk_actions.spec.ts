@@ -38,7 +38,6 @@ test.describe("My Documents: Bulk actions", () => {
   });
 
   test("Bulk delete files", async () => {
-
     await test.step("Create files", async () => {
       await myDocuments.createDocumentFile("File1");
       await myDocuments.createDocumentFile("File2");
