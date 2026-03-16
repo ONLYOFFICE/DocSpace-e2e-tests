@@ -22,8 +22,7 @@ test.describe("Favorites", () => {
     await myDocuments.filesArticle.createFiles();
   });
 
-  // TODO: Bug — removing one document from favorites also removes all other favorited documents
-  test.skip("Add and remove favorites", async ({}) => {
+  test("Add to favorites", async () => {
     await test.step("Mark all documents as favorites", async () => {
       await myDocuments.addToFavorites(documentName);
       await myDocuments.addToFavorites(spreadsheetName);
@@ -43,8 +42,20 @@ test.describe("Favorites", () => {
       await favorites.filesTable.checkRowExist(pdfFormName);
       await favorites.filesTable.checkRowExist(folderName);
     });
+  });
 
-    await test.step("Remove single document from favorite", async () => {
+  // TODO: Bug — removing one document from favorites also removes all other favorited documents
+  test.skip("Remove from favorites", async ({}) => {
+    await test.step("Mark all documents as favorites", async () => {
+      await myDocuments.addToFavorites(documentName);
+      await myDocuments.addToFavorites(spreadsheetName);
+      await myDocuments.addToFavorites(presentationName);
+      await myDocuments.addToFavorites(pdfFormName);
+      await myDocuments.addToFavorites(folderName);
+    });
+
+    await test.step("Remove from Favorites", async () => {
+      await favorites.openFromNavigation();
       await favorites.removeFromFavorites(documentName);
       await favorites.filesTable.checkRowNotExist(documentName);
     });
