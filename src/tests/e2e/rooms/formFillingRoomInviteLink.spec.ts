@@ -15,6 +15,7 @@ import {
   getLinkFromClipboard,
   ensureIncognitoPage,
 } from "@/src/utils/helpers/linkTest";
+import { formFillingRoomPdfContextMenuOption } from "@/src/utils/constants/files";
 
 // Tests for "Invite via link" in FormFilling rooms
 test.describe("FormFilling room - Invite via link tests", () => {
@@ -295,7 +296,73 @@ test.describe("FormFilling room - Invite via link tests", () => {
     });
   });
 
-  // TODO: Add test - Form Filler sees PDF form after it is started for filling
+  // Owner starts the PDF form for filling; Form Filler joining via invite link should see it
+  test("Form Filler sees PDF form after it is started for filling", async ({
+    page,
+    browser,
+    apiSdk,
+  }) => {
+    let userData: {
+      email: string;
+      password: string;
+      firstName: string;
+      lastName: string;
+    };
+
+    await test.step("Create user via API", async () => {
+      const result = await apiSdk.profiles.addMember("owner", "User");
+      userData = result.userData;
+    });
+
+    await test.step("Open invite dialog and enable invite via link", async () => {
+      await setupClipboardPermissions(page);
+      await myRooms.infoPanel.open();
+      await myRooms.infoPanel.openTab("Contacts");
+      await roomInfoPanel.clickAddUser();
+      await roomsInviteDialog.enableInviteViaLink();
+    });
+
+    let inviteLink: string;
+
+    await test.step("Get invite link from clipboard", async () => {
+      inviteLink = await getLinkFromClipboard(page);
+    });
+
+    await test.step("Owner starts filling the PDF form", async () => {
+      await roomsInviteDialog.close();
+      await myRooms.filesTable.openContextMenuForItem("PDF from device");
+      await myRooms.filesTable.contextMenu.clickOption(
+        formFillingRoomPdfContextMenuOption.startFilling,
+      );
+      await shortTour.clickModalCloseButton();
+    });
+
+    await test.step("Open invite link in incognito and login", async () => {
+      const result = await setupIncognitoContext(browser);
+      incognitoContext = result.context;
+      incognitoPage = result.page;
+
+      await incognitoPage.goto(inviteLink, { waitUntil: "load" });
+
+      const inviteLogin = new RoomInviteLogin(incognitoPage);
+      await inviteLogin.login(userData.email, userData.password);
+    });
+
+    await test.step("Verify FormFillingRoom opens", async () => {
+      ensureIncognitoPage(incognitoPage);
+
+      await incognitoPage.waitForURL(/.*rooms.*/, { waitUntil: "load" });
+
+      const incognitoShortTour = new ShortTour(incognitoPage);
+      await incognitoShortTour.clickSkipTour();
+    });
+
+    await test.step("Verify started PDF form is visible to Form Filler", async () => {
+      ensureIncognitoPage(incognitoPage);
+
+      await expect(incognitoPage.getByLabel("PDF from device,")).toBeVisible();
+    });
+  });
 
   // Content Creator has elevated access and can see uploaded forms without starting them
   test("Content Creator sees unstarted PDF form after joining via invite link", async ({
@@ -352,10 +419,7 @@ test.describe("FormFilling room - Invite via link tests", () => {
       await incognitoPage.waitForURL(/.*rooms.*/, { waitUntil: "load" });
 
       const incognitoShortTour = new ShortTour(incognitoPage);
-      const tourVisible = await incognitoShortTour.isTourVisible(6000);
-      if (tourVisible) {
-        await incognitoShortTour.clickSkipTour();
-      }
+      await incognitoShortTour.clickSkipTour();
     });
 
     await test.step("Verify unstarted PDF form is visible to Content Creator", async () => {
@@ -434,10 +498,7 @@ test.describe("FormFilling room - Invite via link tests", () => {
       await incognitoPage.waitForURL(/.*rooms.*/, { waitUntil: "load" });
 
       const incognitoShortTour = new ShortTour(incognitoPage);
-      const tourVisible = await incognitoShortTour.isTourVisible(6000);
-      if (tourVisible) {
-        await incognitoShortTour.clickSkipTour();
-      }
+      await incognitoShortTour.clickSkipTour();
     });
 
     await test.step("Verify unstarted PDF form is not visible to guest", async () => {
@@ -462,5 +523,77 @@ test.describe("FormFilling room - Invite via link tests", () => {
     });
   });
 
-  // TODO: Add test - Guest sees PDF form after it is started for filling
+  // Owner starts the PDF form for filling; Guest registering via invite link should see it
+  test("Guest sees PDF form after it is started for filling", async ({
+    page,
+    browser,
+  }) => {
+    const guestData = {
+      firstName: "FillingGuest",
+      lastName: "TestUser",
+      password: "TestPassword123!",
+      email: `filling_guest_${Date.now()}@test.com`,
+    };
+
+    await test.step("Open invite dialog and enable invite via link", async () => {
+      await setupClipboardPermissions(page);
+      await myRooms.infoPanel.open();
+      await myRooms.infoPanel.openTab("Contacts");
+      await roomInfoPanel.clickAddUser();
+      await roomsInviteDialog.enableInviteViaLink();
+    });
+
+    let inviteLink: string;
+
+    await test.step("Get invite link from clipboard", async () => {
+      inviteLink = await getLinkFromClipboard(page);
+    });
+
+    await test.step("Owner starts filling the PDF form", async () => {
+      await roomsInviteDialog.close();
+      await myRooms.filesTable.openContextMenuForItem("PDF from device");
+      await myRooms.filesTable.contextMenu.clickOption(
+        formFillingRoomPdfContextMenuOption.startFilling,
+      );
+      await shortTour.clickModalCloseButton();
+    });
+
+    await test.step("Open invite link in incognito and enter non-existing email", async () => {
+      const result = await setupIncognitoContext(browser);
+      incognitoContext = result.context;
+      incognitoPage = result.page;
+
+      await incognitoPage.goto(inviteLink, { waitUntil: "load" });
+
+      const inviteLogin = new RoomInviteLogin(incognitoPage);
+      await inviteLogin.fillEmail(guestData.email);
+      await inviteLogin.clickContinue();
+    });
+
+    await test.step("Fill registration form and submit", async () => {
+      ensureIncognitoPage(incognitoPage);
+
+      const registration = new RoomGuestRegistration(incognitoPage);
+      await registration.register(
+        guestData.firstName,
+        guestData.lastName,
+        guestData.password,
+      );
+    });
+
+    await test.step("Verify FormFillingRoom opens", async () => {
+      ensureIncognitoPage(incognitoPage);
+
+      await incognitoPage.waitForURL(/.*rooms.*/, { waitUntil: "load" });
+
+      const incognitoShortTour = new ShortTour(incognitoPage);
+      await incognitoShortTour.clickSkipTour();
+    });
+
+    await test.step("Verify started PDF form is visible to Guest", async () => {
+      ensureIncognitoPage(incognitoPage);
+
+      await expect(incognitoPage.getByLabel("PDF from device,")).toBeVisible();
+    });
+  });
 });
