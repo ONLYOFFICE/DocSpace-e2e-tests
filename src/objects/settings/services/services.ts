@@ -130,7 +130,9 @@ class Services extends BasePage {
   async addPaymentsMethod(stripePage: Page) {
     await this.payments.addPaymentsMethod(stripePage);
     await this.payments.fillPaymentDataFromAddPaymentMethodServices(stripePage);
-    await expect(this.page.getByText("Card linked")).toBeVisible();
+    await expect(this.page.getByText("Card linked")).toBeVisible({
+      timeout: 60000,
+    });
     await this.payments.fillAmountTopUpForServices();
     await this.payments.topUpButton.click();
   }

@@ -77,11 +77,10 @@ class Apisystem {
       headers: { Authorization: `Bearer ${this.auth.authTokenOwner}` },
       data: { reference: `${this.portalName}.onlyoffice.io` },
     });
-    const body = await response.json();
 
     if (!response.ok()) {
       throw new Error(
-        `Failed to delete portal: ${response.status()} - ${body.error || body.message}`,
+        `Failed to delete portal ${this.portalDomain}: ${response.status()}`,
       );
     }
   }
