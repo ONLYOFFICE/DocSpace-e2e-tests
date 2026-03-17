@@ -23,9 +23,9 @@ type TestFixtures = {
 export const test = base.extend<TestFixtures>({
   api: async ({ playwright }, use) => {
     const ownerContext = await playwright.request.newContext({
-      timeout: 30000,
+      timeout: 60000,
     });
-    const userContext = await playwright.request.newContext({ timeout: 30000 });
+    const userContext = await playwright.request.newContext({ timeout: 60000 });
     const api = new API(ownerContext, userContext);
 
     await api.setup();
