@@ -22,6 +22,7 @@ const TABLE_HEADER_TYPE = "[data-testid='column-Type']";
 const TABLE_HEADER_TAGS = "[data-testid='column-Tags']";
 const TABLE_HEADER_OWNER = "[data-testid='column-Owner']";
 const TABLE_HEADER_ACTIVITY = "[data-testid='column-Activity']";
+const TAG_ITEM_BUTTON = "[data-testid='tag_item']";
 
 class RoomsTable extends BaseTable {
   contextMenu: BaseContextMenu;
@@ -118,6 +119,12 @@ class RoomsTable extends BaseTable {
 
   async clickTag(tagValue: string) {
     await this.page.getByText(tagValue, { exact: true }).click();
+  }
+
+  async openInlineTagsPanel(roomName: string) {
+    await this.selectRow(roomName);
+    const row = await this.getRowByTitle(roomName);
+    await row.locator(TAG_ITEM_BUTTON).click();
   }
 
   async checkRoomPinnedToTopExist() {
