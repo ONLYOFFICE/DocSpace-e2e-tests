@@ -352,10 +352,7 @@ test.describe("FormFilling room - Invite via link tests", () => {
       await incognitoPage.waitForURL(/.*rooms.*/, { waitUntil: "load" });
 
       const incognitoShortTour = new ShortTour(incognitoPage);
-      const tourVisible = await incognitoShortTour.isTourVisible(6000);
-      if (tourVisible) {
-        await incognitoShortTour.clickSkipTour();
-      }
+      await incognitoShortTour.clickSkipTour();
     });
 
     await test.step("Verify unstarted PDF form is visible to Content Creator", async () => {
@@ -435,9 +432,7 @@ test.describe("FormFilling room - Invite via link tests", () => {
 
       const incognitoShortTour = new ShortTour(incognitoPage);
       const tourVisible = await incognitoShortTour.isTourVisible(6000);
-      if (tourVisible) {
-        await incognitoShortTour.clickSkipTour();
-      }
+      await incognitoShortTour.clickSkipTour();
     });
 
     await test.step("Verify unstarted PDF form is not visible to guest", async () => {
