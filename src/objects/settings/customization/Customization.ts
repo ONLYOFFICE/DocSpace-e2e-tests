@@ -230,10 +230,22 @@ class Customization extends BasePage {
     await this.logoSaveButton.click();
   }
 
+  async checkLogoTextValue(value: string) {
+    await expect(this.textInputLogo).toHaveValue(value);
+  }
+
+  async checkLogoTextEmpty() {
+    await expect(this.textInputLogo).toHaveValue("");
+  }
+
   async brandName() {
     await this.textInputBrandName.first().fill("AutoTesting");
     await expect(this.brandNameSaveButton).toBeVisible();
     await this.brandNameSaveButton.click();
+  }
+
+  async checkBrandNameValue(name: string) {
+    await expect(this.textInputBrandName.first()).toHaveValue(name);
   }
 
   async selectTheme() {
@@ -316,6 +328,19 @@ class Customization extends BasePage {
     await this.configureDeepLinkCancelButton.click();
     await this.appOnly.click();
     await this.configureDeepLinkSaveButton.click();
+  }
+
+  private getDeepLinkRadio(option: "appOnly" | "webOnly" | "webOrApp") {
+    const locatorMap = {
+      appOnly: this.appOnly,
+      webOnly: this.webOnly,
+      webOrApp: this.webOrApp,
+    };
+    return locatorMap[option].locator("input[type=radio]");
+  }
+
+  async checkDeepLinkOption(option: "appOnly" | "webOnly" | "webOrApp") {
+    await expect(this.getDeepLinkRadio(option)).toBeChecked();
   }
 
   private async waitForComboButtonEnabled(comboButton: Locator) {

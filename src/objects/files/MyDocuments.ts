@@ -150,7 +150,7 @@ class MyDocuments extends BasePage {
     await this.filesNavigation.selectCreateAction(DOC_ACTIONS.CREATE_DOCUMENT);
     await this.filesNavigation.modal.fillCreateTextInput(fileName);
     const [editorPage] = await Promise.all([
-      this.page.context().waitForEvent("page"),
+      this.page.context().waitForEvent("page", { timeout: 30000 }),
       this.filesNavigation.modal.clickCreateButton(),
     ]);
     await editorPage.waitForLoadState("load");
@@ -164,7 +164,7 @@ class MyDocuments extends BasePage {
     );
     await this.filesNavigation.modal.fillCreateTextInput(fileName);
     const [editorPage] = await Promise.all([
-      this.page.context().waitForEvent("page"),
+      this.page.context().waitForEvent("page", { timeout: 30000 }),
       this.filesNavigation.modal.clickCreateButton(),
     ]);
     await editorPage.waitForLoadState("load");
@@ -178,7 +178,7 @@ class MyDocuments extends BasePage {
     );
     await this.filesNavigation.modal.fillCreateTextInput(fileName);
     const [editorPage] = await Promise.all([
-      this.page.context().waitForEvent("page"),
+      this.page.context().waitForEvent("page", { timeout: 30000 }),
       this.filesNavigation.modal.clickCreateButton(),
     ]);
     await editorPage.waitForLoadState("load");
@@ -190,7 +190,7 @@ class MyDocuments extends BasePage {
     await this.filesNavigation.selectCreateAction(DOC_ACTIONS.CREATE_PDF_BLANK);
     await this.filesNavigation.modal.fillCreateTextInput(fileName);
     const [editorPage] = await Promise.all([
-      this.page.context().waitForEvent("page"),
+      this.page.context().waitForEvent("page", { timeout: 30000 }),
       this.filesNavigation.modal.clickCreateButton(),
     ]);
     await editorPage.waitForLoadState("load");
