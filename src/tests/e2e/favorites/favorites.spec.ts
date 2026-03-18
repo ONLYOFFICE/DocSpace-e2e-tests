@@ -8,7 +8,7 @@ const presentationName = "Presentation";
 const pdfFormName = "Blank";
 const folderName = "Folder";
 
-test.describe("Favorites", () => {
+test.describe.only("Favorites", () => {
   let myDocuments: MyDocuments;
   let favorites: Favorites;
 

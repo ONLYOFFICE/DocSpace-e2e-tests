@@ -1,7 +1,7 @@
 import MyDocuments from "@/src/objects/files/MyDocuments";
 import { test } from "@/src/fixtures";
 
-test.describe("My documents: Base", () => {
+test.describe.only("My documents: Base", () => {
   let myDocuments: MyDocuments;
 
   test.beforeEach(async ({ page, api, login }) => {

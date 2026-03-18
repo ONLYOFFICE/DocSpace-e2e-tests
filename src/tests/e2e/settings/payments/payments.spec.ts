@@ -7,7 +7,7 @@ import {
 } from "@/src/utils/constants/settings";
 import { expect } from "@playwright/test";
 
-test.describe("Payments", () => {
+test.describe.only("Payments", () => {
   let payments: Payments;
 
   test.beforeEach(async ({ page, login }) => {

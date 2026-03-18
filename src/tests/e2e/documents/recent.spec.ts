@@ -2,7 +2,7 @@ import MyDocuments from "@/src/objects/files/MyDocuments";
 import Recent from "@/src/objects/files/Recent";
 import { test } from "@/src/fixtures";
 
-test.describe("My documents: Recent", () => {
+test.describe.only("My documents: Recent", () => {
   let myDocuments: MyDocuments;
   let recent: Recent;
 

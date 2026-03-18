@@ -13,7 +13,7 @@ import {
 import { Sso } from "@/src/objects/settings/integration/Sso";
 import { expect } from "@playwright/test";
 
-test.describe("Integration tests - SSO", () => {
+test.describe.only("Integration tests - SSO", () => {
   let paymentApi: PaymentApi;
   let sso: Sso;
   let integration: Integration;

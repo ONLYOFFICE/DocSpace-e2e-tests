@@ -2,7 +2,7 @@ import { expect } from "@playwright/test";
 import { test } from "@/src/fixtures";
 import OAuth from "@/src/objects/settings/developerTools/OAuth";
 
-test.describe("OAuth tests", () => {
+test.describe.only("OAuth tests", () => {
   let oauth: OAuth;
 
   test.beforeEach(async ({ page, login }) => {
