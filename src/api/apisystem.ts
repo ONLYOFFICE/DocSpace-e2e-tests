@@ -73,10 +73,24 @@ class Apisystem {
 
     const deleteUrl = `https://${this.portalDomain}/api/2.0/portal/deleteportalimmediately`;
 
-    const response = await this.apiContext.delete(deleteUrl, {
+    const deleteRequest = this.apiContext.delete(deleteUrl, {
       headers: { Authorization: `Bearer ${this.auth.authTokenOwner}` },
       data: { reference: `${this.portalName}.onlyoffice.io` },
     });
+
+    const hardTimeout = new Promise<never>((_, reject) =>
+      setTimeout(
+        () =>
+          reject(
+            new Error(
+              `deletePortal timed out after 60s for ${this.portalDomain}`,
+            ),
+          ),
+        60000,
+      ),
+    );
+
+    const response = await Promise.race([deleteRequest, hardTimeout]);
 
     if (!response.ok()) {
       throw new Error(
