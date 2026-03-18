@@ -106,7 +106,7 @@ class RoomsGroupTags {
     await this.groupTagsRow.getByText(groupName).click();
   }
 
-  async checkGroupTagSelected(_groupName: string) {
+  async checkGroupTagSelected() {
     await expect(this.page).toHaveURL(/[?&]groupId=\d+/);
   }
 
