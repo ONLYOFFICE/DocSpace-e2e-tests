@@ -3,7 +3,7 @@ import StorageManagement from "@/src/objects/settings/storageManagement/StorageM
 import { PaymentApi } from "@/src/api/payment";
 import { toastMessages } from "@/src/utils/constants/settings";
 
-test.describe("Storage Management", () => {
+test.describe.only("Storage Management", () => {
   let paymentApi: PaymentApi;
   let storageManagement: StorageManagement;
 

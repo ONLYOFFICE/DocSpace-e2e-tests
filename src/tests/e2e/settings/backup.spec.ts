@@ -9,7 +9,7 @@ import {
 import { test } from "@/src/fixtures";
 import { expect } from "@playwright/test";
 
-test.describe("Backup portal tests", () => {
+test.describe.only("Backup portal tests", () => {
   let backup: Backup;
 
   test.beforeEach(async ({ page, login, payments, services }) => {
