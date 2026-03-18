@@ -36,9 +36,11 @@ export const test = base.extend<TestFixtures>({
     await api.auth.authenticateOwner();
     console.log(`Deleting portal: ${api.portalDomain}`);
     await api.cleanup();
-
+    console.log(`[fixture] portal deleted, disposing contexts`);
     await ownerContext.dispose();
+    console.log(`[fixture] ownerContext disposed`);
     await userContext.dispose();
+    console.log(`[fixture] userContext disposed`);
   },
 
   page: async ({ browser }, use) => {

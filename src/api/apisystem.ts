@@ -80,16 +80,18 @@ class Apisystem {
       data: { reference: `${this.portalName}.onlyoffice.io` },
     });
 
-    const hardTimeout = new Promise<never>((_, reject) =>
-      setTimeout(() => {
+    const hardTimeout = new Promise<never>((_, reject) => {
+      const timer = setTimeout(() => {
         console.log(`[deletePortal] TIMEOUT fired for ${this.portalDomain}`);
         reject(
           new Error(
             `deletePortal timed out after 60s for ${this.portalDomain}`,
           ),
         );
-      }, 60000),
-    );
+      }, 60000);
+      timer.unref();
+    });
+    hardTimeout.catch(() => {});
 
     const response = await Promise.race([deleteRequest, hardTimeout]);
     console.log(
