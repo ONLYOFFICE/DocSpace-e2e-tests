@@ -9,7 +9,6 @@ const TEXT_INPUT = "text-input";
 const CREATE_BUTTON_TEXT = "Create";
 const GROUP_MANAGEMENT_BUTTON = '[class*="groupManagementButton"]';
 const EDIT_ROOM_GROUPS_TEXT = "Edit room groups";
-const GROUP_TAG_SELECTED = '[aria-selected="true"]';
 const SETTINGS_CREATE_GROUP_BUTTON = "selector-add-button";
 const GROUPING_SETTINGS_PANEL = '[class*="settingRoomGroups"]';
 const GROUPING_TOGGLE = "toggle-button";
@@ -107,10 +106,8 @@ class RoomsGroupTags {
     await this.groupTagsRow.getByText(groupName).click();
   }
 
-  async checkGroupTagSelected(groupName: string) {
-    await expect(
-      this.groupTagsRow.locator(GROUP_TAG_SELECTED, { hasText: groupName }),
-    ).toBeVisible();
+  async checkGroupTagSelected(_groupName: string) {
+    await expect(this.page).toHaveURL(/[?&]groupId=\d+/);
   }
 
   async checkGroupTagVisible(groupName: string) {

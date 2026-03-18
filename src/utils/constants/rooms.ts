@@ -87,6 +87,8 @@ export const roomToastMessages = {
     `Room based on the template «${roomName}» created.`,
   removedFromGroup: (groupName: string) =>
     `The selected room has been removed from ${groupName}.`,
+  roomGroupingEnabled: "Room grouping is enabled",
+  roomGroupingDisabled: "Room grouping is disabled",
 };
 
 export type TRoomSort = (typeof roomSort)[keyof typeof roomSort];

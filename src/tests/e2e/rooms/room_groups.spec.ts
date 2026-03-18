@@ -1,6 +1,7 @@
 import { expect } from "@playwright/test";
 import { test } from "@/src/fixtures";
 import MyRooms from "@/src/objects/rooms/Rooms";
+import ProfileFileManagement from "@/src/objects/profile/ProfileFileManagement";
 import {
   roomContextMenuOption,
   roomGroupContextMenuOption,
@@ -14,9 +15,11 @@ const GROUP_NAME_2 = "My Test Group 2";
 
 test.describe("Rooms: Group Tags", () => {
   let myRooms: MyRooms;
+  let profileFileManagement: ProfileFileManagement;
 
   test.beforeEach(async ({ page, api, apiSdk, login }) => {
     myRooms = new MyRooms(page, api.portalDomain);
+    profileFileManagement = new ProfileFileManagement(page, api.portalDomain);
 
     await apiSdk.rooms.createRoom("owner", {
       title: ROOM1_NAME,
@@ -35,9 +38,12 @@ test.describe("Rooms: Group Tags", () => {
       await myRooms.roomsGroupTags.createGroup(GROUP_NAME, ROOM1_NAME);
     });
 
-    await test.step("Verify group tag is visible, select it, and check one room is shown", async () => {
+    await test.step("Verify group tag is visible and select it", async () => {
       await myRooms.roomsGroupTags.checkGroupTagVisible(GROUP_NAME);
       await myRooms.roomsGroupTags.selectGroupTag(GROUP_NAME);
+    });
+
+    await test.step("Check one room is shown in the group", async () => {
       await myRooms.roomsTable.checkRowExist(ROOM1_NAME);
       await expect(myRooms.roomsTable.tableRows).toHaveCount(1);
     });
@@ -59,44 +65,6 @@ test.describe("Rooms: Group Tags", () => {
     await test.step("Select second group tag and verify the room is visible", async () => {
       await myRooms.roomsGroupTags.selectGroupTag(GROUP_NAME_2);
       await myRooms.roomsTable.checkRowExist(ROOM2_NAME);
-    });
-  });
-
-  test("Disable grouping via toggle and verify group-tags row disappears", async () => {
-    await test.step("Create group from the group-tags row", async () => {
-      await myRooms.roomsGroupTags.createGroup(GROUP_NAME, ROOM1_NAME);
-    });
-
-    await test.step("Open group settings, disable grouping toggle and save", async () => {
-      await myRooms.roomsGroupTags.openGroupSettings(GROUP_NAME);
-      await myRooms.roomsGroupTags.toggleGrouping();
-      await myRooms.roomsGroupTags.clickSave();
-    });
-
-    await test.step("Verify group-tags row is no longer visible", async () => {
-      await myRooms.roomsGroupTags.checkGroupTagsRowNotVisible();
-    });
-  });
-
-  test("Remove room from group via context menu", async () => {
-    await test.step("Create group with first room", async () => {
-      await myRooms.roomsGroupTags.createGroup(GROUP_NAME, ROOM1_NAME);
-    });
-
-    await test.step("Select group and remove room via context menu", async () => {
-      await myRooms.roomsGroupTags.selectGroupTag(GROUP_NAME);
-      await myRooms.roomsTable.openContextMenuByRoomName(ROOM1_NAME);
-      await myRooms.roomsTable.clickContextMenuOption(
-        roomContextMenuOption.removeFromGroup,
-      );
-    });
-
-    await test.step("Verify toast and empty group view with manage-groups button", async () => {
-      await myRooms.toast.dismissToastSafely(
-        roomToastMessages.removedFromGroup(GROUP_NAME),
-      );
-      await myRooms.roomsGroupTags.checkEmptyGroupView();
-      await myRooms.roomsGroupTags.checkManageGroupsButtonVisible();
     });
   });
 
@@ -128,6 +96,28 @@ test.describe("Rooms: Group Tags", () => {
     });
   });
 
+  test("Remove room from group via context menu", async () => {
+    await test.step("Create group with first room", async () => {
+      await myRooms.roomsGroupTags.createGroup(GROUP_NAME, ROOM1_NAME);
+    });
+
+    await test.step("Select group and remove room via context menu", async () => {
+      await myRooms.roomsGroupTags.selectGroupTag(GROUP_NAME);
+      await myRooms.roomsTable.openContextMenuByRoomName(ROOM1_NAME);
+      await myRooms.roomsTable.clickContextMenuOption(
+        roomContextMenuOption.removeFromGroup,
+      );
+    });
+
+    await test.step("Verify toast and empty group view with manage-groups button", async () => {
+      await myRooms.toast.dismissToastSafely(
+        roomToastMessages.removedFromGroup(GROUP_NAME),
+      );
+      await myRooms.roomsGroupTags.checkEmptyGroupView();
+      await myRooms.roomsGroupTags.checkManageGroupsButtonVisible();
+    });
+  });
+
   // Skipped: no stable locators for edit/delete group icons (CSS module class names with hash suffixes)
   test.skip("Edit room group name and delete the group", async () => {
     const GROUP_NAME_EDITED = "My Test Group Edited";
@@ -148,6 +138,72 @@ test.describe("Rooms: Group Tags", () => {
     await test.step("Delete the group and verify it is removed from the group-tags row", async () => {
       await myRooms.roomsGroupTags.deleteGroup(GROUP_NAME_EDITED);
       await myRooms.roomsGroupTags.checkGroupTagNotVisible(GROUP_NAME_EDITED);
+    });
+  });
+
+  test("Disable grouping via toggle and verify group-tags row disappears", async () => {
+    await test.step("Create group from the group-tags row", async () => {
+      await myRooms.roomsGroupTags.createGroup(GROUP_NAME, ROOM1_NAME);
+    });
+
+    await test.step("Navigate to profile file management and disable grouping", async () => {
+      await profileFileManagement.open();
+      await profileFileManagement.toggleRoomGrouping();
+      await myRooms.toast.dismissToastSafely(
+        roomToastMessages.roomGroupingDisabled,
+      );
+    });
+
+    await test.step("Navigate back to rooms and verify group-tags row is no longer visible", async () => {
+      await myRooms.openWithoutEmptyCheck();
+      await myRooms.roomsGroupTags.checkGroupTagsRowNotVisible();
+    });
+  });
+
+  test("Groups persist after disabling and re-enabling grouping", async () => {
+    await test.step("Create group from the group-tags row", async () => {
+      await myRooms.roomsGroupTags.createGroup(GROUP_NAME, ROOM1_NAME);
+    });
+
+    await test.step("Disable grouping and verify group-tags row disappears", async () => {
+      await profileFileManagement.open();
+      await profileFileManagement.toggleRoomGrouping();
+      await myRooms.toast.dismissToastSafely(
+        roomToastMessages.roomGroupingDisabled,
+      );
+      await myRooms.openWithoutEmptyCheck();
+      await myRooms.roomsGroupTags.checkGroupTagsRowNotVisible();
+    });
+
+    await test.step("Re-enable grouping and verify group-tags row reappears with the old group", async () => {
+      await profileFileManagement.open();
+      await profileFileManagement.toggleRoomGrouping();
+      await myRooms.toast.dismissToastSafely(
+        roomToastMessages.roomGroupingEnabled,
+      );
+      await myRooms.openWithoutEmptyCheck();
+      await myRooms.roomsGroupTags.checkGroupTagsRowVisible();
+      await myRooms.roomsGroupTags.checkGroupTagVisible(GROUP_NAME);
+    });
+  });
+
+  test("Regular user does not see groups created by owner", async ({
+    apiSdk,
+    login,
+    page,
+  }) => {
+    await test.step("Create group as owner", async () => {
+      await myRooms.roomsGroupTags.createGroup(GROUP_NAME, ROOM1_NAME);
+    });
+
+    await test.step("Create regular user and log in as them", async () => {
+      const { userData } = await apiSdk.profiles.addMember("owner", "User");
+      await page.context().clearCookies();
+      await login.loginWithCredentials(userData.email, userData.password);
+    });
+
+    await test.step("Verify owner's group-tags row is not visible to regular user", async () => {
+      await myRooms.roomsGroupTags.checkGroupTagsRowNotVisible();
     });
   });
 });
