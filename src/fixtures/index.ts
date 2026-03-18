@@ -4,7 +4,6 @@ import { ApiSDK } from "../services/index";
 import Login from "@/src/objects/common/Login";
 import { Payments } from "@/src/objects/settings/payments/Payments";
 import Services from "@/src/objects/settings/services/services";
-import { PaymentApi } from "@/src/api/payment";
 
 type TestFixtures = {
   api: API;
@@ -13,34 +12,42 @@ type TestFixtures = {
   login: Login;
   payments: Payments;
   services: Services;
-  ownerAuth: void;
-  createDocSpaceAdmin: void;
-  docSpaceAdminAuth: void;
-  paymentsApi: PaymentApi;
 };
 
 // Extend the base Playwright test with our fixtures
 export const test = base.extend<TestFixtures>({
   api: async ({ playwright }, use) => {
+    console.log(`[fixture] creating new context`);
     const ownerContext = await playwright.request.newContext({
       timeout: 60000,
     });
-    const userContext = await playwright.request.newContext({ timeout: 60000 });
-    const api = new API(ownerContext, userContext);
+    console.log(`[fixture] context created, setting up portal`);
+    const api = new API(ownerContext);
 
     await api.setup();
     console.log(`Portal domain: ${api.portalDomain}`);
 
     await use(api);
 
-    await api.auth.authenticateOwner();
-    console.log(`Deleting portal: ${api.portalDomain}`);
-    await api.cleanup();
-    console.log(`[fixture] portal deleted, disposing contexts`);
-    await ownerContext.dispose();
-    console.log(`[fixture] ownerContext disposed`);
-    await userContext.dispose();
-    console.log(`[fixture] userContext disposed`);
+    try {
+      await api.auth.authenticateOwner();
+      console.log(`Deleting portal: ${api.portalDomain}`);
+      await api.cleanup();
+    } finally {
+      console.log(`[fixture] disposing context for ${api.portalDomain}`);
+      await ownerContext.dispose();
+      console.log(`[fixture] ownerContext disposed for ${api.portalDomain}`);
+
+      const handles = (process as any)._getActiveHandles();
+      const requests = (process as any)._getActiveRequests();
+      const handleTypes = handles.map(
+        (h: any) => h.constructor?.name || "unknown",
+      );
+      console.log(
+        `[debug] active handles: ${handles.length} [${handleTypes.join(", ")}]`,
+      );
+      console.log(`[debug] active requests: ${requests.length}`);
+    }
   },
 
   page: async ({ browser }, use) => {
@@ -88,11 +95,6 @@ export const test = base.extend<TestFixtures>({
   payments: async ({ page }, use) => {
     const payments = new Payments(page);
     await use(payments);
-  },
-
-  paymentsApi: async ({ api }, use) => {
-    const paymentsApi = new PaymentApi(api.ownerContext, api.apisystem);
-    await use(paymentsApi);
   },
 
   services: async ({ page }, use) => {
