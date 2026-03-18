@@ -2,13 +2,10 @@ import { APIRequestContext } from "@playwright/test";
 
 import Apisystem from "./apisystem";
 import Auth from "./auth";
-import People from "./people";
-import File from "./file";
 import { TokenStore } from "../services/token-store";
 
 class API {
   ownerContext: APIRequestContext;
-  userContext: APIRequestContext;
 
   portalDomain: string = "";
   adminUserId: string = "";
@@ -16,8 +13,6 @@ class API {
   tokenStore: TokenStore;
   apisystem: Apisystem;
   auth: Auth;
-  people: People;
-  file: File;
 
   get apiContext(): APIRequestContext {
     return this.ownerContext;
@@ -27,15 +22,12 @@ class API {
     return this.ownerContext;
   }
 
-  constructor(ownerContext: APIRequestContext, userContext: APIRequestContext) {
+  constructor(ownerContext: APIRequestContext) {
     this.ownerContext = ownerContext;
-    this.userContext = userContext;
 
     this.tokenStore = new TokenStore();
     this.auth = new Auth(ownerContext, this.tokenStore);
     this.apisystem = new Apisystem(ownerContext, this.auth);
-    this.people = new People(userContext);
-    this.file = new File(userContext);
   }
 
   async setup() {
@@ -45,14 +37,7 @@ class API {
     this.adminUserId = portal.tenant.ownerId;
 
     this.tokenStore.portalDomain = this.portalDomain;
-    const ownerToken = await this.auth.authenticateOwner();
-
-    this.people.setPortalDomain(this.portalDomain);
-    this.people.setAdminUserId(this.adminUserId);
-    this.people.setAuthToken(ownerToken);
-
-    this.file.setPortalDomain(this.portalDomain);
-    this.file.setAuthToken(ownerToken);
+    await this.auth.authenticateOwner();
   }
 
   async cleanup() {
