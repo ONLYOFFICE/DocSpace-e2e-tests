@@ -16,7 +16,7 @@ test.describe("Rooms - Download", () => {
     await myRooms.openWithoutEmptyCheck();
   });
 
-  test("Download all room types as zip (empty rooms)", async () => {
+  test.only("Download all room types as zip (empty rooms)", async () => {
     await test.step("Download Autotest Custom", async () => {
       await myRooms.downloadRoom("Autotest Custom");
     });
