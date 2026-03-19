@@ -1,7 +1,7 @@
 import SharedWithMe from "@/src/objects/files/SharedWithMe";
 import { test } from "@/src/fixtures";
 
-test.describe.only("Shared with me", () => {
+test.describe("Shared with me", () => {
   let sharedWithMe: SharedWithMe;
 
   test.beforeEach(async ({ page, api, login }) => {

@@ -5,7 +5,7 @@ import {
   roomDialogSource,
 } from "@/src/utils/constants/rooms";
 
-test.describe.only("VDRRooms", () => {
+test.describe("VDRRooms", () => {
   let myRooms: MyRooms;
 
   test.beforeEach(async ({ page, api, login }) => {

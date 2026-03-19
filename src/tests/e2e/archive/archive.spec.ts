@@ -3,7 +3,7 @@ import Archive from "@/src/objects/archive/Archive";
 import { roomCreateTitles, roomSort } from "@/src/utils/constants/rooms";
 import { test } from "@/src/fixtures";
 
-test.describe.only("Archive", () => {
+test.describe("Archive", () => {
   let myRooms: MyRooms;
   let myArchive: Archive;
 

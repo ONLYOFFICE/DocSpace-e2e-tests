@@ -3,7 +3,7 @@ import { expect } from "@playwright/test";
 import { Profile } from "@/src/objects/profile/Profile";
 import { toastMessages } from "@/src/utils/constants/profile";
 
-test.describe.only("Profile", () => {
+test.describe("Profile", () => {
   let profile: Profile;
 
   test.beforeEach(async ({ page, login }) => {

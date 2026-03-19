@@ -2,7 +2,7 @@ import { test } from "@/src/fixtures";
 import MyDocuments from "@/src/objects/files/MyDocuments";
 import { DOCUMENT_DOWNLOAD_FORMATS } from "@/src/constants/downloadFormats";
 
-test.describe.only("My documents: Downloads", () => {
+test.describe("My documents: Downloads", () => {
   let myDocuments: MyDocuments;
 
   test.beforeEach(async ({ page, api, login }) => {
