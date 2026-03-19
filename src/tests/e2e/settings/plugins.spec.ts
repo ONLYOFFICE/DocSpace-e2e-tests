@@ -4,7 +4,7 @@ import { test } from "@/src/fixtures";
 import { Plugins } from "@/src/objects/settings/integration/Plugins";
 import { integrationTabs } from "@/src/utils/constants/settings";
 
-test.describe.only("Integration tests - Plugins", () => {
+test.describe("Integration tests - Plugins", () => {
   let paymentApi: PaymentApi;
 
   let integration: Integration;
