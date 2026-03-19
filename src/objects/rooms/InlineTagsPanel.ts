@@ -1,6 +1,6 @@
 import { expect, Page } from "@playwright/test";
 
-const TAG_ITEM = "tag_item";
+const TAG_ITEM = (tagName: string) => `tag_item_${tagName}`;
 const CREATE_TAG_BUTTON = "create_tag_button";
 const CONFIRM_EDIT_BUTTON = "confirm_edit_button";
 const CANCEL_EDIT_BUTTON = "cancel_edit_button";
@@ -35,11 +35,6 @@ class InlineTagsPanel {
       .filter({ has: this.page.getByTestId(ADD_TAG_INPUT) });
   }
 
-  // Dropdown item that appears when typing a new tag name
-  private tagDropdownItem(tagName: string) {
-    return this.page.getByTestId(TAG_ITEM).filter({ hasText: tagName });
-  }
-
   // Tag row in the panel list
   private tagRow(tagName: string) {
     return this.page.locator(TAG_ROW).filter({ hasText: tagName });
@@ -64,6 +59,33 @@ class InlineTagsPanel {
     await expect(
       this.panel.getByLabel(tagName, { exact: true }),
     ).not.toBeVisible();
+  }
+
+  async closePanel() {
+    await this.page.keyboard.press("Escape");
+  }
+
+  async typeTagName(tagName: string) {
+    await expect(this.tagInput).toBeVisible();
+    await this.tagInput.fill(tagName);
+  }
+
+  async expectCreateButtonVisible() {
+    await expect(this.page.getByTestId(CREATE_TAG_BUTTON)).toBeVisible();
+  }
+
+  async expectCreateButtonNotVisible() {
+    await expect(this.page.getByTestId(CREATE_TAG_BUTTON)).not.toBeVisible();
+  }
+
+  async expectTagDropdownItemVisible(tagName: string) {
+    await expect(this.page.getByTestId(TAG_ITEM(tagName))).toBeVisible();
+  }
+
+  async expectScrollbarVisible() {
+    await expect(
+      this.panel.locator(".ScrollbarsCustom-TrackY").first(),
+    ).toBeVisible();
   }
 
   // Hover the tag row, click the edit icon, change the name, confirm inline → confirm in modal
@@ -111,6 +133,8 @@ class InlineTagsPanel {
     await editInput.fill(newName);
     await this.page.getByTestId(CONFIRM_EDIT_BUTTON).click();
     await this.page.getByTestId(EDIT_TAG_CANCEL_BUTTON).click();
+    // After modal cancel the inline edit input is still active — exit it
+    await this.page.getByTestId(CANCEL_EDIT_BUTTON).click();
   }
 
   // Hover the tag row, click the delete icon, confirm in the modal dialog
@@ -144,6 +168,27 @@ class InlineTagsPanel {
     await row.getByTestId(DELETE_TAG_BUTTON(tagName)).click();
     await this.page.getByTestId(DELETE_TAG_CHECKBOX).click();
     await this.page.getByTestId(DELETE_TAG_SUBMIT_BUTTON).click();
+  }
+
+  // Click delete icon — no confirmation dialog expected (after "don't show again" was checked)
+  async deleteTagNoModal(tagName: string) {
+    const row = this.tagRow(tagName);
+    await row.hover();
+    await row.getByTestId(DELETE_TAG_BUTTON(tagName)).click();
+  }
+
+  // Edit tag and confirm inline only — no modal expected (after "don't show again" was checked)
+  async editTagNoModal(tagName: string, newName: string) {
+    const row = this.tagRow(tagName);
+    await row.hover();
+    await row.getByTestId(EDIT_TAG_BUTTON(tagName)).click();
+    const editInput = this.page.getByPlaceholder(EDIT_INPUT_PLACEHOLDER, {
+      exact: true,
+    });
+    await expect(editInput).toBeVisible();
+    await editInput.clear();
+    await editInput.fill(newName);
+    await this.page.getByTestId(CONFIRM_EDIT_BUTTON).click();
   }
 }
 

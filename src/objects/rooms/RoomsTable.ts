@@ -22,7 +22,9 @@ const TABLE_HEADER_TYPE = "[data-testid='column-Type']";
 const TABLE_HEADER_TAGS = "[data-testid='column-Tags']";
 const TABLE_HEADER_OWNER = "[data-testid='column-Owner']";
 const TABLE_HEADER_ACTIVITY = "[data-testid='column-Activity']";
-const TAG_ITEM_BUTTON = "[data-testid^='tag_item_']";
+const TAG_ITEM_BUTTON = "[data-testid='tag_item_']";
+const CONTEXT_MENU_SELECT = "select";
+const TILE_ITEM = (roomName: string) => `[data-document-title="${roomName}"]`;
 
 class RoomsTable extends BaseTable {
   contextMenu: BaseContextMenu;
@@ -122,9 +124,19 @@ class RoomsTable extends BaseTable {
   }
 
   async openInlineTagsPanel(roomName: string) {
-    await this.selectRow(roomName);
+    await this.openContextMenu(roomName);
+    await this.contextMenu.clickOption({
+      type: "data-testid",
+      value: CONTEXT_MENU_SELECT,
+    });
     const row = await this.getRowByTitle(roomName);
     await row.locator(TAG_ITEM_BUTTON).click();
+  }
+
+  async openInlineTagsPanelInTileView(roomName: string) {
+    const tile = this.page.locator(TILE_ITEM(roomName));
+    await tile.hover();
+    await tile.locator(TAG_ITEM_BUTTON).click({ force: true });
   }
 
   async checkRoomPinnedToTopExist() {
