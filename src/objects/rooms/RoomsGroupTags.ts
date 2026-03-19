@@ -56,7 +56,9 @@ class RoomsGroupTags {
   async selectRoomInSelector(roomName: string) {
     await this.page
       .locator(SELECTOR_ITEM)
-      .filter({ has: this.page.getByRole("paragraph").filter({ hasText: roomName }) })
+      .filter({
+        has: this.page.getByRole("paragraph").filter({ hasText: roomName }),
+      })
       .click();
   }
 
@@ -90,6 +92,14 @@ class RoomsGroupTags {
     await this.fillGroupNameAndCreate(groupName);
   }
 
+  async cancelGroupCreation(groupName: string) {
+    await this.page
+      .getByTestId(MODAL_DIALOG)
+      .getByTestId(GROUP_NAME_INPUT)
+      .fill(groupName);
+    await this.page.getByTestId(CANCEL_GROUP_BUTTON).click();
+  }
+
   async createGroupFromSettings(groupName: string, roomName: string) {
     await this.page.getByTestId(CREATE_NEW_GROUP_BUTTON).click();
     await this.selectRoomInSelector(roomName);
@@ -100,7 +110,11 @@ class RoomsGroupTags {
   async editGroupName(currentName: string, newName: string) {
     await this.page
       .locator("div")
-      .filter({ has: this.page.locator(GROUP_NAME_IN_LIST).filter({ hasText: currentName }) })
+      .filter({
+        has: this.page
+          .locator(GROUP_NAME_IN_LIST)
+          .filter({ hasText: currentName }),
+      })
       .filter({ has: this.page.getByTestId(EDIT_GROUP_ICON_BUTTON) })
       .getByTestId(EDIT_GROUP_ICON_BUTTON)
       .click();
@@ -113,7 +127,11 @@ class RoomsGroupTags {
   async deleteGroup(groupName: string) {
     await this.page
       .locator("div")
-      .filter({ has: this.page.locator(GROUP_NAME_IN_LIST).filter({ hasText: groupName }) })
+      .filter({
+        has: this.page
+          .locator(GROUP_NAME_IN_LIST)
+          .filter({ hasText: groupName }),
+      })
       .filter({ has: this.page.getByTestId(DELETE_GROUP_ICON_BUTTON) })
       .getByTestId(DELETE_GROUP_ICON_BUTTON)
       .click();

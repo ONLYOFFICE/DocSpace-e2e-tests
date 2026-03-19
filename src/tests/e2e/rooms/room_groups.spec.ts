@@ -63,6 +63,19 @@ test.describe("Rooms: Group Tags", () => {
     });
   });
 
+  test("Cancel group creation does not create a group", async () => {
+    await test.step("Start group creation and cancel at the name dialog", async () => {
+      await myRooms.roomsGroupTags.clickCreateGroup();
+      await myRooms.roomsGroupTags.selectRoomInSelector(ROOM1_NAME);
+      await myRooms.roomsGroupTags.submitSelector();
+      await myRooms.roomsGroupTags.cancelGroupCreation(GROUP_NAME);
+    });
+
+    await test.step("Verify no group tag was created", async () => {
+      await myRooms.roomsGroupTags.checkGroupTagNotVisible(GROUP_NAME);
+    });
+  });
+
   test("Create group via room context menu and add second room via submenu", async () => {
     await test.step("Create group via context menu on first room", async () => {
       await myRooms.roomsTable.openContextMenuByRoomName(ROOM1_NAME);
