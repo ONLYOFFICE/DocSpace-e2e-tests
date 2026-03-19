@@ -49,6 +49,7 @@ class Apisystem {
           password: config.DOCSPACE_OWNER_PASSWORD,
           language: "en",
         },
+        timeout: 60000,
       },
     );
 
