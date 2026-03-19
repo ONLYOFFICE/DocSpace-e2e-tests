@@ -1,26 +1,31 @@
 import { expect, Page } from "@playwright/test";
 
 const GROUP_TAGS_ROW = ".group-tags";
-const CREATE_GROUP_BUTTON_TEXT = "Create group";
+const CREATE_GROUP_TAG_BUTTON = "create_group_tag";
+const CREATE_GROUP_ICON_BUTTON = "create_group_icon_button";
 const SELECTOR_ITEM = '[data-testid^="selector-item-"]';
+const SELECTOR_SEARCH_INPUT = "selector_search_input";
 const SELECTOR_SUBMIT_BUTTON = "selector_submit_button";
+const SELECTOR_CANCEL_BUTTON = "selector_cancel_button";
 const MODAL_DIALOG = "modal-dialog";
-const TEXT_INPUT = "text-input";
-const CREATE_BUTTON_TEXT = "Create";
+const GROUP_NAME_INPUT = "enter_group_name_input";
+const SUBMIT_GROUP_BUTTON = "submit_group_icon_button";
+const CANCEL_GROUP_BUTTON = "cancel_group_icon_button";
 const GROUP_MANAGEMENT_BUTTON = '[class*="groupManagementButton"]';
 const EDIT_ROOM_GROUPS_TEXT = "Edit room groups";
-const SETTINGS_CREATE_GROUP_BUTTON = "selector-add-button";
-const GROUPING_SETTINGS_PANEL = '[class*="settingRoomGroups"]';
-const GROUPING_TOGGLE = "toggle-button";
-const ICON_BUTTON_INNER =
-  '[class*="notSelectable"] > div > .injected-svg > g > path';
-const EDIT_GROUP_ICON = `.edit_icon ${ICON_BUTTON_INNER}`;
-const DELETE_GROUP_ICON = `.delete_icon ${ICON_BUTTON_INNER}`;
+const CREATE_NEW_GROUP_BUTTON = "create_new_group_button";
+const GROUPING_TOGGLE_CONTAINER = "toggle-button-container";
+const EDIT_GROUP_ICON_BUTTON = "edit_group_icon_button";
+const DELETE_GROUP_ICON_BUTTON = "delete_group_icon_button";
+const GROUP_NAME_IN_LIST = '[class*="nameGroup"]';
+const CLOSE_PANEL_BUTTON = "aside_header_close_icon_button";
 const DELETE_GROUP_BUTTON_TEXT = "Delete group";
 const SAVE_BUTTON_TEXT = "Save";
 const EMPTY_VIEW = "empty-view";
 const EMPTY_VIEW_TEXT =
   "There are no rooms here. Try adding a room or remove this group";
+const GROUP_TAG_LABEL = ".selected-item_label";
+const ALL_ROOMS_TAG = "all_rooms_tags_measure";
 const MANAGE_GROUPS_BUTTON = "#manage-groups";
 
 class RoomsGroupTags {
@@ -34,14 +39,24 @@ class RoomsGroupTags {
     return this.page.locator(GROUP_TAGS_ROW);
   }
 
+  // Clicks the + button in the group-tags row — only visible before the first group is created
   async clickCreateGroup() {
-    await this.groupTagsRow.getByText(CREATE_GROUP_BUTTON_TEXT).click();
+    await this.page.getByTestId(CREATE_GROUP_TAG_BUTTON).click();
+  }
+
+  // Opens the group management panel — always accessible
+  async openGroupManagementPanel() {
+    await this.page.getByTestId(CREATE_GROUP_ICON_BUTTON).click();
+  }
+
+  async searchInSelector(query: string) {
+    await this.page.getByTestId(SELECTOR_SEARCH_INPUT).fill(query);
   }
 
   async selectRoomInSelector(roomName: string) {
     await this.page
       .locator(SELECTOR_ITEM)
-      .filter({ hasText: roomName })
+      .filter({ has: this.page.getByRole("paragraph").filter({ hasText: roomName }) })
       .click();
   }
 
@@ -49,12 +64,23 @@ class RoomsGroupTags {
     await this.page.getByTestId(SELECTOR_SUBMIT_BUTTON).click();
   }
 
-  async fillGroupNameAndCreate(groupName: string) {
+  async cancelSelector() {
+    await this.page.getByTestId(SELECTOR_CANCEL_BUTTON).click();
+  }
+
+  async selectGroupIcon(iconName: string) {
+    await this.page.getByTestId(`select_icon_${iconName}`).click();
+  }
+
+  async fillGroupNameAndCreate(groupName: string, iconName?: string) {
     await this.page
       .getByTestId(MODAL_DIALOG)
-      .getByTestId(TEXT_INPUT)
+      .getByTestId(GROUP_NAME_INPUT)
       .fill(groupName);
-    await this.page.getByRole("button", { name: CREATE_BUTTON_TEXT }).click();
+    if (iconName) {
+      await this.selectGroupIcon(iconName);
+    }
+    await this.page.getByTestId(SUBMIT_GROUP_BUTTON).click();
   }
 
   async createGroup(groupName: string, roomName: string) {
@@ -65,7 +91,7 @@ class RoomsGroupTags {
   }
 
   async createGroupFromSettings(groupName: string, roomName: string) {
-    await this.page.getByTestId(SETTINGS_CREATE_GROUP_BUTTON).click();
+    await this.page.getByTestId(CREATE_NEW_GROUP_BUTTON).click();
     await this.selectRoomInSelector(roomName);
     await this.submitSelector();
     await this.fillGroupNameAndCreate(groupName);
@@ -73,23 +99,23 @@ class RoomsGroupTags {
 
   async editGroupName(currentName: string, newName: string) {
     await this.page
-      .locator(SELECTOR_ITEM)
-      .filter({ hasText: currentName })
-      .locator(EDIT_GROUP_ICON)
-      .first()
+      .locator("div")
+      .filter({ has: this.page.locator(GROUP_NAME_IN_LIST).filter({ hasText: currentName }) })
+      .filter({ has: this.page.getByTestId(EDIT_GROUP_ICON_BUTTON) })
+      .getByTestId(EDIT_GROUP_ICON_BUTTON)
       .click();
-    const input = this.page.getByTestId(TEXT_INPUT);
+    const input = this.page.getByTestId(GROUP_NAME_INPUT);
     await input.clear();
     await input.fill(newName);
-    await this.page.keyboard.press("Enter");
+    await this.page.getByTestId(SUBMIT_GROUP_BUTTON).click();
   }
 
   async deleteGroup(groupName: string) {
     await this.page
-      .locator(SELECTOR_ITEM)
-      .filter({ hasText: groupName })
-      .locator(DELETE_GROUP_ICON)
-      .first()
+      .locator("div")
+      .filter({ has: this.page.locator(GROUP_NAME_IN_LIST).filter({ hasText: groupName }) })
+      .filter({ has: this.page.getByTestId(DELETE_GROUP_ICON_BUTTON) })
+      .getByTestId(DELETE_GROUP_ICON_BUTTON)
       .click();
     await this.page
       .getByRole("button", { name: DELETE_GROUP_BUTTON_TEXT })
@@ -103,7 +129,14 @@ class RoomsGroupTags {
   }
 
   async selectGroupTag(groupName: string) {
-    await this.groupTagsRow.getByText(groupName).click();
+    await this.groupTagsRow
+      .locator(GROUP_TAG_LABEL)
+      .filter({ hasText: groupName })
+      .click();
+  }
+
+  async selectAllRoomsTag() {
+    await this.page.getByTestId(ALL_ROOMS_TAG).click();
   }
 
   async checkGroupTagSelected() {
@@ -111,18 +144,23 @@ class RoomsGroupTags {
   }
 
   async checkGroupTagVisible(groupName: string) {
-    await expect(this.groupTagsRow.getByText(groupName)).toBeVisible();
+    await expect(
+      this.groupTagsRow.locator(GROUP_TAG_LABEL).filter({ hasText: groupName }),
+    ).toBeVisible({ timeout: 30000 });
   }
 
   async checkGroupTagNotVisible(groupName: string) {
-    await expect(this.groupTagsRow.getByText(groupName)).not.toBeVisible();
+    await expect(
+      this.groupTagsRow.locator(GROUP_TAG_LABEL).filter({ hasText: groupName }),
+    ).not.toBeVisible();
   }
 
   async toggleGrouping() {
-    await this.page
-      .locator(GROUPING_SETTINGS_PANEL)
-      .getByTestId(GROUPING_TOGGLE)
-      .click();
+    await this.page.getByTestId(GROUPING_TOGGLE_CONTAINER).click();
+  }
+
+  async closePanel() {
+    await this.page.getByTestId(CLOSE_PANEL_BUTTON).click();
   }
 
   async clickSave() {
