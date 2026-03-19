@@ -3,7 +3,7 @@ import { PaymentApi } from "@/src/api/payment";
 import { test } from "@/src/fixtures";
 import { integrationTabs, toastMessages } from "@/src/utils/constants/settings";
 
-test.describe("Integration tests", () => {
+test.describe.only("Integration tests", () => {
   let paymentApi: PaymentApi;
   let integration: Integration;
 

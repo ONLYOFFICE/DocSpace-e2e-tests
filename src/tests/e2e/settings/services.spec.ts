@@ -3,7 +3,7 @@ import { test } from "@/src/fixtures";
 import Services from "@/src/objects/settings/services/services";
 import { Payments } from "@/src/objects/settings/payments/Payments";
 
-test.describe("Services tests", () => {
+test.describe.only("Services tests", () => {
   let services: Services;
   let payments: Payments;
 

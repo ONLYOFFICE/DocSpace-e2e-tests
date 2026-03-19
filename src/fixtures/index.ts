@@ -4,7 +4,6 @@ import { ApiSDK } from "../services/index";
 import Login from "@/src/objects/common/Login";
 import { Payments } from "@/src/objects/settings/payments/Payments";
 import Services from "@/src/objects/settings/services/services";
-import { PaymentApi } from "@/src/api/payment";
 
 type TestFixtures = {
   api: API;
@@ -13,10 +12,6 @@ type TestFixtures = {
   login: Login;
   payments: Payments;
   services: Services;
-  ownerAuth: void;
-  createDocSpaceAdmin: void;
-  docSpaceAdminAuth: void;
-  paymentsApi: PaymentApi;
 };
 
 // Extend the base Playwright test with our fixtures
@@ -25,20 +20,27 @@ export const test = base.extend<TestFixtures>({
     const ownerContext = await playwright.request.newContext({
       timeout: 60000,
     });
-    const userContext = await playwright.request.newContext({ timeout: 60000 });
-    const api = new API(ownerContext, userContext);
+    const api = new API(ownerContext);
 
     await api.setup();
     console.log(`Portal domain: ${api.portalDomain}`);
 
     await use(api);
 
-    await api.auth.authenticateOwner();
-    console.log(`Deleting portal: ${api.portalDomain}`);
-    await api.cleanup();
-
-    await ownerContext.dispose();
-    await userContext.dispose();
+    try {
+      await api.auth.authenticateOwner();
+      console.log(`Deleting portal: ${api.portalDomain}`);
+      await api.cleanup();
+    } catch (e) {
+      console.error(
+        `[fixture] teardown error for ${api.portalDomain}:`,
+        (e as Error).message,
+      );
+    } finally {
+      console.log(`[fixture] disposing context for ${api.portalDomain}`);
+      await ownerContext.dispose();
+      console.log(`[fixture] context disposed for ${api.portalDomain}`);
+    }
   },
 
   page: async ({ browser }, use) => {
@@ -86,11 +88,6 @@ export const test = base.extend<TestFixtures>({
   payments: async ({ page }, use) => {
     const payments = new Payments(page);
     await use(payments);
-  },
-
-  paymentsApi: async ({ api }, use) => {
-    const paymentsApi = new PaymentApi(api.ownerContext, api.apisystem);
-    await use(paymentsApi);
   },
 
   services: async ({ page }, use) => {

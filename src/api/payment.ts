@@ -51,6 +51,7 @@ export class PaymentApi {
   async getPortalInfo() {
     const response = await this.apiContext.get(
       `https://${this.portalDomain}/api/2.0/portal`,
+      { timeout: 60000 },
     );
     if (!response.ok()) {
       const error = await response.json();
@@ -94,6 +95,7 @@ export class PaymentApi {
         {
           headers: headers,
           data: data,
+          timeout: 60000,
         },
       );
 
@@ -126,6 +128,7 @@ export class PaymentApi {
       {
         headers: headers,
         params: { refresh: true },
+        timeout: 60000,
       },
     );
 
@@ -141,6 +144,7 @@ export class PaymentApi {
       {
         headers: headers,
         params: { refresh: true },
+        timeout: 60000,
       },
     );
 
