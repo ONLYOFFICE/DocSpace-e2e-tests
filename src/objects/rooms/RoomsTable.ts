@@ -2,6 +2,7 @@ import { expect, Page } from "@playwright/test";
 import BaseTable from "../common/BaseTable";
 
 import { BaseContextMenu } from "../common/BaseContextMenu";
+import { TMenuItem } from "../common/BaseMenu";
 import {
   TRoomContextMenuOption,
   TTemplateContextMenuOption,
@@ -146,9 +147,19 @@ class RoomsTable extends BaseTable {
   }
 
   async clickContextMenuOption(
-    option: TTemplateContextMenuOption | TRoomContextMenuOption,
+    option: TTemplateContextMenuOption | TRoomContextMenuOption | TMenuItem,
   ) {
     await this.contextMenu.clickOption(option);
+  }
+
+  async clickContextMenuSubmenuOption(parent: TMenuItem, child: string) {
+    await this.contextMenu.clickSubmenuOption(parent, child);
+  }
+
+  async openContextMenuByRoomName(roomName: string) {
+    const link = this.page.getByRole("link", { name: roomName });
+    await link.waitFor({ state: "visible" });
+    await link.click({ button: "right" });
   }
 
   // Open a room by clicking its link and waiting for navigation

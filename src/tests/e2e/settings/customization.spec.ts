@@ -8,7 +8,7 @@ import MailChecker from "@/src/utils/helpers/MailChecker";
 import config from "@/config";
 import { Profile } from "@/src/objects/profile/Profile";
 
-test.describe.only("Customization", () => {
+test.describe("Customization", () => {
   let paymentApi: PaymentApi;
   let customization: Customization;
 

@@ -29,7 +29,13 @@ export const roomContextMenuOption = {
   pinToTop: "Pin to top",
   disableNotifications: "Disable notifications",
   manage: "More options",
+  removeFromGroup: "Remove from group",
 } as const;
+
+export const roomGroupContextMenuOption = {
+  createGroup: { type: "data-testid" as const, value: "option_create-group" },
+  addToGroup: { type: "data-testid" as const, value: "option_add-to-group" },
+};
 
 export const templateContextMenuOption = {
   createRoom: "Create room",
@@ -79,6 +85,10 @@ export const roomToastMessages = {
   templateSaved: (roomName: string) => `Room template «${roomName}» saved`,
   baseOnTemplateCreated: (roomName: string) =>
     `Room based on the template «${roomName}» created.`,
+  removedFromGroup: (groupName: string) =>
+    `The selected room has been removed from ${groupName}.`,
+  roomGroupingEnabled: "Room grouping is enabled",
+  roomGroupingDisabled: "Room grouping is disabled",
 };
 
 export type TRoomSort = (typeof roomSort)[keyof typeof roomSort];

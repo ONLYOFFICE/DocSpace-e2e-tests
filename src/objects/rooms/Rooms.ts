@@ -23,6 +23,7 @@ import BasePage from "../common/BasePage";
 import BaseSelector from "../common/BaseSelector";
 import BaseToast from "../common/BaseToast";
 import FilesTable from "../files/FilesTable";
+import RoomsGroupTags from "./RoomsGroupTags";
 
 const navActions = {
   moveToArchive: {
@@ -62,6 +63,7 @@ class MyRooms extends BasePage {
   selector: BaseSelector;
   filesTable: FilesTable;
   toast: BaseToast;
+  roomsGroupTags: RoomsGroupTags;
 
   constructor(page: Page, portalDomain: string) {
     super(page);
@@ -83,6 +85,7 @@ class MyRooms extends BasePage {
     this.selector = new BaseSelector(page);
     this.filesTable = new FilesTable(page);
     this.toast = new BaseToast(page);
+    this.roomsGroupTags = new RoomsGroupTags(page);
   }
 
   async open() {
