@@ -11,7 +11,7 @@ import {
   userEmails,
 } from "@/src/utils/constants/contacts";
 
-test.describe.only(() => {
+test.describe(() => {
   let contacts: Contacts;
 
   test.beforeEach(async ({ page, api, login }) => {

@@ -9,7 +9,7 @@ import {
 } from "@/src/utils/constants/files";
 import { test } from "@/src/fixtures";
 
-test.describe.only("File locking", () => {
+test.describe("File locking", () => {
   let myRooms: MyRooms;
 
   const fileName = "Document";

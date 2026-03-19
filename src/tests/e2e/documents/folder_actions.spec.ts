@@ -4,7 +4,7 @@ import { roomCreateTitles } from "@/src/utils/constants/rooms";
 import { DOC_ACTIONS } from "@/src/utils/constants/files";
 import { test } from "@/src/fixtures";
 
-test.describe.only("Folder", () => {
+test.describe("Folder", () => {
   let folder: Folder;
   let myRooms: Rooms;
 
