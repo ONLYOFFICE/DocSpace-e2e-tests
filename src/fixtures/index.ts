@@ -17,11 +17,9 @@ type TestFixtures = {
 // Extend the base Playwright test with our fixtures
 export const test = base.extend<TestFixtures>({
   api: async ({ playwright }, use) => {
-    console.log(`[fixture] creating new context`);
     const ownerContext = await playwright.request.newContext({
       timeout: 60000,
     });
-    console.log(`[fixture] context created, setting up portal`);
     const api = new API(ownerContext);
 
     await api.setup();
@@ -33,20 +31,15 @@ export const test = base.extend<TestFixtures>({
       await api.auth.authenticateOwner();
       console.log(`Deleting portal: ${api.portalDomain}`);
       await api.cleanup();
+    } catch (e) {
+      console.error(
+        `[fixture] teardown error for ${api.portalDomain}:`,
+        (e as Error).message,
+      );
     } finally {
       console.log(`[fixture] disposing context for ${api.portalDomain}`);
       await ownerContext.dispose();
-      console.log(`[fixture] ownerContext disposed for ${api.portalDomain}`);
-
-      const handles = (process as any)._getActiveHandles();
-      const requests = (process as any)._getActiveRequests();
-      const handleTypes = handles.map(
-        (h: any) => h.constructor?.name || "unknown",
-      );
-      console.log(
-        `[debug] active handles: ${handles.length} [${handleTypes.join(", ")}]`,
-      );
-      console.log(`[debug] active requests: ${requests.length}`);
+      console.log(`[fixture] context disposed for ${api.portalDomain}`);
     }
   },
 

@@ -27,6 +27,7 @@ class Auth {
       `https://${this.portalDomain}/api/2.0/authentication`,
       {
         data: { userName, password },
+        timeout: 60000,
       },
     );
 
@@ -66,6 +67,7 @@ class Auth {
       `https://${this.portalDomain}/api/2.0/authentication`,
       {
         data: { userName: email, password },
+        timeout: 60000,
       },
     );
 
