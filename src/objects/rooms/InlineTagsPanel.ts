@@ -79,7 +79,16 @@ class InlineTagsPanel {
   }
 
   async expectTagDropdownItemVisible(tagName: string) {
-    await expect(this.page.getByTestId(TAG_ITEM(tagName))).toBeVisible();
+    await expect(this.panel.getByTestId(TAG_ITEM(tagName))).toBeVisible();
+  }
+
+  async selectTagFromDropdown(tagName: string) {
+    await this.panel.getByTestId(TAG_ITEM(tagName)).click();
+  }
+
+  async closePanelByClickingOutside() {
+    await this.page.mouse.click(10, 300);
+    await expect(this.tagInput).not.toBeVisible();
   }
 
   async expectScrollbarVisible() {
