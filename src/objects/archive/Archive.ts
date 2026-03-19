@@ -21,7 +21,8 @@ const navActions = {
   delete: {
     button: '[data-testid="option_delete"]',
     submit: "#delete-file-modal_submit",
-    confirmCheckboxSelector: "#modal-dialog label[data-testid='checkbox']",
+    confirmCheckboxSelector:
+      "#modal-dialog label[data-testid='delete_warning_checkbox']",
   },
 } as const;
 

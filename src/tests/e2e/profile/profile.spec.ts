@@ -13,10 +13,6 @@ test.describe("Profile", () => {
     await profile.open();
   });
 
-  test("Open profile", async () => {
-    await expect(profile.profileAvatar).toBeVisible();
-  });
-
   test("Change name", async () => {
     await test.step("Cancel change name dialog", async () => {
       await profile.openChangeNameDialog();

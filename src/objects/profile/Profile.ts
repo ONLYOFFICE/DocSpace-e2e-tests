@@ -57,9 +57,7 @@ export class Profile extends BasePage {
   }
 
   get languageLabel(): Locator {
-    return this.page.locator(
-      "[data-testid='text'].Profile-module__profileLanguage--hL2Lt",
-    );
+    return this.page.locator("[data-testid='text'][class*='profileLanguage']");
   }
 
   get languageComboBox(): Locator {
