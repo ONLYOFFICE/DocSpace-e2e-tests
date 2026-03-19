@@ -5,6 +5,7 @@ import { TRoomCreateTitles } from "@/src/utils/constants/rooms";
 import { BaseDropdown } from "./BaseDropdown";
 import BaseToast from "./BaseToast";
 
+const TAG_ADD_BUTTON = "[data-testid='tag_item_']";
 const NO_ITEM_TEXT = ".no-item-text";
 const INFO_OPTIONS_ICON = "#info-options";
 
@@ -153,6 +154,10 @@ class InfoPanel {
       await this.toggle.click();
       await this.checkInfoPanelExist();
     }
+  }
+
+  async openInlineTagsPanel() {
+    await this.infoPanel.locator(TAG_ADD_BUTTON).click();
   }
 
   async openTab(tabName: TInfoPanelTabs) {
