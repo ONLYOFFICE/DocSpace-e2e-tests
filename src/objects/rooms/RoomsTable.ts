@@ -134,7 +134,7 @@ class RoomsTable extends BaseTable {
     await row.locator(TAG_ITEM_BUTTON).click();
   }
 
-  async openInlineTagsPanelInTileView(roomName: string) {
+  async openInlineTagsPanelInThumbnailView(roomName: string) {
     const tile = this.page.locator(TILE_ITEM(roomName));
     await tile.hover();
     await tile.locator(TAG_ITEM_BUTTON).click({ force: true });

@@ -204,16 +204,16 @@ test.describe("Rooms: inline tags panel", () => {
     });
   });
 
-  test("Add tag via inline tags panel in tile view", async ({ page }) => {
-    const tagName = "TileViewTag";
+  test("Add tag via inline tags panel in thumbnail view", async ({ page }) => {
+    const tagName = "ThumbnailViewTag";
     const tagsPanel = new InlineTagsPanel(page);
 
-    await test.step("Switch to tile view", async () => {
+    await test.step("Switch to thumbnail view", async () => {
       await myRooms.roomsFilter.switchToThumbnailView();
     });
 
-    await test.step("Open inline tags panel from tile", async () => {
-      await myRooms.roomsTable.openInlineTagsPanelInTileView(roomName);
+    await test.step("Open inline tags panel from thumbnail", async () => {
+      await myRooms.roomsTable.openInlineTagsPanelInThumbnailView(roomName);
       await tagsPanel.waitForPanel();
     });
 
