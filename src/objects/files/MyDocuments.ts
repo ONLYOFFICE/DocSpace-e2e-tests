@@ -1,6 +1,9 @@
 import { expect, Page } from "@playwright/test";
-import path from "path";
-import fs from "fs";
+import {
+  dropFile,
+  dropFolder,
+  dropFolderWithFiles,
+} from "@/src/utils/helpers/dragDrop";
 import FilesArticle from "./FilesArticle";
 import FilesCreateContextMenu from "./FilesCreateContextMenu";
 import FilesNavigation from "./FilesNavigation";
@@ -308,192 +311,17 @@ class MyDocuments extends BasePage {
   }
 
   async uploadFileByDragAndDrop(filePath: string) {
-    const resolvedPath = path.resolve(process.cwd(), filePath);
-    const buffer = fs.readFileSync(resolvedPath);
-    const fileName = path.basename(resolvedPath);
-
-    await this.waitForDragDropZone();
-
-    const dispatchEvent = async (type: string) => {
-      await this.page.evaluate(
-        ({ buffer, fileName, type }) => {
-          const dz = document.querySelector(".drag-and-drop");
-          if (!dz) throw new Error("Drop zone (.drag-and-drop) not found");
-          const dt = new DataTransfer();
-          dt.items.add(
-            new File([new Uint8Array(buffer)], fileName, {
-              type: "application/octet-stream",
-            }),
-          );
-          const event = new DragEvent(type, {
-            bubbles: true,
-            cancelable: true,
-          });
-          Object.defineProperty(event, "dataTransfer", { value: dt });
-          dz.dispatchEvent(event);
-        },
-        { buffer: [...buffer], fileName, type },
-      );
-    };
-
-    await dispatchEvent("dragenter");
-    await dispatchEvent("dragover");
-    await this.waitForThirdPartyCapabilities();
-    await dispatchEvent("drop");
+    await dropFile(this.page, filePath);
   }
 
   async uploadFolderByDragAndDrop(folderName: string) {
-    await this.waitForDragDropZone();
-
-    await this.page.evaluate((name) => {
-      const orig = DataTransferItem.prototype.webkitGetAsEntry;
-      const g = globalThis as unknown as Record<string, unknown>;
-      g.__origWebkitGetAsEntry = orig;
-      DataTransferItem.prototype.webkitGetAsEntry = function () {
-        if (!this.getAsFile()) return orig.call(this);
-        return {
-          isFile: false,
-          isDirectory: true,
-          name,
-          fullPath: "/" + name,
-          filesystem: null,
-          createReader: () => ({
-            readEntries: (cb: (entries: FileSystemEntry[]) => void) => cb([]),
-          }),
-        } as unknown as FileSystemDirectoryEntry;
-      };
-    }, folderName);
-
-    const dispatchEvent = async (type: string) => {
-      await this.page.evaluate(
-        ({ folderName, type }) => {
-          const dz = document.querySelector(".drag-and-drop");
-          if (!dz) throw new Error("Drop zone (.drag-and-drop) not found");
-          const dt = new DataTransfer();
-          dt.items.add(new File([], folderName));
-          const event = new DragEvent(type, {
-            bubbles: true,
-            cancelable: true,
-          });
-          Object.defineProperty(event, "dataTransfer", { value: dt });
-          dz.dispatchEvent(event);
-        },
-        { folderName, type },
-      );
-    };
-
-    await dispatchEvent("dragenter");
-    await dispatchEvent("dragover");
-    await this.waitForThirdPartyCapabilities();
-    await dispatchEvent("drop");
-    await this.restoreWebkitEntryMock();
+    await dropFolder(this.page, folderName);
   }
 
   async uploadFolderWithFilesByDragAndDrop(folderPath: string) {
-    const resolvedPath = path.resolve(process.cwd(), folderPath);
-    const folderName = path.basename(resolvedPath);
-    const fileEntries = fs.readdirSync(resolvedPath).map((name) => ({
-      name,
-      buffer: [...fs.readFileSync(path.join(resolvedPath, name))],
-    }));
-
-    await this.waitForDragDropZone();
-
-    await this.page.evaluate(
-      ({ folderName, fileEntries }) => {
-        const orig = DataTransferItem.prototype.webkitGetAsEntry;
-        const g = globalThis as unknown as Record<string, unknown>;
-        g.__origWebkitGetAsEntry = orig;
-        DataTransferItem.prototype.webkitGetAsEntry = function () {
-          if (!this.getAsFile()) return orig.call(this);
-          const children = fileEntries.map(({ name, buffer }) => ({
-            isFile: true,
-            isDirectory: false,
-            name,
-            fullPath: `/${folderName}/${name}`,
-            filesystem: null,
-            file: (cb: (f: File) => void) =>
-              cb(new File([new Uint8Array(buffer)], name)),
-          }));
-          return {
-            isFile: false,
-            isDirectory: true,
-            name: folderName,
-            fullPath: "/" + folderName,
-            filesystem: null,
-            createReader: () => {
-              let served = false;
-              return {
-                readEntries: (cb: (entries: FileSystemEntry[]) => void) => {
-                  if (!served) {
-                    served = true;
-                    cb(children as unknown as FileSystemEntry[]);
-                  } else {
-                    cb([]);
-                  }
-                },
-              };
-            },
-          } as unknown as FileSystemDirectoryEntry;
-        };
-      },
-      { folderName, fileEntries },
-    );
-
-    const dispatchEvent = async (type: string) => {
-      await this.page.evaluate(
-        ({ folderName, type }) => {
-          const dz = document.querySelector(".drag-and-drop");
-          if (!dz) throw new Error("Drop zone (.drag-and-drop) not found");
-          const dt = new DataTransfer();
-          dt.items.add(new File([], folderName));
-          const event = new DragEvent(type, {
-            bubbles: true,
-            cancelable: true,
-          });
-          Object.defineProperty(event, "dataTransfer", { value: dt });
-          dz.dispatchEvent(event);
-        },
-        { folderName, type },
-      );
-    };
-
-    await dispatchEvent("dragenter");
-    await dispatchEvent("dragover");
-    await this.waitForThirdPartyCapabilities();
-    await dispatchEvent("drop");
-    await this.restoreWebkitEntryMock();
-
-    await this.page.waitForResponse(
-      (r) => r.url().includes("finalize") && r.status() === 201,
-      { timeout: 30000 },
-    );
+    await dropFolderWithFiles(this.page, folderPath);
     await this.page.goto(`https://${this.portalDomain}/rooms/personal`);
     await this.page.waitForLoadState("load");
-  }
-
-  private async waitForDragDropZone() {
-    await this.page
-      .locator(".drag-and-drop")
-      .waitFor({ state: "attached", timeout: 10000 });
-  }
-
-  private async waitForThirdPartyCapabilities() {
-    await this.page.waitForResponse(
-      (r) =>
-        r.url().includes("/files/thirdparty/capabilities") &&
-        r.status() === 200,
-      { timeout: 15000 },
-    );
-  }
-
-  private async restoreWebkitEntryMock() {
-    await this.page.evaluate(() => {
-      const w = globalThis as unknown as Record<string, unknown>;
-      DataTransferItem.prototype.webkitGetAsEntry =
-        w.__origWebkitGetAsEntry as typeof DataTransferItem.prototype.webkitGetAsEntry;
-      delete w.__origWebkitGetAsEntry;
-    });
   }
 }
 
