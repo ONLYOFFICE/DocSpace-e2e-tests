@@ -207,7 +207,7 @@ export class Plugins extends BasePage {
   }
 
   async guidePopup() {
-    const page1 = this.page.waitForEvent("popup");
+    const page1 = this.page.waitForEvent("popup", { timeout: 30000 });
     await this.guideLink.click();
     return page1;
   }

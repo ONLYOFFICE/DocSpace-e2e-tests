@@ -24,7 +24,7 @@ test.describe("Storage Management", () => {
     });
 
     await test.step("Storage Management guide link", async () => {
-      const page1Promise = page.waitForEvent("popup");
+      const page1Promise = page.waitForEvent("popup", { timeout: 30000 });
       await storageManagement.storageManagementGuideLink.click();
       const page1 = await page1Promise;
       await page1.waitForURL(

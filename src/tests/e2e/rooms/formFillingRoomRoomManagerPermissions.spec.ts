@@ -514,7 +514,7 @@ test.describe("FormFilling room - Room manager permissions", () => {
     await test.step("Verify Room manager CAN upload PDF forms from device", async () => {
       await myRooms.filesNavigation.openCreateDropdown();
       const [fileChooser] = await Promise.all([
-        page.waitForEvent("filechooser"),
+        page.waitForEvent("filechooser", { timeout: 30000 }),
         myRooms.filesNavigation.contextMenu.clickSubmenuOption(
           "Upload PDF form",
           "From device",
@@ -597,7 +597,7 @@ test.describe("FormFilling room - Room manager permissions", () => {
     await test.step("Verify PDF form editor shows 'Download as PDF' and 'Print' buttons", async () => {
       await myRooms.filesTable.openContextMenuForItem("PDF from device");
       const [pdfPage] = await Promise.all([
-        page.context().waitForEvent("page"),
+        page.context().waitForEvent("page", { timeout: 30000 }),
         myRooms.filesTable.contextMenu.clickOption(
           formFillingRoomPdfContextMenuOption.fill,
         ),
@@ -618,7 +618,7 @@ test.describe("FormFilling room - Room manager permissions", () => {
     await test.step("Verify Room manager CAN download PDF form via context menu", async () => {
       await myRooms.filesTable.openContextMenuForItem("PDF from device");
       const [download] = await Promise.all([
-        page.waitForEvent("download"),
+        page.waitForEvent("download", { timeout: 30000 }),
         myRooms.filesTable.contextMenu.clickSubmenuOption(
           pdfFormContextMenuOption.download,
           pdfFormDownloadSubmenu.originalFormat,
@@ -630,7 +630,7 @@ test.describe("FormFilling room - Room manager permissions", () => {
     await test.step("Verify Room manager CAN submit the PDF form", async () => {
       await myRooms.filesTable.openContextMenuForItem("PDF from device");
       const [pdfPage] = await Promise.all([
-        page.context().waitForEvent("page"),
+        page.context().waitForEvent("page", { timeout: 30000 }),
         myRooms.filesTable.contextMenu.clickOption(
           formFillingRoomPdfContextMenuOption.fill,
         ),

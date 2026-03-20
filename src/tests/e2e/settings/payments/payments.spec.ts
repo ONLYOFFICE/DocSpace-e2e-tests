@@ -29,14 +29,14 @@ test.describe.skip("Payments", () => {
     });
 
     await test.step("Stripe customer portal link", async () => {
-      const page1Promise = page.waitForEvent("popup");
+      const page1Promise = page.waitForEvent("popup", { timeout: 30000 });
       await payments.stripeCustomerPortalLink.click({ force: true });
       const page1 = await page1Promise;
       await page1.waitForURL("https://billing.stripe.com/p/session/*");
       await page1.close();
 
       await payments.openTab(paymentsTab.wallet);
-      const page2Promise = page.waitForEvent("popup");
+      const page2Promise = page.waitForEvent("popup", { timeout: 30000 });
       await payments.stripeCustomerPortalLink.click({ force: true });
       const page2 = await page2Promise;
       await page2.waitForURL("https://billing.stripe.com/p/session/*");
@@ -44,7 +44,9 @@ test.describe.skip("Payments", () => {
     });
 
     await test.step("Configure DocSpace settings link", async () => {
-      const helpcenterPagePromise = page.context().waitForEvent("page");
+      const helpcenterPagePromise = page
+        .context()
+        .waitForEvent("page", { timeout: 30000 });
       await payments.configureDocSpaceLink.click({
         modifiers: ["ControlOrMeta"],
       });
@@ -90,7 +92,7 @@ test.describe.skip("Payments", () => {
 
       await payments.fillAmountTopUp(1000);
 
-      const page1Promise = page.waitForEvent("popup");
+      const page1Promise = page.waitForEvent("popup", { timeout: 30000 });
       await payments.goToStripeLink.click();
       const page1 = await page1Promise;
       await page1.waitForURL("https://billing.stripe.com/p/session/*");

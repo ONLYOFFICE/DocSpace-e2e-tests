@@ -145,7 +145,7 @@ test.describe("FormFilling base tests", () => {
     // Submit Form
     await test.step("SubmitPDFFormWithEmptyFields", async () => {
       const context = page.context();
-      const pagePromise = context.waitForEvent("page");
+      const pagePromise = context.waitForEvent("page", { timeout: 30000 });
       await filesTable.openContextMenuForItem("ONLYOFFICE Resume Sample");
       await filesTable.contextMenu.clickOption("Start filling");
       // Wait for the new page to open
@@ -197,7 +197,7 @@ test.describe("FormFilling base tests", () => {
       const filesTable = new FilesTable(newPage);
       await filesTable.openContextMenuRow(item);
       await filesTable.contextMenu.clickOption("Preview");
-      const xlsxPage = await newPage.waitForEvent("popup");
+      const xlsxPage = await newPage.waitForEvent("popup", { timeout: 30000 });
       await xlsxPage.waitForSelector('iframe[name="frameEditor"]', {
         state: "attached",
         timeout: 60000,
@@ -225,7 +225,7 @@ test.describe("FormFilling base tests", () => {
     });
     await test.step("Open and close pdf form", async () => {
       const context = page.context();
-      const pagePromise = context.waitForEvent("page");
+      const pagePromise = context.waitForEvent("page", { timeout: 30000 });
       await filesTable.openContextMenuForItem("ONLYOFFICE Resume Sample");
       await filesTable.contextMenu.clickOption("Fill");
       // Wait for the new page to open
@@ -345,7 +345,7 @@ test.describe("FormFilling base tests", () => {
 
     await test.step("Open PDF form for filling", async () => {
       const context = page.context();
-      const pagePromise = context.waitForEvent("page");
+      const pagePromise = context.waitForEvent("page", { timeout: 30000 });
       await filesTable.openContextMenuForItem("ONLYOFFICE Resume Sample");
       await filesTable.contextMenu.clickOption("Fill");
       newPage = await pagePromise;
@@ -381,7 +381,7 @@ test.describe("FormFilling base tests", () => {
       await templateGallery.verifyNewPdfFormModalVisible();
 
       const context = page.context();
-      const pagePromise = context.waitForEvent("page");
+      const pagePromise = context.waitForEvent("page", { timeout: 30000 });
       await templateGallery.clickCreate();
       editorPage = await pagePromise;
       await editorPage.waitForLoadState("load");

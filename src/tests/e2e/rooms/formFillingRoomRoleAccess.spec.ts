@@ -125,7 +125,9 @@ test.describe("FormFillingRoomRoleBasedFormVisibility", () => {
       await expect(userPage.getByLabel("PDF from device,")).toBeVisible();
 
       const filesTable = new FilesTable(userPage);
-      const pagePromise = userPage.context().waitForEvent("page");
+      const pagePromise = userPage
+        .context()
+        .waitForEvent("page", { timeout: 30000 });
       await filesTable.openContextMenuForItem("PDF from device");
       await filesTable.contextMenu.clickOption("Fill");
 

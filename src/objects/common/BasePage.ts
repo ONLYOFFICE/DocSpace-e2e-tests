@@ -50,7 +50,7 @@ export default class BasePage {
 
   async waitForDownload(action: () => Promise<void>) {
     const [download] = await Promise.all([
-      this.page.waitForEvent("download"),
+      this.page.waitForEvent("download", { timeout: 30000 }),
       action(),
     ]);
 

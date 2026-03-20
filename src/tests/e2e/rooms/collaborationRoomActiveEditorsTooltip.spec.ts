@@ -160,7 +160,7 @@ test.describe("Collaboration room - active editors tooltip", () => {
           const rooms = new MyRooms(page, portalDomain);
           await rooms.filesTable.openContextMenuForItem(docName);
           const [editorPage] = await Promise.all([
-            page.context().waitForEvent("page"),
+            page.context().waitForEvent("page", { timeout: 30000 }),
             rooms.filesTable.contextMenu.clickOption(
               documentContextMenuOption.edit,
             ),

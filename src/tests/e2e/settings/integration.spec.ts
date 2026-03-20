@@ -56,7 +56,7 @@ test.describe("Integration tests", () => {
     });
 
     await test.step("Ldap Link", async () => {
-      const page1Promise = page.waitForEvent("popup");
+      const page1Promise = page.waitForEvent("popup", { timeout: 30000 });
       await integration.ldapLink.click();
       const page1 = await page1Promise;
       await page1.waitForURL(
@@ -75,7 +75,7 @@ test.describe("Integration tests", () => {
     });
 
     await test.step("Smtp link", async () => {
-      const page1Promise = page.waitForEvent("popup");
+      const page1Promise = page.waitForEvent("popup", { timeout: 30000 });
       await integration.smtpLink.click();
       const page1 = await page1Promise;
       await page1.waitForURL(
@@ -86,7 +86,7 @@ test.describe("Integration tests", () => {
 
     await test.step("Third party link", async () => {
       await integration.openTab(integrationTabs.thirdPartyServices);
-      const page1Promise = page.waitForEvent("popup");
+      const page1Promise = page.waitForEvent("popup", { timeout: 30000 });
       await integration.thirdPartyLink.click();
       const page1 = await page1Promise;
       await page1.waitForURL(

@@ -53,6 +53,7 @@
     "fs-extra": "^11.3.0",
     "imapflow": "^1.0.200",
     "loglevel": "^1.9.2",
+    "otpauth": "^9.5.0",
     "pdfkit": "^0.16.0",
     "pptxgenjs": "^3.12.0",
     "xlsx": "^0.18.5"

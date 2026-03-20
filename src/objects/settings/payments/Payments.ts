@@ -306,7 +306,7 @@ export class Payments extends BasePage {
   }
 
   async downloadReport() {
-    const page1Promise = this.page.waitForEvent("popup");
+    const page1Promise = this.page.waitForEvent("popup", { timeout: 30000 });
     await this.downloadReportButton.click();
     const page1 = await page1Promise;
     await page1.waitForURL("https://*.onlyoffice.io/doceditor?*");
@@ -384,7 +384,7 @@ export class Payments extends BasePage {
 
   async upgradePlan(adminsCount: number) {
     await this.numberOfAdminsInput.fill(adminsCount.toString());
-    const page1Promise = this.page.waitForEvent("popup");
+    const page1Promise = this.page.waitForEvent("popup", { timeout: 30000 });
     await this.upgradeButton.click();
     const page1 = await page1Promise;
     await page1.waitForLoadState();

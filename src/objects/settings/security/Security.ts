@@ -246,6 +246,33 @@ class Security extends BasePage {
     await this.page.getByTestId("session_lifetime_save_button").click();
   }
 
+  get tfaDisabled() {
+    return this.page.getByTestId("tfa_radio_button_disabled");
+  }
+
+  get tfaApp() {
+    return this.page.getByTestId("tfa_radio_button_app");
+  }
+
+  get tfaSaveButton() {
+    return this.page.getByTestId("tfa_save_button");
+  }
+
+  get tfaCancelButton() {
+    return this.page.getByTestId("tfa_cancel_button");
+  }
+
+  async enableTfa() {
+    await this.tfaApp.click();
+    await this.tfaSaveButton.click();
+  }
+
+  async disableTfa() {
+    await this.tfaDisabled.click();
+    await this.tfaSaveButton.click();
+    await this.removeToast(toastMessages.settingsUpdated);
+  }
+
   async saveChanges() {
     await this.saveButton.first().click();
   }

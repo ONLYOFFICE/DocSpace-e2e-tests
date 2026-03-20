@@ -18,7 +18,7 @@ test.describe("OAuth tests", () => {
     });
 
     await test.step("oauth 2.0 guide link", async () => {
-      const page1Promise = page.waitForEvent("popup");
+      const page1Promise = page.waitForEvent("popup", { timeout: 30000 });
       await oauth.oauthGuideLink.click();
       const page1 = await page1Promise;
       await page1.waitForURL(
@@ -61,19 +61,19 @@ test.describe("OAuth tests", () => {
     });
 
     await test.step("Info panel links", async () => {
-      const page1Promise = page.waitForEvent("popup");
+      const page1Promise = page.waitForEvent("popup", { timeout: 30000 });
       await oauth.checkWebsiteUrlInfoPanel();
       const page1 = await page1Promise;
       await page1.waitForURL("https://www.google.com/");
       await expect(page1).toHaveURL(/www.google.com/);
       await page1.close();
-      const page2Promise = page.waitForEvent("popup");
+      const page2Promise = page.waitForEvent("popup", { timeout: 30000 });
       await oauth.checkPrivacyPolicyUrlInfoPanel();
       const page2 = await page2Promise;
       await page2.waitForURL("https://www.google.com/");
       await expect(page2).toHaveURL(/www.google.com/);
       await page2.close();
-      const page3Promise = page.waitForEvent("popup");
+      const page3Promise = page.waitForEvent("popup", { timeout: 30000 });
       await oauth.checkTermsOfServiceUrlInfoPanel();
       const page3 = await page3Promise;
       await page3.waitForURL("https://www.google.com/");

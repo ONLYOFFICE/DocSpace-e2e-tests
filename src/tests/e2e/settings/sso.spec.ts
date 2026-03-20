@@ -134,7 +134,7 @@ test.describe("Integration tests - SSO", () => {
     await test.step("Download/Load metadata", async () => {
       await sso.showSpMetadata();
 
-      const pagePromise = page.waitForEvent("popup");
+      const pagePromise = page.waitForEvent("popup", { timeout: 30000 });
       await sso.downloadSpMetadataXMLButton.click();
       const metaDataPage = await pagePromise;
       await metaDataPage.waitForURL("https://*.onlyoffice.io/sso/metadata");

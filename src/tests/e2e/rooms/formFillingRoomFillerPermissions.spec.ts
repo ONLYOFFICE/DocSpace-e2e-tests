@@ -359,7 +359,7 @@ test.describe("FormFilling room - Form filler permissions", () => {
     await test.step("Verify Form filler CAN open PDF form and save as draft", async () => {
       await myRooms.filesTable.openContextMenuForItem("PDF from device");
       [pdfPage] = await Promise.all([
-        page.context().waitForEvent("page"),
+        page.context().waitForEvent("page", { timeout: 30000 }),
         myRooms.filesTable.contextMenu.clickOption(
           formFillingRoomPdfContextMenuOption.fill,
         ),
@@ -387,7 +387,7 @@ test.describe("FormFilling room - Form filler permissions", () => {
     await test.step("Verify PDF form editor shows 'Download as PDF' and 'Print' buttons", async () => {
       await myRooms.filesTable.openContextMenuForItem("PDF from device");
       [pdfPage] = await Promise.all([
-        page.context().waitForEvent("page"),
+        page.context().waitForEvent("page", { timeout: 30000 }),
         myRooms.filesTable.contextMenu.clickOption(
           formFillingRoomPdfContextMenuOption.fill,
         ),
@@ -422,7 +422,7 @@ test.describe("FormFilling room - Form filler permissions", () => {
     await test.step("Verify Form filler CAN download PDF form via context menu", async () => {
       await myRooms.filesTable.openContextMenuForItem("PDF from device");
       const [download] = await Promise.all([
-        page.waitForEvent("download"),
+        page.waitForEvent("download", { timeout: 30000 }),
         myRooms.filesTable.contextMenu.clickSubmenuOption(
           pdfFormContextMenuOption.download,
           pdfFormDownloadSubmenu.originalFormat,
