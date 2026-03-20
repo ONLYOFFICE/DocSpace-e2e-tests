@@ -106,7 +106,7 @@ test.describe("Customization", () => {
 
   test("General: documentation links open correct URLs", async ({ page }) => {
     // 1. Language & Time Zone guide
-    const page1Promise = page.waitForEvent("popup");
+    const page1Promise = page.waitForEvent("popup", { timeout: 30000 });
     await customization.docspaceLanguageGuideLink.click();
     const page1 = await page1Promise;
     await page1.waitForURL(
@@ -118,7 +118,7 @@ test.describe("Customization", () => {
     await page1.close();
 
     // 2. Welcome Page Settings guide
-    const page2Promise = page.waitForEvent("popup");
+    const page2Promise = page.waitForEvent("popup", { timeout: 30000 });
     await customization.docspaceTitleGuideLink.click();
     const page2 = await page2Promise;
     await page2.waitForURL(
@@ -130,7 +130,7 @@ test.describe("Customization", () => {
     await page2.close();
 
     // 3. DNS Settings guide
-    const page3Promise = page.waitForEvent("popup");
+    const page3Promise = page.waitForEvent("popup", { timeout: 30000 });
     await customization.docspaceAlternativeUrlGuideLink.click();
     const page3 = await page3Promise;
     await page3.waitForURL(
@@ -142,7 +142,7 @@ test.describe("Customization", () => {
     await page3.close();
 
     // 4. DocSpace Renaming guide
-    const page4Promise = page.waitForEvent("popup");
+    const page4Promise = page.waitForEvent("popup", { timeout: 30000 });
     await customization.docspaceRenamingGuideLink.click();
     const page4 = await page4Promise;
     await page4.waitForURL(

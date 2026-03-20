@@ -34,7 +34,7 @@ test.describe("AI Agents", () => {
     await aiSettings.openKnowledgeTab();
     await aiSettings.expectKnowledgeSelectVisible();
 
-    const popupPromise = page.waitForEvent("popup");
+    const popupPromise = page.waitForEvent("popup", { timeout: 30000 });
     await aiAgents.learnMoreLink.click();
     const popup = await popupPromise;
     await popup.waitForURL(

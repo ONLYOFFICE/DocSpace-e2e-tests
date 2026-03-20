@@ -88,7 +88,7 @@ test.describe("Security tests", () => {
 
   test("Security guide links", async ({ page }) => {
     await test.step("Password strength guide link", async () => {
-      const page1Promise = page.waitForEvent("popup");
+      const page1Promise = page.waitForEvent("popup", { timeout: 30000 });
       await security.passwordStrengthGuideLink.click();
       const page1 = await page1Promise;
       await page1.waitForURL(
@@ -98,7 +98,7 @@ test.describe("Security tests", () => {
     });
 
     await test.step("Two factor authentication guide link", async () => {
-      const page2Promise = page.waitForEvent("popup");
+      const page2Promise = page.waitForEvent("popup", { timeout: 30000 });
       await security.twoFactorAuthenticationGuideLink.click();
       const page2 = await page2Promise;
       await page2.waitForURL(
@@ -108,7 +108,7 @@ test.describe("Security tests", () => {
     });
 
     await test.step("Trusted domain guide link", async () => {
-      const page3Promise = page.waitForEvent("popup");
+      const page3Promise = page.waitForEvent("popup", { timeout: 30000 });
       await security.trustedDomainGuideLink.click();
       const page3 = await page3Promise;
       await page3.waitForURL(
@@ -118,7 +118,7 @@ test.describe("Security tests", () => {
     });
 
     await test.step("IP security guide link", async () => {
-      const page4Promise = page.waitForEvent("popup");
+      const page4Promise = page.waitForEvent("popup", { timeout: 30000 });
       await security.ipSecurityGuideLink.click();
       const page4 = await page4Promise;
       await page4.waitForURL(
@@ -128,7 +128,7 @@ test.describe("Security tests", () => {
     });
 
     await test.step("Brute force guide link", async () => {
-      const page5Promise = page.waitForEvent("popup");
+      const page5Promise = page.waitForEvent("popup", { timeout: 30000 });
       await security.bruteForceGuideLink.click();
       const page5 = await page5Promise;
       await page5.waitForURL(
@@ -138,7 +138,7 @@ test.describe("Security tests", () => {
     });
 
     await test.step("Admin message guide link", async () => {
-      const page6Promise = page.waitForEvent("popup");
+      const page6Promise = page.waitForEvent("popup", { timeout: 30000 });
       await security.adminMessageGuideLink.click();
       const page6 = await page6Promise;
       await page6.waitForURL(
@@ -148,7 +148,7 @@ test.describe("Security tests", () => {
     });
 
     await test.step("Session lifetime guide link", async () => {
-      const page7Promise = page.waitForEvent("popup");
+      const page7Promise = page.waitForEvent("popup", { timeout: 30000 });
       await security.sessionLifetimeGuideLink.click();
       const page7 = await page7Promise;
       await page7.waitForURL(

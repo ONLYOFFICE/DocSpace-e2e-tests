@@ -148,7 +148,7 @@ test.describe("FormFilling room - Link tests", () => {
     await test.step("Click download button and verify download starts", async () => {
       ensureIncognitoPage(incognitoPage);
       const [download] = await Promise.all([
-        incognitoPage.waitForEvent("download"),
+        incognitoPage.waitForEvent("download", { timeout: 30000 }),
         completedForm.clickDownloadButton(),
       ]);
       const fileName = await download.suggestedFilename();

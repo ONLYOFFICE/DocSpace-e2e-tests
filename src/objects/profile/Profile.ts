@@ -161,7 +161,9 @@ export class Profile extends BasePage {
   }
 
   async uploadAvatar(filePath = "data/avatars/AvatarPNG.png") {
-    const fileChooserPromise = this.page.waitForEvent("filechooser");
+    const fileChooserPromise = this.page.waitForEvent("filechooser", {
+      timeout: 30000,
+    });
     await this.editAvatarButton.click();
     const fileChooser = await fileChooserPromise;
     await fileChooser.setFiles(filePath);

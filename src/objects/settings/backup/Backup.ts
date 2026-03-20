@@ -81,7 +81,7 @@ export class Backup extends BasePage {
   }
 
   async openBackupGuide() {
-    const page1Promise = this.page.waitForEvent("popup");
+    const page1Promise = this.page.waitForEvent("popup", { timeout: 30000 });
     await this.locators.backupGuideLink.click();
     const page1 = await page1Promise;
     await expect(page1).toHaveURL(
@@ -93,7 +93,7 @@ export class Backup extends BasePage {
   }
 
   async openAutoBackupGuide() {
-    const page1Promise = this.page.waitForEvent("popup");
+    const page1Promise = this.page.waitForEvent("popup", { timeout: 30000 });
     await this.locators.autoBackupGuideLink.click();
     const page1 = await page1Promise;
     await expect(page1).toHaveURL(
@@ -371,7 +371,7 @@ export class Backup extends BasePage {
       throw new Error("Dropbox configuration is missing");
     }
 
-    const page1Promise = this.page.waitForEvent("popup");
+    const page1Promise = this.page.waitForEvent("popup", { timeout: 30000 });
     await this.locators.connectButton.click();
     const page1 = await page1Promise;
     await page1.locator('[name="susi_email"]').click();
@@ -414,7 +414,7 @@ export class Backup extends BasePage {
       throw new Error("Box configuration is missing");
     }
 
-    const page1Promise = this.page.waitForEvent("popup");
+    const page1Promise = this.page.waitForEvent("popup", { timeout: 30000 });
     await this.locators.connectButton.click();
     const page1 = await page1Promise;
     await page1.waitForLoadState("load");
@@ -438,7 +438,7 @@ export class Backup extends BasePage {
       throw new Error("Box configuration is missing");
     }
 
-    const page1Promise = this.page.waitForEvent("popup");
+    const page1Promise = this.page.waitForEvent("popup", { timeout: 30000 });
     await this.locators.connectButtonAutoBackup.click();
     const page1 = await page1Promise;
     await page1.waitForLoadState("load");
