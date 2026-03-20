@@ -2,6 +2,11 @@ import { test } from "@/src/fixtures";
 import MyRooms from "@/src/objects/rooms/Rooms";
 import InlineTagsPanel from "@/src/objects/rooms/InlineTagsPanel";
 
+// Most tests open the inline tags panel via context menu → "Select" (openInlineTagsPanel).
+// This selects the row and reveals the + tag button without relying on hover,
+// which is flaky in Firefox — mouseenter on nested elements requires a graduated
+// multi-step mouse movement. The dedicated hover test (openInlineTagsPanelByHover)
+// covers that scenario explicitly.
 test.describe("Rooms: inline tags panel", () => {
   let myRooms: MyRooms;
   const roomName = "Inline Tag Room";
@@ -13,6 +18,7 @@ test.describe("Rooms: inline tags panel", () => {
       roomType: "EditingRoom",
     });
     await login.loginToPortal();
+    await myRooms.roomsTable.checkRowExist(roomName);
   });
 
   test("Add, edit and delete tag via inline tags panel", async ({ page }) => {
@@ -219,6 +225,95 @@ test.describe("Rooms: inline tags panel", () => {
 
     await test.step("Add tag and verify it appears in panel", async () => {
       await tagsPanel.addTag(tagName);
+      await tagsPanel.expectTagInPanel(tagName);
+    });
+  });
+
+  test("Open inline tags panel by hovering over the Tags column area", async ({
+    page,
+  }) => {
+    const tagName = "HoverTag";
+    const tagsPanel = new InlineTagsPanel(page);
+
+    await test.step("Hover over Tags column area and open panel", async () => {
+      await myRooms.roomsTable.openInlineTagsPanelByHover(roomName);
+      await tagsPanel.waitForPanel();
+    });
+
+    await test.step("Add tag and verify it appears in panel", async () => {
+      await tagsPanel.addTag(tagName);
+      await tagsPanel.expectTagInPanel(tagName);
+    });
+  });
+
+  test("Added tag appears in Tags column of the rooms table", async ({
+    page,
+  }) => {
+    const tagName = "ColumnTag";
+    const tagsPanel = new InlineTagsPanel(page);
+
+    await test.step("Add tag via inline panel", async () => {
+      await myRooms.roomsTable.openInlineTagsPanel(roomName);
+      await tagsPanel.waitForPanel();
+      await tagsPanel.addTag(tagName);
+      await tagsPanel.closePanel();
+    });
+
+    await test.step("Tag is visible in the Tags column of the room row", async () => {
+      await myRooms.roomsTable.expectTagInRow(roomName, tagName);
+    });
+
+    await test.step("Deleted tag disappears from the Tags column", async () => {
+      await myRooms.roomsTable.openInlineTagsPanel(roomName);
+      await tagsPanel.waitForPanel();
+      await tagsPanel.deleteTag(tagName);
+      await tagsPanel.closePanel();
+      await myRooms.roomsTable.expectTagNotInRow(roomName, tagName);
+    });
+  });
+
+  test("Inline tags panel closes when clicking outside", async ({ page }) => {
+    const tagsPanel = new InlineTagsPanel(page);
+
+    await test.step("Open inline tags panel", async () => {
+      await myRooms.roomsTable.openInlineTagsPanel(roomName);
+      await tagsPanel.waitForPanel();
+    });
+
+    await test.step("Click outside — panel should close", async () => {
+      await tagsPanel.closePanelByClickingOutside();
+    });
+  });
+
+  test("Add tag by selecting from dropdown suggestions", async ({
+    page,
+    apiSdk,
+  }) => {
+    const tagName = "SharedTag";
+    const secondRoom = "Inline Tag Room 2";
+    const tagsPanel = new InlineTagsPanel(page);
+
+    await test.step("Add tag to first room", async () => {
+      await myRooms.roomsTable.openInlineTagsPanel(roomName);
+      await tagsPanel.waitForPanel();
+      await tagsPanel.addTag(tagName);
+      await tagsPanel.closePanel();
+    });
+
+    await test.step("Create second room", async () => {
+      await apiSdk.rooms.createRoom("owner", {
+        title: secondRoom,
+        roomType: "EditingRoom",
+      });
+      await myRooms.roomsTable.checkRowExist(secondRoom);
+    });
+
+    await test.step("Open panel for second room and select tag from dropdown", async () => {
+      await myRooms.roomsTable.openInlineTagsPanel(secondRoom);
+      await tagsPanel.waitForPanel();
+      await tagsPanel.typeTagName(tagName);
+      await tagsPanel.expectTagDropdownItemVisible(tagName);
+      await tagsPanel.selectTagFromDropdown(tagName);
       await tagsPanel.expectTagInPanel(tagName);
     });
   });

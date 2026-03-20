@@ -25,6 +25,7 @@ const TABLE_HEADER_OWNER = "[data-testid='column-Owner']";
 const TABLE_HEADER_ACTIVITY = "[data-testid='column-Activity']";
 const TAG_ITEM_BUTTON = "[data-testid='tag_item_']";
 const CONTEXT_MENU_SELECT = "select";
+
 const TILE_ITEM = (roomName: string) => `[data-document-title="${roomName}"]`;
 
 class RoomsTable extends BaseTable {
@@ -124,7 +125,20 @@ class RoomsTable extends BaseTable {
     await this.page.getByText(tagValue, { exact: true }).click();
   }
 
+  async expectTagInRow(roomName: string, tagName: string) {
+    const row = await this.getRowByTitle(roomName);
+    await expect(row.getByText(tagName, { exact: true })).toBeVisible();
+  }
+
+  async expectTagNotInRow(roomName: string, tagName: string) {
+    const row = await this.getRowByTitle(roomName);
+    await expect(row.getByText(tagName, { exact: true })).not.toBeVisible();
+  }
+
   async openInlineTagsPanel(roomName: string) {
+    // Use context menu → Select to reveal the + tag button reliably across all browsers.
+    // Direct hover via mouse.move() is flaky in Firefox — the mouseenter event on nested
+    // elements is not reliably dispatched without a graduated multi-step movement.
     await this.openContextMenu(roomName);
     await this.contextMenu.clickOption({
       type: "data-testid",
@@ -132,6 +146,19 @@ class RoomsTable extends BaseTable {
     });
     const row = await this.getRowByTitle(roomName);
     await row.locator(TAG_ITEM_BUTTON).click();
+  }
+
+  async openInlineTagsPanelByHover(roomName: string) {
+    const row = await this.getRowByTitle(roomName);
+    const tagsHeader = this.page.locator(TABLE_HEADER_TAGS);
+    const headerBox = await tagsHeader.boundingBox();
+    const rowBox = await row.boundingBox();
+    const targetX = headerBox!.x + headerBox!.width / 2;
+    const targetY = rowBox!.y + rowBox!.height / 2;
+    // Move from row start to Tags column gradually to trigger hover on nested elements
+    await this.page.mouse.move(rowBox!.x + 10, targetY);
+    await this.page.mouse.move(targetX, targetY, { steps: 10 });
+    await row.locator(TAG_ITEM_BUTTON).click({ force: true });
   }
 
   async openInlineTagsPanelInThumbnailView(roomName: string) {
