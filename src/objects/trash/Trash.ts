@@ -90,11 +90,17 @@ class Trash extends BasePage {
 
   async openRestoreAllSelector() {
     await this.navigation.openContextMenu();
-    await this.navigation.performAction({
-      button: "#header_option_restore-all",
+    await this.navigation.contextMenu.clickOption({
+      type: "data-testid",
+      value: "restore-all",
     });
-    await this.removeToast(toastMessages.restored);
     await this.trashSelector.checkSelectorExist();
+  }
+
+  async restoreAllToDocuments() {
+    await this.openRestoreAllSelector();
+    await this.trashSelector.select("documents");
+    await this.trashSelector.restore();
   }
 
   async restoreFileTo(fileName: string) {
