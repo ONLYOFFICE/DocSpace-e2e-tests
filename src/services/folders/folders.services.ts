@@ -18,10 +18,14 @@ export class FoldersApi {
     return this.tokenStore.portalDomain;
   }
 
+  private get portalBaseUrl() {
+    return this.tokenStore.portalBaseUrl;
+  }
+
   async getMyDocumentsFolderId(role: Role): Promise<number> {
     return test.step(`${role} get My Documents folder ID`, async () => {
       const response = await this.request.get(
-        `https://${this.portalDomain}/api/2.0/files/@my`,
+        `${this.portalBaseUrl}/api/2.0/files/@my`,
         {
           headers: { Authorization: `Bearer ${this.getToken(role)}` },
         },
@@ -34,7 +38,7 @@ export class FoldersApi {
   async setFolderOrder(role: Role, folderId: number, order: number) {
     return test.step(`${role} set order ${order} for folder ${folderId}`, async () => {
       const response = await this.request.put(
-        `https://${this.portalDomain}/api/2.0/files/folder/${folderId}/order`,
+        `${this.portalBaseUrl}/api/2.0/files/folder/${folderId}/order`,
         {
           headers: { Authorization: `Bearer ${this.getToken(role)}` },
           data: { order },
@@ -47,7 +51,7 @@ export class FoldersApi {
   async createFolder(role: Role, folderId: number, data: { title: string }) {
     return test.step(`${role} create folder "${data.title}" in ${folderId}`, async () => {
       const response = await this.request.post(
-        `https://${this.portalDomain}/api/2.0/files/folder/${folderId}`,
+        `${this.portalBaseUrl}/api/2.0/files/folder/${folderId}`,
         {
           headers: { Authorization: `Bearer ${this.getToken(role)}` },
           data,

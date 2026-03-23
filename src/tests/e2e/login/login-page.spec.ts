@@ -1,5 +1,5 @@
 import { test, Page } from "@playwright/test";
-import config from "@/config";
+import config, { getPortalUrl } from "@/config";
 import API from "@/src/api";
 import Login from "@/src/objects/common/Login";
 
@@ -29,7 +29,7 @@ test.describe(() => {
 
   test.skip("Login page", async () => {
     await test.step("OpenLoginPage", async () => {
-      await page.goto(`https://${portalDomain}/login`, {
+      await page.goto(`${getPortalUrl(portalDomain)}/login`, {
         waitUntil: "load",
       });
     });

@@ -30,6 +30,10 @@ export class SettingsApi {
     return this.tokenStore.portalDomain;
   }
 
+  private get portalBaseUrl() {
+    return this.tokenStore.portalBaseUrl;
+  }
+
   async userquotasettings(
     role: Role,
     data: { defaultQuota: DefaultQuota; enableQuota: boolean },
@@ -41,7 +45,7 @@ export class SettingsApi {
       };
 
       const response = await this.request.post(
-        `https://${this.portalDomain}/api/2.0/settings/userquotasettings`,
+        `${this.portalBaseUrl}/api/2.0/settings/userquotasettings`,
         {
           headers: { Authorization: `Bearer ${this.getToken(role)}` },
           data: userData,
@@ -62,7 +66,7 @@ export class SettingsApi {
       };
 
       const response = await this.request.post(
-        `https://${this.portalDomain}/api/2.0/settings/roomquotasettings`,
+        `${this.portalBaseUrl}/api/2.0/settings/roomquotasettings`,
         {
           headers: { Authorization: `Bearer ${this.getToken(role)}` },
           data: userData,
@@ -83,7 +87,7 @@ export class SettingsApi {
       };
 
       const response = await this.request.post(
-        `https://${this.portalDomain}/api/2.0/settings/aiagentquotasettings`,
+        `${this.portalBaseUrl}/api/2.0/settings/aiagentquotasettings`,
         {
           headers: { Authorization: `Bearer ${this.getToken(role)}` },
           data: userData,

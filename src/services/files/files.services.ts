@@ -20,10 +20,14 @@ export class FilesApi {
     return this.tokenStore.portalDomain;
   }
 
+  private get portalBaseUrl() {
+    return this.tokenStore.portalBaseUrl;
+  }
+
   async createFolder(role: Role, parentId: number, title: string) {
     return test.step(`${role} create folder "${title}" in folder ${parentId}`, async () => {
       const response = await this.request.post(
-        `https://${this.portalDomain}/api/2.0/files/folder/${parentId}`,
+        `${this.portalBaseUrl}/api/2.0/files/folder/${parentId}`,
         {
           headers: { Authorization: `Bearer ${this.getToken(role)}` },
           data: { title },
@@ -44,7 +48,7 @@ export class FilesApi {
   ) {
     return test.step(`${role} create file in My Documents`, async () => {
       const response = await this.request.post(
-        `https://${this.portalDomain}/api/2.0/files/@my/file`,
+        `${this.portalBaseUrl}/api/2.0/files/@my/file`,
         {
           headers: { Authorization: `Bearer ${this.getToken(role)}` },
           data,
@@ -66,7 +70,7 @@ export class FilesApi {
   ) {
     return test.step(`${role} create file in folder ${folderId}`, async () => {
       const response = await this.request.post(
-        `https://${this.portalDomain}/api/2.0/files/${folderId}/file`,
+        `${this.portalBaseUrl}/api/2.0/files/${folderId}/file`,
         {
           headers: { Authorization: `Bearer ${this.getToken(role)}` },
           data,
@@ -85,7 +89,7 @@ export class FilesApi {
       }
 
       const response = await this.request.post(
-        `https://${this.portalDomain}/api/2.0/files/@my/upload`,
+        `${this.portalBaseUrl}/api/2.0/files/@my/upload`,
         {
           headers: { Authorization: `Bearer ${this.getToken(role)}` },
           multipart: {
@@ -117,7 +121,7 @@ export class FilesApi {
       }
 
       const response = await this.request.post(
-        `https://${this.portalDomain}/api/2.0/files/${folderId}/upload`,
+        `${this.portalBaseUrl}/api/2.0/files/${folderId}/upload`,
         {
           headers: { Authorization: `Bearer ${this.getToken(role)}` },
           multipart: {
@@ -143,7 +147,7 @@ export class FilesApi {
   async getMyDocuments(role: Role) {
     return test.step(`${role} get My Documents`, async () => {
       const response = await this.request.get(
-        `https://${this.portalDomain}/api/2.0/files/@my`,
+        `${this.portalBaseUrl}/api/2.0/files/@my`,
         {
           headers: { Authorization: `Bearer ${this.getToken(role)}` },
         },
@@ -183,7 +187,7 @@ export class FilesApi {
   async addToRecent(role: Role, fileId: number) {
     return test.step(`${role} add file to recent`, async () => {
       const response = await this.request.post(
-        `https://${this.portalDomain}/api/2.0/files/file/${fileId}/recent`,
+        `${this.portalBaseUrl}/api/2.0/files/file/${fileId}/recent`,
         {
           headers: { Authorization: `Bearer ${this.getToken(role)}` },
         },
@@ -209,7 +213,7 @@ export class FilesApi {
   ) {
     return test.step(`${role} create HTML file in folder ${folderId}`, async () => {
       const response = await this.request.post(
-        `https://${this.portalDomain}/api/2.0/files/${folderId}/html`,
+        `${this.portalBaseUrl}/api/2.0/files/${folderId}/html`,
         {
           headers: { Authorization: `Bearer ${this.getToken(role)}` },
           data,
@@ -230,7 +234,7 @@ export class FilesApi {
   ) {
     return test.step(`${role} create text file in folder ${folderId}`, async () => {
       const response = await this.request.post(
-        `https://${this.portalDomain}/api/2.0/files/${folderId}/text`,
+        `${this.portalBaseUrl}/api/2.0/files/${folderId}/text`,
         {
           headers: { Authorization: `Bearer ${this.getToken(role)}` },
           data,
@@ -243,7 +247,7 @@ export class FilesApi {
   async addToFavorites(role: Role, fileIds: number[]) {
     return test.step(`${role} add files to favorites`, async () => {
       const response = await this.request.post(
-        `https://${this.portalDomain}/api/2.0/files/favorites`,
+        `${this.portalBaseUrl}/api/2.0/files/favorites`,
         {
           headers: { Authorization: `Bearer ${this.getToken(role)}` },
           data: { fileIds },
@@ -271,7 +275,7 @@ export class FilesApi {
   ) {
     return test.step(`${role} save file ${fileId} as PDF`, async () => {
       const response = await this.request.post(
-        `https://${this.portalDomain}/api/2.0/files/file/${fileId}/saveaspdf`,
+        `${this.portalBaseUrl}/api/2.0/files/file/${fileId}/saveaspdf`,
         {
           headers: { Authorization: `Bearer ${this.getToken(role)}` },
           data,
@@ -294,7 +298,7 @@ export class FilesApi {
   ) {
     return test.step(`${role} copy file ${fileId} as "${data.destTitle}"`, async () => {
       const response = await this.request.post(
-        `https://${this.portalDomain}/api/2.0/files/file/${fileId}/copyas`,
+        `${this.portalBaseUrl}/api/2.0/files/file/${fileId}/copyas`,
         {
           headers: { Authorization: `Bearer ${this.getToken(role)}` },
           data,
@@ -307,7 +311,7 @@ export class FilesApi {
   async changeFavoriteStatus(role: Role, fileId: number, favorite: boolean) {
     return test.step(`${role} set favorite=${favorite} for file ${fileId}`, async () => {
       const response = await this.request.get(
-        `https://${this.portalDomain}/api/2.0/files/favorites/${fileId}?favorite=${favorite}`,
+        `${this.portalBaseUrl}/api/2.0/files/favorites/${fileId}?favorite=${favorite}`,
         {
           headers: { Authorization: `Bearer ${this.getToken(role)}` },
         },

@@ -23,6 +23,10 @@ export class UserStatusApi {
     return this.tokenStore.portalDomain;
   }
 
+  private get portalBaseUrl() {
+    return this.tokenStore.portalBaseUrl;
+  }
+
   async changeUserStatus(
     role: Role,
     status: UserStatus,
@@ -33,7 +37,7 @@ export class UserStatusApi {
   ) {
     return test.step(`${role} change user status`, async () => {
       const response = await this.request.put(
-        `https://${this.portalDomain}/api/2.0/people/status/${status}`,
+        `${this.portalBaseUrl}/api/2.0/people/status/${status}`,
         {
           headers: { Authorization: `Bearer ${this.getToken(role)}` },
           data,
@@ -52,7 +56,7 @@ export class UserStatusApi {
   ) {
     return test.step("Change user status", async () => {
       const response = await this.request.put(
-        `https://${this.portalDomain}/api/2.0/people/status/${status}`,
+        `${this.portalBaseUrl}/api/2.0/people/status/${status}`,
         {
           data,
         },
@@ -64,7 +68,7 @@ export class UserStatusApi {
   async getPlofilesByStatus(role: Role, status: UserStatus) {
     return test.step(`${role} returns a list of profiles filtered by the user status`, async () => {
       const response = await this.request.get(
-        `https://${this.portalDomain}/api/2.0/people/status/${status}`,
+        `${this.portalBaseUrl}/api/2.0/people/status/${status}`,
         {
           headers: { Authorization: `Bearer ${this.getToken(role)}` },
         },

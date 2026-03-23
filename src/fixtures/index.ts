@@ -43,7 +43,7 @@ export const test = base.extend<TestFixtures>({
     }
   },
 
-  page: async ({ browser }, use) => {
+  page: async ({ browser, api }, use) => {
     const page = await browser.newPage();
 
     // List of URL patterns to block
@@ -66,6 +66,17 @@ export const test = base.extend<TestFixtures>({
       // If the page is not yet loaded, allow the request
       if (!origin || origin === "null") {
         await route.continue();
+        return;
+      }
+
+      // For local builds, override Origin header to match the tenant
+      if (api.isLocal && api.tokenStore.newTenantDomain) {
+        await route.continue({
+          headers: {
+            ...route.request().headers(),
+            origin: `http://${api.tokenStore.newTenantDomain}`,
+          },
+        });
         return;
       }
 

@@ -30,6 +30,10 @@ export class PeopleQuotaApi {
     return this.tokenStore.portalDomain;
   }
 
+  private get portalBaseUrl() {
+    return this.tokenStore.portalBaseUrl;
+  }
+
   async changeUserQuotaLimit(
     role: Role,
     data: { userIds: string[]; quota: QuotaPlan },
@@ -41,7 +45,7 @@ export class PeopleQuotaApi {
       };
 
       const response = await this.request.put(
-        `https://${this.portalDomain}/api/2.0/people/userquota`,
+        `${this.portalBaseUrl}/api/2.0/people/userquota`,
         {
           headers: { Authorization: `Bearer ${this.getToken(role)}` },
           data: userData,
@@ -58,7 +62,7 @@ export class PeopleQuotaApi {
       };
 
       const response = await this.request.put(
-        `https://${this.portalDomain}/api/2.0/people/resetquota`,
+        `${this.portalBaseUrl}/api/2.0/people/resetquota`,
         {
           headers: { Authorization: `Bearer ${this.getToken(role)}` },
           data: userData,
@@ -79,7 +83,7 @@ export class PeopleQuotaApi {
       };
 
       const response = await this.request.put(
-        `https://${this.portalDomain}/api/2.0/people/userquota`,
+        `${this.portalBaseUrl}/api/2.0/people/userquota`,
         {
           data: userData,
         },
@@ -95,7 +99,7 @@ export class PeopleQuotaApi {
       };
 
       const response = await this.request.put(
-        `https://${this.portalDomain}/api/2.0/people/resetquota`,
+        `${this.portalBaseUrl}/api/2.0/people/resetquota`,
         {
           data: userData,
         },

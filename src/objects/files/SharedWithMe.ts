@@ -1,4 +1,5 @@
 import { expect, Page } from "@playwright/test";
+import { getPortalUrl } from "../../../config";
 import BasePage from "../common/BasePage";
 
 const SHARED_WITH_ME_URL = /shared-with-me/;
@@ -12,7 +13,9 @@ class SharedWithMe extends BasePage {
   }
 
   async open() {
-    await this.page.goto(`https://${this.portalDomain}/shared-with-me/filter`);
+    await this.page.goto(
+      `${getPortalUrl(this.portalDomain)}/shared-with-me/filter`,
+    );
     await this.waitForSharedWithMePage();
   }
 

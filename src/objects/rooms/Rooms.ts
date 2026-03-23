@@ -1,4 +1,5 @@
 import { expect, Page } from "@playwright/test";
+import { getPortalUrl } from "../../../config";
 import RoomsEmptyView from "./RoomsEmptyView";
 import RoomsCreateDialog from "./RoomsCreateDialog";
 import BaseNavigation from "../common/BaseNavigation";
@@ -89,7 +90,7 @@ class MyRooms extends BasePage {
   }
 
   async open() {
-    await this.page.goto(`https://${this.portalDomain}/rooms/shared`, {
+    await this.page.goto(`${getPortalUrl(this.portalDomain)}/rooms/shared`, {
       waitUntil: "load",
     });
     await expect(this.page).toHaveURL(/.*rooms\/shared.*/);
@@ -97,7 +98,7 @@ class MyRooms extends BasePage {
   }
 
   async openWithoutEmptyCheck() {
-    await this.page.goto(`https://${this.portalDomain}/rooms/shared`, {
+    await this.page.goto(`${getPortalUrl(this.portalDomain)}/rooms/shared`, {
       waitUntil: "load",
     });
     await expect(this.page).toHaveURL(/.*rooms\/shared.*/);

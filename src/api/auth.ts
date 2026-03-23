@@ -24,9 +24,12 @@ class Auth {
     const password = config.DOCSPACE_OWNER_PASSWORD;
 
     const authResponse = await this.apiRequestContext.post(
-      `https://${this.portalDomain}/api/2.0/authentication`,
+      `${this.tokenStore.portalBaseUrl}/api/2.0/authentication`,
       {
         data: { userName, password },
+        headers: {
+          Origin: `http://${this.tokenStore.newTenantDomain}`,
+        },
         timeout: 60000,
       },
     );
@@ -64,9 +67,12 @@ class Auth {
     const { email, password } = this.tokenStore.getCredentials(role);
 
     const authResponse = await this.apiRequestContext.post(
-      `https://${this.portalDomain}/api/2.0/authentication`,
+      `${this.tokenStore.portalBaseUrl}/api/2.0/authentication`,
       {
         data: { userName: email, password },
+        headers: {
+          Origin: `http://${this.tokenStore.newTenantDomain}`,
+        },
         timeout: 60000,
       },
     );

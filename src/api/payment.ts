@@ -26,6 +26,10 @@ export class PaymentApi {
     return domain;
   }
 
+  private get portalBaseUrl(): string {
+    return this.portalSetupApi.portalBaseUrl;
+  }
+
   createToken() {
     const now = new Date();
     const timestamp =
@@ -50,7 +54,7 @@ export class PaymentApi {
 
   async getPortalInfo() {
     const response = await this.apiContext.get(
-      `https://${this.portalDomain}/api/2.0/portal`,
+      `${this.portalBaseUrl}/api/2.0/portal`,
       { timeout: 60000 },
     );
     if (!response.ok()) {
@@ -124,7 +128,7 @@ export class PaymentApi {
     };
 
     const tariffResponse = await this.apiContext.get(
-      `https://${this.portalDomain}/api/2.0/portal/tariff?refresh=true`,
+      `${this.portalBaseUrl}/api/2.0/portal/tariff?refresh=true`,
       {
         headers: headers,
         params: { refresh: true },
@@ -140,7 +144,7 @@ export class PaymentApi {
     }
 
     const quotaResponse = await this.apiContext.get(
-      `https://${this.portalDomain}/api/2.0/portal/payment/quota?refresh=true`,
+      `${this.portalBaseUrl}/api/2.0/portal/payment/quota?refresh=true`,
       {
         headers: headers,
         params: { refresh: true },
@@ -162,6 +166,10 @@ export class PaymentApi {
   }
 
   async setupPayment(quantity = 10) {
+    if (this.portalSetupApi.isLocal) {
+      return;
+    }
+
     const portalInfo = await this.getPortalInfo();
     const paymentResult = await this.makePortalPayment(
       portalInfo.tenantId,

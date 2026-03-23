@@ -18,6 +18,10 @@ export class PasswordApi {
     return this.tokenStore.portalDomain;
   }
 
+  private get portalBaseUrl() {
+    return this.tokenStore.portalBaseUrl;
+  }
+
   async remindAUserPassword(role: Role, data: { email: string }) {
     return test.step("Remind a user password", async () => {
       const userData = {
@@ -25,7 +29,7 @@ export class PasswordApi {
       };
 
       const response = await this.request.post(
-        `https://${this.portalDomain}/api/2.0/people/password`,
+        `${this.portalBaseUrl}/api/2.0/people/password`,
         {
           headers: { Authorization: `Bearer ${this.getToken(role)}` },
           data: userData,
@@ -42,7 +46,7 @@ export class PasswordApi {
       };
 
       const response = await this.request.post(
-        `https://${this.portalDomain}/api/2.0/people/password`,
+        `${this.portalBaseUrl}/api/2.0/people/password`,
         {
           data: userData,
         },

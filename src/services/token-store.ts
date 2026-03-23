@@ -14,6 +14,13 @@ export class TokenStore {
   private credentials: Partial<Record<Role, Credentials>> = {};
 
   portalDomain: string = "";
+  newTenantDomain: string = "";
+  isLocal: boolean = false;
+
+  get portalBaseUrl(): string {
+    const scheme = this.isLocal ? "http" : "https";
+    return `${scheme}://${this.portalDomain}`;
+  }
 
   getToken(role: Role): string {
     return this.tokens[role];

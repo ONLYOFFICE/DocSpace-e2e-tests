@@ -7,6 +7,7 @@ interface Config {
   PORTAL_REGISTRATION_URL: string;
   DOCSPACE_OWNER_EMAIL: string;
   DOCSPACE_OWNER_PASSWORD: string;
+  LOCAL_PORTAL_DOMAIN: string;
 
   AWS_REGION?: string;
   DOCSPACE_USER_EMAIL?: string;
@@ -66,6 +67,7 @@ const config: Config = {
   DOCSPACE_OWNER_EMAIL:
     process.env.DOCSPACE_OWNER_EMAIL ?? "integration-test-email@gmail.com",
   DOCSPACE_OWNER_PASSWORD: process.env.DOCSPACE_OWNER_PASSWORD ?? "test1234",
+  LOCAL_PORTAL_DOMAIN: process.env.LOCAL_PORTAL_DOMAIN ?? "",
 
   AWS_REGION: process.env.AWS_REGION,
   DOCSPACE_USER_EMAIL: process.env.DOCSPACE_USER_EMAIL,
@@ -117,5 +119,10 @@ const config: Config = {
   TOGETHER_AI_API_KEY: process.env.TOGETHER_AI_API_KEY,
   EXA_API_KEY: process.env.EXA_API_KEY,
 };
+
+export function getPortalUrl(domain: string): string {
+  const scheme = config.LOCAL_PORTAL_DOMAIN ? "http" : "https";
+  return `${scheme}://${domain}`;
+}
 
 export default config;

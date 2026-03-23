@@ -1,4 +1,5 @@
 import { expect, Page } from "@playwright/test";
+import { getPortalUrl } from "../../../config";
 import FilesNavigation from "./FilesNavigation";
 import FilesTable from "./FilesTable";
 import FolderShareModal from "./FolderShareModal";
@@ -35,7 +36,7 @@ class Folder extends BasePage {
   }
 
   async open() {
-    await this.page.goto(`https://${this.portalDomain}/rooms/personal`, {
+    await this.page.goto(`${getPortalUrl(this.portalDomain)}/rooms/personal`, {
       waitUntil: "load",
     });
     await expect(this.page).toHaveURL(/.*rooms\/personal.*/);
