@@ -7,7 +7,7 @@ class TrashSelector extends BaseSelector {
   }
 
   private get restoreHereButton() {
-    return this.selector.locator("#select-file-modal-submit");
+    return this.page.getByTestId("selector_submit_button");
   }
 
   async restore() {
