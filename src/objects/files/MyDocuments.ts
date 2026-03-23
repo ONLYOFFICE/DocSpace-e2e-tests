@@ -1,4 +1,5 @@
 import { expect, Page } from "@playwright/test";
+import { getPortalUrl } from "../../../config";
 import {
   dropFile,
   dropFolder,
@@ -57,7 +58,7 @@ class MyDocuments extends BasePage {
   }
 
   async open() {
-    await this.page.goto(`https://${this.portalDomain}/rooms/personal`);
+    await this.page.goto(`${getPortalUrl(this.portalDomain)}/rooms/personal`);
     await expect(this.page).toHaveURL(/.*rooms\/personal.*/);
     await this.page.waitForLoadState("load");
   }
@@ -320,7 +321,7 @@ class MyDocuments extends BasePage {
 
   async uploadFolderWithFilesByDragAndDrop(folderPath: string) {
     await dropFolderWithFiles(this.page, folderPath);
-    await this.page.goto(`https://${this.portalDomain}/rooms/personal`);
+    await this.page.goto(`${getPortalUrl(this.portalDomain)}/rooms/personal`);
     await this.page.waitForLoadState("load");
   }
 }

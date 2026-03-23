@@ -1,6 +1,6 @@
 import { Page, Locator, expect } from "@playwright/test";
 import BasePage from "./BasePage";
-import config from "../../../config";
+import config, { getPortalUrl } from "../../../config";
 
 export class Login extends BasePage {
   portalDomain: string;
@@ -40,7 +40,7 @@ export class Login extends BasePage {
   }
 
   async loginToPortal() {
-    await this.page.goto(`https://${this.portalDomain}`, {
+    await this.page.goto(`${getPortalUrl(this.portalDomain)}`, {
       waitUntil: "load",
     });
 
@@ -69,7 +69,7 @@ export class Login extends BasePage {
   }
 
   async loginWithCredentials(email: string, password: string) {
-    await this.page.goto(`https://${this.portalDomain}`, {
+    await this.page.goto(`${getPortalUrl(this.portalDomain)}`, {
       waitUntil: "load",
     });
 

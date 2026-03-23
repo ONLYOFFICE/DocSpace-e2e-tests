@@ -30,6 +30,10 @@ export class ProfilesApi {
     return this.tokenStore.portalDomain;
   }
 
+  private get portalBaseUrl() {
+    return this.tokenStore.portalBaseUrl;
+  }
+
   async addMember(role: Role, type: UserType) {
     return test.step(`${role} create User`, async () => {
       const fakeUser = this.faker.generateUser();
@@ -49,7 +53,7 @@ export class ProfilesApi {
       // Guests are created via a different endpoint, so we need to handle them separately (api/2.0/people/active = api/2.0/people)
       const endpoint = type === "Guest" ? "people/active" : "people";
       const response = await this.request.post(
-        `https://${this.portalDomain}/api/2.0/${endpoint}`,
+        `${this.portalBaseUrl}/api/2.0/${endpoint}`,
         {
           headers: { Authorization: `Bearer ${this.getToken(role)}` },
           data: userData,
@@ -76,7 +80,7 @@ export class ProfilesApi {
       };
 
       const response = await this.request.post(
-        `https://${this.portalDomain}/api/2.0/people`,
+        `${this.portalBaseUrl}/api/2.0/people`,
         {
           headers: { Authorization: `Bearer ${this.getToken("owner")}` },
           data: userData,
@@ -103,7 +107,7 @@ export class ProfilesApi {
       };
 
       const response = await this.request.post(
-        `https://${this.portalDomain}/api/2.0/people`,
+        `${this.portalBaseUrl}/api/2.0/people`,
         {
           headers: { Authorization: `Bearer ${this.getToken("owner")}` },
           data: userData,
@@ -116,7 +120,7 @@ export class ProfilesApi {
   async addingAUserWithoutAuthorization() {
     return test.step("Adding a user without authorization", async () => {
       const response = await this.request.post(
-        `https://${this.portalDomain}/api/2.0/people`,
+        `${this.portalBaseUrl}/api/2.0/people`,
       );
       return response;
     });
@@ -125,7 +129,7 @@ export class ProfilesApi {
   async returnAllUsersList(role: Role) {
     return test.step(`${role} Return all users list`, async () => {
       const response = await this.request.get(
-        `https://${this.portalDomain}/api/2.0/people`,
+        `${this.portalBaseUrl}/api/2.0/people`,
         {
           headers: { Authorization: `Bearer ${this.getToken(role)}` },
         },
@@ -137,7 +141,7 @@ export class ProfilesApi {
   async returnAllUsersListWithoutAuthorization() {
     return test.step("Return all users list without authorization", async () => {
       const response = await this.request.get(
-        `https://${this.portalDomain}/api/2.0/people`,
+        `${this.portalBaseUrl}/api/2.0/people`,
       );
       return response;
     });
@@ -155,7 +159,7 @@ export class ProfilesApi {
       };
 
       const response = await this.request.post(
-        `https://${this.portalDomain}/api/2.0/people/invite`,
+        `${this.portalBaseUrl}/api/2.0/people/invite`,
         {
           headers: { Authorization: `Bearer ${this.getToken(role)}` },
           data: userData,
@@ -177,7 +181,7 @@ export class ProfilesApi {
       };
 
       const response = await this.request.post(
-        `https://${this.portalDomain}/api/2.0/people/invite`,
+        `${this.portalBaseUrl}/api/2.0/people/invite`,
         {
           headers: { Authorization: `Bearer ${this.getToken("owner")}` },
           data: userData,
@@ -190,7 +194,7 @@ export class ProfilesApi {
   async invitingAUserWithoutAuthorization() {
     return test.step("Inviting a user without authorization", async () => {
       const response = await this.request.post(
-        `https://${this.portalDomain}/api/2.0/people/invite`,
+        `${this.portalBaseUrl}/api/2.0/people/invite`,
       );
       return response;
     });
@@ -210,7 +214,7 @@ export class ProfilesApi {
       };
 
       const response = await this.request.put(
-        `https://${this.portalDomain}/api/2.0/people/invite`,
+        `${this.portalBaseUrl}/api/2.0/people/invite`,
         {
           headers: { Authorization: `Bearer ${this.getToken(role)}` },
           data: userData,
@@ -223,7 +227,7 @@ export class ProfilesApi {
   async resendingActivationEmailByUnauthorizedUser() {
     return test.step("Resending activation email by unauthorized user", async () => {
       const response = await this.request.put(
-        `https://${this.portalDomain}/api/2.0/people/invite`,
+        `${this.portalBaseUrl}/api/2.0/people/invite`,
       );
       return response;
     });
@@ -236,7 +240,7 @@ export class ProfilesApi {
       };
 
       const response = await this.request.delete(
-        `https://${this.portalDomain}/api/2.0/people/${data.userIds}`,
+        `${this.portalBaseUrl}/api/2.0/people/${data.userIds}`,
         {
           headers: { Authorization: `Bearer ${this.getToken(role)}` },
           data: userData,
@@ -253,7 +257,7 @@ export class ProfilesApi {
       };
 
       const response = await this.request.delete(
-        `https://${this.portalDomain}/api/2.0/people/${data.userIds}`,
+        `${this.portalBaseUrl}/api/2.0/people/${data.userIds}`,
         {
           data: userData,
         },
@@ -265,7 +269,7 @@ export class ProfilesApi {
   async returnUserDetailedInformation(role: Role, userId: string) {
     return test.step(`${role} returns the detailed information of the user`, async () => {
       const response = await this.request.get(
-        `https://${this.portalDomain}/api/2.0/people/${userId}`,
+        `${this.portalBaseUrl}/api/2.0/people/${userId}`,
         {
           headers: { Authorization: `Bearer ${this.getToken(role)}` },
         },
@@ -279,7 +283,7 @@ export class ProfilesApi {
   ) {
     return test.step("Returns the detailed information of the user", async () => {
       const response = await this.request.get(
-        `https://${this.portalDomain}/api/2.0/people/${userId}`,
+        `${this.portalBaseUrl}/api/2.0/people/${userId}`,
       );
       return response;
     });
@@ -300,7 +304,7 @@ export class ProfilesApi {
       };
 
       const response = await this.request.put(
-        `https://${this.portalDomain}/api/2.0/people/${userId}`,
+        `${this.portalBaseUrl}/api/2.0/people/${userId}`,
         {
           headers: { Authorization: `Bearer ${this.getToken(role)}` },
           data: userData,
@@ -324,7 +328,7 @@ export class ProfilesApi {
       };
 
       const response = await this.request.put(
-        `https://${this.portalDomain}/api/2.0/people/${userId}`,
+        `${this.portalBaseUrl}/api/2.0/people/${userId}`,
         {
           data: userData,
         },
@@ -336,7 +340,7 @@ export class ProfilesApi {
   async returnHimselfInformation(role: Role) {
     return test.step(`${role} return himself information`, async () => {
       const response = await this.request.get(
-        `https://${this.portalDomain}/api/2.0/people/@self`,
+        `${this.portalBaseUrl}/api/2.0/people/@self`,
         {
           headers: { Authorization: `Bearer ${this.getToken(role)}` },
         },
@@ -348,7 +352,7 @@ export class ProfilesApi {
   async returnsUserInfoViaEmail(role: Role, data: { email: string[] }) {
     return test.step(`${role} returns user information via email`, async () => {
       const response = await this.request.get(
-        `https://${this.portalDomain}/api/2.0/people/email?email=${data.email}`,
+        `${this.portalBaseUrl}/api/2.0/people/email?email=${data.email}`,
         {
           headers: { Authorization: `Bearer ${this.getToken(role)}` },
         },
@@ -360,7 +364,7 @@ export class ProfilesApi {
   async returnsUserInfoViaEmailWithoutAuthorization(data: { email: string[] }) {
     return test.step("Returns user information via email without authorization", async () => {
       const response = await this.request.get(
-        `https://${this.portalDomain}/api/2.0/people/email?email=${data.email}`,
+        `${this.portalBaseUrl}/api/2.0/people/email?email=${data.email}`,
       );
       return response;
     });
@@ -380,7 +384,7 @@ export class ProfilesApi {
       };
 
       const response = await this.request.post(
-        `https://${this.portalDomain}/api/2.0/people/email`,
+        `${this.portalBaseUrl}/api/2.0/people/email`,
         {
           headers: { Authorization: `Bearer ${this.getToken(role)}` },
           data: userData,
@@ -401,7 +405,7 @@ export class ProfilesApi {
       };
 
       const response = await this.request.post(
-        `https://${this.portalDomain}/api/2.0/people/email`,
+        `${this.portalBaseUrl}/api/2.0/people/email`,
         {
           data: userData,
         },
@@ -421,7 +425,7 @@ export class ProfilesApi {
       };
 
       const response = await this.request.put(
-        `https://${this.portalDomain}/api/2.0/people/delete`,
+        `${this.portalBaseUrl}/api/2.0/people/delete`,
         {
           headers: {
             Authorization: `Bearer ${this.getToken(role)}`,
@@ -439,7 +443,7 @@ export class ProfilesApi {
   ) {
     return test.step(`${role} update culture code`, async () => {
       const response = await this.request.put(
-        `https://${this.portalDomain}/api/2.0/people/${data.userId}/culture`,
+        `${this.portalBaseUrl}/api/2.0/people/${data.userId}/culture`,
         {
           headers: { Authorization: `Bearer ${this.getToken(role)}` },
           data: {
@@ -457,7 +461,7 @@ export class ProfilesApi {
   }) {
     return test.step("User update culture code", async () => {
       const response = await this.request.put(
-        `https://${this.portalDomain}/api/2.0/people/${data.userId}/culture`,
+        `${this.portalBaseUrl}/api/2.0/people/${data.userId}/culture`,
         {
           data: {
             cultureName: data.cultureName,

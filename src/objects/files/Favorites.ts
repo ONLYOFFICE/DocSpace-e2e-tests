@@ -1,4 +1,5 @@
 import { expect, Page } from "@playwright/test";
+import { getPortalUrl } from "../../../config";
 import BasePage from "../common/BasePage";
 import FilesTable from "./FilesTable";
 import FilesFilter from "./FilesFilter";
@@ -24,7 +25,9 @@ class Favorites extends BasePage {
   }
 
   async open() {
-    await this.page.goto(`https://${this.portalDomain}/files/favorite/filter`);
+    await this.page.goto(
+      `${getPortalUrl(this.portalDomain)}/files/favorite/filter`,
+    );
     await this.waitForFavoritesPage();
   }
 

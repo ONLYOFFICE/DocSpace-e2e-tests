@@ -16,6 +16,15 @@ class Apisystem {
     this.auth = auth;
   }
 
+  get isLocal(): boolean {
+    return !!config.LOCAL_PORTAL_DOMAIN;
+  }
+
+  get portalBaseUrl(): string {
+    const scheme = this.isLocal ? "http" : "https";
+    return `${scheme}://${this.portalDomain}`;
+  }
+
   setAuthToken(authToken: string) {
     this.authToken = authToken;
   }
@@ -38,20 +47,24 @@ class Apisystem {
 
     this.portalName = `${portalNamePrefix}-${randomPrefix}-${datePrefix}`;
 
-    const response = await this.apiContext.post(
-      `${config.PORTAL_REGISTRATION_URL}/register`,
-      {
-        data: {
-          portalName: this.portalName,
-          firstName: "admin-zero",
-          lastName: "admin-zero",
-          email: config.DOCSPACE_OWNER_EMAIL,
-          password: config.DOCSPACE_OWNER_PASSWORD,
-          language: "en",
-        },
-        timeout: 60000,
+    const registerUrl = this.isLocal
+      ? `http://${config.LOCAL_PORTAL_DOMAIN}/apisystem/portal/register`
+      : `${config.PORTAL_REGISTRATION_URL}/register`;
+
+    const response = await this.apiContext.post(registerUrl, {
+      data: {
+        portalName: this.portalName,
+        firstName: "admin-zero",
+        lastName: "admin-zero",
+        email: config.DOCSPACE_OWNER_EMAIL,
+        password: config.DOCSPACE_OWNER_PASSWORD,
+        language: "en",
       },
-    );
+      headers: {
+        Origin: `http://${this.portalName}`,
+      },
+      timeout: 60000,
+    });
 
     const body = await response.json();
 
@@ -61,7 +74,9 @@ class Apisystem {
       );
     }
 
-    this.portalDomain = body.tenant.domain;
+    this.portalDomain = this.isLocal
+      ? config.LOCAL_PORTAL_DOMAIN
+      : body.tenant.domain;
     this.adminUserId = body.tenant.ownerId;
 
     return body;
@@ -72,12 +87,15 @@ class Apisystem {
       throw new Error("Owner token is missing. Cannot delete portal.");
     }
 
-    const deleteUrl = `https://${this.portalDomain}/api/2.0/portal/deleteportalimmediately`;
+    const deleteUrl = `${this.portalBaseUrl}/api/2.0/portal/deleteportalimmediately`;
 
     console.log(`[deletePortal] sending DELETE for ${this.portalDomain}`);
 
     const response = await this.apiContext.delete(deleteUrl, {
-      headers: { Authorization: `Bearer ${this.auth.authTokenOwner}` },
+      headers: {
+        Authorization: `Bearer ${this.auth.authTokenOwner}`,
+        Origin: `http://${this.portalName}`,
+      },
       data: { reference: `${this.portalName}.onlyoffice.io` },
       timeout: 90000,
     });

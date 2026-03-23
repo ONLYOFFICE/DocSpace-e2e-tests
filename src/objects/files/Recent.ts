@@ -1,4 +1,5 @@
 import { expect, Page } from "@playwright/test";
+import { getPortalUrl } from "../../../config";
 import BasePage from "../common/BasePage";
 import FilesEmptyView from "./FilesEmptyView";
 
@@ -19,7 +20,7 @@ class Recent extends BasePage {
   }
 
   async open() {
-    await this.page.goto(`https://${this.portalDomain}/recent/filter`);
+    await this.page.goto(`${getPortalUrl(this.portalDomain)}/recent/filter`);
     await this.waitForRecentPage();
   }
 

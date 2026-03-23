@@ -1,4 +1,5 @@
 import { expect, Page } from "@playwright/test";
+import { getPortalUrl } from "../../../config";
 
 const ROOM_GROUPING_TOGGLE = "room_grouping_toggle_button";
 
@@ -14,7 +15,7 @@ class ProfileFileManagement {
   async open() {
     await expect(async () => {
       await this.page
-        .goto(`https://${this.portalDomain}/profile/file-management`, {
+        .goto(`${getPortalUrl(this.portalDomain)}/profile/file-management`, {
           waitUntil: "domcontentloaded",
         })
         .catch(() => {});

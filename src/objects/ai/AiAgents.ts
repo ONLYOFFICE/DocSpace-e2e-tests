@@ -1,3 +1,4 @@
+import { getPortalUrl } from "../../../config";
 import BasePage from "../common/BasePage";
 import { expect, Page } from "@playwright/test";
 
@@ -32,7 +33,7 @@ export class AiAgents extends BasePage {
   }
 
   async openDirectly() {
-    await this.page.goto(`https://${this.portalDomain}/ai-agents/filter`);
+    await this.page.goto(`${getPortalUrl(this.portalDomain)}/ai-agents/filter`);
     await this.waitForAiAgentsPage();
   }
 

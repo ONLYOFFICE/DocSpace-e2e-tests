@@ -18,10 +18,14 @@ export class RoomsApi {
     return this.tokenStore.portalDomain;
   }
 
+  private get portalBaseUrl() {
+    return this.tokenStore.portalBaseUrl;
+  }
+
   async createRoom(role: Role, data: { title: string; roomType: string }) {
     return test.step(`${role} create room`, async () => {
       const response = await this.request.post(
-        `https://${this.portalDomain}/api/2.0/files/rooms`,
+        `${this.portalBaseUrl}/api/2.0/files/rooms`,
         {
           headers: { Authorization: `Bearer ${this.getToken(role)}` },
           data,
@@ -61,7 +65,7 @@ export class RoomsApi {
   ) {
     return test.step(`${role} create room template`, async () => {
       const response = await this.request.post(
-        `https://${this.portalDomain}/api/2.0/files/roomtemplate`,
+        `${this.portalBaseUrl}/api/2.0/files/roomtemplate`,
         {
           headers: { Authorization: `Bearer ${this.getToken(role)}` },
           data,
@@ -74,7 +78,7 @@ export class RoomsApi {
   async archiveRoom(role: Role, roomId: number) {
     return test.step(`${role} archive room ${roomId}`, async () => {
       const response = await this.request.put(
-        `https://${this.portalDomain}/api/2.0/files/rooms/${roomId}/archive`,
+        `${this.portalBaseUrl}/api/2.0/files/rooms/${roomId}/archive`,
         {
           headers: { Authorization: `Bearer ${this.getToken(role)}` },
           data: { deleteAfter: false },
@@ -88,7 +92,7 @@ export class RoomsApi {
   async unarchiveRoom(role: Role, roomId: number) {
     return test.step(`${role} unarchive room ${roomId}`, async () => {
       const response = await this.request.put(
-        `https://${this.portalDomain}/api/2.0/files/rooms/${roomId}/unarchive`,
+        `${this.portalBaseUrl}/api/2.0/files/rooms/${roomId}/unarchive`,
         {
           headers: { Authorization: `Bearer ${this.getToken(role)}` },
           data: { deleteAfter: false },
@@ -102,7 +106,7 @@ export class RoomsApi {
   async deleteRoom(role: Role, roomId: number) {
     return test.step(`${role} delete room ${roomId}`, async () => {
       const response = await this.request.delete(
-        `https://${this.portalDomain}/api/2.0/files/rooms/${roomId}`,
+        `${this.portalBaseUrl}/api/2.0/files/rooms/${roomId}`,
         {
           headers: { Authorization: `Bearer ${this.getToken(role)}` },
           data: { deleteAfter: false },
@@ -125,7 +129,7 @@ export class RoomsApi {
 
     await expect(async () => {
       const response = await this.request.get(
-        `https://${this.portalDomain}/api/2.0/files/fileops`,
+        `${this.portalBaseUrl}/api/2.0/files/fileops`,
         {
           headers: { Authorization: `Bearer ${this.getToken(role)}` },
         },
@@ -181,7 +185,7 @@ export class RoomsApi {
   ) {
     return test.step(`${role} update room ${roomId}`, async () => {
       const response = await this.request.put(
-        `https://${this.portalDomain}/api/2.0/files/rooms/${roomId}`,
+        `${this.portalBaseUrl}/api/2.0/files/rooms/${roomId}`,
         {
           headers: { Authorization: `Bearer ${this.getToken(role)}` },
           data,
@@ -197,7 +201,7 @@ export class RoomsApi {
   ) {
     return test.step(`update room ${roomId} without authorization`, async () => {
       const response = await this.request.put(
-        `https://${this.portalDomain}/api/2.0/files/rooms/${roomId}`,
+        `${this.portalBaseUrl}/api/2.0/files/rooms/${roomId}`,
         { data },
       );
       return response;
@@ -207,7 +211,7 @@ export class RoomsApi {
   async pinRoom(role: Role, roomId: number) {
     return test.step(`${role} pin room ${roomId}`, async () => {
       const response = await this.request.put(
-        `https://${this.portalDomain}/api/2.0/files/rooms/${roomId}/pin`,
+        `${this.portalBaseUrl}/api/2.0/files/rooms/${roomId}/pin`,
         {
           headers: { Authorization: `Bearer ${this.getToken(role)}` },
         },
@@ -219,7 +223,7 @@ export class RoomsApi {
   async unpinRoom(role: Role, roomId: number) {
     return test.step(`${role} unpin room ${roomId}`, async () => {
       const response = await this.request.put(
-        `https://${this.portalDomain}/api/2.0/files/rooms/${roomId}/unpin`,
+        `${this.portalBaseUrl}/api/2.0/files/rooms/${roomId}/unpin`,
         {
           headers: { Authorization: `Bearer ${this.getToken(role)}` },
         },
@@ -231,7 +235,7 @@ export class RoomsApi {
   async getRoomTemplateStatus(role: Role) {
     return test.step(`${role} get room template status`, async () => {
       const response = await this.request.get(
-        `https://${this.portalDomain}/api/2.0/files/roomtemplate/status`,
+        `${this.portalBaseUrl}/api/2.0/files/roomtemplate/status`,
         {
           headers: { Authorization: `Bearer ${this.getToken(role)}` },
         },
@@ -246,7 +250,7 @@ export class RoomsApi {
 
       await expect(async () => {
         const response = await this.request.get(
-          `https://${this.portalDomain}/api/2.0/files/roomtemplate/status`,
+          `${this.portalBaseUrl}/api/2.0/files/roomtemplate/status`,
           {
             headers: { Authorization: `Bearer ${this.getToken(role)}` },
           },
@@ -276,7 +280,7 @@ export class RoomsApi {
   async getRoomTemplatePublic(role: Role, templateId: number) {
     return test.step(`${role} get room template public`, async () => {
       const response = await this.request.get(
-        `https://${this.portalDomain}/api/2.0/files/roomtemplate/${templateId}/public`,
+        `${this.portalBaseUrl}/api/2.0/files/roomtemplate/${templateId}/public`,
         {
           headers: { Authorization: `Bearer ${this.getToken(role)}` },
         },
@@ -291,7 +295,7 @@ export class RoomsApi {
   ) {
     return test.step(`${role} get rooms`, async () => {
       const response = await this.request.get(
-        `https://${this.portalDomain}/api/2.0/files/rooms`,
+        `${this.portalBaseUrl}/api/2.0/files/rooms`,
         {
           headers: { Authorization: `Bearer ${this.getToken(role)}` },
           params,
@@ -304,7 +308,7 @@ export class RoomsApi {
   async getRoomInfo(role: Role, roomId: number) {
     return test.step(`${role} get room info ${roomId}`, async () => {
       const response = await this.request.get(
-        `https://${this.portalDomain}/api/2.0/files/rooms/${roomId}`,
+        `${this.portalBaseUrl}/api/2.0/files/rooms/${roomId}`,
         {
           headers: { Authorization: `Bearer ${this.getToken(role)}` },
         },
@@ -319,7 +323,7 @@ export class RoomsApi {
   ) {
     return test.step(`${role} set room template public`, async () => {
       const response = await this.request.put(
-        `https://${this.portalDomain}/api/2.0/files/roomtemplate/public`,
+        `${this.portalBaseUrl}/api/2.0/files/roomtemplate/public`,
         {
           headers: { Authorization: `Bearer ${this.getToken(role)}` },
           data,
@@ -332,7 +336,7 @@ export class RoomsApi {
   async changeOwner(role: Role, roomId: number, userId: string) {
     return test.step(`${role} change owner of room ${roomId}`, async () => {
       const response = await this.request.post(
-        `https://${this.portalDomain}/api/2.0/files/owner`,
+        `${this.portalBaseUrl}/api/2.0/files/owner`,
         {
           headers: { Authorization: `Bearer ${this.getToken(role)}` },
           data: { folderIds: [roomId], userId },
@@ -353,7 +357,7 @@ export class RoomsApi {
   ) {
     return test.step(`${role} set room access rights ${roomId}`, async () => {
       const response = await this.request.put(
-        `https://${this.portalDomain}/api/2.0/files/rooms/${roomId}/share`,
+        `${this.portalBaseUrl}/api/2.0/files/rooms/${roomId}/share`,
         {
           headers: { Authorization: `Bearer ${this.getToken(role)}` },
           data,
@@ -366,7 +370,7 @@ export class RoomsApi {
   async getRoomAccessRights(role: Role, roomId: number) {
     return test.step(`${role} get room access rights ${roomId}`, async () => {
       const response = await this.request.get(
-        `https://${this.portalDomain}/api/2.0/files/rooms/${roomId}/share`,
+        `${this.portalBaseUrl}/api/2.0/files/rooms/${roomId}/share`,
         {
           headers: { Authorization: `Bearer ${this.getToken(role)}` },
         },
@@ -378,7 +382,7 @@ export class RoomsApi {
   async addRoomTags(role: Role, roomId: number, tags: string[]) {
     return test.step(`${role} add tags to room ${roomId}`, async () => {
       const response = await this.request.put(
-        `https://${this.portalDomain}/api/2.0/files/rooms/${roomId}/tags`,
+        `${this.portalBaseUrl}/api/2.0/files/rooms/${roomId}/tags`,
         {
           headers: { Authorization: `Bearer ${this.getToken(role)}` },
           data: { names: tags },
@@ -391,7 +395,7 @@ export class RoomsApi {
   async removeRoomTags(role: Role, roomId: number, tags: string[]) {
     return test.step(`${role} remove tags from room ${roomId}`, async () => {
       const response = await this.request.delete(
-        `https://${this.portalDomain}/api/2.0/files/rooms/${roomId}/tags`,
+        `${this.portalBaseUrl}/api/2.0/files/rooms/${roomId}/tags`,
         {
           headers: { Authorization: `Bearer ${this.getToken(role)}` },
           data: { names: tags },
@@ -404,7 +408,7 @@ export class RoomsApi {
   async createTag(role: Role, tagName: string) {
     return test.step(`${role} create tag "${tagName}"`, async () => {
       const response = await this.request.post(
-        `https://${this.portalDomain}/api/2.0/files/tags`,
+        `${this.portalBaseUrl}/api/2.0/files/tags`,
         {
           headers: { Authorization: `Bearer ${this.getToken(role)}` },
           data: { name: tagName },
@@ -417,7 +421,7 @@ export class RoomsApi {
   async deleteTag(role: Role, tagName: string) {
     return test.step(`${role} delete tag "${tagName}"`, async () => {
       const response = await this.request.delete(
-        `https://${this.portalDomain}/api/2.0/files/tags`,
+        `${this.portalBaseUrl}/api/2.0/files/tags`,
         {
           headers: { Authorization: `Bearer ${this.getToken(role)}` },
           data: { names: [tagName] },
@@ -430,7 +434,7 @@ export class RoomsApi {
   async getTags(role: Role) {
     return test.step(`${role} get all tags`, async () => {
       const response = await this.request.get(
-        `https://${this.portalDomain}/api/2.0/files/tags`,
+        `${this.portalBaseUrl}/api/2.0/files/tags`,
         {
           headers: { Authorization: `Bearer ${this.getToken(role)}` },
         },

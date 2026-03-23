@@ -1,3 +1,4 @@
+import { getPortalUrl } from "../../../config";
 import { waitForGetPeopleResponse } from "./api/index";
 import { expect, Page } from "@playwright/test";
 
@@ -66,7 +67,7 @@ class Contacts extends BasePage {
   }
 
   async open() {
-    await this.page.goto(`https://${this.portalDomain}/accounts/people`, {
+    await this.page.goto(`${getPortalUrl(this.portalDomain)}/accounts/people`, {
       waitUntil: "load",
     });
     await expect(this.page).toHaveURL(/.*accounts\/people.*/);

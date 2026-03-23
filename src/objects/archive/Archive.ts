@@ -1,4 +1,5 @@
 import { expect, Page } from "@playwright/test";
+import { getPortalUrl } from "../../../config";
 
 import BaseNavigation from "../common/BaseNavigation";
 import InfoPanel from "../common/InfoPanel";
@@ -53,7 +54,7 @@ class MyArchive extends BasePage {
   }
 
   async open() {
-    await this.page.goto(`https://${this.portalDomain}/rooms/archived`, {
+    await this.page.goto(`${getPortalUrl(this.portalDomain)}/rooms/archived`, {
       waitUntil: "load",
     });
     await expect(this.page).toHaveURL(/.*rooms\/archived.*/);

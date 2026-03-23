@@ -1,3 +1,4 @@
+import { getPortalUrl } from "../../../config";
 import BasePage from "../common/BasePage";
 import { expect, Locator, Page } from "@playwright/test";
 import { BaseDropdown } from "../common/BaseDropdown";
@@ -55,7 +56,7 @@ class AiSettings extends BasePage {
   }
 
   private get aiSettingsBaseUrl() {
-    return `https://${this.portalDomain}/portal-settings/ai-settings`;
+    return `${getPortalUrl(this.portalDomain)}/portal-settings/ai-settings`;
   }
 
   async openDirectly() {

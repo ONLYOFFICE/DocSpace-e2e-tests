@@ -1,5 +1,5 @@
 import { test } from "@/src/fixtures";
-import config from "@/config";
+import config, { getPortalUrl } from "@/config";
 import Login from "@/src/objects/common/Login";
 
 test.describe("Portal: Login page", () => {
@@ -11,7 +11,7 @@ test.describe("Portal: Login page", () => {
 
   test("Empty login data", async ({ page, api }) => {
     await test.step("Open login page", async () => {
-      await page.goto(`https://${api.portalDomain}/login`, {
+      await page.goto(`${getPortalUrl(api.portalDomain)}/login`, {
         waitUntil: "load",
       });
     });
@@ -25,7 +25,7 @@ test.describe("Portal: Login page", () => {
 
   test("Forgot password", async ({ page, api }) => {
     await test.step("Open login page", async () => {
-      await page.goto(`https://${api.portalDomain}/login`, {
+      await page.goto(`${getPortalUrl(api.portalDomain)}/login`, {
         waitUntil: "load",
       });
     });
@@ -40,7 +40,7 @@ test.describe("Portal: Login page", () => {
 
   test("Wrong login data", async ({ page, api }) => {
     await test.step("Open login page", async () => {
-      await page.goto(`https://${api.portalDomain}/login`, {
+      await page.goto(`${getPortalUrl(api.portalDomain)}/login`, {
         waitUntil: "load",
       });
     });
@@ -54,7 +54,7 @@ test.describe("Portal: Login page", () => {
 
   test("Social networks panel", async ({ page, api }) => {
     await test.step("Open login page", async () => {
-      await page.goto(`https://${api.portalDomain}/login`, {
+      await page.goto(`${getPortalUrl(api.portalDomain)}/login`, {
         waitUntil: "load",
       });
     });
