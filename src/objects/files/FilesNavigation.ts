@@ -1,4 +1,4 @@
-import { Page } from "@playwright/test";
+import { expect, Page } from "@playwright/test";
 import { DOC_ACTIONS, listDocActions } from "../../utils/constants/files";
 import FilesCreateModal from "./FilesCreateModal";
 import BaseNavigation from "../common/BaseNavigation";
@@ -71,6 +71,43 @@ class FilesNavigation extends BaseNavigation {
 
   async selectCreateAction(actionText: string) {
     await this.contextMenu.selectCreateAction(actionText);
+  }
+
+  private get actionsMainButton() {
+    return this.page.locator("[data-testid='main-button']");
+  }
+
+  async openActionsDropdown() {
+    await expect(async () => {
+      await expect(this.actionsMainButton).toBeVisible({ timeout: 500 });
+      await this.actionsMainButton.click();
+      await this.contextMenu.checkMenuExists(500);
+    }).toPass();
+  }
+
+  async uploadFiles(filePaths: string | string[]) {
+    const paths = Array.isArray(filePaths) ? filePaths : [filePaths];
+    await this.openActionsDropdown();
+    const [fileChooser] = await Promise.all([
+      this.page.waitForEvent("filechooser"),
+      this.contextMenu.clickOption({
+        type: "data-testid",
+        value: "upload-files",
+      }),
+    ]);
+    await fileChooser.setFiles(paths);
+  }
+
+  async uploadFolder(folderPath: string) {
+    await this.openActionsDropdown();
+    const [fileChooser] = await Promise.all([
+      this.page.waitForEvent("filechooser"),
+      this.contextMenu.clickOption({
+        type: "data-testid",
+        value: "upload-folder",
+      }),
+    ]);
+    await fileChooser.setFiles(folderPath);
   }
 }
 

@@ -1,4 +1,9 @@
 import { expect, Page } from "@playwright/test";
+import {
+  dropFile,
+  dropFolder,
+  dropFolderWithFiles,
+} from "@/src/utils/helpers/dragDrop";
 import FilesArticle from "./FilesArticle";
 import FilesCreateContextMenu from "./FilesCreateContextMenu";
 import FilesNavigation from "./FilesNavigation";
@@ -10,6 +15,7 @@ import BasePage from "../common/BasePage";
 import DownloadDialog from "./DownloadDialog";
 import FilesSelectPanel from "./FilesSelectPanel";
 import FolderDeleteModal from "./FolderDeleteModal";
+import ConflictResolveDialog from "./ConflictResolveDialog";
 import DocumentEditor from "./DocumentEditor";
 import SpreadsheetEditor from "./SpreadsheetEditor";
 import PresentationEditor from "./PresentationEditor";
@@ -30,6 +36,7 @@ class MyDocuments extends BasePage {
   downloadDialog: DownloadDialog;
   filesSelectPanel: FilesSelectPanel;
   folderDeleteModal: FolderDeleteModal;
+  conflictResolveDialog: ConflictResolveDialog;
 
   infoPanel: InfoPanel;
 
@@ -46,6 +53,7 @@ class MyDocuments extends BasePage {
     this.downloadDialog = new DownloadDialog(page);
     this.filesSelectPanel = new FilesSelectPanel(page);
     this.folderDeleteModal = new FolderDeleteModal(page);
+    this.conflictResolveDialog = new ConflictResolveDialog(page);
   }
 
   async open() {
@@ -300,6 +308,20 @@ class MyDocuments extends BasePage {
 
   async confirmMoveToPublicRoom() {
     await this.page.getByRole("button", { name: "OK" }).click();
+  }
+
+  async uploadFileByDragAndDrop(filePath: string) {
+    await dropFile(this.page, filePath);
+  }
+
+  async uploadFolderByDragAndDrop(folderName: string) {
+    await dropFolder(this.page, folderName);
+  }
+
+  async uploadFolderWithFilesByDragAndDrop(folderPath: string) {
+    await dropFolderWithFiles(this.page, folderPath);
+    await this.page.goto(`https://${this.portalDomain}/rooms/personal`);
+    await this.page.waitForLoadState("load");
   }
 }
 
