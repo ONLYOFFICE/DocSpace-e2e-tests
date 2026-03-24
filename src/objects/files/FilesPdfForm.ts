@@ -32,7 +32,9 @@ class FilesPdfForm {
     await this.checkSubmitButtonExist();
     await this.submitButton.click();
     await this.page!.waitForURL(/.*completed-form.*/);
-    return new RoomPDFCompleted(this.page!);
+    const completed = new RoomPDFCompleted(this.page!);
+    await completed.waitForPageLoad();
+    return completed;
   }
 
   async checkSubmitButtonExist() {
