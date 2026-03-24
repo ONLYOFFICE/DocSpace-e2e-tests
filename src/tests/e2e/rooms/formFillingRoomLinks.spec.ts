@@ -452,7 +452,7 @@ test.describe("FormFilling room - Link tests", () => {
       const { context, page } = await setupIncognitoContext(browser);
       await page.goto(newFileLink, { waitUntil: "domcontentloaded" });
       const pdfForm = new FilesPdfForm(page);
-      await pdfForm.checkSubmitButtonExist();
+      await pdfForm.checkSubmitButtonNotVisible();
       await expect(page.getByText("Invalid link")).not.toBeVisible();
       await cleanupIncognitoContext(context, page);
     });
@@ -812,7 +812,7 @@ test.describe("FormFilling room - Link tests", () => {
       await passwordRequirePage.enterPasswordAndContinue(testPassword);
 
       const pdfForm = new FilesPdfForm(incognitoPage);
-      await pdfForm.checkSubmitButtonExist();
+      await pdfForm.checkSubmitButtonNotVisible();
     });
 
     await test.step("Verify wrong password is rejected", async () => {
