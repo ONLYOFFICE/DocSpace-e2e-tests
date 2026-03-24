@@ -77,7 +77,7 @@ class BaseInviteDialog extends BaseDialog {
     const buttonLocator = this.dialog.getByRole("button", {
       name: "Send invitation",
     });
-    this.clickSubmitButton(buttonLocator);
+    await this.clickSubmitButton(buttonLocator);
   }
 
   async checkUserExist(value: string) {
