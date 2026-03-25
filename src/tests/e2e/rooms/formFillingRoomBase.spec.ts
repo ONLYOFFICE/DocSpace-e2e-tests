@@ -129,9 +129,7 @@ test.describe("FormFilling base tests", () => {
       await expect(page.getByLabel("Complete")).toBeVisible();
     });
   });
-  // Skipped: after upload, the form must be started via "Start filling" before it can be filled.
-  // This flow is currently broken and needs to be revisited once the feature is stable.
-  test.skip("Submit Not Filling PDF Form", async ({ page }) => {
+  test("Submit Not Filling PDF Form", async ({ page }) => {
     await test.step("UploadPDFFormFromMyDocuments", async () => {
       await uploadAndVerifyPDF(
         shortTour,
@@ -142,12 +140,18 @@ test.describe("FormFilling base tests", () => {
       );
     });
 
+    await test.step("Start filling the form", async () => {
+      await filesTable.openContextMenuForItem("ONLYOFFICE Resume Sample");
+      await filesTable.contextMenu.clickOption("Start filling");
+      await shortTour.clickModalCloseButton();
+    });
+
     // Submit Form
     await test.step("SubmitPDFFormWithEmptyFields", async () => {
       const context = page.context();
       const pagePromise = context.waitForEvent("page", { timeout: 30000 });
       await filesTable.openContextMenuForItem("ONLYOFFICE Resume Sample");
-      await filesTable.contextMenu.clickOption("Start filling");
+      await filesTable.contextMenu.clickOption("Fill");
       // Wait for the new page to open
       newPage = await pagePromise;
       await newPage.waitForLoadState("load");
@@ -211,9 +215,8 @@ test.describe("FormFilling base tests", () => {
       await xlsxPage.close();
     });
   });
-  // Skipped: after upload, the form must be started via "Start filling" before it can be filled.
-  // This flow is currently broken and needs to be revisited once the feature is stable.
-  test.skip("Check work with Draft PDF Form", async ({ page }) => {
+
+  test("Check work with Draft PDF Form", async ({ page }) => {
     await test.step("UploadPDFFormFromMyDocuments", async () => {
       await uploadAndVerifyPDF(
         shortTour,
@@ -222,6 +225,11 @@ test.describe("FormFilling base tests", () => {
         myRooms,
         page,
       );
+    });
+    await test.step("Start filling the form", async () => {
+      await filesTable.openContextMenuForItem("ONLYOFFICE Resume Sample");
+      await filesTable.contextMenu.clickOption("Start filling");
+      await shortTour.clickModalCloseButton();
     });
     await test.step("Open and close pdf form", async () => {
       const context = page.context();
@@ -327,8 +335,8 @@ test.describe("FormFilling base tests", () => {
       await roomsInviteDialog.submitInviteDialog();
     });
   });
-  // TODO: re-enable once PDF upload and Fill flow is fixed
-  test.skip("Verify download and print buttons visible in PDF form", async ({
+
+  test("Verify download and print buttons visible in PDF form", async ({
     page,
   }) => {
     let newPage: Page;
@@ -341,6 +349,11 @@ test.describe("FormFilling base tests", () => {
         myRooms,
         page,
       );
+    });
+    await test.step("Start filling the form", async () => {
+      await filesTable.openContextMenuForItem("ONLYOFFICE Resume Sample");
+      await filesTable.contextMenu.clickOption("Start filling");
+      await shortTour.clickModalCloseButton();
     });
 
     await test.step("Open PDF form for filling", async () => {
@@ -437,8 +450,7 @@ test.describe("FormFilling base tests", () => {
     });
   });
 
-  // TODO: re-enable once PDF upload flow is fixed
-  test.skip("Progress folders can't be deleted", async ({ page }) => {
+  test("Progress folders can't be deleted", async ({ page }) => {
     //Upload the document so that the progress folders appear.
     await test.step("UploadPDFFormFromMyDocuments", async () => {
       await uploadAndVerifyPDF(
@@ -448,6 +460,11 @@ test.describe("FormFilling base tests", () => {
         myRooms,
         page,
       );
+    });
+    await test.step("Start filling the form", async () => {
+      await filesTable.openContextMenuForItem("ONLYOFFICE Resume Sample");
+      await filesTable.contextMenu.clickOption("Start filling");
+      await shortTour.clickModalCloseButton();
     });
     await test.step("Check Delete doesn't exist for Complete folder", async () => {
       const filesTable = new FilesTable(page);
