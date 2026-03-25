@@ -80,6 +80,7 @@ export class ShortTour {
   async clickModalCloseButton() {
     await expect(this.modalCloseButton).toBeVisible();
     await this.modalCloseButton.click();
+    await expect(this.page.locator("#modal-dialog")).toBeHidden();
   }
   async isTourVisible(timeout = 3000): Promise<boolean> {
     try {
