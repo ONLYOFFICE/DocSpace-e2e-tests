@@ -495,7 +495,7 @@ test.describe("FormFilling room - Link tests", () => {
         await setupIncognitoContext(browser);
       await filePage.goto(fileLink, { waitUntil: "domcontentloaded" });
       const pdfForm = new FilesPdfForm(filePage);
-      await pdfForm.checkSubmitButtonExist();
+      await pdfForm.checkSubmitButtonNotVisible();
       await cleanupIncognitoContext(fileContext, filePage);
     });
 

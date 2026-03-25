@@ -13,7 +13,7 @@ class RoomPDFCompleted {
     this.page = page;
   }
   private get backToRoomButton() {
-    return this.page.getByTestId(BACK_TO_ROOM);
+    return this.page.locator(`[data-testid="${BACK_TO_ROOM}"]:visible`);
   }
 
   async chooseBackToRoom() {
