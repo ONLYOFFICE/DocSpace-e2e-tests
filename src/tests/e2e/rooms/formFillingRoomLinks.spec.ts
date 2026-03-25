@@ -31,6 +31,7 @@ import {
   copyFileLink,
   uploadAndVerifyPDF,
 } from "@/src/utils/helpers/formFillingRoom";
+import { formFillingRoomPdfContextMenuOption } from "@/src/utils/constants/files";
 
 test.describe("FormFilling room - Link tests", () => {
   let myRooms: MyRooms;
@@ -98,7 +99,7 @@ test.describe("FormFilling room - Link tests", () => {
       expect(currentOption).toBe("docspace users only"); //Bug 79256
     });
   });
-  // TODO: re-enable once PDF upload and Fill flow is fixed
+  // TODO: re-enable once PDF upload and Fill flow is fixed (Bug 80619)
   // Check the page after filling does not contain Back to Room button
   test.skip("Filling PDF Form with link by anonymous", async ({
     page,
@@ -157,9 +158,9 @@ test.describe("FormFilling room - Link tests", () => {
       await download.cancel();
     });
   });
-  // TODO: re-enable once PDF upload and Fill flow is fixed
+
   //Check copy shared link in modal window after Pdf form uploaded to Room
-  test.skip("Copy shared link in modal window for PDF Form", async ({
+  test("Copy shared link in modal window for PDF Form", async ({
     page,
     browser,
   }) => {
@@ -171,6 +172,13 @@ test.describe("FormFilling room - Link tests", () => {
       await selectPanel.select("documents");
       await selectPanel.selectItemByText("ONLYOFFICE Resume Sample");
       await selectPanel.confirmSelection();
+    });
+
+    await test.step("Start filling the form", async () => {
+      await filesTable.openContextMenuForItem("ONLYOFFICE Resume Sample");
+      await filesTable.contextMenu.clickOption(
+        formFillingRoomPdfContextMenuOption.startFilling,
+      );
     });
 
     await test.step("Copy shared link in modal window", async () => {
