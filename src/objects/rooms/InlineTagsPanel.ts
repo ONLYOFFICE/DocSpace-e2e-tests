@@ -31,14 +31,14 @@ class InlineTagsPanel {
     return this.page.getByTestId(ADD_TAG_INPUT);
   }
 
-  // Panel container — scopes locators away from tags visible in the table row
+  // Panel container - scopes locators away from tags visible in the table row
   private get panel() {
     return this.page
       .locator("div")
       .filter({ has: this.page.getByTestId(ADD_TAG_INPUT) });
   }
 
-  // Tag row in the panel list — scoped by tag chip testId (always in DOM, unique per tag)
+  // Tag row in the panel list - scoped by tag chip testId (always in DOM, unique per tag)
   private tagRow(tagName: string) {
     return this.page
       .locator(TAG_ROW)
@@ -103,7 +103,7 @@ class InlineTagsPanel {
     ).toBeVisible();
   }
 
-  // Hover the tag row, click the edit icon, change the name, confirm inline → confirm in modal
+  // Hover the tag row, click the edit icon, change the name, confirm inline -> confirm in modal
   async editTag(tagName: string, newName: string) {
     const row = this.tagRow(tagName);
     const editBtn = this.page.getByTestId(EDIT_TAG_BUTTON(tagName));
@@ -154,7 +154,7 @@ class InlineTagsPanel {
     await editInput.fill(newName);
     await this.page.getByTestId(CONFIRM_EDIT_BUTTON).click();
     await this.page.getByTestId(EDIT_TAG_CANCEL_BUTTON).click();
-    // After modal cancel the inline edit input is still active — exit it
+    // After modal cancel the inline edit input is still active - exit it
     await this.page.getByTestId(CANCEL_EDIT_BUTTON).click();
   }
 
@@ -206,7 +206,7 @@ class InlineTagsPanel {
     await this.toast.removeAllToast();
   }
 
-  // Click delete icon — no confirmation dialog expected (after "don't show again" was checked)
+  // Click delete icon - no confirmation dialog expected (after "don't show again" was checked)
   async deleteTagNoModal(tagName: string) {
     const row = this.tagRow(tagName);
     const deleteBtn = this.page.getByTestId(DELETE_TAG_BUTTON(tagName));
@@ -216,7 +216,7 @@ class InlineTagsPanel {
     await this.toast.removeAllToast();
   }
 
-  // Edit tag and confirm inline only — no modal expected (after "don't show again" was checked)
+  // Edit tag and confirm inline only - no modal expected (after "don't show again" was checked)
   async editTagNoModal(tagName: string, newName: string) {
     const row = this.tagRow(tagName);
     const editBtn = this.page.getByTestId(EDIT_TAG_BUTTON(tagName));

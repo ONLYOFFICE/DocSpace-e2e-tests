@@ -2,9 +2,9 @@ import { test } from "@/src/fixtures";
 import MyRooms from "@/src/objects/rooms/Rooms";
 import InlineTagsPanel from "@/src/objects/rooms/InlineTagsPanel";
 
-// Most tests open the inline tags panel via context menu → "Select" (openInlineTagsPanel).
+// Most tests open the inline tags panel via context menu -> "Select" (openInlineTagsPanel).
 // This selects the row and reveals the + tag button without relying on hover,
-// which is flaky in Firefox — mouseenter on nested elements requires a graduated
+// which is flaky in Firefox - mouseenter on nested elements requires a graduated
 // multi-step mouse movement. The dedicated hover test (openInlineTagsPanelByHover)
 // covers that scenario explicitly.
 test.describe("Rooms: inline tags panel", () => {
@@ -48,7 +48,7 @@ test.describe("Rooms: inline tags panel", () => {
     });
   });
 
-  test("Cancel delete tag in confirmation dialog — tag remains", async ({
+  test("Cancel delete tag in confirmation dialog - tag remains", async ({
     page,
   }) => {
     const tagName = "TagCancelDelete";
@@ -61,13 +61,13 @@ test.describe("Rooms: inline tags panel", () => {
       await tagsPanel.expectTagInPanel(tagName);
     });
 
-    await test.step("Cancel delete in dialog — tag should remain", async () => {
+    await test.step("Cancel delete in dialog - tag should remain", async () => {
       await tagsPanel.cancelDeleteTag(tagName);
       await tagsPanel.expectTagInPanel(tagName);
     });
   });
 
-  test("Cancel rename tag in confirmation dialog — original name remains", async ({
+  test("Cancel rename tag in confirmation dialog - original name remains", async ({
     page,
   }) => {
     const tagName = "TagCancelEdit";
@@ -81,7 +81,7 @@ test.describe("Rooms: inline tags panel", () => {
       await tagsPanel.expectTagInPanel(tagName);
     });
 
-    await test.step("Cancel rename in dialog — original name should remain", async () => {
+    await test.step("Cancel rename in dialog - original name should remain", async () => {
       await tagsPanel.cancelEditTagInModal(tagName, newName);
       await tagsPanel.expectTagInPanel(tagName);
       await tagsPanel.expectTagNotInPanel(newName);
@@ -120,7 +120,7 @@ test.describe("Rooms: inline tags panel", () => {
       await tagsPanel.waitForPanel();
     });
 
-    await test.step("Delete second tag — confirmation dialog should not appear", async () => {
+    await test.step("Delete second tag - confirmation dialog should not appear", async () => {
       await tagsPanel.deleteTagNoModal(tag2);
     });
 
@@ -162,7 +162,7 @@ test.describe("Rooms: inline tags panel", () => {
       await tagsPanel.expectTagNotInPanel(tag1);
     });
 
-    await test.step("Rename second tag — confirmation dialog should not appear", async () => {
+    await test.step("Rename second tag - confirmation dialog should not appear", async () => {
       await tagsPanel.editTagNoModal(tag2, tag2Renamed);
       await tagsPanel.expectTagInPanel(tag2Renamed);
       await tagsPanel.expectTagNotInPanel(tag2);
@@ -202,7 +202,7 @@ test.describe("Rooms: inline tags panel", () => {
       await tagsPanel.expectTagInPanel(tagName);
     });
 
-    await test.step("Type same name — create button hidden, matching item visible", async () => {
+    await test.step("Type same name - create button hidden, matching item visible", async () => {
       await tagsPanel.typeTagName(tagName);
       await tagsPanel.expectCreateButtonNotVisible();
       await tagsPanel.expectTagDropdownItemVisible(tagName);
@@ -306,7 +306,7 @@ test.describe("Rooms: inline tags panel", () => {
       await tagsPanel.waitForPanel();
     });
 
-    await test.step("Click outside — panel should close", async () => {
+    await test.step("Click outside - panel should close", async () => {
       await tagsPanel.closePanelByClickingOutside();
     });
   });
