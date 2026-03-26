@@ -18,6 +18,7 @@ test.describe("Rooms: inline tags panel", () => {
       roomType: "EditingRoom",
     });
     await login.loginToPortal();
+    await page.waitForLoadState("load");
     await myRooms.roomsTable.checkRowExist(roomName);
   });
 
@@ -99,6 +100,12 @@ test.describe("Rooms: inline tags panel", () => {
       await tagsPanel.waitForPanel();
       await tagsPanel.addTag(tag1);
       await tagsPanel.addTag(tag2);
+    });
+
+    await test.step("Reopen inline tags panel to confirm tags were added", async () => {
+      await tagsPanel.closePanelByClickingOutside();
+      await myRooms.roomsTable.openInlineTagsPanel(roomName);
+      await tagsPanel.waitForPanel();
       await tagsPanel.expectTagInPanel(tag1);
       await tagsPanel.expectTagInPanel(tag2);
     });
@@ -108,8 +115,19 @@ test.describe("Rooms: inline tags panel", () => {
       await tagsPanel.expectTagNotInPanel(tag1);
     });
 
+    await test.step("Reopen inline tags panel", async () => {
+      await myRooms.roomsTable.openInlineTagsPanel(roomName);
+      await tagsPanel.waitForPanel();
+    });
+
     await test.step("Delete second tag — confirmation dialog should not appear", async () => {
       await tagsPanel.deleteTagNoModal(tag2);
+    });
+
+    await test.step("Verify second tag is deleted after panel reopen", async () => {
+      await tagsPanel.closePanelByClickingOutside();
+      await myRooms.roomsTable.openInlineTagsPanel(roomName);
+      await tagsPanel.waitForPanel();
       await tagsPanel.expectTagNotInPanel(tag2);
     });
   });
@@ -128,6 +146,12 @@ test.describe("Rooms: inline tags panel", () => {
       await tagsPanel.waitForPanel();
       await tagsPanel.addTag(tag1);
       await tagsPanel.addTag(tag2);
+    });
+
+    await test.step("Reopen inline tags panel to confirm tags were added", async () => {
+      await tagsPanel.closePanelByClickingOutside();
+      await myRooms.roomsTable.openInlineTagsPanel(roomName);
+      await tagsPanel.waitForPanel();
       await tagsPanel.expectTagInPanel(tag1);
       await tagsPanel.expectTagInPanel(tag2);
     });
@@ -154,7 +178,9 @@ test.describe("Rooms: inline tags panel", () => {
       await myRooms.roomsTable.openInlineTagsPanel(roomName);
       await tagsPanel.waitForPanel();
       for (let i = 1; i <= 8; i++) {
-        await tagsPanel.addTag(`ScrollTag${i}`);
+        const tagName = `ScrollTag${i}`;
+        await tagsPanel.addTag(tagName);
+        await tagsPanel.expectTagDropdownItemVisible(tagName);
       }
     });
 

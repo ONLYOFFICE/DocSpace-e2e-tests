@@ -1,4 +1,5 @@
 import { expect, Page } from "@playwright/test";
+import BaseToast from "@/src/objects/common/BaseToast";
 
 const TAG_ITEM = (tagName: string) => `tag_item_${tagName}`;
 const CREATE_TAG_BUTTON = "create_tag_button";
@@ -19,9 +20,11 @@ const EDIT_INPUT_PLACEHOLDER = " ";
 // Page Object for the inline tags panel that opens from the + button in the rooms table Tags column
 class InlineTagsPanel {
   private page: Page;
+  private toast: BaseToast;
 
   constructor(page: Page) {
     this.page = page;
+    this.toast = new BaseToast(page);
   }
 
   private get tagInput() {
@@ -35,9 +38,11 @@ class InlineTagsPanel {
       .filter({ has: this.page.getByTestId(ADD_TAG_INPUT) });
   }
 
-  // Tag row in the panel list
+  // Tag row in the panel list — scoped by tag chip testId (always in DOM, unique per tag)
   private tagRow(tagName: string) {
-    return this.page.locator(TAG_ROW).filter({ hasText: tagName });
+    return this.page
+      .locator(TAG_ROW)
+      .filter({ has: this.page.getByTestId(TAG_ITEM(tagName)) });
   }
 
   async waitForPanel() {
@@ -49,16 +54,15 @@ class InlineTagsPanel {
     await expect(this.tagInput).toBeVisible();
     await this.tagInput.fill(tagName);
     await this.page.getByTestId(CREATE_TAG_BUTTON).click();
+    await expect(this.tagInput).toHaveValue("");
   }
 
   async expectTagInPanel(tagName: string) {
-    await expect(this.panel.getByLabel(tagName, { exact: true })).toBeVisible();
+    await expect(this.tagRow(tagName)).toBeVisible();
   }
 
   async expectTagNotInPanel(tagName: string) {
-    await expect(
-      this.panel.getByLabel(tagName, { exact: true }),
-    ).not.toBeVisible();
+    await expect(this.tagRow(tagName)).not.toBeVisible();
   }
 
   async closePanel() {
@@ -92,6 +96,8 @@ class InlineTagsPanel {
   }
 
   async expectScrollbarVisible() {
+    // Hover the panel to reveal the scrollbar track (hidden by CSS until interaction)
+    await this.panel.hover();
     await expect(
       this.panel.locator(".ScrollbarsCustom-TrackY").first(),
     ).toBeVisible();
@@ -100,8 +106,10 @@ class InlineTagsPanel {
   // Hover the tag row, click the edit icon, change the name, confirm inline → confirm in modal
   async editTag(tagName: string, newName: string) {
     const row = this.tagRow(tagName);
+    const editBtn = this.page.getByTestId(EDIT_TAG_BUTTON(tagName));
     await row.hover();
-    await row.getByTestId(EDIT_TAG_BUTTON(tagName)).click();
+    await expect(editBtn).toBeVisible();
+    await editBtn.click();
     // In edit mode the row class changes, so scope to the panel level
     const editInput = this.page.getByPlaceholder(EDIT_INPUT_PLACEHOLDER, {
       exact: true,
@@ -116,8 +124,10 @@ class InlineTagsPanel {
   // Same as editTag but checks "don't show again" before confirming in modal
   async editTagWithoutConfirm(tagName: string, newName: string) {
     const row = this.tagRow(tagName);
+    const editBtn = this.page.getByTestId(EDIT_TAG_BUTTON(tagName));
     await row.hover();
-    await row.getByTestId(EDIT_TAG_BUTTON(tagName)).click();
+    await expect(editBtn).toBeVisible();
+    await editBtn.click();
     const editInput = this.page.getByPlaceholder(EDIT_INPUT_PLACEHOLDER, {
       exact: true,
     });
@@ -132,8 +142,10 @@ class InlineTagsPanel {
   // Hover the tag row, click the edit icon, cancel via modal cancel button
   async cancelEditTagInModal(tagName: string, newName: string) {
     const row = this.tagRow(tagName);
+    const editBtn = this.page.getByTestId(EDIT_TAG_BUTTON(tagName));
     await row.hover();
-    await row.getByTestId(EDIT_TAG_BUTTON(tagName)).click();
+    await expect(editBtn).toBeVisible();
+    await editBtn.click();
     const editInput = this.page.getByPlaceholder(EDIT_INPUT_PLACEHOLDER, {
       exact: true,
     });
@@ -149,48 +161,68 @@ class InlineTagsPanel {
   // Hover the tag row, click the delete icon, confirm in the modal dialog
   async deleteTag(tagName: string) {
     const row = this.tagRow(tagName);
+    const deleteBtn = this.page.getByTestId(DELETE_TAG_BUTTON(tagName));
     await row.hover();
-    await row.getByTestId(DELETE_TAG_BUTTON(tagName)).click();
+    await expect(deleteBtn).toBeVisible();
+    await deleteBtn.click({ force: true });
     await this.page.getByTestId(DELETE_TAG_SUBMIT_BUTTON).click();
   }
 
   // Hover the tag row, click the delete icon, then cancel
   async cancelDeleteTag(tagName: string) {
     const row = this.tagRow(tagName);
+    const deleteBtn = this.page.getByTestId(DELETE_TAG_BUTTON(tagName));
     await row.hover();
-    await row.getByTestId(DELETE_TAG_BUTTON(tagName)).click();
+    await expect(deleteBtn).toBeVisible();
+    await deleteBtn.click({ force: true });
     await this.page.getByTestId(DELETE_TAG_CANCEL_BUTTON).click();
   }
 
   // Hover the tag row, click the edit icon, cancel editing
   async cancelEditTag(tagName: string) {
     const row = this.tagRow(tagName);
+    const editBtn = this.page.getByTestId(EDIT_TAG_BUTTON(tagName));
     await row.hover();
-    await row.getByTestId(EDIT_TAG_BUTTON(tagName)).click();
+    await expect(editBtn).toBeVisible();
+    await editBtn.click();
     await this.page.getByTestId(CANCEL_EDIT_BUTTON).click();
   }
 
   // Check "don't show again" in the delete confirmation dialog, then confirm
   async deleteTagWithoutConfirm(tagName: string) {
     const row = this.tagRow(tagName);
+    const deleteBtn = this.page.getByTestId(DELETE_TAG_BUTTON(tagName));
     await row.hover();
-    await row.getByTestId(DELETE_TAG_BUTTON(tagName)).click();
+    await expect(deleteBtn).toBeVisible();
+    await deleteBtn.click({ force: true });
     await this.page.getByTestId(DELETE_TAG_CHECKBOX).click();
     await this.page.getByTestId(DELETE_TAG_SUBMIT_BUTTON).click();
+    await expect(
+      this.page.getByTestId(DELETE_TAG_SUBMIT_BUTTON),
+    ).not.toBeVisible();
+    await expect(
+      this.panel.getByLabel(tagName, { exact: true }),
+    ).not.toBeVisible();
+    await this.toast.removeAllToast();
   }
 
   // Click delete icon — no confirmation dialog expected (after "don't show again" was checked)
   async deleteTagNoModal(tagName: string) {
     const row = this.tagRow(tagName);
+    const deleteBtn = this.page.getByTestId(DELETE_TAG_BUTTON(tagName));
     await row.hover();
-    await row.getByTestId(DELETE_TAG_BUTTON(tagName)).click();
+    await expect(deleteBtn).toBeVisible();
+    await deleteBtn.click({ force: true });
+    await this.toast.removeAllToast();
   }
 
   // Edit tag and confirm inline only — no modal expected (after "don't show again" was checked)
   async editTagNoModal(tagName: string, newName: string) {
     const row = this.tagRow(tagName);
+    const editBtn = this.page.getByTestId(EDIT_TAG_BUTTON(tagName));
     await row.hover();
-    await row.getByTestId(EDIT_TAG_BUTTON(tagName)).click();
+    await expect(editBtn).toBeVisible();
+    await editBtn.click();
     const editInput = this.page.getByPlaceholder(EDIT_INPUT_PLACEHOLDER, {
       exact: true,
     });
