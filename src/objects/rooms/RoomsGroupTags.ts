@@ -39,12 +39,12 @@ class RoomsGroupTags {
     return this.page.locator(GROUP_TAGS_ROW);
   }
 
-  // Clicks the + button in the group-tags row — only visible before the first group is created
+  // Clicks the + button in the group-tags row - only visible before the first group is created
   async clickCreateGroup() {
     await this.page.getByTestId(CREATE_GROUP_TAG_BUTTON).click();
   }
 
-  // Opens the group management panel — always accessible
+  // Opens the group management panel - always accessible
   async openGroupManagementPanel() {
     await this.page.getByTestId(CREATE_GROUP_ICON_BUTTON).click();
   }
