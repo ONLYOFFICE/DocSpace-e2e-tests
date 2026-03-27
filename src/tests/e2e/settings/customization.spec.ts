@@ -22,31 +22,34 @@ test.describe("Customization", () => {
     await customization.open();
   });
 
-  // TODO: Save button stays disabled when only language is changed — investigate why changing language alone doesn't dirty the form
-  test.skip("Change and save language", async () => {
-    await customization.changeLanguage("English (United Kingdom)");
-    await customization.settingsTitle.click();
-    await expect(customization.languageTimeZoneSaveButton).toBeEnabled();
+  test("Change and save language", async ({ page }) => {
+    await customization.changeLanguage("Español (España)");
+    await page.mouse.click(1, 1); // close dropdown
+    await expect(customization.languageTimeZoneSaveButton).toBeEnabled({
+      timeout: 30000,
+    });
     await customization.languageTimeZoneSaveButton.click();
-    await customization.removeToast(toastMessages.settingsUpdated);
-    await customization.changeLanguage("English (United States)");
-    await customization.settingsTitle.click();
-    await expect(customization.languageTimeZoneSaveButton).toBeEnabled();
-    await customization.languageTimeZoneSaveButton.click();
-    await customization.removeToast(toastMessages.settingsUpdated);
+    await customization.dismissToastSafely(toastMessages.settingsUpdated);
+    await expect(customization.languageTimeZoneSaveButton).toHaveAttribute(
+      "aria-label",
+      "Guardar",
+    );
   });
 
   test("Change and save timezone", async () => {
+    const originalTimezone = await customization.getCurrentTimezone();
+
     await customization.changeTimezone("(UTC+05:00) Maldives Time");
     await customization.settingsTitle.click();
     await expect(customization.languageTimeZoneSaveButton).toBeEnabled();
     await customization.languageTimeZoneSaveButton.click();
-    await customization.removeToast(toastMessages.settingsUpdated);
-    await customization.changeTimezone("(UTC+00:00) United Kingdom Time");
+    await customization.dismissToastSafely(toastMessages.settingsUpdated);
+
+    await customization.changeTimezone(originalTimezone);
     await customization.settingsTitle.click();
     await expect(customization.languageTimeZoneSaveButton).toBeEnabled();
     await customization.languageTimeZoneSaveButton.click();
-    await customization.removeToast(toastMessages.settingsUpdated);
+    await customization.dismissToastSafely(toastMessages.settingsUpdated);
   });
 
   test("Welcome page settings", async () => {
