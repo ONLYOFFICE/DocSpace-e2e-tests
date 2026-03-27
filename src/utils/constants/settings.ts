@@ -3,9 +3,8 @@ const navItems = {
   security: "Security",
   backup: "Backup",
   integration: "Integration",
-  payments: "Payments",
+  billing: "Billing",
   developerTools: "Developer Tools",
-  services: "Services",
   storageManagement: "Storage Management",
 } as const;
 
@@ -81,6 +80,7 @@ type TTransactionHistoryFilter =
 
 const toastMessages = {
   // backup
+  backupServiceEnabled: "Backup service successfully enabled.",
   backCopyCreated: "The backup copy has been successfully created.",
   settingsUpdated: "Settings have been successfully updated",
   operationCompleted: "Operation has been successfully completed.",
