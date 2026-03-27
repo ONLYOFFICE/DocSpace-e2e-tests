@@ -130,7 +130,7 @@ class Customization extends BasePage {
     );
   }
   get continue() {
-    return this.page.getByLabel("Continue");
+    return this.page.getByTestId("portal_renaming_continue_button");
   }
   get webOnly() {
     return this.page.locator("#by-web");
@@ -208,10 +208,20 @@ class Customization extends BasePage {
     }
   }
 
+  async getCurrentLanguage() {
+    await this.waitForComboButtonEnabled(this.languageSelector);
+    return this.languageSelector.innerText();
+  }
+
   async changeLanguage(language: string) {
     await this.waitForComboButtonEnabled(this.languageSelector);
     await this.languageSelector.click();
     await this.dropdown.clickOption(language);
+  }
+
+  async getCurrentTimezone() {
+    await this.waitForComboButtonEnabled(this.timezoneSelector);
+    return this.timezoneSelector.innerText();
   }
 
   async changeTimezone(timezone: string) {
