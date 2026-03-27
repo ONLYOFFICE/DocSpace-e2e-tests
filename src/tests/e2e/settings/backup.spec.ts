@@ -1,4 +1,5 @@
 import { Backup } from "@/src/objects/settings/backup/Backup";
+import { PaymentApi } from "@/src/api/payment";
 import {
   mapAutoBackupMethodsIds,
   mapBackupMethodsIds,
@@ -9,123 +10,77 @@ import {
 import { test } from "@/src/fixtures";
 import { expect } from "@playwright/test";
 
-test.describe("Backup portal tests", () => {
+test.describe("Manual backup", () => {
   let backup: Backup;
 
-  test.beforeEach(async ({ page, login, payments, services }) => {
+  test.beforeEach(async ({ page, api, login, services }) => {
+    const paymentApi = new PaymentApi(api.apiRequestContext, api.apisystem);
+    await paymentApi.setupPayment();
+
     backup = new Backup(page);
     await login.loginToPortal();
-    await payments.payForBackup();
     await services.activateBackupService();
     await backup.open();
   });
 
-  // Skipped: bug 80298
-  test.skip("Manual backup", async () => {
-    test.setTimeout(300000); // 5 min
-    await test.step("Render", async () => {});
-
-    await test.step("Backup link", async () => {
+  test("Backup temporary storage", async () => {
+    await test.step("Backup guide link", async () => {
       await backup.openBackupGuide();
     });
 
-    await test.step("Backup temporary storage", async () => {
+    await test.step("Create backup", async () => {
       await backup.locators.createBackupButton.click();
       await backup.dismissToastSafely(toastMessages.backCopyCreated);
-      // // Wait for email to arrive
-      // await new Promise((resolve) => setTimeout(resolve, 15000));
-
-      // // Create a MailChecker instance
-      // if (
-      //   !config.QA_MAIL_DOMAIN ||
-      //   !config.QA_MAIL_LOGIN ||
-      //   !config.QA_MAIL_PASSWORD
-      // ) {
-      //   throw new Error("Mail configuration is missing");
-      // }
-
-      // const mailChecker = new MailChecker({
-      //   url: config.QA_MAIL_DOMAIN,
-      //   user: config.QA_MAIL_LOGIN,
-      //   pass: config.QA_MAIL_PASSWORD,
-      // });
-
-      // // Check for email with subject containing "portal backup created"
-      // const email = await mailChecker.checkEmailBySubject({
-      //   subject: "portal backup created",
-      //   moveOut: false,
-      // });
-
-      // // Log the found email
-      // if (email) {
-      //   console.log(`Found backup email with subject: "${email.subject}"`);
-      // }
-
-      // // Final verification
-      // expect(email).toBeTruthy();
-    });
-
-    await test.step("Backup room storage", async () => {
-      await backup.selectBackupMethod(mapBackupMethodsIds.backupRoom);
-      await backup.openRoomSelector();
-      await backup.selectDocuments();
-      await backup.locators.createCopyButton.click();
-      await backup.dismissToastSafely(toastMessages.backCopyCreated, 40000);
-    });
-
-    // // ISSUE: CAPTCHA OR INFINITE LOADING
-    // await test.step("Backup in Third-Party resource dropbox", async () => {
-    //   await backup.selectBackupMethod(mapBackupMethodsIds.thirdPartyResource);
-    //   await page.waitForTimeout(500);
-    //   await backup.openThirdPartyDropdown();
-    //   await backup.selectThirdPartyResource(mapThirdPartyResource.dropbox);
-    //   await backup.connectDropbox();
-    //   await screenshot.expectHaveScreenshot("dropbox");
-    //   await backup.createBackupInService();
-    // });
-
-    // await test.step("Backup in Third-Party resource NextCloud", async () => {
-    //   await backup.selectBackupMethod(mapBackupMethodsIds.thirdPartyResource);
-    //   await backup.openThirdPartyDropdown();
-    //   await backup.selectThirdPartyResource(mapThirdPartyResource.nextcloud);
-    //   await backup.expectConnectButtonNotToBeDisabled();
-    //   await backup.locators.connectButton.click();
-
-    //   await backup.fillConnectingNextcloudAccount();
-    //   await backup.locators.saveButton.click();
-    //   await backup.openRoomSelector();
-    //   await backup.selectDocumentsNextCloud();
-    //   await backup.removeToast(toastMessages.backCopyCreated, 40000);
-    //   await backup.openActionMenuResource();
-    //   await backup.disconnectService();
-    // });
-
-    await test.step("Backup in Third-Party resource box", async () => {
-      await backup.selectBackupMethod(mapBackupMethodsIds.thirdPartyResource);
-      await backup.openThirdPartyDropdown();
-      await backup.selectThirdPartyResource(mapThirdPartyResource.box);
-      await backup.connectBox();
-      await backup.createBackupInService();
-      await backup.openActionMenuResource();
-      await backup.disconnectService();
-    });
-
-    // Disabled because of a geo region validation error; to be re-enabled after the problem is resolved.
-    await test.step("Backup in Third-Party storage S3", async () => {
-      await backup.activateAWSS3();
-      await backup.navigateToArticle(navItems.backup);
-      await backup.selectBackupMethod(mapBackupMethodsIds.thirdPartyStorage);
-      await backup.locators.bucketInput.fill("portals-manual");
-      await backup.selectRegion("US East (N. Virginia) (us-east-1)");
-      await backup.locators.createAmazonCopyButton.click();
-      await backup.dismissToastSafely(toastMessages.backCopyCreated, 80000);
     });
   });
 
-  // Skipped: bug 80298
-  test.skip("Auto backup", async ({ page }) => {
-    await test.step("Auto backup link", async () => {
-      await backup.openTab("auto-backup_tab");
+  test("Backup room storage", async () => {
+    await backup.selectBackupMethod(mapBackupMethodsIds.backupRoom);
+    await backup.openRoomSelector();
+    await backup.selectDocuments();
+    await backup.locators.createCopyButton.click();
+    await backup.dismissToastSafely(toastMessages.backCopyCreated, 40000);
+  });
+
+  test("Backup in Third-Party resource box", async () => {
+    await backup.selectBackupMethod(mapBackupMethodsIds.thirdPartyResource);
+    await backup.openThirdPartyDropdown();
+    await backup.selectThirdPartyResource(mapThirdPartyResource.box);
+    await backup.connectBox();
+    await backup.createBackupInService();
+    await backup.openActionMenuResource();
+    await backup.disconnectService();
+  });
+
+  test("Backup in Third-Party storage S3", async () => {
+    await backup.activateAWSS3();
+    await backup.navigateToArticle(navItems.backup);
+    await backup.selectBackupMethod(mapBackupMethodsIds.thirdPartyStorage);
+    await backup.locators.bucketInput.fill("portals-manual");
+    await backup.selectRegion("US East (N. Virginia) (us-east-1)");
+    await backup.locators.createAmazonCopyButton.click();
+    await backup.dismissToastSafely(toastMessages.backCopyCreated, 80000);
+  });
+});
+
+// Skipped: bug 80298
+test.describe("Auto backup", () => {
+  let backup: Backup;
+
+  test.beforeEach(async ({ page, api, login, services }) => {
+    const paymentApi = new PaymentApi(api.apiRequestContext, api.apisystem);
+    await paymentApi.setupPayment();
+
+    backup = new Backup(page);
+    await login.loginToPortal();
+    await services.activateBackupService();
+    await backup.open();
+  });
+
+  test.skip("Auto backup schedule", async ({ page }) => {
+    await backup.openTab("auto-backup_tab");
+
+    await test.step("Auto backup guide link", async () => {
       await backup.openAutoBackupGuide();
     });
 
@@ -176,80 +131,45 @@ test.describe("Backup portal tests", () => {
       await backup.saveAutoSavePeriod();
       await backup.disableAutoBackup();
     });
+  });
 
-    // await test.step("Auto backup in Third-Party resource NextCloud", async () => {
-    //   await backup.enableAutoBackup();
-    //   await backup.selectAutoBackupMethod(
-    //     mapAutoBackupMethodsIds.thirdPartyResource,
-    //   );
+  test.skip("Auto backup in Third-Party resource box", async () => {
+    await backup.openTab("auto-backup_tab");
+    await backup.enableAutoBackup();
+    await backup.selectAutoBackupMethod(
+      mapAutoBackupMethodsIds.thirdPartyResource,
+    );
+    await backup.openThirdPartyServiceAutoBackup();
+    await backup.selectAutoThirdPartyResource(mapThirdPartyResource.box);
+    await backup.connectBoxAutoBackup();
+    await backup.selectRoomForBackup();
+    await backup.openActionMenuResourceAutoBackup();
+    await backup.disconnectService();
+    await backup.disableAutoBackup();
+  });
 
-    //   await backup.openThirdPartyServiceAutoBackup();
-    //   await backup.selectAutoThirdPartyResource(
-    //     mapThirdPartyResource.nextcloud,
-    //   );
-    //   await backup.locators.connectButtonAutoBackup.click();
-
-    //   await backup.fillConnectingNextcloudAccount();
-
-    //   await backup.locators.saveButton.click();
-    //   await backup.openRoomSelector();
-
-    //   await backup.selectDocumentsNextCloudAutoBackup();
-    //   await backup.saveAutoSavePeriod();
-    //   await backup.openActionMenuResourceAutoBackup();
-    //   await backup.disconnectService();
-    //   await backup.disableAutoBackup();
-    // });
-
-    await test.step("Auto backup in Third-Party resource box", async () => {
-      await backup.enableAutoBackup();
-      await backup.selectAutoBackupMethod(
-        mapAutoBackupMethodsIds.thirdPartyResource,
-      );
-      await backup.openThirdPartyServiceAutoBackup();
-      await backup.selectAutoThirdPartyResource(mapThirdPartyResource.box);
-      await backup.connectBoxAutoBackup();
-      await backup.selectRoomForBackup();
-      await backup.openActionMenuResourceAutoBackup();
-      await backup.disconnectService();
-      await backup.disableAutoBackup();
-    });
-
-    // ISSUE: CAPTCHA OR INFINITE LOADING
-    // await test.step("Auto backup in Third-Party resource dropbox", async () => {
-    //   await backup.openTab("Automatic backup");
-    //   await backup.selectDropboxAutoBackup();
-    //   await backup.connectDropbox();
-    //   await backup.selectRoomForBackup();
-    //   await backup.removeToast("Settings have been successfully updated");
-    //   await backup.disconnectService();
-    //   await backup.disableAutoBackup();
-    //   await backup.removeToast("Settings have been successfully updated");
-    // });
-
-    await test.step("Auto backup in Third-Party storage S3", async () => {
-      await backup.activateAWSS3();
-      await backup.navigateToArticle(navItems.backup);
-      await backup.openTab("auto-backup_tab");
-      await backup.enableAutoBackup();
-      await backup.selectAutoBackupMethod(
-        mapAutoBackupMethodsIds.thirdPartyStorage,
-      );
-      await backup.locators.bucketInput.fill("portals-manual");
-      await backup.openRegionDropdown();
-      await backup.regionDropdown.clickOption(
-        "US East (N. Virginia) (us-east-1)",
-      );
-      const [response] = await Promise.all([
-        page.waitForResponse(
-          (resp) =>
-            resp.request().method() === "POST" &&
-            resp.url().includes("/api/2.0/portal/createbackupschedule"),
-        ),
-        backup.locators.saveAutoBackupButton.click(),
-      ]);
-      expect(response.status()).toBe(200);
-      await backup.removeAllToast();
-    });
+  test.skip("Auto backup in Third-Party storage S3", async ({ page }) => {
+    await backup.activateAWSS3();
+    await backup.navigateToArticle(navItems.backup);
+    await backup.openTab("auto-backup_tab");
+    await backup.enableAutoBackup();
+    await backup.selectAutoBackupMethod(
+      mapAutoBackupMethodsIds.thirdPartyStorage,
+    );
+    await backup.locators.bucketInput.fill("portals-manual");
+    await backup.openRegionDropdown();
+    await backup.regionDropdown.clickOption(
+      "US East (N. Virginia) (us-east-1)",
+    );
+    const [response] = await Promise.all([
+      page.waitForResponse(
+        (resp) =>
+          resp.request().method() === "POST" &&
+          resp.url().includes("/api/2.0/portal/createbackupschedule"),
+      ),
+      backup.locators.saveAutoBackupButton.click(),
+    ]);
+    expect(response.status()).toBe(200);
+    await backup.removeAllToast();
   });
 });

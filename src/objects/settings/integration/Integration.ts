@@ -549,12 +549,12 @@ export class Integration extends BasePage {
     await this.s3AccessKey.fill(config.S3_ACCESS_KEY);
     await this.s3SecretKey.fill(config.S3_SECRET_KEY);
     await this.saveButtonServices.click();
-    await this.removeToast(toastMessages.updatedSuccessfully);
+    await this.dismissToastSafely(toastMessages.updatedSuccessfully);
   }
 
   async deactivateAWSS3() {
     await this.s3Switch.click();
-    await this.removeToast(toastMessages.deactivatedSuccessfully);
+    await this.dismissToastSafely(toastMessages.deactivatedSuccessfully);
   }
 
   async activateGoogleCloud() {

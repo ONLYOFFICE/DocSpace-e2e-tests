@@ -363,7 +363,7 @@ export class Payments extends BasePage {
 
   async open() {
     await this.navigateToSettings();
-    await this.navigateToArticle(navItems.payments);
+    await this.navigateToArticle(navItems.billing);
     await this.openTab(paymentsTab.tariffPlan);
   }
 

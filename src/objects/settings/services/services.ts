@@ -118,7 +118,8 @@ class Services extends BasePage {
 
   async open() {
     await this.navigateToSettings();
-    await this.navigateToArticle(navItems.services);
+    await this.navigateToArticle(navItems.billing);
+    await this.page.getByTestId("services_tab").click();
   }
 
   async checkServicesRendered() {
@@ -197,7 +198,9 @@ class Services extends BasePage {
   }
 
   async activateBackupService() {
-    await this.navigateToArticle(navItems.services);
+    await this.navigateToSettings();
+    await this.navigateToArticle(navItems.billing);
+    await this.page.getByTestId("services_tab").click();
     await this.backupSwitch.click();
     await this.continueButton.click();
   }
