@@ -3,7 +3,6 @@ export const contactsActionsMenu = {
     label: "Invite",
     submenu: {
       docspaceAdmin: "DocSpace admin",
-      roomAdmin: "Room admin",
       user: "User",
       inviteAgain: "Invite again",
     },
@@ -13,7 +12,6 @@ export const contactsActionsMenu = {
 
 export const headerInviteIds = {
   docspaceAdmin: "accounts-add_administrator",
-  roomAdmin: "accounts-add_manager",
   user: "accounts-add_collaborator",
 } as const;
 

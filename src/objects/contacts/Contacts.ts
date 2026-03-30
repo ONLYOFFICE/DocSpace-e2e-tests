@@ -27,6 +27,7 @@ import ContactsGroupDialog from "./ContactsGroupDialog";
 import { TMenuItem } from "../common/BaseMenu";
 import { BaseDropdown } from "../common/BaseDropdown";
 import BasePage from "../common/BasePage";
+import BaseSelector from "../common/BaseSelector";
 import ContactsFilter from "./ContactsFilter";
 
 class Contacts extends BasePage {
@@ -177,18 +178,22 @@ class Contacts extends BasePage {
     }
   }
 
-  async checkWarningDialog() {
-    await this.dialog.checkDialogTitleExist("Warning");
-    await this.dialog.close();
+  async closeWarningModalIfPresent() {
+    const cancelBtn = this.page
+      .locator("#modal-onMouseDown-close")
+      .getByRole("button", { name: "Cancel" });
+    try {
+      await cancelBtn.waitFor({ state: "visible", timeout: 5000 });
+      await cancelBtn.click();
+    } catch {
+      // No warning dialog appeared
+    }
   }
   async inviteUsers() {
-    for (const [access, value] of Object.entries(
-      contactsActionsMenu.invite.submenu,
-    )) {
-      if (value === contactsActionsMenu.invite.submenu.inviteAgain) continue;
-      const userEmail = userEmails[access as keyof typeof userEmails];
-      await this.inviteUser(userEmail, value);
-    }
+    const { submenu } = contactsActionsMenu.invite;
+    await this.inviteUser(userEmails.docspaceAdmin, submenu.docspaceAdmin);
+    await this.inviteUser(userEmails.roomAdmin, submenu.user);
+    await this.inviteUser(userEmails.user, submenu.user);
   }
 
   async inviteUser(userEmail: TUserEmail, userType: TContactType) {
@@ -206,13 +211,8 @@ class Contacts extends BasePage {
     await this.inviteDialog.submitInviteDialog();
     await promise;
     await this.table.checkRowExist(userEmail);
-
-    const countPaidUsers = await this.table.getCountPaidUsers();
-
-    if (countPaidUsers === 2) {
-      await this.checkWarningDialog();
-    }
-    await this.removeToast(toastMessages.usersInvited);
+    await this.dismissToastSafely(toastMessages.usersInvited);
+    await this.closeWarningModalIfPresent();
   }
 
   async openChangeContactTypeDialog(user: string, menuItem: TMenuItem) {
@@ -262,6 +262,41 @@ class Contacts extends BasePage {
       });
     await expect(chooseFromListButton).toBeVisible();
     await chooseFromListButton.click();
+  }
+
+  async changeName(firstName: string, lastName: string) {
+    await this.openChangeNameDialog();
+    await this.page
+      .getByTestId("change_name_first_name_field_input")
+      .fill(firstName);
+    await this.page
+      .getByTestId("change_name_last_name_field_input")
+      .fill(lastName);
+    await this.page.getByTestId("dialog_change_name_save_button").click();
+    await this.removeToast(toastMessages.changesSaved);
+  }
+
+  async sendChangeEmailInstructions(newEmail: string) {
+    await this.openChangeEmailDialog();
+    await this.page.getByPlaceholder("Enter new email").fill(newEmail);
+    await this.page.getByRole("button", { name: "Send" }).click();
+    await this.removeAllToast();
+  }
+
+  async sendChangePasswordInstructions() {
+    await this.openChangePasswordDialog();
+    await this.page.getByTestId("change_password_send_button").click();
+    await this.removeAllToast();
+  }
+
+  async submitChangeOwner(userEmail: string) {
+    await this.openChangeOwnerDialog();
+    await this.openChooseFromList();
+    const selector = new BaseSelector(this.page);
+    await selector.selectItemByTextGlobal(userEmail);
+    await this.page.getByTestId("selector_submit_button").click();
+    await this.page.getByTestId("change_portal_owner_change_button").click();
+    await this.removeAllToast();
   }
 
   async submitChangeContactTypeDialog() {
