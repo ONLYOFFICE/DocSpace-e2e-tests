@@ -475,7 +475,7 @@ test.describe("FormFilling base tests", () => {
       ).not.toBeVisible();
       await page.keyboard.press("Escape");
       // Check Delete button is not visible on the page
-      filesTable.selectFolderByName("Complete");
+      await filesTable.selectFolderByName("Complete");
       await expect(page.getByText("Delete")).not.toBeVisible();
     });
     await test.step("Check Delete doesn't exist for In Progress folder", async () => {
@@ -487,7 +487,7 @@ test.describe("FormFilling base tests", () => {
       ).not.toBeVisible();
       await page.keyboard.press("Escape");
       // Check Delete button is not visible on the page
-      filesTable.selectFolderByName("In process");
+      await filesTable.selectFolderByName("In process");
       await expect(page.getByText("Delete")).not.toBeVisible();
     });
   });
