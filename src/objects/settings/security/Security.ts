@@ -116,22 +116,22 @@ class Security extends BasePage {
     return this.page.getByTestId("password_strength_learn_more");
   }
   get twoFactorAuthenticationGuideLink() {
-    return this.page.getByTestId("tfa_component_learn_more");
+    return this.page.getByTestId("tfa_learn_more");
   }
   get trustedDomainGuideLink() {
-    return this.page.getByTestId("trusted_mail_component_learn_more");
+    return this.page.getByTestId("trusted_mail_learn_more");
   }
   get ipSecurityGuideLink() {
-    return this.page.getByTestId("ip_security_component_learn_more");
+    return this.page.getByTestId("ip_security_learn_more");
   }
   get bruteForceGuideLink() {
     return this.page.getByTestId("brute_force_protection_learn_more");
   }
   get adminMessageGuideLink() {
-    return this.page.getByTestId("administrator_message_component_learn_more");
+    return this.page.getByTestId("administrator_message_learn_more");
   }
   get sessionLifetimeGuideLink() {
-    return this.page.getByTestId("session_lifetime_component_learn_more");
+    return this.page.getByTestId("session_lifetime_learn_more");
   }
 
   async open() {

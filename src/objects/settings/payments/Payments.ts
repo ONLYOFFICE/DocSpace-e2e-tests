@@ -81,7 +81,7 @@ export class Payments extends BasePage {
   }
 
   get requestEmailInput() {
-    return this.page.getByTestId("email-input");
+    return this.page.getByTestId("request_email_input");
   }
 
   get requestDetailsInput() {
@@ -179,7 +179,7 @@ export class Payments extends BasePage {
   }
 
   get emptyViewText() {
-    return this.page.getByText("No transactions yet", {
+    return this.page.getByText("No findings found", {
       exact: true,
     });
   }
@@ -329,7 +329,7 @@ export class Payments extends BasePage {
 
   async openTopUpBalanceDialog() {
     await this.topUpBalanceButton.click();
-    this.dialog.checkDialogTitleExist("Top up wallet");
+    await this.dialog.checkDialogTitleExist("Top up wallet");
   }
 
   async openTransactionHistoryFilter() {
@@ -457,9 +457,13 @@ export class Payments extends BasePage {
       this.portalUrl,
     ).href;
     await stripePage.waitForURL(returnUrl);
-    await expect(
-      stripePage.getByText("You are using Business plan"),
-    ).toBeVisible();
+
+    await expect(async () => {
+      await stripePage.reload();
+      await expect(
+        stripePage.getByText("You are using Business plan"),
+      ).toBeVisible({ timeout: 5000 });
+    }).toPass({ timeout: 30000 });
     await stripePage.close();
   }
 

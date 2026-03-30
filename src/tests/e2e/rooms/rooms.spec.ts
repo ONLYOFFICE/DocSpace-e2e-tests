@@ -172,10 +172,8 @@ test.describe("Rooms", () => {
     });
 
     await myRooms.roomsTable.openContextMenu(roomCreateTitles.public);
-    await myRooms.roomsTable.clickContextMenuOption(
+    await myRooms.roomsTable.contextMenu.clickSubmenuOption(
       roomContextMenuOption.manage,
-    );
-    await myRooms.roomsTable.clickContextMenuOption(
       roomContextMenuOption.changeTheRoomOwner,
     );
     await myRooms.roomsChangeOwnerDialog.checkNoMembersFoundExist();

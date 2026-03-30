@@ -7,7 +7,7 @@ import {
 } from "@/src/utils/constants/settings";
 import { expect } from "@playwright/test";
 
-test.describe.skip("Payments", () => {
+test.describe("Payments", () => {
   let payments: Payments;
 
   test.beforeEach(async ({ page, login }) => {
@@ -20,7 +20,7 @@ test.describe.skip("Payments", () => {
     await test.step("Payment", async () => {
       await payments.openTab(paymentsTab.wallet);
       await payments.openTopUpBalanceDialog();
-      await payments.dialog.close();
+      await payments.cancelButton.click();
       await payments.openTab(paymentsTab.tariffPlan);
       const stripePage = await payments.upgradePlan(10);
       await payments.fillPaymentData(stripePage);
@@ -28,34 +28,36 @@ test.describe.skip("Payments", () => {
       await page.reload();
     });
 
-    await test.step("Stripe customer portal link", async () => {
-      const page1Promise = page.waitForEvent("popup", { timeout: 30000 });
-      await payments.stripeCustomerPortalLink.click({ force: true });
-      const page1 = await page1Promise;
-      await page1.waitForURL("https://billing.stripe.com/p/session/*");
-      await page1.close();
+    // TODO: Stripe customer portal link removed from UI
+    // await test.step("Stripe customer portal link", async () => {
+    //   const page1Promise = page.waitForEvent("popup", { timeout: 30000 });
+    //   await payments.stripeCustomerPortalLink.click({ force: true });
+    //   const page1 = await page1Promise;
+    //   await page1.waitForURL("https://billing.stripe.com/p/session/*");
+    //   await page1.close();
 
-      await payments.openTab(paymentsTab.wallet);
-      const page2Promise = page.waitForEvent("popup", { timeout: 30000 });
-      await payments.stripeCustomerPortalLink.click({ force: true });
-      const page2 = await page2Promise;
-      await page2.waitForURL("https://billing.stripe.com/p/session/*");
-      await page2.close();
-    });
+    //   await payments.openTab(paymentsTab.wallet);
+    //   const page2Promise = page.waitForEvent("popup", { timeout: 30000 });
+    //   await payments.stripeCustomerPortalLink.click({ force: true });
+    //   const page2 = await page2Promise;
+    //   await page2.waitForURL("https://billing.stripe.com/p/session/*");
+    //   await page2.close();
+    // });
 
-    await test.step("Configure DocSpace settings link", async () => {
-      const helpcenterPagePromise = page
-        .context()
-        .waitForEvent("page", { timeout: 30000 });
-      await payments.configureDocSpaceLink.click({
-        modifiers: ["ControlOrMeta"],
-      });
-      const helpcenterPage = await helpcenterPagePromise;
-      await helpcenterPage.waitForURL(
-        /https:\/\/helpcenter\.onlyoffice\.com\/docspace\/configuration\/.*\.aspx/,
-      );
-      await helpcenterPage.close();
-    });
+    // TODO: Configure DocSpace settings link removed from UI
+    // await test.step("Configure DocSpace settings link", async () => {
+    //   const helpcenterPagePromise = page
+    //     .context()
+    //     .waitForEvent("page", { timeout: 30000 });
+    //   await payments.configureDocSpaceLink.click({
+    //     modifiers: ["ControlOrMeta"],
+    //   });
+    //   const helpcenterPage = await helpcenterPagePromise;
+    //   await helpcenterPage.waitForURL(
+    //     /https:\/\/helpcenter\.onlyoffice\.com\/docspace\/configuration\/.*\.aspx/,
+    //   );
+    //   await helpcenterPage.close();
+    // });
 
     await test.step("Change tarif plan", async () => {
       await payments.openTab(paymentsTab.tariffPlan);
@@ -137,6 +139,12 @@ test.describe.skip("Payments", () => {
       await payments.selectTransactionHistoryFilter(
         transactionHistoryFilter.debit,
       );
+      await page.reload();
+      await payments.openTab(paymentsTab.wallet);
+      await payments.openTransactionHistoryFilter();
+      await payments.selectTransactionHistoryFilter(
+        transactionHistoryFilter.debit,
+      );
       await expect(payments.emptyViewText).toBeVisible();
 
       await payments.openTransactionHistoryFilter();
@@ -145,10 +153,10 @@ test.describe.skip("Payments", () => {
       );
     });
 
-    //ISSUE: Transaction history is empty during CI launch
-    // await test.step("Download report", async () => {
-    //   await payments.downloadReport();
-    // });
+    // ISSUE: Sometime transaction history is empty during CI launch
+    await test.step("Download report", async () => {
+      await payments.downloadReport();
+    });
   });
 
   test("Top up wallet & change tariff plan", async ({ page }) => {

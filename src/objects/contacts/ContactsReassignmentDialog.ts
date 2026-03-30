@@ -1,10 +1,14 @@
 import { expect, Page } from "@playwright/test";
 import BaseInviteDialog from "../common/BaseInviteDialog";
+import BaseSelector from "../common/BaseSelector";
 import { reassignDialogActions } from "@/src/utils/constants/contacts";
 
 class ContactsReassignmentDialog extends BaseInviteDialog {
+  private selector: BaseSelector;
+
   constructor(page: Page) {
     super(page);
+    this.selector = new BaseSelector(page);
   }
 
   async checkReassignmentTitleExist() {
@@ -29,6 +33,18 @@ class ContactsReassignmentDialog extends BaseInviteDialog {
   async clickChooseFromList() {
     await this.dialog
       .getByText(reassignDialogActions.chooseFromList, { exact: true })
+      .click();
+  }
+
+  async selectUserFromList(userEmail: string) {
+    await this.clickChooseFromList();
+    await this.selector.selectItemByTextGlobal(userEmail);
+    await this.page.getByTestId("selector_submit_button").click();
+  }
+
+  async clickReassign() {
+    await this.dialog
+      .getByText(reassignDialogActions.confirm, { exact: true })
       .click();
   }
 
