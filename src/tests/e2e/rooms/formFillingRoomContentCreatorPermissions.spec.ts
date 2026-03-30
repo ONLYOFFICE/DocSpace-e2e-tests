@@ -532,6 +532,10 @@ test.describe("FormFilling room - Content creator permissions", () => {
       await shortTour.clickModalCloseButton();
     });
 
+    await test.step("Verify editing icon appears on own PDF form after start filling", async () => {
+      await myRooms.filesTable.expectFillingIconVisible("ONLYOFFICE Resume Sample");
+    });
+
     await test.step("Verify 'Stop filling' is visible in context menu for own PDF form", async () => {
       await myRooms.filesTable.openContextMenuForItem(
         "ONLYOFFICE Resume Sample",
@@ -648,6 +652,10 @@ test.describe("FormFilling room - Content creator permissions", () => {
       );
       // Modal with copy link appears — confirms the action was allowed
       await shortTour.clickModalCloseButton();
+    });
+
+    await test.step("Verify editing icon appears on owner's PDF form after start filling", async () => {
+      await myRooms.filesTable.expectFillingIconVisible("PDF from device");
     });
 
     await test.step("Verify 'Stop filling' is visible in context menu for owner's PDF form", async () => {
