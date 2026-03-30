@@ -9,6 +9,12 @@ import BaseDialog from "../common/BaseDialog";
 import { waitForGetRoomsResponse, waitForCreateRoomResponse } from "./api";
 
 const ROOM_SUBMIT_BUTTON = "create_room_dialog_save";
+const SAVE_FORM_AS_XLSX_BLOCK = "#save-form-as-xlsx";
+const SEND_FORM_TO_EXTERNAL_DB_BLOCK = "#send-form-to-external-db";
+const TOGGLE_INPUT = "toggle-button-input";
+const TOGGLE_LABEL = "toggle-button-container";
+const GO_TO_INTEGRATIONS_LINK =
+  'a[href="/portal-settings/integration/third-party-services"]';
 const ROOM_TEMPLATE_SUBMIT_BUTTON = "#create-room-template-modal_submit";
 const LOGO_NAME_CONTAINER = "create_edit_room_icon";
 const TAG_NAME_INPUT = "create_edit_room_tags_input";
@@ -184,8 +190,8 @@ class RoomsCreateDialog extends BaseDialog {
 
   async toggleAutomaticIndexing(enable: boolean) {
     const block = this.page.getByTestId("virtual_data_room_automatic_indexing");
-    const checkbox = block.getByTestId("toggle-button-input");
-    const label = block.getByTestId("toggle-button-container");
+    const checkbox = block.getByTestId(TOGGLE_INPUT);
+    const label = block.getByTestId(TOGGLE_LABEL);
 
     const isChecked = await checkbox.isChecked();
     if (isChecked !== enable) {
@@ -198,8 +204,8 @@ class RoomsCreateDialog extends BaseDialog {
     const block = this.page.getByTestId(
       "virtual_data_room_restrict_copy_download",
     );
-    const checkbox = block.getByTestId("toggle-button-input");
-    const label = block.getByTestId("toggle-button-container");
+    const checkbox = block.getByTestId(TOGGLE_INPUT);
+    const label = block.getByTestId(TOGGLE_LABEL);
 
     const isChecked = await checkbox.isChecked();
     if (isChecked !== enable) {
@@ -210,8 +216,8 @@ class RoomsCreateDialog extends BaseDialog {
 
   async toggleFileLifetime(enable: boolean) {
     const block = this.page.getByTestId("virtual_data_room_file_lifetime");
-    const checkbox = block.getByTestId("toggle-button-input");
-    const label = block.getByTestId("toggle-button-container");
+    const checkbox = block.getByTestId(TOGGLE_INPUT);
+    const label = block.getByTestId(TOGGLE_LABEL);
 
     const isChecked = await checkbox.isChecked();
     if (isChecked !== enable) {
@@ -250,8 +256,8 @@ class RoomsCreateDialog extends BaseDialog {
 
   async toggleWatermarks(enable: boolean) {
     const block = this.page.getByTestId("virtual_data_room_add_watermarks");
-    const checkbox = block.getByTestId("toggle-button-input");
-    const label = block.getByTestId("toggle-button-container");
+    const checkbox = block.getByTestId(TOGGLE_INPUT);
+    const label = block.getByTestId(TOGGLE_LABEL);
 
     const isChecked = await checkbox.isChecked();
     if (isChecked !== enable) {
@@ -299,6 +305,48 @@ class RoomsCreateDialog extends BaseDialog {
     await comboBox.click();
     await this.page.getByRole("option", { name: position }).click();
     await expect(comboBox).toContainText(position);
+  }
+
+  async expectSaveFormAsXlsxChecked(checked: boolean) {
+    const checkbox = this.page
+      .locator(SAVE_FORM_AS_XLSX_BLOCK)
+      .getByTestId(TOGGLE_INPUT);
+    await expect(checkbox).toBeChecked({ checked });
+  }
+
+  async toggleSaveFormAsXlsx(enable: boolean) {
+    const block = this.page.locator(SAVE_FORM_AS_XLSX_BLOCK);
+    const checkbox = block.getByTestId(TOGGLE_INPUT);
+    const label = block.getByTestId(TOGGLE_LABEL);
+
+    const isChecked = await checkbox.isChecked();
+    if (isChecked !== enable) {
+      await label.click();
+    }
+    await expect(checkbox).toBeChecked({ checked: enable });
+  }
+
+  async expectSendFormToExternalDbChecked(checked: boolean) {
+    const checkbox = this.page
+      .locator(SEND_FORM_TO_EXTERNAL_DB_BLOCK)
+      .getByTestId(TOGGLE_INPUT);
+    await expect(checkbox).toBeChecked({ checked });
+  }
+
+  async toggleSendFormToExternalDb(enable: boolean) {
+    const block = this.page.locator(SEND_FORM_TO_EXTERNAL_DB_BLOCK);
+    const checkbox = block.getByTestId(TOGGLE_INPUT);
+    const label = block.getByTestId(TOGGLE_LABEL);
+
+    const isChecked = await checkbox.isChecked();
+    if (isChecked !== enable) {
+      await label.click();
+    }
+    await expect(checkbox).toBeChecked({ checked: enable });
+  }
+
+  get goToIntegrationsLink() {
+    return this.page.locator(GO_TO_INTEGRATIONS_LINK);
   }
 
   async setRoomCoverColor(colorTestId = "color_item_6") {

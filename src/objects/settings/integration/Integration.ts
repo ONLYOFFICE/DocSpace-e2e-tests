@@ -274,6 +274,10 @@ export class Integration extends BasePage {
     return this.page.getByText("Third-party services");
   }
 
+  get thirdPartyServicesTab() {
+    return this.page.getByTestId(integrationTabs.thirdPartyServices);
+  }
+
   get thirdPartyLink() {
     return this.page.locator(
       '[data-testid="integration_settings_link"][href*="thirdpartyserviceintegration_block"]',
