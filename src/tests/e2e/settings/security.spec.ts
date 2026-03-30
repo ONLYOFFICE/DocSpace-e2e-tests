@@ -122,7 +122,7 @@ test.describe("Security tests", () => {
       await security.ipSecurityGuideLink.click();
       const page4 = await page4Promise;
       await page4.waitForURL(
-        "https://helpcenter.onlyoffice.com/docspace/configuration/docspace-security-settings.aspx#limiteddevelopertoolsaccess_block",
+        "https://helpcenter.onlyoffice.com/docspace/configuration/docspace-security-settings.aspx#ipsecuritysettings_block",
       );
       await page4.close();
     });

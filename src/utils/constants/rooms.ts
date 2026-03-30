@@ -23,7 +23,7 @@ export const roomContextMenuOption = {
   editRoom: "Edit room",
   inviteContacts: "Invite contacts",
   saveAsTemplate: "Save as template",
-  changeTheRoomOwner: "Change the Room Owner",
+  changeTheRoomOwner: "Change Room Owner",
   moveToArchive: "Move to archive",
   duplicate: "Duplicate",
   pinToTop: "Pin to top",
