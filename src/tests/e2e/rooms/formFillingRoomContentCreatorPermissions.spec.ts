@@ -533,7 +533,9 @@ test.describe("FormFilling room - Content creator permissions", () => {
     });
 
     await test.step("Verify editing icon appears on own PDF form after start filling", async () => {
-      await myRooms.filesTable.expectFillingIconVisible("ONLYOFFICE Resume Sample");
+      await myRooms.filesTable.expectFillingIconVisible(
+        "ONLYOFFICE Resume Sample",
+      );
     });
 
     await test.step("Verify 'Stop filling' is visible in context menu for own PDF form", async () => {
