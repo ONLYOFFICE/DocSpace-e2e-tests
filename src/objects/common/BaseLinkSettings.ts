@@ -1,6 +1,5 @@
 import { expect, Locator, Page } from "@playwright/test";
 
-// Configuration options for link settings
 export interface LinkSettingsConfig {
   name?: string;
   access?: "docspace" | "anyone";
@@ -8,12 +7,9 @@ export interface LinkSettingsConfig {
   save?: boolean;
 }
 
-// Page Object for working with the link settings edit panel.
-// Used to manage shared links for files and rooms.
 export default class BaseEditLink {
   protected page: Page;
 
-  // ==================== Selector Constants ====================
   private static readonly SELECTORS = {
     linkNameInput: "edit_link_panel_name_input",
     linkAccessModal: "edit_link_panel_modal",
@@ -38,13 +34,10 @@ export default class BaseEditLink {
     this.page = page;
   }
 
-  // ==================== Link Name ====================
-
   get linkNameInput() {
     return this.page.getByTestId(BaseEditLink.SELECTORS.linkNameInput);
   }
 
-  // Change link name
   async newLinkName(newName: string) {
     const input = this.linkNameInput;
     await expect(input).toBeVisible();
@@ -54,15 +47,12 @@ export default class BaseEditLink {
     await expect(input).toHaveValue(newName);
   }
 
-  // ==================== Access Level ====================
-
   get comboLinkAccess() {
     return this.page
       .getByTestId(BaseEditLink.SELECTORS.linkAccessModal)
       .locator('[data-test-id="combo-button"]');
   }
 
-  // Select access level for the link
   async selectLinkAccess(access: keyof typeof BaseEditLink.ACCESS_OPTIONS) {
     const combo = this.comboLinkAccess;
     await expect(combo).toBeVisible();
@@ -74,8 +64,6 @@ export default class BaseEditLink {
     await expect(option).toBeVisible();
     await option.click();
   }
-
-  // ==================== Password Protection ====================
 
   get togglePassword() {
     return this.page.getByTestId(BaseEditLink.SELECTORS.togglePassword);
@@ -89,7 +77,6 @@ export default class BaseEditLink {
     return this.page.locator(`#${BaseEditLink.SELECTORS.passwordInput} input`);
   }
 
-  // Fill password field
   async fillPassword(password: string) {
     const input = this.passwordInput;
     await expect(input).toBeVisible();
@@ -127,8 +114,6 @@ export default class BaseEditLink {
     await this.clickElement(button);
   }
 
-  // ==================== Deny Download Toggle ====================
-
   get denyDownloadToggle() {
     return this.page.getByTestId(BaseEditLink.SELECTORS.denyDownloadToggle);
   }
@@ -137,13 +122,9 @@ export default class BaseEditLink {
     await this.clickElement(this.denyDownloadToggle);
   }
 
-  // ==================== Date Link Period ====================
-
   get dateLinkPeriod() {
     return this.page.getByTestId(BaseEditLink.SELECTORS.dateLinkPeriod);
   }
-
-  // ==================== Action Buttons ====================
 
   get saveButton() {
     return this.page.getByTestId(BaseEditLink.SELECTORS.saveButton);
@@ -161,9 +142,6 @@ export default class BaseEditLink {
     await this.clickElement(this.cancelButton);
   }
 
-  // ==================== High-Level Configuration ====================
-
-  // Configure link settings with multiple parameters at once
   async configureLinkSettings(config: LinkSettingsConfig) {
     if (config.name !== undefined) {
       await this.newLinkName(config.name);
@@ -183,9 +161,6 @@ export default class BaseEditLink {
     }
   }
 
-  // ==================== Private Helper Methods ====================
-
-  // Click an element with visibility check
   private async clickElement(element: Locator) {
     await expect(element).toBeVisible();
     await element.click();
