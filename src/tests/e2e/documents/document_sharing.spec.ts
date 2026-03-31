@@ -12,7 +12,7 @@ import {
 } from "@/src/utils/helpers/linkTest";
 import { waitForShareLinkResponse } from "@/src/objects/files/api";
 
-test.describe("Document sharing links", () => {
+test.describe("Document sharing", () => {
   let myDocuments: MyDocuments;
   let infoPanel: InfoPanel;
   let incognitoContext: BrowserContext | null = null;
@@ -141,6 +141,32 @@ test.describe("Document sharing links", () => {
       await passwordPage.enterPasswordAndContinue(linkPassword);
       const editor = new FilesEditor(incognitoPage);
       await editor.waitForLoad();
+    });
+  });
+
+  test("Share document with user", async ({ apiSdk }) => {
+    let userName: string;
+
+    await test.step("Create user via API", async () => {
+      const { userData } = await apiSdk.profiles.addMember("owner", "User");
+      userName = `${userData.firstName} ${userData.lastName}`;
+    });
+
+    await test.step("Open sharing settings for document", async () => {
+      await myDocuments.filesTable.openContextMenuForItem("TestDocument");
+      await myDocuments.filesTable.contextMenu.clickSubmenuOption(
+        "Share",
+        "Sharing settings",
+      );
+      await infoPanel.checkShareExist();
+    });
+
+    await test.step("Add user via share panel", async () => {
+      await infoPanel.addUserToShare(userName);
+    });
+
+    await test.step("Verify user appears in Who has access", async () => {
+      await infoPanel.checkUserHasAccess(userName);
     });
   });
 });
