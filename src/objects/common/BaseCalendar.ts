@@ -30,15 +30,21 @@ export default class BaseCalendar {
 
   async selectTomorrow() {
     await this.openDateSelector();
+    const today = new Date();
     const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setDate(today.getDate() + 1);
     const day = tomorrow.getDate().toString();
+
+    // If tomorrow is in the next month, it appears as a secondary date in the
+    // current month's calendar - skip the isSecondary filter in that case
+    const crossesMonth = tomorrow.getMonth() !== today.getMonth();
+    const filter = crossesMonth
+      ? "button:not([disabled])"
+      : "button:not([disabled]):not([class*='isSecondary'])";
+
     await this.page
       .getByRole("button", { name: day, exact: true })
-      // Exclude disabled buttons and secondary dates (days from adjacent months)
-      .and(
-        this.page.locator("button:not([disabled]):not([class*='isSecondary'])"),
-      )
+      .and(this.page.locator(filter))
       .click();
   }
 
