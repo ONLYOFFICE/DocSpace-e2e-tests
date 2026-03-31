@@ -227,6 +227,22 @@ class InfoPanel {
   async checkFormFillingSharedLinkExist() {
     await expect(this.formFillingSharedLink).toBeVisible();
   }
+  async addUserToShare(userName: string) {
+    await this.page
+      .getByTestId("info_panel_share_add_share_user_button")
+      .click();
+    const item = this.page
+      .locator('[data-testid^="selector-item-"]')
+      .filter({ hasText: userName });
+    await expect(item).toBeVisible();
+    await item.click();
+    await this.page.getByTestId("selector_submit_button").click();
+  }
+
+  async checkUserHasAccess(userName: string) {
+    await expect(this.sharedLinksWrapper.getByText(userName)).toBeVisible();
+  }
+
   async checkAccessesExist() {
     const membersTitle = this.infoPanel.getByText("Administration");
     await expect(membersTitle).toBeVisible();

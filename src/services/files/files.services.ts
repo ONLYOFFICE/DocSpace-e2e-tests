@@ -144,8 +144,8 @@ export class FilesApi {
     });
   }
 
-  async getMyDocuments(role: Role) {
-    return test.step(`${role} get My Documents`, async () => {
+  async getFileIdByTitle(role: Role, title: string) {
+    return test.step(`${role} get file id by title "${title}"`, async () => {
       const response = await this.request.get(
         `${this.portalBaseUrl}/api/2.0/files/@my`,
         {
@@ -160,13 +160,7 @@ export class FilesApi {
         );
       }
 
-      return response.json();
-    });
-  }
-
-  async getFileIdByTitle(role: Role, title: string) {
-    return test.step(`${role} get file id by title "${title}"`, async () => {
-      const result = await this.getMyDocuments(role);
+      const result = await response.json();
       const file = result.response.files.find((f: { title: string }) =>
         f.title.includes(title),
       );
@@ -181,66 +175,6 @@ export class FilesApi {
       }
 
       return file.id as number;
-    });
-  }
-
-  async addToRecent(role: Role, fileId: number) {
-    return test.step(`${role} add file to recent`, async () => {
-      const response = await this.request.post(
-        `${this.portalBaseUrl}/api/2.0/files/file/${fileId}/recent`,
-        {
-          headers: { Authorization: `Bearer ${this.getToken(role)}` },
-        },
-      );
-
-      if (!response.ok()) {
-        const body = await response.text();
-        throw new Error(`Add to recent failed: ${response.status()} - ${body}`);
-      }
-
-      return response.json();
-    });
-  }
-
-  async createHtmlFile(
-    role: Role,
-    folderId: number,
-    data: {
-      title: string;
-      content?: string;
-      createNewIfExist?: boolean;
-    },
-  ) {
-    return test.step(`${role} create HTML file in folder ${folderId}`, async () => {
-      const response = await this.request.post(
-        `${this.portalBaseUrl}/api/2.0/files/${folderId}/html`,
-        {
-          headers: { Authorization: `Bearer ${this.getToken(role)}` },
-          data,
-        },
-      );
-      return response;
-    });
-  }
-
-  async createTextFile(
-    role: Role,
-    folderId: number,
-    data: {
-      title: string;
-      content?: string;
-      createNewIfExist?: boolean;
-    },
-  ) {
-    return test.step(`${role} create text file in folder ${folderId}`, async () => {
-      const response = await this.request.post(
-        `${this.portalBaseUrl}/api/2.0/files/${folderId}/text`,
-        {
-          headers: { Authorization: `Bearer ${this.getToken(role)}` },
-          data,
-        },
-      );
-      return response;
     });
   }
 
@@ -265,55 +199,39 @@ export class FilesApi {
     });
   }
 
-  async saveAsPdf(
-    role: Role,
-    fileId: number,
-    data: {
-      folderId: number;
-      title: string;
-    },
-  ) {
-    return test.step(`${role} save file ${fileId} as PDF`, async () => {
+  async addToRecent(role: Role, fileId: number) {
+    return test.step(`${role} add file to recent`, async () => {
       const response = await this.request.post(
-        `${this.portalBaseUrl}/api/2.0/files/file/${fileId}/saveaspdf`,
+        `${this.portalBaseUrl}/api/2.0/files/file/${fileId}/recent`,
         {
           headers: { Authorization: `Bearer ${this.getToken(role)}` },
-          data,
         },
       );
-      return response;
+
+      if (!response.ok()) {
+        const body = await response.text();
+        throw new Error(`Add to recent failed: ${response.status()} - ${body}`);
+      }
+
+      return response.json();
     });
   }
 
-  async copyFileAs(
+  async shareFile(
     role: Role,
     fileId: number,
     data: {
-      destTitle: string;
-      destFolderId: number;
-      enableExternalExt?: boolean;
-      password?: string;
-      toForm?: boolean;
+      share: { shareTo: string; access: number }[];
+      notify?: boolean;
+      sharingMessage?: string;
     },
   ) {
-    return test.step(`${role} copy file ${fileId} as "${data.destTitle}"`, async () => {
-      const response = await this.request.post(
-        `${this.portalBaseUrl}/api/2.0/files/file/${fileId}/copyas`,
+    return test.step(`${role} share file ${fileId}`, async () => {
+      const response = await this.request.put(
+        `${this.portalBaseUrl}/api/2.0/files/file/${fileId}/share`,
         {
           headers: { Authorization: `Bearer ${this.getToken(role)}` },
           data,
-        },
-      );
-      return response;
-    });
-  }
-
-  async changeFavoriteStatus(role: Role, fileId: number, favorite: boolean) {
-    return test.step(`${role} set favorite=${favorite} for file ${fileId}`, async () => {
-      const response = await this.request.get(
-        `${this.portalBaseUrl}/api/2.0/files/favorites/${fileId}?favorite=${favorite}`,
-        {
-          headers: { Authorization: `Bearer ${this.getToken(role)}` },
         },
       );
       return response;
