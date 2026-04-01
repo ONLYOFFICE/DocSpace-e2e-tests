@@ -4,6 +4,8 @@ import RoomPDFCompleted from "../rooms/RoomPDFCompleted";
 const SUBMIT_BUTTON = "#id-submit-group";
 const CLOSE_BUTTON = "#id-btn-close-editor";
 const MENU_BUTTON = "#box-tools";
+const START_FILL_BUTTON = "#slot-btn-start-fill";
+const FORM_FIELD_BUTTON = "#slot-btn-form-field";
 const DOWNLOAD_AS_PDF = "Download as PDF";
 const DOWNLOAD_AS_DOCX = "Download as Docx";
 const PRINT = "Print";
@@ -44,6 +46,33 @@ class FilesPdfForm {
   async checkSubmitButtonNotVisible() {
     await expect(this.submitButton).not.toBeVisible();
   }
+
+  get startFillButton() {
+    if (!this.page) {
+      throw new Error("PDF form page not set. Please call setPdfPage() first");
+    }
+    return this.page
+      .frameLocator('iframe[name="frameEditor"]')
+      .locator(START_FILL_BUTTON);
+  }
+
+  async checkStartFillButtonVisible() {
+    await expect(this.startFillButton).toBeVisible();
+  }
+
+  get formFieldButton() {
+    if (!this.page) {
+      throw new Error("PDF form page not set. Please call setPdfPage() first");
+    }
+    return this.page
+      .frameLocator('iframe[name="frameEditor"]')
+      .locator(FORM_FIELD_BUTTON);
+  }
+
+  async checkEditorMode() {
+    await expect(this.formFieldButton).toBeVisible();
+  }
+
   get closeButton() {
     if (!this.page) {
       throw new Error("PDF form page not set. Please call setPdfPage() first");
