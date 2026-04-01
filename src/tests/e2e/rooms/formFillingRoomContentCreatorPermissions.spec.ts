@@ -11,6 +11,7 @@ import FilesSelectPanel from "@/src/objects/files/FilesSelectPanel";
 import FileVersionHistory from "@/src/objects/files/FileVersionHistory";
 import FilesPdfForm from "@/src/objects/files/FilesPdfForm";
 import RoomSelectPanel from "@/src/objects/rooms/RoomSelectPanel";
+import StopFillingModal from "@/src/objects/files/StopFillingModal";
 import {
   folderContextMenuOption,
   formFillingRoomPdfContextMenuOption,
@@ -550,7 +551,19 @@ test.describe("FormFilling room - Content creator permissions", () => {
       await myRooms.filesTable.contextMenu.close();
     });
 
-    // TODO: add test "Content creator CAN stop filling own PDF form" when Stop filling flow is finalized
+    await test.step("Verify Content creator CAN stop filling own PDF form", async () => {
+      const stopFillingModal = new StopFillingModal(page);
+      await myRooms.filesTable.openContextMenuForItem(
+        "ONLYOFFICE Resume Sample",
+      );
+      await myRooms.filesTable.contextMenu.clickOption(
+        formFillingRoomPdfContextMenuOption.stopFilling,
+      );
+      await stopFillingModal.clickConfirm();
+      await myRooms.filesTable.expectFillingIconNotVisible(
+        "ONLYOFFICE Resume Sample",
+      );
+    });
 
     await test.step("Verify Content creator CAN copy own file to My Documents", async () => {
       await myRooms.filesTable.openContextMenuForItem(
@@ -670,7 +683,19 @@ test.describe("FormFilling room - Content creator permissions", () => {
       await myRooms.filesTable.contextMenu.close();
     });
 
-    // TODO: add test "Content creator CAN stop filling owner's PDF form" when Stop filling flow is finalized
+    await test.step("Verify Content creator CANNOT stop filling owner's PDF form", async () => {
+      const stopFillingModal = new StopFillingModal(page);
+      await myRooms.filesTable.openContextMenuForItem("PDF from device");
+      await myRooms.filesTable.contextMenu.clickOption(
+        formFillingRoomPdfContextMenuOption.stopFilling,
+      );
+      await stopFillingModal.clickConfirm();
+      await expect(
+        page.getByText("You do not have enough permissions to edit the file"),
+      ).toBeVisible();
+      // After the permission error, the page navigates back to Rooms list - return to the room
+      await myRooms.roomsTable.openRoomByName(roomName);
+    });
 
     await test.step("Verify PDF form editor shows 'Download as PDF' and 'Print' buttons", async () => {
       await myRooms.filesTable.openContextMenuForItem("PDF from device");

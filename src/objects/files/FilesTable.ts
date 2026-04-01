@@ -190,6 +190,13 @@ class FilesTable extends BaseTable {
     await expect(fileRow.locator(FILLING_ICON)).toBeVisible();
   }
 
+  async expectFillingIconNotVisible(fileName: string) {
+    const fileRow = this.page
+      .locator(TABLE_LIST_ITEM)
+      .filter({ has: this.page.getByText(fileName, { exact: true }) });
+    await expect(fileRow.locator(FILLING_ICON)).not.toBeVisible();
+  }
+
   // Pencil icon that appears on a file row when the file is being edited
   get editorsIcon() {
     return this.page.locator(EDITORS_ICON);
