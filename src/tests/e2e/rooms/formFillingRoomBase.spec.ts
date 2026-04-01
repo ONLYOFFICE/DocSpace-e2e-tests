@@ -500,7 +500,13 @@ test.describe("FormFilling base tests", () => {
     let editorPage: Page;
 
     await test.step("Upload PDF form", async () => {
-      await uploadAndVerifyPDF(shortTour, roomEmptyView, selectPanel, myRooms, page);
+      await uploadAndVerifyPDF(
+        shortTour,
+        roomEmptyView,
+        selectPanel,
+        myRooms,
+        page,
+      );
     });
 
     await test.step("Start filling the form", async () => {
@@ -511,9 +517,13 @@ test.describe("FormFilling base tests", () => {
 
     await test.step("Open Edit in context menu - pause submissions dialog appears", async () => {
       const pauseDialog = new PauseSubmissionsDialog(page);
-      const pagePromise = page.context().waitForEvent("page", { timeout: 30000 });
+      const pagePromise = page
+        .context()
+        .waitForEvent("page", { timeout: 30000 });
       await filesTable.openContextMenuForItem("ONLYOFFICE Resume Sample");
-      await filesTable.contextMenu.clickOption(formFillingRoomPdfContextMenuOption.edit);
+      await filesTable.contextMenu.clickOption(
+        formFillingRoomPdfContextMenuOption.edit,
+      );
       await pauseDialog.clickEdit();
       editorPage = await pagePromise;
       await editorPage.waitForLoadState("load");
@@ -528,7 +538,9 @@ test.describe("FormFilling base tests", () => {
     await test.step("Close editor and verify filling icon is not visible", async () => {
       await editorPage.close();
       await page.bringToFront();
-      await myRooms.filesTable.expectFillingIconNotVisible("ONLYOFFICE Resume Sample");
+      await myRooms.filesTable.expectFillingIconNotVisible(
+        "ONLYOFFICE Resume Sample",
+      );
     });
   });
 });
