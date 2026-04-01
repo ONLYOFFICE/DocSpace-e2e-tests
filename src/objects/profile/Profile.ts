@@ -95,9 +95,13 @@ export class Profile extends BasePage {
     return this.page.getByTestId("dialog_change_name_cancel_button");
   }
   get changePasswordButton(): Locator {
-    return this.page.locator(
-      "div.profile-block-field.profile-block-password [data-testid='icon-button']",
-    );
+    return this.page.getByTestId("password_edit_icon_button");
+  }
+  get emailEditButton(): Locator {
+    return this.page.getByTestId("email_edit_icon_button");
+  }
+  get sendAgainContainer(): Locator {
+    return this.page.getByTestId("send_again_container");
   }
   get sendPasswordChangeButton(): Locator {
     return this.page.locator("[data-testid='button']");
@@ -207,6 +211,11 @@ export class Profile extends BasePage {
   async changePassword() {
     await this.changePasswordButton.click();
     await this.sendPasswordChangeButton.nth(-2).click();
+  }
+
+  async expectEmailConfirmed() {
+    await expect(this.emailEditButton).toBeVisible();
+    await expect(this.sendAgainContainer).toHaveCount(0);
   }
 
   async selectInterfaceThemeTabs() {
