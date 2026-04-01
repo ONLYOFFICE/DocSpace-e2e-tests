@@ -10,6 +10,7 @@ import FilesSelectPanel from "@/src/objects/files/FilesSelectPanel";
 import FolderDeleteModal from "@/src/objects/files/FolderDeleteModal";
 import FileVersionHistory from "@/src/objects/files/FileVersionHistory";
 import FilesPdfForm from "@/src/objects/files/FilesPdfForm";
+import StopFillingModal from "@/src/objects/files/StopFillingModal";
 import {
   folderContextMenuOption,
   formFillingRoomPdfContextMenuOption,
@@ -546,8 +547,6 @@ test.describe("FormFilling room - Room manager permissions", () => {
       await myRooms.filesTable.contextMenu.close();
     });
 
-    // TODO: add test "Room manager CAN stop filling PDF form" when Stop filling flow is finalized
-
     await test.step("Verify Room manager CAN view file version history", async () => {
       await myRooms.filesTable.openContextMenuForItem("PDF from device");
       await myRooms.filesTable.contextMenu.clickSubmenuOption(
@@ -645,6 +644,16 @@ test.describe("FormFilling room - Room manager permissions", () => {
       const completedPage = await pdfForm.clickSubmitButton();
       await completedPage.waitForPageLoad();
       await pdfPage.close();
+    });
+
+    await test.step("Verify Room manager CAN stop filling owner's PDF form", async () => {
+      const stopFillingModal = new StopFillingModal(page);
+      await myRooms.filesTable.openContextMenuForItem("PDF from device");
+      await myRooms.filesTable.contextMenu.clickOption(
+        formFillingRoomPdfContextMenuOption.stopFilling,
+      );
+      await stopFillingModal.clickConfirm();
+      await myRooms.filesTable.expectFillingIconNotVisible("PDF from device");
     });
   });
 });

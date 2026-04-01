@@ -1,37 +1,37 @@
 import { FetchMessageObject, ImapFlow, MessageEnvelopeObject } from "imapflow";
 
+const IMAP_TIMEOUT_MS = 5 * 60 * 1000;
+
 interface MailCheckerConfig {
   url: string;
   user: string;
   pass: string;
-  checkedFolder?: string;
+  mailbox?: string;
+  recipient?: string;
+  maxEmailsToScan?: number;
 }
 
 interface CheckEmailBySubjectOptions {
   subject: string;
   timeoutSeconds?: number;
-  moveOut?: boolean;
 }
 
 interface CheckEmailBySenderAndSubjectOptions {
   subject: string;
   sender: string;
   timeoutSeconds?: number;
-  moveOut?: boolean;
 }
 
 interface FindEmailBySubjectWithPortalLinkOptions {
   subject: string;
   portalName: string;
   timeoutSeconds?: number;
-  moveOut?: boolean;
 }
 
 interface ExtractPortalLinkOptions {
   subject: string;
   portalName: string;
   timeoutSeconds?: number;
-  moveOut?: boolean;
 }
 
 type EmailResult = {
@@ -42,7 +42,9 @@ type EmailResult = {
 };
 
 class MailChecker {
-  private checkedFolder: string;
+  private mailbox: string;
+  private recipient?: string;
+  private maxEmailsToScan: number;
   private imapClient: ImapFlow;
 
   /**
@@ -50,10 +52,11 @@ class MailChecker {
    * @param {string} config.url
    * @param {string} config.user
    * @param {string} config.pass
-   * @param {string} [config.checkedFolder]
    */
   constructor(config: MailCheckerConfig) {
-    this.checkedFolder = config.checkedFolder || "checked";
+    this.mailbox = config.mailbox || "INBOX";
+    this.recipient = config.recipient?.toLowerCase();
+    this.maxEmailsToScan = config.maxEmailsToScan ?? 100;
     this.imapClient = new ImapFlow({
       host: config.url,
       secure: true,
@@ -61,6 +64,9 @@ class MailChecker {
         user: config.user,
         pass: config.pass,
       },
+      connectionTimeout: IMAP_TIMEOUT_MS,
+      greetingTimeout: IMAP_TIMEOUT_MS,
+      socketTimeout: IMAP_TIMEOUT_MS,
       logger: false,
       port: 993,
     });
@@ -89,99 +95,177 @@ class MailChecker {
     }
   }
 
-  async ensureFolderExists(mailbox: string): Promise<void> {
+  private async waitForNextPoll(delayMs = 1000): Promise<void> {
+    await new Promise((resolve) => setTimeout(resolve, delayMs));
+  }
+
+  private getRecipientLookupTerms(): string[] {
+    if (!this.recipient) {
+      return [];
+    }
+
+    const [localPart = ""] = this.recipient.split("@");
+    const aliasPart = localPart.includes("+")
+      ? (localPart.split("+").pop() ?? "")
+      : "";
+
+    return [...new Set([this.recipient, localPart, aliasPart].filter(Boolean))];
+  }
+
+  private async resolveMailbox(): Promise<string> {
+    if (this.mailbox !== "INBOX") {
+      return this.mailbox;
+    }
+
+    const lookupTerms = this.getRecipientLookupTerms();
+    if (lookupTerms.length === 0) {
+      return this.mailbox;
+    }
+
     const mailboxes = await this.imapClient.list();
-    if (!mailboxes.some((mbox) => mbox.path === mailbox)) {
-      await this.imapClient.mailboxCreate(mailbox);
+    const mailboxPaths = mailboxes.map((mailbox) => mailbox.path);
+
+    for (const term of lookupTerms) {
+      const exactMatch = mailboxPaths.find(
+        (path) => path.toLowerCase() === term.toLowerCase(),
+      );
+      if (exactMatch) {
+        return exactMatch;
+      }
+    }
+
+    for (const term of lookupTerms) {
+      const partialMatch = mailboxPaths.find((path) =>
+        path.toLowerCase().includes(term.toLowerCase()),
+      );
+      if (partialMatch) {
+        return partialMatch;
+      }
+    }
+
+    return this.mailbox;
+  }
+
+  private matchesRecipient(envelope?: MessageEnvelopeObject): boolean {
+    if (!this.recipient) {
+      return true;
+    }
+
+    const recipients = envelope?.to ?? [];
+    return recipients.some(
+      (recipient) => recipient.address?.toLowerCase() === this.recipient,
+    );
+  }
+
+  private async getMailboxLock() {
+    const mailbox = await this.resolveMailbox();
+    return this.imapClient.getMailboxLock(mailbox);
+  }
+
+  private async withMailboxLock<T>(callback: () => Promise<T>): Promise<T> {
+    await this.connect();
+    const lock = await this.getMailboxLock();
+    try {
+      return await callback();
+    } finally {
+      lock.release();
+      await this.disconnect();
     }
   }
 
-  /**
-   * Searches for an email with the specified subject in the INBOX for the given timeout duration.
-   * If the email is found, it either moves the email to the "checked" folder (if moveOut=true)
-   * or marks it as read.
-   *
-   * @param {Object} options
-   * @param {string} options.subject The subject to search for (partial match, case-insensitive)
-   * @param {number} [options.timeoutSeconds=300] Timeout in seconds to wait for the email
-   * @param {boolean} [options.moveOut=false] If true, move the email to the "checked" folder; otherwise, mark as read
-   * @returns {Object|null} An object containing email data or null if no email was found
-   */
-  async checkEmailBySubject({
-    subject,
-    timeoutSeconds = 300,
-    moveOut = false,
-  }: CheckEmailBySubjectOptions): Promise<EmailResult | null> {
-    await this.connect();
-    const lock = await this.imapClient.getMailboxLock("INBOX");
-    try {
-      if (moveOut) {
-        await this.ensureFolderExists(this.checkedFolder);
-      }
-      const startTime = Date.now();
-      let foundEmail: EmailResult | null = null;
-      while ((Date.now() - startTime) / 1000 < timeoutSeconds) {
-        // Get all emails (including read and unread)
-        const searchResult = await this.imapClient.search({ all: true });
-        const uids: (string | number)[] = Array.isArray(searchResult)
-          ? searchResult
-          : [];
+  private async getRecentMessages(options?: { withSource?: boolean }) {
+    const searchResult = await this.imapClient.search({ all: true });
+    const uids: (string | number)[] = Array.isArray(searchResult)
+      ? searchResult
+      : [];
+    const recentUids = uids.slice(-this.maxEmailsToScan);
+    const messages: {
+      uid: string | number;
+      date: Date;
+      message: FetchMessageObject;
+    }[] = [];
 
-        if (uids.length > 0) {
-          // Get only the last 5 emails
-          const lastEmails = uids.slice(-5);
+    for (const uid of recentUids) {
+      const message = await this.imapClient.fetchOne(String(uid), {
+        envelope: true,
+        source: options?.withSource ?? false,
+      });
 
-          // Get emails with dates for sorting
-          const emailsWithDates: {
-            uid: string | number;
-            date: Date;
-            message: FetchMessageObject;
-          }[] = [];
-          for (const uid of lastEmails) {
-            const message = await this.imapClient.fetchOne(String(uid), {
-              envelope: true,
-            });
-            if (!message) continue;
-            const envelope: MessageEnvelopeObject | undefined =
-              message?.envelope;
-            if (!envelope) continue;
-            if (!envelope || !envelope.date) continue;
-            emailsWithDates.push({
-              uid,
-              date: new Date(envelope.date),
-              message,
-            });
-          }
+      if (!message || !message.envelope?.date) continue;
+      if (!this.matchesRecipient(message.envelope)) continue;
 
-          // Sort by date (newest first)
-          emailsWithDates.sort((a, b) => a.date.getTime() - b.date.getTime());
+      messages.push({
+        uid,
+        date: new Date(message.envelope.date),
+        message,
+      });
+    }
 
-          // Find email with the required subject
-          for (const { uid, message } of emailsWithDates) {
-            if (!message) continue;
-            const envelope: MessageEnvelopeObject | undefined =
-              message?.envelope;
-            if (!envelope) continue;
-            const emailSubject = envelope.subject || "";
-            if (emailSubject.toUpperCase().includes(subject.toUpperCase())) {
-              foundEmail = { uid, subject: emailSubject };
-              if (moveOut) {
-                await this.imapClient.messageMove(
-                  String(uid),
-                  this.checkedFolder,
-                );
-              } else {
-                await this.imapClient.messageFlagsAdd(String(uid), ["\\Seen"]);
-              }
-              break;
-            }
-          }
+    messages.sort((a, b) => b.date.getTime() - a.date.getTime());
+    return messages;
+  }
+
+  private async markAsRead(uid: string | number): Promise<void> {
+    await this.imapClient.messageFlagsAdd(String(uid), ["\\Seen"]);
+  }
+
+  private async findMatchingEmail(
+    timeoutSeconds: number,
+    matcher: (email: {
+      uid: string | number;
+      message: FetchMessageObject;
+    }) => EmailResult | null,
+    options?: {
+      pollDelayMs?: number;
+      withSource?: boolean;
+    },
+  ): Promise<EmailResult | null> {
+    const deadline = Date.now() + timeoutSeconds * 1000;
+
+    while (Date.now() < deadline) {
+      const messages = await this.getRecentMessages({
+        withSource: options?.withSource,
+      });
+
+      for (const { uid, message } of messages) {
+        const matchedEmail = matcher({ uid, message });
+        if (!matchedEmail) {
+          continue;
         }
 
-        if (foundEmail) break;
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+        await this.markAsRead(uid);
+        return matchedEmail;
       }
-      return foundEmail;
+
+      await this.waitForNextPoll(options?.pollDelayMs);
+    }
+
+    return null;
+  }
+
+  async deleteAllMatchingEmails(scanLimit = 500): Promise<number> {
+    await this.connect();
+    const mailbox = await this.resolveMailbox();
+    const lock = await this.imapClient.getMailboxLock(mailbox);
+    try {
+      const deleteQuery =
+        mailbox !== "INBOX"
+          ? { all: true }
+          : this.recipient
+            ? { to: this.recipient }
+            : { all: true };
+
+      const searchResult = await this.imapClient.search(deleteQuery);
+      const matches = Array.isArray(searchResult)
+        ? searchResult.slice(-scanLimit)
+        : [];
+
+      if (matches.length === 0) {
+        return 0;
+      }
+
+      await this.imapClient.messageDelete(matches);
+      return matches.length;
     } finally {
       lock.release();
       await this.disconnect();
@@ -189,115 +273,76 @@ class MailChecker {
   }
 
   /**
+   * Searches for an email with the specified subject in the INBOX for the given timeout duration.
+   * If the email is found, it is marked as read.
+   *
+   * @param {Object} options
+   * @param {string} options.subject The subject to search for (partial match, case-insensitive)
+   * @param {number} [options.timeoutSeconds=300] Timeout in seconds to wait for the email
+   * @returns {Object|null} An object containing email data or null if no email was found
+   */
+  async checkEmailBySubject({
+    subject,
+    timeoutSeconds = 300,
+  }: CheckEmailBySubjectOptions): Promise<EmailResult | null> {
+    return this.withMailboxLock(async () => {
+      return this.findMatchingEmail(timeoutSeconds, ({ uid, message }) => {
+        const emailSubject = message.envelope?.subject || "";
+        if (!emailSubject.toUpperCase().includes(subject.toUpperCase())) {
+          return null;
+        }
+
+        return {
+          uid,
+          subject: emailSubject,
+        };
+      });
+    });
+  }
+
+  /**
    * Searches for an email with the specified subject and sender name in the INBOX.
-   * If the email is found, it either moves the email to the "checked" folder (if moveOut=true)
-   * or marks it as read.
+   * If the email is found, it is marked as read.
    *
    * @param {Object} options
    * @param {string} options.subject The subject to search for (partial match, case-insensitive)
    * @param {string} options.sender The sender name to search for (partial match, case-insensitive)
    * @param {number} [options.timeoutSeconds=300] Timeout in seconds to wait for the email
-   * @param {boolean} [options.moveOut=false] If true, move the email to the "checked" folder; otherwise, mark as read
    * @returns {Object|null} An object containing email data or null if no email was found
    */
   async checkEmailBySenderAndSubject({
     subject,
     sender,
     timeoutSeconds = 600,
-    moveOut = false,
   }: CheckEmailBySenderAndSubjectOptions): Promise<EmailResult | null> {
     try {
-      await this.connect();
-      const lock = await this.imapClient.getMailboxLock("INBOX");
-      try {
-        if (moveOut) {
-          await this.ensureFolderExists(this.checkedFolder);
-        }
-        const startTime = Date.now();
-        let foundEmail: EmailResult | null = null;
-        while ((Date.now() - startTime) / 1000 < timeoutSeconds) {
-          // Get all emails (including read and unread)
-          const searchResult = await this.imapClient.search({ all: true });
-          const uids: (string | number)[] = Array.isArray(searchResult)
-            ? searchResult
-            : [];
+      return this.withMailboxLock(async () => {
+        return this.findMatchingEmail(timeoutSeconds, ({ uid, message }) => {
+          const envelope: MessageEnvelopeObject | undefined = message.envelope;
+          if (!envelope) return null;
 
-          if (uids.length > 0) {
-            // Get only the last 5 emails
-            const lastEmails = uids.slice(-5);
+          const emailSubject = envelope.subject || "";
+          const fromName = envelope.from?.[0]?.name || "";
 
-            // Get emails with dates for sorting
-            const emailsWithDates: {
-              uid: string | number;
-              date: Date;
-              message: FetchMessageObject;
-            }[] = [];
-            for (const uid of lastEmails) {
-              const message = await this.imapClient.fetchOne(String(uid), {
-                envelope: true,
-              });
-              if (!message) continue;
-              const envelope = message?.envelope;
-              if (!envelope || !envelope.date) continue;
-              emailsWithDates.push({
-                uid,
-                date: new Date(envelope.date),
-                message,
-              });
-            }
-
-            // Sort by date (newest first)
-            emailsWithDates.sort((a, b) => a.date.getTime() - b.date.getTime());
-
-            // Find email with the required subject and sender
-            for (const { uid, message } of emailsWithDates) {
-              if (!message) continue;
-              const envelope: MessageEnvelopeObject | undefined =
-                message?.envelope;
-              if (!envelope) continue;
-              const emailSubject = envelope?.subject || "";
-              const fromName = (envelope?.from && envelope.from[0]?.name) || "";
-
-              if (
-                emailSubject.toUpperCase().includes(subject.toUpperCase()) &&
-                fromName.toUpperCase().includes(sender.toUpperCase())
-              ) {
-                foundEmail = {
-                  uid,
-                  subject: emailSubject,
-                  sender: fromName,
-                };
-
-                if (moveOut) {
-                  await this.imapClient.messageMove(
-                    String(uid),
-                    this.checkedFolder,
-                  );
-                } else {
-                  await this.imapClient.messageFlagsAdd(String(uid), [
-                    "\\Seen",
-                  ]);
-                }
-                break;
-              }
-            }
+          if (
+            !emailSubject.toUpperCase().includes(subject.toUpperCase()) ||
+            !fromName.toUpperCase().includes(sender.toUpperCase())
+          ) {
+            return null;
           }
 
-          if (foundEmail) break;
-          await new Promise((resolve) => setTimeout(resolve, 1000));
-        }
-
-        return foundEmail;
-      } finally {
-        lock.release();
-      }
+          return {
+            uid,
+            subject: emailSubject,
+            sender: fromName,
+          };
+        });
+      });
     } catch (error: unknown) {
       if (error instanceof Error) {
         console.log(`Error checking email: ${error.message}`);
       }
       return null;
-    } finally {
-      await this.disconnect();
     }
   }
 
@@ -310,85 +355,58 @@ class MailChecker {
    * 2. Searches the last 5 emails (ignoring read/unread status).
    * 3. Checks if an email with the given subject exists.
    * 4. Extracts the email body and looks for the portal URL.
-   * 5. If the expected URL is found, the email is either marked as read or moved to the "checked" folder.
+   * 5. If the expected URL is found, the email is marked as read.
    * 6. Returns the email details if found; otherwise, keeps searching until the timeout is reached.
    *
    * @param {Object} options - Search criteria.
    * @param {string} options.subject - The subject of the email to search for (case-insensitive match).
    * @param {string} options.portalName - The portal name that should appear in the email body (part of the URL).
    * @param {number} [options.timeoutSeconds=300] - Time in seconds to wait for the email to arrive.
-   * @param {boolean} [options.moveOut=false] - If true, moves the email to the "checked" folder; otherwise, marks it as read.
    * @returns {Object|null} - Returns an object containing email details if found, otherwise null.
    */
 
-  async findEmailbySubjectWithPortalLink({
+  private async findEmailBySubjectWithPortalLink({
     subject,
     portalName,
     timeoutSeconds = 300,
-    moveOut = false,
   }: FindEmailBySubjectWithPortalLinkOptions): Promise<EmailResult | null> {
-    await this.connect();
-    const lock = await this.imapClient.getMailboxLock("INBOX");
-    try {
-      if (moveOut) {
-        await this.ensureFolderExists(this.checkedFolder);
-      }
+    return this.withMailboxLock(async () => {
+      return this.findMatchingEmail(
+        timeoutSeconds,
+        ({ uid, message }) => {
+          const envelope: MessageEnvelopeObject | undefined = message.envelope;
+          if (!envelope) return null;
 
-      const startTime = Date.now();
-      let foundEmail: EmailResult | null = null;
+          const emailSubject = envelope.subject || "";
+          if (!emailSubject.toUpperCase().includes(subject.toUpperCase())) {
+            return null;
+          }
 
-      while ((Date.now() - startTime) / 1000 < timeoutSeconds) {
-        const searchResult = await this.imapClient.search({
-          subject: subject,
-        });
-        const uids: (string | number)[] = Array.isArray(searchResult)
-          ? searchResult
-          : [];
-
-        for (const uid of uids) {
-          const message = await this.imapClient.fetchOne(String(uid), {
-            envelope: true,
-            source: true,
-          });
-          if (!message) continue;
-
-          const envelope: MessageEnvelopeObject | undefined = message?.envelope;
-          if (!envelope) continue;
-          const emailBody = message?.source?.toString() || "";
-
+          const emailBody = message.source?.toString() || "";
           const portalUrlMatch = emailBody.match(
             /https:\/\/([\w-]+\.onlyoffice\.io)/,
           );
-          if (portalUrlMatch) {
-            const extractedPortalUrl = portalUrlMatch[1].toLowerCase();
-            const expectedPortalName = portalName.toLowerCase();
 
-            if (extractedPortalUrl.includes(expectedPortalName)) {
-              if (moveOut) {
-                await this.imapClient.messageMove(
-                  String(uid),
-                  this.checkedFolder,
-                );
-              } else {
-                await this.imapClient.messageFlagsAdd(String(uid), ["\\Seen"]);
-              }
-
-              const emailSubject = envelope.subject || "";
-              foundEmail = { uid, subject: emailSubject, body: emailBody };
-              break;
-            }
+          if (!portalUrlMatch) {
+            return null;
           }
-        }
 
-        if (foundEmail) break;
-        await new Promise((resolve) => setTimeout(resolve, 5000));
-      }
+          const extractedPortalUrl = portalUrlMatch[1].toLowerCase();
+          const expectedPortalName = portalName.toLowerCase();
 
-      return foundEmail;
-    } finally {
-      lock.release();
-      await this.disconnect();
-    }
+          if (!extractedPortalUrl.includes(expectedPortalName)) {
+            return null;
+          }
+
+          return {
+            uid,
+            subject: emailSubject,
+            body: emailBody,
+          };
+        },
+        { withSource: true, pollDelayMs: 5000 },
+      );
+    });
   }
 
   /**
@@ -401,20 +419,17 @@ class MailChecker {
    * @param {string} options.subject - The subject of the email to search for (case-insensitive match).
    * @param {string} options.portalName - The portal name that should appear in the email body.
    * @param {number} [options.timeoutSeconds=300] - Maximum time in seconds to wait for the email to arrive.
-   * @param {boolean} [options.moveOut=true] - If true, moves the email to the "checked" folder; otherwise, marks it as read.
    * @returns {Promise<string|null>} - Returns the extracted portal link if found, otherwise null.
    */
   async extractPortalLink({
     subject,
     portalName,
     timeoutSeconds = 300,
-    moveOut = false,
   }: ExtractPortalLinkOptions): Promise<string | null> {
-    const email = await this.findEmailbySubjectWithPortalLink({
+    const email = await this.findEmailBySubjectWithPortalLink({
       subject,
       portalName,
       timeoutSeconds,
-      moveOut,
     });
     if (!email) return null;
     const decodedBody = this.decodeQuotedPrintable(email.body ?? "");

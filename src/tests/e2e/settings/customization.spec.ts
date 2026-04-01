@@ -4,9 +4,6 @@ import { PaymentApi } from "@/src/api/payment";
 import { test } from "@/src/fixtures";
 import { expect } from "@playwright/test";
 import { toastMessages } from "@/src/utils/constants/settings";
-import MailChecker from "@/src/utils/helpers/MailChecker";
-import config from "@/config";
-import { Profile } from "@/src/objects/profile/Profile";
 
 test.describe("Customization", () => {
   let paymentApi: PaymentApi;
@@ -191,102 +188,5 @@ test.describe("Customization", () => {
     await customization.configureDeepLinkSaveButton.click();
     await customization.removeToast(toastMessages.settingsUpdated);
     await customization.checkDeepLinkOption("webOrApp");
-  });
-
-  test.skip("Rename portal email notification", async ({ api, page }) => {
-    const mailCheckerConfirm = new MailChecker({
-      url: config.QA_MAIL_DOMAIN ?? "",
-      user: config.QA_MAIL_LOGIN ?? "",
-      pass: config.QA_MAIL_PASSWORD ?? "",
-    });
-    const confirmLink = await mailCheckerConfirm.extractPortalLink({
-      subject: "Welcome to ONLYOFFICE DocSpace!",
-      portalName: api.portalDomain,
-      timeoutSeconds: 30,
-    });
-    if (confirmLink) {
-      await page.goto(confirmLink);
-      await page.waitForLoadState("domcontentloaded");
-      await customization.open();
-    }
-
-    const { originalName, newName } = await customization.renamePortal();
-
-    api.apisystem.setPortalDomain(`${newName}.onlyoffice.io`);
-    api.apisystem.setPortalName(newName);
-    await page.waitForURL(`https://${newName}.onlyoffice.io/rooms/shared/**`, {
-      timeout: 30000,
-    });
-    await page.waitForLoadState("domcontentloaded");
-
-    // Wait for email to arrive
-    await new Promise((resolve) => setTimeout(resolve, 10000));
-
-    const mailChecker = new MailChecker({
-      url: config.QA_MAIL_DOMAIN ?? "",
-      user: config.QA_MAIL_LOGIN ?? "",
-      pass: config.QA_MAIL_PASSWORD ?? "",
-    });
-
-    const email = await mailChecker.checkEmailBySubject({
-      subject: "Change of portal address",
-      timeoutSeconds: 60,
-      moveOut: false,
-    });
-
-    expect(email).toBeTruthy();
-
-    await customization.renamePortalBack(originalName);
-    api.apisystem.setPortalDomain(`${originalName}.onlyoffice.io`);
-    api.apisystem.setPortalName(originalName);
-    await page.waitForURL(`https://${originalName}.onlyoffice.io/**`, {
-      timeout: 30000,
-      waitUntil: "load",
-    });
-  });
-
-  test.skip("Brand name email notification", async ({ api, page }) => {
-    const mailCheckerConfirm = new MailChecker({
-      url: config.QA_MAIL_DOMAIN ?? "",
-      user: config.QA_MAIL_LOGIN ?? "",
-      pass: config.QA_MAIL_PASSWORD ?? "",
-    });
-    const confirmLink = await mailCheckerConfirm.extractPortalLink({
-      subject: "Welcome to ONLYOFFICE DocSpace!",
-      portalName: api.portalDomain,
-      timeoutSeconds: 30,
-    });
-    if (confirmLink) {
-      await page.goto(confirmLink);
-      await page.waitForLoadState("domcontentloaded");
-      await customization.open();
-    }
-
-    const profile = new Profile(page);
-
-    await customization.openTab("Branding");
-    await customization.textInputBrandName.first().fill("autoTest");
-    await customization.brandNameSaveButton.click();
-    await customization.removeToast(toastMessages.settingsUpdated);
-
-    await profile.navigateToProfile();
-    await profile.changePassword();
-
-    // Wait for email to arrive
-    await new Promise((resolve) => setTimeout(resolve, 10000));
-
-    const mailChecker = new MailChecker({
-      url: config.QA_MAIL_DOMAIN ?? "",
-      user: config.QA_MAIL_LOGIN ?? "",
-      pass: config.QA_MAIL_PASSWORD ?? "",
-    });
-
-    const email = await mailChecker.checkEmailBySenderAndSubject({
-      subject: "Confirm changing your password",
-      sender: "autoTest",
-      moveOut: false,
-    });
-
-    expect(email).toBeTruthy();
   });
 });
