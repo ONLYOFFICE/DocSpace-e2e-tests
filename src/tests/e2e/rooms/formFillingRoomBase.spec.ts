@@ -11,6 +11,8 @@ import { expect } from "@playwright/test";
 import FilesTable from "@/src/objects/files/FilesTable";
 import RoomEmptyView from "@/src/objects/rooms/RoomEmptyView";
 import { formFillingRoomContextMenuOption } from "@/src/utils/constants/rooms";
+import { formFillingRoomPdfContextMenuOption } from "@/src/utils/constants/files";
+import PauseSubmissionsDialog from "@/src/objects/files/PauseSubmissionsDialog";
 import RoomSelectPanel from "@/src/objects/rooms/RoomSelectPanel";
 import RoomInfoPanel from "@/src/objects/rooms/RoomInfoPanel";
 import RoomsInviteDialog from "@/src/objects/rooms/RoomsInviteDialog";
@@ -489,6 +491,44 @@ test.describe("FormFilling base tests", () => {
       // Check Delete button is not visible on the page
       await filesTable.selectFolderByName("In process");
       await expect(page.getByText("Delete")).not.toBeVisible();
+    });
+  });
+
+  test("Editing a filling form triggers stop-filling confirmation and opens editor", async ({
+    page,
+  }) => {
+    let editorPage: Page;
+
+    await test.step("Upload PDF form", async () => {
+      await uploadAndVerifyPDF(shortTour, roomEmptyView, selectPanel, myRooms, page);
+    });
+
+    await test.step("Start filling the form", async () => {
+      await filesTable.openContextMenuForItem("ONLYOFFICE Resume Sample");
+      await filesTable.contextMenu.clickOption("Start filling");
+      await shortTour.clickModalCloseButton();
+    });
+
+    await test.step("Open Edit in context menu - pause submissions dialog appears", async () => {
+      const pauseDialog = new PauseSubmissionsDialog(page);
+      const pagePromise = page.context().waitForEvent("page", { timeout: 30000 });
+      await filesTable.openContextMenuForItem("ONLYOFFICE Resume Sample");
+      await filesTable.contextMenu.clickOption(formFillingRoomPdfContextMenuOption.edit);
+      await pauseDialog.clickEdit();
+      editorPage = await pagePromise;
+      await editorPage.waitForLoadState("load");
+    });
+
+    await test.step("Verify form opened in edit mode, not fill mode", async () => {
+      const pdfForm = new FilesPdfForm(editorPage);
+      await pdfForm.checkEditorMode();
+      await pdfForm.checkStartFillButtonVisible();
+    });
+
+    await test.step("Close editor and verify filling icon is not visible", async () => {
+      await editorPage.close();
+      await page.bringToFront();
+      await myRooms.filesTable.expectFillingIconNotVisible("ONLYOFFICE Resume Sample");
     });
   });
 });
