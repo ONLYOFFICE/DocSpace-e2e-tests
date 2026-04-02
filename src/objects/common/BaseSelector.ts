@@ -18,6 +18,10 @@ class BaseSelector {
     return this.page.getByTestId("selector-add-button");
   }
 
+  private get selectorSubmitButton() {
+    return this.page.getByTestId("selector_submit_button");
+  }
+
   private get emptyContainerCreateNewItem() {
     return this.page.locator(".empty-folder_container-links").first();
   }
@@ -63,6 +67,11 @@ class BaseSelector {
 
   async checkSelectorAddButtonExist() {
     await expect(this.selectorAddButton).toBeVisible();
+  }
+
+  async submitSelection() {
+    await expect(this.selectorSubmitButton).toBeVisible();
+    await this.selectorSubmitButton.click();
   }
 
   async checkEmptyContainerExist() {
