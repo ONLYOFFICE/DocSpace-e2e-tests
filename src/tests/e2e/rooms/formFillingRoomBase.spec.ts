@@ -11,7 +11,12 @@ import { expect } from "@playwright/test";
 import FilesTable from "@/src/objects/files/FilesTable";
 import RoomEmptyView from "@/src/objects/rooms/RoomEmptyView";
 import { formFillingRoomContextMenuOption } from "@/src/utils/constants/rooms";
-import { formFillingRoomPdfContextMenuOption } from "@/src/utils/constants/files";
+import {
+  formFillingRoomPdfContextMenuOption,
+  spreadsheetContextMenuOption,
+  pdfFormMoreOptionsSubmenu,
+} from "@/src/utils/constants/files";
+import FileVersionHistory from "@/src/objects/files/FileVersionHistory";
 import PauseSubmissionsDialog from "@/src/objects/files/PauseSubmissionsDialog";
 import RoomSelectPanel from "@/src/objects/rooms/RoomSelectPanel";
 import RoomInfoPanel from "@/src/objects/rooms/RoomInfoPanel";
@@ -541,6 +546,110 @@ test.describe("FormFilling base tests", () => {
       await myRooms.filesTable.expectFillingIconNotVisible(
         "ONLYOFFICE Resume Sample",
       );
+    });
+  });
+
+  test("Re-submitting after editing a filling form creates a new version of the results table", async ({
+    page,
+  }) => {
+    let fillPage: Page;
+
+    await test.step("Upload PDF form and start filling", async () => {
+      await uploadAndVerifyPDF(
+        shortTour,
+        roomEmptyView,
+        selectPanel,
+        myRooms,
+        page,
+      );
+      await filesTable.openContextMenuForItem("ONLYOFFICE Resume Sample");
+      await filesTable.contextMenu.clickOption("Start filling");
+      await shortTour.clickModalCloseButton();
+    });
+
+    await test.step("Submit the form (first submission)", async () => {
+      const pagePromise = page
+        .context()
+        .waitForEvent("page", { timeout: 30000 });
+      await filesTable.openContextMenuForItem("ONLYOFFICE Resume Sample");
+      await filesTable.contextMenu.clickOption("Fill");
+      fillPage = await pagePromise;
+      await fillPage.waitForLoadState("load");
+      const pdfForm = new FilesPdfForm(fillPage);
+      const completed = await pdfForm.clickSubmitButton();
+      await completed.chooseBackToRoom();
+    });
+
+    await test.step("Edit form - stop filling via PauseSubmissionsDialog, then re-start filling from editor", async () => {
+      const pauseDialog = new PauseSubmissionsDialog(page);
+      const editorPagePromise = page
+        .context()
+        .waitForEvent("page", { timeout: 30000 });
+      await filesTable.openContextMenuForItem("ONLYOFFICE Resume Sample");
+      await filesTable.contextMenu.clickOption(
+        formFillingRoomPdfContextMenuOption.edit,
+      );
+      await pauseDialog.clickEdit();
+      const editorPage = await editorPagePromise;
+      await editorPage.waitForLoadState("load");
+
+      const pdfForm = new FilesPdfForm(editorPage);
+      await pdfForm.checkEditorMode();
+      await pdfForm.clickStartFillButton();
+      // Editor saves and navigates back to room; wait for the "copy public link" modal
+      const startFillModal = new ShortTour(editorPage);
+      await startFillModal.clickModalCloseButton();
+      await editorPage.close();
+      await page.bringToFront();
+      await myRooms.filesTable.expectFillingIconVisible(
+        "ONLYOFFICE Resume Sample",
+      );
+      await filesTable.openContextMenuForItem("ONLYOFFICE Resume Sample");
+      await filesTable.contextMenu.clickSubmenuOption(
+        formFillingRoomPdfContextMenuOption.moreOptions,
+        pdfFormMoreOptionsSubmenu.showVersionHistory,
+      );
+      const pdfVersionHistory = new FileVersionHistory(page);
+      await pdfVersionHistory.checkVersionsVisible();
+      const pdfVersionCount = await pdfVersionHistory.getVersionCount();
+      expect(pdfVersionCount).toBeGreaterThanOrEqual(2);
+      await pdfVersionHistory.close();
+    });
+
+    await test.step("Submit the form again (first submission of new filling round)", async () => {
+      const pagePromise = page
+        .context()
+        .waitForEvent("page", { timeout: 30000 });
+      await filesTable.openContextMenuForItem("ONLYOFFICE Resume Sample");
+      await filesTable.contextMenu.clickOption("Fill");
+      fillPage = await pagePromise;
+      await fillPage.waitForLoadState("load");
+      const pdfForm = new FilesPdfForm(fillPage);
+      const completed = await pdfForm.clickSubmitButton();
+      await completed.chooseBackToRoom();
+    });
+
+    await test.step("Verify new version of results table was created in Complete folder", async () => {
+      const localTable = new FilesTable(fillPage);
+      await localTable.openContextMenuForItem("Complete");
+      await localTable.contextMenu.clickOption("Open");
+      await expect(
+        fillPage.getByRole("heading", { name: "Complete" }),
+      ).toBeVisible();
+      await localTable.openContextMenuForItem("ONLYOFFICE Resume Sample");
+      await localTable.contextMenu.clickOption("Open");
+      await localTable.openContextMenuRow(
+        fillPage.locator('[aria-label="ONLYOFFICE Resume Sample,"]'),
+      );
+      await localTable.contextMenu.clickSubmenuOption(
+        spreadsheetContextMenuOption.moreOptions,
+        pdfFormMoreOptionsSubmenu.showVersionHistory,
+      );
+      const versionHistory = new FileVersionHistory(fillPage);
+      await versionHistory.checkVersionsVisible();
+      const versionCount = await versionHistory.getVersionCount();
+
+      expect(versionCount).toBeGreaterThanOrEqual(2);
     });
   });
 
