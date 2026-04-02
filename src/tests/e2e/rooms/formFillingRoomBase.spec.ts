@@ -114,7 +114,7 @@ test.describe("FormFilling base tests", () => {
       //check the form filling shared link exist in info panel
       await myRooms.infoPanel.checkFormFillingSharedLinkExist();
     });
-    // TODO: re-enable once PDF upload flow is fixed
+    // TODO: Bug 80619 - PDF upload from DocSpace behaves differently than upload from device; re-enable once fixed
     await test.step("ClickAddPDFFormFromMyDocuments", async () => {
       await roomEmptyView.uploadPdfFromDocSpace();
       //check folders on Select Panel
@@ -407,22 +407,22 @@ test.describe("FormFilling base tests", () => {
       await editorPage.waitForLoadState("load");
     });
 
-    // TODO: Bug 79932 - form opens for editing instead of filling
-    // await test.step("Verify PDF form opened for filling", async () => {
-    //   const pdfForm = new FilesPdfForm(editorPage);
-    //   await pdfForm.checkSubmitButtonExist();
-    // });
-
-    await test.step("Close editor", async () => {
+    await test.step("Verify PDF form opened for editing, then start filling", async () => {
+      const pdfForm = new FilesPdfForm(editorPage);
+      await pdfForm.checkEditorMode();
+      await pdfForm.clickStartFillButton();
+      const shortTour = new ShortTour(editorPage);
+      await shortTour.clickModalCloseButton();
       await editorPage.close();
     });
 
-    await test.step("Verify room contains folders and PDF file", async () => {
+    await test.step("Verify room contains folders and PDF file with filling icon", async () => {
       await expect(page.getByLabel("Complete")).toBeVisible();
       await expect(page.getByLabel("In process")).toBeVisible();
       await expect(
         page.getByLabel(templateTitle, { exact: false }),
       ).toBeVisible();
+      await myRooms.filesTable.expectFillingIconVisible(templateTitle);
     });
   });
 
