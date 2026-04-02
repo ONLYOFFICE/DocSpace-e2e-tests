@@ -5,7 +5,8 @@ const SUBMIT_BUTTON = "#id-submit-group";
 const CLOSE_BUTTON = "#id-btn-close-editor";
 const MENU_BUTTON = "#box-tools";
 const START_FILL_BUTTON = "#slot-btn-start-fill";
-const FORM_FIELD_BUTTON = "#slot-btn-form-field";
+const EDIT_MODE_BUTTON = "#slot-btn-edit-mode";
+const EDIT_MODE_CHECKED_ITEM = ".menu-item.checkable.checked";
 const DOWNLOAD_AS_PDF = "Download as PDF";
 const DOWNLOAD_AS_DOCX = "Download as Docx";
 const PRINT = "Print";
@@ -60,17 +61,27 @@ class FilesPdfForm {
     await expect(this.startFillButton).toBeVisible();
   }
 
-  get formFieldButton() {
+  async clickStartFillButton() {
+    await expect(this.startFillButton).toBeVisible();
+    await this.startFillButton.click();
+  }
+
+  get editModeButton() {
     if (!this.page) {
       throw new Error("PDF form page not set. Please call setPdfPage() first");
     }
     return this.page
       .frameLocator('iframe[name="frameEditor"]')
-      .locator(FORM_FIELD_BUTTON);
+      .locator(EDIT_MODE_BUTTON);
   }
 
   async checkEditorMode() {
-    await expect(this.formFieldButton).toBeVisible();
+    const frame = this.page!.frameLocator('iframe[name="frameEditor"]');
+    await this.editModeButton.click();
+    await expect(
+      frame.locator(EDIT_MODE_CHECKED_ITEM).filter({ hasText: /^Editing/ }),
+    ).toBeVisible();
+    await this.page!.keyboard.press("Escape");
   }
 
   get closeButton() {
