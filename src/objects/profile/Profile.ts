@@ -104,7 +104,15 @@ export class Profile extends BasePage {
     return this.page.getByTestId("send_again_container");
   }
   get sendPasswordChangeButton(): Locator {
-    return this.page.locator("[data-testid='button']");
+    return this.page.getByTestId("change_password_send_button");
+  }
+
+  get changeEmailInput(): Locator {
+    return this.page.getByPlaceholder("Enter new email");
+  }
+
+  get changeEmailSendButton(): Locator {
+    return this.page.getByTestId("change_email_send_button");
   }
 
   // Tabs
@@ -210,7 +218,13 @@ export class Profile extends BasePage {
 
   async changePassword() {
     await this.changePasswordButton.click();
-    await this.sendPasswordChangeButton.nth(-2).click();
+    await this.sendPasswordChangeButton.click();
+  }
+
+  async changeEmail(newEmail: string) {
+    await this.emailEditButton.click();
+    await this.changeEmailInput.fill(newEmail);
+    await this.changeEmailSendButton.click();
   }
 
   async expectEmailConfirmed() {

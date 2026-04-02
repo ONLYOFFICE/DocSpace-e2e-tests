@@ -46,6 +46,7 @@ class MailChecker {
   private recipient?: string;
   private maxEmailsToScan: number;
   private imapClient: ImapFlow;
+  private imapConfig: { host: string; user: string; pass: string };
 
   /**
    * @param {Object} config
@@ -57,12 +58,17 @@ class MailChecker {
     this.mailbox = config.mailbox || "INBOX";
     this.recipient = config.recipient?.toLowerCase();
     this.maxEmailsToScan = config.maxEmailsToScan ?? 100;
-    this.imapClient = new ImapFlow({
-      host: config.url,
+    this.imapConfig = { host: config.url, user: config.user, pass: config.pass };
+    this.imapClient = this.createImapClient();
+  }
+
+  private createImapClient(): ImapFlow {
+    return new ImapFlow({
+      host: this.imapConfig.host,
       secure: true,
       auth: {
-        user: config.user,
-        pass: config.pass,
+        user: this.imapConfig.user,
+        pass: this.imapConfig.pass,
       },
       connectionTimeout: IMAP_TIMEOUT_MS,
       greetingTimeout: IMAP_TIMEOUT_MS,
@@ -70,6 +76,10 @@ class MailChecker {
       logger: false,
       port: 993,
     });
+  }
+
+  private recreateImapClient(): void {
+    this.imapClient = this.createImapClient();
   }
 
   async connect(): Promise<void> {
@@ -162,15 +172,38 @@ class MailChecker {
     return this.imapClient.getMailboxLock(mailbox);
   }
 
-  private async withMailboxLock<T>(callback: () => Promise<T>): Promise<T> {
-    await this.connect();
-    const lock = await this.getMailboxLock();
-    try {
-      return await callback();
-    } finally {
-      lock.release();
-      await this.disconnect();
+  private async withMailboxLock<T>(
+    callback: () => Promise<T>,
+    maxRetries = 3,
+  ): Promise<T> {
+    let lastError: unknown;
+
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        await this.connect();
+        const lock = await this.getMailboxLock();
+        try {
+          return await callback();
+        } finally {
+          lock.release();
+          await this.disconnect();
+        }
+      } catch (error) {
+        lastError = error;
+        console.log(
+          `withMailboxLock attempt ${attempt}/${maxRetries} failed:`,
+          error instanceof Error ? error.message : error,
+        );
+        await this.disconnect();
+
+        if (attempt < maxRetries) {
+          this.recreateImapClient();
+          await this.waitForNextPoll(3000);
+        }
+      }
     }
+
+    throw lastError;
   }
 
   private async getRecentMessages(options?: { withSource?: boolean }) {
@@ -179,23 +212,27 @@ class MailChecker {
       ? searchResult
       : [];
     const recentUids = uids.slice(-this.maxEmailsToScan);
+
+    if (recentUids.length === 0) {
+      return [];
+    }
+
+    const range = `${recentUids[0]}:${recentUids[recentUids.length - 1]}`;
     const messages: {
       uid: string | number;
       date: Date;
       message: FetchMessageObject;
     }[] = [];
 
-    for (const uid of recentUids) {
-      const message = await this.imapClient.fetchOne(String(uid), {
-        envelope: true,
-        source: options?.withSource ?? false,
-      });
-
+    for await (const message of this.imapClient.fetch(range, {
+      envelope: true,
+      source: options?.withSource ?? false,
+    })) {
       if (!message || !message.envelope?.date) continue;
       if (!this.matchesRecipient(message.envelope)) continue;
 
       messages.push({
-        uid,
+        uid: message.seq,
         date: new Date(message.envelope.date),
         message,
       });
@@ -218,23 +255,43 @@ class MailChecker {
     options?: {
       pollDelayMs?: number;
       withSource?: boolean;
+      maxRetries?: number;
     },
   ): Promise<EmailResult | null> {
     const deadline = Date.now() + timeoutSeconds * 1000;
+    const maxRetries = options?.maxRetries ?? 3;
+    let consecutiveErrors = 0;
 
     while (Date.now() < deadline) {
-      const messages = await this.getRecentMessages({
-        withSource: options?.withSource,
-      });
+      try {
+        const messages = await this.getRecentMessages({
+          withSource: options?.withSource,
+        });
 
-      for (const { uid, message } of messages) {
-        const matchedEmail = matcher({ uid, message });
-        if (!matchedEmail) {
-          continue;
+        consecutiveErrors = 0;
+
+        for (const { uid, message } of messages) {
+          const matchedEmail = matcher({ uid, message });
+          if (!matchedEmail) {
+            continue;
+          }
+
+          await this.markAsRead(uid);
+          return matchedEmail;
+        }
+      } catch (error) {
+        consecutiveErrors++;
+        console.log(
+          `IMAP poll error (attempt ${consecutiveErrors}/${maxRetries}):`,
+          error instanceof Error ? error.message : error,
+        );
+
+        if (consecutiveErrors >= maxRetries) {
+          throw error;
         }
 
-        await this.markAsRead(uid);
-        return matchedEmail;
+        await this.waitForNextPoll(options?.pollDelayMs ?? 5000);
+        continue;
       }
 
       await this.waitForNextPoll(options?.pollDelayMs);
