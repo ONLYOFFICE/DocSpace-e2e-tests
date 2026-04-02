@@ -543,4 +543,45 @@ test.describe("FormFilling base tests", () => {
       );
     });
   });
+
+  test("Starting filling via PDF editor triggers filling", async ({ page }) => {
+    let editorPage: Page;
+
+    await test.step("Upload PDF form", async () => {
+      await uploadAndVerifyPDF(
+        shortTour,
+        roomEmptyView,
+        selectPanel,
+        myRooms,
+        page,
+      );
+    });
+
+    await test.step("Open form in editor via Edit context menu", async () => {
+      const pagePromise = page
+        .context()
+        .waitForEvent("page", { timeout: 30000 });
+      await filesTable.openContextMenuForItem("ONLYOFFICE Resume Sample");
+      await filesTable.contextMenu.clickOption(
+        formFillingRoomPdfContextMenuOption.edit,
+      );
+      editorPage = await pagePromise;
+      await editorPage.waitForLoadState("load");
+    });
+
+    await test.step("Click Start Fill button in editor", async () => {
+      const pdfForm = new FilesPdfForm(editorPage);
+      await pdfForm.checkEditorMode();
+      await pdfForm.clickStartFillButton();
+    });
+
+    await test.step("Close editor and verify filling icon is visible", async () => {
+      await editorPage.close();
+      await page.bringToFront();
+      await myRooms.filesTable.expectFillingIconVisible(
+        "ONLYOFFICE Resume Sample",
+      );
+    });
+  });
+
 });
