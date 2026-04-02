@@ -7,6 +7,7 @@ const MENU_BUTTON = "#box-tools";
 const START_FILL_BUTTON = "#slot-btn-start-fill";
 const EDIT_MODE_BUTTON = "#slot-btn-edit-mode";
 const EDIT_MODE_CHECKED_ITEM = ".menu-item.checkable.checked";
+const SHARE_IN_ROOM_BUTTON = '[data-testid="share_from_card_form-room"]';
 const DOWNLOAD_AS_PDF = "Download as PDF";
 const DOWNLOAD_AS_DOCX = "Download as Docx";
 const PRINT = "Print";
@@ -64,6 +65,18 @@ class FilesPdfForm {
   async clickStartFillButton() {
     await expect(this.startFillButton).toBeVisible();
     await this.startFillButton.click();
+  }
+
+  get shareInRoomButton() {
+    if (!this.page) {
+      throw new Error("PDF form page not set. Please call setPdfPage() first");
+    }
+    return this.page.locator(SHARE_IN_ROOM_BUTTON);
+  }
+
+  async clickShareInRoomButton() {
+    await expect(this.shareInRoomButton).toBeVisible();
+    await this.shareInRoomButton.click();
   }
 
   get editModeButton() {
