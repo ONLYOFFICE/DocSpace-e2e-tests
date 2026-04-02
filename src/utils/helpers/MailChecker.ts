@@ -58,7 +58,11 @@ class MailChecker {
     this.mailbox = config.mailbox || "INBOX";
     this.recipient = config.recipient?.toLowerCase();
     this.maxEmailsToScan = config.maxEmailsToScan ?? 100;
-    this.imapConfig = { host: config.url, user: config.user, pass: config.pass };
+    this.imapConfig = {
+      host: config.url,
+      user: config.user,
+      pass: config.pass,
+    };
     this.imapClient = this.createImapClient();
   }
 
