@@ -7,10 +7,18 @@ const MENU_BUTTON = "#box-tools";
 const START_FILL_BUTTON = "#slot-btn-start-fill";
 const EDIT_MODE_BUTTON = "#slot-btn-edit-mode";
 const EDIT_MODE_CHECKED_ITEM = ".menu-item.checkable.checked";
-const SHARE_IN_ROOM_BUTTON = '[data-testid="share_from_card_form-room"]';
+const FORM_PREV_BUTTON = "#slot-btn-form-prev";
+const FORM_NEXT_BUTTON = "#slot-btn-form-next";
 const DOWNLOAD_AS_PDF = "Download as PDF";
 const DOWNLOAD_AS_DOCX = "Download as Docx";
 const PRINT = "Print";
+
+// Fill viewer (public fill link) locators
+const FILL_VIEWER_TITLE = "#title-doc-name";
+const FILL_VIEWER_LOGO = "#header-logo";
+const FILL_VIEWER_NEXT_FIELD = "#id-btn-next-field";
+const FILL_VIEWER_PREV_FIELD = "#id-btn-prev-field";
+const FILL_VIEWER_CLEAR_FIELDS = "#id-btn-clear-fields";
 
 class FilesPdfForm {
   private page: Page | null;
@@ -67,16 +75,32 @@ class FilesPdfForm {
     await this.startFillButton.click();
   }
 
-  get shareInRoomButton() {
+  get formPrevButton() {
     if (!this.page) {
       throw new Error("PDF form page not set. Please call setPdfPage() first");
     }
-    return this.page.locator(SHARE_IN_ROOM_BUTTON);
+    return this.page
+      .frameLocator('iframe[name="frameEditor"]')
+      .locator(FORM_PREV_BUTTON);
   }
 
-  async clickShareInRoomButton() {
-    await expect(this.shareInRoomButton).toBeVisible();
-    await this.shareInRoomButton.click();
+  get formNextButton() {
+    if (!this.page) {
+      throw new Error("PDF form page not set. Please call setPdfPage() first");
+    }
+    return this.page
+      .frameLocator('iframe[name="frameEditor"]')
+      .locator(FORM_NEXT_BUTTON);
+  }
+
+  async clickFormPrevButton() {
+    await expect(this.formPrevButton).toBeVisible();
+    await this.formPrevButton.click();
+  }
+
+  async clickFormNextButton() {
+    await expect(this.formNextButton).toBeVisible();
+    await this.formNextButton.click();
   }
 
   get editModeButton() {
@@ -165,6 +189,43 @@ class FilesPdfForm {
   }
 
   async verifyDownloadAndPrintButtonsVisible() {
+    await expect(this.downloadAsPdfButton).toBeVisible();
+    await expect(this.downloadAsDocxButton).toBeVisible();
+    await expect(this.printButton).toBeVisible();
+  }
+
+  // Fill viewer getters (public fill link page, elements inside frameEditor iframe)
+  get fillViewerTitle() {
+    return this.getEditorFrame().locator(FILL_VIEWER_TITLE);
+  }
+
+  get fillViewerLogo() {
+    return this.getEditorFrame().locator(FILL_VIEWER_LOGO);
+  }
+
+  get fillViewerNextFieldButton() {
+    return this.getEditorFrame().locator(FILL_VIEWER_NEXT_FIELD);
+  }
+
+  get fillViewerPrevFieldButton() {
+    return this.getEditorFrame().locator(FILL_VIEWER_PREV_FIELD);
+  }
+
+  get fillViewerClearFieldsButton() {
+    return this.getEditorFrame().locator(FILL_VIEWER_CLEAR_FIELDS);
+  }
+
+  async verifyFillViewerVisible() {
+    await expect(this.fillViewerTitle).toBeVisible({ timeout: 60000 });
+    await expect(this.fillViewerLogo).toBeVisible();
+    await expect(this.fillViewerNextFieldButton).toBeVisible();
+    await expect(this.fillViewerPrevFieldButton).toBeVisible();
+    await expect(this.fillViewerClearFieldsButton).toBeVisible();
+    await this.checkSubmitButtonNotVisible();
+  }
+
+  async verifyFillViewerMenuItems() {
+    await this.openMenu();
     await expect(this.downloadAsPdfButton).toBeVisible();
     await expect(this.downloadAsDocxButton).toBeVisible();
     await expect(this.printButton).toBeVisible();
