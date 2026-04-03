@@ -28,6 +28,7 @@ const SHARED_LINKS_AVATAR =
 const CREATE_SHARED_LINKS_ICON = "[data-tooltip-id='file-links-tooltip']";
 const ROOM_ICON = ".item-icon [data-testid='room-icon']";
 const FORMFILLING_SHARED_LINK = "Link to fill out";
+const INFO_PANEL_SHARE_LINK_ITEM = "[data-testid='info_panel_members_list_item_1']";
 const SHARED_LINK_COMBOBOX_ACCESS = '[data-test-id="combo-button"]';
 const SHARING_ACCESS_ANYONE_WITH_LINK = "drop_down_item_anyone";
 const SHARING_ACCESS_DOCSPACE_USERS = "drop_down_item_users";
@@ -222,6 +223,10 @@ class InfoPanel {
 
   async checkShareExist() {
     await expect(this.sharedLinksWrapper).toBeVisible();
+  }
+
+  async checkSharedLinkCreated() {
+    await expect(this.page.locator(INFO_PANEL_SHARE_LINK_ITEM)).toBeVisible();
   }
 
   async checkFormFillingSharedLinkExist() {

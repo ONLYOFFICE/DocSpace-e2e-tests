@@ -3,12 +3,13 @@ import type { TMenuItem } from "@/src/objects/common/BaseMenu";
 
 const testId = (value: string): TMenuItem => ({ type: "data-testid", value });
 
-// Available in My Documents and rooms (except "fill" which is room-only).
+// Available in My Documents and rooms.
 // markAsRead appears only after another user modifies the file.
 // blockVersion appears only in rooms.
 
 export const pdfFormContextMenuOption = {
   open: testId("open-pdf"),
+  fill: testId("option_fill-form"),
   select: testId("option_select"),
   edit: testId("option_edit"),
   delete: testId("option_delete"),
