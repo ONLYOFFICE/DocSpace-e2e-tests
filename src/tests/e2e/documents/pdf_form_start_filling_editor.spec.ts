@@ -135,7 +135,9 @@ test.describe("My Documents: PDF form start filling via editor", () => {
     });
   });
 
-  test("Owner can start Recipient role-based filling from editor", async ({ api }) => {
+  test("Owner can start Recipient role-based filling from editor", async ({
+    api,
+  }) => {
     let editorPage: Page;
     let pdfForm: FilesPdfForm;
     let selector: BaseSelector;
