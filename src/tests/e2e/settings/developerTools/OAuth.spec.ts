@@ -12,25 +12,27 @@ test.describe("OAuth tests", () => {
     await oauth.open();
   });
 
-  test("Render oauth", async ({ page }) => {
-    await test.step("Render oauth", async () => {
+  test("Render OAuth page and guide link", async ({ page }) => {
+    await test.step("OAuth page is rendered", async () => {
       await oauth.checkUseOAuth();
     });
 
-    await test.step("oauth 2.0 guide link", async () => {
-      const page1Promise = page.waitForEvent("popup", { timeout: 30000 });
+    await test.step("OAuth 2.0 guide link opens", async () => {
+      const popupPromise = page.waitForEvent("popup", { timeout: 30000 });
       await oauth.oauthGuideLink.click();
-      const page1 = await page1Promise;
-      await page1.waitForURL(
+      const popup = await popupPromise;
+      await popup.waitForURL(
         /https:\/\/helpcenter\.onlyoffice\.com\/docspace\/configuration\/.*#oauth(_block)?$/,
       );
-      await expect(page1).toHaveURL(
+      await expect(popup).toHaveURL(
         /https:\/\/helpcenter\.onlyoffice\.com\/docspace\/configuration\/.*#oauth(_block)?$/,
       );
-      await page1.close();
+      await popup.close();
     });
+  });
 
-    await test.step("New application render", async () => {
+  test("Create application and info panel", async ({ page }) => {
+    await test.step("New application form renders", async () => {
       await oauth.newApplicationButton.click();
       await oauth.checkOauthUrls();
     });
@@ -40,53 +42,69 @@ test.describe("OAuth tests", () => {
       await oauth.checkApplicationName();
     });
 
-    await test.step("Open and close application scopes popup", async () => {
-      await oauth.openScopes.last().click();
-      await oauth.backdrop.nth(1).click();
+    await test.step("Open info panel", async () => {
+      await oauth.openInfoPanel();
     });
 
-    await test.step("Edit application", async () => {
+    await test.step("Info panel links open correctly", async () => {
+      for (const clickFn of [
+        () => oauth.checkWebsiteUrlInfoPanel(),
+        () => oauth.checkPrivacyPolicyUrlInfoPanel(),
+        () => oauth.checkTermsOfServiceUrlInfoPanel(),
+      ]) {
+        const popupPromise = page.waitForEvent("popup", { timeout: 30000 });
+        await clickFn();
+        const popup = await popupPromise;
+        await popup.waitForURL("https://www.google.com/");
+        await expect(popup).toHaveURL(/www.google.com/);
+        await popup.close();
+      }
+    });
+
+    await test.step("Info panel action menu renders", async () => {
+      await oauth.openInfoPanelActionMenu();
+      await oauth.closeInfoPanel.click();
+    });
+  });
+
+  test("Edit application", async () => {
+    await test.step("Create application", async () => {
+      await oauth.newApplicationButton.click();
+      await oauth.createApplication();
+      await oauth.checkApplicationName();
+    });
+
+    await test.step("Edit application name", async () => {
       await oauth.oauthActionMenu.click();
       await oauth.editOAuthApplication();
       await oauth.checkNewApplicationName();
     });
+  });
 
-    await test.step("Disable / Enable appliction", async () => {
+  test("Disable and enable application", async () => {
+    await test.step("Create application", async () => {
+      await oauth.newApplicationButton.click();
+      await oauth.createApplication();
+      await oauth.checkApplicationName();
+    });
+
+    await test.step("Disable application", async () => {
       await oauth.disableApplication();
+    });
+
+    await test.step("Enable application", async () => {
       await oauth.enableApplication();
     });
+  });
 
-    await test.step("Info panel oauth render", async () => {
-      await oauth.openInfoPanel();
+  test("Generate, copy and revoke token", async ({ page }) => {
+    await test.step("Create application", async () => {
+      await oauth.newApplicationButton.click();
+      await oauth.createApplication();
+      await oauth.checkApplicationName();
     });
 
-    await test.step("Info panel links", async () => {
-      const page1Promise = page.waitForEvent("popup", { timeout: 30000 });
-      await oauth.checkWebsiteUrlInfoPanel();
-      const page1 = await page1Promise;
-      await page1.waitForURL("https://www.google.com/");
-      await expect(page1).toHaveURL(/www.google.com/);
-      await page1.close();
-      const page2Promise = page.waitForEvent("popup", { timeout: 30000 });
-      await oauth.checkPrivacyPolicyUrlInfoPanel();
-      const page2 = await page2Promise;
-      await page2.waitForURL("https://www.google.com/");
-      await expect(page2).toHaveURL(/www.google.com/);
-      await page2.close();
-      const page3Promise = page.waitForEvent("popup", { timeout: 30000 });
-      await oauth.checkTermsOfServiceUrlInfoPanel();
-      const page3 = await page3Promise;
-      await page3.waitForURL("https://www.google.com/");
-      await expect(page3).toHaveURL(/www.google.com/);
-      await page3.close();
-    });
-
-    await test.step("Info panel action menu render", async () => {
-      await oauth.openInfoPanelActionMenu();
-      await oauth.closeInfoPanel.click();
-    });
-
-    await test.step("Generate token", async () => {
+    await test.step("Generate and copy token", async () => {
       await oauth.generateOauthToken();
       await oauth.hideTokenInfo();
       await oauth.saveGeneratedToken();
@@ -105,8 +123,16 @@ test.describe("OAuth tests", () => {
       ]);
       expect(response.status()).toBe(200);
     });
+  });
 
-    await test.step("Delete oauth application", async () => {
+  test("Delete application", async ({ page }) => {
+    await test.step("Create application", async () => {
+      await oauth.newApplicationButton.click();
+      await oauth.createApplication();
+      await oauth.checkApplicationName();
+    });
+
+    await test.step("Delete application", async () => {
       await oauth.deleteOAuthApplication();
       const [response] = await Promise.all([
         page.waitForResponse(
