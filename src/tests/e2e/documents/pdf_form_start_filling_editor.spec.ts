@@ -2,6 +2,7 @@ import { expect, Page } from "@playwright/test";
 import MyDocuments from "@/src/objects/files/MyDocuments";
 import FilesPdfForm from "@/src/objects/files/FilesPdfForm";
 import EditorStartFillingPanel from "@/src/objects/files/EditorStartFillingPanel";
+import MyRooms from "@/src/objects/rooms/Rooms";
 import FilesTable from "@/src/objects/files/FilesTable";
 import BaseSelector from "@/src/objects/common/BaseSelector";
 import BaseToast from "@/src/objects/common/BaseToast";
@@ -134,7 +135,7 @@ test.describe("My Documents: PDF form start filling via editor", () => {
     });
   });
 
-  test("Owner can start Recipient role-based filling from editor", async () => {
+  test("Owner can start Recipient role-based filling from editor", async ({ api }) => {
     let editorPage: Page;
     let pdfForm: FilesPdfForm;
     let selector: BaseSelector;
@@ -168,12 +169,31 @@ test.describe("My Documents: PDF form start filling via editor", () => {
       await selector.submitSelection();
     });
 
-    await test.step("Verify role assignment modal appears and close it", async () => {
-      await expect(editorPage.getByRole("button", { name: "Assign" })).toBeVisible();
-      await editorPage.keyboard.press("Escape");
+    await test.step("Verify file copied to VDR Room toast appears", async () => {
+      const toast = new BaseToast(editorPage);
+      await toast.checkToastMessage(
+        "PDF Form.pdf successfully copied to VDR Room",
+      );
     });
 
-    await test.step("Verify form has draft badge in the room", async () => {
+    await test.step("Verify role assignment modal appears and close it", async () => {
+      const assignButton = editorPage.getByRole("button", { name: "Assign" });
+      await expect(assignButton).toBeVisible();
+      await assignButton.press("Escape");
+    });
+
+    await test.step("Navigate to VDR Room", async () => {
+      const rooms = new MyRooms(editorPage, api.portalDomain);
+      await rooms.openWithoutEmptyCheck();
+      await rooms.roomsTable.openRoomByName("VDR Room");
+    });
+
+    await test.step("Verify form is visible in the room", async () => {
+      const filesTable = new FilesTable(editorPage);
+      await filesTable.checkRowExist("PDF Form");
+    });
+
+    await test.step("Verify form has draft badge", async () => {
       const filesTable = new FilesTable(editorPage);
       await filesTable.expectDraftBadgeVisible("PDF Form");
     });
