@@ -1,6 +1,5 @@
 import { expect, Page } from "@playwright/test";
 import BasePage from "@/src/objects/common/BasePage";
-import { navItems } from "@/src/utils/constants/settings";
 import BaseTable, { TBaseTableLocators } from "../../common/BaseTable";
 
 class OAuth extends BasePage {
@@ -45,7 +44,7 @@ class OAuth extends BasePage {
   }
 
   get oauthApproveRedirectUriInput() {
-    return this.page.getByTestId("redirect_uris_add_button");
+    return this.page.getByTestId("redirect_uris_selector_add_button");
   }
 
   get oauthAllowedOriginsInput() {
@@ -53,7 +52,7 @@ class OAuth extends BasePage {
   }
 
   get oauthApproveAllowedOriginsInput() {
-    return this.page.getByTestId("allowed_origins_add_button");
+    return this.page.getByTestId("allowed_origins_selector_add_button");
   }
 
   get oauthIconInput() {
@@ -208,8 +207,10 @@ class OAuth extends BasePage {
 
   async open() {
     await this.navigateToSettings();
-    await this.article.navigate(navItems.developerTools);
-    await this.tabOAuth.click();
+    await this.page.getByTestId("dev-tools-bar").click();
+    await this.page.waitForLoadState("load");
+    await this.page.locator("#devtools-oauth").click();
+    await this.page.waitForLoadState("load");
   }
 
   async checkUseOAuth() {
@@ -235,9 +236,9 @@ class OAuth extends BasePage {
     await this.oauthWebsiteUrlInput.fill("https://google.com");
     await this.oauthDescriptionInput.fill("Autotest");
     await this.oauthRedirectUriInput.fill("https://google.com");
-    await this.oauthApproveRedirectUriInput.click();
+    await this.oauthRedirectUriInput.press("Enter");
     await this.oauthAllowedOriginsInput.fill("https://google.com");
-    await this.oauthApproveAllowedOriginsInput.click();
+    await this.oauthAllowedOriginsInput.press("Enter");
     await this.oauthIconInput.setInputFiles("data/avatars/OAuthApp.jpg");
     await this.oauthPKCE.click();
     await this.profileWritrCheckBox.click();
@@ -252,20 +253,50 @@ class OAuth extends BasePage {
 
   async editOAuthApplication() {
     await this.oauthEditApplication.click();
+    await this.oauthNameInput.click();
+    await this.oauthNameInput.clear();
     await this.oauthNameInput.fill("AutotestRename");
+    await this.oauthDescriptionInput.click();
+    await this.oauthDescriptionInput.fill("AutotestRename description");
     await this.oauthSaveButton.click();
   }
 
   async checkApplicationName() {
-    await expect(
-      this.page.getByTestId("text").getByText("Autotest"),
-    ).toBeVisible();
+    await this.page.locator("#devtools-oauth").click();
+    await this.page.waitForLoadState("load");
+
+    // UI bug: created app doesn't appear in list without reload
+    await expect(async () => {
+      const visible = await this.page
+        .getByTestId("text")
+        .getByText("Autotest")
+        .isVisible();
+      if (!visible) {
+        await this.page.reload({ waitUntil: "load" });
+      }
+      await expect(
+        this.page.getByTestId("text").getByText("Autotest"),
+      ).toBeVisible();
+    }).toPass({ timeout: 30000 });
   }
 
   async checkNewApplicationName() {
-    await expect(
-      this.page.getByTestId("text").getByText("AutotestRename"),
-    ).toBeVisible();
+    await this.page.locator("#devtools-oauth").click();
+    await this.page.waitForLoadState("load");
+
+    // UI bug: created app doesn't appear in list without reload
+    await expect(async () => {
+      const visible = await this.page
+        .getByTestId("text")
+        .getByText("AutotestRename")
+        .isVisible();
+      if (!visible) {
+        await this.page.reload({ waitUntil: "load" });
+      }
+      await expect(
+        this.page.getByTestId("text").getByText("AutotestRename"),
+      ).toBeVisible();
+    }).toPass({ timeout: 30000 });
   }
 
   async disableApplication() {
