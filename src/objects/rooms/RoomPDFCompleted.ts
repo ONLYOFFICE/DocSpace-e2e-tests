@@ -35,6 +35,10 @@ class RoomPDFCompleted {
     await expect(this.backToRoomButton).toBeHidden();
   }
 
+  async checkFillItOutAgainButtonVisible() {
+    await expect(this.fillItOutAgainButton).toBeVisible();
+  }
+
   async checkDownloadButtonVisible() {
     await expect(this.downloadButton).toBeVisible();
   }

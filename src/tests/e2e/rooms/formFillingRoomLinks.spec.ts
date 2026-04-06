@@ -39,7 +39,7 @@ test.describe("FormFilling room - Link tests", () => {
   let selectPanel: RoomSelectPanel;
   let infoPanel: InfoPanel;
   let incognitoContext: BrowserContext | null = null;
-  let incognitoPage: Page | null = null;
+  const incognitoPage: Page | null = null;
   let login: Login;
   let roomAnonymousView: RoomAnonymousView;
 
@@ -1034,5 +1034,4 @@ test.describe("FormFilling room - Link tests", () => {
       expect(filePassword).toBe(linkPassword);
     });
   });
-
 });
