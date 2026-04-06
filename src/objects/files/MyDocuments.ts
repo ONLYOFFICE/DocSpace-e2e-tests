@@ -22,7 +22,11 @@ import SpreadsheetEditor from "./SpreadsheetEditor";
 import PresentationEditor from "./PresentationEditor";
 import PdfFormEditor from "./PdfFormEditor";
 import { ORIGINAL_DOC_EXTENSIONS } from "@/src/constants/downloadFormats";
-import { DOC_ACTIONS } from "@/src/utils/constants/files";
+import {
+  DOC_ACTIONS,
+  documentContextMenuOption,
+  pdfFormMoreOptionsSubmenu,
+} from "@/src/utils/constants/files";
 import { TRoomCreateTitles } from "@/src/utils/constants/rooms";
 
 class MyDocuments extends BasePage {
@@ -204,6 +208,14 @@ class MyDocuments extends BasePage {
     ]);
     await editorPage.waitForLoadState("load");
     return new PdfFormEditor(editorPage);
+  }
+
+  async openVersionHistory(fileName: string) {
+    await this.filesTable.openContextMenuForItem(fileName);
+    await this.filesTable.contextMenu.clickSubmenuOption(
+      documentContextMenuOption.moreOptions,
+      pdfFormMoreOptionsSubmenu.showVersionHistory,
+    );
   }
 
   async deleteFile(fileName: string) {

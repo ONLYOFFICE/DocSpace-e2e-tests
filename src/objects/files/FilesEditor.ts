@@ -27,6 +27,36 @@ class FilesEditor {
     await expect(this.docName).toBeVisible({ timeout: 30000 });
   }
 
+  async waitForEditorReady() {
+    const cursor = this.frame.locator("#id_target_cursor");
+    await cursor.waitFor({ state: "attached", timeout: 20000 });
+  }
+
+  async typeText(text: string) {
+    await this.waitForEditorReady();
+    const iframe = this.page.locator('iframe[name="frameEditor"]');
+    const box = await iframe.boundingBox();
+    if (box) {
+      await this.page.mouse.click(
+        box.x + box.width / 2,
+        box.y + box.height / 2,
+      );
+    }
+    await this.page.keyboard.type(text, { delay: 100 });
+  }
+
+  async saveAndClose() {
+    await this.page.keyboard.press("Control+s");
+    await this.page.waitForTimeout(3000);
+    await this.page.close();
+  }
+
+  async editAndClose(text: string) {
+    await this.waitForLoad();
+    await this.typeText(text);
+    await this.saveAndClose();
+  }
+
   async close() {
     await this.page.close();
   }
