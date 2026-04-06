@@ -284,6 +284,109 @@ test.describe("FormFilling room - Fill via link", () => {
       });
     });
 
+    test("DocSpace user can fill form again after submitting via public link", async ({
+      page,
+      browser,
+      apiSdk,
+    }) => {
+      let publicLink: string;
+      let userEmail: string;
+      let userPassword: string;
+      let completedFileName: string;
+      let secondCompletedFileName: string;
+
+      await test.step("Upload PDF form from My Documents", async () => {
+        await uploadAndVerifyPDF(
+          shortTour,
+          roomEmptyView,
+          selectPanel,
+          myRooms,
+          page,
+        );
+      });
+
+      await test.step("Start filling and copy public link", async () => {
+        await filesTable.openContextMenuForItem("ONLYOFFICE Resume Sample");
+        await filesTable.contextMenu.clickOption(
+          formFillingRoomPdfContextMenuOption.startFilling,
+        );
+        await setupClipboardPermissions(page);
+        await shortTour.clickCopyPublicLink();
+        await myRooms.toast.dismissToastSafely(
+          "Link copied to clipboard",
+          5000,
+        );
+        publicLink = await getLinkFromClipboard(page);
+        if (!publicLink)
+          throw new Error("Failed to get public link from clipboard");
+        await shortTour.clickModalCloseButton().catch(() => {});
+      });
+
+      await test.step("Verify fill icon on file", async () => {
+        await filesTable.expectFillingIconVisible("ONLYOFFICE Resume Sample");
+      });
+
+      await test.step("Create DocSpace user via API", async () => {
+        const { userData } = await apiSdk.profiles.addMember("owner", "User");
+        userEmail = userData.email;
+        userPassword = userData.password;
+        completedFileName = `1 - ${userData.firstName} ${userData.lastName} - ONLYOFFICE Resume Sample`;
+        secondCompletedFileName = `2 - ${userData.firstName} ${userData.lastName} - ONLYOFFICE Resume Sample`;
+      });
+
+      let userPage: Page;
+      await test.step("Login as DocSpace user in incognito", async () => {
+        const result = await setupIncognitoContext(browser);
+        incognitoContext = result.context;
+        userPage = result.page;
+        const userLogin = new Login(userPage, login.portalDomain);
+        await userLogin.loginWithCredentials(userEmail, userPassword);
+      });
+
+      await test.step("Open public fill link as DocSpace user", async () => {
+        await userPage.goto(publicLink, { waitUntil: "domcontentloaded" });
+      });
+
+      await test.step("Verify room folders are not visible (isolation check)", async () => {
+        const incognitoMyRooms = new MyRooms(userPage, login.portalDomain);
+        await incognitoMyRooms.verifyCompleteFolderNotVisible();
+        await incognitoMyRooms.verifyInProgressFolderNotVisible();
+      });
+
+      await test.step("Submit the form (first submission)", async () => {
+        const pdfForm = new FilesPdfForm(userPage);
+        const completedForm = await pdfForm.clickSubmitButton();
+        await completedForm.checkDocumentTitleIsVisible(completedFileName);
+        await completedForm.checkDownloadButtonVisible();
+        await completedForm.checkBackToRoomButtonHidden();
+        await completedForm.checkFillItOutAgainButtonVisible();
+      });
+
+      await test.step("Click Fill it out again", async () => {
+        const completedForm = new RoomPDFCompleted(userPage);
+        await completedForm.chooseFillItOutAgain();
+        await userPage.waitForURL(/.*doceditor.*/, {
+          waitUntil: "domcontentloaded",
+        });
+      });
+
+      await test.step("Verify form is ready for filling again", async () => {
+        const pdfForm = new FilesPdfForm(userPage);
+        await pdfForm.checkSubmitButtonExist();
+      });
+
+      await test.step("Submit the form again (second submission)", async () => {
+        const pdfForm = new FilesPdfForm(userPage);
+        const completedForm = await pdfForm.clickSubmitButton();
+        await completedForm.checkDocumentTitleIsVisible(
+          secondCompletedFileName,
+        );
+        await completedForm.checkDownloadButtonVisible();
+        await completedForm.checkBackToRoomButtonHidden();
+        await completedForm.checkFillItOutAgainButtonVisible();
+      });
+    });
+
     test("Anonymous user is redirected to login when link access is DocSpace users only", async ({
       page,
       browser,
