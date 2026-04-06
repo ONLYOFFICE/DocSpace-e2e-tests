@@ -13,6 +13,8 @@ const DOWNLOAD_AS_PDF = "Download as PDF";
 const DOWNLOAD_AS_DOCX = "Download as Docx";
 const PRINT = "Print";
 
+const INFO_BOX = ".info-box";
+
 // Fill viewer (public fill link) locators
 const FILL_VIEWER_TITLE = "#title-doc-name";
 const FILL_VIEWER_LOGO = "#header-logo";
@@ -55,6 +57,19 @@ class FilesPdfForm {
 
   async checkSubmitButtonNotVisible() {
     await expect(this.submitButton).not.toBeVisible();
+  }
+
+  get infoBox() {
+    if (!this.page) {
+      throw new Error("PDF form page not set. Please call setPdfPage() first");
+    }
+    return this.page
+      .frameLocator('iframe[name="frameEditor"]')
+      .locator(INFO_BOX);
+  }
+
+  async checkInfoBoxVisible() {
+    await expect(this.infoBox).toBeVisible();
   }
 
   get startFillButton() {

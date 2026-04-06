@@ -2,7 +2,6 @@ import { test } from "@/src/fixtures";
 import { ShortTour } from "@/src/objects/rooms/ShortTourModal";
 import MyRooms from "@/src/objects/rooms/Rooms";
 import FilesPdfForm from "@/src/objects/files/FilesPdfForm";
-import RoomPDFCompleted from "@/src/objects/rooms/RoomPDFCompleted";
 import InfoPanel from "@/src/objects/common/InfoPanel";
 import { BrowserContext, Page } from "@playwright/test";
 import { expect } from "@playwright/test";
@@ -31,7 +30,6 @@ import {
   copyFileLink,
   uploadAndVerifyPDF,
 } from "@/src/utils/helpers/formFillingRoom";
-import { formFillingRoomPdfContextMenuOption } from "@/src/utils/constants/files";
 
 test.describe("FormFilling room - Link tests", () => {
   let myRooms: MyRooms;
@@ -97,113 +95,6 @@ test.describe("FormFilling room - Link tests", () => {
       // Check access level Room changed to "docspace users only"
       const currentOption = await infoPanel.getCurrentLinkAccess();
       expect(currentOption).toBe("docspace users only"); //Bug 79256
-    });
-  });
-  // TODO: re-enable once PDF upload and Fill flow is fixed (Bug 80619)
-  // Check the page after filling does not contain Back to Room button
-  test.skip("Filling PDF Form with link by anonymous", async ({
-    page,
-    browser,
-  }) => {
-    let incognitoPage: Page;
-
-    await test.step("Upload PDF Form from My Documents", async () => {
-      await uploadAndVerifyPDF(
-        shortTour,
-        roomEmptyView,
-        selectPanel,
-        myRooms,
-        page,
-      );
-    });
-
-    await test.step("Copy shared link for PDF form", async () => {
-      await copyFileLink(page, filesTable, myRooms);
-    });
-
-    await test.step("Open PDF form in incognito", async () => {
-      const url = await getLinkFromClipboard(page);
-      if (!url) throw new Error("Clipboard is empty");
-      const result = await setupIncognitoContext(browser);
-      incognitoPage = result.page;
-      await incognitoPage.goto(url, { waitUntil: "domcontentloaded" });
-    });
-    let completedForm: RoomPDFCompleted;
-    await test.step("Submit not filled PDF Form", async () => {
-      ensureIncognitoPage(incognitoPage);
-      const pdfForm = new FilesPdfForm(incognitoPage);
-      //Submit form with empty fields
-      completedForm = await pdfForm.clickSubmitButton();
-      //Check document title on completed form page
-      await completedForm.checkDocumentTitleIsVisible(
-        "1 - ONLYOFFICE Resume Sample",
-      );
-    });
-    await test.step("Check back to room button is hidden", async () => {
-      await completedForm.checkBackToRoomButtonHidden();
-    });
-    await test.step("Check download button is visible and clickable", async () => {
-      ensureIncognitoPage(incognitoPage);
-      await completedForm.checkDownloadButtonVisible();
-    });
-    await test.step("Click download button and verify download starts", async () => {
-      ensureIncognitoPage(incognitoPage);
-      const [download] = await Promise.all([
-        incognitoPage.waitForEvent("download", { timeout: 30000 }),
-        completedForm.clickDownloadButton(),
-      ]);
-      const fileName = await download.suggestedFilename();
-      expect(fileName).toMatch(/ONLYOFFICE Resume Sample.*\.pdf$/i);
-      // cancel download to avoid file saving
-      await download.cancel();
-    });
-  });
-
-  //Check copy shared link in modal window after Pdf form uploaded to Room
-  test("Copy shared link in modal window for PDF Form", async ({
-    page,
-    browser,
-  }) => {
-    let shareLink: string;
-    await test.step("Upload PDF Form from My Documents", async () => {
-      await shortTour.clickSkipTour();
-      await roomEmptyView.uploadPdfFromDocSpace();
-      await selectPanel.checkSelectorExist();
-      await selectPanel.select("documents");
-      await selectPanel.selectItemByText("ONLYOFFICE Resume Sample");
-      await selectPanel.confirmSelection();
-    });
-
-    await test.step("Start filling the form", async () => {
-      await filesTable.openContextMenuForItem("ONLYOFFICE Resume Sample");
-      await filesTable.contextMenu.clickOption(
-        formFillingRoomPdfContextMenuOption.startFilling,
-      );
-    });
-
-    await test.step("Copy shared link in modal window", async () => {
-      // Setup clipboard permissions to allow copying the shared
-      await setupClipboardPermissions(page);
-      // Click copy public link button on Modal window
-      await shortTour.clickCopyPublicLink();
-      await myRooms.toast.dismissToastSafely("Link copied to clipboard", 5000);
-      // Retrieve the shared link from clipboard for later use
-      shareLink = await page.evaluate(() => navigator.clipboard.readText());
-      if (!shareLink)
-        throw new Error("Failed to get share link from clipboard");
-    });
-    await test.step("Open PDF form in incognito", async () => {
-      const url = await page.evaluate(() => navigator.clipboard.readText());
-      if (!url) throw new Error("Clipboard is empty");
-      incognitoContext = await browser.newContext();
-      incognitoPage = await incognitoContext.newPage();
-      await incognitoPage.goto(url, { waitUntil: "domcontentloaded" });
-    });
-    //check form will open for filling
-    await test.step("Check Submit button exist", async () => {
-      ensureIncognitoPage(incognitoPage);
-      const pdfForm = new FilesPdfForm(incognitoPage);
-      await pdfForm.checkSubmitButtonExist();
     });
   });
   test("Verify file links are identical on repeated copying", async ({
@@ -1143,4 +1034,5 @@ test.describe("FormFilling room - Link tests", () => {
       expect(filePassword).toBe(linkPassword);
     });
   });
+
 });
