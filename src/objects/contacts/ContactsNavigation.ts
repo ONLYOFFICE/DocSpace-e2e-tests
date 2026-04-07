@@ -60,6 +60,7 @@ class ContactsNavigation extends BaseNavigation {
 
     const idByText: Record<string, string> = {
       "DocSpace admin": headerInviteIds.docspaceAdmin,
+      "Room admin": headerInviteIds.roomAdmin,
       User: headerInviteIds.user,
     };
 
