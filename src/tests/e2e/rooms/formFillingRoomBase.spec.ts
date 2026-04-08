@@ -528,7 +528,9 @@ test.describe("FormFilling base tests", () => {
         filesTable.contextMenu.getItemLocator(folderContextMenuOption.download),
       ).toBeVisible();
       await expect(
-        filesTable.contextMenu.getItemLocator(folderContextMenuOption.folderInfo),
+        filesTable.contextMenu.getItemLocator(
+          folderContextMenuOption.folderInfo,
+        ),
       ).toBeVisible();
       await expect(
         filesTable.contextMenu.getItemLocator(
@@ -538,9 +540,7 @@ test.describe("FormFilling base tests", () => {
       await expect(
         filesTable.contextMenu.getItemLocator(folderContextMenuOption.select),
       ).toBeVisible();
-      await expect(
-        filesTable.contextMenu.getItemLocator("Copy"),
-      ).toBeVisible();
+      await expect(filesTable.contextMenu.getItemLocator("Copy")).toBeVisible();
       await expect(
         filesTable.contextMenu.getItemLocator("Copy link"),
       ).toBeVisible();
