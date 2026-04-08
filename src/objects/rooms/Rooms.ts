@@ -40,7 +40,7 @@ const navActions = {
 
 const FormFillingFolder = {
   complete: "Complete",
-  inProgress: "In progress",
+  inProcess: "In process",
 } as const;
 
 const DRAFT_LABEL = "badge-text";
@@ -216,13 +216,23 @@ class MyRooms extends BasePage {
       this.page.getByText(FormFillingFolder.complete),
     ).not.toBeVisible();
   }
-  async verifyInProgressFolderNotVisible() {
+  async verifyInProcessFolderVisible() {
     await expect(
-      this.page.getByText(FormFillingFolder.inProgress),
+      this.page.getByText(FormFillingFolder.inProcess),
+    ).toBeVisible();
+  }
+
+  async verifyInProcessFolderNotVisible() {
+    await expect(
+      this.page.getByText(FormFillingFolder.inProcess),
     ).not.toBeVisible();
   }
   async verifyDraftLabelVisible() {
     await expect(this.page.getByTestId(DRAFT_LABEL)).toBeVisible();
+  }
+
+  async verifyDraftLabelNotVisible() {
+    await expect(this.page.getByTestId(DRAFT_LABEL)).not.toBeVisible();
   }
 }
 

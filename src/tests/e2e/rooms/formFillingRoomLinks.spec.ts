@@ -30,6 +30,7 @@ import {
   copyFileLink,
   uploadAndVerifyPDF,
 } from "@/src/utils/helpers/formFillingRoom";
+import { formFillingRoomContextMenuOption } from "@/src/utils/constants/rooms";
 
 test.describe("FormFilling room - Link tests", () => {
   let myRooms: MyRooms;
@@ -244,7 +245,7 @@ test.describe("FormFilling room - Link tests", () => {
       // Verify the "Complete" folder is not visible
       await incognitoMyRooms.verifyCompleteFolderNotVisible();
       // Verify the "In progress" folder is not visible
-      await incognitoMyRooms.verifyInProgressFolderNotVisible();
+      await incognitoMyRooms.verifyInProcessFolderNotVisible();
     });
   });
   //Check that room can't be open after revoking link
@@ -1032,6 +1033,36 @@ test.describe("FormFilling room - Link tests", () => {
       await baseEditLink.clickShowPassword();
       const filePassword = await baseEditLink.passwordInput.inputValue();
       expect(filePassword).toBe(linkPassword);
+    });
+  });
+
+  test("Fill link is inaccessible after room is archived", async ({
+    page,
+    browser,
+  }) => {
+    let fileLink: string;
+
+    await test.step("Upload PDF form and copy fill link", async () => {
+      await uploadAndVerifyPDF(
+        shortTour,
+        roomEmptyView,
+        selectPanel,
+        myRooms,
+        page,
+      );
+      fileLink = await copyFileLink(page, filesTable, myRooms);
+    });
+
+    await test.step("Archive the room", async () => {
+      await myRooms.navigation.openContextMenu();
+      await myRooms.navigation.contextMenu.clickOption(
+        formFillingRoomContextMenuOption.moveToArchive,
+      );
+      await myRooms.moveToArchive();
+    });
+
+    await test.step("Verify fill link is inaccessible after archiving", async () => {
+      await verifyAccessDeniedInIncognito(browser, fileLink);
     });
   });
 });
