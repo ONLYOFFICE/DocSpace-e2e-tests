@@ -1,5 +1,6 @@
 import InfoPanel from "../common/InfoPanel";
 
+const SHARE_ROOM_BUTTON = "#share-room";
 const SEARCH_BUTTON = "#info_search";
 const SEARCH_INPUT = 'input[placeholder=" "]';
 const NO_MEMBERS_FOUND_TEXT = "No members found";
@@ -47,6 +48,19 @@ class RoomInfoPanel extends InfoPanel {
   }
   async clickAddUser() {
     await this.addUserButton.click();
+  }
+  async openSharePanel() {
+    await this.close();
+    await this.page.locator(SHARE_ROOM_BUTTON).click();
+    await this.checkInfoPanelExist();
+  }
+
+  async addNewSharedLink() {
+    const button = this.page.getByTestId(
+      "info_panel_members_add_new_link_button",
+    );
+    await button.waitFor({ state: "visible" });
+    await button.click();
   }
 }
 export default RoomInfoPanel;
