@@ -44,6 +44,10 @@ class Webhooks extends BaseDevTools {
     return this.page.getByTestId("webhook_cancel_button");
   }
 
+  async closeCreateDialog() {
+    await this.createDialog.getByTestId("webhook_cancel_button").click();
+  }
+
   get contextMenuButton(): Locator {
     return this.page.getByTestId("webhook_table_contextmenu");
   }

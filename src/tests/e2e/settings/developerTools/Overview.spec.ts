@@ -33,6 +33,7 @@ test.describe("Overview tests", () => {
     // Webhooks
     await overview.createWebhookLink.click();
     await expect(page).toHaveURL(/webhooks/);
+    await page.getByTestId("webhook_cancel_button").first().click();
     await overview.open();
 
     // OAuth 2.0

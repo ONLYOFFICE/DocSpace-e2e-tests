@@ -45,26 +45,22 @@ test.describe("My documents: Recent", () => {
   });
 
   test("Filter recent files by type", async () => {
-    await test.step("Create and open files in editor", async () => {
+    await test.step("Create and edit files in editor", async () => {
       const docEditor =
         await myDocuments.createDocumentAndOpenEditor(documentName);
-      await docEditor.waitForLoad();
-      await docEditor.close();
+      await docEditor.editAndClose("doc text");
 
       const sheetEditor =
         await myDocuments.createSpreadsheetAndOpenEditor(spreadsheetName);
-      await sheetEditor.waitForLoad();
-      await sheetEditor.close();
+      await sheetEditor.editAndClose("sheet text");
 
       const presEditor =
         await myDocuments.createPresentationAndOpenEditor(presentationName);
-      await presEditor.waitForLoad();
-      await presEditor.close();
+      await presEditor.editAndClose("pres text");
 
       const pdfEditor =
         await myDocuments.createPdfFormAndOpenEditor(pdfFormName);
-      await pdfEditor.waitForLoad();
-      await pdfEditor.close();
+      await pdfEditor.editAndClose("pdf text");
     });
 
     await recent.openFromNavigation();
