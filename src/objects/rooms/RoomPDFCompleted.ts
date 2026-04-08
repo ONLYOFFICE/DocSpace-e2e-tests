@@ -61,7 +61,9 @@ class RoomPDFCompleted {
 
   async waitForSimpleCompletionPage(): Promise<void> {
     await expect(
-      this.page.getByTestId("heading").filter({ hasText: SIMPLE_COMPLETION_MESSAGE }),
+      this.page
+        .getByTestId("heading")
+        .filter({ hasText: SIMPLE_COMPLETION_MESSAGE }),
     ).toBeVisible();
   }
   async isReadyFormButtonVisible() {

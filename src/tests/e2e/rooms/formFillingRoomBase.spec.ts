@@ -13,6 +13,7 @@ import RoomEmptyView from "@/src/objects/rooms/RoomEmptyView";
 import { formFillingRoomContextMenuOption } from "@/src/utils/constants/rooms";
 import {
   formFillingRoomPdfContextMenuOption,
+  folderContextMenuOption,
   spreadsheetContextMenuOption,
   pdfFormMoreOptionsSubmenu,
 } from "@/src/utils/constants/files";
@@ -497,6 +498,68 @@ test.describe("FormFilling base tests", () => {
       // Check Delete button is not visible on the page
       await filesTable.selectFolderByName("In process");
       await expect(page.getByText("Delete")).not.toBeVisible();
+    });
+  });
+
+  test("Complete and In process folders have correct context menu options", async ({
+    page,
+  }) => {
+    await test.step("Upload PDF form and start filling", async () => {
+      await uploadAndVerifyPDF(
+        shortTour,
+        roomEmptyView,
+        selectPanel,
+        myRooms,
+        page,
+      );
+      await filesTable.openContextMenuForItem("ONLYOFFICE Resume Sample");
+      await filesTable.contextMenu.clickOption(
+        formFillingRoomPdfContextMenuOption.startFilling,
+      );
+      await shortTour.clickModalCloseButton();
+    });
+
+    const checkFolderContextMenu = async (folderName: string) => {
+      await filesTable.openContextMenuForItem(folderName);
+      await expect(
+        filesTable.contextMenu.getItemLocator(folderContextMenuOption.open),
+      ).toBeVisible();
+      await expect(
+        filesTable.contextMenu.getItemLocator(folderContextMenuOption.download),
+      ).toBeVisible();
+      await expect(
+        filesTable.contextMenu.getItemLocator(folderContextMenuOption.folderInfo),
+      ).toBeVisible();
+      await expect(
+        filesTable.contextMenu.getItemLocator(
+          folderContextMenuOption.markAsFavorite,
+        ),
+      ).toBeVisible();
+      await expect(
+        filesTable.contextMenu.getItemLocator(folderContextMenuOption.select),
+      ).toBeVisible();
+      await expect(
+        filesTable.contextMenu.getItemLocator("Copy"),
+      ).toBeVisible();
+      await expect(
+        filesTable.contextMenu.getItemLocator("Copy link"),
+      ).toBeVisible();
+      // Delete and Rename must not be present for system folders
+      await expect(
+        filesTable.contextMenu.getItemLocator(folderContextMenuOption.delete),
+      ).not.toBeVisible();
+      await expect(
+        filesTable.contextMenu.getItemLocator(folderContextMenuOption.rename),
+      ).not.toBeVisible();
+      await filesTable.contextMenu.close();
+    };
+
+    await test.step("Check context menu for Complete folder", async () => {
+      await checkFolderContextMenu("Complete");
+    });
+
+    await test.step("Check context menu for In process folder", async () => {
+      await checkFolderContextMenu("In process");
     });
   });
 
