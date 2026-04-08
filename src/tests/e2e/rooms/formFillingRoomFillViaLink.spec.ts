@@ -23,6 +23,7 @@ import {
   uploadAndVerifyPDF,
 } from "@/src/utils/helpers/formFillingRoom";
 import { formFillingRoomPdfContextMenuOption } from "@/src/utils/constants/files";
+import PauseSubmissionsDialog from "@/src/objects/files/PauseSubmissionsDialog";
 
 test.describe("FormFilling room - Fill via link", () => {
   let myRooms: MyRooms;
@@ -176,7 +177,7 @@ test.describe("FormFilling room - Fill via link", () => {
           login.portalDomain,
         );
         await incognitoMyRooms.verifyCompleteFolderNotVisible();
-        await incognitoMyRooms.verifyInProgressFolderNotVisible();
+        await incognitoMyRooms.verifyInProcessFolderNotVisible();
       });
 
       await test.step("Check Submit button exist", async () => {
@@ -250,7 +251,7 @@ test.describe("FormFilling room - Fill via link", () => {
       await test.step("Verify room folders are not visible (isolation check)", async () => {
         const incognitoMyRooms = new MyRooms(userPage, login.portalDomain);
         await incognitoMyRooms.verifyCompleteFolderNotVisible();
-        await incognitoMyRooms.verifyInProgressFolderNotVisible();
+        await incognitoMyRooms.verifyInProcessFolderNotVisible();
       });
 
       await test.step("Submit the form", async () => {
@@ -281,6 +282,68 @@ test.describe("FormFilling room - Fill via link", () => {
         await expect(
           page.getByText("ONLYOFFICE Resume Sample", { exact: true }),
         ).toBeVisible({ timeout: 15000 });
+      });
+    });
+
+    test("Download button on completed-form page triggers file download", async ({
+      page,
+      browser,
+      apiSdk,
+    }) => {
+      let publicLink: string;
+      let userPage: Page;
+
+      await test.step("Upload PDF form from My Documents", async () => {
+        await uploadAndVerifyPDF(
+          shortTour,
+          roomEmptyView,
+          selectPanel,
+          myRooms,
+          page,
+        );
+      });
+
+      await test.step("Start filling and copy public link", async () => {
+        await filesTable.openContextMenuForItem("ONLYOFFICE Resume Sample");
+        await filesTable.contextMenu.clickOption(
+          formFillingRoomPdfContextMenuOption.startFilling,
+        );
+        await setupClipboardPermissions(page);
+        await shortTour.clickCopyPublicLink();
+        await myRooms.toast.dismissToastSafely(
+          "Link copied to clipboard",
+          5000,
+        );
+        publicLink = await getLinkFromClipboard(page);
+        if (!publicLink)
+          throw new Error("Failed to get public link from clipboard");
+        await shortTour.clickModalCloseButton().catch(() => {});
+      });
+
+      await test.step("Login as DocSpace user and open fill link", async () => {
+        const { userData } = await apiSdk.profiles.addMember("owner", "User");
+        const result = await setupIncognitoContext(browser);
+        incognitoContext = result.context;
+        userPage = result.page;
+        const userLogin = new Login(userPage, login.portalDomain);
+        await userLogin.loginWithCredentials(userData.email, userData.password);
+        await userPage.goto(publicLink, { waitUntil: "domcontentloaded" });
+      });
+
+      await test.step("Submit the form", async () => {
+        const pdfForm = new FilesPdfForm(userPage);
+        await pdfForm.clickSubmitButton();
+      });
+
+      await test.step("Click download button and verify file download starts", async () => {
+        const completedForm = new RoomPDFCompleted(userPage);
+        const [download] = await Promise.all([
+          userPage.waitForEvent("download", { timeout: 30000 }),
+          completedForm.clickDownloadButton(),
+        ]);
+        const fileName = download.suggestedFilename();
+        expect(fileName).toMatch(/ONLYOFFICE Resume Sample.*\.pdf$/i);
+        await download.cancel();
       });
     });
 
@@ -350,7 +413,7 @@ test.describe("FormFilling room - Fill via link", () => {
       await test.step("Verify room folders are not visible (isolation check)", async () => {
         const incognitoMyRooms = new MyRooms(userPage, login.portalDomain);
         await incognitoMyRooms.verifyCompleteFolderNotVisible();
-        await incognitoMyRooms.verifyInProgressFolderNotVisible();
+        await incognitoMyRooms.verifyInProcessFolderNotVisible();
       });
 
       await test.step("Submit the form (first submission)", async () => {
@@ -505,7 +568,7 @@ test.describe("FormFilling room - Fill via link", () => {
       await test.step("Verify room folders are not visible (isolation check)", async () => {
         const incognitoMyRooms = new MyRooms(userPage, login.portalDomain);
         await incognitoMyRooms.verifyCompleteFolderNotVisible();
-        await incognitoMyRooms.verifyInProgressFolderNotVisible();
+        await incognitoMyRooms.verifyInProcessFolderNotVisible();
       });
 
       await test.step("Submit the form and verify completed page", async () => {
@@ -514,6 +577,159 @@ test.describe("FormFilling room - Fill via link", () => {
         await completedForm.checkDocumentTitleIsVisible(completedFileName);
         await completedForm.checkDownloadButtonVisible();
         await completedForm.checkBackToRoomButtonHidden();
+      });
+    });
+
+    test("Form becomes unavailable when owner switches to edit mode during active fill", async ({
+      page,
+      browser,
+    }) => {
+      let publicLink: string;
+
+      await test.step("Upload PDF form from My Documents", async () => {
+        await uploadAndVerifyPDF(
+          shortTour,
+          roomEmptyView,
+          selectPanel,
+          myRooms,
+          page,
+        );
+      });
+
+      await test.step("Start filling and copy public link", async () => {
+        await filesTable.openContextMenuForItem("ONLYOFFICE Resume Sample");
+        await filesTable.contextMenu.clickOption(
+          formFillingRoomPdfContextMenuOption.startFilling,
+        );
+        await setupClipboardPermissions(page);
+        await shortTour.clickCopyPublicLink();
+        await myRooms.toast.dismissToastSafely(
+          "Link copied to clipboard",
+          5000,
+        );
+        publicLink = await getLinkFromClipboard(page);
+        if (!publicLink)
+          throw new Error("Failed to get public link from clipboard");
+        await shortTour.clickModalCloseButton().catch(() => {});
+      });
+
+      await test.step("Verify fill icon on file", async () => {
+        await filesTable.expectFillingIconVisible("ONLYOFFICE Resume Sample");
+      });
+
+      await test.step("Open fill link in incognito and verify submit button visible", async () => {
+        const result = await setupIncognitoContext(browser);
+        incognitoContext = result.context;
+        incognitoPage = result.page;
+        await incognitoPage.goto(publicLink, { waitUntil: "domcontentloaded" });
+        const pdfForm = new FilesPdfForm(incognitoPage);
+        await pdfForm.checkSubmitButtonExist();
+      });
+
+      await test.step("Owner switches form to edit mode", async () => {
+        const pagePromise = page
+          .context()
+          .waitForEvent("page", { timeout: 30000 });
+        await filesTable.openContextMenuForItem("ONLYOFFICE Resume Sample");
+        await filesTable.contextMenu.clickOption(
+          formFillingRoomPdfContextMenuOption.edit,
+        );
+        const pauseDialog = new PauseSubmissionsDialog(page);
+        await pauseDialog.clickEdit();
+        const editorPage = await pagePromise;
+        await editorPage.waitForLoadState("load");
+        await editorPage.close();
+        await page.bringToFront();
+      });
+
+      await test.step("Verify filling icon is gone after switching to edit mode", async () => {
+        await myRooms.filesTable.expectFillingIconNotVisible(
+          "ONLYOFFICE Resume Sample",
+        );
+      });
+
+      await test.step("User submits the form while owner has switched to edit mode", async () => {
+        ensureIncognitoPage(incognitoPage);
+        const pdfForm = new FilesPdfForm(incognitoPage!);
+        // form submits successfully even after owner switched to edit mode,
+        // but lands on a simpler completion page ("The form is completed")
+        await pdfForm.submitButton.click();
+        await incognitoPage!.waitForURL(/.*completed-form.*/);
+        const completedForm = new RoomPDFCompleted(incognitoPage!);
+        await completedForm.waitForSimpleCompletionPage();
+        await completedForm.checkBackToRoomButtonHidden();
+        await completedForm.checkFillItOutAgainButtonHidden();
+      });
+
+      await test.step("Owner opens Complete folder and verifies submission was recorded", async () => {
+        await page.reload({ waitUntil: "load" });
+        await filesTable.openContextMenuForItem("Complete");
+        await filesTable.contextMenu.clickOption("Open");
+        await expect(
+          page.getByRole("heading", { name: "Complete" }),
+        ).toBeVisible();
+        await expect(
+          page.getByText("ONLYOFFICE Resume Sample", { exact: true }),
+        ).toBeVisible({ timeout: 15000 });
+      });
+    });
+
+    test("Fill link is not fillable after owner switches to edit mode", async ({
+      page,
+      browser,
+    }) => {
+      let publicLink: string;
+
+      await test.step("Upload PDF form from My Documents", async () => {
+        await uploadAndVerifyPDF(
+          shortTour,
+          roomEmptyView,
+          selectPanel,
+          myRooms,
+          page,
+        );
+      });
+
+      await test.step("Start filling and copy public link", async () => {
+        await filesTable.openContextMenuForItem("ONLYOFFICE Resume Sample");
+        await filesTable.contextMenu.clickOption(
+          formFillingRoomPdfContextMenuOption.startFilling,
+        );
+        await setupClipboardPermissions(page);
+        await shortTour.clickCopyPublicLink();
+        await myRooms.toast.dismissToastSafely(
+          "Link copied to clipboard",
+          5000,
+        );
+        publicLink = await getLinkFromClipboard(page);
+        if (!publicLink)
+          throw new Error("Failed to get public link from clipboard");
+        await shortTour.clickModalCloseButton().catch(() => {});
+      });
+
+      await test.step("Owner switches form to edit mode", async () => {
+        const pagePromise = page
+          .context()
+          .waitForEvent("page", { timeout: 30000 });
+        await filesTable.openContextMenuForItem("ONLYOFFICE Resume Sample");
+        await filesTable.contextMenu.clickOption(
+          formFillingRoomPdfContextMenuOption.edit,
+        );
+        const pauseDialog = new PauseSubmissionsDialog(page);
+        await pauseDialog.clickEdit();
+        const editorPage = await pagePromise;
+        await editorPage.waitForLoadState("load");
+        await editorPage.close();
+        await page.bringToFront();
+      });
+
+      await test.step("Open fill link after stop filling and verify form is not submittable", async () => {
+        const { context, page: incognitoPage } =
+          await setupIncognitoContext(browser);
+        await incognitoPage.goto(publicLink, { waitUntil: "domcontentloaded" });
+        const pdfForm = new FilesPdfForm(incognitoPage);
+        await pdfForm.checkSubmitButtonNotVisible();
+        await cleanupIncognitoContext(context, incognitoPage);
       });
     });
   });
@@ -602,7 +818,7 @@ test.describe("FormFilling room - Fill via link", () => {
           login.portalDomain,
         );
         await incognitoMyRooms.verifyCompleteFolderNotVisible();
-        await incognitoMyRooms.verifyInProgressFolderNotVisible();
+        await incognitoMyRooms.verifyInProcessFolderNotVisible();
       });
     });
 

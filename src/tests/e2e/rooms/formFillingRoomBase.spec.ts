@@ -18,6 +18,7 @@ import {
 } from "@/src/utils/constants/files";
 import FileVersionHistory from "@/src/objects/files/FileVersionHistory";
 import PauseSubmissionsDialog from "@/src/objects/files/PauseSubmissionsDialog";
+import StopFillingModal from "@/src/objects/files/StopFillingModal";
 import RoomSelectPanel from "@/src/objects/rooms/RoomSelectPanel";
 import RoomInfoPanel from "@/src/objects/rooms/RoomInfoPanel";
 import RoomsInviteDialog from "@/src/objects/rooms/RoomsInviteDialog";
@@ -690,6 +691,95 @@ test.describe("FormFilling base tests", () => {
       await myRooms.filesTable.expectFillingIconVisible(
         "ONLYOFFICE Resume Sample",
       );
+    });
+  });
+
+  test("Cancelling Stop Filling dialog keeps form in filling mode", async ({
+    page,
+  }) => {
+    await test.step("Upload PDF form and start filling", async () => {
+      await uploadAndVerifyPDF(
+        shortTour,
+        roomEmptyView,
+        selectPanel,
+        myRooms,
+        page,
+      );
+      await filesTable.openContextMenuForItem("ONLYOFFICE Resume Sample");
+      await filesTable.contextMenu.clickOption(
+        formFillingRoomPdfContextMenuOption.startFilling,
+      );
+      await shortTour.clickModalCloseButton();
+    });
+
+    await test.step("Verify filling icon is visible after starting", async () => {
+      await filesTable.expectFillingIconVisible("ONLYOFFICE Resume Sample");
+    });
+
+    await test.step("Open Stop Filling dialog and click Cancel", async () => {
+      await filesTable.openContextMenuForItem("ONLYOFFICE Resume Sample");
+      await filesTable.contextMenu.clickOption(
+        formFillingRoomPdfContextMenuOption.stopFilling,
+      );
+      const stopFillingModal = new StopFillingModal(page);
+      await stopFillingModal.clickCancel();
+    });
+
+    await test.step("Verify form is still in filling mode after cancel", async () => {
+      await filesTable.expectFillingIconVisible("ONLYOFFICE Resume Sample");
+    });
+  });
+
+  test("In Progress folder appears with draft file after opening form and closing without submitting", async ({
+    page,
+  }) => {
+    let formPage: Page;
+
+    await test.step("Upload PDF form and start filling", async () => {
+      await uploadAndVerifyPDF(
+        shortTour,
+        roomEmptyView,
+        selectPanel,
+        myRooms,
+        page,
+      );
+      await filesTable.openContextMenuForItem("ONLYOFFICE Resume Sample");
+      await filesTable.contextMenu.clickOption(
+        formFillingRoomPdfContextMenuOption.startFilling,
+      );
+      await shortTour.clickModalCloseButton();
+    });
+
+    await test.step("Verify draft label is not visible before opening form", async () => {
+      await myRooms.verifyDraftLabelNotVisible();
+    });
+
+    await test.step("Open form and close without submitting", async () => {
+      const pagePromise = page
+        .context()
+        .waitForEvent("page", { timeout: 30000 });
+      await filesTable.openContextMenuForItem("ONLYOFFICE Resume Sample");
+      await filesTable.contextMenu.clickOption(
+        formFillingRoomPdfContextMenuOption.fill,
+      );
+      formPage = await pagePromise;
+      await formPage.waitForLoadState("load");
+      const pdfForm = new FilesPdfForm(formPage);
+      await pdfForm.clickCloseButton();
+    });
+
+    await test.step("Verify draft label appears on the file after closing without submitting", async () => {
+      await page.bringToFront();
+      await page.reload({ waitUntil: "load" });
+      await myRooms.verifyDraftLabelVisible();
+    });
+
+    await test.step("Open In Process folder and verify draft file is present", async () => {
+      await filesTable.openContextMenuForItem("In process");
+      await filesTable.contextMenu.clickOption("Open");
+      await expect(
+        page.getByText("ONLYOFFICE Resume Sample", { exact: true }),
+      ).toBeVisible();
     });
   });
 });

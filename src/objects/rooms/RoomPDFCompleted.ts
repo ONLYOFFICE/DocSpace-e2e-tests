@@ -4,6 +4,8 @@ const BACK_TO_ROOM = "back_to_room_button";
 const FILL_IT_OUT_AGAIN = "fill_again_link";
 const SUCCESS_MESSAGE =
   'h1[data-testid="heading"]:has-text("Form completed successfully")';
+// shown when filling was stopped before the user's submission was processed
+const SIMPLE_COMPLETION_MESSAGE = "The form is completed";
 const DOWNLOAD_BUTTON = "download_form_button";
 
 class RoomPDFCompleted {
@@ -39,6 +41,10 @@ class RoomPDFCompleted {
     await expect(this.fillItOutAgainButton).toBeVisible();
   }
 
+  async checkFillItOutAgainButtonHidden() {
+    await expect(this.fillItOutAgainButton).toBeHidden();
+  }
+
   async checkDownloadButtonVisible() {
     await expect(this.downloadButton).toBeVisible();
   }
@@ -51,6 +57,12 @@ class RoomPDFCompleted {
   }
   async waitForPageLoad(): Promise<void> {
     await expect(this.successMessage).toBeVisible();
+  }
+
+  async waitForSimpleCompletionPage(): Promise<void> {
+    await expect(
+      this.page.getByTestId("heading").filter({ hasText: SIMPLE_COMPLETION_MESSAGE }),
+    ).toBeVisible();
   }
   async isReadyFormButtonVisible() {
     return this.checkReadyFormButton.isVisible();
