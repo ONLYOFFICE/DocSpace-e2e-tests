@@ -24,6 +24,7 @@ import {
 } from "@/src/utils/helpers/formFillingRoom";
 import { formFillingRoomPdfContextMenuOption } from "@/src/utils/constants/files";
 import PauseSubmissionsDialog from "@/src/objects/files/PauseSubmissionsDialog";
+import FolderDeleteModal from "@/src/objects/files/FolderDeleteModal";
 
 test.describe("FormFilling room - Fill via link", () => {
   let myRooms: MyRooms;
@@ -913,6 +914,72 @@ test.describe("FormFilling room - Fill via link", () => {
         const pdfForm = new FilesPdfForm(page);
         await pdfForm.checkInfoBoxVisible();
       });
+    });
+  });
+
+  test("Fill it again link shows Access Denied when original form has been deleted", async ({
+    page,
+  }) => {
+    let formPage: Page;
+
+    await test.step("Upload PDF form and start filling", async () => {
+      await uploadAndVerifyPDF(
+        shortTour,
+        roomEmptyView,
+        selectPanel,
+        myRooms,
+        page,
+      );
+      await filesTable.openContextMenuForItem("ONLYOFFICE Resume Sample");
+      await filesTable.contextMenu.clickOption(
+        formFillingRoomPdfContextMenuOption.startFilling,
+      );
+      await shortTour.clickModalCloseButton();
+    });
+
+    await test.step("Open form in editor", async () => {
+      const pagePromise = page
+        .context()
+        .waitForEvent("page", { timeout: 30000 });
+      await filesTable.openContextMenuForItem("ONLYOFFICE Resume Sample");
+      await filesTable.contextMenu.clickOption(
+        formFillingRoomPdfContextMenuOption.fill,
+      );
+      formPage = await pagePromise;
+      await formPage.waitForLoadState("load");
+    });
+
+    await test.step("Delete the original PDF form while the editor is open", async () => {
+      await page.bringToFront();
+      await filesTable.openContextMenuForItem("ONLYOFFICE Resume Sample");
+      await filesTable.contextMenu.clickOption(
+        formFillingRoomPdfContextMenuOption.delete,
+      );
+      const deleteModal = new FolderDeleteModal(page);
+      await deleteModal.clickDeleteFolder();
+      await myRooms.toast.checkToastMessage(
+        "ONLYOFFICE Resume Sample.pdf successfully moved to Trash",
+      );
+    });
+
+    await test.step("Submit draft from editor - form completes successfully", async () => {
+      const pdfForm = new FilesPdfForm(formPage);
+      await pdfForm.clickSubmitButton();
+    });
+
+    await test.step("Click Fill it again and verify Access Denied in editor", async () => {
+      const completedForm = new RoomPDFCompleted(formPage);
+      await Promise.all([
+        formPage.waitForURL(/.*doceditor.*/, { timeout: 30000 }),
+        completedForm.chooseFillItOutAgain(),
+      ]);
+      await formPage.waitForLoadState("load");
+      const iframeLocator = formPage.locator('iframe[name="frameEditor"]');
+      await iframeLocator.waitFor({ state: "visible" });
+      const frame = iframeLocator.contentFrame();
+      await expect(
+        frame.getByText("Access denied Click to close"),
+      ).toBeVisible({ timeout: 30000 });
     });
   });
 });
