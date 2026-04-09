@@ -262,8 +262,9 @@ test.describe("FormFilling room - Edit mode", () => {
       await iframeLocator.waitFor({ state: "visible" });
       const frame = iframeLocator.contentFrame();
       await expect(
-        frame.getByText("Access denied Click to close"),
-      ).toBeVisible({ timeout: 30000 });
+        frame.getByText("Access denied Click to close")).toBeVisible(
+        { timeout: 30000 },
+      );
     });
   });
 });

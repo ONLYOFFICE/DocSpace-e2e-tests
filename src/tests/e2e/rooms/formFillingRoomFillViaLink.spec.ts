@@ -578,7 +578,6 @@ test.describe("FormFilling room - Fill via link", () => {
         await completedForm.checkBackToRoomButtonHidden();
       });
     });
-
   });
 
   test.describe("Form filling not started", () => {
@@ -762,5 +761,4 @@ test.describe("FormFilling room - Fill via link", () => {
       });
     });
   });
-
 });
