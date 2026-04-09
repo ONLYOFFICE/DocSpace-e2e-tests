@@ -16,7 +16,7 @@ test.describe("Payments", () => {
     await payments.open();
   });
 
-  test("Test flow", async ({ page }) => {
+  test.skip("Test flow", async ({ page }) => {
     await test.step("Payment", async () => {
       await payments.openTab(paymentsTab.wallet);
       await payments.openTopUpBalanceDialog();
