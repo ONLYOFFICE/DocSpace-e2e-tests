@@ -54,7 +54,20 @@ test.describe("Payments", () => {
     });
   });
 
-  test.skip("Send sales request", async ({ page }) => {
+  test("Send sales request", async ({ page }) => {
+    await test.step("Upgrade plan", async () => {
+      const stripePage = await payments.upgradePlan(10);
+      await payments.fillPaymentData(stripePage);
+      await page.reload();
+    });
+
+    await test.step("Prepare tariff plan for sales request", async () => {
+      // Sales request button appears only after moving the tariff calculator to a custom sales flow.
+      await payments.openTab(paymentsTab.tariffPlan);
+      await payments.numberOfAdminsInput.fill("99999");
+      await payments.hideDateTariffPlan();
+    });
+
     await test.step("Open sales request dialog and send", async () => {
       await payments.openSendRequestDialog();
       await payments.sendRequest();
@@ -72,7 +85,7 @@ test.describe("Payments", () => {
     });
   });
 
-  test.skip("Top up wallet via Stripe", async ({ page }) => {
+  test("Top up wallet via Stripe", async ({ page }) => {
     await test.step("Upgrade plan", async () => {
       const stripePage = await payments.upgradePlan(10);
       await payments.fillPaymentData(stripePage);
@@ -100,7 +113,7 @@ test.describe("Payments", () => {
     });
   });
 
-  test.skip("Set up and edit automatic payments", async ({ page }) => {
+  test("Set up and edit automatic payments", async ({ page }) => {
     await test.step("Upgrade plan", async () => {
       const stripePage = await payments.upgradePlan(10);
       await payments.fillPaymentData(stripePage);
@@ -143,7 +156,7 @@ test.describe("Payments", () => {
     });
   });
 
-  test.skip("Filter transaction history", async ({ page }) => {
+  test("Filter transaction history", async ({ page }) => {
     await test.step("Upgrade plan", async () => {
       const stripePage = await payments.upgradePlan(10);
       await payments.fillPaymentData(stripePage);
@@ -195,7 +208,7 @@ test.describe("Payments", () => {
     });
   });
 
-  test.skip("Download transaction history report", async ({ page }) => {
+  test("Download transaction history report", async ({ page }) => {
     await test.step("Upgrade plan", async () => {
       const stripePage = await payments.upgradePlan(10);
       await payments.fillPaymentData(stripePage);
@@ -257,7 +270,7 @@ test.describe("Payments", () => {
   //   await helpcenterPage.close();
   // });
 
-  test.skip("Add payment method and top up wallet", async ({ page }) => {
+  test("Add payment method and top up wallet", async ({ page }) => {
     await test.step("Add payment method and top up", async () => {
       await payments.openTab(paymentsTab.wallet);
       await payments.openTopUpBalanceDialog();
@@ -275,14 +288,6 @@ test.describe("Payments", () => {
       ]);
       expect(response.status()).toBe(200);
       await payments.cancelAutomaticPaymentsButton.click();
-    });
-  });
-
-  test.skip("Upgrade from Startup plan", async () => {
-    await test.step("Verify startup plan and upgrade", async () => {
-      await payments.openTab(paymentsTab.tariffPlan);
-      await expect(payments.thisStartUpPlan()).toBeVisible();
-      await payments.changeTariffPlan();
     });
   });
 });
