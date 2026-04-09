@@ -458,7 +458,6 @@ test.describe("FormFilling base tests", () => {
     });
   });
 
-
   test("Editing a filling form triggers stop-filling confirmation and opens editor", async ({
     page,
   }) => {

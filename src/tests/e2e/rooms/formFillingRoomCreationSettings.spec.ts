@@ -246,7 +246,6 @@ test.describe("FormFilling room: creation settings", () => {
       ).not.toBeVisible();
     });
   });
-
 });
 
 test.describe("FormFilling room: creation settings - database connection feature availability by portal role", () => {
