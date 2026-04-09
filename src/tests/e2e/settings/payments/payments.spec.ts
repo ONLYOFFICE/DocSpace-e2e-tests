@@ -16,54 +16,35 @@ test.describe("Payments", () => {
     await payments.open();
   });
 
-  test.skip("Test flow", async ({ page }) => {
-    await test.step("Payment", async () => {
+  test("Upgrade plan via Stripe", async ({ page }) => {
+    await test.step("Open wallet tab and cancel top-up dialog", async () => {
       await payments.openTab(paymentsTab.wallet);
       await payments.openTopUpBalanceDialog();
       await payments.cancelButton.click();
+    });
+
+    await test.step("Upgrade plan via Stripe", async () => {
       await payments.openTab(paymentsTab.tariffPlan);
       const stripePage = await payments.upgradePlan(10);
       await payments.fillPaymentData(stripePage);
-      await page.pause();
+      await page.reload();
+    });
+  });
+
+  test("Downgrade and upgrade tariff plan", async ({ page }) => {
+    await test.step("Upgrade plan", async () => {
+      const stripePage = await payments.upgradePlan(10);
+      await payments.fillPaymentData(stripePage);
       await page.reload();
     });
 
-    // TODO: Stripe customer portal link removed from UI
-    // await test.step("Stripe customer portal link", async () => {
-    //   const page1Promise = page.waitForEvent("popup", { timeout: 30000 });
-    //   await payments.stripeCustomerPortalLink.click({ force: true });
-    //   const page1 = await page1Promise;
-    //   await page1.waitForURL("https://billing.stripe.com/p/session/*");
-    //   await page1.close();
-
-    //   await payments.openTab(paymentsTab.wallet);
-    //   const page2Promise = page.waitForEvent("popup", { timeout: 30000 });
-    //   await payments.stripeCustomerPortalLink.click({ force: true });
-    //   const page2 = await page2Promise;
-    //   await page2.waitForURL("https://billing.stripe.com/p/session/*");
-    //   await page2.close();
-    // });
-
-    // TODO: Configure DocSpace settings link removed from UI
-    // await test.step("Configure DocSpace settings link", async () => {
-    //   const helpcenterPagePromise = page
-    //     .context()
-    //     .waitForEvent("page", { timeout: 30000 });
-    //   await payments.configureDocSpaceLink.click({
-    //     modifiers: ["ControlOrMeta"],
-    //   });
-    //   const helpcenterPage = await helpcenterPagePromise;
-    //   await helpcenterPage.waitForURL(
-    //     /https:\/\/helpcenter\.onlyoffice\.com\/docspace\/configuration\/.*\.aspx/,
-    //   );
-    //   await helpcenterPage.close();
-    // });
-
-    await test.step("Change tarif plan", async () => {
+    await test.step("Downgrade and upgrade plan", async () => {
       await payments.openTab(paymentsTab.tariffPlan);
       await payments.downgradePlan();
       await payments.updatePlan();
+    });
 
+    await test.step("Change number of admins", async () => {
       await payments.numberOfAdminsInput.fill("1");
       await payments.hideDateTariffPlan();
       await payments.numberOfAdminsInput.fill("500");
@@ -71,8 +52,10 @@ test.describe("Payments", () => {
       await payments.numberOfAdminsInput.fill("99999");
       await payments.hideDateTariffPlan();
     });
+  });
 
-    await test.step("Send request", async () => {
+  test.skip("Send sales request", async ({ page }) => {
+    await test.step("Open sales request dialog and send", async () => {
       await payments.openSendRequestDialog();
       await payments.sendRequest();
       await payments.fillRequestData();
@@ -87,58 +70,114 @@ test.describe("Payments", () => {
       expect(response.status()).toBe(200);
       await payments.dismissToastSafely(toastMessages.requestSent);
     });
+  });
 
-    await test.step("Top up balance", async () => {
+  test.skip("Top up wallet via Stripe", async ({ page }) => {
+    await test.step("Upgrade plan", async () => {
+      const stripePage = await payments.upgradePlan(10);
+      await payments.fillPaymentData(stripePage);
+      await page.reload();
+    });
+
+    await test.step("Open wallet and top up via Stripe", async () => {
       await payments.openTab(paymentsTab.wallet);
       await payments.openTopUpBalanceDialog();
-
       await payments.fillAmountTopUp(1000);
 
       const page1Promise = page.waitForEvent("popup", { timeout: 30000 });
       await payments.goToStripeLink.click();
       const page1 = await page1Promise;
-      await page1.waitForURL("https://billing.stripe.com/p/session/*");
+      await expect(page1).toHaveURL(
+        /https:\/\/billing\.stripe\.com\/p\/session\//,
+        {
+          timeout: 30000,
+        },
+      );
       await page1.close();
 
       await payments.topUpButton.click();
       await payments.removeToast(toastMessages.walletToppedUp);
     });
+  });
 
-    await test.step("Wallet refilled", async () => {
+  test.skip("Set up and edit automatic payments", async ({ page }) => {
+    await test.step("Upgrade plan", async () => {
+      const stripePage = await payments.upgradePlan(10);
+      await payments.fillPaymentData(stripePage);
+      await page.reload();
+    });
+
+    await test.step("Top up wallet", async () => {
+      await payments.openTab(paymentsTab.wallet);
+      await payments.openTopUpBalanceDialog();
+      await payments.amountTopUpInput.fill("1000");
+      await payments.topUpButton.click();
+      await payments.removeToast(toastMessages.walletToppedUp);
+    });
+
+    await test.step("Enable automatic payments", async () => {
       await payments.checkWalletRefilledDialogExist();
-
       await payments.enableAutomaticPayments();
       await payments.fillAutomaticPaymentsData(99, 2000);
-
       await payments.saveAutomaticPayments();
       await expect(payments.editAutoTopUpLink).toBeVisible();
+    });
+
+    await test.step("Edit automatic payments", async () => {
       await payments.editAutoTopUpLink.click();
       await payments.fillAutomaticPaymentsData(150, 1000);
       await payments.saveAutomaticPaymentsModal();
       await expect(payments.editAutoTopUpButton).toBeVisible();
+
       await payments.editAutoTopUpButton.click();
       await payments.fillAutomaticPaymentsData(70, 600);
       await payments.saveAutomaticPaymentsModal();
       await expect(payments.editAutoTopUpButton).toBeVisible();
+    });
 
+    await test.step("Top up again and close dialog", async () => {
       await payments.fillAmountTopUp(3333);
       await payments.topUpButton.click();
       await payments.removeToast(toastMessages.walletToppedUp);
-
       await payments.dialog.close();
     });
+  });
 
-    await test.step("Transaction history", async () => {
+  test.skip("Filter transaction history", async ({ page }) => {
+    await test.step("Upgrade plan", async () => {
+      const stripePage = await payments.upgradePlan(10);
+      await payments.fillPaymentData(stripePage);
+      await page.reload();
+    });
+
+    await test.step("Top up wallet", async () => {
+      await payments.openTab(paymentsTab.wallet);
+      await payments.openTopUpBalanceDialog();
+      await payments.amountTopUpInput.fill("1000");
+      await payments.topUpButton.click();
+      await payments.removeToast(toastMessages.walletToppedUp);
+      await payments.cancelAutomaticPaymentsButton.click();
+    });
+
+    await test.step("Check calendar date pickers", async () => {
       await payments.checkCalendar();
+    });
+
+    await test.step("Filter by credit transactions", async () => {
       await payments.openTransactionHistoryFilter();
       await payments.selectTransactionHistoryFilter(
         transactionHistoryFilter.credit,
       );
+    });
 
+    await test.step("Filter by debit transactions", async () => {
       await payments.openTransactionHistoryFilter();
       await payments.selectTransactionHistoryFilter(
         transactionHistoryFilter.debit,
       );
+    });
+
+    await test.step("Verify debit filter persists after reload", async () => {
       await page.reload();
       await payments.openTab(paymentsTab.wallet);
       await payments.openTransactionHistoryFilter();
@@ -146,21 +185,80 @@ test.describe("Payments", () => {
         transactionHistoryFilter.debit,
       );
       await expect(payments.emptyViewText).toBeVisible();
+    });
 
+    await test.step("Show all transactions", async () => {
       await payments.openTransactionHistoryFilter();
       await payments.selectTransactionHistoryFilter(
         transactionHistoryFilter.allTransactions,
       );
     });
+  });
 
-    // ISSUE: Sometime transaction history is empty during CI launch
-    await test.step("Download report", async () => {
+  test.skip("Download transaction history report", async ({ page }) => {
+    await test.step("Upgrade plan", async () => {
+      const stripePage = await payments.upgradePlan(10);
+      await payments.fillPaymentData(stripePage);
+      await page.reload();
+    });
+
+    await test.step("Top up wallet", async () => {
+      await payments.openTab(paymentsTab.wallet);
+      await payments.openTopUpBalanceDialog();
+      await payments.amountTopUpInput.fill("1000");
+      await payments.topUpButton.click();
+      await payments.removeToast(toastMessages.walletToppedUp);
+      await payments.cancelAutomaticPaymentsButton.click();
+    });
+
+    await test.step("Download transaction history report", async () => {
       await payments.downloadReport();
     });
   });
 
-  test("Top up wallet & change tariff plan", async ({ page }) => {
-    await test.step("Top up wallet", async () => {
+  // TODO: Stripe customer portal link removed from UI
+  // test("Stripe customer portal link", async ({ page }) => {
+  //   const page1Promise = page.waitForEvent("popup", { timeout: 30000 });
+  //   await payments.stripeCustomerPortalLink.click({ force: true });
+  //   const page1 = await page1Promise;
+  //   await expect(page1).toHaveURL(
+  //     /https:\/\/billing\.stripe\.com\/p\/session\//,
+  //     {
+  //       timeout: 30000,
+  //     },
+  //   );
+  //   await page1.close();
+
+  //   await payments.openTab(paymentsTab.wallet);
+  //   const page2Promise = page.waitForEvent("popup", { timeout: 30000 });
+  //   await payments.stripeCustomerPortalLink.click({ force: true });
+  //   const page2 = await page2Promise;
+  //   await expect(page2).toHaveURL(
+  //     /https:\/\/billing\.stripe\.com\/p\/session\//,
+  //     {
+  //       timeout: 30000,
+  //     },
+  //   );
+  //   await page2.close();
+  // });
+
+  // TODO: Configure DocSpace settings link removed from UI
+  // test("Configure DocSpace settings link", async ({ page }) => {
+  //   const helpcenterPagePromise = page
+  //     .context()
+  //     .waitForEvent("page", { timeout: 30000 });
+  //   await payments.configureDocSpaceLink.click({
+  //     modifiers: ["ControlOrMeta"],
+  //   });
+  //   const helpcenterPage = await helpcenterPagePromise;
+  //   await helpcenterPage.waitForURL(
+  //     /https:\/\/helpcenter\.onlyoffice\.com\/docspace\/configuration\/.*\.aspx/,
+  //   );
+  //   await helpcenterPage.close();
+  // });
+
+  test.skip("Add payment method and top up wallet", async ({ page }) => {
+    await test.step("Add payment method and top up", async () => {
       await payments.openTab(paymentsTab.wallet);
       await payments.openTopUpBalanceDialog();
       await payments.addPaymentsMethod(page);
@@ -178,8 +276,10 @@ test.describe("Payments", () => {
       expect(response.status()).toBe(200);
       await payments.cancelAutomaticPaymentsButton.click();
     });
+  });
 
-    await test.step("Change tariff plan", async () => {
+  test.skip("Upgrade from Startup plan", async () => {
+    await test.step("Verify startup plan and upgrade", async () => {
       await payments.openTab(paymentsTab.tariffPlan);
       await expect(payments.thisStartUpPlan()).toBeVisible();
       await payments.changeTariffPlan();
