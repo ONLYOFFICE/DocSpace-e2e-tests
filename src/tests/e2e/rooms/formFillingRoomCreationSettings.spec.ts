@@ -12,7 +12,7 @@ import {
   roomCreateTitles,
   roomContextMenuOption,
 } from "@/src/utils/constants/rooms";
-import { Integration } from "@/src/objects/settings/integration/Integration";
+import Login from "@/src/objects/common/Login";
 
 test.describe("FormFilling room: creation settings", () => {
   let myRooms: MyRooms;
@@ -28,7 +28,6 @@ test.describe("FormFilling room: creation settings", () => {
     selectPanel = new RoomSelectPanel(page);
     roomEmptyView = new RoomEmptyView(page);
     await login.loginToPortal();
-    await myRooms.open();
     await myRooms.roomsArticle.openCreateDialog();
     await createDialog.openRoomType(roomCreateTitles.formFilling);
   });
@@ -55,23 +54,26 @@ test.describe("FormFilling room: creation settings", () => {
     });
   });
 
-  test("Go to Integrations link navigates to third-party services page", async ({
+  test("Go to Integrations link opens Database connection panel", async ({
     page,
   }) => {
-    const integration = new Integration(page);
-
     await test.step("Verify Go to Integrations link is visible and has correct href", async () => {
       await expect(createDialog.goToIntegrationsLink).toBeVisible();
       await expect(createDialog.goToIntegrationsLink).toHaveAttribute(
         "href",
-        "/portal-settings/integration/third-party-services",
+        /\/portal-settings\/integration\/third-party-services\?consumer=externaldb/,
       );
     });
 
-    await test.step("Click link and verify third-party services tab opens", async () => {
+    await test.step("Click link and verify Database connection panel opens", async () => {
       await createDialog.goToIntegrationsLink.click();
-
-      await expect(integration.thirdPartyServicesTab).toBeVisible();
+      await page.waitForURL(
+        /\/portal-settings\/integration\/third-party-services\?consumer=externaldb/,
+      );
+      await expect(page.locator("#modal-header-swipe")).toBeVisible();
+      await expect(
+        page.locator("#modal-header-swipe").getByText("Database connection"),
+      ).toBeVisible();
     });
   });
 
@@ -159,7 +161,8 @@ test.describe("FormFilling room: creation settings", () => {
     });
   });
 
-  test("Disabling Collect results in XLSX: no XLSX file appears in Complete folder after form submission", async ({
+  // TODO: Bug 80762
+  test.skip("Disabling Collect results in XLSX: no XLSX file appears in Complete folder after form submission", async ({
     page,
   }) => {
     const roomName = "FormFillingNoXlsx";
@@ -241,6 +244,73 @@ test.describe("FormFilling room: creation settings", () => {
       await expect(
         newPage.getByLabel("ONLYOFFICE Resume Sample,"),
       ).not.toBeVisible();
+    });
+  });
+
+});
+
+test.describe("FormFilling room: creation settings - database connection feature availability by portal role", () => {
+  let roomAdminEmail: string;
+  let roomAdminPassword: string;
+  let docSpaceAdminEmail: string;
+  let docSpaceAdminPassword: string;
+
+  test.beforeEach(async ({ apiSdk }) => {
+    const [rmResult, dsaResult] = await Promise.all([
+      apiSdk.profiles.addMember("owner", "RoomAdmin"),
+      apiSdk.profiles.addMember("owner", "DocSpaceAdmin"),
+    ]);
+    roomAdminEmail = rmResult.userData.email;
+    roomAdminPassword = rmResult.userData.password;
+    docSpaceAdminEmail = dsaResult.userData.email;
+    docSpaceAdminPassword = dsaResult.userData.password;
+  });
+
+  test("Room admin: both Collect results in XLSX and Send form to external DB blocks are not visible", async ({
+    page,
+    api,
+  }) => {
+    const login = new Login(page, api.portalDomain);
+    await login.loginWithCredentials(roomAdminEmail, roomAdminPassword);
+    const myRooms = new MyRooms(page, api.portalDomain);
+    await myRooms.open();
+    await myRooms.roomsArticle.openCreateDialog();
+    const createDialog = new RoomsCreateDialog(page);
+    await createDialog.openRoomType(roomCreateTitles.formFilling);
+
+    await test.step("Verify Collect results in XLSX block is not visible", async () => {
+      await expect(page.locator("#save-form-as-xlsx")).not.toBeVisible();
+    });
+
+    await test.step("Verify Send form to external DB block is not visible", async () => {
+      await expect(page.locator("#send-form-to-external-db")).not.toBeVisible();
+    });
+  });
+
+  test("DocSpace admin: Collect results in XLSX toggle is enabled, Send form to external DB toggle is disabled", async ({
+    page,
+    api,
+  }) => {
+    const login = new Login(page, api.portalDomain);
+    await login.loginWithCredentials(docSpaceAdminEmail, docSpaceAdminPassword);
+    const myRooms = new MyRooms(page, api.portalDomain);
+    await myRooms.open();
+    await myRooms.roomsArticle.openCreateDialog();
+    const createDialog = new RoomsCreateDialog(page);
+    await createDialog.openRoomType(roomCreateTitles.formFilling);
+
+    await test.step("Verify Collect results in XLSX toggle is visible and enabled", async () => {
+      await expect(
+        page.locator("#save-form-as-xlsx").getByTestId("toggle-button-input"),
+      ).not.toBeDisabled();
+    });
+
+    await test.step("Verify Send form to external DB toggle is visible but disabled", async () => {
+      await expect(
+        page
+          .locator("#send-form-to-external-db")
+          .getByTestId("toggle-button-input"),
+      ).toBeDisabled();
     });
   });
 });

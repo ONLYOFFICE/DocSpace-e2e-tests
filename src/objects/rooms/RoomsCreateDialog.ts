@@ -14,7 +14,7 @@ const SEND_FORM_TO_EXTERNAL_DB_BLOCK = "#send-form-to-external-db";
 const TOGGLE_INPUT = "toggle-button-input";
 const TOGGLE_LABEL = "toggle-button-container";
 const GO_TO_INTEGRATIONS_LINK =
-  'a[href="/portal-settings/integration/third-party-services"]';
+  'a[href="/portal-settings/integration/third-party-services?consumer=externaldb"]';
 const ROOM_TEMPLATE_SUBMIT_BUTTON = "#create-room-template-modal_submit";
 const LOGO_NAME_CONTAINER = "create_edit_room_icon";
 const TAG_NAME_INPUT = "create_edit_room_tags_input";

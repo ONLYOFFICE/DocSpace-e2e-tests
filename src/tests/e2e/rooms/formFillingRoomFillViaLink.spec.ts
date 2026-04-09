@@ -22,7 +22,11 @@ import {
   copyFileLink,
   uploadAndVerifyPDF,
 } from "@/src/utils/helpers/formFillingRoom";
-import { formFillingRoomPdfContextMenuOption } from "@/src/utils/constants/files";
+import {
+  formFillingRoomPdfContextMenuOption,
+  DOC_ACTIONS,
+} from "@/src/utils/constants/files";
+import FilesSelectPanel from "@/src/objects/files/FilesSelectPanel";
 
 test.describe("FormFilling room - Fill via link", () => {
   let myRooms: MyRooms;
@@ -446,6 +450,216 @@ test.describe("FormFilling room - Fill via link", () => {
         await completedForm.checkDownloadButtonVisible();
         await completedForm.checkBackToRoomButtonHidden();
         await completedForm.checkFillItOutAgainButtonVisible();
+      });
+    });
+
+    test("Submissions continue sequential numbering after form rename", async ({
+      page,
+      browser,
+      apiSdk,
+    }) => {
+      let publicLink: string;
+      let userEmail: string;
+      let userPassword: string;
+      let completedFileName: string;
+      let secondCompletedFileName: string;
+      const renamedFormName = "ONLYOFFICE Resume Sample Renamed";
+      let userPage: Page;
+
+      await test.step("Upload PDF form from My Documents", async () => {
+        await uploadAndVerifyPDF(
+          shortTour,
+          roomEmptyView,
+          selectPanel,
+          myRooms,
+          page,
+        );
+      });
+
+      await test.step("Start filling and copy public link", async () => {
+        await filesTable.openContextMenuForItem("ONLYOFFICE Resume Sample");
+        await filesTable.contextMenu.clickOption(
+          formFillingRoomPdfContextMenuOption.startFilling,
+        );
+        await setupClipboardPermissions(page);
+        await shortTour.clickCopyPublicLink();
+        await myRooms.toast.dismissToastSafely(
+          "Link copied to clipboard",
+          5000,
+        );
+        publicLink = await getLinkFromClipboard(page);
+        if (!publicLink)
+          throw new Error("Failed to get public link from clipboard");
+        await shortTour.clickModalCloseButton().catch(() => {});
+      });
+
+      await test.step("Create DocSpace user via API", async () => {
+        const { userData } = await apiSdk.profiles.addMember("owner", "User");
+        userEmail = userData.email;
+        userPassword = userData.password;
+        completedFileName = `1 - ${userData.firstName} ${userData.lastName} - ONLYOFFICE Resume Sample`;
+        secondCompletedFileName = `2 - ${userData.firstName} ${userData.lastName} - ${renamedFormName}`;
+      });
+
+      await test.step("Login as DocSpace user in incognito and open fill link", async () => {
+        const result = await setupIncognitoContext(browser);
+        incognitoContext = result.context;
+        userPage = result.page;
+        const userLogin = new Login(userPage, login.portalDomain);
+        await userLogin.loginWithCredentials(userEmail, userPassword);
+        await userPage.goto(publicLink, { waitUntil: "domcontentloaded" });
+      });
+
+      await test.step("Submit first form and verify completion title", async () => {
+        const pdfForm = new FilesPdfForm(userPage);
+        const completedForm = await pdfForm.clickSubmitButton();
+        await completedForm.checkDocumentTitleIsVisible(completedFileName);
+        await completedForm.checkFillItOutAgainButtonVisible();
+      });
+
+      await test.step("Owner renames the form while filling is active", async () => {
+        await page.bringToFront();
+        await myRooms.filesTable.openContextMenuForItem(
+          "ONLYOFFICE Resume Sample",
+        );
+        await myRooms.filesTable.contextMenu.clickOption(
+          formFillingRoomPdfContextMenuOption.rename,
+        );
+        await myRooms.filesNavigation.modal.checkModalExist();
+        await myRooms.filesNavigation.modal.fillCreateTextInput(
+          renamedFormName,
+        );
+        await myRooms.filesNavigation.modal.clickCreateButton();
+        await filesTable.checkRowExist(renamedFormName);
+      });
+
+      await test.step("User clicks Fill it again and submits second form", async () => {
+        const completedForm = new RoomPDFCompleted(userPage);
+        await completedForm.chooseFillItOutAgain();
+        await userPage.waitForURL(/.*doceditor.*/, {
+          waitUntil: "domcontentloaded",
+        });
+        const pdfForm = new FilesPdfForm(userPage);
+        await pdfForm.checkSubmitButtonExist();
+        const secondCompletedForm = await pdfForm.clickSubmitButton();
+        await secondCompletedForm.checkDocumentTitleIsVisible(
+          secondCompletedFileName,
+        );
+        await secondCompletedForm.checkFillItOutAgainButtonVisible();
+      });
+
+      await test.step("Owner verifies Complete folder still visible after rename", async () => {
+        await page.reload({ waitUntil: "load" });
+        await myRooms.verifyCompleteFolderVisible();
+      });
+    });
+
+    test("Submissions continue sequential numbering after form is moved to subfolder", async ({
+      page,
+      browser,
+      apiSdk,
+    }) => {
+      let publicLink: string;
+      let userEmail: string;
+      let userPassword: string;
+      let completedFileName: string;
+      let secondCompletedFileName: string;
+      const subfolderName = "Subfolder";
+      let userPage: Page;
+
+      await test.step("Upload PDF form from My Documents", async () => {
+        await uploadAndVerifyPDF(
+          shortTour,
+          roomEmptyView,
+          selectPanel,
+          myRooms,
+          page,
+        );
+      });
+
+      await test.step("Start filling and copy public link", async () => {
+        await filesTable.openContextMenuForItem("ONLYOFFICE Resume Sample");
+        await filesTable.contextMenu.clickOption(
+          formFillingRoomPdfContextMenuOption.startFilling,
+        );
+        await setupClipboardPermissions(page);
+        await shortTour.clickCopyPublicLink();
+        await myRooms.toast.dismissToastSafely(
+          "Link copied to clipboard",
+          5000,
+        );
+        publicLink = await getLinkFromClipboard(page);
+        if (!publicLink)
+          throw new Error("Failed to get public link from clipboard");
+        await shortTour.clickModalCloseButton().catch(() => {});
+      });
+
+      await test.step("Create DocSpace user via API", async () => {
+        const { userData } = await apiSdk.profiles.addMember("owner", "User");
+        userEmail = userData.email;
+        userPassword = userData.password;
+        completedFileName = `1 - ${userData.firstName} ${userData.lastName} - ONLYOFFICE Resume Sample`;
+        secondCompletedFileName = `2 - ${userData.firstName} ${userData.lastName} - ONLYOFFICE Resume Sample`;
+      });
+
+      await test.step("Login as DocSpace user in incognito and open fill link", async () => {
+        const result = await setupIncognitoContext(browser);
+        incognitoContext = result.context;
+        userPage = result.page;
+        const userLogin = new Login(userPage, login.portalDomain);
+        await userLogin.loginWithCredentials(userEmail, userPassword);
+        await userPage.goto(publicLink, { waitUntil: "domcontentloaded" });
+      });
+
+      await test.step("Submit first form and verify completion title", async () => {
+        const pdfForm = new FilesPdfForm(userPage);
+        const completedForm = await pdfForm.clickSubmitButton();
+        await completedForm.checkDocumentTitleIsVisible(completedFileName);
+        await completedForm.checkFillItOutAgainButtonVisible();
+      });
+
+      await test.step("Owner creates subfolder and moves form into it", async () => {
+        await page.bringToFront();
+        await myRooms.filesNavigation.openCreateDropdown();
+        await myRooms.filesNavigation.selectCreateAction(
+          DOC_ACTIONS.CREATE_FOLDER,
+        );
+        await myRooms.filesNavigation.modal.checkModalExist();
+        await myRooms.filesNavigation.modal.fillCreateTextInput(subfolderName);
+        await myRooms.filesNavigation.modal.clickCreateButton();
+        await filesTable.checkRowExist(subfolderName);
+        await myRooms.filesTable.openContextMenuForItem(
+          "ONLYOFFICE Resume Sample",
+        );
+        await myRooms.filesTable.contextMenu.clickSubmenuOption(
+          "Move or copy",
+          "Move to",
+        );
+        const filesSelectPanel = new FilesSelectPanel(page);
+        await filesSelectPanel.checkFileSelectPanelExist();
+        await filesSelectPanel.selectItemByText(subfolderName);
+        await filesSelectPanel.confirmSelection();
+        await filesTable.checkRowNotExist("ONLYOFFICE Resume Sample");
+      });
+
+      await test.step("User clicks Fill it again and submits second form", async () => {
+        const completedForm = new RoomPDFCompleted(userPage);
+        await completedForm.chooseFillItOutAgain();
+        await userPage.waitForURL(/.*doceditor.*/, {
+          waitUntil: "domcontentloaded",
+        });
+        const pdfForm = new FilesPdfForm(userPage);
+        await pdfForm.checkSubmitButtonExist();
+        const secondCompletedForm = await pdfForm.clickSubmitButton();
+        await secondCompletedForm.checkDocumentTitleIsVisible(
+          secondCompletedFileName,
+        );
+        await secondCompletedForm.checkFillItOutAgainButtonVisible();
+      });
+
+      await test.step("Owner verifies Complete folder still visible after move", async () => {
+        await page.reload({ waitUntil: "load" });
+        await myRooms.verifyCompleteFolderVisible();
       });
     });
 
