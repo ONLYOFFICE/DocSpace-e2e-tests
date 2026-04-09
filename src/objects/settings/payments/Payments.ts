@@ -368,16 +368,21 @@ export class Payments extends BasePage {
   }
 
   async openTab(tab: TPaymentsTab) {
-    await this.page.getByTestId(tab).click();
-
     switch (tab) {
       case paymentsTab.tariffPlan:
+        await this.page.getByTestId(tab).click();
         await this.checkTariffPlanExist();
         break;
       case paymentsTab.wallet:
-        await this.checkWalletExist();
+        await expect(async () => {
+          await this.page.getByTestId(tab).click();
+          await this.checkWalletExist();
+        }).toPass({
+          timeout: 30000,
+        });
         break;
       default:
+        await this.page.getByTestId(tab).click();
         break;
     }
   }
