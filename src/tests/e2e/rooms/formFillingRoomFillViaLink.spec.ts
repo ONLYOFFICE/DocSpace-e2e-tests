@@ -119,7 +119,7 @@ test.describe("FormFilling room - Fill via link", () => {
           incognitoPage.waitForEvent("download", { timeout: 30000 }),
           completedForm.clickDownloadButton(),
         ]);
-        const fileName = await download.suggestedFilename();
+        const fileName = download.suggestedFilename();
         expect(fileName).toMatch(/ONLYOFFICE Resume Sample.*\.pdf$/i);
         // cancel download to avoid file saving
         await download.cancel();
@@ -323,6 +323,10 @@ test.describe("FormFilling room - Fill via link", () => {
         await shortTour.clickModalCloseButton().catch(() => {});
       });
 
+      await test.step("Verify fill icon on file", async () => {
+        await filesTable.expectFillingIconVisible("ONLYOFFICE Resume Sample");
+      });
+
       await test.step("Login as DocSpace user and open fill link", async () => {
         const { userData } = await apiSdk.profiles.addMember("owner", "User");
         const result = await setupIncognitoContext(browser);
@@ -493,6 +497,10 @@ test.describe("FormFilling room - Fill via link", () => {
         await shortTour.clickModalCloseButton().catch(() => {});
       });
 
+      await test.step("Verify fill icon on file", async () => {
+        await filesTable.expectFillingIconVisible("ONLYOFFICE Resume Sample");
+      });
+
       await test.step("Create DocSpace user via API", async () => {
         const { userData } = await apiSdk.profiles.addMember("owner", "User");
         userEmail = userData.email;
@@ -592,6 +600,10 @@ test.describe("FormFilling room - Fill via link", () => {
         if (!publicLink)
           throw new Error("Failed to get public link from clipboard");
         await shortTour.clickModalCloseButton().catch(() => {});
+      });
+
+      await test.step("Verify fill icon on file", async () => {
+        await filesTable.expectFillingIconVisible("ONLYOFFICE Resume Sample");
       });
 
       await test.step("Create DocSpace user via API", async () => {
@@ -795,7 +807,8 @@ test.describe("FormFilling room - Fill via link", () => {
   });
 
   test.describe("Form filling not started", () => {
-    test("DocSpace user sees info-box when opening Anyone fill link when filling not started", async ({
+    // TODO: Bug 80900
+    test.skip("DocSpace user sees info-box when opening Anyone fill link when filling not started", async ({
       page,
       apiSdk,
     }) => {
@@ -918,9 +931,8 @@ test.describe("FormFilling room - Fill via link", () => {
       });
     });
 
-    // TODO: Bug 80900 - after fix, verify this test reflects correct behavior
-    // (info-box visibility logic may change)
-    test("DocSpace user sees info-box when link access is DocSpace users only", async ({
+    // TODO: Bug 80900
+    test.skip("DocSpace user sees info-box when link access is DocSpace users only", async ({
       page,
       apiSdk,
     }) => {

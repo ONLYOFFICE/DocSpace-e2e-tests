@@ -174,6 +174,10 @@ test.describe("FormFilling room - Edit mode", () => {
         await shortTour.clickModalCloseButton().catch(() => {});
       });
 
+      await test.step("Verify fill icon on file", async () => {
+        await filesTable.expectFillingIconVisible("ONLYOFFICE Resume Sample");
+      });
+
       await test.step("Owner switches form to edit mode", async () => {
         const pagePromise = page
           .context()
@@ -219,6 +223,7 @@ test.describe("FormFilling room - Edit mode", () => {
         formFillingRoomPdfContextMenuOption.startFilling,
       );
       await shortTour.clickModalCloseButton();
+      await filesTable.expectFillingIconVisible("ONLYOFFICE Resume Sample");
     });
 
     await test.step("Open form in editor", async () => {
