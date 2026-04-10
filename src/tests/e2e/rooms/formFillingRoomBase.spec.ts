@@ -152,6 +152,7 @@ test.describe("FormFilling base tests", () => {
       await filesTable.openContextMenuForItem("ONLYOFFICE Resume Sample");
       await filesTable.contextMenu.clickOption("Start filling");
       await shortTour.clickModalCloseButton();
+      await filesTable.expectFillingIconVisible("ONLYOFFICE Resume Sample");
     });
 
     // Submit Form
@@ -238,6 +239,7 @@ test.describe("FormFilling base tests", () => {
       await filesTable.openContextMenuForItem("ONLYOFFICE Resume Sample");
       await filesTable.contextMenu.clickOption("Start filling");
       await shortTour.clickModalCloseButton();
+      await filesTable.expectFillingIconVisible("ONLYOFFICE Resume Sample");
     });
     await test.step("Open and close pdf form", async () => {
       const context = page.context();
@@ -362,6 +364,7 @@ test.describe("FormFilling base tests", () => {
       await filesTable.openContextMenuForItem("ONLYOFFICE Resume Sample");
       await filesTable.contextMenu.clickOption("Start filling");
       await shortTour.clickModalCloseButton();
+      await filesTable.expectFillingIconVisible("ONLYOFFICE Resume Sample");
     });
 
     await test.step("Open PDF form for filling", async () => {
@@ -477,6 +480,7 @@ test.describe("FormFilling base tests", () => {
       await filesTable.openContextMenuForItem("ONLYOFFICE Resume Sample");
       await filesTable.contextMenu.clickOption("Start filling");
       await shortTour.clickModalCloseButton();
+      await filesTable.expectFillingIconVisible("ONLYOFFICE Resume Sample");
     });
 
     await test.step("Open Edit in context menu - pause submissions dialog appears", async () => {
@@ -524,6 +528,7 @@ test.describe("FormFilling base tests", () => {
       await filesTable.openContextMenuForItem("ONLYOFFICE Resume Sample");
       await filesTable.contextMenu.clickOption("Start filling");
       await shortTour.clickModalCloseButton();
+      await filesTable.expectFillingIconVisible("ONLYOFFICE Resume Sample");
     });
 
     await test.step("Submit the form (first submission)", async () => {

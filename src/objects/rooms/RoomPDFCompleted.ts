@@ -23,14 +23,14 @@ class RoomPDFCompleted {
   }
 
   private get fillItOutAgainButton() {
-    return this.page.getByTestId(FILL_IT_OUT_AGAIN);
+    return this.page.locator(`[data-testid="${FILL_IT_OUT_AGAIN}"]:visible`);
   }
   async chooseFillItOutAgain() {
     await this.fillItOutAgainButton.click();
   }
 
   private get downloadButton() {
-    return this.page.getByTestId(DOWNLOAD_BUTTON);
+    return this.page.locator(`[data-testid="${DOWNLOAD_BUTTON}"]:visible`);
   }
 
   async checkBackToRoomButtonHidden() {
