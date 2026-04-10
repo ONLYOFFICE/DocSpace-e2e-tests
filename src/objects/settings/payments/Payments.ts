@@ -52,10 +52,10 @@ export class Payments extends BasePage {
   }
 
   get priceCalculationContainer() {
-    return this.page.locator(".price-calculation-container");
+    return this.page.getByTestId("saas-page");
   }
   get numberOfAdminsSlider() {
-    return this.page.getByTestId("slider");
+    return this.page.getByTestId("quantity_picker_slider");
   }
 
   get numberOfAdminsInput() {
@@ -73,7 +73,9 @@ export class Payments extends BasePage {
   }
 
   get currentTariffCount() {
-    return this.page.locator(".current-tariff_count").nth(1);
+    return this.priceCalculationContainer
+      .locator("p")
+      .filter({ hasText: /^Admins added:/ });
   }
 
   get requestNameInput() {
@@ -179,7 +181,7 @@ export class Payments extends BasePage {
   }
 
   get emptyViewText() {
-    return this.page.getByText("No findings found", {
+    return this.page.getByText("No findings", {
       exact: true,
     });
   }
@@ -343,6 +345,7 @@ export class Payments extends BasePage {
 
   async checkTariffPlanExist() {
     await expect(this.priceCalculationContainer).toBeVisible();
+    await expect(this.numberOfAdminsInput).toBeVisible();
   }
 
   async checkWalletExist() {
@@ -473,7 +476,7 @@ export class Payments extends BasePage {
   }
 
   async expectNumberOfAdminsCount(adminsCount: number) {
-    await expect(this.currentTariffCount).toHaveText(`1/${adminsCount}`);
+    await expect(this.currentTariffCount).toContainText(`1/${adminsCount}`);
   }
 
   async downgradePlan() {

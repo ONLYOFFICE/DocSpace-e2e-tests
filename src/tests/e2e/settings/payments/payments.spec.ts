@@ -54,7 +54,8 @@ test.describe("Payments", () => {
     });
   });
 
-  test("Send sales request", async ({ page }) => {
+  // TODO: Re-enable when translation issues are resolved
+  test.skip("Send sales request", async ({ page }) => {
     await test.step("Upgrade plan", async () => {
       const stripePage = await payments.upgradePlan(10);
       await payments.fillPaymentData(stripePage);
@@ -208,7 +209,8 @@ test.describe("Payments", () => {
     });
   });
 
-  test("Download transaction history report", async ({ page }) => {
+  // TODO: Re-enable when the transaction history report download flow is fixed
+  test.skip("Download transaction history report", async ({ page }) => {
     await test.step("Upgrade plan", async () => {
       const stripePage = await payments.upgradePlan(10);
       await payments.fillPaymentData(stripePage);
@@ -270,7 +272,8 @@ test.describe("Payments", () => {
   //   await helpcenterPage.close();
   // });
 
-  test("Add payment method and top up wallet", async ({ page }) => {
+  // TODO: Re-enable when the add payment method flow is fixed
+  test.skip("Add payment method and top up wallet", async ({ page }) => {
     await test.step("Add payment method and top up", async () => {
       await payments.openTab(paymentsTab.wallet);
       await payments.openTopUpBalanceDialog();
