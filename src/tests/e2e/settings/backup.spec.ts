@@ -63,7 +63,6 @@ test.describe("Manual backup", () => {
   });
 });
 
-// Skipped: bug 80298
 test.describe("Auto backup", () => {
   let backup: Backup;
 
@@ -77,63 +76,63 @@ test.describe("Auto backup", () => {
     await backup.open();
   });
 
-  test.skip("Auto backup schedule", async ({ page }) => {
+  test("Auto backup every day", async ({ page }) => {
     await backup.openTab("auto-backup_tab");
 
     await test.step("Auto backup guide link", async () => {
       await backup.openAutoBackupGuide();
     });
 
-    await test.step("Every day auto backup", async () => {
-      await backup.enableAutoBackup();
+    await backup.enableAutoBackup();
 
-      await backup.openRoomSelector();
-      await backup.selectDocuments();
+    await backup.openRoomSelector();
+    await backup.selectDocuments();
 
-      await backup.openTimeSelector();
-      await backup.selectTime();
+    await backup.openTimeSelector();
+    await backup.selectTime();
 
-      await backup.openNumberCopySelector();
-      await backup.selectNumberCopy();
+    await backup.openNumberCopySelector();
+    await backup.selectNumberCopy();
 
-      await backup.openScheduleSelector();
-      await page.mouse.click(1, 1);
+    await backup.openScheduleSelector();
+    await page.mouse.click(1, 1);
 
-      await backup.saveAutoSavePeriod();
-      await backup.disableAutoBackup();
-    });
-
-    await test.step("Every week auto backup", async () => {
-      await backup.backupRoom();
-
-      await backup.openScheduleSelector();
-      await backup.locators.selectEveryWeek.click();
-
-      await backup.openDaySelector();
-      await backup.selectDay();
-
-      await backup.setBackupTimeAndCopies();
-      await backup.saveAutoSavePeriod();
-
-      await backup.disableAutoBackup();
-    });
-
-    await test.step("Every month auto backup", async () => {
-      await backup.backupRoom();
-
-      await backup.openScheduleSelector();
-      await backup.locators.selectEveryMonth.click();
-
-      await backup.openMonthSelector();
-      await backup.selectMonth();
-
-      await backup.setBackupTimeAndCopies();
-      await backup.saveAutoSavePeriod();
-      await backup.disableAutoBackup();
-    });
+    await backup.saveAutoSavePeriod();
+    await backup.disableAutoBackup();
   });
 
-  test.skip("Auto backup in Third-Party resource box", async () => {
+  test("Auto backup every week", async () => {
+    await backup.openTab("auto-backup_tab");
+    await backup.backupRoom();
+
+    await backup.openScheduleSelector();
+    await backup.locators.selectEveryWeek.click();
+
+    await backup.openDaySelector();
+    await backup.selectDay();
+
+    await backup.setBackupTimeAndCopies();
+    await backup.saveAutoSavePeriod();
+
+    await backup.disableAutoBackup();
+  });
+
+  test("Auto backup every month", async () => {
+    await backup.openTab("auto-backup_tab");
+    await backup.backupRoom();
+
+    await backup.openScheduleSelector();
+    await backup.locators.selectEveryMonth.click();
+
+    await backup.openMonthSelector();
+    await backup.selectMonth();
+
+    await backup.setBackupTimeAndCopies();
+    await backup.saveAutoSavePeriod();
+    await backup.disableAutoBackup();
+  });
+
+  test("Auto backup in Third-Party resource box", async () => {
     await backup.openTab("auto-backup_tab");
     await backup.enableAutoBackup();
     await backup.selectAutoBackupMethod(
@@ -148,7 +147,7 @@ test.describe("Auto backup", () => {
     await backup.disableAutoBackup();
   });
 
-  test.skip("Auto backup in Third-Party storage S3", async ({ page }) => {
+  test("Auto backup in Third-Party storage S3", async ({ page }) => {
     await backup.activateAWSS3();
     await backup.navigateToArticle(navItems.backup);
     await backup.openTab("auto-backup_tab");
