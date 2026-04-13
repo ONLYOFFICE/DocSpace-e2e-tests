@@ -93,7 +93,7 @@ test.describe("VDR room: editor roles", () => {
     await test.step("Return to room and verify 'Your turn' badge is shown on the file", async () => {
       await page.bringToFront();
       await page.reload({ waitUntil: "load" });
-      await expect(page.getByLabel("Your turn ")).toBeVisible();
+      await filesTable.expectYourTurnBadgeVisible();
     });
   });
 });

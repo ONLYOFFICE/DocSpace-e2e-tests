@@ -7,7 +7,8 @@ const FILL_FORM_BUTTON = '[data-testid="fill_form_button"]';
 const COPY_LINK_BUTTON = '[data-testid="copy_link_button"]';
 const GO_TO_ROOM_LINK = '[data-testid="go_to_room_link"]';
 const COPY_LINK_INPUT_BLOCK = '[data-testid="copy_link_input_block"]';
-const COMPLETED_FORM_FILE_CONTAINER = '[data-testid="completed_form_file_container"]';
+const COMPLETED_FORM_FILE_CONTAINER =
+  '[data-testid="completed_form_file_container"]';
 const HEADING = '[data-testid="heading"]';
 const HEADING_TEXT = "Form is ready for filling in room";
 
