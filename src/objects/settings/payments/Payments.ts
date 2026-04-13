@@ -181,7 +181,7 @@ export class Payments extends BasePage {
   }
 
   get emptyViewText() {
-    return this.page.getByText("No findings", {
+    return this.page.getByText("No findings found", {
       exact: true,
     });
   }
