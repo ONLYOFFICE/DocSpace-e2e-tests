@@ -287,6 +287,7 @@ test.describe("Payments", () => {
         payments.topUpButton.click(),
       ]);
       expect(response.status()).toBe(200);
+      await payments.removeToast(toastMessages.walletToppedUp);
       await payments.cancelAutomaticPaymentsButton.click();
     });
   });

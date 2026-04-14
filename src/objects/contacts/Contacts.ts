@@ -278,7 +278,7 @@ class Contacts extends BasePage {
 
   async sendChangeEmailInstructions(newEmail: string) {
     await this.openChangeEmailDialog();
-    await this.page.getByPlaceholder("Enter new email").fill(newEmail);
+    await this.page.locator("#new-email").fill(newEmail);
     await this.page.getByRole("button", { name: "Send" }).click();
     await this.removeAllToast();
   }
@@ -286,7 +286,6 @@ class Contacts extends BasePage {
   async sendChangePasswordInstructions() {
     await this.openChangePasswordDialog();
     await this.page.getByTestId("change_password_send_button").click();
-    await this.removeAllToast();
   }
 
   async submitChangeOwner(userEmail: string) {
@@ -302,6 +301,14 @@ class Contacts extends BasePage {
   async submitChangeContactTypeDialog() {
     await this.page.locator("#change-user-type-modal_submit").click();
     await this.removeToast(toastMessages.userTypeChanged);
+  }
+
+  async dismissQuotaWarning() {
+    await this.dialog.checkDialogTitleExist("Warning");
+    await this.page
+      .getByTestId("modal-dialog")
+      .getByRole("button", { name: "Cancel" })
+      .click();
   }
 
   async selectAllContacts() {

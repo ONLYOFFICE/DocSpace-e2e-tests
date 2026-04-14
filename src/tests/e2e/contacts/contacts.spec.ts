@@ -9,6 +9,7 @@ import {
   groupsContextMenuOption,
   membersContextMenuOption,
   menuItemChangeUserType,
+  toastMessages,
   userEmails,
 } from "@/src/utils/constants/contacts";
 import { FAKER } from "@/src/utils/helpers/faker";
@@ -88,125 +89,39 @@ test.describe(() => {
     });
   });
 
-  test.skip("Disable and enable user", async () => {
-    await contacts.inviteUsers();
-
-    await test.step("Disable user via context menu dialog", async () => {
-      await contacts.table.openContextMenu(userEmails.roomAdmin);
-      await contacts.table.clickContextMenuOption(
-        membersContextMenuOption.disable,
-      );
-      await contacts.dialog.checkDialogTitleExist("Disable user");
-      await contacts.dialog.close();
-    });
-
-    await test.step("Disable user via selection", async () => {
-      await contacts.table.selectRow(userEmails.roomAdmin);
-      await contacts.disableUser();
-      await contacts.table.checkDisabledUserExist(userEmails.roomAdmin);
-    });
-
-    await test.step("Enable user via context menu dialog", async () => {
-      await contacts.table.openContextMenu(userEmails.roomAdmin);
-      await contacts.table.clickContextMenuOption(
-        membersContextMenuOption.enable,
-      );
-      await contacts.dialog.checkDialogTitleExist("Enable user");
-      await contacts.dialog.close();
-    });
-
-    await test.step("Enable user via selection", async () => {
-      await contacts.selectAllContacts();
-      await contacts.enableUser();
-      await contacts.table.checkEnabledUserExist(userEmails.roomAdmin);
-    });
-  });
-
-  // TODO: fix - Warning modal blocks inviteUsers flow
-  test.skip("Change user type", async () => {
-    await contacts.inviteUsers();
-
-    await test.step("Change to room admin", async () => {
-      await contacts.openChangeContactTypeDialog(
-        userEmails.docspaceAdmin,
-        menuItemChangeUserType.roomAdmin,
-      );
-      await contacts.submitChangeContactTypeDialog();
-      await contacts.table.checkContactType(
-        userEmails.docspaceAdmin,
-        contactTypes.roomAdmin,
-      );
-    });
-
-    await test.step("Change to user", async () => {
-      await contacts.openChangeContactTypeDialog(
-        userEmails.docspaceAdmin,
-        menuItemChangeUserType.user,
-      );
-      await contacts.submitChangeContactTypeDialog();
-      await contacts.table.checkContactType(
-        userEmails.docspaceAdmin,
-        contactTypes.user,
-      );
-    });
-
-    await test.step("Change back to docspace admin", async () => {
-      await contacts.openChangeContactTypeDialog(
-        userEmails.docspaceAdmin,
-        menuItemChangeUserType.docspaceAdmin,
-      );
-      await contacts.submitChangeContactTypeDialog();
-      await contacts.table.checkContactType(
-        userEmails.docspaceAdmin,
-        contactTypes.docspaceAdmin,
-      );
-    });
-
-    await test.step("Change user to guest type", async () => {
-      await contacts.inviteUser(userEmails.guest, contactTypes.user);
-      await contacts.openChangeContactTypeDialog(
-        userEmails.guest,
-        menuItemChangeUserType.guest,
-      );
-      await contacts.submitChangeContactTypeDialog();
-      await contacts.table.checkRowNotExist(userEmails.guest);
-    });
-  });
-
   test("Change owner name", async () => {
     const { firstName, lastName } = faker.generateUser();
     const newFullName = `${firstName} ${lastName}`;
 
-    await test.step("Change admin name and verify", async () => {
+    await test.step("Change owner name and verify", async () => {
       await contacts.changeName(firstName, lastName);
       await contacts.table.checkRowExistByNameText(newFullName);
     });
   });
 
   test("Send change email instructions", async () => {
-    await test.step("Send change email instructions for admin", async () => {
-      await contacts.sendChangeEmailInstructions("newemail@test.com");
-    });
+    await contacts.sendChangeEmailInstructions("newemail@test.com");
   });
 
   test("Send change password instructions", async () => {
-    await test.step("Send change password instructions for admin", async () => {
-      await contacts.sendChangePasswordInstructions();
-    });
+    await contacts.sendChangePasswordInstructions();
+    await contacts.removeToast(toastMessages.passwordChangeInstructions);
   });
 
-  // TODO: fix - Warning modal blocks inviteUsers flow
-  test.skip("Change portal owner", async () => {
-    await contacts.inviteUsers();
-
-    await test.step("Change portal owner to invited user", async () => {
-      await contacts.submitChangeOwner(userEmails.docspaceAdmin);
-    });
+  test("Change portal owner", async ({ apiSdk }) => {
+    const { userData } = await apiSdk.profiles.addMember(
+      "owner",
+      "DocSpaceAdmin",
+    );
+    const userName = `${userData.firstName} ${userData.lastName}`;
+    await contacts.submitChangeOwner(userName);
   });
 
-  // TODO: fix - Warning modal blocks inviteUsers flow
-  test.skip("Reassign and delete user", async () => {
-    await contacts.inviteUsers();
+  test("Reassign data and delete user", async () => {
+    await contacts.inviteUser(
+      userEmails.user,
+      contactsActionsMenu.invite.submenu.user,
+    );
 
     await test.step("Disable user", async () => {
       await contacts.table.selectRow(userEmails.user);
@@ -350,25 +265,24 @@ test.describe(() => {
     });
   });
 
-  // TODO: fix - Warning modal blocks inviteUsers flow
-  test.skip("Guests management", async () => {
-    await contacts.inviteUsers();
-    await contacts.inviteUser(userEmails.guest, contactTypes.user);
-    await contacts.openChangeContactTypeDialog(
-      userEmails.guest,
-      menuItemChangeUserType.guest,
-    );
-    await contacts.submitChangeContactTypeDialog();
-
-    await test.step("Open guest info panel", async () => {
+  test.describe("Guests", () => {
+    test.beforeEach(async () => {
+      await contacts.inviteUser(userEmails.guest, contactTypes.user);
+      await contacts.openChangeContactTypeDialog(
+        userEmails.guest,
+        menuItemChangeUserType.guest,
+      );
+      await contacts.submitChangeContactTypeDialog();
+      await contacts.dismissQuotaWarning();
       await contacts.openTab("Guests");
+    });
+
+    test("Disable and enable guest", async () => {
       await contacts.infoPanel.open();
       await contacts.table.selectRow(userEmails.guest);
       await contacts.infoPanel.openContactsOptions();
       await contacts.infoPanel.close();
-    });
 
-    await test.step("Disable and enable guest", async () => {
       await contacts.disableGuest();
       await contacts.table.checkDisabledUserExist(userEmails.guest);
 
@@ -377,7 +291,7 @@ test.describe(() => {
       await contacts.table.checkEnabledUserExist(userEmails.guest);
     });
 
-    await test.step("Filter and search guests", async () => {
+    test("Guest filter and search", async () => {
       await contacts.peopleFilter.openDropdownSortBy();
       await contacts.peopleFilter.openFilterDialog();
       await contacts.dialog.close();
