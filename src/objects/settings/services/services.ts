@@ -28,9 +28,9 @@ class Services extends BasePage {
     return this.page.getByTestId("storage_service_backup_toggle");
   }
 
-  get backupSwitchModal() {
+  get backupActiveToggle() {
     return this.page
-      .getByTestId("service-backup-toggle-button")
+      .locator('[class*="serviceToggleSection"]')
       .getByTestId("toggle-button-icon");
   }
 
@@ -106,6 +106,22 @@ class Services extends BasePage {
     return this.page.getByTestId("storage_summary_cancel_change_link");
   }
 
+  get aiToggle() {
+    return this.page.getByTestId("storage_service_aitools_toggle");
+  }
+
+  get aiAmountInput() {
+    return this.page.getByTestId("top_up_amount_input");
+  }
+
+  get aiTopUpButton() {
+    return this.page.getByTestId("top_up_button");
+  }
+
+  get aiCancelButton() {
+    return this.page.getByTestId("cancel_top_up_button");
+  }
+
   get infoButton() {
     return this.page.getByTestId("payer_info_help_button");
   }
@@ -138,43 +154,38 @@ class Services extends BasePage {
     await this.payments.topUpButton.click();
   }
 
+  async openAiCreditsModal() {
+    await this.aiToggle.click();
+    await this.dialog.checkDialogTitleExist("Add credits to ONLYOFFICE AI");
+  }
+
+  async selectAiAmountTab(amount: string) {
+    await this.page.getByTestId(`tab_item_${amount}`).click();
+  }
+
   async openTopUpWalletModal() {
     await this.backupSwitch.click();
     await this.dialog.checkDialogTitleExist("Top up wallet");
   }
 
-  async openBackupServiceModal() {
-    await this.backupService.click();
-    await this.dialog.checkDialogTitleExist("Backup");
+  async openBackupConfirmationModal() {
+    await this.backupSwitch.click();
+    await this.dialog.checkDialogTitleExist("Confirmation");
   }
 
   async openDiskStorageModal() {
     await this.diskStorageSwitch.click();
-    await this.dialog.checkDialogTitleExist("Disk storage");
+    await this.dialog.checkDialogTitleExist("Additional disk storage");
   }
 
-  async clickSwitchInBackupServiceModal() {
-    await this.backupService.click();
-    await this.backupSwitchModal.click();
-    await this.dialog.checkDialogTitleExist("Top up wallet");
+  get diskStorageInput() {
+    return this.page.getByTestId("modal-dialog").getByTestId("text-input");
   }
 
-  async checkAdditionalStorage() {
-    await this.addStorageInput.click();
-    await this.addStorageInput.fill("200");
-    await expect(this.addStorageInput).toHaveValue("200");
-    await this.plusButton.click();
-    await expect(this.addStorageInput).toHaveValue("201");
-    await this.minusButton.click();
-    await expect(this.addStorageInput).toHaveValue("200");
-    await this.plus100Button.click();
-    await expect(this.addStorageInput).toHaveValue("300");
-    await this.plus200Button.click();
-    await expect(this.addStorageInput).toHaveValue("500");
-    await this.plus500Button.click();
-    await expect(this.addStorageInput).toHaveValue("1000");
-    await this.plus1TButton.click();
-    await expect(this.addStorageInput).toHaveValue("2024");
+  async fillDiskStorageAmount(amount: string) {
+    await this.diskStorageInput.click();
+    await this.diskStorageInput.fill(amount);
+    await expect(this.diskStorageInput).toHaveValue(amount);
   }
 
   async topUpLinkClick() {
@@ -182,19 +193,30 @@ class Services extends BasePage {
     await this.dialog.checkDialogTitleExist("Top up wallet");
   }
 
-  async selectDiskStorage() {
+  async selectDiskStorage(amount: string) {
     await this.diskStorageSwitch.click();
-    await this.plus200Button.click();
+    await this.fillDiskStorageAmount(amount);
   }
 
-  async changeDiskStorageMinus() {
+  async changeDiskStorage(amount: string) {
     await this.diskStorageBlock.click();
-    await this.minusButton.click();
+    await this.fillDiskStorageAmount(amount);
   }
 
-  async changeDiskStoragePlus() {
-    await this.diskStorageBlock.click();
-    await this.plusButton.click();
+  async waitForDiskStoragePage() {
+    await this.page.waitForURL(/.*disk-storage.*/, { waitUntil: "load" });
+  }
+
+  async checkCurrentSubscriptionVisible() {
+    await expect(this.page.getByText("Current subscription")).toBeVisible();
+  }
+
+  async waitForAiServicesPage() {
+    await this.page.waitForURL(/.*ai-services.*/, { waitUntil: "load" });
+  }
+
+  async checkAiCreditsVisible() {
+    await expect(this.page.getByText("Available credits")).toBeVisible();
   }
 
   async activateBackupService() {

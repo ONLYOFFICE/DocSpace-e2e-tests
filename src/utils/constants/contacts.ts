@@ -142,4 +142,5 @@ export const toastMessages = {
   guestDeleted: "Guest was deleted successfully",
   guestTypeChanged: "The guest type was successfully changed",
   guestStatusChanged: "The guest status was successfully changed",
+  passwordChangeInstructions: "The password change instruction has been sent",
 } as const;

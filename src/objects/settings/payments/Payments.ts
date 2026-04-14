@@ -3,6 +3,7 @@ import BasePage from "../../common/BasePage";
 import {
   navItems,
   paymentsTab,
+  toastMessages,
   TPaymentsTab,
   TTransactionHistoryFilter,
 } from "@/src/utils/constants/settings";
@@ -558,21 +559,16 @@ export class Payments extends BasePage {
     );
   }
 
-  async payForBackup() {
+  async setupPaymentMethodAndTopUp(page: Page, amount = 1000) {
     await this.open();
     await this.openTab(paymentsTab.wallet);
     await this.openTopUpBalanceDialog();
-    await this.addPaymentsMethod(this.page);
-    await this.fillPaymentDataFromAddPaymentMethodServices(this.page);
-    await this.fillAmountTopUpForServices();
+    await this.addPaymentsMethod(page);
+    await this.fillPaymentDataFromAddPaymentMethodServices(page);
+    await this.amountTopUpInput.fill(amount.toString());
     await this.topUpButton.click();
+    await this.removeToast(toastMessages.walletToppedUp);
     await this.cancelAutomaticPaymentsButton.click();
-    await this.openTab(paymentsTab.tariffPlan);
-    await this.upgradeButton.click();
-    await this.upgradePlanConfirmButton.click();
-    await expect(this.page.locator("#sectionScroll")).toContainText(
-      "You are using Business plan",
-    );
   }
 
   thisStartUpPlan() {

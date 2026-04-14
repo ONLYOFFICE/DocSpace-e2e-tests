@@ -4,41 +4,33 @@ import Services from "@/src/objects/settings/services/services";
 import { Payments } from "@/src/objects/settings/payments/Payments";
 import { PaymentApi } from "@/src/api/payment";
 
-test.describe.skip("Services tests", () => {
+test.describe("Services tests", () => {
   let services: Services;
-  let payments: Payments;
 
   test.beforeEach(async ({ page, api, login }) => {
     const paymentApi = new PaymentApi(api.apiRequestContext, api.apisystem);
     await paymentApi.setupPayment();
 
     services = new Services(page);
-    payments = new Payments(page);
 
     await login.loginToPortal();
     await services.open();
   });
 
-  test("Backup service modal", async () => {
-    await services.openBackupServiceModal();
-    await services.closeBackupServiceModal.click();
-    await services.clickSwitchInBackupServiceModal();
-    await payments.cancelButton.click();
+  test("Backup confirmation modal", async () => {
+    await services.openBackupConfirmationModal();
+    await services.closeButton.click();
   });
 
   test("Disk storage modal", async () => {
     await services.openDiskStorageModal();
-    await services.checkAdditionalStorage();
-    await services.topUpLinkClick();
-    await services.backTopUpButton.click();
+    await services.fillDiskStorageAmount("200");
     await services.diskStorageCancelButton.click();
   });
 
   test("Activate and deactivate backup service", async ({ page }) => {
     await test.step("Activate backup service", async () => {
       await services.backupSwitch.click();
-      await services.addPaymentsMethod(page);
-
       const [response] = await Promise.all([
         page.waitForResponse(
           (resp) =>
@@ -51,7 +43,8 @@ test.describe.skip("Services tests", () => {
     });
 
     await test.step("Deactivate backup service", async () => {
-      await services.backupSwitch.click();
+      await services.backupService.click();
+      await services.backupActiveToggle.click();
       const [response] = await Promise.all([
         page.waitForResponse(
           (resp) =>
@@ -63,9 +56,25 @@ test.describe.skip("Services tests", () => {
       expect(response.status()).toBe(200);
     });
   });
+});
+
+test.describe("Disk storage and AI services", () => {
+  let services: Services;
+  let payments: Payments;
+
+  test.beforeEach(async ({ page, login }) => {
+    services = new Services(page);
+
+    await login.loginToPortal();
+
+    payments = new Payments(page);
+    await payments.setupPaymentMethodAndTopUp(page);
+
+    await services.open();
+  });
 
   test("Buy disk storage", async ({ page }) => {
-    await services.selectDiskStorage();
+    await services.selectDiskStorage("200");
     const [response] = await Promise.all([
       page.waitForResponse(
         (resp) =>
@@ -75,62 +84,27 @@ test.describe.skip("Services tests", () => {
       services.buyButton.click(),
     ]);
     expect(response.status()).toBe(200);
+    await services.waitForDiskStoragePage();
+    await services.checkCurrentSubscriptionVisible();
   });
 
-  test("Downgrade disk storage", async ({ page }) => {
-    await services.changeDiskStorageMinus();
+  test("AI credits top up", async ({ page }) => {
+    await services.openAiCreditsModal();
+
+    await services.aiAmountInput.fill("100");
+    await expect(services.aiAmountInput).toHaveValue("100");
+
     const [response] = await Promise.all([
       page.waitForResponse(
         (resp) =>
-          resp.request().method() === "PUT" &&
-          resp.url().includes("/api/2.0/portal/payment/updatewallet"),
+          resp.url().includes("/api/2.0/portal/payment/walletservice") &&
+          resp.url().includes("aitools"),
       ),
-      services.buyButton.click(),
+      services.aiTopUpButton.click(),
     ]);
     expect(response.status()).toBe(200);
-
-    await expect(page.getByText("GB → 199 GB in total")).toBeVisible();
-    await services.hideDateCurrentPayment();
-    await services.diskStorageCancelButton.click();
-    await services.diskStorageBlock.click();
-
-    const [response2] = await Promise.all([
-      page.waitForResponse(
-        (resp) =>
-          resp.request().method() === "PUT" &&
-          resp.url().includes("/api/2.0/portal/payment/updatewallet"),
-      ),
-      services.cancelChangeLink.click(),
-    ]);
-    expect(response2.status()).toBe(200);
-    await services.diskStorageCancelButton.click();
-  });
-
-  test("Upgrade disk storage", async ({ page }) => {
-    await services.changeDiskStoragePlus();
-    await services.hideDateCurrentPayment();
-    const [response] = await Promise.all([
-      page.waitForResponse(
-        (resp) =>
-          resp.request().method() === "PUT" &&
-          resp.url().includes("/api/2.0/portal/payment/updatewallet"),
-      ),
-      services.buyButton.click(),
-    ]);
-    expect(response.status()).toBe(200);
-  });
-
-  // TODO: payment.ashx returns 404, Stripe redirect is broken — bug on DocSpace side
-  // test("Stripe link", async ({ page }) => {
-  //   const page1Promise = page.waitForEvent("popup");
-  //   await payments.stripeCustomerPortalLink.click();
-  //   const page1 = await page1Promise;
-  //   await page1.waitForURL("https://billing.stripe.com/p/session/*");
-  //   await expect(page1).toHaveURL(/billing.stripe.com/);
-  //   await page1.close();
-  // });
-
-  test("Info button", async () => {
-    await services.infoButton.click();
+    await services.removeToast("ONLYOFFICE AI service successfully enabled.");
+    await services.waitForAiServicesPage();
+    await services.checkAiCreditsVisible();
   });
 });
