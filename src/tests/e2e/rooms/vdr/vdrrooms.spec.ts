@@ -118,6 +118,15 @@ test.describe("VDRRooms", () => {
       await myRooms.openWithoutEmptyCheck();
       await myRooms.roomsTable.checkRowExist("VDR Watermark Image");
     });
+
+    await test.step("Open Edit room and verify watermark Image is saved", async () => {
+      await myRooms.roomsTable.openContextMenu("VDR Watermark Image");
+      await myRooms.roomsTable.clickContextMenuOption(
+        roomContextMenuOption.editRoom,
+      );
+      await vdr.expectWatermarksChecked(true);
+      await vdr.expectWatermarkTypeSelected("Image");
+    });
   });
 
   test("Create VDR room with file lifetime: 30 days, move expired to trash", async () => {
