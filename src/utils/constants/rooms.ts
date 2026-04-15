@@ -32,6 +32,12 @@ export const roomContextMenuOption = {
   removeFromGroup: "Remove from group",
 } as const;
 
+export const vdrRoomContextMenuOption = {
+  editIndex: "Edit index",
+  exportRoomIndex: "Export room index",
+  moreOptions: "More options",
+} as const;
+
 export const roomGroupContextMenuOption = {
   createGroup: { type: "data-testid" as const, value: "option_create-group" },
   addToGroup: { type: "data-testid" as const, value: "option_add-to-group" },

@@ -108,7 +108,7 @@ export class Profile extends BasePage {
   }
 
   get changeEmailInput(): Locator {
-    return this.page.getByPlaceholder("Enter new email");
+    return this.page.getByPlaceholder("Enter email");
   }
 
   get changeEmailSendButton(): Locator {
