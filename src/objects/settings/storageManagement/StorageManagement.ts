@@ -108,8 +108,102 @@ class StorageManagement extends BasePage {
     await this.navigateToArticle(navItems.storageManagement);
   }
 
+  get recalculateButton() {
+    return this.page.getByTestId("recalculate_quota_button");
+  }
+
+  get showMoreRoomsButton() {
+    return this.page.getByTestId("show_more_rooms_button");
+  }
+
+  get showMoreUsersButton() {
+    return this.page.getByTestId("show_more_users_button");
+  }
+
   async checkStorageManagementRender() {
     await expect(this.page.getByText("Disk space used")).toBeVisible();
+  }
+
+  async clickRecalculate() {
+    await this.recalculateButton.click();
+  }
+
+  async expectRecalculateDateVisible() {
+    await expect(this.recalculateDate).toBeVisible();
+  }
+
+  async enableRoomQuota(value: string, unit?: "KB" | "MB" | "GB" | "TB") {
+    await this.onOffQuotaRoom.click();
+    if (unit) {
+      await this.comboboxRoom.click();
+      await this.selectUnit(unit);
+    }
+    await this.textInputRoom.fill(value);
+    await this.saveButtonRoom.click();
+  }
+
+  async enableUserQuota(value: string, unit?: "KB" | "MB" | "GB" | "TB") {
+    await this.onOffQuotaUser.click();
+    if (unit) {
+      await this.comboboxUser.click();
+      await this.selectUnit(unit);
+    }
+    await this.textInputUser.fill(value);
+    await this.saveButtonUser.click();
+  }
+
+  private async selectUnit(unit: string) {
+    const option = this.page.getByRole("option", { name: unit, exact: true });
+    await expect(option).toBeVisible();
+    await option.click();
+  }
+
+  async expectQuotaRoomEnabled() {
+    const checkbox = this.onOffQuotaRoom.getByTestId("toggle-button-input");
+    await expect(checkbox).toBeChecked();
+  }
+
+  async expectQuotaRoomDisabled() {
+    const checkbox = this.onOffQuotaRoom.getByTestId("toggle-button-input");
+    await expect(checkbox).not.toBeChecked();
+  }
+
+  async expectQuotaUserEnabled() {
+    const checkbox = this.onOffQuotaUser.getByTestId("toggle-button-input");
+    await expect(checkbox).toBeChecked();
+  }
+
+  async expectQuotaUserDisabled() {
+    const checkbox = this.onOffQuotaUser.getByTestId("toggle-button-input");
+    await expect(checkbox).not.toBeChecked();
+  }
+
+  async expectQuotaExceededWarning() {
+    await expect(
+      this.page
+        .locator(".warning-text")
+        .filter({ hasText: "storage limit exceeded" }),
+    ).toBeVisible();
+  }
+
+  async expectQuotaExceededToast() {
+    await expect(
+      this.page.getByText("Room space quota exceeded"),
+    ).toBeVisible();
+  }
+
+  async expectUserQuotaExceededToast() {
+    await expect(
+      this.page.getByText("User space quota exceeded"),
+    ).toBeVisible();
+  }
+
+  async expectUserQuotaExceededSnackbar() {
+    await expect(
+      this.page.getByTestId("snackbar-header").filter({
+        hasText: "Storage quota per user exceeded",
+      }),
+    ).toBeVisible({ timeout: 30000 });
   }
 
   async hideDate() {
