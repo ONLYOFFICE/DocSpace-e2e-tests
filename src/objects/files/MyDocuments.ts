@@ -146,7 +146,7 @@ class MyDocuments extends BasePage {
     await this.downloadDialog.close();
   }
 
-  async createDocumentFile(fileName = "Document") {
+  async createDocumentFile(fileName = "Document", checkExists = true) {
     await this.filesNavigation.openCreateDropdown();
     await this.filesNavigation.selectCreateAction(DOC_ACTIONS.CREATE_DOCUMENT);
     await this.filesNavigation.modal.fillCreateTextInput(fileName);
@@ -155,7 +155,9 @@ class MyDocuments extends BasePage {
       this.filesNavigation.modal.clickCreateButton(),
     ]).catch(() => [null]);
     await newPage?.close();
-    await this.filesTable.checkRowExist(fileName);
+    if (checkExists) {
+      await this.filesTable.checkRowExist(fileName);
+    }
   }
 
   async createDocumentAndOpenEditor(fileName = "Document") {
