@@ -3,6 +3,7 @@ import { expect, Page } from "@playwright/test";
 // CSS module classes - partial match, since hash suffix changes per build
 const ROLE_SELECTOR_BUTTON = '[class*="FillingRoleSelector_button"]';
 const ROLE_SELECTOR_INFO = '[class*="FillingRoleSelector_info"]';
+const ROLE_SELECTOR_NAME = '[class*="FillingRoleSelector_name"]';
 const PANEL_HEADER = "#modal-header-swipe";
 const PANEL_TITLE = "Start filling";
 // People selector opened from role selector button (same pattern as EditorStartFillingPanel)
@@ -44,8 +45,22 @@ class VdrEditorRolesPanel {
     await this.roleSelectorButton.nth(index).click();
   }
 
+  async clickRoleSelectorForRole(roleName: string) {
+    const button = this.page.locator(ROLE_SELECTOR_BUTTON).filter({
+      has: this.page.locator(ROLE_SELECTOR_NAME).filter({ hasText: roleName }),
+    });
+    await expect(button).toBeVisible({ timeout: 10000 });
+    await button.click();
+  }
+
   async selectUserByIndex(itemIndex: number) {
     const item = this.page.getByTestId(`selector-item-${itemIndex}`);
+    await expect(item).toBeVisible({ timeout: 10000 });
+    await item.click();
+  }
+
+  async selectUserByName(name: string) {
+    const item = this.page.getByLabel(name, { exact: true });
     await expect(item).toBeVisible({ timeout: 10000 });
     await item.click();
   }
@@ -58,6 +73,11 @@ class VdrEditorRolesPanel {
   async checkAssignedUserName(name: string) {
     const info = this.page.locator(ROLE_SELECTOR_INFO);
     await expect(info.first()).toContainText(name, { timeout: 10000 });
+  }
+
+  async checkAssignedUserNameByIndex(index: number, name: string) {
+    const info = this.page.locator(ROLE_SELECTOR_INFO);
+    await expect(info.nth(index)).toContainText(name, { timeout: 10000 });
   }
 
   async clickStart() {
