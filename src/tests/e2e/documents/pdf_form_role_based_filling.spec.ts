@@ -32,7 +32,8 @@ test.describe("My Documents: PDF form role-based filling via editor", () => {
     let selector: BaseSelector;
 
     await test.step("Create blank PDF form and open editor", async () => {
-      const editor = await myDocuments.createPdfFormAndOpenEditor(PDF_FORM_NAME);
+      const editor =
+        await myDocuments.createPdfFormAndOpenEditor(PDF_FORM_NAME);
       await editor.waitForLoad();
       editorPage = editor.editorPage;
       pdfForm = new FilesPdfForm(editorPage);
