@@ -65,11 +65,9 @@ test.describe("My Documents: PDF form fill options panel", () => {
     });
   });
 
-  // Bug 80891 - PDF form does not start filling automatically when copied to a room via file context menu
-  test.skip("Owner can start Form data collection from a PDF form", async ({
+  test("Owner can start Form data collection from a PDF form", async ({
     page,
   }) => {
-    test.skip(true, "Bug 80891");
     const selector = new BaseSelector(page);
 
     await test.step("Open context menu and click Fill", async () => {
