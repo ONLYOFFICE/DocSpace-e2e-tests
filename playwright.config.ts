@@ -40,8 +40,8 @@ export default defineConfig({
   retries: process.env.CI ? 1 : 0,
   workers: process.env.CI ? 2 : 1,
 
-  // Ignore tests in the site directory
-  testIgnore: ["**/site/**/*.spec.ts"],
+  // Ignore site tests and daily prod check (run separately)
+  testIgnore: ["**/site/**/*.spec.ts", "**/daily_prod_check.spec.ts"],
   // Directory for screenshots
   outputDir: `./test-output/${process.env.JOB_NAME ?? "local"}`,
   // Proper snapshot path template with placeholders and file extension
