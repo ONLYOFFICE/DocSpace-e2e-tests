@@ -6,12 +6,16 @@ import PdfFormEditor from "@/src/objects/files/PdfFormEditor";
 import FilesPdfForm from "@/src/objects/files/FilesPdfForm";
 import VdrEditorRolesPanel from "@/src/objects/files/VdrEditorRolesPanel";
 import VdrStartFillingPage from "@/src/objects/files/VdrStartFillingPage";
+import StopFillingModal from "@/src/objects/files/StopFillingModal";
 import Login from "@/src/objects/common/Login";
 import {
   setupIncognitoContext,
   cleanupIncognitoContext,
 } from "@/src/utils/helpers/linkTest";
-import { formFillingRoomPdfContextMenuOption } from "@/src/utils/constants/files";
+import {
+  formFillingRoomPdfContextMenuOption,
+  vdrRoomPdfContextMenuOption,
+} from "@/src/utils/constants/files";
 
 // File must be placed at data/rooms/PDF form with multi role.pdf
 const MULTI_ROLE_PDF_PATH = "data/rooms/PDF form with multi role.pdf";
@@ -231,6 +235,93 @@ test.describe("VDR room: multi-role form filling", () => {
       await editorPage.reload({ waitUntil: "load" });
       const ownerFilesTable = new FilesTable(editorPage);
       await ownerFilesTable.expectCompleteBadgeVisible();
+    });
+
+    await cleanupIncognitoContext(user1Context!, user1Page!);
+  });
+
+  test("Owner stops filling and Stopped badge appears for all participants", async ({
+    page,
+    browser,
+    api,
+  }) => {
+    let editorPage: Page;
+    let user1Context: BrowserContext;
+    let user1Page: Page;
+
+    await test.step("Click Start filling from file context menu", async () => {
+      const pagePromise = page
+        .context()
+        .waitForEvent("page", { timeout: 30000 });
+      const ownerFilesTable = new FilesTable(page);
+      await ownerFilesTable.openContextMenuForItem(MULTI_ROLE_PDF_NAME);
+      await ownerFilesTable.contextMenu.clickOption(
+        formFillingRoomPdfContextMenuOption.startFilling,
+      );
+      editorPage = await pagePromise;
+      await editorPage.waitForLoadState("load");
+      const pdfFormEditor = new PdfFormEditor(editorPage);
+      await pdfFormEditor.waitForLoad();
+    });
+
+    await test.step("Assign all roles and start filling", async () => {
+      const rolesPanel = new VdrEditorRolesPanel(editorPage);
+      await rolesPanel.checkPanelVisible();
+      await rolesPanel.clickRoleSelectorForRole("Anyone");
+      await rolesPanel.selectUserByName(user1Name);
+      await rolesPanel.submitRoleSelection();
+      await rolesPanel.clickRoleSelectorForRole("Role2");
+      await rolesPanel.selectUserByName("admin-zero admin-zero");
+      await rolesPanel.submitRoleSelection();
+      await rolesPanel.clickRoleSelectorForRole("Role3");
+      await rolesPanel.selectUserByName(user1Name);
+      await rolesPanel.submitRoleSelection();
+      await rolesPanel.clickStart();
+    });
+
+    await test.step("Verify start filling page and click Go to room", async () => {
+      const startFillingPage = new VdrStartFillingPage(editorPage);
+      await startFillingPage.waitForPageLoad();
+      await startFillingPage.clickGoToRoomButton();
+    });
+
+    await test.step("Owner sees In progress badge", async () => {
+      const ownerFilesTable = new FilesTable(editorPage);
+      await ownerFilesTable.expectInProgressBadgeVisible();
+    });
+
+    await test.step("User1 logs in and sees Your turn badge", async () => {
+      ({ context: user1Context, page: user1Page } =
+        await setupIncognitoContext(browser));
+      const userLogin = new Login(user1Page, api.portalDomain);
+      await userLogin.loginWithCredentials(user1Email, user1Password);
+      const userRooms = new MyRooms(user1Page, api.portalDomain);
+      await userRooms.openWithoutEmptyCheck();
+      await userRooms.roomsTable.openRoomByName(VDR_ROOM_NAME);
+      const userFilesTable = new FilesTable(user1Page);
+      await userFilesTable.expectYourTurnBadgeVisible();
+    });
+
+    await test.step("Owner stops filling", async () => {
+      const ownerFilesTable = new FilesTable(editorPage);
+      await ownerFilesTable.openContextMenuForItem(MULTI_ROLE_PDF_NAME);
+      await ownerFilesTable.contextMenu.clickOption(
+        vdrRoomPdfContextMenuOption.stopFilling,
+      );
+      const stopModal = new StopFillingModal(editorPage);
+      await stopModal.clickConfirm();
+    });
+
+    await test.step("Owner sees Stopped badge", async () => {
+      await editorPage.reload({ waitUntil: "load" });
+      const ownerFilesTable = new FilesTable(editorPage);
+      await ownerFilesTable.expectStoppedBadgeVisible();
+    });
+
+    await test.step("User1 sees Stopped badge", async () => {
+      await user1Page.reload({ waitUntil: "load" });
+      const userFilesTable = new FilesTable(user1Page);
+      await userFilesTable.expectStoppedBadgeVisible();
     });
 
     await cleanupIncognitoContext(user1Context!, user1Page!);

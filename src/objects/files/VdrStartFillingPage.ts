@@ -14,7 +14,6 @@ const HEADING = '[data-testid="heading"]';
 const HEADING_TEXT = "Form is ready for filling in room";
 const SECTION_COMPLETED_HEADING_TEXT = "Form Section Completed";
 const FINALIZED_HEADING_TEXT = "Form Finalized";
-// BEM-style class without CSS module hash - stable selector
 const ROLES_BLOCK = '[class*="completed-form__roles"]';
 
 class VdrStartFillingPage {
