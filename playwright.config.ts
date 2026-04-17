@@ -40,7 +40,7 @@ export default defineConfig({
   retries: process.env.CI ? 1 : 0,
   workers: process.env.CI ? 2 : 1,
 
-  // Ignore tests in the site directory
+  // Ignore site tests
   testIgnore: ["**/site/**/*.spec.ts"],
   // Directory for screenshots
   outputDir: `./test-output/${process.env.JOB_NAME ?? "local"}`,
