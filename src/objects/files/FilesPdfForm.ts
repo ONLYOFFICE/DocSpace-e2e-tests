@@ -1,5 +1,6 @@
 import { expect, Page } from "@playwright/test";
 import RoomPDFCompleted from "../rooms/RoomPDFCompleted";
+import VdrStartFillingPage from "./VdrStartFillingPage";
 
 const SUBMIT_BUTTON = "#id-submit-group";
 const CLOSE_BUTTON = "#id-btn-close-editor";
@@ -49,6 +50,15 @@ class FilesPdfForm {
     const completed = new RoomPDFCompleted(this.page!);
     await completed.waitForPageLoad();
     return completed;
+  }
+
+  // Use for VDR multi-role fills: after submit the page shows "Form Section Completed"
+  // or "Form Finalized" (VDR-specific layout), not "Form completed successfully".
+  async submitVdrRole(): Promise<VdrStartFillingPage> {
+    await this.checkSubmitButtonExist();
+    await this.submitButton.click();
+    await this.page!.waitForURL(/.*completed-form.*/);
+    return new VdrStartFillingPage(this.page!);
   }
 
   async checkSubmitButtonExist() {

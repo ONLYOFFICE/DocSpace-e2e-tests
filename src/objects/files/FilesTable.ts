@@ -10,6 +10,7 @@ const DRAFT_BADGE = '[data-testid="badge-text"]';
 const YOUR_TURN_BADGE = "Your turn ";
 const IN_PROGRESS_BADGE = "In progress ";
 const STOPPED_BADGE = "Stopped ";
+const COMPLETE_BADGE = "Complete ";
 const EDITORS_TOOLTIP_HEADING = "File is currently edited by:";
 
 const DOCX_FILE_LINK = ".files-item [data-document-title$='.docx']";
@@ -220,6 +221,10 @@ class FilesTable extends BaseTable {
 
   async expectStoppedBadgeVisible() {
     await expect(this.page.getByLabel(STOPPED_BADGE)).toBeVisible();
+  }
+
+  async expectCompleteBadgeVisible() {
+    await expect(this.page.getByLabel(COMPLETE_BADGE)).toBeVisible();
   }
 
   // Pencil icon that appears on a file row when the file is being edited

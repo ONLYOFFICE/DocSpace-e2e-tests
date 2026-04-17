@@ -6,11 +6,15 @@ const VDR_COMPLETED_LAYOUT = ".completed-form__vdr-layout";
 const FILL_FORM_BUTTON = '[data-testid="fill_form_button"]';
 const COPY_LINK_BUTTON = '[data-testid="copy_link_button"]';
 const GO_TO_ROOM_LINK = '[data-testid="go_to_room_link"]';
+const GO_TO_ROOM_BUTTON = '[data-testid="go_to_room_button"]';
 const COPY_LINK_INPUT_BLOCK = '[data-testid="copy_link_input_block"]';
 const COMPLETED_FORM_FILE_CONTAINER =
   '[data-testid="completed_form_file_container"]';
 const HEADING = '[data-testid="heading"]';
 const HEADING_TEXT = "Form is ready for filling in room";
+const SECTION_COMPLETED_HEADING_TEXT = "Form Section Completed";
+const FINALIZED_HEADING_TEXT = "Form Finalized";
+const ROLES_BLOCK = '[class*="completed-form__roles"]';
 
 class VdrStartFillingPage {
   private page: Page;
@@ -33,6 +37,10 @@ class VdrStartFillingPage {
 
   private get goToRoomLink() {
     return this.page.locator(GO_TO_ROOM_LINK);
+  }
+
+  private get goToRoomButton() {
+    return this.page.locator(GO_TO_ROOM_BUTTON);
   }
 
   private get copyLinkInputBlock() {
@@ -65,6 +73,46 @@ class VdrStartFillingPage {
 
   async checkHeading() {
     await expect(this.heading).toContainText(HEADING_TEXT);
+  }
+
+  async checkSectionCompletedHeading() {
+    await expect(this.heading).toContainText(SECTION_COMPLETED_HEADING_TEXT, {
+      timeout: 10000,
+    });
+  }
+
+  async checkFinalizedHeading() {
+    await expect(this.heading).toContainText(FINALIZED_HEADING_TEXT, {
+      timeout: 10000,
+    });
+  }
+
+  async checkFillFormButtonNotVisible() {
+    await expect(this.fillFormButton).not.toBeVisible();
+  }
+
+  async checkCopyLinkButtonVisible() {
+    await expect(this.copyLinkButton).toBeVisible();
+  }
+
+  async checkGoToRoomLinkVisible() {
+    await expect(this.goToRoomLink).toBeVisible();
+  }
+
+  async checkGoToRoomButtonVisible() {
+    await expect(this.goToRoomButton).toBeVisible();
+  }
+
+  async clickGoToRoomButton() {
+    await expect(this.goToRoomButton).toBeVisible();
+    await this.goToRoomButton.click();
+  }
+
+  async checkRoleAssignmentsBlock(userName: string) {
+    const text = `Anyone${userName} Role2admin-zero admin-zero (Me)Role3${userName}`;
+    await expect(this.page.locator(ROLES_BLOCK)).toContainText(text, {
+      timeout: 10000,
+    });
   }
 }
 

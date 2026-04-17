@@ -32,6 +32,12 @@ export const formFillingRoomPdfContextMenuOption = {
   fill: testId("fill-form"),
 };
 
+// VDR room uses different testId for stop-filling than FormFilling rooms.
+export const vdrRoomPdfContextMenuOption = {
+  ...formFillingRoomPdfContextMenuOption,
+  stopFilling: testId("stop-filling"),
+};
+
 // "More options" submenu (2 items)
 export const pdfFormMoreOptionsSubmenu = {
   showVersionHistory: testId("option_show-version-history"),
