@@ -239,12 +239,13 @@ export async function dropFolderWithFiles(
     await dispatchDragEvent("dragenter");
     await dispatchDragEvent("dragover");
     await capabilitiesReady;
-    await dispatchDragEvent("drop");
 
-    await page.waitForResponse(
+    const finalizeResponse = page.waitForResponse(
       (r) => r.url().includes("finalize") && r.status() === 201,
       { timeout: 30000 },
     );
+    await dispatchDragEvent("drop");
+    await finalizeResponse;
   } finally {
     await restoreWebkitEntryMock(page);
   }
