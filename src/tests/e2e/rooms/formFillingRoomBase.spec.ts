@@ -115,12 +115,15 @@ test.describe("FormFilling base tests", () => {
       //check the form filling shared link exist in info panel
       await myRooms.infoPanel.checkFormFillingSharedLinkExist();
     });
-    // TODO: Bug 80619 - PDF upload from DocSpace behaves differently than upload from device; re-enable once fixed
     await test.step("ClickAddPDFFormFromMyDocuments", async () => {
       await roomEmptyView.uploadPdfFromDocSpace();
       //check folders on Select Panel
       await selectPanel.verifyAllFolderOptions();
-      await selectPanel.close();
+      await selectPanel.select("documents");
+      await selectPanel.selectItemByText("ONLYOFFICE Resume Sample");
+      await selectPanel.confirmSelection();
+      await myRooms.infoPanel.close();
+      await expect(page.getByLabel("ONLYOFFICE Resume Sample,")).toBeVisible();
     });
     await test.step("ClickUploadFormFromDevice", async () => {
       const pdfPath = path.resolve(
