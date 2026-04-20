@@ -13,6 +13,11 @@ const SAVE_FORM_AS_XLSX_BLOCK = "#save-form-as-xlsx";
 const SEND_FORM_TO_EXTERNAL_DB_BLOCK = "#send-form-to-external-db";
 const TOGGLE_INPUT = "toggle-button-input";
 const TOGGLE_LABEL = "toggle-button-container";
+const DB_BAR_DESCRIPTION = '[class*="barDescription"]';
+const DB_DISABLED_DESCRIPTION_TEXT =
+  "Database connections are configured by an administrator.";
+const DB_CONNECTION_PANEL_HEADER = "#modal-header-swipe";
+const DB_CONNECTION_PANEL_TITLE = "Database connection";
 const GO_TO_INTEGRATIONS_LINK =
   'a[href="/portal-settings/integration/third-party-services?consumer=externaldb"]';
 const ROOM_TEMPLATE_SUBMIT_BUTTON = "#create-room-template-modal_submit";
@@ -205,6 +210,35 @@ class RoomsCreateDialog extends BaseDialog {
       await label.click();
     }
     await expect(checkbox).toBeChecked({ checked: enable });
+  }
+
+  async checkXlsxToggleEnabled() {
+    await expect(
+      this.page.locator(SAVE_FORM_AS_XLSX_BLOCK).getByTestId(TOGGLE_INPUT),
+    ).not.toBeDisabled();
+  }
+
+  async checkExternalDbToggleDisabled() {
+    await expect(
+      this.page
+        .locator(SEND_FORM_TO_EXTERNAL_DB_BLOCK)
+        .getByTestId(TOGGLE_INPUT),
+    ).toBeDisabled();
+  }
+
+  async checkExternalDbDisabledDescription() {
+    await expect(this.dialog.locator(DB_BAR_DESCRIPTION)).toContainText(
+      DB_DISABLED_DESCRIPTION_TEXT,
+    );
+  }
+
+  async checkDatabaseConnectionPanelVisible() {
+    await expect(this.page.locator(DB_CONNECTION_PANEL_HEADER)).toBeVisible();
+    await expect(
+      this.page
+        .locator(DB_CONNECTION_PANEL_HEADER)
+        .getByText(DB_CONNECTION_PANEL_TITLE),
+    ).toBeVisible();
   }
 
   async expectSendFormToExternalDbChecked(checked: boolean) {
