@@ -227,9 +227,9 @@ class RoomsCreateDialog extends BaseDialog {
   }
 
   async checkExternalDbDisabledDescription() {
-    await expect(
-      this.dialog.locator(DB_BAR_DESCRIPTION),
-    ).toContainText(DB_DISABLED_DESCRIPTION_TEXT);
+    await expect(this.dialog.locator(DB_BAR_DESCRIPTION)).toContainText(
+      DB_DISABLED_DESCRIPTION_TEXT,
+    );
   }
 
   async checkDatabaseConnectionPanelVisible() {
