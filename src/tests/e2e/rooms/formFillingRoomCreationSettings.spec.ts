@@ -32,21 +32,13 @@ test.describe("FormFilling room: creation settings", () => {
     await createDialog.openRoomType(roomCreateTitles.formFilling);
   });
 
-  test("Default state: toggles are in correct positions and Go to Integrations link is visible", async ({
-    page,
-  }) => {
+  test("Default state: toggles are in correct positions and Go to Integrations link is visible", async () => {
     await test.step("Verify Collect results in XLSX is enabled by default", async () => {
-      await expect(
-        page.locator("#save-form-as-xlsx").getByTestId("toggle-button-input"),
-      ).toBeChecked();
+      await createDialog.expectSaveFormAsXlsxChecked(true);
     });
 
     await test.step("Verify Send form to external DB is disabled by default", async () => {
-      await expect(
-        page
-          .locator("#send-form-to-external-db")
-          .getByTestId("toggle-button-input"),
-      ).not.toBeChecked();
+      await createDialog.expectSendFormToExternalDbChecked(false);
     });
 
     await test.step("Verify Go to Integrations link is visible", async () => {
@@ -265,7 +257,7 @@ test.describe("FormFilling room: creation settings - database connection feature
     docSpaceAdminPassword = dsaResult.userData.password;
   });
 
-  test("Room admin: both Collect results in XLSX and Send form to external DB blocks are not visible", async ({
+  test("Room admin: Collect results in XLSX toggle is enabled, Send form to external DB toggle is disabled", async ({
     page,
     api,
   }) => {
@@ -277,12 +269,19 @@ test.describe("FormFilling room: creation settings - database connection feature
     const createDialog = new RoomsCreateDialog(page);
     await createDialog.openRoomType(roomCreateTitles.formFilling);
 
-    await test.step("Verify Collect results in XLSX block is not visible", async () => {
-      await expect(page.locator("#save-form-as-xlsx")).not.toBeVisible();
+    await test.step("Verify Collect results in XLSX toggle is visible and enabled", async () => {
+      await expect(
+        page.locator("#save-form-as-xlsx").getByTestId("toggle-button-input"),
+      ).not.toBeDisabled();
     });
 
-    await test.step("Verify Send form to external DB block is not visible", async () => {
-      await expect(page.locator("#send-form-to-external-db")).not.toBeVisible();
+    await test.step("Verify Send form to external DB toggle is visible but disabled", async () => {
+      await expect(
+        page
+          .locator("#send-form-to-external-db")
+          .getByTestId("toggle-button-input"),
+      ).toBeDisabled();
+      await createDialog.checkExternalDbDisabledDescription();
     });
   });
 
