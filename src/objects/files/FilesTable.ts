@@ -6,6 +6,8 @@ import { initialDocNames } from "@/src/utils/constants/files";
 const TABLE_LIST_ITEM = ".table-list-item.window-item";
 const EDITORS_ICON = '[data-tooltip-id^="editors-tooltip-"]';
 const FILLING_ICON = '[data-iconname*="form.fill.rect.svg"]';
+const LOCK_ICON = '[data-src*="lock.react.svg"]';
+const LOCK_TOOLTIP = "#info-tooltip";
 const DRAFT_BADGE = '[data-testid="badge-text"]';
 const YOUR_TURN_BADGE = "Your turn ";
 const IN_PROGRESS_BADGE = "In progress ";
@@ -193,6 +195,28 @@ class FilesTable extends BaseTable {
       .locator(TABLE_LIST_ITEM)
       .filter({ has: this.page.getByText(fileName, { exact: true }) });
     await expect(fileRow.locator(FILLING_ICON)).toBeVisible();
+  }
+
+  async expectLockIconVisible(fileName: string) {
+    const fileRow = this.page
+      .locator(TABLE_LIST_ITEM)
+      .filter({ has: this.page.getByText(fileName, { exact: true }) });
+    await expect(fileRow.locator(LOCK_ICON)).toBeVisible();
+  }
+
+  async expectLockIconNotVisible(fileName: string) {
+    const fileRow = this.page
+      .locator(TABLE_LIST_ITEM)
+      .filter({ has: this.page.getByText(fileName, { exact: true }) });
+    await expect(fileRow.locator(LOCK_ICON)).not.toBeVisible();
+  }
+
+  async expectLockTooltipContains(fileName: string, text: string) {
+    const fileRow = this.page
+      .locator(TABLE_LIST_ITEM)
+      .filter({ has: this.page.getByText(fileName, { exact: true }) });
+    await fileRow.locator(LOCK_ICON).click();
+    await expect(this.page.locator(LOCK_TOOLTIP)).toContainText(text);
   }
 
   async expectFillingIconNotVisible(fileName: string) {

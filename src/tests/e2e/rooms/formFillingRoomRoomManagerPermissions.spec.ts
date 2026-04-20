@@ -377,6 +377,13 @@ test.describe("FormFilling room - Room manager permissions", () => {
         roomInfoPanel.getMemberByEmail(roomManagerEmail),
       ).toBeVisible({ timeout: 10000 });
 
+      await myRooms.infoPanel.close();
+      await myRooms.filesTable.openContextMenuForItem("PDF from device");
+      await myRooms.filesTable.contextMenu.clickOption(
+        formFillingRoomPdfContextMenuOption.blockVersion,
+      );
+      await myRooms.filesTable.expectLockIconVisible("PDF from device");
+
       await page.context().clearCookies();
     });
 
@@ -388,6 +395,18 @@ test.describe("FormFilling room - Room manager permissions", () => {
         await shortTour.clickSkipTour();
       }
       await myRooms.infoPanel.close();
+    });
+
+    await test.step("Verify lock icon is visible on PDF form locked by owner", async () => {
+      await myRooms.filesTable.expectLockIconVisible("PDF from device");
+    });
+
+    await test.step("Room manager unlocks the PDF form via context menu", async () => {
+      await myRooms.filesTable.openContextMenuForItem("PDF from device");
+      await myRooms.filesTable.contextMenu.clickOption(
+        formFillingRoomPdfContextMenuOption.blockVersion,
+      );
+      await myRooms.filesTable.expectLockIconNotVisible("PDF from device");
     });
 
     await test.step("Verify Room manager CAN rename owner's PDF (context menu option visible)", async () => {
