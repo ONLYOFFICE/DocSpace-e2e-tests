@@ -270,17 +270,11 @@ test.describe("FormFilling room: creation settings - database connection feature
     await createDialog.openRoomType(roomCreateTitles.formFilling);
 
     await test.step("Verify Collect results in XLSX toggle is visible and enabled", async () => {
-      await expect(
-        page.locator("#save-form-as-xlsx").getByTestId("toggle-button-input"),
-      ).not.toBeDisabled();
+      await createDialog.checkXlsxToggleEnabled();
     });
 
     await test.step("Verify Send form to external DB toggle is visible but disabled", async () => {
-      await expect(
-        page
-          .locator("#send-form-to-external-db")
-          .getByTestId("toggle-button-input"),
-      ).toBeDisabled();
+      await createDialog.checkExternalDbToggleDisabled();
       await createDialog.checkExternalDbDisabledDescription();
     });
   });
@@ -298,17 +292,11 @@ test.describe("FormFilling room: creation settings - database connection feature
     await createDialog.openRoomType(roomCreateTitles.formFilling);
 
     await test.step("Verify Collect results in XLSX toggle is visible and enabled", async () => {
-      await expect(
-        page.locator("#save-form-as-xlsx").getByTestId("toggle-button-input"),
-      ).not.toBeDisabled();
+      await createDialog.checkXlsxToggleEnabled();
     });
 
     await test.step("Verify Send form to external DB toggle is visible but disabled", async () => {
-      await expect(
-        page
-          .locator("#send-form-to-external-db")
-          .getByTestId("toggle-button-input"),
-      ).toBeDisabled();
+      await createDialog.checkExternalDbToggleDisabled();
     });
   });
 });
