@@ -675,5 +675,4 @@ test.describe("FormFilling room - Room manager permissions", () => {
       await myRooms.filesTable.expectFillingIconNotVisible("PDF from device");
     });
   });
-
 });
