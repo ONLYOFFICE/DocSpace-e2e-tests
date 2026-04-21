@@ -39,9 +39,7 @@ class FilesPdfForm {
     if (!this.page) {
       throw new Error("PDF form page not set. Please call setPdfPage() first");
     }
-    return this.page
-      .frameLocator(EDITOR_IFRAME)
-      .locator(SUBMIT_BUTTON);
+    return this.page.frameLocator(EDITOR_IFRAME).locator(SUBMIT_BUTTON);
   }
 
   async clickSubmitButton(): Promise<RoomPDFCompleted> {
@@ -74,9 +72,7 @@ class FilesPdfForm {
     if (!this.page) {
       throw new Error("PDF form page not set. Please call setPdfPage() first");
     }
-    return this.page
-      .frameLocator(EDITOR_IFRAME)
-      .locator(INFO_BOX);
+    return this.page.frameLocator(EDITOR_IFRAME).locator(INFO_BOX);
   }
 
   async checkInfoBoxVisible() {
@@ -87,9 +83,7 @@ class FilesPdfForm {
     if (!this.page) {
       throw new Error("PDF form page not set. Please call setPdfPage() first");
     }
-    return this.page
-      .frameLocator(EDITOR_IFRAME)
-      .locator(START_FILL_BUTTON);
+    return this.page.frameLocator(EDITOR_IFRAME).locator(START_FILL_BUTTON);
   }
 
   async checkStartFillButtonVisible() {
@@ -105,18 +99,14 @@ class FilesPdfForm {
     if (!this.page) {
       throw new Error("PDF form page not set. Please call setPdfPage() first");
     }
-    return this.page
-      .frameLocator(EDITOR_IFRAME)
-      .locator(FORM_PREV_BUTTON);
+    return this.page.frameLocator(EDITOR_IFRAME).locator(FORM_PREV_BUTTON);
   }
 
   get formNextButton() {
     if (!this.page) {
       throw new Error("PDF form page not set. Please call setPdfPage() first");
     }
-    return this.page
-      .frameLocator(EDITOR_IFRAME)
-      .locator(FORM_NEXT_BUTTON);
+    return this.page.frameLocator(EDITOR_IFRAME).locator(FORM_NEXT_BUTTON);
   }
 
   async clickFormPrevButton() {
@@ -133,9 +123,7 @@ class FilesPdfForm {
     if (!this.page) {
       throw new Error("PDF form page not set. Please call setPdfPage() first");
     }
-    return this.page
-      .frameLocator(EDITOR_IFRAME)
-      .locator(EDIT_MODE_BUTTON);
+    return this.page.frameLocator(EDITOR_IFRAME).locator(EDIT_MODE_BUTTON);
   }
 
   async checkEditorMode() {
@@ -151,9 +139,7 @@ class FilesPdfForm {
     if (!this.page) {
       throw new Error("PDF form page not set. Please call setPdfPage() first");
     }
-    return this.page
-      .frameLocator(EDITOR_IFRAME)
-      .locator(CLOSE_BUTTON);
+    return this.page.frameLocator(EDITOR_IFRAME).locator(CLOSE_BUTTON);
   }
 
   async clickCloseButton() {
@@ -164,9 +150,7 @@ class FilesPdfForm {
     if (!this.page) {
       throw new Error("PDF form page not set. Please call setPdfPage() first");
     }
-    return this.page
-      .frameLocator(EDITOR_IFRAME)
-      .locator(MENU_BUTTON);
+    return this.page.frameLocator(EDITOR_IFRAME).locator(MENU_BUTTON);
   }
 
   async openMenu() {
