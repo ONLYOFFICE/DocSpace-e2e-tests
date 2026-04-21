@@ -17,6 +17,7 @@ const EDITORS_TOOLTIP_HEADING = "File is currently edited by:";
 
 const DOCX_FILE_LINK = ".files-item [data-document-title$='.docx']";
 const PDF_FILE_LINK = ".files-item [data-document-title$='.pdf']";
+const XLSX_FILE_LINK = ".files-item [data-document-title$='.xlsx']";
 const MODIFIED_CHECKBOX =
   ".table-container_settings-checkbox:has(span:text-is('Modified'))";
 const TABLE_SETTINGS_DROPDOWN = "[data-testid='dropdown'][role='listbox']";
@@ -62,6 +63,27 @@ class FilesTable extends BaseTable {
     await this.pdfFile.click();
   }
 
+  private get xlsxFile() {
+    return this.page.locator(TABLE_LIST_ITEM, {
+      has: this.page.locator(XLSX_FILE_LINK),
+    });
+  }
+
+  async expectXlsxItemVisible(timeout?: number) {
+    await expect(this.xlsxFile).toBeVisible(
+      timeout !== undefined ? { timeout } : undefined,
+    );
+  }
+
+  async expectXlsxItemNotVisible() {
+    await expect(this.xlsxFile).not.toBeVisible();
+  }
+
+  async openContextMenuForXlsxItem() {
+    await expect(this.xlsxFile).toBeVisible();
+    await this.openContextMenuRow(this.xlsxFile);
+  }
+
   async selectFolderByName(name: string) {
     const folder = this.page.locator(TABLE_LIST_ITEM, { hasText: name });
     await expect(folder).toBeVisible();
@@ -83,12 +105,13 @@ class FilesTable extends BaseTable {
     }
   }
 
-  async openContextMenuForItem(name: string, exact = false) {
-    const item = exact
-      ? this.page
-          .locator(TABLE_LIST_ITEM)
-          .filter({ has: this.page.getByText(name, { exact: true }) })
-      : this.page.locator(TABLE_LIST_ITEM, { hasText: name });
+  async openContextMenuForItem(name: string | RegExp, exact = false) {
+    const item =
+      exact && typeof name === "string"
+        ? this.page
+            .locator(TABLE_LIST_ITEM)
+            .filter({ has: this.page.getByText(name, { exact: true }) })
+        : this.page.locator(TABLE_LIST_ITEM, { hasText: name });
     await expect(item).toBeVisible();
     await this.openContextMenuRow(item);
   }
@@ -188,6 +211,19 @@ class FilesTable extends BaseTable {
 
   async expectColumnNotVisible(column: string) {
     await this.expectColumnVisibility(column, false);
+  }
+
+  async expectItemVisible(name: string | RegExp, timeout?: number) {
+    const locator = this.page.locator(TABLE_LIST_ITEM, { hasText: name });
+    await expect(locator).toBeVisible(
+      timeout !== undefined ? { timeout } : undefined,
+    );
+  }
+
+  async expectItemNotVisible(name: string | RegExp) {
+    await expect(
+      this.page.locator(TABLE_LIST_ITEM, { hasText: name }),
+    ).not.toBeVisible();
   }
 
   async expectFillingIconVisible(fileName: string) {

@@ -2,6 +2,7 @@ import { expect, Page } from "@playwright/test";
 import RoomPDFCompleted from "../rooms/RoomPDFCompleted";
 import VdrStartFillingPage from "./VdrStartFillingPage";
 
+const EDITOR_IFRAME = 'iframe[name="frameEditor"]';
 const SUBMIT_BUTTON = "#id-submit-group";
 const CLOSE_BUTTON = "#id-btn-close-editor";
 const MENU_BUTTON = "#box-tools";
@@ -38,9 +39,7 @@ class FilesPdfForm {
     if (!this.page) {
       throw new Error("PDF form page not set. Please call setPdfPage() first");
     }
-    return this.page
-      .frameLocator('iframe[name="frameEditor"]')
-      .locator(SUBMIT_BUTTON);
+    return this.page.frameLocator(EDITOR_IFRAME).locator(SUBMIT_BUTTON);
   }
 
   async clickSubmitButton(): Promise<RoomPDFCompleted> {
@@ -73,9 +72,7 @@ class FilesPdfForm {
     if (!this.page) {
       throw new Error("PDF form page not set. Please call setPdfPage() first");
     }
-    return this.page
-      .frameLocator('iframe[name="frameEditor"]')
-      .locator(INFO_BOX);
+    return this.page.frameLocator(EDITOR_IFRAME).locator(INFO_BOX);
   }
 
   async checkInfoBoxVisible() {
@@ -86,9 +83,7 @@ class FilesPdfForm {
     if (!this.page) {
       throw new Error("PDF form page not set. Please call setPdfPage() first");
     }
-    return this.page
-      .frameLocator('iframe[name="frameEditor"]')
-      .locator(START_FILL_BUTTON);
+    return this.page.frameLocator(EDITOR_IFRAME).locator(START_FILL_BUTTON);
   }
 
   async checkStartFillButtonVisible() {
@@ -104,18 +99,14 @@ class FilesPdfForm {
     if (!this.page) {
       throw new Error("PDF form page not set. Please call setPdfPage() first");
     }
-    return this.page
-      .frameLocator('iframe[name="frameEditor"]')
-      .locator(FORM_PREV_BUTTON);
+    return this.page.frameLocator(EDITOR_IFRAME).locator(FORM_PREV_BUTTON);
   }
 
   get formNextButton() {
     if (!this.page) {
       throw new Error("PDF form page not set. Please call setPdfPage() first");
     }
-    return this.page
-      .frameLocator('iframe[name="frameEditor"]')
-      .locator(FORM_NEXT_BUTTON);
+    return this.page.frameLocator(EDITOR_IFRAME).locator(FORM_NEXT_BUTTON);
   }
 
   async clickFormPrevButton() {
@@ -132,13 +123,11 @@ class FilesPdfForm {
     if (!this.page) {
       throw new Error("PDF form page not set. Please call setPdfPage() first");
     }
-    return this.page
-      .frameLocator('iframe[name="frameEditor"]')
-      .locator(EDIT_MODE_BUTTON);
+    return this.page.frameLocator(EDITOR_IFRAME).locator(EDIT_MODE_BUTTON);
   }
 
   async checkEditorMode() {
-    const frame = this.page!.frameLocator('iframe[name="frameEditor"]');
+    const frame = this.page!.frameLocator(EDITOR_IFRAME);
     await this.editModeButton.click();
     await expect(
       frame.locator(EDIT_MODE_CHECKED_ITEM).filter({ hasText: /^Editing/ }),
@@ -150,9 +139,7 @@ class FilesPdfForm {
     if (!this.page) {
       throw new Error("PDF form page not set. Please call setPdfPage() first");
     }
-    return this.page
-      .frameLocator('iframe[name="frameEditor"]')
-      .locator(CLOSE_BUTTON);
+    return this.page.frameLocator(EDITOR_IFRAME).locator(CLOSE_BUTTON);
   }
 
   async clickCloseButton() {
@@ -163,9 +150,7 @@ class FilesPdfForm {
     if (!this.page) {
       throw new Error("PDF form page not set. Please call setPdfPage() first");
     }
-    return this.page
-      .frameLocator('iframe[name="frameEditor"]')
-      .locator(MENU_BUTTON);
+    return this.page.frameLocator(EDITOR_IFRAME).locator(MENU_BUTTON);
   }
 
   async openMenu() {
@@ -173,11 +158,18 @@ class FilesPdfForm {
     await this.menuButton.click();
   }
 
+  async waitForEditorFrame() {
+    await this.page!.waitForSelector(EDITOR_IFRAME, {
+      state: "attached",
+      timeout: 60000,
+    });
+  }
+
   private getEditorFrame() {
     if (!this.page) {
       throw new Error("PDF form page not set. Please call setPdfPage() first");
     }
-    return this.page.frameLocator('iframe[name="frameEditor"]');
+    return this.page.frameLocator(EDITOR_IFRAME);
   }
 
   get downloadAsPdfButton() {

@@ -195,11 +195,8 @@ test.describe("FormFilling room - In process and Complete folders", () => {
       formFillingRoomPdfContextMenuOption.fill,
     );
     const fillPage = await pagePromise;
-    await fillPage.waitForLoadState("load");
-    await fillPage.waitForSelector('iframe[name="frameEditor"]', {
-      state: "attached",
-      timeout: 60000,
-    });
+    const pdfForm = new FilesPdfForm(fillPage);
+    await pdfForm.waitForEditorFrame();
     await fillPage.close();
   };
 

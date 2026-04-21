@@ -186,20 +186,29 @@ class InfoPanel {
     const size = this.infoPanel.locator(PROPERTY_SIZE);
     return await size.textContent();
   }
-  async getSizeInBytes(): Promise<number> {
-    const size = await this.getSizeProperty();
-    if (!size) {
-      throw new Error("Size not found");
-    }
-    const sizeStr = size.replace(/^Size\s*/i, "").trim();
-    const match = sizeStr.match(/([\d.]+)\s*(KB|MB|B)/i);
-    if (!match) return 0;
-    const num = match[1];
-    const unit = match[2];
-    let sizeNum = parseFloat(num);
-    if (/MB/i.test(unit)) sizeNum *= 1024 * 1024;
-    else if (/KB/i.test(unit)) sizeNum *= 1024;
-    return sizeNum;
+  async getSizeInBytes(timeout = 5000): Promise<number> {
+    const size = this.infoPanel.locator(PROPERTY_SIZE);
+    // Poll until the panel loads a non-zero size value.
+    // "0 B" is a placeholder shown before the real size is fetched.
+    let result = 0;
+    await expect
+      .poll(
+        async () => {
+          const text = await size.textContent();
+          if (!text) return 0;
+          const sizeStr = text.replace(/^Size\s*/i, "").trim();
+          const match = sizeStr.match(/([\d.]+)\s*(KB|MB|B)/i);
+          if (!match) return 0;
+          let sizeNum = parseFloat(match[1]);
+          if (/MB/i.test(match[2])) sizeNum *= 1024 * 1024;
+          else if (/KB/i.test(match[2])) sizeNum *= 1024;
+          result = sizeNum;
+          return sizeNum;
+        },
+        { timeout },
+      )
+      .toBeGreaterThan(0);
+    return result;
   }
   async checkFolderProperties() {
     const folderType = this.infoPanel.locator(PROPERTY_TYPE);
