@@ -111,6 +111,7 @@ export const spreadsheetContextMenuOption = {
   customFilter: testId("option_custom-filter"),
   moreOptions: testId("option_info"),
   delete: testId("option_delete"),
+  syncResponsesToXlsx: testId("option_sync_xlsx_data"), // FormFilling room Complete folder only
 };
 
 // markAsRead appears only after another user modifies a file inside the folder.
@@ -126,6 +127,7 @@ export const folderContextMenuOption = {
   markAsRead: testId("option_mark-read"), // conditional: visible after external edits
   folderInfo: testId("option_show-info"),
   delete: testId("delete"),
+  syncResponsesToXlsx: testId("option_sync_xlsx_data"), // FormFilling room Complete folder only
 };
 
 export type TDocumentContextMenuOption =
