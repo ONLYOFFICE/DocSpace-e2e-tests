@@ -2,6 +2,7 @@ import { expect, Page } from "@playwright/test";
 import RoomPDFCompleted from "../rooms/RoomPDFCompleted";
 import VdrStartFillingPage from "./VdrStartFillingPage";
 
+const EDITOR_IFRAME = 'iframe[name="frameEditor"]';
 const SUBMIT_BUTTON = "#id-submit-group";
 const CLOSE_BUTTON = "#id-btn-close-editor";
 const MENU_BUTTON = "#box-tools";
@@ -39,7 +40,7 @@ class FilesPdfForm {
       throw new Error("PDF form page not set. Please call setPdfPage() first");
     }
     return this.page
-      .frameLocator('iframe[name="frameEditor"]')
+      .frameLocator(EDITOR_IFRAME)
       .locator(SUBMIT_BUTTON);
   }
 
@@ -74,7 +75,7 @@ class FilesPdfForm {
       throw new Error("PDF form page not set. Please call setPdfPage() first");
     }
     return this.page
-      .frameLocator('iframe[name="frameEditor"]')
+      .frameLocator(EDITOR_IFRAME)
       .locator(INFO_BOX);
   }
 
@@ -87,7 +88,7 @@ class FilesPdfForm {
       throw new Error("PDF form page not set. Please call setPdfPage() first");
     }
     return this.page
-      .frameLocator('iframe[name="frameEditor"]')
+      .frameLocator(EDITOR_IFRAME)
       .locator(START_FILL_BUTTON);
   }
 
@@ -105,7 +106,7 @@ class FilesPdfForm {
       throw new Error("PDF form page not set. Please call setPdfPage() first");
     }
     return this.page
-      .frameLocator('iframe[name="frameEditor"]')
+      .frameLocator(EDITOR_IFRAME)
       .locator(FORM_PREV_BUTTON);
   }
 
@@ -114,7 +115,7 @@ class FilesPdfForm {
       throw new Error("PDF form page not set. Please call setPdfPage() first");
     }
     return this.page
-      .frameLocator('iframe[name="frameEditor"]')
+      .frameLocator(EDITOR_IFRAME)
       .locator(FORM_NEXT_BUTTON);
   }
 
@@ -133,12 +134,12 @@ class FilesPdfForm {
       throw new Error("PDF form page not set. Please call setPdfPage() first");
     }
     return this.page
-      .frameLocator('iframe[name="frameEditor"]')
+      .frameLocator(EDITOR_IFRAME)
       .locator(EDIT_MODE_BUTTON);
   }
 
   async checkEditorMode() {
-    const frame = this.page!.frameLocator('iframe[name="frameEditor"]');
+    const frame = this.page!.frameLocator(EDITOR_IFRAME);
     await this.editModeButton.click();
     await expect(
       frame.locator(EDIT_MODE_CHECKED_ITEM).filter({ hasText: /^Editing/ }),
@@ -151,7 +152,7 @@ class FilesPdfForm {
       throw new Error("PDF form page not set. Please call setPdfPage() first");
     }
     return this.page
-      .frameLocator('iframe[name="frameEditor"]')
+      .frameLocator(EDITOR_IFRAME)
       .locator(CLOSE_BUTTON);
   }
 
@@ -164,7 +165,7 @@ class FilesPdfForm {
       throw new Error("PDF form page not set. Please call setPdfPage() first");
     }
     return this.page
-      .frameLocator('iframe[name="frameEditor"]')
+      .frameLocator(EDITOR_IFRAME)
       .locator(MENU_BUTTON);
   }
 
@@ -173,11 +174,18 @@ class FilesPdfForm {
     await this.menuButton.click();
   }
 
+  async waitForEditorFrame() {
+    await this.page!.waitForSelector(EDITOR_IFRAME, {
+      state: "attached",
+      timeout: 60000,
+    });
+  }
+
   private getEditorFrame() {
     if (!this.page) {
       throw new Error("PDF form page not set. Please call setPdfPage() first");
     }
-    return this.page.frameLocator('iframe[name="frameEditor"]');
+    return this.page.frameLocator(EDITOR_IFRAME);
   }
 
   get downloadAsPdfButton() {
