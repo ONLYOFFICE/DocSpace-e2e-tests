@@ -64,7 +64,7 @@ test.describe("FormFilling room - Form filler permissions", () => {
     formFillerEmail = userData.email;
     formFillerPassword = userData.password;
 
-    // Create Content Creator user via API (used to verify participant list visibility)
+    // Create Content Creator user via API (used in info panel test to verify participant list visibility)
     const { userData: ccData } = await apiSdk.profiles.addMember(
       "owner",
       "User",
@@ -72,13 +72,8 @@ test.describe("FormFilling room - Form filler permissions", () => {
     contentCreatorEmail = ccData.email;
   });
 
-  test("Add user with Form filler role and verify permissions", async ({
-    page,
-  }) => {
-    let pdfPage: Page;
-    let pdfForm: FilesPdfForm;
-
-    await test.step("Setup: Login as owner and add Form filler user via UI", async () => {
+  test("Verify info panel and room permissions", async ({ page }) => {
+    await test.step("Setup: Login as owner and add users via UI", async () => {
       await login.loginToPortal();
       await myRooms.openWithoutEmptyCheck();
       await myRooms.roomsTable.openRoomByName(roomName);
@@ -99,7 +94,7 @@ test.describe("FormFilling room - Form filler permissions", () => {
         { timeout: 10000 },
       );
 
-      // Add Content Creator user
+      // Add Content Creator user (needed to verify filler can see participant list)
       await roomInfoPanel.clickAddUser();
       await roomsInviteDialog.openPeopleList();
       await roomsInviteDialog.contactsPanel.selectAccessType("contentCreator");
@@ -117,15 +112,6 @@ test.describe("FormFilling room - Form filler permissions", () => {
       await expect(
         roomInfoPanel.getMemberByEmail(contentCreatorEmail),
       ).toBeVisible({ timeout: 10000 });
-
-      // Start filling the PDF form so it becomes visible to Form filler
-      await myRooms.infoPanel.close();
-      await myRooms.filesTable.openContextMenuForItem("PDF from device");
-      await myRooms.filesTable.contextMenu.clickOption(
-        formFillingRoomPdfContextMenuOption.startFilling,
-      );
-      // Close the copy link modal that appears after starting the form
-      await shortTour.clickModalCloseButton();
 
       // Clear cookies to logout from owner account
       await page.context().clearCookies();
@@ -213,6 +199,48 @@ test.describe("FormFilling room - Form filler permissions", () => {
 
     await test.step("Verify Form filler has no create/upload button", async () => {
       await expect(page.locator("#header_add-button")).not.toBeVisible();
+    });
+  });
+
+  test("Verify file and folder permissions", async ({ page }) => {
+    await test.step("Setup: Login as owner, add Form filler user, and start filling", async () => {
+      await login.loginToPortal();
+      await myRooms.openWithoutEmptyCheck();
+      await myRooms.roomsTable.openRoomByName(roomName);
+
+      await myRooms.infoPanel.open();
+      await shortTour.clickSkipTour();
+      await myRooms.infoPanel.openTab("Contacts");
+      await roomInfoPanel.clickAddUser();
+      await roomsInviteDialog.openPeopleList();
+      await roomsInviteDialog.contactsPanel.selectUserByEmail(formFillerEmail);
+      await roomsInviteDialog.contactsPanel.clickSelectButton();
+      await roomsInviteDialog.verifyUserRole(formFillerEmail, "Form filler");
+      await roomsInviteDialog.submitInviteDialog();
+
+      await myRooms.infoPanel.openTab("Contacts");
+      await expect(roomInfoPanel.getMemberByEmail(formFillerEmail)).toBeVisible(
+        { timeout: 10000 },
+      );
+
+      // Start filling the PDF form so Form filler gets the "Fill" option
+      await myRooms.infoPanel.close();
+      await myRooms.filesTable.openContextMenuForItem("PDF from device");
+      await myRooms.filesTable.contextMenu.clickOption(
+        formFillingRoomPdfContextMenuOption.startFilling,
+      );
+      await shortTour.clickModalCloseButton();
+
+      await page.context().clearCookies();
+    });
+
+    await test.step("Login as Form filler", async () => {
+      await login.loginWithCredentials(formFillerEmail, formFillerPassword);
+      await myRooms.roomsTable.openRoomByName(roomName);
+      const tourVisible = await shortTour.isTourVisible(6000);
+      if (tourVisible) {
+        await shortTour.clickSkipTour();
+      }
     });
 
     await test.step("Verify file context menu shows 'Download' option for PDF form", async () => {
@@ -356,6 +384,67 @@ test.describe("FormFilling room - Form filler permissions", () => {
       await myRooms.filesTable.contextMenu.close();
     });
 
+    await test.step("Verify Form filler CANNOT delete PDF form", async () => {
+      await myRooms.filesTable.openContextMenuForItem("PDF from device");
+      // Anchor: fill option is visible to confirm menu is fully loaded
+      await expect(
+        myRooms.filesTable.contextMenu.getItemLocator(
+          formFillingRoomPdfContextMenuOption.fill,
+        ),
+      ).toBeVisible();
+      await expect(
+        myRooms.filesTable.contextMenu.getItemLocator(
+          pdfFormContextMenuOption.delete,
+        ),
+      ).not.toBeVisible();
+      await myRooms.filesTable.contextMenu.close();
+    });
+  });
+
+  test("Verify form filling workflow", async ({ page }) => {
+    let pdfPage: Page;
+    let pdfForm: FilesPdfForm;
+
+    await test.step("Setup: Login as owner, add Form filler user, and start filling", async () => {
+      await login.loginToPortal();
+      await myRooms.openWithoutEmptyCheck();
+      await myRooms.roomsTable.openRoomByName(roomName);
+
+      await myRooms.infoPanel.open();
+      await shortTour.clickSkipTour();
+      await myRooms.infoPanel.openTab("Contacts");
+      await roomInfoPanel.clickAddUser();
+      await roomsInviteDialog.openPeopleList();
+      await roomsInviteDialog.contactsPanel.selectUserByEmail(formFillerEmail);
+      await roomsInviteDialog.contactsPanel.clickSelectButton();
+      await roomsInviteDialog.verifyUserRole(formFillerEmail, "Form filler");
+      await roomsInviteDialog.submitInviteDialog();
+
+      await myRooms.infoPanel.openTab("Contacts");
+      await expect(roomInfoPanel.getMemberByEmail(formFillerEmail)).toBeVisible(
+        { timeout: 10000 },
+      );
+
+      // Start filling the PDF form so Form filler gets the "Fill" option
+      await myRooms.infoPanel.close();
+      await myRooms.filesTable.openContextMenuForItem("PDF from device");
+      await myRooms.filesTable.contextMenu.clickOption(
+        formFillingRoomPdfContextMenuOption.startFilling,
+      );
+      await shortTour.clickModalCloseButton();
+
+      await page.context().clearCookies();
+    });
+
+    await test.step("Login as Form filler", async () => {
+      await login.loginWithCredentials(formFillerEmail, formFillerPassword);
+      await myRooms.roomsTable.openRoomByName(roomName);
+      const tourVisible = await shortTour.isTourVisible(6000);
+      if (tourVisible) {
+        await shortTour.clickSkipTour();
+      }
+    });
+
     await test.step("Verify Form filler CAN open PDF form and save as draft", async () => {
       await myRooms.filesTable.openContextMenuForItem("PDF from device");
       [pdfPage] = await Promise.all([
@@ -382,6 +471,31 @@ test.describe("FormFilling room - Form filler permissions", () => {
           .locator('[data-testid^="files-cell-name"]')
           .getByText("In process", { exact: true }),
       ).toBeVisible();
+    });
+
+    await test.step("Verify Form filler CANNOT delete submission folder inside In process", async () => {
+      await myRooms.filesTable.openContextMenuForItem("In process");
+      await myRooms.filesTable.contextMenu.clickOption(
+        folderContextMenuOption.open,
+      );
+      await expect(
+        page.getByRole("heading", { name: "In process" }),
+      ).toBeVisible();
+      await myRooms.filesTable.openContextMenuForItem("PDF from device");
+      // Anchor: open option is visible to confirm menu is fully loaded
+      await expect(
+        myRooms.filesTable.contextMenu.getItemLocator(
+          folderContextMenuOption.open,
+        ),
+      ).toBeVisible();
+      await expect(
+        myRooms.filesTable.contextMenu.getItemLocator(
+          folderContextMenuOption.delete,
+        ),
+      ).not.toBeVisible();
+      await myRooms.filesTable.contextMenu.close();
+      await myRooms.filesNavigation.gotoBack();
+      await page.reload({ waitUntil: "load" });
     });
 
     await test.step("Verify PDF form editor shows 'Download as PDF' and 'Print' buttons", async () => {
@@ -417,6 +531,31 @@ test.describe("FormFilling room - Form filler permissions", () => {
           .locator('[data-testid^="files-cell-name"]')
           .getByText("Complete", { exact: true }),
       ).toBeVisible();
+    });
+
+    await test.step("Verify Form filler CANNOT delete submission folder inside Complete", async () => {
+      await myRooms.filesTable.openContextMenuForItem("Complete");
+      await myRooms.filesTable.contextMenu.clickOption(
+        folderContextMenuOption.open,
+      );
+      await expect(
+        page.getByRole("heading", { name: "Complete" }),
+      ).toBeVisible();
+      await myRooms.filesTable.openContextMenuForItem("PDF from device");
+      // Anchor: open option is visible to confirm menu is fully loaded
+      await expect(
+        myRooms.filesTable.contextMenu.getItemLocator(
+          folderContextMenuOption.open,
+        ),
+      ).toBeVisible();
+      await expect(
+        myRooms.filesTable.contextMenu.getItemLocator(
+          folderContextMenuOption.delete,
+        ),
+      ).not.toBeVisible();
+      await myRooms.filesTable.contextMenu.close();
+      await myRooms.filesNavigation.gotoBack();
+      await page.reload({ waitUntil: "load" });
     });
 
     await test.step("Verify Form filler CAN download PDF form via context menu", async () => {
