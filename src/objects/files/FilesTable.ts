@@ -15,6 +15,9 @@ const STOPPED_BADGE = "Stopped ";
 const COMPLETE_BADGE = "Complete ";
 const EDITORS_TOOLTIP_HEADING = "File is currently edited by:";
 
+const EMPTY_FOLDER_TEXT = "No files in this folder yet";
+const FILES_CELL_NAME = "[data-testid^='files-cell-name']";
+
 const DOCX_FILE_LINK = ".files-item [data-document-title$='.docx']";
 const PDF_FILE_LINK = ".files-item [data-document-title$='.pdf']";
 const XLSX_FILE_LINK = ".files-item [data-document-title$='.xlsx']";
@@ -82,6 +85,22 @@ class FilesTable extends BaseTable {
   async openContextMenuForXlsxItem() {
     await expect(this.xlsxFile).toBeVisible();
     await this.openContextMenuRow(this.xlsxFile);
+  }
+
+  async expectEmptyFolder() {
+    await expect(this.page.getByText(EMPTY_FOLDER_TEXT)).toBeVisible();
+  }
+
+  async expectCellItemVisible(name: string) {
+    await expect(
+      this.page.locator(FILES_CELL_NAME).getByText(name, { exact: true }),
+    ).toBeVisible();
+  }
+
+  async expectCellItemNotVisible(name: string) {
+    await expect(
+      this.page.locator(FILES_CELL_NAME).getByText(name, { exact: true }),
+    ).not.toBeVisible();
   }
 
   async selectFolderByName(name: string) {

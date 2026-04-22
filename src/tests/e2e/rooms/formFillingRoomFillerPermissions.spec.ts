@@ -6,12 +6,14 @@ import { ShortTour } from "@/src/objects/rooms/ShortTourModal";
 import RoomInfoPanel from "@/src/objects/rooms/RoomInfoPanel";
 import RoomsInviteDialog from "@/src/objects/rooms/RoomsInviteDialog";
 import Login from "@/src/objects/common/Login";
+import FolderDeleteModal from "@/src/objects/files/FolderDeleteModal";
 import {
   folderContextMenuOption,
   formFillingRoomPdfContextMenuOption,
   pdfFormContextMenuOption,
   pdfFormDownloadSubmenu,
 } from "@/src/utils/constants/files";
+import { formFillingSystemFolders } from "@/src/utils/constants/rooms";
 
 test.describe("FormFilling room - Form filler permissions", () => {
   let myRooms: MyRooms;
@@ -127,19 +129,15 @@ test.describe("FormFilling room - Form filler permissions", () => {
     });
 
     await test.step("Verify Form filler CANNOT see Complete folder before filling", async () => {
-      await expect(
-        page
-          .locator('[data-testid^="files-cell-name"]')
-          .getByText("Complete", { exact: true }),
-      ).not.toBeVisible();
+      await myRooms.filesTable.expectCellItemNotVisible(
+        formFillingSystemFolders.complete,
+      );
     });
 
     await test.step("Verify Form filler CANNOT see In Process folder before filling", async () => {
-      await expect(
-        page
-          .locator('[data-testid^="files-cell-name"]')
-          .getByText("In process", { exact: true }),
-      ).not.toBeVisible();
+      await myRooms.filesTable.expectCellItemNotVisible(
+        formFillingSystemFolders.inProcess,
+      );
     });
 
     await test.step("Verify Form filler CANNOT invite users", async () => {
@@ -454,11 +452,8 @@ test.describe("FormFilling room - Form filler permissions", () => {
         ),
       ]);
       await pdfPage.waitForLoadState("load");
-      await pdfPage.waitForSelector('iframe[name="frameEditor"]', {
-        state: "attached",
-        timeout: 60000,
-      });
       pdfForm = new FilesPdfForm(pdfPage);
+      await pdfForm.waitForEditorFrame();
       await expect(pdfForm.submitButton).toBeVisible({ timeout: 60000 });
       // Closing the form tab saves it as a draft and triggers In Process folder to appear
       await pdfPage.close();
@@ -466,20 +461,20 @@ test.describe("FormFilling room - Form filler permissions", () => {
     });
 
     await test.step("Verify In Process folder appears after opening and closing the form", async () => {
-      await expect(
-        page
-          .locator('[data-testid^="files-cell-name"]')
-          .getByText("In process", { exact: true }),
-      ).toBeVisible();
+      await myRooms.filesTable.expectCellItemVisible(
+        formFillingSystemFolders.inProcess,
+      );
     });
 
     await test.step("Verify Form filler CANNOT delete submission folder inside In process", async () => {
-      await myRooms.filesTable.openContextMenuForItem("In process");
+      await myRooms.filesTable.openContextMenuForItem(
+        formFillingSystemFolders.inProcess,
+      );
       await myRooms.filesTable.contextMenu.clickOption(
         folderContextMenuOption.open,
       );
       await expect(
-        page.getByRole("heading", { name: "In process" }),
+        page.getByRole("heading", { name: formFillingSystemFolders.inProcess }),
       ).toBeVisible();
       await myRooms.filesTable.openContextMenuForItem("PDF from device");
       // Anchor: open option is visible to confirm menu is fully loaded
@@ -498,6 +493,45 @@ test.describe("FormFilling room - Form filler permissions", () => {
       await page.reload({ waitUntil: "load" });
     });
 
+    await test.step("Verify filler CAN delete draft PDF from In process submission folder", async () => {
+      await myRooms.filesTable.openContextMenuForItem(
+        formFillingSystemFolders.inProcess,
+      );
+      await myRooms.filesTable.contextMenu.clickOption(
+        folderContextMenuOption.open,
+      );
+      await expect(
+        page.getByRole("heading", { name: formFillingSystemFolders.inProcess }),
+      ).toBeVisible();
+      await myRooms.filesTable.openContextMenuForItem("PDF from device");
+      await myRooms.filesTable.contextMenu.clickOption(
+        folderContextMenuOption.open,
+      );
+      await expect(
+        page.getByRole("heading", { name: "PDF from device" }),
+      ).toBeVisible();
+      await myRooms.filesTable.openContextMenuForItem("PDF from device");
+      // Anchor: download is visible to confirm context menu is fully loaded
+      await expect(
+        myRooms.filesTable.contextMenu.getItemLocator(
+          pdfFormContextMenuOption.download,
+        ),
+      ).toBeVisible();
+      await myRooms.filesTable.contextMenu.clickOption(
+        pdfFormContextMenuOption.delete,
+      );
+      const deleteModalInProcess = new FolderDeleteModal(page);
+      await deleteModalInProcess.clickDeleteFolder();
+      await myRooms.removeToast("successfully moved to Trash");
+      await myRooms.filesTable.expectEmptyFolder();
+      await myRooms.filesNavigation.gotoBack();
+      await expect(
+        page.getByRole("heading", { name: formFillingSystemFolders.inProcess }),
+      ).toBeVisible();
+      await myRooms.filesNavigation.gotoBack();
+      await page.reload({ waitUntil: "load" });
+    });
+
     await test.step("Verify PDF form editor shows 'Download as PDF' and 'Print' buttons", async () => {
       await myRooms.filesTable.openContextMenuForItem("PDF from device");
       [pdfPage] = await Promise.all([
@@ -507,11 +541,8 @@ test.describe("FormFilling room - Form filler permissions", () => {
         ),
       ]);
       await pdfPage.waitForLoadState("load");
-      await pdfPage.waitForSelector('iframe[name="frameEditor"]', {
-        state: "attached",
-        timeout: 60000,
-      });
       pdfForm = new FilesPdfForm(pdfPage);
+      await pdfForm.waitForEditorFrame();
       await expect(pdfForm.submitButton).toBeVisible({ timeout: 60000 });
       await pdfForm.openMenu();
       await expect(pdfForm.printButton).toBeVisible();
@@ -526,20 +557,20 @@ test.describe("FormFilling room - Form filler permissions", () => {
     });
 
     await test.step("Verify Complete folder appears in room after form submission", async () => {
-      await expect(
-        page
-          .locator('[data-testid^="files-cell-name"]')
-          .getByText("Complete", { exact: true }),
-      ).toBeVisible();
+      await myRooms.filesTable.expectCellItemVisible(
+        formFillingSystemFolders.complete,
+      );
     });
 
     await test.step("Verify Form filler CANNOT delete submission folder inside Complete", async () => {
-      await myRooms.filesTable.openContextMenuForItem("Complete");
+      await myRooms.filesTable.openContextMenuForItem(
+        formFillingSystemFolders.complete,
+      );
       await myRooms.filesTable.contextMenu.clickOption(
         folderContextMenuOption.open,
       );
       await expect(
-        page.getByRole("heading", { name: "Complete" }),
+        page.getByRole("heading", { name: formFillingSystemFolders.complete }),
       ).toBeVisible();
       await myRooms.filesTable.openContextMenuForItem("PDF from device");
       // Anchor: open option is visible to confirm menu is fully loaded
@@ -554,6 +585,45 @@ test.describe("FormFilling room - Form filler permissions", () => {
         ),
       ).not.toBeVisible();
       await myRooms.filesTable.contextMenu.close();
+      await myRooms.filesNavigation.gotoBack();
+      await page.reload({ waitUntil: "load" });
+    });
+
+    await test.step("Verify filler CAN delete submitted PDF from Complete submission folder", async () => {
+      await myRooms.filesTable.openContextMenuForItem(
+        formFillingSystemFolders.complete,
+      );
+      await myRooms.filesTable.contextMenu.clickOption(
+        folderContextMenuOption.open,
+      );
+      await expect(
+        page.getByRole("heading", { name: formFillingSystemFolders.complete }),
+      ).toBeVisible();
+      await myRooms.filesTable.openContextMenuForItem("PDF from device");
+      await myRooms.filesTable.contextMenu.clickOption(
+        folderContextMenuOption.open,
+      );
+      await expect(
+        page.getByRole("heading", { name: "PDF from device" }),
+      ).toBeVisible();
+      await myRooms.filesTable.openContextMenuForItem("PDF from device");
+      // Anchor: download is visible to confirm context menu is fully loaded
+      await expect(
+        myRooms.filesTable.contextMenu.getItemLocator(
+          pdfFormContextMenuOption.download,
+        ),
+      ).toBeVisible();
+      await myRooms.filesTable.contextMenu.clickOption(
+        pdfFormContextMenuOption.delete,
+      );
+      const deleteModalComplete = new FolderDeleteModal(page);
+      await deleteModalComplete.clickDeleteFolder();
+      await myRooms.removeToast("successfully moved to Trash");
+      await myRooms.filesTable.expectEmptyFolder();
+      await myRooms.filesNavigation.gotoBack();
+      await expect(
+        page.getByRole("heading", { name: formFillingSystemFolders.complete }),
+      ).toBeVisible();
       await myRooms.filesNavigation.gotoBack();
       await page.reload({ waitUntil: "load" });
     });
