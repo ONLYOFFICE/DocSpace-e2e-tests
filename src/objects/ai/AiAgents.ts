@@ -24,12 +24,38 @@ export class AiAgents extends BasePage {
     );
   }
 
-  private get noProvidersNavigationLink() {
-    return this.page.getByText(/no providers/i);
+  private get createAgentEmptyViewItem() {
+    return this.page.locator("#create-ai-agent");
   }
 
-  get learnMoreLink() {
-    return this.page.getByRole("link", { name: "Learn more" });
+  private get agentNameInput() {
+    return this.page.getByTestId("create_edit_agent_input");
+  }
+
+  private get providerCombobox() {
+    return this.page.getByTestId("create_agent_provider_combobox");
+  }
+
+  private get modelCombobox() {
+    return this.page.getByTestId("create_agent_model_combobox");
+  }
+
+  private get instructionsTextarea() {
+    return this.page.getByTestId("create_agent_instructions_textarea");
+  }
+
+  private get createAgentButton() {
+    return this.page.getByTestId("create_agent_dialog_save");
+  }
+
+  private agentNameCell(name: string) {
+    return this.page
+      .locator('[data-testid^="rooms-cell-name-"]')
+      .filter({ hasText: name });
+  }
+
+  private get chatInputButtons() {
+    return this.page.getByTestId("chat-input-buttons");
   }
 
   async openDirectly() {
@@ -54,6 +80,42 @@ export class AiAgents extends BasePage {
 
   private async waitForAiAgentsPage() {
     await expect(this.page).toHaveURL(/\/ai-agents/);
+  }
+
+  async openCreateAgentDialog() {
+    await this.createAgentEmptyViewItem.click();
+    await expect(this.agentNameInput).toBeVisible();
+  }
+
+  async fillAgentName(name: string) {
+    await this.agentNameInput.fill(name);
+  }
+
+  async selectProvider(providerTitle: string) {
+    await this.providerCombobox.click();
+    await this.page
+      .getByRole("listbox")
+      .filter({ hasText: providerTitle })
+      .getByText(providerTitle, { exact: true })
+      .click();
+  }
+
+  async fillInstructions(text: string) {
+    await this.instructionsTextarea.fill(text);
+  }
+
+  async saveAgent() {
+    await expect(this.createAgentButton).toBeEnabled();
+    await expect(this.modelCombobox).toBeVisible();
+    await this.createAgentButton.click();
+  }
+
+  async expectAgentInList(name: string) {
+    await expect(this.agentNameCell(name).first()).toBeVisible();
+  }
+
+  async expectChatOpened() {
+    await expect(this.chatInputButtons).toBeVisible();
   }
 }
 
