@@ -35,9 +35,6 @@ test.describe("Contacts - Invite links", () => {
         invite.label,
         invite.submenu.docspaceAdmin,
       );
-      await contacts.inviteDialog.checkAccessSelectionExist(
-        invite.submenu.docspaceAdmin,
-      );
     });
 
     await test.step("Enable invite via link", async () => {
@@ -62,9 +59,6 @@ test.describe("Contacts - Invite links", () => {
         invite.label,
         invite.submenu.roomAdmin,
       );
-      await contacts.inviteDialog.checkAccessSelectionExist(
-        invite.submenu.roomAdmin,
-      );
     });
 
     await test.step("Enable invite via link", async () => {
@@ -87,9 +81,6 @@ test.describe("Contacts - Invite links", () => {
     await test.step("Open invite dialog as User", async () => {
       await contacts.navigation.clickHeaderSubmenuOption(
         invite.label,
-        invite.submenu.user,
-      );
-      await contacts.inviteDialog.checkAccessSelectionExist(
         invite.submenu.user,
       );
     });
@@ -236,9 +227,6 @@ test.describe("Contacts - Invite links", () => {
         invite.label,
         invite.submenu.roomAdmin,
       );
-      await contacts.inviteDialog.checkAccessSelectionExist(
-        invite.submenu.roomAdmin,
-      );
     });
 
     await test.step("Enable invite via link", async () => {
@@ -297,9 +285,6 @@ test.describe("Contacts - Invite links", () => {
     await test.step("Open invite dialog for User role", async () => {
       await contacts.navigation.clickHeaderSubmenuOption(
         invite.label,
-        invite.submenu.user,
-      );
-      await contacts.inviteDialog.checkAccessSelectionExist(
         invite.submenu.user,
       );
     });

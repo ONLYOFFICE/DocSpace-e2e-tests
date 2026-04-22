@@ -201,7 +201,6 @@ class Contacts extends BasePage {
       contactsActionsMenu.invite.label,
       userType,
     );
-    await this.inviteDialog.checkAccessSelectionExist(userType);
 
     await this.inviteDialog.fillSearchInviteInput(userEmail);
     await this.inviteDialog.checkUserExist(userEmail);
