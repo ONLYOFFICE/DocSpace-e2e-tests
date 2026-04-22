@@ -6,6 +6,7 @@ import { ShortTour } from "@/src/objects/rooms/ShortTourModal";
 import RoomInfoPanel from "@/src/objects/rooms/RoomInfoPanel";
 import RoomsInviteDialog from "@/src/objects/rooms/RoomsInviteDialog";
 import Login from "@/src/objects/common/Login";
+import FolderDeleteModal from "@/src/objects/files/FolderDeleteModal";
 import {
   folderContextMenuOption,
   formFillingRoomPdfContextMenuOption,
@@ -498,6 +499,45 @@ test.describe("FormFilling room - Form filler permissions", () => {
       await page.reload({ waitUntil: "load" });
     });
 
+    await test.step("Verify filler CAN delete draft PDF from In process submission folder", async () => {
+      await myRooms.filesTable.openContextMenuForItem("In process");
+      await myRooms.filesTable.contextMenu.clickOption(
+        folderContextMenuOption.open,
+      );
+      await expect(
+        page.getByRole("heading", { name: "In process" }),
+      ).toBeVisible();
+      await myRooms.filesTable.openContextMenuForItem("PDF from device");
+      await myRooms.filesTable.contextMenu.clickOption(
+        folderContextMenuOption.open,
+      );
+      await expect(
+        page.getByRole("heading", { name: "PDF from device" }),
+      ).toBeVisible();
+      await myRooms.filesTable.openContextMenuForItem("PDF from device");
+      // Anchor: download is visible to confirm context menu is fully loaded
+      await expect(
+        myRooms.filesTable.contextMenu.getItemLocator(
+          pdfFormContextMenuOption.download,
+        ),
+      ).toBeVisible();
+      await myRooms.filesTable.contextMenu.clickOption(
+        pdfFormContextMenuOption.delete,
+      );
+      const deleteModalInProcess = new FolderDeleteModal(page);
+      await deleteModalInProcess.clickDeleteFolder();
+      await myRooms.removeToast("successfully moved to Trash");
+      await expect(
+        page.getByText("No files in this folder yet"),
+      ).toBeVisible();
+      await myRooms.filesNavigation.gotoBack();
+      await expect(
+        page.getByRole("heading", { name: "In process" }),
+      ).toBeVisible();
+      await myRooms.filesNavigation.gotoBack();
+      await page.reload({ waitUntil: "load" });
+    });
+
     await test.step("Verify PDF form editor shows 'Download as PDF' and 'Print' buttons", async () => {
       await myRooms.filesTable.openContextMenuForItem("PDF from device");
       [pdfPage] = await Promise.all([
@@ -554,6 +594,45 @@ test.describe("FormFilling room - Form filler permissions", () => {
         ),
       ).not.toBeVisible();
       await myRooms.filesTable.contextMenu.close();
+      await myRooms.filesNavigation.gotoBack();
+      await page.reload({ waitUntil: "load" });
+    });
+
+    await test.step("Verify filler CAN delete submitted PDF from Complete submission folder", async () => {
+      await myRooms.filesTable.openContextMenuForItem("Complete");
+      await myRooms.filesTable.contextMenu.clickOption(
+        folderContextMenuOption.open,
+      );
+      await expect(
+        page.getByRole("heading", { name: "Complete" }),
+      ).toBeVisible();
+      await myRooms.filesTable.openContextMenuForItem("PDF from device");
+      await myRooms.filesTable.contextMenu.clickOption(
+        folderContextMenuOption.open,
+      );
+      await expect(
+        page.getByRole("heading", { name: "PDF from device" }),
+      ).toBeVisible();
+      await myRooms.filesTable.openContextMenuForItem("PDF from device");
+      // Anchor: download is visible to confirm context menu is fully loaded
+      await expect(
+        myRooms.filesTable.contextMenu.getItemLocator(
+          pdfFormContextMenuOption.download,
+        ),
+      ).toBeVisible();
+      await myRooms.filesTable.contextMenu.clickOption(
+        pdfFormContextMenuOption.delete,
+      );
+      const deleteModalComplete = new FolderDeleteModal(page);
+      await deleteModalComplete.clickDeleteFolder();
+      await myRooms.removeToast("successfully moved to Trash");
+      await expect(
+        page.getByText("No files in this folder yet"),
+      ).toBeVisible();
+      await myRooms.filesNavigation.gotoBack();
+      await expect(
+        page.getByRole("heading", { name: "Complete" }),
+      ).toBeVisible();
       await myRooms.filesNavigation.gotoBack();
       await page.reload({ waitUntil: "load" });
     });
