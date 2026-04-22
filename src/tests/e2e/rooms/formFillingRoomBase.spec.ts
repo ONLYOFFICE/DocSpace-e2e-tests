@@ -139,8 +139,12 @@ test.describe("FormFilling base tests", () => {
       await myRooms.infoPanel.close();
       await myRooms.filesTable.selectPdfFile();
       await expect(page.getByLabel("PDF from device,")).toBeVisible();
-      await expect(page.getByLabel(formFillingSystemFolders.inProcess)).toBeVisible();
-      await expect(page.getByLabel(formFillingSystemFolders.complete)).toBeVisible();
+      await expect(
+        page.getByLabel(formFillingSystemFolders.inProcess),
+      ).toBeVisible();
+      await expect(
+        page.getByLabel(formFillingSystemFolders.complete),
+      ).toBeVisible();
     });
   });
   test("Submit Not Filling PDF Form", async ({ page }) => {
@@ -180,10 +184,14 @@ test.describe("FormFilling base tests", () => {
     });
     await test.step("CheckPDFFormAndXlsxInCompleteFolder", async () => {
       const filesTable = new FilesTable(newPage);
-      await filesTable.openContextMenuForItem(formFillingSystemFolders.complete);
+      await filesTable.openContextMenuForItem(
+        formFillingSystemFolders.complete,
+      );
       await filesTable.contextMenu.clickOption("Open");
       await expect(
-        newPage.getByRole("heading", { name: formFillingSystemFolders.complete }),
+        newPage.getByRole("heading", {
+          name: formFillingSystemFolders.complete,
+        }),
       ).toBeVisible();
       await filesTable.openContextMenuForItem("ONLYOFFICE Resume Sample");
       await filesTable.contextMenu.clickOption("Open");
@@ -268,7 +276,9 @@ test.describe("FormFilling base tests", () => {
         .getByRole("heading", { name: "ONLYOFFICE Resume Sample" })
         .click();
       //Navigate to In process folder
-      await newPage.getByText(formFillingSystemFolders.inProcess, { exact: true }).click();
+      await newPage
+        .getByText(formFillingSystemFolders.inProcess, { exact: true })
+        .click();
       //Verify file visible in In process folder
       await expect(
         newPage.getByLabel("ONLYOFFICE Resume Sample,"),
@@ -427,8 +437,12 @@ test.describe("FormFilling base tests", () => {
     });
 
     await test.step("Verify room contains folders and PDF file with filling icon", async () => {
-      await expect(page.getByLabel(formFillingSystemFolders.complete)).toBeVisible();
-      await expect(page.getByLabel(formFillingSystemFolders.inProcess)).toBeVisible();
+      await expect(
+        page.getByLabel(formFillingSystemFolders.complete),
+      ).toBeVisible();
+      await expect(
+        page.getByLabel(formFillingSystemFolders.inProcess),
+      ).toBeVisible();
       await expect(
         page.getByLabel(templateTitle, { exact: false }),
       ).toBeVisible();
@@ -601,10 +615,14 @@ test.describe("FormFilling base tests", () => {
 
     await test.step("Verify new version of results table was created in Complete folder", async () => {
       const localTable = new FilesTable(fillPage);
-      await localTable.openContextMenuForItem(formFillingSystemFolders.complete);
+      await localTable.openContextMenuForItem(
+        formFillingSystemFolders.complete,
+      );
       await localTable.contextMenu.clickOption("Open");
       await expect(
-        fillPage.getByRole("heading", { name: formFillingSystemFolders.complete }),
+        fillPage.getByRole("heading", {
+          name: formFillingSystemFolders.complete,
+        }),
       ).toBeVisible();
       await localTable.openContextMenuForItem("ONLYOFFICE Resume Sample");
       await localTable.contextMenu.clickOption("Open");
@@ -744,7 +762,9 @@ test.describe("FormFilling base tests", () => {
     });
 
     await test.step("Open In Process folder and verify draft file is present", async () => {
-      await filesTable.openContextMenuForItem(formFillingSystemFolders.inProcess);
+      await filesTable.openContextMenuForItem(
+        formFillingSystemFolders.inProcess,
+      );
       await filesTable.contextMenu.clickOption("Open");
       await expect(
         page.getByText("ONLYOFFICE Resume Sample", { exact: true }),

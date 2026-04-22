@@ -161,10 +161,14 @@ test.describe("FormFillingRoomRoleBasedFormVisibility", () => {
       await expect(userPage.getByLabel("PDF from device,")).toBeVisible();
 
       const filesTable = new FilesTable(userPage);
-      await filesTable.openContextMenuForItem(formFillingSystemFolders.complete);
+      await filesTable.openContextMenuForItem(
+        formFillingSystemFolders.complete,
+      );
       await filesTable.contextMenu.clickOption("Open");
       await expect(
-        userPage.getByRole("heading", { name: formFillingSystemFolders.complete }),
+        userPage.getByRole("heading", {
+          name: formFillingSystemFolders.complete,
+        }),
       ).toBeVisible();
 
       await filesTable.openContextMenuForItem("PDF from device");

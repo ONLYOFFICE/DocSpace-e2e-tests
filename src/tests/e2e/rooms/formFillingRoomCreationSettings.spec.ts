@@ -143,10 +143,14 @@ test.describe("FormFilling room: creation settings", () => {
 
     await test.step("Open Complete folder and verify submitted form is present", async () => {
       const filesTable = new FilesTable(newPage);
-      await filesTable.openContextMenuForItem(formFillingSystemFolders.complete);
+      await filesTable.openContextMenuForItem(
+        formFillingSystemFolders.complete,
+      );
       await filesTable.contextMenu.clickOption("Open");
       await expect(
-        newPage.getByRole("heading", { name: formFillingSystemFolders.complete }),
+        newPage.getByRole("heading", {
+          name: formFillingSystemFolders.complete,
+        }),
       ).toBeVisible();
       await expect(
         newPage.getByText("ONLYOFFICE Resume Sample", { exact: true }),
@@ -227,10 +231,14 @@ test.describe("FormFilling room: creation settings", () => {
 
     await test.step("Open Complete folder and verify no XLSX file is present", async () => {
       const filesTable = new FilesTable(newPage);
-      await filesTable.openContextMenuForItem(formFillingSystemFolders.complete);
+      await filesTable.openContextMenuForItem(
+        formFillingSystemFolders.complete,
+      );
       await filesTable.contextMenu.clickOption("Open");
       await expect(
-        newPage.getByRole("heading", { name: formFillingSystemFolders.complete }),
+        newPage.getByRole("heading", {
+          name: formFillingSystemFolders.complete,
+        }),
       ).toBeVisible();
       await filesTable.openContextMenuForItem("ONLYOFFICE Resume Sample");
       await filesTable.contextMenu.clickOption("Open");

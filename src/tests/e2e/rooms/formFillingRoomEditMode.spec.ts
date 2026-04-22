@@ -131,10 +131,14 @@ test.describe("FormFilling room - Edit mode", () => {
 
       await test.step("Owner opens Complete folder and verifies submission was recorded", async () => {
         await page.reload({ waitUntil: "load" });
-        await filesTable.openContextMenuForItem(formFillingSystemFolders.complete);
+        await filesTable.openContextMenuForItem(
+          formFillingSystemFolders.complete,
+        );
         await filesTable.contextMenu.clickOption("Open");
         await expect(
-          page.getByRole("heading", { name: formFillingSystemFolders.complete }),
+          page.getByRole("heading", {
+            name: formFillingSystemFolders.complete,
+          }),
         ).toBeVisible();
         await expect(
           page.getByText("ONLYOFFICE Resume Sample", { exact: true }),

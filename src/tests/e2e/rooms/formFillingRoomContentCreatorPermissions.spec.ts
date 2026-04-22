@@ -253,7 +253,9 @@ test.describe("FormFilling room - Content creator permissions", () => {
     });
 
     await test.step("Verify Content creator CAN access Complete folder", async () => {
-      await myRooms.filesTable.openContextMenuForItem(formFillingSystemFolders.complete);
+      await myRooms.filesTable.openContextMenuForItem(
+        formFillingSystemFolders.complete,
+      );
       await myRooms.filesTable.contextMenu.clickOption("Open");
       await expect(
         page.getByRole("heading", { name: formFillingSystemFolders.complete }),
@@ -263,7 +265,9 @@ test.describe("FormFilling room - Content creator permissions", () => {
     });
 
     await test.step("Verify Content creator CAN access In Process folder", async () => {
-      await myRooms.filesTable.openContextMenuForItem(formFillingSystemFolders.inProcess);
+      await myRooms.filesTable.openContextMenuForItem(
+        formFillingSystemFolders.inProcess,
+      );
       await myRooms.filesTable.contextMenu.clickOption("Open");
       await expect(
         page.getByRole("heading", { name: formFillingSystemFolders.inProcess }),

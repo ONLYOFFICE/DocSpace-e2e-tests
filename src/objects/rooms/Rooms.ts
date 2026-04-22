@@ -204,7 +204,9 @@ class MyRooms extends BasePage {
     await this.roomsTable.contextMenu.clickOption("Open");
   }
   async verifyCompleteFolderVisible() {
-    await expect(this.page.getByText(formFillingSystemFolders.complete)).toBeVisible();
+    await expect(
+      this.page.getByText(formFillingSystemFolders.complete),
+    ).toBeVisible();
   }
 
   async verifyCompleteFolderNotVisible() {

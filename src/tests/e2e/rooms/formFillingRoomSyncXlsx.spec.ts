@@ -109,10 +109,14 @@ test.describe("FormFilling room - Sync responses to XLSX", () => {
     const filesNav = new FilesNavigation(newPage);
 
     await test.step("Navigate to submission folder inside Complete", async () => {
-      await newFilesTable.openContextMenuForItem(formFillingSystemFolders.complete);
+      await newFilesTable.openContextMenuForItem(
+        formFillingSystemFolders.complete,
+      );
       await newFilesTable.contextMenu.clickOption(folderContextMenuOption.open);
       await expect(
-        newPage.getByRole("heading", { name: formFillingSystemFolders.complete }),
+        newPage.getByRole("heading", {
+          name: formFillingSystemFolders.complete,
+        }),
       ).toBeVisible();
       await newFilesTable.openContextMenuForItem(FORM_NAME);
       await newFilesTable.contextMenu.clickOption(folderContextMenuOption.open);
@@ -128,7 +132,9 @@ test.describe("FormFilling room - Sync responses to XLSX", () => {
     await test.step("Navigate back to Complete and sync submission folder", async () => {
       await filesNav.gotoBack(); // back to Complete
       await expect(
-        newPage.getByRole("heading", { name: formFillingSystemFolders.complete }),
+        newPage.getByRole("heading", {
+          name: formFillingSystemFolders.complete,
+        }),
       ).toBeVisible();
       await newFilesTable.openContextMenuForItem(FORM_NAME);
       await newFilesTable.contextMenu.clickOption(
@@ -173,10 +179,14 @@ test.describe("FormFilling room - Sync responses to XLSX", () => {
     const filesNav = new FilesNavigation(newPage);
 
     await test.step("Navigate to submission folder inside Complete", async () => {
-      await newFilesTable.openContextMenuForItem(formFillingSystemFolders.complete);
+      await newFilesTable.openContextMenuForItem(
+        formFillingSystemFolders.complete,
+      );
       await newFilesTable.contextMenu.clickOption(folderContextMenuOption.open);
       await expect(
-        newPage.getByRole("heading", { name: formFillingSystemFolders.complete }),
+        newPage.getByRole("heading", {
+          name: formFillingSystemFolders.complete,
+        }),
       ).toBeVisible();
       await newFilesTable.openContextMenuForItem(FORM_NAME);
       await newFilesTable.contextMenu.clickOption(folderContextMenuOption.open);
@@ -200,7 +210,9 @@ test.describe("FormFilling room - Sync responses to XLSX", () => {
     await test.step("Navigate back to Complete and sync submission folder", async () => {
       await filesNav.gotoBack(); // back to Complete
       await expect(
-        newPage.getByRole("heading", { name: formFillingSystemFolders.complete }),
+        newPage.getByRole("heading", {
+          name: formFillingSystemFolders.complete,
+        }),
       ).toBeVisible();
       await newFilesTable.openContextMenuForItem(FORM_NAME);
       await newFilesTable.contextMenu.clickOption(

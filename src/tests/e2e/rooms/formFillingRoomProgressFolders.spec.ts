@@ -134,7 +134,9 @@ test.describe("FormFilling room - In process and Complete folders", () => {
     await test.step("Select Complete folder and verify Move to button is disabled", async () => {
       await openMoveSelector();
       await filesSelectPanel.checkFileSelectPanelExist();
-      await filesSelectPanel.selectItemByText(formFillingSystemFolders.complete);
+      await filesSelectPanel.selectItemByText(
+        formFillingSystemFolders.complete,
+      );
       await expect(submitButton).toBeDisabled();
       await filesSelectPanel.close();
     });
@@ -142,7 +144,9 @@ test.describe("FormFilling room - In process and Complete folders", () => {
     await test.step("Select In process folder and verify Move to button is disabled", async () => {
       await openMoveSelector();
       await filesSelectPanel.checkFileSelectPanelExist();
-      await filesSelectPanel.selectItemByText(formFillingSystemFolders.inProcess);
+      await filesSelectPanel.selectItemByText(
+        formFillingSystemFolders.inProcess,
+      );
       await expect(submitButton).toBeDisabled();
       await filesSelectPanel.close();
     });
@@ -166,7 +170,9 @@ test.describe("FormFilling room - In process and Complete folders", () => {
     await test.step("Select Complete folder and verify Copy to button is disabled", async () => {
       await openCopySelector();
       await filesSelectPanel.checkFileSelectPanelExist();
-      await filesSelectPanel.selectItemByText(formFillingSystemFolders.complete);
+      await filesSelectPanel.selectItemByText(
+        formFillingSystemFolders.complete,
+      );
       await expect(submitButton).toBeDisabled();
       await filesSelectPanel.close();
     });
@@ -174,7 +180,9 @@ test.describe("FormFilling room - In process and Complete folders", () => {
     await test.step("Select In process folder and verify Copy to button is disabled", async () => {
       await openCopySelector();
       await filesSelectPanel.checkFileSelectPanelExist();
-      await filesSelectPanel.selectItemByText(formFillingSystemFolders.inProcess);
+      await filesSelectPanel.selectItemByText(
+        formFillingSystemFolders.inProcess,
+      );
       await expect(submitButton).toBeDisabled();
       await filesSelectPanel.close();
     });
@@ -207,7 +215,9 @@ test.describe("FormFilling room - In process and Complete folders", () => {
     });
 
     await test.step("Navigate into In process folder", async () => {
-      await filesTable.openContextMenuForItem(formFillingSystemFolders.inProcess);
+      await filesTable.openContextMenuForItem(
+        formFillingSystemFolders.inProcess,
+      );
       await filesTable.contextMenu.clickOption(folderContextMenuOption.open);
       await expect(
         page.getByRole("heading", { name: formFillingSystemFolders.inProcess }),
@@ -239,7 +249,9 @@ test.describe("FormFilling room - In process and Complete folders", () => {
     });
 
     await test.step("Navigate into In process folder", async () => {
-      await filesTable.openContextMenuForItem(formFillingSystemFolders.inProcess);
+      await filesTable.openContextMenuForItem(
+        formFillingSystemFolders.inProcess,
+      );
       await filesTable.contextMenu.clickOption(folderContextMenuOption.open);
       await expect(
         page.getByRole("heading", { name: formFillingSystemFolders.inProcess }),
@@ -335,10 +347,14 @@ test.describe("FormFilling room - In process and Complete folders", () => {
 
     await test.step("Navigate into Complete folder", async () => {
       const newFilesTable = new FilesTable(newPage);
-      await newFilesTable.openContextMenuForItem(formFillingSystemFolders.complete);
+      await newFilesTable.openContextMenuForItem(
+        formFillingSystemFolders.complete,
+      );
       await newFilesTable.contextMenu.clickOption(folderContextMenuOption.open);
       await expect(
-        newPage.getByRole("heading", { name: formFillingSystemFolders.complete }),
+        newPage.getByRole("heading", {
+          name: formFillingSystemFolders.complete,
+        }),
       ).toBeVisible();
     });
 
@@ -382,10 +398,14 @@ test.describe("FormFilling room - In process and Complete folders", () => {
 
     await test.step("Navigate into Complete folder", async () => {
       const newFilesTable = new FilesTable(newPage);
-      await newFilesTable.openContextMenuForItem(formFillingSystemFolders.complete);
+      await newFilesTable.openContextMenuForItem(
+        formFillingSystemFolders.complete,
+      );
       await newFilesTable.contextMenu.clickOption(folderContextMenuOption.open);
       await expect(
-        newPage.getByRole("heading", { name: formFillingSystemFolders.complete }),
+        newPage.getByRole("heading", {
+          name: formFillingSystemFolders.complete,
+        }),
       ).toBeVisible();
     });
 
