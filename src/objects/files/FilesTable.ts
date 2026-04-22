@@ -84,6 +84,11 @@ class FilesTable extends BaseTable {
     await this.openContextMenuRow(this.xlsxFile);
   }
 
+  async openContextMenuForPdfItem() {
+    await expect(this.pdfFile.first()).toBeVisible();
+    await this.openContextMenuRow(this.pdfFile.first());
+  }
+
   async selectFolderByName(name: string) {
     const folder = this.page.locator(TABLE_LIST_ITEM, { hasText: name });
     await expect(folder).toBeVisible();
