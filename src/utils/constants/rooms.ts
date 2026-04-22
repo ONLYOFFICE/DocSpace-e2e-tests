@@ -111,6 +111,11 @@ export type TRoomDialogSource =
 export type TRoomCreateTitles =
   (typeof roomCreateTitles)[keyof typeof roomCreateTitles];
 
+export const formFillingSystemFolders = {
+  complete: "Complete",
+  inProcess: "In process",
+} as const;
+
 export const tourSteps = {
   welcome: "Welcome to the Form Filling Room!",
   firstStep: "Starting the form filling process",
