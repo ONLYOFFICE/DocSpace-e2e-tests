@@ -16,6 +16,7 @@ import {
   ensureIncognitoPage,
 } from "@/src/utils/helpers/linkTest";
 import { formFillingRoomPdfContextMenuOption } from "@/src/utils/constants/files";
+import { formFillingSystemFolders } from "@/src/utils/constants/rooms";
 
 // Tests for role-based form visibility in FormFilling rooms
 test.describe("FormFillingRoomRoleBasedFormVisibility", () => {
@@ -160,10 +161,10 @@ test.describe("FormFillingRoomRoleBasedFormVisibility", () => {
       await expect(userPage.getByLabel("PDF from device,")).toBeVisible();
 
       const filesTable = new FilesTable(userPage);
-      await filesTable.openContextMenuForItem("Complete");
+      await filesTable.openContextMenuForItem(formFillingSystemFolders.complete);
       await filesTable.contextMenu.clickOption("Open");
       await expect(
-        userPage.getByRole("heading", { name: "Complete" }),
+        userPage.getByRole("heading", { name: formFillingSystemFolders.complete }),
       ).toBeVisible();
 
       await filesTable.openContextMenuForItem("PDF from device");

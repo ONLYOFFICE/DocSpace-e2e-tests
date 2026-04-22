@@ -26,6 +26,7 @@ import {
   formFillingRoomPdfContextMenuOption,
   DOC_ACTIONS,
 } from "@/src/utils/constants/files";
+import { formFillingSystemFolders } from "@/src/utils/constants/rooms";
 import FilesSelectPanel from "@/src/objects/files/FilesSelectPanel";
 
 test.describe("FormFilling room - Fill via link", () => {
@@ -277,10 +278,10 @@ test.describe("FormFilling room - Fill via link", () => {
       });
 
       await test.step("Verify submitted form is in Complete folder", async () => {
-        await filesTable.openContextMenuForItem("Complete");
+        await filesTable.openContextMenuForItem(formFillingSystemFolders.complete);
         await filesTable.contextMenu.clickOption("Open");
         await expect(
-          page.getByRole("heading", { name: "Complete" }),
+          page.getByRole("heading", { name: formFillingSystemFolders.complete }),
         ).toBeVisible();
         await expect(
           page.getByText("ONLYOFFICE Resume Sample", { exact: true }),
