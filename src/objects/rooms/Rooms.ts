@@ -12,6 +12,7 @@ import {
   roomCreateTitles,
   roomDialogSource,
   roomToastMessages,
+  formFillingSystemFolders,
   TRoomDialogSource,
 } from "@/src/utils/constants/rooms";
 import RoomsArticle from "./RoomsArticle";
@@ -36,11 +37,6 @@ const navActions = {
     submit: "#delete-file-modal_submit",
     confirmCheckboxSelector: "#modal-dialog label[data-testid='checkbox']",
   },
-} as const;
-
-const FormFillingFolder = {
-  complete: "Complete",
-  inProcess: "In process",
 } as const;
 
 const DRAFT_LABEL = "badge-text";
@@ -208,23 +204,25 @@ class MyRooms extends BasePage {
     await this.roomsTable.contextMenu.clickOption("Open");
   }
   async verifyCompleteFolderVisible() {
-    await expect(this.page.getByText(FormFillingFolder.complete)).toBeVisible();
+    await expect(
+      this.page.getByText(formFillingSystemFolders.complete),
+    ).toBeVisible();
   }
 
   async verifyCompleteFolderNotVisible() {
     await expect(
-      this.page.getByText(FormFillingFolder.complete),
+      this.page.getByText(formFillingSystemFolders.complete),
     ).not.toBeVisible();
   }
   async verifyInProcessFolderVisible() {
     await expect(
-      this.page.getByText(FormFillingFolder.inProcess),
+      this.page.getByText(formFillingSystemFolders.inProcess),
     ).toBeVisible();
   }
 
   async verifyInProcessFolderNotVisible() {
     await expect(
-      this.page.getByText(FormFillingFolder.inProcess),
+      this.page.getByText(formFillingSystemFolders.inProcess),
     ).not.toBeVisible();
   }
   async verifyDraftLabelVisible() {
