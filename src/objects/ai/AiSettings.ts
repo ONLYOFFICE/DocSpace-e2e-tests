@@ -2,6 +2,7 @@ import { getPortalUrl } from "../../../config";
 import BasePage from "../common/BasePage";
 import { expect, Locator, Page } from "@playwright/test";
 import { BaseDropdown } from "../common/BaseDropdown";
+import { navItems } from "@/src/utils/constants/settings";
 
 class AiSettings extends BasePage {
   private portalDomain: string;
@@ -51,10 +52,6 @@ class AiSettings extends BasePage {
     return this.comboButtons.nth(0);
   }
 
-  private get aiArticleNavItem() {
-    return this.article.articleNavItems.filter({ hasText: /\bAI\b/i }).first();
-  }
-
   private get aiSettingsBaseUrl() {
     return `${getPortalUrl(this.portalDomain)}/portal-settings/ai-settings`;
   }
@@ -66,9 +63,7 @@ class AiSettings extends BasePage {
 
   async open() {
     await this.navigateToSettings();
-    const navItem = this.aiArticleNavItem;
-    await expect(navItem).toBeVisible();
-    await navItem.click();
+    await this.navigateToArticle(navItems.aiSettings);
     await this.expectLoaded();
   }
 
@@ -172,6 +167,63 @@ class AiSettings extends BasePage {
       this.page
         .getByTestId("ai-provider-list")
         .getByRole("heading", { name: title }),
+    ).toBeVisible();
+  }
+
+  async clickAddMcpServerButton() {
+    await expect(this.addMcpServerButton).toBeEnabled();
+    await this.addMcpServerButton.click();
+    await expect(this.page.getByTestId("add-mcp-form")).toBeVisible();
+  }
+
+  async fillMcpServerName(name: string) {
+    await this.page.getByTestId("mcp-title-input").fill(name);
+  }
+
+  async fillMcpServerUrl(url: string) {
+    await this.page.getByTestId("mcp-url-input").fill(url);
+  }
+
+  async fillMcpServerDescription(description: string) {
+    await this.page.getByTestId("mcp-description-textarea").fill(description);
+  }
+
+  async saveMcpServer() {
+    const button = this.page.getByTestId("mcp-save-button");
+    await expect(button).toBeEnabled();
+    await button.click();
+  }
+
+  async expectMcpServerInList(name: string) {
+    await expect(
+      this.page.getByTestId("custom-mcp-list").getByRole("heading", { name }),
+    ).toBeVisible();
+  }
+
+  async selectKnowledgeProvider(providerName: string) {
+    await this.page.getByTestId("knowledge-provider-combobox").click();
+    const knowledgeDropdown = new BaseDropdown(this.page, {
+      menu: this.page.getByTestId("knowledge-provider-dropdown"),
+    });
+    await knowledgeDropdown.clickOption(providerName);
+  }
+
+  async fillKnowledgeKey(key: string) {
+    await this.page
+      .getByTestId("knowledge-key-input")
+      .locator("input")
+      .fill(key);
+  }
+
+  async saveKnowledge() {
+    const button = this.page.getByTestId("knowledge-save-button");
+    await expect(button).toBeEnabled();
+    await button.click();
+  }
+
+  async expectKnowledgeSaved() {
+    await expect(
+      this.page.getByTestId("knowledge-key-hidden-banner"),
     ).toBeVisible();
   }
 

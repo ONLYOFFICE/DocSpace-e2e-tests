@@ -6,6 +6,7 @@ const navItems = {
   billing: "Billing",
   developerTools: "Developer Tools",
   storageManagement: "Storage Management",
+  aiSettings: "AI settings",
 } as const;
 
 const mapBackupMethodsIds = {
