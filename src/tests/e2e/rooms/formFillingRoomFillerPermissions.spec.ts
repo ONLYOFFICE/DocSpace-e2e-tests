@@ -129,11 +129,15 @@ test.describe("FormFilling room - Form filler permissions", () => {
     });
 
     await test.step("Verify Form filler CANNOT see Complete folder before filling", async () => {
-      await myRooms.filesTable.expectCellItemNotVisible(formFillingSystemFolders.complete);
+      await myRooms.filesTable.expectCellItemNotVisible(
+        formFillingSystemFolders.complete,
+      );
     });
 
     await test.step("Verify Form filler CANNOT see In Process folder before filling", async () => {
-      await myRooms.filesTable.expectCellItemNotVisible(formFillingSystemFolders.inProcess);
+      await myRooms.filesTable.expectCellItemNotVisible(
+        formFillingSystemFolders.inProcess,
+      );
     });
 
     await test.step("Verify Form filler CANNOT invite users", async () => {
@@ -457,11 +461,15 @@ test.describe("FormFilling room - Form filler permissions", () => {
     });
 
     await test.step("Verify In Process folder appears after opening and closing the form", async () => {
-      await myRooms.filesTable.expectCellItemVisible(formFillingSystemFolders.inProcess);
+      await myRooms.filesTable.expectCellItemVisible(
+        formFillingSystemFolders.inProcess,
+      );
     });
 
     await test.step("Verify Form filler CANNOT delete submission folder inside In process", async () => {
-      await myRooms.filesTable.openContextMenuForItem(formFillingSystemFolders.inProcess);
+      await myRooms.filesTable.openContextMenuForItem(
+        formFillingSystemFolders.inProcess,
+      );
       await myRooms.filesTable.contextMenu.clickOption(
         folderContextMenuOption.open,
       );
@@ -486,7 +494,9 @@ test.describe("FormFilling room - Form filler permissions", () => {
     });
 
     await test.step("Verify filler CAN delete draft PDF from In process submission folder", async () => {
-      await myRooms.filesTable.openContextMenuForItem(formFillingSystemFolders.inProcess);
+      await myRooms.filesTable.openContextMenuForItem(
+        formFillingSystemFolders.inProcess,
+      );
       await myRooms.filesTable.contextMenu.clickOption(
         folderContextMenuOption.open,
       );
@@ -547,11 +557,15 @@ test.describe("FormFilling room - Form filler permissions", () => {
     });
 
     await test.step("Verify Complete folder appears in room after form submission", async () => {
-      await myRooms.filesTable.expectCellItemVisible(formFillingSystemFolders.complete);
+      await myRooms.filesTable.expectCellItemVisible(
+        formFillingSystemFolders.complete,
+      );
     });
 
     await test.step("Verify Form filler CANNOT delete submission folder inside Complete", async () => {
-      await myRooms.filesTable.openContextMenuForItem(formFillingSystemFolders.complete);
+      await myRooms.filesTable.openContextMenuForItem(
+        formFillingSystemFolders.complete,
+      );
       await myRooms.filesTable.contextMenu.clickOption(
         folderContextMenuOption.open,
       );
@@ -576,7 +590,9 @@ test.describe("FormFilling room - Form filler permissions", () => {
     });
 
     await test.step("Verify filler CAN delete submitted PDF from Complete submission folder", async () => {
-      await myRooms.filesTable.openContextMenuForItem(formFillingSystemFolders.complete);
+      await myRooms.filesTable.openContextMenuForItem(
+        formFillingSystemFolders.complete,
+      );
       await myRooms.filesTable.contextMenu.clickOption(
         folderContextMenuOption.open,
       );
