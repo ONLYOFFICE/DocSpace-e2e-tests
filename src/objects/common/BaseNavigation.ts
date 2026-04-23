@@ -48,7 +48,7 @@ class BaseNavigation {
       });
       await this.clickAddButton();
       await this.contextMenu.checkMenuExists(500);
-    }).toPass();
+    }).toPass({ timeout: 10000 });
   }
 
   async clickAddButton() {
