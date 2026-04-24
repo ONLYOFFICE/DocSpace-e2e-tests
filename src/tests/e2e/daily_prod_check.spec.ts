@@ -1,10 +1,14 @@
 import { test } from "@/src/fixtures";
 import { expect } from "@playwright/test";
+import config from "@/config";
 import MyDocuments from "@/src/objects/files/MyDocuments";
 import MyRooms from "@/src/objects/rooms/Rooms";
 import Trash from "@/src/objects/trash/Trash";
 import FileVersionHistory from "@/src/objects/files/FileVersionHistory";
 import VdrRoomSettings from "@/src/objects/rooms/VdrRoomSettings";
+import { Profile } from "@/src/objects/profile/Profile";
+import { createMailChecker } from "@/src/utils/helpers/email/createMailChecker";
+import { getOwnerConfirmLink } from "@/src/utils/helpers/email/getOwnerConfirmLink";
 import {
   roomCreateTitles,
   roomDialogSource,
@@ -242,9 +246,61 @@ test.describe("Daily prod check", () => {
       await trash.restoreFileTo("RestoreDoc");
     });
   });
+
+  test.describe("Email", () => {
+    const defaultOwnerEmail = config.DOCSPACE_OWNER_EMAIL;
+
+    test.beforeAll(() => {
+      config.DOCSPACE_OWNER_EMAIL = defaultOwnerEmail.replace(
+        "@",
+        "+forgotpassword@",
+      );
+    });
+
+    test.afterAll(() => {
+      config.DOCSPACE_OWNER_EMAIL = defaultOwnerEmail;
+    });
+
+    test("Password change notification", async ({ page, api, login }) => {
+      const confirmLink = await getOwnerConfirmLink(api.portalDomain);
+      await createMailChecker().deleteAllMatchingEmails();
+      await page.goto(confirmLink, { waitUntil: "load" });
+      await login.loginToPortal();
+
+      const profile = new Profile(page);
+      await profile.open();
+      await profile.changePassword();
+
+      const email = await createMailChecker().findEmailBySubjectWithPortalLink({
+        subject: "Confirm changing your password",
+        portalName: api.portalDomain,
+        timeoutSeconds: 120,
+      });
+      expect(email).toBeTruthy();
+    });
+  });
+
+  test.describe("Auth", () => {
+    test("Logout", async ({ login }) => {
+      await login.loginToPortal();
+      await login.logout();
+      await login.loginButtonVisible();
+    });
+  });
+
+  test.describe("Payment API", () => {
+    test("Payment endpoint returns Startup plan", async ({ api }) => {
+      const response = await api.apiRequestContext.get(
+        `${api.apisystem.portalBaseUrl}/api/2.0/portal/payment/quota`,
+        { timeout: 30000 },
+      );
+      expect(response.ok()).toBe(true);
+      const { response: quota } = await response.json();
+      expect(quota.title).toBe("Startup");
+      expect(quota.free).toBe(true);
+    });
+  });
 });
 
 // TODO: add tests for:
-// Notify emails
 // Third-party storage
-// Billing/Payment API
