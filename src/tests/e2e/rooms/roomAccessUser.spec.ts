@@ -27,7 +27,8 @@ test.describe("Rooms - User access", () => {
     const roomBody = await roomResponse.json();
     invitedRoomId = roomBody.response.id;
 
-    const { userData, response: userResponse } = await apiSdk.profiles.addMember("owner", "User");
+    const { userData, response: userResponse } =
+      await apiSdk.profiles.addMember("owner", "User");
     const userBody = await userResponse.json();
     userId = userBody.response.id;
 
@@ -51,7 +52,9 @@ test.describe("Rooms - User access", () => {
   test("User has Pin to top option for invited room", async () => {
     await myRooms.roomsTable.openContextMenu(INVITED_ROOM);
     await expect(
-      myRooms.roomsTable.contextMenu.getItemLocator(roomContextMenuOption.pinToTop),
+      myRooms.roomsTable.contextMenu.getItemLocator(
+        roomContextMenuOption.pinToTop,
+      ),
     ).toBeVisible();
     await myRooms.roomsTable.contextMenu.close();
   });
@@ -60,10 +63,14 @@ test.describe("Rooms - User access", () => {
     await myRooms.roomsTable.openContextMenu(INVITED_ROOM);
     // Anchor: confirm menu is open
     await expect(
-      myRooms.roomsTable.contextMenu.getItemLocator(roomContextMenuOption.pinToTop),
+      myRooms.roomsTable.contextMenu.getItemLocator(
+        roomContextMenuOption.pinToTop,
+      ),
     ).toBeVisible();
     await expect(
-      myRooms.roomsTable.contextMenu.getItemLocator(roomContextMenuOption.editRoom),
+      myRooms.roomsTable.contextMenu.getItemLocator(
+        roomContextMenuOption.editRoom,
+      ),
     ).not.toBeVisible();
     await myRooms.roomsTable.contextMenu.close();
   });
@@ -72,10 +79,14 @@ test.describe("Rooms - User access", () => {
     await myRooms.roomsTable.openContextMenu(INVITED_ROOM);
     // Anchor: confirm menu is open
     await expect(
-      myRooms.roomsTable.contextMenu.getItemLocator(roomContextMenuOption.pinToTop),
+      myRooms.roomsTable.contextMenu.getItemLocator(
+        roomContextMenuOption.pinToTop,
+      ),
     ).toBeVisible();
     await expect(
-      myRooms.roomsTable.contextMenu.getItemLocator(roomContextMenuOption.moveToArchive),
+      myRooms.roomsTable.contextMenu.getItemLocator(
+        roomContextMenuOption.moveToArchive,
+      ),
     ).not.toBeVisible();
     await myRooms.roomsTable.contextMenu.close();
   });

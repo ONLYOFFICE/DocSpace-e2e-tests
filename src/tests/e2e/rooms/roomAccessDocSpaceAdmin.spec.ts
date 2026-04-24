@@ -4,7 +4,10 @@ import MyRooms from "@/src/objects/rooms/Rooms";
 import Login from "@/src/objects/common/Login";
 import RoomInfoPanel from "@/src/objects/rooms/RoomInfoPanel";
 import RoomsInviteDialog from "@/src/objects/rooms/RoomsInviteDialog";
-import { roomContextMenuOption, roomCreateTitles } from "@/src/utils/constants/rooms";
+import {
+  roomContextMenuOption,
+  roomCreateTitles,
+} from "@/src/utils/constants/rooms";
 
 // Room created by owner - DSA sees it without being invited
 const OWNER_ROOM = "OwnerRoom";
@@ -28,14 +31,22 @@ test.describe("Rooms - DocSpace Admin access", () => {
     roomsInviteDialog = new RoomsInviteDialog(page);
 
     await Promise.all([
-      apiSdk.rooms.createRoom("owner", { title: OWNER_ROOM, roomType: "CustomRoom" }),
-      apiSdk.rooms.createRoom("owner", { title: PUBLIC_ROOM, roomType: "PublicRoom" }),
+      apiSdk.rooms.createRoom("owner", {
+        title: OWNER_ROOM,
+        roomType: "CustomRoom",
+      }),
+      apiSdk.rooms.createRoom("owner", {
+        title: PUBLIC_ROOM,
+        roomType: "PublicRoom",
+      }),
     ]);
 
-    const [{ userData: dsaData }, { userData: memberData }] = await Promise.all([
-      apiSdk.profiles.addMember("owner", "DocSpaceAdmin"),
-      apiSdk.profiles.addMember("owner", "User"),
-    ]);
+    const [{ userData: dsaData }, { userData: memberData }] = await Promise.all(
+      [
+        apiSdk.profiles.addMember("owner", "DocSpaceAdmin"),
+        apiSdk.profiles.addMember("owner", "User"),
+      ],
+    );
     memberEmail = memberData.email;
 
     await login.loginWithCredentials(dsaData.email, dsaData.password);
@@ -59,7 +70,9 @@ test.describe("Rooms - DocSpace Admin access", () => {
   test("DocSpace Admin has Pin to top option for owner's room", async () => {
     await myRooms.roomsTable.openContextMenu(OWNER_ROOM);
     await expect(
-      myRooms.roomsTable.contextMenu.getItemLocator(roomContextMenuOption.pinToTop),
+      myRooms.roomsTable.contextMenu.getItemLocator(
+        roomContextMenuOption.pinToTop,
+      ),
     ).toBeVisible();
     await myRooms.roomsTable.contextMenu.close();
   });
@@ -67,7 +80,9 @@ test.describe("Rooms - DocSpace Admin access", () => {
   test("DocSpace Admin does NOT have Edit room option for owner's room", async () => {
     await myRooms.roomsTable.openContextMenu(OWNER_ROOM);
     await expect(
-      myRooms.roomsTable.contextMenu.getItemLocator(roomContextMenuOption.editRoom),
+      myRooms.roomsTable.contextMenu.getItemLocator(
+        roomContextMenuOption.editRoom,
+      ),
     ).not.toBeVisible();
     await myRooms.roomsTable.contextMenu.close();
   });
@@ -75,7 +90,9 @@ test.describe("Rooms - DocSpace Admin access", () => {
   test("DocSpace Admin does NOT have Invite contacts option for owner's room", async () => {
     await myRooms.roomsTable.openContextMenu(OWNER_ROOM);
     await expect(
-      myRooms.roomsTable.contextMenu.getItemLocator(roomContextMenuOption.inviteContacts),
+      myRooms.roomsTable.contextMenu.getItemLocator(
+        roomContextMenuOption.inviteContacts,
+      ),
     ).not.toBeVisible();
     await myRooms.roomsTable.contextMenu.close();
   });
@@ -83,9 +100,13 @@ test.describe("Rooms - DocSpace Admin access", () => {
   // Duplicate is under the "More options" submenu
   test("DocSpace Admin has Duplicate option for owner's room", async () => {
     await myRooms.roomsTable.openContextMenu(OWNER_ROOM);
-    await myRooms.roomsTable.contextMenu.clickOption(roomContextMenuOption.manage);
+    await myRooms.roomsTable.contextMenu.clickOption(
+      roomContextMenuOption.manage,
+    );
     await expect(
-      myRooms.roomsTable.contextMenu.getItemLocator(roomContextMenuOption.duplicate),
+      myRooms.roomsTable.contextMenu.getItemLocator(
+        roomContextMenuOption.duplicate,
+      ),
     ).toBeVisible();
     await myRooms.roomsTable.contextMenu.close();
   });
@@ -93,7 +114,9 @@ test.describe("Rooms - DocSpace Admin access", () => {
   // Change Room Owner is under the "More options" submenu
   test("DocSpace Admin has Change Room Owner option for owner's room", async () => {
     await myRooms.roomsTable.openContextMenu(OWNER_ROOM);
-    await myRooms.roomsTable.contextMenu.clickOption(roomContextMenuOption.manage);
+    await myRooms.roomsTable.contextMenu.clickOption(
+      roomContextMenuOption.manage,
+    );
     await expect(
       myRooms.roomsTable.contextMenu.getItemLocator(
         roomContextMenuOption.changeTheRoomOwner,
@@ -105,19 +128,27 @@ test.describe("Rooms - DocSpace Admin access", () => {
   test("DocSpace Admin has Move to archive option for owner's room", async () => {
     await myRooms.roomsTable.openContextMenu(OWNER_ROOM);
     await expect(
-      myRooms.roomsTable.contextMenu.getItemLocator(roomContextMenuOption.moveToArchive),
+      myRooms.roomsTable.contextMenu.getItemLocator(
+        roomContextMenuOption.moveToArchive,
+      ),
     ).toBeVisible();
     await myRooms.roomsTable.contextMenu.close();
   });
 
   test("DocSpace Admin can move owner's room to archive", async ({ page }) => {
     await myRooms.roomsTable.openContextMenu(OWNER_ROOM);
-    await myRooms.roomsTable.contextMenu.clickOption(roomContextMenuOption.moveToArchive);
+    await myRooms.roomsTable.contextMenu.clickOption(
+      roomContextMenuOption.moveToArchive,
+    );
     await myRooms.moveToArchive();
-    await expect(page.getByRole("link", { name: OWNER_ROOM })).not.toBeVisible();
+    await expect(
+      page.getByRole("link", { name: OWNER_ROOM }),
+    ).not.toBeVisible();
   });
 
-  test("DocSpace Admin cannot see sharing links of owner's public room", async ({ page }) => {
+  test("DocSpace Admin cannot see sharing links of owner's public room", async ({
+    page,
+  }) => {
     await myRooms.roomsTable.openRoomByName(PUBLIC_ROOM);
     await myRooms.infoPanel.open();
     await expect(page.getByTestId("info_links_tab")).not.toBeVisible();
@@ -139,7 +170,9 @@ test.describe("Rooms - DocSpace Admin access", () => {
     test("DocSpace Admin has Edit room option for own room", async () => {
       await myRooms.roomsTable.openContextMenu(DSA_ROOM);
       await expect(
-        myRooms.roomsTable.contextMenu.getItemLocator(roomContextMenuOption.editRoom),
+        myRooms.roomsTable.contextMenu.getItemLocator(
+          roomContextMenuOption.editRoom,
+        ),
       ).toBeVisible();
       await myRooms.roomsTable.contextMenu.close();
     });
@@ -147,7 +180,9 @@ test.describe("Rooms - DocSpace Admin access", () => {
     test("DocSpace Admin has Invite contacts option for own room", async () => {
       await myRooms.roomsTable.openContextMenu(DSA_ROOM);
       await expect(
-        myRooms.roomsTable.contextMenu.getItemLocator(roomContextMenuOption.inviteContacts),
+        myRooms.roomsTable.contextMenu.getItemLocator(
+          roomContextMenuOption.inviteContacts,
+        ),
       ).toBeVisible();
       await myRooms.roomsTable.contextMenu.close();
     });
@@ -155,7 +190,9 @@ test.describe("Rooms - DocSpace Admin access", () => {
     test("DocSpace Admin has Move to archive option for own room", async () => {
       await myRooms.roomsTable.openContextMenu(DSA_ROOM);
       await expect(
-        myRooms.roomsTable.contextMenu.getItemLocator(roomContextMenuOption.moveToArchive),
+        myRooms.roomsTable.contextMenu.getItemLocator(
+          roomContextMenuOption.moveToArchive,
+        ),
       ).toBeVisible();
       await myRooms.roomsTable.contextMenu.close();
     });
@@ -163,9 +200,13 @@ test.describe("Rooms - DocSpace Admin access", () => {
     // Duplicate is under the "More options" submenu
     test("DocSpace Admin has Duplicate option for own room", async () => {
       await myRooms.roomsTable.openContextMenu(DSA_ROOM);
-      await myRooms.roomsTable.contextMenu.clickOption(roomContextMenuOption.manage);
+      await myRooms.roomsTable.contextMenu.clickOption(
+        roomContextMenuOption.manage,
+      );
       await expect(
-        myRooms.roomsTable.contextMenu.getItemLocator(roomContextMenuOption.duplicate),
+        myRooms.roomsTable.contextMenu.getItemLocator(
+          roomContextMenuOption.duplicate,
+        ),
       ).toBeVisible();
       await myRooms.roomsTable.contextMenu.close();
     });
@@ -193,7 +234,9 @@ test.describe("Rooms - DocSpace Admin access", () => {
       });
     });
 
-    test("DocSpace Admin can assign role when inviting to own room", async ({ page }) => {
+    test("DocSpace Admin can assign role when inviting to own room", async ({
+      page,
+    }) => {
       await roomInfoPanel.clickAddUser();
       await roomsInviteDialog.openPeopleList();
       // Role assignment works - change to Room Manager to verify
@@ -218,14 +261,18 @@ test.describe("Rooms - DocSpace Admin access", () => {
       await myRooms.infoPanel.checkAccessesExist();
     });
 
-    test("DocSpace Admin can view History tab in owner's room", async ({ page }) => {
+    test("DocSpace Admin can view History tab in owner's room", async ({
+      page,
+    }) => {
       await myRooms.infoPanel.open();
       await myRooms.infoPanel.openTab("History");
       await expect(page.getByTestId("info_history_tab")).toBeVisible();
       await expect(page.getByText("Today")).toBeVisible();
     });
 
-    test("DocSpace Admin can view Details tab in owner's room", async ({ page }) => {
+    test("DocSpace Admin can view Details tab in owner's room", async ({
+      page,
+    }) => {
       await myRooms.infoPanel.open();
       await myRooms.infoPanel.openTab("Details");
       await expect(page.getByTestId("info_details_tab")).toBeVisible();
