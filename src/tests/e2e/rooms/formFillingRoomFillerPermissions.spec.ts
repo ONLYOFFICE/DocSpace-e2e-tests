@@ -584,6 +584,11 @@ test.describe("FormFilling room - Form filler permissions", () => {
           folderContextMenuOption.delete,
         ),
       ).not.toBeVisible();
+      await expect(
+        myRooms.filesTable.contextMenu.getItemLocator(
+          folderContextMenuOption.syncResponsesToXlsx,
+        ),
+      ).not.toBeVisible();
       await myRooms.filesTable.contextMenu.close();
       await myRooms.filesNavigation.gotoBack();
       await page.reload({ waitUntil: "load" });
