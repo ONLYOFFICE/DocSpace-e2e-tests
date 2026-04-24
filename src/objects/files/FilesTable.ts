@@ -87,6 +87,11 @@ class FilesTable extends BaseTable {
     await this.openContextMenuRow(this.xlsxFile);
   }
 
+  async openContextMenuForPdfItem() {
+    await expect(this.pdfFile.first()).toBeVisible();
+    await this.openContextMenuRow(this.pdfFile.first());
+  }
+
   async expectEmptyFolder() {
     await expect(this.page.getByText(EMPTY_FOLDER_TEXT)).toBeVisible();
   }
