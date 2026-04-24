@@ -20,6 +20,7 @@ import {
   pdfFormMoreOptionsSubmenu,
   pdfFormMoveOrCopySubmenu,
 } from "@/src/utils/constants/files";
+import { formFillingSystemFolders } from "@/src/utils/constants/rooms";
 
 test.describe("FormFilling room - Content creator permissions", () => {
   let myRooms: MyRooms;
@@ -252,20 +253,24 @@ test.describe("FormFilling room - Content creator permissions", () => {
     });
 
     await test.step("Verify Content creator CAN access Complete folder", async () => {
-      await myRooms.filesTable.openContextMenuForItem("Complete");
+      await myRooms.filesTable.openContextMenuForItem(
+        formFillingSystemFolders.complete,
+      );
       await myRooms.filesTable.contextMenu.clickOption("Open");
       await expect(
-        page.getByRole("heading", { name: "Complete" }),
+        page.getByRole("heading", { name: formFillingSystemFolders.complete }),
       ).toBeVisible();
       await myRooms.navigation.gotoBack();
       await page.waitForLoadState("load");
     });
 
     await test.step("Verify Content creator CAN access In Process folder", async () => {
-      await myRooms.filesTable.openContextMenuForItem("In process");
+      await myRooms.filesTable.openContextMenuForItem(
+        formFillingSystemFolders.inProcess,
+      );
       await myRooms.filesTable.contextMenu.clickOption("Open");
       await expect(
-        page.getByRole("heading", { name: "In process" }),
+        page.getByRole("heading", { name: formFillingSystemFolders.inProcess }),
       ).toBeVisible();
       await myRooms.navigation.gotoBack();
       await page.waitForLoadState("load");

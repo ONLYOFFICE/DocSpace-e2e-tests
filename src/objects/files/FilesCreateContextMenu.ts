@@ -1,4 +1,4 @@
-import { Page } from "@playwright/test";
+import { expect, Page } from "@playwright/test";
 import { DOC_ACTIONS } from "../../utils/constants/files";
 import FilesCreateModal from "./FilesCreateModal";
 import { BaseContextMenu } from "../common/BaseContextMenu";
@@ -15,10 +15,15 @@ class FilesCreateContextMenu extends BaseContextMenu {
 
   async selectCreateAction(actionText: string) {
     if (actionText === DOC_ACTIONS.CREATE_PDF_BLANK) {
-      await this.hoverOption("PDF Form");
-      await this.clickOption(actionText, true);
+      const parent = this.menu.getByText("PDF Form", { exact: true });
+      await parent.hover({ timeout: 3000 });
+      await expect(this.submenu).toBeVisible({ timeout: 2000 });
+      const submenuItem = this.submenu.getByText(actionText, { exact: true });
+      await submenuItem.hover({ timeout: 2000 });
+      await submenuItem.click({ timeout: 2000 });
     } else {
-      await this.clickOption(actionText);
+      const item = this.menu.getByText(actionText, { exact: true });
+      await item.click({ timeout: 3000 });
     }
   }
 

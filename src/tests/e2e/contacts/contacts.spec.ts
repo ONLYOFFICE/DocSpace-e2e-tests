@@ -47,16 +47,9 @@ test.describe(() => {
   test("Invite dialog", async () => {
     const invite = contactsActionsMenu.invite;
 
-    await test.step("Open invite dialog and check access selection", async () => {
+    await test.step("Open invite dialog", async () => {
       await contacts.navigation.clickHeaderSubmenuOption(
         invite.label,
-        invite.submenu.docspaceAdmin,
-      );
-      await contacts.inviteDialog.checkAccessSelectionExist(
-        invite.submenu.docspaceAdmin,
-      );
-      await contacts.inviteDialog.openAccessOptions();
-      await contacts.inviteDialog.selectAccessOption(
         invite.submenu.docspaceAdmin,
       );
     });

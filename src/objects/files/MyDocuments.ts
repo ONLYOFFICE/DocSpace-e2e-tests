@@ -147,8 +147,13 @@ class MyDocuments extends BasePage {
   }
 
   async createDocumentFile(fileName = "Document", checkExists = true) {
-    await this.filesNavigation.openCreateDropdown();
-    await this.filesNavigation.selectCreateAction(DOC_ACTIONS.CREATE_DOCUMENT);
+    await expect(async () => {
+      await this.filesNavigation.openCreateDropdown();
+      await this.filesNavigation.selectCreateAction(
+        DOC_ACTIONS.CREATE_DOCUMENT,
+      );
+      await this.filesNavigation.modal.checkModalExist();
+    }).toPass({ timeout: 20000 });
     await this.filesNavigation.modal.fillCreateTextInput(fileName);
     const [newPage] = await Promise.all([
       this.page.context().waitForEvent("page", { timeout: 5000 }),
@@ -161,8 +166,13 @@ class MyDocuments extends BasePage {
   }
 
   async createDocumentAndOpenEditor(fileName = "Document") {
-    await this.filesNavigation.openCreateDropdown();
-    await this.filesNavigation.selectCreateAction(DOC_ACTIONS.CREATE_DOCUMENT);
+    await expect(async () => {
+      await this.filesNavigation.openCreateDropdown();
+      await this.filesNavigation.selectCreateAction(
+        DOC_ACTIONS.CREATE_DOCUMENT,
+      );
+      await this.filesNavigation.modal.checkModalExist();
+    }).toPass({ timeout: 20000 });
     await this.filesNavigation.modal.fillCreateTextInput(fileName);
     const [editorPage] = await Promise.all([
       this.page.context().waitForEvent("page", { timeout: 30000 }),
@@ -173,10 +183,13 @@ class MyDocuments extends BasePage {
   }
 
   async createSpreadsheetAndOpenEditor(fileName = "Spreadsheet") {
-    await this.filesNavigation.openCreateDropdown();
-    await this.filesNavigation.selectCreateAction(
-      DOC_ACTIONS.CREATE_SPREADSHEET,
-    );
+    await expect(async () => {
+      await this.filesNavigation.openCreateDropdown();
+      await this.filesNavigation.selectCreateAction(
+        DOC_ACTIONS.CREATE_SPREADSHEET,
+      );
+      await this.filesNavigation.modal.checkModalExist();
+    }).toPass({ timeout: 20000 });
     await this.filesNavigation.modal.fillCreateTextInput(fileName);
     const [editorPage] = await Promise.all([
       this.page.context().waitForEvent("page", { timeout: 30000 }),
@@ -187,10 +200,13 @@ class MyDocuments extends BasePage {
   }
 
   async createPresentationAndOpenEditor(fileName = "Presentation") {
-    await this.filesNavigation.openCreateDropdown();
-    await this.filesNavigation.selectCreateAction(
-      DOC_ACTIONS.CREATE_PRESENTATION,
-    );
+    await expect(async () => {
+      await this.filesNavigation.openCreateDropdown();
+      await this.filesNavigation.selectCreateAction(
+        DOC_ACTIONS.CREATE_PRESENTATION,
+      );
+      await this.filesNavigation.modal.checkModalExist();
+    }).toPass({ timeout: 20000 });
     await this.filesNavigation.modal.fillCreateTextInput(fileName);
     const [editorPage] = await Promise.all([
       this.page.context().waitForEvent("page", { timeout: 30000 }),
@@ -201,8 +217,13 @@ class MyDocuments extends BasePage {
   }
 
   async createPdfFormAndOpenEditor(fileName = "PDF Form") {
-    await this.filesNavigation.openCreateDropdown();
-    await this.filesNavigation.selectCreateAction(DOC_ACTIONS.CREATE_PDF_BLANK);
+    await expect(async () => {
+      await this.filesNavigation.openCreateDropdown();
+      await this.filesNavigation.selectCreateAction(
+        DOC_ACTIONS.CREATE_PDF_BLANK,
+      );
+      await this.filesNavigation.modal.checkModalExist();
+    }).toPass({ timeout: 20000 });
     await this.filesNavigation.modal.fillCreateTextInput(fileName);
     const [editorPage] = await Promise.all([
       this.page.context().waitForEvent("page", { timeout: 30000 }),
