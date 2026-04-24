@@ -231,7 +231,7 @@ test.describe("FormFilling room - Sync responses to XLSX", () => {
   });
 
   // Bug 81181: Deleted PDF still included in sync report until permanently removed from Trash
-  test.skip("Sync reflects only remaining submission after one PDF is deleted", async ({
+  test.skip("[Bug 81181] Sync reflects only remaining submission after one PDF is deleted", async ({
     page,
   }) => {
     let newPage!: Page;
