@@ -96,8 +96,7 @@ test.describe("VDR Room: index operations", () => {
     });
   });
 
-  // TODO: skipped due to bug, re-enable when fixed
-  test.skip("Export room index", async () => {
+  test("Export room index", async () => {
     await test.step("Export room index via More options", async () => {
       const download = await myRooms.waitForDownload(async () => {
         await myRooms.filesNavigation.openContextMenu();
