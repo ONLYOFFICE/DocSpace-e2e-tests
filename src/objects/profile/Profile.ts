@@ -169,7 +169,7 @@ export class Profile extends BasePage {
 
   async open() {
     await this.navigateToProfile();
-    await this.mainProfile.waitFor({ state: "visible" });
+    await this.page.waitForURL(/\/profile/, { waitUntil: "load" });
   }
 
   async uploadAvatar(filePath = "data/avatars/AvatarPNG.png") {

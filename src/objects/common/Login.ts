@@ -106,6 +106,13 @@ export class Login extends BasePage {
   async loginButtonVisible() {
     await expect(this.loginButton).toBeVisible();
   }
+
+  async logout() {
+    const optionsButton = this.page.getByTestId("profile_user_icon_button");
+    await optionsButton.waitFor({ state: "visible", timeout: 10000 });
+    await optionsButton.click();
+    await this.page.getByTestId("user-menu-logout").click();
+  }
 }
 
 export default Login;

@@ -426,7 +426,7 @@ class MailChecker {
    * @returns {Object|null} - Returns an object containing email details if found, otherwise null.
    */
 
-  private async findEmailBySubjectWithPortalLink({
+  public async findEmailBySubjectWithPortalLink({
     subject,
     portalName,
     timeoutSeconds = 300,
@@ -443,19 +443,10 @@ class MailChecker {
             return null;
           }
 
-          const emailBody = message.source?.toString() || "";
-          const portalUrlMatch = emailBody.match(
-            /https:\/\/([\w-]+\.onlyoffice\.io)/,
+          const emailBody = this.decodeQuotedPrintable(
+            message.source?.toString() || "",
           );
-
-          if (!portalUrlMatch) {
-            return null;
-          }
-
-          const extractedPortalUrl = portalUrlMatch[1].toLowerCase();
-          const expectedPortalName = portalName.toLowerCase();
-
-          if (!extractedPortalUrl.includes(expectedPortalName)) {
+          if (!emailBody.toLowerCase().includes(portalName.toLowerCase())) {
             return null;
           }
 
@@ -503,7 +494,7 @@ class MailChecker {
 
   decodeQuotedPrintable(encodedText: string): string {
     return encodedText
-      .replace(/=\r\n/g, "")
+      .replace(/=\r?\n/g, "")
       .replace(/=([A-Fa-f0-9]{2})/g, (_match: string, p1: string) => {
         return String.fromCharCode(parseInt(p1, 16));
       });
