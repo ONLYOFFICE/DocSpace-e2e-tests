@@ -33,6 +33,10 @@ export default class BasePage {
     await this.toast.dismissToastSafely(message, timeout);
   }
 
+  async checkToastMessage(message: string, timeout?: number) {
+    await this.toast.checkToastMessage(message, timeout);
+  }
+
   async removeAllToast() {
     await this.toast.removeAllToast();
   }

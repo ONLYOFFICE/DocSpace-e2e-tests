@@ -1,6 +1,7 @@
 import { test } from "@/src/fixtures";
 import { expect } from "@playwright/test";
 import MyRooms from "@/src/objects/rooms/Rooms";
+import MyDocuments from "@/src/objects/files/MyDocuments";
 import VdrRoomSettings from "@/src/objects/rooms/VdrRoomSettings";
 import FolderDeleteModal from "@/src/objects/files/FolderDeleteModal";
 import {
@@ -96,17 +97,25 @@ test.describe("VDR Room: index operations", () => {
     });
   });
 
-  test("Export room index", async () => {
-    await test.step("Export room index via More options", async () => {
-      const download = await myRooms.waitForDownload(async () => {
-        await myRooms.filesNavigation.openContextMenu();
-        await myRooms.filesNavigation.contextMenu.clickSubmenuOption(
-          vdrRoomContextMenuOption.moreOptions,
-          vdrRoomContextMenuOption.exportRoomIndex,
-        );
-      });
-      expect(download.suggestedFilename()).toBeTruthy();
-      await download.delete();
+  test("Export room index", async ({ page, api }) => {
+    await test.step("Trigger export room index via More options", async () => {
+      await myRooms.filesNavigation.openContextMenu();
+      await myRooms.filesNavigation.contextMenu.clickSubmenuOption(
+        vdrRoomContextMenuOption.moreOptions,
+        vdrRoomContextMenuOption.exportRoomIndex,
+      );
+    });
+
+    await test.step("Wait for export completion toast", async () => {
+      await myRooms.checkToastMessage(
+        `${VDR_ROOM_NAME}_index.xlsx file exported to My documents`,
+      );
+    });
+
+    await test.step("Verify exported file is saved to My Documents", async () => {
+      const myDocuments = new MyDocuments(page, api.portalDomain);
+      await myDocuments.open();
+      await myDocuments.filesTable.checkRowExist(`${VDR_ROOM_NAME}_index`);
     });
   });
 });
