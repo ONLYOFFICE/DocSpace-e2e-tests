@@ -42,12 +42,12 @@ class BaseNavigation {
   }
 
   async openCreateDropdown() {
+    await expect(this.headerAddButton).toBeVisible({ timeout: 5000 });
     await expect(async () => {
-      await expect(this.headerAddButton).toBeVisible({
-        timeout: 500,
-      });
-      await this.clickAddButton();
-      await this.contextMenu.checkMenuExists(500);
+      if (!(await this.contextMenu.isMenuOpen())) {
+        await this.clickAddButton();
+      }
+      await this.contextMenu.checkMenuExists(2000);
     }).toPass({ timeout: 10000 });
   }
 

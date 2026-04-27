@@ -124,4 +124,8 @@ export abstract class BaseMenu {
       timeout,
     });
   }
+
+  async isMenuOpen() {
+    return this.menu.isVisible();
+  }
 }
