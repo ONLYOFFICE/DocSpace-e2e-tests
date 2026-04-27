@@ -63,14 +63,13 @@ test.describe("Rooms - Room Admin access", () => {
     ).not.toBeVisible();
   });
 
-  test("Room Admin has create room button", async ({ page }) => {
+  test("Room Admin can create a room", async ({ page }) => {
     await expect(page.locator("#header_add-button")).toBeVisible();
-  });
-
-  test("Room Admin can open create room dialog", async () => {
     await myRooms.navigation.clickAddButton();
     await myRooms.roomsCreateDialog.checkRoomTypeExist(roomCreateTitles.public);
-    await myRooms.roomsCreateDialog.close();
+    await myRooms.roomsCreateDialog.openRoomType(roomCreateTitles.custom);
+    await myRooms.roomsCreateDialog.createRoom(OWN_ROOM);
+    await expect(page.getByRole("heading", { name: OWN_ROOM })).toBeVisible();
   });
 
   test.describe("Own room (list level)", () => {

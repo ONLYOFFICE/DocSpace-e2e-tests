@@ -57,14 +57,13 @@ test.describe("Rooms - DocSpace Admin access", () => {
     await myRooms.roomsTable.checkRowExist(OWNER_ROOM);
   });
 
-  test("DocSpace Admin has create room button", async ({ page }) => {
+  test("DocSpace Admin can create a room", async ({ page }) => {
     await expect(page.locator("#header_add-button")).toBeVisible();
-  });
-
-  test("DocSpace Admin can open create room dialog", async () => {
     await myRooms.navigation.clickAddButton();
     await myRooms.roomsCreateDialog.checkRoomTypeExist(roomCreateTitles.public);
-    await myRooms.roomsCreateDialog.close();
+    await myRooms.roomsCreateDialog.openRoomType(roomCreateTitles.custom);
+    await myRooms.roomsCreateDialog.createRoom(DSA_ROOM);
+    await expect(page.getByRole("heading", { name: DSA_ROOM })).toBeVisible();
   });
 
   test("DocSpace Admin can pin owner's room to top", async () => {
