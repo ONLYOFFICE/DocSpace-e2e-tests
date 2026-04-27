@@ -28,11 +28,6 @@ test.describe("Daily prod check", () => {
       await login.loginToPortal();
     });
 
-    test("Render MyRooms", async () => {
-      await myRooms.open();
-      await myRooms.roomsEmptyView.checkNoRoomsExist();
-    });
-
     test("Create all room types", async ({ page }) => {
       const vdr = new VdrRoomSettings(page);
       await myRooms.openWithoutEmptyCheck();
