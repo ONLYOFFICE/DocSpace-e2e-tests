@@ -82,52 +82,58 @@ test.describe("Rooms - Room Admin access", () => {
       await myRooms.openWithoutEmptyCheck();
     });
 
-    test("Room Admin sees own room", async () => {
+    test("Room Admin can see and edit own room name", async () => {
       await myRooms.roomsTable.checkRowExist(OWN_ROOM);
+      const editedName = OWN_ROOM + " (edited)";
+      await myRooms.roomsTable.openContextMenu(OWN_ROOM);
+      await myRooms.roomsTable.contextMenu.clickOption(
+        roomContextMenuOption.editRoom,
+      );
+      await myRooms.roomsEditDialog.checkDialogTitleExist();
+      await myRooms.roomsEditDialog.fillRoomName(editedName);
+      await myRooms.roomsEditDialog.clickSaveButton();
+      await myRooms.roomsTable.checkRowExist(editedName);
     });
 
-    test("Room Admin has Edit room option for own room", async () => {
+    test("Room Admin can invite contacts to own room", async () => {
       await myRooms.roomsTable.openContextMenu(OWN_ROOM);
-      await expect(
-        myRooms.roomsTable.contextMenu.getItemLocator(
-          roomContextMenuOption.editRoom,
-        ),
-      ).toBeVisible();
-      await myRooms.roomsTable.contextMenu.close();
+      await myRooms.roomsTable.contextMenu.clickOption(
+        roomContextMenuOption.inviteContacts,
+      );
+      await roomsInviteDialog.openPeopleList();
+      await roomsInviteDialog.contactsPanel.selectUserByEmail(memberEmail);
+      await roomsInviteDialog.contactsPanel.clickSelectButton();
+      await roomsInviteDialog.submitInviteDialog();
+      // Verify the member appears in room contacts
+      await myRooms.roomsTable.openRoomByName(OWN_ROOM);
+      await myRooms.infoPanel.open();
+      await myRooms.infoPanel.openTab("Contacts");
+      await expect(roomInfoPanel.getMemberByEmail(memberEmail)).toBeVisible({
+        timeout: 10000,
+      });
     });
 
-    test("Room Admin has Invite contacts option for own room", async () => {
+    test("Room Admin can move own room to archive", async ({ page }) => {
       await myRooms.roomsTable.openContextMenu(OWN_ROOM);
+      await myRooms.roomsTable.contextMenu.clickOption(
+        roomContextMenuOption.moveToArchive,
+      );
+      await myRooms.moveToArchive();
       await expect(
-        myRooms.roomsTable.contextMenu.getItemLocator(
-          roomContextMenuOption.inviteContacts,
-        ),
-      ).toBeVisible();
-      await myRooms.roomsTable.contextMenu.close();
-    });
-
-    test("Room Admin has Move to archive option for own room", async () => {
-      await myRooms.roomsTable.openContextMenu(OWN_ROOM);
-      await expect(
-        myRooms.roomsTable.contextMenu.getItemLocator(
-          roomContextMenuOption.moveToArchive,
-        ),
-      ).toBeVisible();
-      await myRooms.roomsTable.contextMenu.close();
+        page.getByRole("link", { name: OWN_ROOM }),
+      ).not.toBeVisible();
     });
 
     // Duplicate is under the "More options" submenu
-    test("Room Admin has Duplicate option for own room", async () => {
+    test("Room Admin can duplicate own room", async () => {
       await myRooms.roomsTable.openContextMenu(OWN_ROOM);
       await myRooms.roomsTable.contextMenu.clickOption(
         roomContextMenuOption.manage,
       );
-      await expect(
-        myRooms.roomsTable.contextMenu.getItemLocator(
-          roomContextMenuOption.duplicate,
-        ),
-      ).toBeVisible();
-      await myRooms.roomsTable.contextMenu.close();
+      await myRooms.roomsTable.contextMenu.clickOption(
+        roomContextMenuOption.duplicate,
+      );
+      await myRooms.roomsTable.checkRowExist(OWN_ROOM + " (1)");
     });
   });
 
@@ -185,14 +191,12 @@ test.describe("Rooms - Room Admin access", () => {
       await myRooms.roomsTable.checkRowExist(OWNER_ROOM);
     });
 
-    test("Room Admin has Pin to top option for invited room", async () => {
+    test("Room Admin can pin invited room to top", async () => {
       await myRooms.roomsTable.openContextMenu(OWNER_ROOM);
-      await expect(
-        myRooms.roomsTable.contextMenu.getItemLocator(
-          roomContextMenuOption.pinToTop,
-        ),
-      ).toBeVisible();
-      await myRooms.roomsTable.contextMenu.close();
+      await myRooms.roomsTable.contextMenu.clickOption(
+        roomContextMenuOption.pinToTop,
+      );
+      await myRooms.roomsTable.checkRoomPinnedToTopExist();
     });
 
     test("Room Admin does NOT have Edit room option for invited room", async () => {
@@ -259,36 +263,29 @@ test.describe("Rooms - Room Admin access", () => {
       await myRooms.roomsTable.contextMenu.close();
     });
 
-    test.describe("Inside invited room", () => {
-      test.beforeEach(async () => {
-        await myRooms.roomsTable.openRoomByName(OWNER_ROOM);
-      });
+    test("Room Admin can view info panel tabs and cannot manage members in invited room", async ({
+      page,
+    }) => {
+      await myRooms.roomsTable.openRoomByName(OWNER_ROOM);
 
-      test("Room Admin can view Contacts tab in invited room", async () => {
+      await test.step("View Contacts tab", async () => {
         await myRooms.infoPanel.open();
         await myRooms.infoPanel.openTab("Contacts");
         await myRooms.infoPanel.checkAccessesExist();
       });
 
-      test("Room Admin can view History tab in invited room", async ({
-        page,
-      }) => {
-        await myRooms.infoPanel.open();
+      await test.step("View History tab", async () => {
         await myRooms.infoPanel.openTab("History");
         await expect(page.getByTestId("info_history_tab")).toBeVisible();
         await expect(page.getByText("Today")).toBeVisible();
       });
 
-      test("Room Admin can view Details tab in invited room", async ({
-        page,
-      }) => {
-        await myRooms.infoPanel.open();
+      await test.step("View Details tab", async () => {
         await myRooms.infoPanel.openTab("Details");
         await expect(page.getByTestId("info_details_tab")).toBeVisible();
       });
 
-      test("Room Admin cannot manage members in invited room", async () => {
-        await myRooms.infoPanel.open();
+      await test.step("Cannot manage members", async () => {
         await myRooms.infoPanel.openTab("Contacts");
         await expect(roomInfoPanel.memberContextMenuButtons).toHaveCount(0);
       });

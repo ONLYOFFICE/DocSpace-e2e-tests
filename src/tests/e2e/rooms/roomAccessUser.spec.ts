@@ -45,80 +45,77 @@ test.describe("Rooms - User access", () => {
     await expect(page.locator("#header_add-button")).not.toBeVisible();
   });
 
-  test("User sees invited room", async () => {
-    await myRooms.roomsTable.checkRowExist(INVITED_ROOM);
-  });
+  test.describe("Invited room", () => {
+    test("User sees invited room", async () => {
+      await myRooms.roomsTable.checkRowExist(INVITED_ROOM);
+    });
 
-  test("User has Pin to top option for invited room", async () => {
-    await myRooms.roomsTable.openContextMenu(INVITED_ROOM);
-    await expect(
-      myRooms.roomsTable.contextMenu.getItemLocator(
+    test("User can pin invited room to top", async () => {
+      await myRooms.roomsTable.openContextMenu(INVITED_ROOM);
+      await myRooms.roomsTable.contextMenu.clickOption(
         roomContextMenuOption.pinToTop,
-      ),
-    ).toBeVisible();
-    await myRooms.roomsTable.contextMenu.close();
-  });
+      );
+      await myRooms.roomsTable.checkRoomPinnedToTopExist();
+    });
 
-  test("User does NOT have Edit room option for invited room", async () => {
-    await myRooms.roomsTable.openContextMenu(INVITED_ROOM);
-    // Anchor: confirm menu is open
-    await expect(
-      myRooms.roomsTable.contextMenu.getItemLocator(
-        roomContextMenuOption.pinToTop,
-      ),
-    ).toBeVisible();
-    await expect(
-      myRooms.roomsTable.contextMenu.getItemLocator(
-        roomContextMenuOption.editRoom,
-      ),
-    ).not.toBeVisible();
-    await myRooms.roomsTable.contextMenu.close();
-  });
+    test("User does NOT have Edit room option for invited room", async () => {
+      await myRooms.roomsTable.openContextMenu(INVITED_ROOM);
+      // Anchor: confirm menu is open
+      await expect(
+        myRooms.roomsTable.contextMenu.getItemLocator(
+          roomContextMenuOption.pinToTop,
+        ),
+      ).toBeVisible();
+      await expect(
+        myRooms.roomsTable.contextMenu.getItemLocator(
+          roomContextMenuOption.editRoom,
+        ),
+      ).not.toBeVisible();
+      await myRooms.roomsTable.contextMenu.close();
+    });
 
-  test("User does NOT have Move to archive option for invited room", async () => {
-    await myRooms.roomsTable.openContextMenu(INVITED_ROOM);
-    // Anchor: confirm menu is open
-    await expect(
-      myRooms.roomsTable.contextMenu.getItemLocator(
-        roomContextMenuOption.pinToTop,
-      ),
-    ).toBeVisible();
-    await expect(
-      myRooms.roomsTable.contextMenu.getItemLocator(
-        roomContextMenuOption.moveToArchive,
-      ),
-    ).not.toBeVisible();
-    await myRooms.roomsTable.contextMenu.close();
-  });
+    test("User does NOT have Move to archive option for invited room", async () => {
+      await myRooms.roomsTable.openContextMenu(INVITED_ROOM);
+      // Anchor: confirm menu is open
+      await expect(
+        myRooms.roomsTable.contextMenu.getItemLocator(
+          roomContextMenuOption.pinToTop,
+        ),
+      ).toBeVisible();
+      await expect(
+        myRooms.roomsTable.contextMenu.getItemLocator(
+          roomContextMenuOption.moveToArchive,
+        ),
+      ).not.toBeVisible();
+      await myRooms.roomsTable.contextMenu.close();
+    });
 
-  test.describe("Inside invited room", () => {
-    test.beforeEach(async () => {
+    test("User can view info panel tabs and cannot manage members in invited room", async ({
+      page,
+    }) => {
       await myRooms.roomsTable.openRoomByName(INVITED_ROOM);
-    });
 
-    test("User can view Contacts tab in invited room", async () => {
-      await myRooms.infoPanel.open();
-      await myRooms.infoPanel.openTab("Contacts");
-      await myRooms.infoPanel.checkAccessesExist();
-    });
+      await test.step("View Contacts tab", async () => {
+        await myRooms.infoPanel.open();
+        await myRooms.infoPanel.openTab("Contacts");
+        await myRooms.infoPanel.checkAccessesExist();
+      });
 
-    test("User can view History tab in invited room", async ({ page }) => {
-      await myRooms.infoPanel.open();
-      await myRooms.infoPanel.openTab("History");
-      await expect(page.getByTestId("info_history_tab")).toBeVisible();
-      await expect(page.getByText("Today")).toBeVisible();
-    });
+      await test.step("View History tab", async () => {
+        await myRooms.infoPanel.openTab("History");
+        await expect(page.getByTestId("info_history_tab")).toBeVisible();
+        await expect(page.getByText("Today")).toBeVisible();
+      });
 
-    test("User can view Details tab in invited room", async ({ page }) => {
-      await myRooms.infoPanel.open();
-      await myRooms.infoPanel.openTab("Details");
-      await expect(page.getByTestId("info_details_tab")).toBeVisible();
-    });
+      await test.step("View Details tab", async () => {
+        await myRooms.infoPanel.openTab("Details");
+        await expect(page.getByTestId("info_details_tab")).toBeVisible();
+      });
 
-    test("User cannot manage members in invited room", async () => {
-      await myRooms.infoPanel.open();
-      await myRooms.infoPanel.openTab("Contacts");
-      await expect(roomInfoPanel.memberContextMenuButtons).toHaveCount(0);
+      await test.step("Cannot manage members", async () => {
+        await myRooms.infoPanel.openTab("Contacts");
+        await expect(roomInfoPanel.memberContextMenuButtons).toHaveCount(0);
+      });
     });
   });
 });

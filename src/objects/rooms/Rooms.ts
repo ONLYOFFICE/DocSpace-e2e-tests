@@ -40,6 +40,7 @@ const navActions = {
 } as const;
 
 const DRAFT_LABEL = "badge-text";
+const ARTICLE_CONTAINER = "#article-container";
 
 class MyRooms extends BasePage {
   private portalDomain: string;
@@ -98,6 +99,7 @@ class MyRooms extends BasePage {
       waitUntil: "load",
     });
     await expect(this.page).toHaveURL(/.*rooms\/shared.*/);
+    await expect(this.page.locator(ARTICLE_CONTAINER)).toBeVisible();
   }
 
   async openTemplatesTab() {
