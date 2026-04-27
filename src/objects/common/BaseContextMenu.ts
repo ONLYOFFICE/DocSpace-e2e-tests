@@ -1,7 +1,7 @@
 import { Page, Locator } from "@playwright/test";
 import { BaseMenu } from "./BaseMenu";
 
-const CONTEXT_MENU = ".p-contextmenu.p-component.p-contextmenu-enter-done";
+const CONTEXT_MENU = ".p-contextmenu.p-component";
 const CONTEXT_SUBMENU = ".p-submenu-list";
 
 export type TContextMenuLocators = {
