@@ -59,9 +59,9 @@ class BaseToast {
       throw error;
     }
   }
-  async checkToastMessage(text: string) {
+  async checkToastMessage(text: string, timeout?: number) {
     const toast = this.toast.filter({ hasText: text }).first();
-    await toast.waitFor({ state: "visible" });
+    await toast.waitFor({ state: "visible", timeout });
   }
 }
 
