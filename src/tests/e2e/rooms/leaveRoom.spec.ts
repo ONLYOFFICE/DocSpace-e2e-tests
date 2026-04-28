@@ -170,8 +170,10 @@ test.describe("Rooms - Leave room (DocSpace Admin)", () => {
     const roomBody = await roomResponse.json();
     const roomId = roomBody.response.id;
 
-    const { userData, response: dsaResponse } =
-      await apiSdk.profiles.addMember("owner", "DocSpaceAdmin");
+    const { userData, response: dsaResponse } = await apiSdk.profiles.addMember(
+      "owner",
+      "DocSpaceAdmin",
+    );
     const dsaBody = await dsaResponse.json();
     const dsaId = dsaBody.response.id;
 
