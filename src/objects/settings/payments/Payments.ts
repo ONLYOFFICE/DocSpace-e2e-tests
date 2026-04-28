@@ -509,6 +509,7 @@ export class Payments extends BasePage {
     await stripePage.locator("#shippingLocality").fill("Los Angeles");
     await stripePage.locator("#shippingPostalCode").fill("90045");
     await stripePage.locator("#shippingAdministrativeArea").selectOption("CA");
+    await stripePage.locator("#phoneNumber").fill("(800) 555-4545");
 
     const cardAccordionItem = stripePage.getByTestId("card-accordion-item");
 

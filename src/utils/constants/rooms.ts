@@ -55,7 +55,7 @@ export const templateContextMenuOption = {
   editTemplate: "Edit template",
   accessSettings: "AccessSettings",
   download: "Download",
-  delete: "Delete",
+  delete: "Delete template",
 } as const;
 
 export const formFillingRoomContextMenuOption = {
