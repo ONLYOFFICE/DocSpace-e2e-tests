@@ -17,8 +17,10 @@ import {
 } from "@/src/utils/constants/rooms";
 import RoomsArticle from "./RoomsArticle";
 import RoomsEditDialog from "./RoomsEditDialog";
+import RoomsEditTemplateDialog from "./RoomsEditTemplateDialog";
 import RoomsChangeOwnerDialog from "./RoomsChangeOwnerDialog";
 import RoomsAccessSettingsDialog from "./RoomsAccessSettingsDialog";
+import RoomTemplateDeleteModal from "./RoomTemplateDeleteModal";
 import RoomsFilter from "./RoomsFilter";
 import BaseInviteDialog from "../common/BaseInviteDialog";
 import BasePage from "../common/BasePage";
@@ -55,7 +57,9 @@ class MyRooms extends BasePage {
   filesNavigation: FilesNavigation;
   roomsArticle: RoomsArticle;
   roomsEditDialog: RoomsEditDialog;
+  roomsEditTemplateDialog: RoomsEditTemplateDialog;
   roomsAccessSettingsDialog: RoomsAccessSettingsDialog;
+  roomTemplateDeleteModal: RoomTemplateDeleteModal;
   roomsFilter: RoomsFilter;
   inviteDialog: BaseInviteDialog;
   selector: BaseSelector;
@@ -76,8 +80,10 @@ class MyRooms extends BasePage {
     this.filesNavigation = new FilesNavigation(page);
     this.roomsArticle = new RoomsArticle(page);
     this.roomsEditDialog = new RoomsEditDialog(page);
+    this.roomsEditTemplateDialog = new RoomsEditTemplateDialog(page);
     this.roomsChangeOwnerDialog = new RoomsChangeOwnerDialog(page);
     this.roomsAccessSettingsDialog = new RoomsAccessSettingsDialog(page);
+    this.roomTemplateDeleteModal = new RoomTemplateDeleteModal(page);
     this.roomsFilter = new RoomsFilter(page);
     this.inviteDialog = new BaseInviteDialog(page);
     this.selector = new BaseSelector(page);

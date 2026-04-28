@@ -137,6 +137,17 @@ class AiSettings extends BasePage {
     await button.click();
   }
 
+  async selectFirstAvailableModel() {
+    await this.page.getByTestId("add-model-button").click();
+    const popup = this.page.getByTestId("model-selector-popup");
+    await expect(popup).toBeVisible();
+    const firstRow = popup.locator('[data-testid^="model-row-"]').first();
+    await expect(firstRow).toBeVisible();
+    await firstRow.getByTestId("checkbox").click();
+    await this.page.keyboard.press("Escape");
+    await expect(popup).not.toBeVisible();
+  }
+
   async selectWebSearchEngine(engineName: string) {
     await this.page.getByTestId("web-search-engine-combobox").click();
     const webSearchDropdown = new BaseDropdown(this.page, {
