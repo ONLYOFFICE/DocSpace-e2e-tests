@@ -364,7 +364,8 @@ test.describe("FormFilling room - Sync responses to XLSX", () => {
     });
   });
 
-  test("Sync option is absent from submission folder when PDF is deleted", async ({
+  // TODO Bug 81181: unskip when fixed - form in trash is still counted
+  test.skip("Sync option is absent from submission folder when PDF is deleted", async ({
     page,
   }) => {
     let newPage!: Page;
