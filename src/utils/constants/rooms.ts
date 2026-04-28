@@ -10,6 +10,7 @@ export const roomCreateTitles = {
 export const roomTemplateTitles = {
   fromTemplate: "Created from template of the public room",
   roomTemplate: "Template of the public room",
+  editedTemplate: "Edited template name",
 } as const;
 
 export const roomDialogSource = {
@@ -46,7 +47,9 @@ export const roomGroupContextMenuOption = {
 export const templateContextMenuOption = {
   createRoom: "Create room",
   editTemplate: "Edit template",
-  accessSettings: "Access settings",
+  accessSettings: "AccessSettings",
+  download: "Download",
+  delete: "Delete",
 } as const;
 
 export const formFillingRoomContextMenuOption = {

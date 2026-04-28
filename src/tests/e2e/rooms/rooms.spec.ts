@@ -3,9 +3,7 @@ import {
   roomContextMenuOption,
   roomCreateTitles,
   roomDialogSource,
-  roomTemplateTitles,
   roomToastMessages,
-  templateContextMenuOption,
 } from "@/src/utils/constants/rooms";
 import { test } from "@/src/fixtures";
 import { Page } from "@playwright/test";
@@ -53,95 +51,6 @@ test.describe("Rooms", () => {
     await myRooms.roomsTable.checkRowExist(roomCreateTitles.collaboration);
     await myRooms.roomsTable.checkRowExist(roomCreateTitles.virtualData);
     await myRooms.roomsTable.checkRowExist(roomCreateTitles.custom);
-  });
-
-  test("Save room as template", async () => {
-    await test.step("Precondition: create rooms", async () => {
-      await myRooms.openWithoutEmptyCheck();
-      await myRooms.createRooms();
-      await myRooms.infoPanel.close();
-    });
-
-    await myRooms.roomsTable.openContextMenu(roomCreateTitles.public);
-    await myRooms.roomsTable.clickContextMenuOption(
-      roomContextMenuOption.manage,
-    );
-    await myRooms.roomsTable.clickContextMenuOption(
-      roomContextMenuOption.saveAsTemplate,
-    );
-    await myRooms.roomsCreateDialog.createPublicRoomTemplate();
-    await myRooms.removeToast(
-      roomToastMessages.templateSaved(roomTemplateTitles.roomTemplate),
-    );
-    await myRooms.roomsEmptyView.checkEmptyRoomExist(roomCreateTitles.public);
-    await myRooms.backToRooms();
-    await myRooms.roomsTable.checkRowExist(roomTemplateTitles.roomTemplate);
-    await myRooms.infoPanel.close();
-  });
-
-  test("Create room from template", async () => {
-    await test.step("Precondition: create rooms and save as template", async () => {
-      await myRooms.openWithoutEmptyCheck();
-      await myRooms.createRooms();
-      await myRooms.infoPanel.close();
-      await myRooms.roomsTable.openContextMenu(roomCreateTitles.public);
-      await myRooms.roomsTable.clickContextMenuOption(
-        roomContextMenuOption.manage,
-      );
-      await myRooms.roomsTable.clickContextMenuOption(
-        roomContextMenuOption.saveAsTemplate,
-      );
-      await myRooms.roomsCreateDialog.createPublicRoomTemplate();
-      await myRooms.removeToast(
-        roomToastMessages.templateSaved(roomTemplateTitles.roomTemplate),
-      );
-      await myRooms.backToRooms();
-      await myRooms.infoPanel.close();
-      await myRooms.roomsTable.hideLastActivityColumn();
-    });
-
-    await myRooms.roomsTable.openContextMenu(roomTemplateTitles.roomTemplate);
-    await myRooms.roomsTable.clickContextMenuOption(
-      templateContextMenuOption.createRoom,
-    );
-    await myRooms.roomsCreateDialog.createPublicRoomFromTemplate();
-    await myRooms.removeToast(
-      roomToastMessages.baseOnTemplateCreated(roomTemplateTitles.fromTemplate),
-    );
-    await myRooms.roomsEmptyView.checkEmptyRoomExist(roomCreateTitles.public);
-    await myRooms.backToRooms();
-    await myRooms.roomsTable.checkRowExist(roomTemplateTitles.fromTemplate);
-    await myRooms.infoPanel.close();
-  });
-
-  test("Template access settings", async () => {
-    await test.step("Precondition: create rooms and save as template", async () => {
-      await myRooms.openWithoutEmptyCheck();
-      await myRooms.createRooms();
-      await myRooms.infoPanel.close();
-      await myRooms.roomsTable.openContextMenu(roomCreateTitles.public);
-      await myRooms.roomsTable.clickContextMenuOption(
-        roomContextMenuOption.manage,
-      );
-      await myRooms.roomsTable.clickContextMenuOption(
-        roomContextMenuOption.saveAsTemplate,
-      );
-      await myRooms.roomsCreateDialog.createPublicRoomTemplate();
-      await myRooms.removeToast(
-        roomToastMessages.templateSaved(roomTemplateTitles.roomTemplate),
-      );
-      await myRooms.backToRooms();
-      await myRooms.infoPanel.close();
-    });
-
-    await myRooms.openTemplatesTab();
-    await myRooms.roomsTable.checkRowExist(roomTemplateTitles.roomTemplate);
-    await myRooms.roomsTable.openContextMenu(roomTemplateTitles.roomTemplate);
-    await myRooms.roomsTable.clickContextMenuOption(
-      templateContextMenuOption.accessSettings,
-    );
-    await myRooms.roomsAccessSettingsDialog.checkAccessSettingsTitleExist();
-    await myRooms.roomsAccessSettingsDialog.close();
   });
 
   test("Invite contacts", async () => {
