@@ -28,7 +28,9 @@ class LeaveRoomDialog {
   }
 
   private get ownerSelectorSearchInput() {
-    return this.ownerSelectorPanel.getByTestId(SELECTOR_SEARCH_INPUT).locator("input");
+    return this.ownerSelectorPanel
+      .getByTestId(SELECTOR_SEARCH_INPUT)
+      .locator("input");
   }
 
   private get ownerSelectorSubmitButton() {

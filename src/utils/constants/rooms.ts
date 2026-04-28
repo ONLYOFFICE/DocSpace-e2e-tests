@@ -44,7 +44,10 @@ export const roomGroupContextMenuOption = {
   addToGroup: { type: "data-testid" as const, value: "option_add-to-group" },
   leaveRoom: { type: "data-testid" as const, value: "option_leave-room" },
   moreOptions: { type: "data-testid" as const, value: "option_more-options" },
-  changeRoomOwner: { type: "data-testid" as const, value: "option_change-room-owner" },
+  changeRoomOwner: {
+    type: "data-testid" as const,
+    value: "option_change-room-owner",
+  },
 };
 
 export const templateContextMenuOption = {

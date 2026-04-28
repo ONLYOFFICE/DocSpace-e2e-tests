@@ -370,7 +370,9 @@ class InfoPanel {
   async checkMemberHasRole(name: string, role: string) {
     const member = this.page
       .locator(MEMBERS_LIST_ITEM)
-      .filter({ has: this.page.locator(MEMBER_NAME_WRAPPER, { hasText: name }) });
+      .filter({
+        has: this.page.locator(MEMBER_NAME_WRAPPER, { hasText: name }),
+      });
     await expect(member.locator(MEMBER_ROLE_WRAPPER)).toContainText(role);
   }
 }
