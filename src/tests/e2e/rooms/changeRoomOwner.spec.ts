@@ -8,12 +8,16 @@ import {
 } from "@/src/utils/constants/rooms";
 
 const ROOM_NAME = "ChangeRoomOwnerTest";
+const OWNER_SELECTOR_INFO_TEXT =
+  "Only a room admin or a DocSpace admin can become the owner of the room";
 
 test.describe("Rooms - Change room owner", () => {
   let rooms: Rooms;
   let login: Login;
   let leaveRoomDialog: LeaveRoomDialog;
   let dsaFirstName: string;
+  let userFirstName: string;
+  let guestFirstName: string;
   let ownerFirstName: string;
 
   test.beforeEach(async ({ page, api, apiSdk }) => {
@@ -33,13 +37,27 @@ test.describe("Rooms - Change room owner", () => {
     const dsaBody = await dsaResponse.json();
     dsaFirstName = dsaData.firstName;
 
+    const { userData: userData, response: userResponse } =
+      await apiSdk.profiles.addMember("owner", "User");
+    const userBody = await userResponse.json();
+    userFirstName = userData.firstName;
+
+    const { userData: guestData, response: guestResponse } =
+      await apiSdk.profiles.addMember("owner", "Guest");
+    const guestBody = await guestResponse.json();
+    guestFirstName = guestData.firstName;
+
     const ownerSelfResponse =
       await apiSdk.profiles.returnHimselfInformation("owner");
     const ownerSelfBody = await ownerSelfResponse.json();
     ownerFirstName = ownerSelfBody.response.firstName;
 
     await apiSdk.rooms.setRoomAccessRights("owner", roomId, {
-      invitations: [{ id: dsaBody.response.id, access: "RoomAdmin" }],
+      invitations: [
+        { id: dsaBody.response.id, access: "RoomAdmin" },
+        { id: userBody.response.id, access: "Editing" },
+        { id: guestBody.response.id, access: "Editing" },
+      ],
       notify: false,
     });
 
@@ -71,6 +89,19 @@ test.describe("Rooms - Change room owner", () => {
       await rooms.infoPanel.openTab("Details");
       await rooms.infoPanel.checkDetailsOwner(dsaFirstName);
     });
+  });
+
+  test("Owner selector shows only eligible users as potential new owners", async () => {
+    await rooms.roomsTable.openContextMenu(ROOM_NAME);
+    await rooms.roomsTable.contextMenu.clickSubmenuOption(
+      roomGroupContextMenuOption.moreOptions,
+      roomGroupContextMenuOption.changeRoomOwner,
+    );
+    await leaveRoomDialog.checkOwnerSelectorExist();
+    await leaveRoomDialog.checkSelectorInfoText(OWNER_SELECTOR_INFO_TEXT);
+    await leaveRoomDialog.checkUserVisibleInSelector(dsaFirstName);
+    await leaveRoomDialog.checkUserNotVisibleInSelector(userFirstName);
+    await leaveRoomDialog.checkUserNotVisibleInSelector(guestFirstName);
   });
 
   test("Owner stays as Room manager when footer checkbox is unchecked", async () => {

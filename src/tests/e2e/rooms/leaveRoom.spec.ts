@@ -153,6 +153,50 @@ test.describe("Rooms - Leave room (Room Admin invited)", () => {
   });
 });
 
+test.describe("Rooms - Leave room (DocSpace Admin)", () => {
+  let rooms: Rooms;
+  let login: Login;
+  let leaveRoomDialog: LeaveRoomDialog;
+
+  test.beforeEach(async ({ page, api, apiSdk }) => {
+    rooms = new Rooms(page, api.portalDomain);
+    login = new Login(page, api.portalDomain);
+    leaveRoomDialog = new LeaveRoomDialog(page);
+
+    const roomResponse = await apiSdk.rooms.createRoom("owner", {
+      title: ROOM_NAME,
+      roomType: "CustomRoom",
+    });
+    const roomBody = await roomResponse.json();
+    const roomId = roomBody.response.id;
+
+    const { userData, response: dsaResponse } =
+      await apiSdk.profiles.addMember("owner", "DocSpaceAdmin");
+    const dsaBody = await dsaResponse.json();
+    const dsaId = dsaBody.response.id;
+
+    await apiSdk.rooms.setRoomAccessRights("owner", roomId, {
+      invitations: [{ id: dsaId, access: "Editing" }],
+      notify: false,
+    });
+
+    await login.loginWithCredentials(userData.email, userData.password);
+    await rooms.openWithoutEmptyCheck();
+    await rooms.roomsTable.checkRowExist(ROOM_NAME);
+  });
+
+  test("DocSpace Admin can leave a room and still sees it in the list", async () => {
+    await rooms.roomsTable.openContextMenu(ROOM_NAME);
+    await rooms.roomsTable.clickContextMenuOption(
+      roomGroupContextMenuOption.leaveRoom,
+    );
+    await leaveRoomDialog.checkDialogExist();
+    await leaveRoomDialog.submit();
+    await rooms.toast.checkToastMessage(roomToastMessages.leftRoom);
+    await rooms.roomsTable.checkRowExist(ROOM_NAME);
+  });
+});
+
 test.describe("Rooms - Leave room with owner reassignment", () => {
   let rooms: Rooms;
   let login: Login;
