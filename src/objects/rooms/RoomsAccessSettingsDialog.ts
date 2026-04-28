@@ -1,5 +1,6 @@
 import { expect } from "@playwright/test";
 import BaseDialog from "../common/BaseDialog";
+import BaseSelector from "../common/BaseSelector";
 
 class RoomsAccessSettingsDialog extends BaseDialog {
   private get availableToggle() {
@@ -46,9 +47,9 @@ class RoomsAccessSettingsDialog extends BaseDialog {
   }
 
   async selectUserFromPicker(name: string) {
-    const item = this.dialog.getByText(name, { exact: false }).first();
-    await expect(item).toBeVisible();
-    await item.click();
+    const selector = new BaseSelector(this.page);
+    await selector.selectItemByTextGlobal(name);
+    await this.page.getByTestId("selector_submit_button").click();
   }
 
   async expectUserInAccessList(name: string) {
