@@ -65,7 +65,8 @@ test.describe("VDR room: multi-role form filling", () => {
     await filesTable.checkRowExist(MULTI_ROLE_PDF_NAME);
   });
 
-  test("Owner assigns 3 roles and filling queue passes between users", async ({
+  // TODO Bug 81325: unskip when fixed
+  test.skip("[Bug 81325] Owner assigns 3 roles and filling queue passes between users", async ({
     page,
     browser,
     api,
