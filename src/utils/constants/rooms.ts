@@ -42,6 +42,9 @@ export const vdrRoomContextMenuOption = {
 export const roomGroupContextMenuOption = {
   createGroup: { type: "data-testid" as const, value: "option_create-group" },
   addToGroup: { type: "data-testid" as const, value: "option_add-to-group" },
+  leaveRoom: { type: "data-testid" as const, value: "option_leave-room" },
+  moreOptions: { type: "data-testid" as const, value: "option_more-options" },
+  changeRoomOwner: { type: "data-testid" as const, value: "option_change-room-owner" },
 };
 
 export const templateContextMenuOption = {
@@ -98,6 +101,8 @@ export const roomToastMessages = {
     `The selected room has been removed from ${groupName}.`,
   roomGroupingEnabled: "Room grouping is enabled",
   roomGroupingDisabled: "Room grouping is disabled",
+  leftRoom: "You have left the room",
+  appointedNewOwner: "You have appointed a new owner.",
 };
 
 export type TRoomSort = (typeof roomSort)[keyof typeof roomSort];
