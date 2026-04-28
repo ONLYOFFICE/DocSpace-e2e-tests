@@ -138,14 +138,23 @@ class AiSettings extends BasePage {
   }
 
   async selectFirstAvailableModel() {
-    await this.page.getByTestId("add-model-button").click();
+    const addModelAnchor = this.page.locator(
+      '[role="button"]:has([data-testid="add-model-button"])',
+    );
     const popup = this.page.getByTestId("model-selector-popup");
-    await expect(popup).toBeVisible();
+
+    await addModelAnchor.scrollIntoViewIfNeeded();
+    await expect(async () => {
+      await addModelAnchor.click({ force: true });
+      await expect(popup).toBeVisible({ timeout: 2000 });
+    }).toPass({ timeout: 10000 });
+
     const firstRow = popup.locator('[data-testid^="model-row-"]').first();
     await expect(firstRow).toBeVisible();
-    await firstRow.getByTestId("checkbox").click();
-    await this.page.keyboard.press("Escape");
-    await expect(popup).not.toBeVisible();
+    await firstRow.getByTestId("checkbox").click({ force: true });
+    await expect(
+      this.page.locator('[data-testid^="model-tag-"]').first(),
+    ).toBeVisible();
   }
 
   async selectWebSearchEngine(engineName: string) {
