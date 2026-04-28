@@ -37,6 +37,10 @@ const CONTEXT_MENU_BUTTON = "context-menu-button";
 const LINK_SETTINGS = "edit-link-key_item";
 const DELETE_LINK = "delete-link-key_item";
 const REVOKE_LINK_SUBMIT_BUTTON = "Revoke link";
+const DETAILS_AUTHOR_LINK = "info_panel_details_author_link";
+const MEMBERS_LIST_ITEM = ".members-list-item";
+const MEMBER_NAME_WRAPPER = ".name-wrapper";
+const MEMBER_ROLE_WRAPPER = ".role-wrapper";
 
 class InfoPanel {
   protected page: Page;
@@ -355,6 +359,19 @@ class InfoPanel {
   async openLinkSettings() {
     await this.openLinkContextMenu();
     await this.clickLinkSettings();
+  }
+
+  async checkDetailsOwner(name: string) {
+    await expect(
+      this.page.getByTestId(DETAILS_AUTHOR_LINK).first(),
+    ).toContainText(name);
+  }
+
+  async checkMemberHasRole(name: string, role: string) {
+    const member = this.page.locator(MEMBERS_LIST_ITEM).filter({
+      has: this.page.locator(MEMBER_NAME_WRAPPER, { hasText: name }),
+    });
+    await expect(member.locator(MEMBER_ROLE_WRAPPER)).toContainText(role);
   }
 }
 
