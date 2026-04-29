@@ -2,6 +2,7 @@ import { expect } from "@playwright/test";
 import { test } from "@/src/fixtures";
 import MyDocuments from "@/src/objects/files/MyDocuments";
 import FileVersionHistory from "@/src/objects/files/FileVersionHistory";
+import DocumentEditor from "@/src/objects/files/DocumentEditor";
 
 const FILE_NAME = "VersionHistoryTest";
 
@@ -69,6 +70,26 @@ test.describe("My Documents: Version History", () => {
     ]);
     expect(download.suggestedFilename().toLowerCase()).toContain(".docx");
     await download.delete();
+  });
+
+  test("Open older version opens in view mode", async ({ page }) => {
+    const editor = await myDocuments.createDocumentAndOpenEditor(FILE_NAME);
+    await editor.editAndClose(
+      "This is a new version of the document with updated content for testing version history",
+    );
+    await myDocuments.open();
+    await myDocuments.openVersionHistory(FILE_NAME);
+
+    const earliestIndex = await versionHistory.getEarliestVersionIndex();
+    const [versionPage] = await Promise.all([
+      page.context().waitForEvent("page"),
+      versionHistory.clickVersionMenuOption(earliestIndex, "Open"),
+    ]);
+    const viewEditor = new DocumentEditor(versionPage);
+    viewEditor.setupConsoleCapture();
+    await viewEditor.waitForLoad();
+    await viewEditor.checkViewMode();
+    await viewEditor.close();
   });
 
   test("Delete older version", async () => {
