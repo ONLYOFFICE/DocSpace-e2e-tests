@@ -42,7 +42,6 @@ test.describe("FormFilling room - Link tests", () => {
   let incognitoContext: BrowserContext | null = null;
   const incognitoPage: Page | null = null;
   let login: Login;
-  let roomAnonymousView: RoomAnonymousView;
 
   test.beforeEach(async ({ page, api }) => {
     myRooms = new MyRooms(page, api.portalDomain);
@@ -52,7 +51,6 @@ test.describe("FormFilling room - Link tests", () => {
     selectPanel = new RoomSelectPanel(page);
     infoPanel = new InfoPanel(page);
     login = new Login(page, api.portalDomain);
-    roomAnonymousView = new RoomAnonymousView(page);
     await login.loginToPortal();
     await myRooms.createFormFillingRoom("FormFillingRoom");
   });
@@ -300,8 +298,8 @@ test.describe("FormFilling room - Link tests", () => {
     await test.step("Verify new link works", async () => {
       const { context, page: incognitoPage } =
         await setupIncognitoContext(browser);
-      await incognitoPage.goto(newShareLink, { waitUntil: "domcontentloaded" });
-      await roomAnonymousView.singInButtonVisible();
+      await incognitoPage.goto(newShareLink, { waitUntil: "load" });
+      await new RoomAnonymousView(incognitoPage).signInButtonVisible();
       await cleanupIncognitoContext(context, incognitoPage);
     });
   });
@@ -387,7 +385,7 @@ test.describe("FormFilling room - Link tests", () => {
       const { context: roomContext, page: roomPage } =
         await setupIncognitoContext(browser);
       await roomPage.goto(roomLink, { waitUntil: "domcontentloaded" });
-      await roomAnonymousView.singInButtonVisible();
+      await new RoomAnonymousView(roomPage).signInButtonVisible();
       await cleanupIncognitoContext(roomContext, roomPage);
 
       // Verify file link works
@@ -628,7 +626,7 @@ test.describe("FormFilling room - Link tests", () => {
       await passwordRequirePage.enterPasswordAndContinue(testPassword);
 
       const roomAnonymousView = new RoomAnonymousView(incognitoPage);
-      await roomAnonymousView.singInButtonVisible();
+      await roomAnonymousView.signInButtonVisible();
     });
 
     await test.step("Verify wrong password is rejected", async () => {
@@ -905,7 +903,7 @@ test.describe("FormFilling room - Link tests", () => {
       await passwordRequirePage.enterPasswordAndContinue(oldPassword);
 
       const anonView = new RoomAnonymousView(incognitoPage);
-      await anonView.singInButtonVisible();
+      await anonView.signInButtonVisible();
 
       await cleanupIncognitoContext(incognitoContext, incognitoPage);
     });
@@ -953,7 +951,7 @@ test.describe("FormFilling room - Link tests", () => {
       await passwordRequirePage.enterPasswordAndContinue(newPassword);
 
       const anonView = new RoomAnonymousView(incognitoPage);
-      await anonView.singInButtonVisible();
+      await anonView.signInButtonVisible();
     });
   });
 
