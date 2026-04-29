@@ -1,8 +1,7 @@
 import { Page, expect } from "@playwright/test";
 
 const SIGN_IN_BUTTON_NAME = "Sign in";
-const SIGN_IN_NOTIFICATION =
-  "This room is opened in the for filling only mode";
+const SIGN_IN_NOTIFICATION = "This room is opened in the for filling only mode";
 const TOAST_CONTAINER = "#toast-container";
 
 class RoomAnonymousView {
