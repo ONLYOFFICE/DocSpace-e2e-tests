@@ -2,9 +2,22 @@ import { expect, Page } from "@playwright/test";
 
 class FilesEditor {
   protected page: Page;
+  private consoleMessages: string[] = [];
 
   constructor(page: Page) {
     this.page = page;
+  }
+
+  setupConsoleCapture() {
+    this.page.on("console", (msg) => this.consoleMessages.push(msg.text()));
+  }
+
+  async checkViewMode(timeout = 30000) {
+    await expect(async () => {
+      expect(
+        this.consoleMessages.some((m) => m.includes("opened in mode view")),
+      ).toBe(true);
+    }).toPass({ timeout });
   }
 
   protected get frame() {
