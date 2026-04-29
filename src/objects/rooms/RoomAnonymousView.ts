@@ -1,6 +1,8 @@
 import { Page, expect } from "@playwright/test";
 
-const SING_IN_BUTTON = "button";
+const SIGN_IN_BUTTON_NAME = "Sign in";
+const SIGN_IN_NOTIFICATION = "This room is opened in the for filling only mode";
+const TOAST_CONTAINER = "#toast-container";
 
 class RoomAnonymousView {
   private page: Page;
@@ -8,13 +10,23 @@ class RoomAnonymousView {
     this.page = page;
   }
 
-  async singInButtonVisible() {
-    await expect(this.page.getByTestId(SING_IN_BUTTON)).toBeVisible();
+  async checkSignInNotificationVisible() {
+    await expect(
+      this.page
+        .locator(TOAST_CONTAINER)
+        .getByText(SIGN_IN_NOTIFICATION, { exact: false }),
+    ).toBeVisible();
   }
 
-  async clickSingInButton() {
-    await this.singInButtonVisible();
-    await this.page.getByTestId(SING_IN_BUTTON).click();
+  async signInButtonVisible() {
+    await expect(
+      this.page.getByRole("button", { name: SIGN_IN_BUTTON_NAME }),
+    ).toBeVisible();
+  }
+
+  async clickSignInButton() {
+    await this.signInButtonVisible();
+    await this.page.getByRole("button", { name: SIGN_IN_BUTTON_NAME }).click();
   }
 }
 export default RoomAnonymousView;

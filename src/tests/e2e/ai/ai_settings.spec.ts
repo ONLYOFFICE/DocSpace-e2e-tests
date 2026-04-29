@@ -128,6 +128,7 @@ test.describe("AI Settings", () => {
       await aiSettings.selectProviderType("DeepSeek");
       await aiSettings.fillProviderTitle("DeepSeek");
       await aiSettings.fillProviderKey(config.DEEPSEEK_API_KEY!);
+      await aiSettings.selectFirstAvailableModel();
       await aiSettings.saveProvider();
       await aiSettings.expectProviderInList("DeepSeek");
     });
