@@ -53,7 +53,7 @@ export const roomGroupContextMenuOption = {
 export const templateContextMenuOption = {
   createRoom: "Create room",
   editTemplate: "Edit template",
-  accessSettings: "AccessSettings",
+  accessSettings: "Access settings",
   download: "Download",
   delete: "Delete template",
 } as const;
