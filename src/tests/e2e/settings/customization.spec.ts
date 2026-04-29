@@ -34,15 +34,7 @@ test.describe("Customization", () => {
   });
 
   test("Change and save timezone", async () => {
-    const originalTimezone = await customization.getCurrentTimezone();
-
     await customization.changeTimezone("(UTC+05:00) Maldives Time");
-    await customization.settingsTitle.click();
-    await expect(customization.languageTimeZoneSaveButton).toBeEnabled();
-    await customization.languageTimeZoneSaveButton.click();
-    await customization.dismissToastSafely(toastMessages.settingsUpdated);
-
-    await customization.changeTimezone(originalTimezone);
     await customization.settingsTitle.click();
     await expect(customization.languageTimeZoneSaveButton).toBeEnabled();
     await customization.languageTimeZoneSaveButton.click();

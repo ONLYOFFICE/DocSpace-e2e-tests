@@ -47,7 +47,7 @@ test.describe("Security tests", () => {
     });
   });
 
-  test.skip("Ip security", async () => {
+  test("Ip security", async () => {
     await test.step("Ip activation", async () => {
       await security.ipActivation();
       await expect(security.ipSecurityEnabled.locator("input")).toBeChecked();
