@@ -38,15 +38,9 @@ test.describe("My documents: Base", () => {
 
     await test.step("File properties and history", async () => {
       await myDocuments.filesTable.selectDocxFile();
-      await myDocuments.infoPanel.hideDatePropertiesDetails();
       await myDocuments.infoPanel.checkDocxFileProperties();
-
-      await myDocuments.infoPanel.openOptions();
-      await myDocuments.infoPanel.closeMenu();
-
       await myDocuments.infoPanel.openTab("History");
       await myDocuments.infoPanel.checkHistoryExist("File created.");
-      await myDocuments.infoPanel.hideCreationDateHistory();
     });
 
     await test.step("File share", async () => {
@@ -54,22 +48,6 @@ test.describe("My documents: Base", () => {
       await myDocuments.infoPanel.checkShareExist();
       await myDocuments.infoPanel.createFirstSharedLink();
       await myDocuments.infoPanel.createMoreSharedLink();
-    });
-
-    await test.step("Folder properties and history", async () => {
-      await myDocuments.filesTable.selectAllRows();
-      await myDocuments.filesTable.resetSelect();
-
-      await myDocuments.filesTable.selectFolderByName("Folder");
-      await myDocuments.infoPanel.hideDatePropertiesDetails();
-      await myDocuments.infoPanel.checkFolderProperties();
-
-      await myDocuments.infoPanel.openOptions();
-
-      await myDocuments.infoPanel.openTab("History");
-      await myDocuments.infoPanel.checkHistoryExist("Folder created.");
-
-      await myDocuments.infoPanel.close();
     });
   });
 

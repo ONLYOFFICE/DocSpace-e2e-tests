@@ -44,8 +44,7 @@ test.describe("Favorites", () => {
     });
   });
 
-  // TODO: Bug — removing one document from favorites also removes all other favorited documents
-  test.skip("Remove from favorites", async ({}) => {
+  test("Remove from favorites", async ({}) => {
     await test.step("Mark all documents as favorites", async () => {
       await myDocuments.addToFavorites(documentName);
       await myDocuments.addToFavorites(spreadsheetName);

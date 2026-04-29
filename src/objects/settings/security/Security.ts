@@ -52,9 +52,9 @@ class Security extends BasePage {
   get deleteDomain() {
     return this.page.locator(".add-trusted-domain-delete-icon");
   }
-  // get deleteIp() {
-  //   return this.page.locator(".add-allowed-ip-address-delete-icon");
-  // }
+  get deleteIp() {
+    return this.page.locator(".add-allowed-ip-address-delete-icon");
+  }
   get trustedDomainArea() {
     return this.page
       .getByTestId("radio-button-group")
@@ -79,10 +79,6 @@ class Security extends BasePage {
   get ipSecurityEnabled() {
     return this.page.getByTestId("ip_security_enabled");
   }
-  get deleteIp() {
-    return this.page.getByTestId("ip_security_delete_ip_icon");
-  }
-
   get numberOfAttempts() {
     return this.page.getByTestId(
       "brute_force_protection_number_attempts_input",
@@ -202,10 +198,6 @@ class Security extends BasePage {
   }
 
   async ipDeactivation() {
-    await this.ipSecurityArea.click();
-    await this.deleteIp.click();
-    await this.page.getByTestId("ip_security_save_button").click();
-    await this.removeToast(toastMessages.addAllowedIp);
     await this.ipSecurityDisabled.click();
     await this.page.getByTestId("ip_security_save_button").click();
     await this.removeToast(toastMessages.settingsUpdated);
