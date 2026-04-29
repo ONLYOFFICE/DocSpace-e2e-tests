@@ -373,6 +373,20 @@ class InfoPanel {
     });
     await expect(member.locator(MEMBER_ROLE_WRAPPER)).toContainText(role);
   }
+
+  async checkMemberInList(name: string) {
+    const member = this.page.locator(MEMBERS_LIST_ITEM).filter({
+      has: this.page.locator(MEMBER_NAME_WRAPPER, { hasText: name }),
+    });
+    await expect(member).toBeVisible();
+  }
+
+  async checkMemberNotInList(name: string) {
+    const member = this.page.locator(MEMBERS_LIST_ITEM).filter({
+      has: this.page.locator(MEMBER_NAME_WRAPPER, { hasText: name }),
+    });
+    await expect(member).not.toBeVisible();
+  }
 }
 
 export default InfoPanel;

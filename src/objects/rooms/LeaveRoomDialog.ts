@@ -82,6 +82,22 @@ class LeaveRoomDialog {
     await item.click();
   }
 
+  async selectUserByRole(role: string) {
+    const item = this.ownerSelectorPanel
+      .locator(`[data-testid^="selector-item-"]`)
+      .filter({ hasText: role });
+    await expect(item).toBeVisible();
+    await item.click();
+  }
+
+  async selectUserByEmail(email: string) {
+    const item = this.ownerSelectorPanel
+      .locator(`[data-testid^="selector-item-"]`)
+      .filter({ hasText: email });
+    await expect(item).toBeVisible();
+    await item.click();
+  }
+
   async selectUserByAriaLabel(ariaLabel: string) {
     const item = this.ownerSelectorPanel.locator(`[aria-label="${ariaLabel}"]`);
     await expect(item).toBeVisible();
