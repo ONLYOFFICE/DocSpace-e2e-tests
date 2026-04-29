@@ -112,6 +112,7 @@ export async function verifyAnonymousPageInIncognito(
   await page.goto(link, { waitUntil: "domcontentloaded" });
   const roomAnonymousView = new RoomAnonymousView(page);
   await roomAnonymousView.signInButtonVisible();
+  await roomAnonymousView.checkSignInNotificationVisible();
   return { context, page };
 }
 
