@@ -112,6 +112,7 @@ export class Login extends BasePage {
     await optionsButton.waitFor({ state: "visible", timeout: 10000 });
     await optionsButton.click();
     await this.page.getByTestId("user-menu-logout").click();
+    await this.emailInput.waitFor({ state: "visible", timeout: 15000 });
   }
 }
 
