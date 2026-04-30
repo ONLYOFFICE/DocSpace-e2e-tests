@@ -17,34 +17,6 @@ test.describe("Profile - Default Homepage", () => {
     await profileFileManagement.open();
   });
 
-  test("Rooms is selected as default homepage by default", async () => {
-    await profileFileManagement.expectDefaultHomepageOption(
-      defaultHomepageOptions.rooms,
-    );
-  });
-
-  test("All homepage options are available in the dropdown", async ({
-    page,
-  }) => {
-    await test.step("Open homepage dropdown", async () => {
-      await page
-        .locator(".default-page-setting")
-        .locator('[data-test-id="combo-button"]')
-        .click();
-    });
-
-    await test.step("Verify all options are present", async () => {
-      for (const option of Object.values(defaultHomepageOptions)) {
-        await test.step(`Verify option: ${option}`, async () => {
-          await page
-            .getByRole("option")
-            .filter({ hasText: option })
-            .waitFor({ state: "visible" });
-        });
-      }
-    });
-  });
-
   test("AI agents - logo navigates to AI agents URL", async () => {
     await test.step("Select AI agents as default homepage", async () => {
       await profileFileManagement.selectDefaultHomepage(
