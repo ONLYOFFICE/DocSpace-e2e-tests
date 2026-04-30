@@ -1,5 +1,6 @@
 import { expect, Page } from "@playwright/test";
 import BaseToast from "@/src/objects/common/BaseToast";
+import { roomToastMessages } from "@/src/utils/constants/rooms";
 
 const TAG_ITEM = (tagName: string) => `tag_item_${tagName}`;
 const CREATE_TAG_BUTTON = "create_tag_button";
@@ -203,6 +204,7 @@ class InlineTagsPanel {
     await expect(
       this.panel.getByLabel(tagName, { exact: true }),
     ).not.toBeVisible();
+    await this.toast.checkToastMessage(roomToastMessages.tagRemoved(tagName));
     await this.toast.removeAllToast();
   }
 
@@ -213,6 +215,7 @@ class InlineTagsPanel {
     await row.hover();
     await expect(deleteBtn).toBeVisible();
     await deleteBtn.click({ force: true });
+    await this.toast.checkToastMessage(roomToastMessages.tagRemoved(tagName));
     await this.toast.removeAllToast();
   }
 

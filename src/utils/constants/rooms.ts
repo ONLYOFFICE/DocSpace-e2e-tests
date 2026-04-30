@@ -106,6 +106,7 @@ export const roomToastMessages = {
   roomGroupingDisabled: "Room grouping is disabled",
   leftRoom: "You have left the room",
   appointedNewOwner: "You have appointed a new owner.",
+  tagRemoved: (tagName: string) => `${tagName} tag removed`,
 };
 
 export type TRoomSort = (typeof roomSort)[keyof typeof roomSort];
