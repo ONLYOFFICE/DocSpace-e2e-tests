@@ -36,7 +36,9 @@ test.describe("Rooms - Bulk actions", () => {
 
     await test.step("Verify selected rooms are pinned", async () => {
       await myRooms.roomsTable.checkRoomIsPinned(roomCreateTitles.public);
-      await myRooms.roomsTable.checkRoomIsPinned(roomCreateTitles.collaboration);
+      await myRooms.roomsTable.checkRoomIsPinned(
+        roomCreateTitles.collaboration,
+      );
       await myRooms.roomsTable.checkRoomIsNotPinned(roomCreateTitles.custom);
     });
   });

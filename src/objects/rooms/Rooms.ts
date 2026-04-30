@@ -221,7 +221,6 @@ class MyRooms extends BasePage {
     await this.page.locator("#shared_move-to-archived-modal_submit").click();
   }
 
-
   async downloadRoom(title: string) {
     const download = await this.waitForDownload(async () => {
       await this.roomsTable.openContextMenu(title);
