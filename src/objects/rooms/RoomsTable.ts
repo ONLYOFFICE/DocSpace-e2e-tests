@@ -173,6 +173,16 @@ class RoomsTable extends BaseTable {
     ).toBeVisible();
   }
 
+  async checkRoomIsPinned(title: string) {
+    const row = await this.getRowByTitle(title);
+    await expect(row.locator(TABLE_ITEM_PINNED_TO_TOP)).toBeVisible();
+  }
+
+  async checkRoomIsNotPinned(title: string) {
+    const row = await this.getRowByTitle(title);
+    await expect(row.locator(TABLE_ITEM_PINNED_TO_TOP)).not.toBeVisible();
+  }
+
   async clickContextMenuOption(
     option: TTemplateContextMenuOption | TRoomContextMenuOption | TMenuItem,
   ) {

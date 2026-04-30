@@ -27,6 +27,8 @@ const navActions = {
   },
 } as const;
 
+const BULK_DELETE_BUTTON = "#menu-delete-room";
+
 const LAST_ACTIVITY_CHECKBOX =
   ".table-container_settings-checkbox:has(span:text-is('Last activity'))";
 
@@ -68,7 +70,28 @@ class MyArchive extends BasePage {
 
   async deleteRooms() {
     await this.archiveTable.selectAllRows();
-    await this.navigation.performAction(navActions.delete);
+    await this.deleteSelectedRooms();
+  }
+
+  async selectRooms(titles: string[]) {
+    if (titles.length === 0) return;
+
+    const firstRow = await this.archiveTable.getRowByTitle(titles[0]);
+    await expect(firstRow).toBeVisible();
+    await firstRow.click();
+    await this.archiveTable.expectRowIsChecked(firstRow);
+
+    for (const title of titles.slice(1)) {
+      const row = await this.archiveTable.getRowByTitle(title);
+      await expect(row).toBeVisible();
+      await row.click({ modifiers: ["Control"] });
+      await this.archiveTable.expectRowIsChecked(row);
+    }
+  }
+
+  async deleteSelectedRooms() {
+    await this.page.locator(BULK_DELETE_BUTTON).click();
+    await this.confirmDeleteDialog();
     await this.removeToast(archiveToastMessages.removed);
   }
 
@@ -81,9 +104,13 @@ class MyArchive extends BasePage {
   async deleteSingleRoom(roomName: string) {
     await this.archiveTable.openContextMenu(roomName);
     await this.contextMenu.clickOption(archiveContextMenuOption.delete);
+    await this.confirmDeleteDialog();
+    await this.removeToast(archiveToastMessages.roomRemoved);
+  }
+
+  private async confirmDeleteDialog() {
     await this.page.locator(navActions.delete.confirmCheckboxSelector).click();
     await this.page.locator(navActions.delete.submit).click();
-    await this.removeToast(archiveToastMessages.roomRemoved);
   }
 
   async hideLastActivityColumn() {
