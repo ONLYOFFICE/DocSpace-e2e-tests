@@ -25,6 +25,7 @@ test.describe("Rooms - Change room owner", () => {
   let ownerFirstName: string;
   let roomId: number;
   let roomAdminFirstName: string;
+  let roomAdminEmail: string;
   let roomAdminId: string;
 
   test.beforeEach(async ({ page, api, apiSdk }) => {
@@ -60,12 +61,11 @@ test.describe("Rooms - Change room owner", () => {
     const guestBody = await guestResponse.json();
     guestFirstName = guestBody.response.firstName;
 
-    const { response: roomAdminResponse } = await apiSdk.profiles.addMember(
-      "owner",
-      "RoomAdmin",
-    );
+    const { userData: roomAdminUserData, response: roomAdminResponse } =
+      await apiSdk.profiles.addMember("owner", "RoomAdmin");
     const roomAdminBody = await roomAdminResponse.json();
     roomAdminFirstName = roomAdminBody.response.firstName;
+    roomAdminEmail = roomAdminUserData.email;
     roomAdminId = roomAdminBody.response.id;
 
     const ownerSelfResponse =
@@ -136,8 +136,8 @@ test.describe("Rooms - Change room owner", () => {
     });
 
     await test.step("Select portal Room Admin as new owner and submit", async () => {
-      await leaveRoomDialog.searchForUser(roomAdminFirstName);
-      await leaveRoomDialog.selectUserByIndex(0);
+      await leaveRoomDialog.searchForUser(roomAdminEmail);
+      await leaveRoomDialog.selectUserByEmail(roomAdminEmail);
       await leaveRoomDialog.submitOwnerSelection();
       await rooms.toast.checkToastMessage(roomToastMessages.leftRoom);
     });
