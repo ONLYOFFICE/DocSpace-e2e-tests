@@ -15,7 +15,7 @@ const TOGGLE_INPUT = "toggle-button-input";
 const TOGGLE_LABEL = "toggle-button-container";
 const DB_BAR_DESCRIPTION = '[class*="barDescription"]';
 const DB_DISABLED_DESCRIPTION_TEXT =
-  "Database connections are configured by an administrator.";
+  "Configure database connection in Integration → Third-party services";
 const DB_CONNECTION_PANEL_HEADER = "#modal-header-swipe";
 const DB_CONNECTION_PANEL_TITLE = "Database connection";
 const GO_TO_INTEGRATIONS_LINK =
