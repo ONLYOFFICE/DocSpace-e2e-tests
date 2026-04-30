@@ -100,7 +100,7 @@ test.describe("FormFilling room: creation settings", () => {
   });
 
   // TODO: Bug 80939
-  test.skip("Disabling Collect results in XLSX: no XLSX file appears in Complete folder after form submission", async ({
+  test.skip("[Bug 80939] Disabling Collect results in XLSX: no XLSX file appears in Complete folder after form submission", async ({
     page,
   }) => {
     const roomName = "FormFillingNoXlsx";
