@@ -84,11 +84,9 @@ class FilesEditor {
   }
 
   async expectQuotaExceededSnackbar() {
-    await expect(
-      this.page.getByTestId("snackbar-additional-info"),
-    ).toBeVisible({
-      timeout: 15000,
-    });
+    await expect(this.page.getByTestId("snackbar-additional-info")).toBeVisible(
+      { timeout: 15000 },
+    );
   }
 
   async close() {
