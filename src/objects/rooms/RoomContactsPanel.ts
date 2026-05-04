@@ -74,7 +74,15 @@ class RoomContactsPanel {
   }
 
   async checkUserVisible(email: string) {
-    await expect(this.page.getByText(email)).toBeVisible();
+    await this.searchContact(email);
+    await expect(this.page.locator(`[aria-label*="${email}"]`)).toBeVisible();
+  }
+
+  async checkUserNotVisible(email: string) {
+    await this.searchContact(email);
+    await expect(
+      this.page.locator(`[aria-label*="${email}"]`),
+    ).not.toBeVisible();
   }
 
   // Select access type for FormFilling room
