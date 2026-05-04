@@ -16,7 +16,8 @@ const QUOTA_OPTION_DEFAULT = "drop_down_item_default-quota";
 const QUOTA_OPTION_NO_QUOTA = "drop_down_item_no-quota";
 
 const CHANGE_QUOTA_INPUT = "quota-text-input";
-const CHANGE_QUOTA_UNIT_COMBO = '[data-testid="quota-combo-box"] [data-test-id="combo-button"]';
+const CHANGE_QUOTA_UNIT_COMBO =
+  '[data-testid="quota-combo-box"] [data-test-id="combo-button"]';
 const CHANGE_QUOTA_SUBMIT = "change_quota_dialog_submit";
 const CHANGE_QUOTA_CANCEL = "change_quota_dialog_cancel";
 
