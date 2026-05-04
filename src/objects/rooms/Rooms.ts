@@ -35,9 +35,13 @@ const navActions = {
     submit: "#shared_move-to-archived-modal_submit",
   },
   delete: {
-    button: "#menu-delete",
+    button: "#menu-delete-room",
     submit: "#delete-file-modal_submit",
-    confirmCheckboxSelector: "#modal-dialog label[data-testid='checkbox']",
+    confirmCheckboxSelector:
+      "#modal-dialog label[data-testid='delete_warning_checkbox']",
+  },
+  pin: {
+    button: "#menu-pin",
   },
 } as const;
 
@@ -180,19 +184,41 @@ class MyRooms extends BasePage {
   }
   async moveAllRoomsToArchive() {
     await this.roomsTable.selectAllRows();
+    await this.archiveSelectedRooms();
+  }
+
+  async selectRooms(titles: string[]) {
+    if (titles.length === 0) return;
+
+    const firstRow = await this.roomsTable.getRowByTitle(titles[0]);
+    await expect(firstRow).toBeVisible();
+    await firstRow.click();
+    await this.roomsTable.expectRowIsChecked(firstRow);
+
+    for (const title of titles.slice(1)) {
+      const row = await this.roomsTable.getRowByTitle(title);
+      await expect(row).toBeVisible();
+      await row.click({ modifiers: ["Control"] });
+      await this.roomsTable.expectRowIsChecked(row);
+    }
+  }
+
+  async archiveSelectedRooms() {
     await this.navigation.performAction(navActions.moveToArchive);
     await this.removeToast(roomToastMessages.roomsArchived);
+  }
+
+  async deleteSelectedRooms() {
+    await this.navigation.performAction(navActions.delete);
+  }
+
+  async pinSelectedRooms() {
+    await this.navigation.performAction(navActions.pin);
   }
 
   async moveToArchive() {
     await expect(this.page.getByText("Move to Archive?")).toBeVisible();
     await this.page.locator("#shared_move-to-archived-modal_submit").click();
-  }
-
-  async deleteAllRooms() {
-    await this.roomsTable.selectAllRows();
-    await this.navigation.performAction(navActions.delete);
-    await this.removeToast(roomToastMessages.selectedTemplatesDeleted);
   }
 
   async downloadRoom(title: string) {
