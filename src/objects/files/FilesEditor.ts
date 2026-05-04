@@ -40,6 +40,13 @@ class FilesEditor {
     await expect(this.docName).toBeVisible({ timeout: 30000 });
   }
 
+  async waitForFrame() {
+    await this.page.waitForSelector('iframe[name="frameEditor"]', {
+      state: "attached",
+      timeout: 60000,
+    });
+  }
+
   async waitForEditorReady() {
     const cursor = this.frame.locator("#id_target_cursor");
     await cursor.waitFor({ state: "attached", timeout: 20000 });
@@ -68,6 +75,12 @@ class FilesEditor {
     await this.waitForLoad();
     await this.typeText(text);
     await this.saveAndClose();
+  }
+
+  async expectQuotaExceededBanner() {
+    await expect(
+      this.frame.getByText("Room space quota exceeded"),
+    ).toBeVisible({ timeout: 15000 });
   }
 
   async close() {
