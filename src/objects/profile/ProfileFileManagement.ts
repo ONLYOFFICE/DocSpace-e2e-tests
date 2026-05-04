@@ -2,9 +2,8 @@ import { expect, Page } from "@playwright/test";
 import { getPortalUrl } from "../../../config";
 
 const ROOM_GROUPING_TOGGLE = "room_grouping_toggle_button";
-const DEFAULT_HOMEPAGE_SECTION = ".default-page-setting";
-const DEFAULT_HOMEPAGE_COMBO = '[data-test-id="combo-button"]';
-const DEFAULT_HOMEPAGE_OPTION_ROLE = "option";
+const DEFAULT_HOMEPAGE_COMBO = "default_homepage_combobox";
+const DEFAULT_HOMEPAGE_DROPDOWN = '[data-testid="default_homepage_combobox_dropdown"]';
 const LOGO_BUTTON = ".logo-icon_svg";
 
 class ProfileFileManagement {
@@ -37,26 +36,25 @@ class ProfileFileManagement {
   }
 
   async selectDefaultHomepage(option: string) {
-    const section = this.page.locator(DEFAULT_HOMEPAGE_SECTION);
-    await section.locator(DEFAULT_HOMEPAGE_COMBO).click();
+    await this.page.getByTestId(DEFAULT_HOMEPAGE_COMBO).click();
     await this.page
-      .getByRole(DEFAULT_HOMEPAGE_OPTION_ROLE)
-      .filter({ hasText: option })
+      .locator(DEFAULT_HOMEPAGE_DROPDOWN)
+      .getByText(option, { exact: true })
       .click();
   }
 
   async expectDefaultHomepageOption(option: string) {
-    const section = this.page.locator(DEFAULT_HOMEPAGE_SECTION);
-    await expect(section.locator(DEFAULT_HOMEPAGE_COMBO)).toContainText(option);
+    await expect(this.page.getByTestId(DEFAULT_HOMEPAGE_COMBO)).toContainText(
+      option,
+    );
   }
 
   async expectDefaultHomepageOptionNotAvailable(option: string) {
-    const section = this.page.locator(DEFAULT_HOMEPAGE_SECTION);
-    await section.locator(DEFAULT_HOMEPAGE_COMBO).click();
+    await this.page.getByTestId(DEFAULT_HOMEPAGE_COMBO).click();
     await expect(
       this.page
-        .getByRole(DEFAULT_HOMEPAGE_OPTION_ROLE)
-        .filter({ hasText: option }),
+        .locator(DEFAULT_HOMEPAGE_DROPDOWN)
+        .getByText(option, { exact: true }),
     ).not.toBeVisible();
   }
 }
