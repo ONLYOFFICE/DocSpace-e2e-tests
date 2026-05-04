@@ -3,7 +3,8 @@ import { getPortalUrl } from "../../../config";
 
 const ROOM_GROUPING_TOGGLE = "room_grouping_toggle_button";
 const DEFAULT_HOMEPAGE_COMBO = "default_homepage_combobox";
-const DEFAULT_HOMEPAGE_DROPDOWN = '[data-testid="default_homepage_combobox_dropdown"]';
+const DEFAULT_HOMEPAGE_DROPDOWN =
+  '[data-testid="default_homepage_combobox_dropdown"]';
 const LOGO_BUTTON = ".logo-icon_svg";
 
 class ProfileFileManagement {

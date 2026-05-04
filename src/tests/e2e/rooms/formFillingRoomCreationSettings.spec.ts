@@ -70,23 +70,17 @@ test.describe("FormFilling room: creation settings", () => {
     });
   });
 
-  // TODO: functionality not yet implemented
-  test.skip("Enabling Send form to external DB: setting persists and form submission completes successfully", async ({
-    page,
-  }) => {
+  test("Send form to external DB toggle is disabled when no external DB is connected", async () => {
     const roomName = "FormFillingExternalDb";
-    let newPage: Page;
 
-    await test.step("Enable Send form to external DB toggle", async () => {
-      await createDialog.toggleSendFormToExternalDb(true);
+    await test.step("Verify toggle is disabled and description is shown in creation dialog", async () => {
+      await createDialog.checkExternalDbToggleDisabled();
+      await createDialog.checkExternalDbDisabledDescription();
     });
 
     await test.step("Create the room", async () => {
       await createDialog.fillRoomName(roomName);
       await createDialog.clickRoomDialogSubmit();
-      await expect(
-        page.getByText("Welcome to the Form Filling Room!"),
-      ).toBeVisible({ timeout: 10000 });
     });
 
     await test.step("Skip short tour", async () => {
@@ -94,72 +88,19 @@ test.describe("FormFilling room: creation settings", () => {
       await myRooms.infoPanel.close();
     });
 
-    await test.step("Verify toggle is enabled in edit dialog", async () => {
+    await test.step("Verify toggle is disabled in edit dialog", async () => {
       await myRooms.navigation.openContextMenu();
       await myRooms.navigation.contextMenu.menu
         .getByText(roomContextMenuOption.editRoom)
         .click();
       await myRooms.roomsEditDialog.checkDialogTitleExist();
-      await createDialog.expectSendFormToExternalDbChecked(true);
-      await myRooms.roomsEditDialog.clickSaveButton();
-    });
-
-    await test.step("Upload PDF form from DocSpace", async () => {
-      await roomEmptyView.uploadPdfFromDocSpace();
-      await selectPanel.checkSelectorExist();
-      await selectPanel.select("documents");
-      await selectPanel.selectItemByText("ONLYOFFICE Resume Sample");
-      await selectPanel.confirmSelection();
-      await myRooms.infoPanel.close();
-      await expect(
-        page.getByText("ONLYOFFICE Resume Sample", { exact: true }),
-      ).toBeVisible();
-    });
-
-    await test.step("Start filling the form", async () => {
-      const filesTable = new FilesTable(page);
-      await filesTable.openContextMenuForItem("ONLYOFFICE Resume Sample");
-      await filesTable.contextMenu.clickOption("Start filling");
-      await shortTour.clickModalCloseButton();
-    });
-
-    await test.step("Fill and submit the form", async () => {
-      const filesTable = new FilesTable(page);
-      const pagePromise = page
-        .context()
-        .waitForEvent("page", { timeout: 30000 });
-      await filesTable.openContextMenuForItem("ONLYOFFICE Resume Sample");
-      await filesTable.contextMenu.clickOption("Fill");
-      newPage = await pagePromise;
-      await newPage.waitForLoadState("load");
-      const pdfForm = new FilesPdfForm(newPage);
-      const pdfCompleted = new RoomPDFCompleted(newPage);
-      await pdfForm.clickSubmitButton();
-      await pdfCompleted.chooseBackToRoom();
-      await expect(
-        newPage.getByText("ONLYOFFICE Resume Sample", { exact: true }),
-      ).toBeVisible({ timeout: 10000 });
-    });
-
-    await test.step("Open Complete folder and verify submitted form is present", async () => {
-      const filesTable = new FilesTable(newPage);
-      await filesTable.openContextMenuForItem(
-        formFillingSystemFolders.complete,
-      );
-      await filesTable.contextMenu.clickOption("Open");
-      await expect(
-        newPage.getByRole("heading", {
-          name: formFillingSystemFolders.complete,
-        }),
-      ).toBeVisible();
-      await expect(
-        newPage.getByText("ONLYOFFICE Resume Sample", { exact: true }),
-      ).toBeVisible();
+      await createDialog.checkExternalDbToggleDisabled();
+      await myRooms.roomsEditDialog.close();
     });
   });
 
-  // TODO: Bug 80762
-  test.skip("Disabling Collect results in XLSX: no XLSX file appears in Complete folder after form submission", async ({
+  // TODO: Bug 80939
+  test.skip("[Bug 80939] Disabling Collect results in XLSX: no XLSX file appears in Complete folder after form submission", async ({
     page,
   }) => {
     const roomName = "FormFillingNoXlsx";
@@ -284,7 +225,7 @@ test.describe("FormFilling room: creation settings - database connection feature
 
     await test.step("Verify Send form to external DB toggle is visible but disabled", async () => {
       await createDialog.checkExternalDbToggleDisabled();
-      await createDialog.checkExternalDbDisabledDescription();
+      await createDialog.checkExternalDbRoomAdminDisabledDescription();
     });
   });
 

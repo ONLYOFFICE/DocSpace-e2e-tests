@@ -15,6 +15,8 @@ const TOGGLE_INPUT = "toggle-button-input";
 const TOGGLE_LABEL = "toggle-button-container";
 const DB_BAR_DESCRIPTION = '[class*="barDescription"]';
 const DB_DISABLED_DESCRIPTION_TEXT =
+  "Configure database connection in Integration → Third-party services";
+const DB_ROOM_ADMIN_DISABLED_DESCRIPTION_TEXT =
   "Database connections are configured by an administrator.";
 const DB_CONNECTION_PANEL_HEADER = "#modal-header-swipe";
 const DB_CONNECTION_PANEL_TITLE = "Database connection";
@@ -229,6 +231,12 @@ class RoomsCreateDialog extends BaseDialog {
   async checkExternalDbDisabledDescription() {
     await expect(this.dialog.locator(DB_BAR_DESCRIPTION)).toContainText(
       DB_DISABLED_DESCRIPTION_TEXT,
+    );
+  }
+
+  async checkExternalDbRoomAdminDisabledDescription() {
+    await expect(this.dialog.locator(DB_BAR_DESCRIPTION)).toContainText(
+      DB_ROOM_ADMIN_DISABLED_DESCRIPTION_TEXT,
     );
   }
 
