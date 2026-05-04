@@ -225,7 +225,7 @@ test.describe("FormFilling room: creation settings - database connection feature
 
     await test.step("Verify Send form to external DB toggle is visible but disabled", async () => {
       await createDialog.checkExternalDbToggleDisabled();
-      await createDialog.checkExternalDbDisabledDescription();
+      await createDialog.checkExternalDbRoomAdminDisabledDescription();
     });
   });
 
