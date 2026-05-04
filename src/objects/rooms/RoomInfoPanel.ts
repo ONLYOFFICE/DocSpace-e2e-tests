@@ -19,6 +19,7 @@ const CHANGE_QUOTA_INPUT = "quota-text-input";
 const CHANGE_QUOTA_UNIT_COMBO = '[data-testid="quota-combo-box"] [data-test-id="combo-button"]';
 const CHANGE_QUOTA_SUBMIT = "change_quota_dialog_submit";
 const CHANGE_QUOTA_CANCEL = "change_quota_dialog_cancel";
+
 class RoomInfoPanel extends InfoPanel {
   private get searchButton() {
     return this.infoPanel.locator(SEARCH_BUTTON);

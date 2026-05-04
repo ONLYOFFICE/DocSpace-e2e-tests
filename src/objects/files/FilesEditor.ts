@@ -78,9 +78,9 @@ class FilesEditor {
   }
 
   async expectQuotaExceededBanner() {
-    await expect(
-      this.frame.getByText("Room space quota exceeded"),
-    ).toBeVisible({ timeout: 15000 });
+    await expect(this.frame.getByText("Room space quota exceeded")).toBeVisible(
+      { timeout: 15000 },
+    );
   }
 
   async close() {
