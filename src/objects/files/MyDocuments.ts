@@ -165,6 +165,15 @@ class MyDocuments extends BasePage {
     }
   }
 
+  async openDocumentInEditor(fileName: string): Promise<DocumentEditor> {
+    await this.filesTable.openContextMenuForItem(fileName, true);
+    const [editorPage] = await Promise.all([
+      this.page.context().waitForEvent("page", { timeout: 30000 }),
+      this.filesTable.contextMenu.clickOption(documentContextMenuOption.edit),
+    ]);
+    return new DocumentEditor(editorPage);
+  }
+
   async createDocumentAndOpenEditor(fileName = "Document") {
     await expect(async () => {
       await this.filesNavigation.openCreateDropdown();

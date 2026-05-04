@@ -47,6 +47,7 @@ const navActions = {
 
 const DRAFT_LABEL = "badge-text";
 const ARTICLE_CONTAINER = "#article-container";
+const ROOM_STORAGE_WARNING = ".warning-text";
 
 class MyRooms extends BasePage {
   private portalDomain: string;
@@ -265,6 +266,22 @@ class MyRooms extends BasePage {
 
   async verifyDraftLabelNotVisible() {
     await expect(this.page.getByTestId(DRAFT_LABEL)).not.toBeVisible();
+  }
+
+  async expectRoomStorageLimitExceeded() {
+    await expect(
+      this.page
+        .locator(ROOM_STORAGE_WARNING)
+        .filter({ hasText: "Room storage limit exceeded" }),
+    ).toBeVisible();
+  }
+
+  async expectRoomStorageLimitNotExceeded() {
+    await expect(
+      this.page
+        .locator(ROOM_STORAGE_WARNING)
+        .filter({ hasText: "Room storage limit exceeded" }),
+    ).not.toBeVisible();
   }
 }
 
