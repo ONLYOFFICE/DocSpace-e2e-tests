@@ -20,6 +20,9 @@ class ContactsGroupDialog extends BaseDialog {
 
   async openAddMembersSelector() {
     await this.dialog.getByText("Add members", { exact: true }).click();
+    await expect(
+      this.page.locator('[data-testid^="selector-item-"]').first(),
+    ).toBeVisible();
   }
 
   async openHeadOfGroupSelector() {
