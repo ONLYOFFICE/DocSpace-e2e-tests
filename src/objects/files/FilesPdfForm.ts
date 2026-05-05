@@ -114,7 +114,9 @@ class FilesPdfForm {
     if (!this.page) {
       throw new Error("PDF form page not set. Please call setPdfPage() first");
     }
-    return this.page.frameLocator(EDITOR_IFRAME).locator(NO_FIELDS_DIALOG_CONTAINER);
+    return this.page
+      .frameLocator(EDITOR_IFRAME)
+      .locator(NO_FIELDS_DIALOG_CONTAINER);
   }
 
   get noFieldsDialogOkButton() {
