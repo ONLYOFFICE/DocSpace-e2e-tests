@@ -1,3 +1,4 @@
+import { expect } from "@playwright/test";
 import InfoPanel from "../common/InfoPanel";
 
 const SHARE_ROOM_BUTTON = "#share-room";
@@ -47,6 +48,13 @@ class RoomInfoPanel extends InfoPanel {
       .locator(".members-list-item")
       .filter({ hasText: email });
   }
+
+  // Returns the member row that contains the given display name (e.g. a group name)
+  public getMemberByName(name: string) {
+    return this.infoPanel
+      .locator(".members-list-item")
+      .filter({ hasText: name });
+  }
   async clickSearchButton() {
     await this.searchButton.click();
     await this.searchInput.waitFor({ state: "visible" });
@@ -60,6 +68,13 @@ class RoomInfoPanel extends InfoPanel {
   }
   async clickAddUser() {
     await this.addUserButton.click();
+  }
+
+  async removeMemberByName(name: string) {
+    const memberRow = this.getMemberByName(name);
+    await memberRow.locator('[data-test-id="combo-button"]').click();
+    await this.page.getByRole("listbox").getByText("Remove").click();
+    await expect(memberRow).not.toBeVisible();
   }
   async openSharePanel() {
     await this.close();

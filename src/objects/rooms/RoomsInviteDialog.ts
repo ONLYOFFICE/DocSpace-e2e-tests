@@ -1,7 +1,7 @@
 import { expect, Page } from "@playwright/test";
 import BaseInviteDialog from "../common/BaseInviteDialog";
 import BaseToast from "../common/BaseToast";
-import BaseRoleAccess from "../common/BaseRoleAccess";
+import BaseRoleAccess, { type RoleAccessType } from "../common/BaseRoleAccess";
 import InviteLinkSettingsPanel from "./InviteLinkSettingsPanel";
 import RoomContactsPanel from "./RoomContactsPanel";
 
@@ -9,6 +9,7 @@ const ROLE_WARNING = "help-button";
 const CHOOSE_FROM_LIST_LINK = "invite_panel_choose_from_list_link";
 const INVITE_VIA_LINK_TOGGLE = "toggle-button-icon";
 const LINK_SETTINGS_ICON = "link-settings_icon";
+const INVITE_ITEM_ACCESS_SELECTOR = "invite_panel_item_access_selector";
 
 class RoomsInviteDialog extends BaseInviteDialog {
   readonly contactsPanel: RoomContactsPanel;
@@ -60,6 +61,15 @@ class RoomsInviteDialog extends BaseInviteDialog {
 
   async openPeopleList() {
     await this.chooseFromListLink.click();
+  }
+
+  async selectRole(role: RoleAccessType) {
+    const comboButton = this.page
+      .getByTestId(INVITE_ITEM_ACCESS_SELECTOR)
+      .locator('[data-test-id="combo-button"]');
+    await expect(comboButton).toBeVisible();
+    await comboButton.click();
+    await this.page.locator(`[data-key="${role}"]`).click();
   }
 }
 export default RoomsInviteDialog;

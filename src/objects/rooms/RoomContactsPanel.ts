@@ -1,4 +1,5 @@
 import { expect, Page } from "@playwright/test";
+import { type RoleAccessType } from "../common/BaseRoleAccess";
 
 const MEMBERS_TAB = "0_tab";
 const GROUPS_TAB = "1_tab";
@@ -68,6 +69,13 @@ class RoomContactsPanel {
     await userRow.click();
   }
 
+  async selectGroupByName(name: string) {
+    // Group rows have aria-label exactly "Group: <name>"
+    const groupRow = this.page.locator(`[aria-label="Group: ${name}"]`);
+    await expect(groupRow).toBeVisible({ timeout: 10000 });
+    await groupRow.click();
+  }
+
   async clickSelectButton() {
     await expect(this.selectButton).toBeVisible();
     await this.selectButton.click();
@@ -85,10 +93,14 @@ class RoomContactsPanel {
     ).not.toBeVisible();
   }
 
-  // Select access type for FormFilling room
-  async selectAccessType(
-    accessType: "roomManager" | "contentCreator" | "formFiller",
-  ) {
+  async checkGroupVisible(name: string) {
+    await this.searchContact(name);
+    await expect(
+      this.page.locator(`[aria-label="Group: ${name}"]`),
+    ).toBeVisible();
+  }
+
+  async selectAccessType(accessType: RoleAccessType) {
     // Open access combo box
     await expect(this.accessComboBox).toBeVisible();
     await this.accessComboBox.click();

@@ -156,9 +156,18 @@ class Contacts extends BasePage {
   }
 
   async openTab(tab: "Members" | "Groups" | "Guests") {
+    const urlSegment: Record<typeof tab, string> = {
+      Members: "people",
+      Groups: "groups",
+      Guests: "guests",
+    };
     const tabLocator = this.page.getByRole("link", { name: tab, exact: true });
     await expect(tabLocator).toBeVisible();
     await tabLocator.click();
+    await expect(this.page).toHaveURL(
+      new RegExp(`accounts/${urlSegment[tab]}`),
+    );
+    await expect(this.page.locator("#table-container")).toBeVisible();
   }
 
   async openSubmenu(source: "header" | "table" | "article") {
@@ -317,6 +326,34 @@ class Contacts extends BasePage {
 
   async closeMenu() {
     await this.contextMenu.close();
+  }
+
+  async createGroupWithMembers(groupName: string, memberEmails: string[]) {
+    await this.openTab("Groups");
+    await this.navigation.openCreateGroupDialog();
+    await this.groupDialog.fillGroupName(groupName);
+    await this.groupDialog.openAddMembersSelector();
+    for (const email of memberEmails) {
+      await this.groupDialog.selectContact(email);
+    }
+    await this.groupDialog.submitSelectContacts();
+    await this.groupDialog.submitCreateGroup();
+    await this.groupDialog.close();
+  }
+
+  async deleteGroupByName(groupName: string) {
+    await this.openTab("Groups");
+    await this.table.selectGroupRow(groupName);
+    await this.deleteGroup();
+  }
+
+  async removeUserFromGroup(groupName: string, userEmail: string) {
+    await this.openTab("Groups");
+    await this.table.openContextMenu(groupName);
+    await this.table.clickContextMenuOption(groupsContextMenuOption.editGroup);
+    await this.dialog.checkDialogTitleExist("Edit group");
+    await this.groupDialog.removeContact(userEmail);
+    await this.groupDialog.submitEditGroup();
   }
 
   async checkEmptyGroupsExist() {

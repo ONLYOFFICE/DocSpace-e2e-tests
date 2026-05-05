@@ -1,4 +1,4 @@
-import { Page } from "@playwright/test";
+import { expect, Page } from "@playwright/test";
 import BaseNavigation from "../common/BaseNavigation";
 import { headerInviteIds } from "@/src/utils/constants/contacts";
 
@@ -52,7 +52,14 @@ class ContactsNavigation extends BaseNavigation {
   }
 
   async openCreateGroupDialog() {
-    await this.performAction({ button: navActions.createGroup.button });
+    const modalDialog = this.page.locator("#modal-dialog");
+    await this.openHeaderMenu();
+    // On empty Groups page the + button opens the dialog directly;
+    // on non-empty page it opens a dropdown - click the option in that case.
+    if (!(await modalDialog.isVisible())) {
+      await this.performAction({ button: navActions.createGroup.button });
+    }
+    await expect(modalDialog).toBeVisible();
   }
 
   async clickHeaderSubmenuOption(_parentText: string, childText: string) {
