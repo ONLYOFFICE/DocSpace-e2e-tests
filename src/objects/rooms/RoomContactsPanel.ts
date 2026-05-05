@@ -4,7 +4,7 @@ import { type RoleAccessType } from "../common/BaseRoleAccess";
 const MEMBERS_TAB = "0_tab";
 const GROUPS_TAB = "1_tab";
 const GUESTS_TAB = "2_tab";
-const PEOPLE_SELECTOR = "invite_panel_item_access_selector";
+const PEOPLE_SELECTOR = "people-selector";
 const ACCESS_COMBO_BUTTON = '[data-test-id="combo-button"]';
 const SELECT_BUTTON = "selector_submit_button";
 
