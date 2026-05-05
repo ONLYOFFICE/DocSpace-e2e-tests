@@ -13,6 +13,7 @@ export class Login extends BasePage {
   forgotPasswordLink: Locator;
   forgotPasswordEmailInput: Locator;
   forgotPasswordSendButton: Locator;
+  languageCombobox: Locator;
 
   constructor(page: Page, portalDomain: string) {
     super(page);
@@ -29,6 +30,40 @@ export class Login extends BasePage {
       "#forgot-password-modal_email",
     );
     this.forgotPasswordSendButton = page.getByRole("button", { name: /Send/i });
+    this.languageCombobox = page
+      .getByTestId("scroll-body")
+      .getByTestId("language-combobox");
+  }
+
+  async openLoginPage() {
+    await this.page.goto(`${getPortalUrl(this.portalDomain)}/login`, {
+      waitUntil: "load",
+    });
+    await expect(this.emailInput).toBeVisible();
+  }
+
+  async checkLanguageComboboxVisible() {
+    await expect(this.languageCombobox).toBeVisible();
+  }
+
+  async checkLanguageComboboxText(text: string) {
+    await expect(this.languageCombobox).toContainText(text);
+  }
+
+  async clickLanguageCombobox() {
+    await expect(this.languageCombobox).toBeVisible();
+    await this.languageCombobox.click();
+  }
+
+  async checkLanguageDropdownVisible() {
+    await expect(this.page.getByRole("listbox")).toBeVisible();
+  }
+
+  async selectLanguage(code: string) {
+    await this.page
+      .getByRole("listbox")
+      .getByTestId(`drop_down_item_${code}`)
+      .click();
   }
 
   async openSocialPanel(index = 3) {

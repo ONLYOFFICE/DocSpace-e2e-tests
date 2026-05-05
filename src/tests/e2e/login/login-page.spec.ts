@@ -64,6 +64,27 @@ test.describe(() => {
     });
   });
 
+  test("Language combobox shows language name and allows switching language", async () => {
+    await test.step("Open login page", async () => {
+      await login.openLoginPage();
+    });
+
+    await test.step("Verify language combobox shows default language name", async () => {
+      await login.checkLanguageComboboxVisible();
+      await login.checkLanguageComboboxText("English (United Kingdom)");
+    });
+
+    await test.step("Click combobox and verify dropdown opens", async () => {
+      await login.clickLanguageCombobox();
+      await login.checkLanguageDropdownVisible();
+    });
+
+    await test.step("Select Deutsch (Deutschland) and verify label updates", async () => {
+      await login.selectLanguage("de");
+      await login.checkLanguageComboboxText("Deutsch (Deutschland)");
+    });
+  });
+
   test.afterAll(async () => {
     await api.cleanup();
     await page.close();
