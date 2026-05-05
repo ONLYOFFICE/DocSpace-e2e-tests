@@ -38,6 +38,7 @@ test.describe("My Documents: PDF form role-based filling via editor", () => {
       editorPage = editor.editorPage;
       pdfForm = new FilesPdfForm(editorPage);
       selector = new BaseSelector(editorPage);
+      await pdfForm.addFormField();
     });
 
     await test.step("Click Start filling in editor", async () => {

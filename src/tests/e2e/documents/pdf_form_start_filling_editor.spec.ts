@@ -31,6 +31,7 @@ test.describe("My Documents: PDF form start filling via editor", () => {
       await editor.waitForLoad();
       editorPage = editor.editorPage;
       pdfForm = new FilesPdfForm(editorPage);
+      await pdfForm.addFormField();
     });
 
     await test.step("Click Start filling in editor", async () => {
@@ -56,6 +57,7 @@ test.describe("My Documents: PDF form start filling via editor", () => {
       await editor.waitForLoad();
       editorPage = editor.editorPage;
       pdfForm = new FilesPdfForm(editorPage);
+      await pdfForm.addFormField();
     });
 
     await test.step("Click Start filling in editor", async () => {
@@ -110,6 +112,7 @@ test.describe("My Documents: PDF form start filling via editor", () => {
       await editor.waitForLoad();
       editorPage = editor.editorPage;
       pdfForm = new FilesPdfForm(editorPage);
+      await pdfForm.addFormField();
     });
 
     await test.step("Click Start filling in editor", async () => {
@@ -148,6 +151,7 @@ test.describe("My Documents: PDF form start filling via editor", () => {
       editorPage = editor.editorPage;
       pdfForm = new FilesPdfForm(editorPage);
       selector = new BaseSelector(editorPage);
+      await pdfForm.addFormField();
     });
 
     await test.step("Click Start filling in editor", async () => {
@@ -201,6 +205,36 @@ test.describe("My Documents: PDF form start filling via editor", () => {
     });
   });
 
+  test("Start filling a blank PDF form with no fields shows error dialog", async () => {
+    let editorPage: Page;
+    let pdfForm: FilesPdfForm;
+
+    await test.step("Create blank PDF form and open editor", async () => {
+      const editor = await myDocuments.createPdfFormAndOpenEditor("PDF Form");
+      await editor.waitForLoad();
+      editorPage = editor.editorPage;
+      pdfForm = new FilesPdfForm(editorPage);
+    });
+
+    await test.step("Click Start filling without adding fields", async () => {
+      await pdfForm.clickStartFillButton();
+    });
+
+    await test.step("Verify error dialog appears", async () => {
+      await pdfForm.checkNoFieldsDialogVisible();
+    });
+
+    await test.step("Click OK and verify dialog closes", async () => {
+      await pdfForm.clickNoFieldsDialogOk();
+      await pdfForm.checkNoFieldsDialogClosed();
+    });
+
+    await test.step("Click Start filling again and verify dialog reappears", async () => {
+      await pdfForm.clickStartFillButton();
+      await pdfForm.checkNoFieldsDialogVisible();
+    });
+  });
+
   test("Start filling blank PDF form opens room selector", async () => {
     let editorPage: Page;
     let pdfForm: FilesPdfForm;
@@ -212,6 +246,7 @@ test.describe("My Documents: PDF form start filling via editor", () => {
       editorPage = editor.editorPage;
       pdfForm = new FilesPdfForm(editorPage);
       selector = new BaseSelector(editorPage);
+      await pdfForm.addFormField();
     });
 
     await test.step("Click Start filling in editor", async () => {

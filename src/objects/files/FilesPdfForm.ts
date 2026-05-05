@@ -7,6 +7,7 @@ const SUBMIT_BUTTON = "#id-submit-group";
 const CLOSE_BUTTON = "#id-btn-close-editor";
 const MENU_BUTTON = "#box-tools";
 const START_FILL_BUTTON = "#slot-btn-start-fill";
+const FORM_FIELD_BUTTON = "#slot-btn-form-field";
 const EDIT_MODE_BUTTON = "#slot-btn-edit-mode";
 const EDIT_MODE_CHECKED_ITEM = ".menu-item.checkable.checked";
 const FORM_PREV_BUTTON = "#slot-btn-form-prev";
@@ -16,6 +17,8 @@ const DOWNLOAD_AS_DOCX = "Download as Docx";
 const PRINT = "Print";
 
 const INFO_BOX = ".info-box";
+const NO_FIELDS_DIALOG_CONTAINER = ".asc-window.modal.alert";
+const NO_FIELDS_DIALOG_TEXT = "No fields for filling added.";
 
 // Fill viewer (public fill link) locators
 const FILL_VIEWER_TITLE = "#title-doc-name";
@@ -93,6 +96,44 @@ class FilesPdfForm {
   async clickStartFillButton() {
     await expect(this.startFillButton).toBeVisible();
     await this.startFillButton.click();
+  }
+
+  get formFieldButton() {
+    if (!this.page) {
+      throw new Error("PDF form page not set. Please call setPdfPage() first");
+    }
+    return this.page.frameLocator(EDITOR_IFRAME).locator(FORM_FIELD_BUTTON);
+  }
+
+  async addFormField() {
+    await expect(this.formFieldButton).toBeVisible();
+    await this.formFieldButton.click();
+  }
+
+  get noFieldsDialog() {
+    if (!this.page) {
+      throw new Error("PDF form page not set. Please call setPdfPage() first");
+    }
+    return this.page
+      .frameLocator(EDITOR_IFRAME)
+      .locator(NO_FIELDS_DIALOG_CONTAINER);
+  }
+
+  get noFieldsDialogOkButton() {
+    return this.noFieldsDialog.getByRole("button", { name: "OK" });
+  }
+
+  async checkNoFieldsDialogVisible() {
+    await expect(this.noFieldsDialog).toContainText(NO_FIELDS_DIALOG_TEXT);
+  }
+
+  async checkNoFieldsDialogClosed() {
+    await expect(this.noFieldsDialog).not.toBeVisible();
+  }
+
+  async clickNoFieldsDialogOk() {
+    await expect(this.noFieldsDialogOkButton).toBeVisible();
+    await this.noFieldsDialogOkButton.click();
   }
 
   get formPrevButton() {
