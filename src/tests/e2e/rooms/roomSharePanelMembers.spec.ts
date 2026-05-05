@@ -410,7 +410,9 @@ test.describe("Rooms - Share panel: group members get room access", () => {
       await roomsInviteDialog.openPeopleList();
       await roomsInviteDialog.contactsPanel.switchToGroupsTab();
       await roomsInviteDialog.contactsPanel.searchContact(SHARED_GROUP_NAME);
-      await roomsInviteDialog.contactsPanel.selectGroupByName(SHARED_GROUP_NAME);
+      await roomsInviteDialog.contactsPanel.selectGroupByName(
+        SHARED_GROUP_NAME,
+      );
       await roomsInviteDialog.contactsPanel.clickSelectButton();
       await roomsInviteDialog.submitInviteDialog();
     });
@@ -454,11 +456,17 @@ test.describe("Rooms - Share panel: group membership changes affect access", () 
     loginHelper = login;
     const contacts = new Contacts(page, portalDomain);
 
-    const { userData: user1 } = await apiSdk.profiles.addMember("owner", "User");
+    const { userData: user1 } = await apiSdk.profiles.addMember(
+      "owner",
+      "User",
+    );
     memberEmail = user1.email;
     memberPassword = user1.password;
 
-    const { userData: user2 } = await apiSdk.profiles.addMember("owner", "User");
+    const { userData: user2 } = await apiSdk.profiles.addMember(
+      "owner",
+      "User",
+    );
     secondMemberEmail = user2.email;
     secondMemberPassword = user2.password;
 
@@ -527,7 +535,10 @@ test.describe("Rooms - Share panel: group membership changes affect access", () 
 
     await test.step("Verify remaining group member still has access", async () => {
       await loginHelper.logout();
-      await loginHelper.loginWithCredentials(secondMemberEmail, secondMemberPassword);
+      await loginHelper.loginWithCredentials(
+        secondMemberEmail,
+        secondMemberPassword,
+      );
       await myRooms.openWithoutEmptyCheck();
       await myRooms.roomsTable.checkRowExist(ROOM_NAME);
     });
