@@ -7,6 +7,7 @@ const TABLE_LIST_ITEM = ".table-list-item.window-item";
 const EDITORS_ICON = '[data-tooltip-id^="editors-tooltip-"]';
 const FILLING_ICON = '[data-iconname*="form.fill.rect.svg"]';
 const LOCK_ICON = '[data-src*="lock.react.svg"]';
+const CUSTOM_FILTER_ICON = ".is-custom-filter";
 const LOCK_TOOLTIP = "#info-tooltip";
 const DRAFT_BADGE = '[data-testid="badge-text"]';
 const YOUR_TURN_BADGE = "Your turn ";
@@ -284,6 +285,13 @@ class FilesTable extends BaseTable {
       .locator(TABLE_LIST_ITEM)
       .filter({ has: this.page.getByText(fileName, { exact: true }) });
     await expect(fileRow.locator(FILLING_ICON)).not.toBeVisible();
+  }
+
+  async expectCustomFilterIconVisible(fileName: string) {
+    const fileRow = this.page
+      .locator(TABLE_LIST_ITEM)
+      .filter({ has: this.page.getByText(fileName, { exact: true }) });
+    await expect(fileRow.locator(CUSTOM_FILTER_ICON)).toBeVisible();
   }
 
   async expectDraftBadgeVisible(fileName: string) {

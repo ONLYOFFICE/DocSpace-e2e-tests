@@ -172,3 +172,12 @@ export const docSort = {
 export type TDocSort = (typeof docSort)[keyof typeof docSort];
 
 export const listArticleDocActions = transformDocActions(listDocActions);
+
+export const filesToastMessages = {
+  customFilterEnabled: "Custom filter for the selected file enabled",
+} as const;
+
+export const sampleCsvFile = {
+  name: "sample.csv",
+  path: "data/documents/sample.csv",
+} as const;
