@@ -1,7 +1,12 @@
 import { PaymentApi } from "@/src/api/payment";
 import Security from "@/src/objects/settings/security/Security";
+import Contacts from "@/src/objects/contacts/Contacts";
+import MyRooms from "@/src/objects/rooms/Rooms";
+import RoomInfoPanel from "@/src/objects/rooms/RoomInfoPanel";
+import RoomsInviteDialog from "@/src/objects/rooms/RoomsInviteDialog";
 import { test } from "@/src/fixtures";
 import { expect } from "@playwright/test";
+import { getPortalUrl } from "@/config";
 
 test.describe("Security tests", () => {
   let paymentApi: PaymentApi;
@@ -83,6 +88,32 @@ test.describe("Security tests", () => {
       await expect(
         security.adminMessageDisabled.locator("input"),
       ).toBeChecked();
+    });
+  });
+
+  test("Developer Tools section", async ({ page, api, apiSdk, login }) => {
+    const { userData } = await apiSdk.profiles.addMember("owner", "User");
+
+    await test.step("Owner disables Developer Tools section", async () => {
+      await security.disableDeveloperTools();
+      await expect(
+        security.developerToolsDisabled.locator("input"),
+      ).toBeChecked();
+    });
+
+    await test.step("Owner logs out", async () => {
+      await login.logout();
+    });
+
+    await test.step("Login as User", async () => {
+      await login.loginWithCredentials(userData.email, userData.password);
+    });
+
+    await test.step("User opens Developer Tools URL and gets 403", async () => {
+      await page.goto(
+        `${getPortalUrl(api.portalDomain)}/developer-tools/javascript-sdk`,
+      );
+      await page.waitForURL(/\/error\/403/);
     });
   });
 
@@ -174,6 +205,94 @@ test.describe("Security tests", () => {
         "Language Updated",
         { timeout: 10000 },
       );
+    });
+  });
+
+  test("Invite DocSpace members via Contacts disabled", async ({
+    page,
+    api,
+  }) => {
+    const contacts = new Contacts(page, api.portalDomain);
+
+    await test.step("Disable invitation via Contacts and save", async () => {
+      await security.setInviteViaContacts(false);
+      await security.saveInvitationSettings();
+    });
+
+    await test.step("Open Contacts and check + button is hidden", async () => {
+      await contacts.open();
+      await expect(page.locator("#header_add-button")).toBeHidden();
+    });
+  });
+
+  test("Allow inviting guests to rooms disabled", async ({
+    page,
+    api,
+    apiSdk,
+  }) => {
+    const roomName = "Custom Room for invitation test";
+    const externalEmail = "outsider@guest.test";
+
+    await test.step("Precondition: create a Custom room via API", async () => {
+      await apiSdk.rooms.createRoom("owner", {
+        title: roomName,
+        roomType: "CustomRoom",
+      });
+    });
+
+    const myRooms = new MyRooms(page, api.portalDomain);
+    const roomInfoPanel = new RoomInfoPanel(page);
+    const roomsInviteDialog = new RoomsInviteDialog(page);
+
+    await test.step("Open invite dialog inside the room", async () => {
+      await myRooms.openWithoutEmptyCheck();
+      await myRooms.roomsTable.openRoomByName(roomName);
+      await myRooms.infoPanel.open();
+      await myRooms.infoPanel.openTab("Contacts");
+      await roomInfoPanel.clickAddUser();
+    });
+
+    await test.step("Type external email and verify 'No users found'", async () => {
+      await roomsInviteDialog.fillSearchInviteInput(externalEmail);
+      await roomsInviteDialog.expectNoUsersFound();
+    });
+  });
+
+  test("Allow inviting guests to rooms enabled", async ({
+    page,
+    api,
+    apiSdk,
+  }) => {
+    const roomName = "Custom Room for invitation test";
+    const externalEmail = "outsider@guest.test";
+
+    await test.step("Enable allow inviting guests and save", async () => {
+      await security.setAllowInvitingGuests(true);
+      await security.saveInvitationSettings();
+    });
+
+    await test.step("Precondition: create a Custom room via API", async () => {
+      await apiSdk.rooms.createRoom("owner", {
+        title: roomName,
+        roomType: "CustomRoom",
+      });
+    });
+
+    const myRooms = new MyRooms(page, api.portalDomain);
+    const roomInfoPanel = new RoomInfoPanel(page);
+    const roomsInviteDialog = new RoomsInviteDialog(page);
+
+    await test.step("Open invite dialog inside the room", async () => {
+      await myRooms.openWithoutEmptyCheck();
+      await myRooms.roomsTable.openRoomByName(roomName);
+      await myRooms.infoPanel.open();
+      await myRooms.infoPanel.openTab("Contacts");
+      await roomInfoPanel.clickAddUser();
+    });
+
+    await test.step("Type external email and verify 'Invite as guest' option appears", async () => {
+      await roomsInviteDialog.fillSearchInviteInput(externalEmail);
+      await roomsInviteDialog.expectInviteAsGuestVisible();
     });
   });
 });

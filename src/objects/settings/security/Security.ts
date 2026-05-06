@@ -1,4 +1,4 @@
-import { Page } from "@playwright/test";
+import { Locator, Page } from "@playwright/test";
 import BasePage from "@/src/objects/common/BasePage";
 import { navItems, toastMessages } from "@/src/utils/constants/settings";
 import BaseTable, { TBaseTableLocators } from "../../common/BaseTable";
@@ -98,6 +98,12 @@ class Security extends BasePage {
   }
   get adminMessageDisabled() {
     return this.page.getByTestId("administrator_message_disabled");
+  }
+  get developerToolsEnabled() {
+    return this.page.getByTestId("developer_tools_access_enabled");
+  }
+  get developerToolsDisabled() {
+    return this.page.getByTestId("developer_tools_access_disabled");
   }
   get lifetimeEnable() {
     return this.page.getByTestId("session_lifetime_enable");
@@ -225,6 +231,18 @@ class Security extends BasePage {
     await this.removeToast(toastMessages.settingsUpdated);
   }
 
+  async disableDeveloperTools() {
+    await this.developerToolsDisabled.click();
+    await this.page.getByTestId("developer_tools_access_save_button").click();
+    await this.dismissToastSafely(toastMessages.settingsUpdated);
+  }
+
+  async enableDeveloperTools() {
+    await this.developerToolsEnabled.click();
+    await this.page.getByTestId("developer_tools_access_save_button").click();
+    await this.dismissToastSafely(toastMessages.settingsUpdated);
+  }
+
   async sessionLifetimeActivation() {
     await this.lifetimeEnable.click();
     await this.page.getByTestId("session_lifetime_cancel_button").click();
@@ -271,6 +289,46 @@ class Security extends BasePage {
 
   async openTab(tab: "DocSpace access" | "Login History" | "Audit Trail") {
     await this.page.getByText(tab, { exact: true }).click();
+  }
+
+  get downloadReportButton() {
+    return this.page.getByRole("button", { name: "Download report" });
+  }
+
+  async clickDownloadReport() {
+    await this.downloadReportButton.click();
+  }
+
+  get inviteContactsCheckbox() {
+    return this.page.getByTestId("invitation_settings_contacts_checkbox");
+  }
+
+  get inviteGuestsCheckbox() {
+    return this.page.getByTestId("invitation_settings_guests_checkbox");
+  }
+
+  get invitationSettingsSaveButton() {
+    return this.page.getByTestId("invitation_settings_save_button");
+  }
+
+  private async setCheckbox(checkbox: Locator, value: boolean) {
+    const input = checkbox.locator("input[type='checkbox']");
+    if ((await input.isChecked()) !== value) {
+      await checkbox.click();
+    }
+  }
+
+  async setInviteViaContacts(value: boolean) {
+    await this.setCheckbox(this.inviteContactsCheckbox, value);
+  }
+
+  async setAllowInvitingGuests(value: boolean) {
+    await this.setCheckbox(this.inviteGuestsCheckbox, value);
+  }
+
+  async saveInvitationSettings() {
+    await this.invitationSettingsSaveButton.click();
+    await this.dismissToastSafely(toastMessages.settingsUpdated);
   }
 }
 

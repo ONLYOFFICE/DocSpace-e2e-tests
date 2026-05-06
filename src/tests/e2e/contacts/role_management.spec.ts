@@ -37,6 +37,21 @@ test.describe("Role management", () => {
     await contacts.table.checkContactType(userName, contactTypes.docspaceAdmin);
   });
 
+  test("Change role: DocSpace admin to User", async ({ apiSdk }) => {
+    const { userData } = await apiSdk.profiles.addMember(
+      "owner",
+      "DocSpaceAdmin",
+    );
+    const adminName = `${userData.firstName} ${userData.lastName}`;
+
+    await contacts.openChangeContactTypeDialog(
+      adminName,
+      menuItemChangeUserType.user,
+    );
+    await contacts.submitChangeContactTypeDialog();
+    await contacts.table.checkContactType(adminName, contactTypes.user);
+  });
+
   test("Change role: User to Guest", async () => {
     await contacts.openChangeContactTypeDialog(
       userName,

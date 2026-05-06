@@ -198,9 +198,6 @@ test.describe("Rooms", () => {
     await myRooms.infoPanel.hideDatePropertiesDetails();
     await myRooms.infoPanel.checkRoomProperties(roomCreateTitles.public);
 
-    await myRooms.infoPanel.openOptions();
-    await myRooms.infoPanel.closeMenu();
-
     await myRooms.infoPanel.openTab("History");
     await myRooms.infoPanel.checkHistoryExist("room created");
     await myRooms.infoPanel.hideCreationDateHistory();

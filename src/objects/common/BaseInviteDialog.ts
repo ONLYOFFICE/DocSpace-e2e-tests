@@ -100,6 +100,14 @@ class BaseInviteDialog extends BaseDialog {
     const userRow = this.page.locator(ROW_ITEM, { hasText: email });
     await expect(userRow).toContainText(expectedRole);
   }
+
+  async expectNoUsersFound() {
+    await expect(this.dialog.getByText("No users found")).toBeVisible();
+  }
+
+  async expectInviteAsGuestVisible() {
+    await expect(this.dialog.getByText("Invite as guest")).toBeVisible();
+  }
 }
 
 export default BaseInviteDialog;

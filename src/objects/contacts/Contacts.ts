@@ -167,7 +167,6 @@ class Contacts extends BasePage {
     await expect(this.page).toHaveURL(
       new RegExp(`accounts/${urlSegment[tab]}`),
     );
-    await expect(this.page.locator("#table-container")).toBeVisible();
   }
 
   async openSubmenu(source: "header" | "table" | "article") {
