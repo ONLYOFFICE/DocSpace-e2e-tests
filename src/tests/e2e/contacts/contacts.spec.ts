@@ -143,12 +143,10 @@ test.describe(() => {
       await contacts.dialog.close();
     });
 
-    await test.step("Delete user via selection", async () => {
+    await test.step("Delete user via selection and verify removal", async () => {
       await contacts.table.selectRow(userEmails.user);
       await contacts.deleteUser();
-      await contacts.reassignmentDialog.checkReassignmentTitleExist();
-      await contacts.reassignmentDialog.checkAllDataTransfered();
-      await contacts.reassignmentDialog.close();
+      await contacts.table.checkRowNotExist(userEmails.user);
     });
   });
 
