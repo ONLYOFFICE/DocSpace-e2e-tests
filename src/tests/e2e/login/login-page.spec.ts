@@ -55,9 +55,7 @@ test.describe("Login page", () => {
     });
   });
 
-  test("Google social button opens Google sign-in popup", async ({
-    page,
-  }) => {
+  test("Google social button opens Google sign-in popup", async ({ page }) => {
     await test.step("Click Google button and wait for popup", async () => {
       const [popup] = await Promise.all([
         page.waitForEvent("popup"),

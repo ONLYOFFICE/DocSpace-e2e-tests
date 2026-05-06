@@ -90,16 +90,21 @@ export class Login extends BasePage {
     this.socialButton = page.getByTestId("social-button");
     this.socialPanelCloseButton = page.getByTestId(SOCIAL_PANEL_CLOSE_BUTTON);
     this.forgotPasswordLink = page.getByText("Forgot your password?");
-    this.forgotPasswordModalTitle = page.getByText(FORGOT_PASSWORD_MODAL_TITLE, {
-      exact: true,
-    });
+    this.forgotPasswordModalTitle = page.getByText(
+      FORGOT_PASSWORD_MODAL_TITLE,
+      {
+        exact: true,
+      },
+    );
     this.forgotPasswordEmailInput = page
       .getByTestId(FORGOT_PASSWORD_EMAIL_FIELD)
       .getByTestId(FORGOT_PASSWORD_EMAIL_INPUT);
     this.forgotPasswordEmailError = page
       .getByTestId(FORGOT_PASSWORD_EMAIL_FIELD)
       .getByText(REQUIRED_FIELD_ERROR);
-    this.forgotPasswordSendButton = page.getByTestId(FORGOT_PASSWORD_SEND_BUTTON);
+    this.forgotPasswordSendButton = page.getByTestId(
+      FORGOT_PASSWORD_SEND_BUTTON,
+    );
     this.captchaRequiredError = page.getByText(CAPTCHA_REQUIRED_ERROR);
     this.languageCombobox = page
       .getByTestId("scroll-body")
