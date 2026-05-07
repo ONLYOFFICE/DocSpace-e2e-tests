@@ -197,6 +197,7 @@ test.describe("FormFilling room - In process and Complete folders", () => {
     );
     await shortTour.clickModalCloseButton();
     await filesTable.expectFillingIconVisible(FORM_NAME);
+    await page.reload(); // Bug 81446
 
     const pagePromise = page.context().waitForEvent("page", { timeout: 30000 });
     await filesTable.openContextMenuForItem(FORM_NAME);
@@ -318,6 +319,7 @@ test.describe("FormFilling room - In process and Complete folders", () => {
     );
     await shortTour.clickModalCloseButton();
     await filesTable.expectFillingIconVisible(FORM_NAME);
+    await page.reload(); // Bug 81446
 
     const pagePromise = page.context().waitForEvent("page", { timeout: 30000 });
     await filesTable.openContextMenuForItem(FORM_NAME);

@@ -181,6 +181,7 @@ test.describe("FormFilling room - Edit mode", () => {
 
       await test.step("Verify fill icon on file", async () => {
         await filesTable.expectFillingIconVisible("ONLYOFFICE Resume Sample");
+        await page.reload(); // Bug 81446
       });
 
       await test.step("Owner switches form to edit mode", async () => {
@@ -229,6 +230,7 @@ test.describe("FormFilling room - Edit mode", () => {
       );
       await shortTour.clickModalCloseButton();
       await filesTable.expectFillingIconVisible("ONLYOFFICE Resume Sample");
+      await page.reload(); // Bug 81446
     });
 
     await test.step("Open form in editor", async () => {
