@@ -163,6 +163,7 @@ test.describe("FormFilling base tests", () => {
       await filesTable.contextMenu.clickOption("Start filling");
       await shortTour.clickModalCloseButton();
       await filesTable.expectFillingIconVisible("ONLYOFFICE Resume Sample");
+      await page.reload(); // Bug 81446
     });
 
     // Submit Form
@@ -254,6 +255,7 @@ test.describe("FormFilling base tests", () => {
       await filesTable.contextMenu.clickOption("Start filling");
       await shortTour.clickModalCloseButton();
       await filesTable.expectFillingIconVisible("ONLYOFFICE Resume Sample");
+      await page.reload(); // Bug 81446
     });
     await test.step("Open and close pdf form", async () => {
       const context = page.context();
@@ -381,6 +383,7 @@ test.describe("FormFilling base tests", () => {
       await filesTable.contextMenu.clickOption("Start filling");
       await shortTour.clickModalCloseButton();
       await filesTable.expectFillingIconVisible("ONLYOFFICE Resume Sample");
+      await page.reload(); // Bug 81446
     });
 
     await test.step("Open PDF form for filling", async () => {
@@ -501,6 +504,7 @@ test.describe("FormFilling base tests", () => {
       await filesTable.contextMenu.clickOption("Start filling");
       await shortTour.clickModalCloseButton();
       await filesTable.expectFillingIconVisible("ONLYOFFICE Resume Sample");
+      await page.reload(); // Bug 81446
     });
 
     await test.step("Open Edit in context menu - pause submissions dialog appears", async () => {
@@ -549,6 +553,7 @@ test.describe("FormFilling base tests", () => {
       await filesTable.contextMenu.clickOption("Start filling");
       await shortTour.clickModalCloseButton();
       await filesTable.expectFillingIconVisible("ONLYOFFICE Resume Sample");
+      await page.reload(); // Bug 81446
     });
 
     await test.step("Submit the form (first submission)", async () => {
@@ -735,6 +740,7 @@ test.describe("FormFilling base tests", () => {
         formFillingRoomPdfContextMenuOption.startFilling,
       );
       await shortTour.clickModalCloseButton();
+      await page.reload(); // Bug 81446
     });
 
     await test.step("Verify draft label is not visible before opening form", async () => {
