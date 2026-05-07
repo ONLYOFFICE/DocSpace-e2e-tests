@@ -1,5 +1,7 @@
 import { expect, Page } from "@playwright/test";
 import BaseTable from "../common/BaseTable";
+
+const ME_LABEL = ".me-label";
 import {
   TContactType,
   TGroupsContextMenuOption,
@@ -99,6 +101,11 @@ class ContactsTable extends BaseTable {
   async checkEnabledUserExist(value: string) {
     const disabledBadge = await this.getDisabledBadge(value);
     await expect(disabledBadge).not.toBeVisible();
+  }
+
+  async checkMeLabelVisible(name: string) {
+    const row = await this.getRowByNameText(name);
+    await expect(row.locator(ME_LABEL)).toBeVisible();
   }
 }
 
