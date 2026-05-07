@@ -27,7 +27,21 @@ test.describe("Email Checks", () => {
     config.DOCSPACE_OWNER_EMAIL = defaultOwnerEmail.replace("@", "+alias1@");
   });
 
-  test.afterAll(() => {
+  test.afterAll(async () => {
+    const cleanFolder = async (alias: string) => {
+      const aliasEmail = defaultOwnerEmail.replace("@", `+${alias}@`);
+      try {
+        await createMailChecker(aliasEmail).deleteAllMatchingEmails();
+      } catch {
+        // ignore — folder may not exist or already empty
+      }
+    };
+
+    await cleanFolder("alias1");
+    await cleanFolder("alias2");
+    await cleanFolder("invited");
+    await cleanFolder("emailconfirm");
+
     config.DOCSPACE_OWNER_EMAIL = defaultOwnerEmail;
   });
 
@@ -109,7 +123,6 @@ test.describe("Email Checks", () => {
 
     test.beforeEach(async ({ page, api, login }) => {
       const confirmLink = await getOwnerConfirmLink(api.portalDomain);
-      await createMailChecker().deleteAllMatchingEmails();
       profile = new Profile(page);
 
       await page.goto(confirmLink, { waitUntil: "load" });
@@ -143,7 +156,6 @@ test.describe("Email Checks", () => {
 
     test.beforeEach(async ({ page, api, login }) => {
       const confirmLink = await getOwnerConfirmLink(api.portalDomain);
-      await createMailChecker().deleteAllMatchingEmails();
       deletion = new Deletion(page);
 
       await page.goto(confirmLink, { waitUntil: "load" });
@@ -189,7 +201,6 @@ test.describe("Email Checks", () => {
 
     test.beforeEach(async ({ page, api, login }) => {
       const confirmLink = await getOwnerConfirmLink(api.portalDomain);
-      await createMailChecker().deleteAllMatchingEmails();
       contacts = new Contacts(page, api.portalDomain);
 
       await page.goto(confirmLink, { waitUntil: "load" });
@@ -198,10 +209,7 @@ test.describe("Email Checks", () => {
     });
 
     test("Invite user email notification", async () => {
-      const invitedEmail = config.DOCSPACE_OWNER_EMAIL.replace(
-        "+alias1@",
-        "+invited@",
-      );
+      const invitedEmail = defaultOwnerEmail.replace("@", "+invited@");
 
       await test.step("Invite user from contacts", async () => {
         await contacts.inviteUser(
@@ -225,10 +233,7 @@ test.describe("Email Checks", () => {
       api,
       browser,
     }) => {
-      const invitedEmail = config.DOCSPACE_OWNER_EMAIL.replace(
-        "+alias1@",
-        "+emailconfirm@",
-      );
+      const invitedEmail = defaultOwnerEmail.replace("@", "+emailconfirm@");
       let incognitoContext: BrowserContext | null = null;
       let incognitoPage: Page | null = null;
 
@@ -344,15 +349,13 @@ test.describe("Email Checks", () => {
     test("Change email notification", async ({ page, api, login }) => {
       const confirmLink = await getOwnerConfirmLink(api.portalDomain);
       const profile = new Profile(page);
-      const originalEmail = config.DOCSPACE_OWNER_EMAIL;
-      const newEmail = originalEmail.replace("+alias1@", "+alias2@");
+      const newEmail = defaultOwnerEmail.replace("@", "+alias2@");
 
       await page.goto(confirmLink, { waitUntil: "load" });
       await login.loginToPortal();
       await profile.open();
 
-      await test.step("Clean new email inbox and request email change", async () => {
-        await createMailChecker(newEmail).deleteAllMatchingEmails();
+      await test.step("Request email change", async () => {
         await profile.changeEmail(newEmail);
       });
 
@@ -367,7 +370,7 @@ test.describe("Email Checks", () => {
       });
 
       await test.step("Restore original email", async () => {
-        await profile.changeEmail(originalEmail);
+        await profile.changeEmail(config.DOCSPACE_OWNER_EMAIL);
       });
     });
   });

@@ -233,6 +233,11 @@ test.describe("Security tests", () => {
     const roomName = "Custom Room for invitation test";
     const externalEmail = "outsider@guest.test";
 
+    await test.step("Disable allow inviting guests and save", async () => {
+      await security.setAllowInvitingGuests(false);
+      await security.saveInvitationSettings();
+    });
+
     await test.step("Precondition: create a Custom room via API", async () => {
       await apiSdk.rooms.createRoom("owner", {
         title: roomName,

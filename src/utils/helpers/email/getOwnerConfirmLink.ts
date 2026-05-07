@@ -2,7 +2,7 @@ import { createMailChecker } from "@/src/utils/helpers/email/createMailChecker";
 
 export async function getOwnerConfirmLink(
   portalName: string,
-  timeoutSeconds = 120,
+  timeoutSeconds = 180,
 ): Promise<string> {
   const mailChecker = createMailChecker();
   const confirmLink = await mailChecker.extractPortalLink({

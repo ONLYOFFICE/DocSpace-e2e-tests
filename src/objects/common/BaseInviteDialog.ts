@@ -106,7 +106,7 @@ class BaseInviteDialog extends BaseDialog {
   }
 
   async expectInviteAsGuestVisible() {
-    await expect(this.dialog.getByText("Invite as guest")).toBeVisible();
+    await expect(this.dialog.getByText("invite as guest")).toBeVisible();
   }
 }
 
