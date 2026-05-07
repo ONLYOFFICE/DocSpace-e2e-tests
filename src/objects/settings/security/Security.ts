@@ -291,12 +291,24 @@ class Security extends BasePage {
     await this.page.getByText(tab, { exact: true }).click();
   }
 
-  get downloadReportButton() {
-    return this.page.getByRole("button", { name: "Download report" });
+  get loginHistoryDownloadReportButton() {
+    return this.page.locator(
+      '[datatestid="login_history_download_report_button"]',
+    );
   }
 
-  async clickDownloadReport() {
-    await this.downloadReportButton.click();
+  get auditTrailDownloadReportButton() {
+    return this.page.locator(
+      '[datatestid="audit_trail_download_report_button"]',
+    );
+  }
+
+  async clickLoginHistoryDownloadReport() {
+    await this.loginHistoryDownloadReportButton.click();
+  }
+
+  async clickAuditTrailDownloadReport() {
+    await this.auditTrailDownloadReportButton.click();
   }
 
   get inviteContactsCheckbox() {
@@ -327,6 +339,11 @@ class Security extends BasePage {
   }
 
   async saveInvitationSettings() {
+    // Save button stays disabled when state already matches saved value;
+    // skip silently so toggling to current state is a safe no-op.
+    if (!(await this.invitationSettingsSaveButton.isEnabled())) {
+      return;
+    }
     await this.invitationSettingsSaveButton.click();
     await this.dismissToastSafely(toastMessages.settingsUpdated);
   }

@@ -1,12 +1,17 @@
 import { test } from "@/src/fixtures";
 import Security from "@/src/objects/settings/security/Security";
 import MyDocuments from "@/src/objects/files/MyDocuments";
+import { PaymentApi } from "@/src/api/payment";
 
 test.describe("Security: download reports", () => {
   let security: Security;
   let myDocuments: MyDocuments;
+  let paymentApi: PaymentApi;
 
   test.beforeEach(async ({ page, api, login }) => {
+    paymentApi = new PaymentApi(api.apiRequestContext, api.apisystem);
+    await paymentApi.setupPayment();
+
     security = new Security(page);
     myDocuments = new MyDocuments(page, api.portalDomain);
     await login.loginToPortal();
@@ -19,7 +24,7 @@ test.describe("Security: download reports", () => {
     });
 
     await test.step("Click Download report button", async () => {
-      await security.clickDownloadReport();
+      await security.clickLoginHistoryDownloadReport();
     });
 
     await test.step("Verify report appears in My Documents", async () => {
@@ -34,7 +39,7 @@ test.describe("Security: download reports", () => {
     });
 
     await test.step("Click Download report button", async () => {
-      await security.clickDownloadReport();
+      await security.clickAuditTrailDownloadReport();
     });
 
     await test.step("Verify report appears in My Documents", async () => {

@@ -160,9 +160,11 @@ export class Login extends BasePage {
   }
 
   async loginToPortal() {
-    await this.page.goto(`${getPortalUrl(this.portalDomain)}`, {
-      waitUntil: "load",
-    });
+    await expect(async () => {
+      await this.page.goto(`${getPortalUrl(this.portalDomain)}`, {
+        waitUntil: "load",
+      });
+    }).toPass({ timeout: 30000 });
 
     await expect(async () => {
       await this.emailInput.fill(config.DOCSPACE_OWNER_EMAIL);
