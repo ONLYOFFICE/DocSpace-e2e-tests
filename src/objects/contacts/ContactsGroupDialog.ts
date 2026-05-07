@@ -23,16 +23,12 @@ class ContactsGroupDialog extends BaseDialog {
 
   async openAddMembersSelector() {
     await this.dialog.getByText("Add members", { exact: true }).click();
-    await expect(
-      this.page.locator(SELECTOR_ITEM).first(),
-    ).toBeVisible();
+    await expect(this.page.locator(SELECTOR_ITEM).first()).toBeVisible();
   }
 
   async openHeadOfGroupSelector() {
     await this.dialog.getByText("Select", { exact: true }).click();
-    await expect(
-      this.page.locator(SELECTOR_ITEM).first(),
-    ).toBeVisible();
+    await expect(this.page.locator(SELECTOR_ITEM).first()).toBeVisible();
   }
 
   async selectContact(contact: string, doubleClick = false) {

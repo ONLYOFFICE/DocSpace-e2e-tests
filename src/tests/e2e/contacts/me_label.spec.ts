@@ -1,7 +1,6 @@
 import { test } from "@/src/fixtures";
 import Contacts from "@/src/objects/contacts/Contacts";
 import { ADMIN_OWNER_NAME } from "@/src/utils/constants/contacts";
-import { Page } from "puppeteer";
 
 test.describe("Contacts - Me label", () => {
   let contacts: Contacts;
@@ -18,7 +17,7 @@ test.describe("Contacts - Me label", () => {
     });
   });
 
-  test("Me label is shown in info panel", async ({ page }) => {
+  test("Me label is shown in info panel", async () => {
     await test.step("Open info panel", async () => {
       await contacts.infoPanel.open();
     });
