@@ -5,6 +5,7 @@ const MEMBERS_TAB = "0_tab";
 const GROUPS_TAB = "1_tab";
 const GUESTS_TAB = "2_tab";
 const PEOPLE_SELECTOR = "people-selector";
+const SEARCH_INPUT = "selector_search_input";
 const ACCESS_COMBO_BUTTON = '[data-test-id="combo-button"]';
 const SELECT_BUTTON = "selector_submit_button";
 
@@ -28,7 +29,7 @@ class RoomContactsPanel {
   }
 
   private get searchInput() {
-    return this.page.getByPlaceholder("Search");
+    return this.page.getByTestId(SEARCH_INPUT).getByTestId("text-input");
   }
 
   private get selectButton() {

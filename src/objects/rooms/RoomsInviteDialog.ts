@@ -69,7 +69,10 @@ class RoomsInviteDialog extends BaseInviteDialog {
       .locator('[data-test-id="combo-button"]');
     await expect(comboButton).toBeVisible();
     await comboButton.click();
-    await this.page.locator(`[data-key="${role}"]`).click();
+    await this.page
+      .getByTestId(INVITE_ITEM_ACCESS_SELECTOR)
+      .locator(`[data-key="${role}"]`)
+      .click();
   }
 }
 export default RoomsInviteDialog;
