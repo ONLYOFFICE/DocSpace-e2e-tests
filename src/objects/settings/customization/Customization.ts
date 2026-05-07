@@ -18,6 +18,12 @@ class Customization extends BasePage {
   get languageSelector() {
     return this.page.getByTestId("language_and_time_zone_combo_box_language");
   }
+
+  get languageComboButton() {
+    return this.page
+      .getByTestId("language_and_time_zone_combo_box_language")
+      .locator('[data-test-id="combo-button"]');
+  }
   get timezoneSelector() {
     return this.page.getByTestId("language_and_time_zone_combo_box_timezone");
   }
@@ -169,9 +175,7 @@ class Customization extends BasePage {
   }
 
   private async checkGeneralExist() {
-    await expect(this.categoryDescription).toHaveText(
-      /This subsection allows .*/,
-    );
+    await expect(this.languageSelector).toBeVisible();
   }
 
   private async checkBrandingExist() {
@@ -191,7 +195,12 @@ class Customization extends BasePage {
   }
 
   async openTab(tab: "General" | "Branding" | "Appearance") {
-    await this.page.getByText(tab, { exact: true }).click();
+    const tabTestIds: Record<typeof tab, string> = {
+      General: "general_tab",
+      Branding: "branding_tab",
+      Appearance: "appearance_tab",
+    };
+    await this.page.getByTestId(tabTestIds[tab]).click();
 
     switch (tab) {
       case "General":
@@ -210,7 +219,7 @@ class Customization extends BasePage {
 
   async getCurrentLanguage() {
     await this.waitForComboButtonEnabled(this.languageSelector);
-    return this.languageSelector.innerText();
+    return this.languageComboButton.innerText();
   }
 
   async changeLanguage(language: string) {
