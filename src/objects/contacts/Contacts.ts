@@ -331,11 +331,19 @@ class Contacts extends BasePage {
     await this.openTab("Groups");
     await this.navigation.openCreateGroupDialog();
     await this.groupDialog.fillGroupName(groupName);
+    // Last email becomes head of group (required); it stays even if others are removed
+    const headEmail = memberEmails[memberEmails.length - 1];
+    const regularMembers = memberEmails.slice(0, -1);
     await this.groupDialog.openHeadOfGroupSelector();
-    for (const email of memberEmails) {
-      await this.groupDialog.selectContact(email);
-    }
+    await this.groupDialog.selectContact(headEmail);
     await this.groupDialog.submitSelectContacts();
+    if (regularMembers.length > 0) {
+      await this.groupDialog.openAddMembersSelector();
+      for (const email of regularMembers) {
+        await this.groupDialog.selectContact(email);
+      }
+      await this.groupDialog.submitSelectContacts();
+    }
     await this.groupDialog.submitCreateGroup();
     await this.groupDialog.close();
     await this.table.checkRowExist(groupName);
