@@ -2,6 +2,8 @@ import { expect, Page } from "@playwright/test";
 import BaseDialog from "../common/BaseDialog";
 import BaseSelector from "../common/BaseSelector";
 
+const SELECT_GROUP_MANAGER = "select_group_manager";
+
 class ContactsGroupDialog extends BaseDialog {
   private contactSelector: BaseSelector;
 
@@ -26,7 +28,7 @@ class ContactsGroupDialog extends BaseDialog {
   }
 
   async openHeadOfGroupSelector() {
-    await this.dialog.getByText("Select", { exact: true }).click();
+    await this.dialog.getByTestId(SELECT_GROUP_MANAGER).click();
     await expect(
       this.page.locator('[data-testid^="selector-item-"]').first(),
     ).toBeVisible();

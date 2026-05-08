@@ -331,13 +331,14 @@ class Contacts extends BasePage {
     await this.openTab("Groups");
     await this.navigation.openCreateGroupDialog();
     await this.groupDialog.fillGroupName(groupName);
-    await this.groupDialog.openAddMembersSelector();
+    await this.groupDialog.openHeadOfGroupSelector();
     for (const email of memberEmails) {
       await this.groupDialog.selectContact(email);
     }
     await this.groupDialog.submitSelectContacts();
     await this.groupDialog.submitCreateGroup();
     await this.groupDialog.close();
+    await this.table.checkRowExist(groupName);
   }
 
   async deleteGroupByName(groupName: string) {

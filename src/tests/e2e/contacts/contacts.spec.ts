@@ -219,6 +219,18 @@ test.describe(() => {
     });
   });
 
+  test.skip("[Bug 81480] Cannot create group without head of group - error not shown", async () => {
+    await contacts.openTab("Groups");
+    await contacts.navigation.openCreateGroupDialog();
+    await contacts.groupDialog.checkDialogExist();
+    await contacts.groupDialog.fillGroupName("Group Without Head");
+    await contacts.groupDialog.submitCreateGroup();
+    // Expected: dialog stays open and shows a validation error
+    // Actual: request returns 400 and the error is not displayed to the user
+    await contacts.groupDialog.checkDialogExist();
+    await contacts.table.checkRowNotExist("Group Without Head");
+  });
+
   test("Members filter and sort", async () => {
     await contacts.inviteUsers();
 
