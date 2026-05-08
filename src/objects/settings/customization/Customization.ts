@@ -236,6 +236,9 @@ class Customization extends BasePage {
   async changeTimezone(timezone: string) {
     await this.waitForComboButtonEnabled(this.timezoneSelector);
     await this.timezoneSelector.click();
+    await this.page
+      .getByRole("listbox")
+      .waitFor({ state: "attached", timeout: 30000 });
     await this.dropdown.clickOption(timezone);
   }
 
