@@ -34,7 +34,7 @@ test.describe("Customization", () => {
   });
 
   test("Change and save timezone", async () => {
-    await customization.changeTimezone("(UTC+05:00) Maldives Time");
+    await customization.changeTimezone("(UTC+00:00) Troll Time");
     await customization.settingsTitle.click();
     await expect(customization.languageTimeZoneSaveButton).toBeEnabled();
     await customization.languageTimeZoneSaveButton.click();
