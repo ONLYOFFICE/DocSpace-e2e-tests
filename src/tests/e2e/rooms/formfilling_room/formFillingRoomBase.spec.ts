@@ -163,7 +163,6 @@ test.describe("FormFilling base tests", () => {
       await filesTable.contextMenu.clickOption("Start filling");
       await shortTour.clickModalCloseButton();
       await filesTable.expectFillingIconVisible("ONLYOFFICE Resume Sample");
-      await page.reload(); // Bug 81446
     });
 
     // Submit Form
@@ -174,6 +173,8 @@ test.describe("FormFilling base tests", () => {
       await filesTable.contextMenu.clickOption("Fill");
       // Wait for the new page to open
       newPage = await pagePromise;
+      await newPage.waitForLoadState("load");
+      await newPage.reload(); // Bug 81446 - editor may not init if tab is inactive on load
       await newPage.waitForLoadState("load");
       const pdfForm = new FilesPdfForm(newPage);
       const pdfCompleted = new RoomPDFCompleted(newPage);
@@ -255,7 +256,6 @@ test.describe("FormFilling base tests", () => {
       await filesTable.contextMenu.clickOption("Start filling");
       await shortTour.clickModalCloseButton();
       await filesTable.expectFillingIconVisible("ONLYOFFICE Resume Sample");
-      await page.reload(); // Bug 81446
     });
     await test.step("Open and close pdf form", async () => {
       const context = page.context();
@@ -264,6 +264,8 @@ test.describe("FormFilling base tests", () => {
       await filesTable.contextMenu.clickOption("Fill");
       // Wait for the new page to open
       newPage = await pagePromise;
+      await newPage.waitForLoadState("load");
+      await newPage.reload(); // Bug 81446 - editor may not init if tab is inactive on load
       await newPage.waitForLoadState("load");
       const pdfForm = new FilesPdfForm(newPage);
       // Dont fill the form, just close it
@@ -383,7 +385,6 @@ test.describe("FormFilling base tests", () => {
       await filesTable.contextMenu.clickOption("Start filling");
       await shortTour.clickModalCloseButton();
       await filesTable.expectFillingIconVisible("ONLYOFFICE Resume Sample");
-      await page.reload(); // Bug 81446
     });
 
     await test.step("Open PDF form for filling", async () => {
@@ -392,6 +393,8 @@ test.describe("FormFilling base tests", () => {
       await filesTable.openContextMenuForItem("ONLYOFFICE Resume Sample");
       await filesTable.contextMenu.clickOption("Fill");
       newPage = await pagePromise;
+      await newPage.waitForLoadState("load");
+      await newPage.reload(); // Bug 81446 - editor may not init if tab is inactive on load
       await newPage.waitForLoadState("load");
     });
 
@@ -504,7 +507,6 @@ test.describe("FormFilling base tests", () => {
       await filesTable.contextMenu.clickOption("Start filling");
       await shortTour.clickModalCloseButton();
       await filesTable.expectFillingIconVisible("ONLYOFFICE Resume Sample");
-      await page.reload(); // Bug 81446
     });
 
     await test.step("Open Edit in context menu - pause submissions dialog appears", async () => {
@@ -518,6 +520,8 @@ test.describe("FormFilling base tests", () => {
       );
       await pauseDialog.clickEdit();
       editorPage = await pagePromise;
+      await editorPage.waitForLoadState("load");
+      await editorPage.reload(); // Bug 81446 - editor may not init if tab is inactive on load
       await editorPage.waitForLoadState("load");
     });
 
@@ -553,7 +557,6 @@ test.describe("FormFilling base tests", () => {
       await filesTable.contextMenu.clickOption("Start filling");
       await shortTour.clickModalCloseButton();
       await filesTable.expectFillingIconVisible("ONLYOFFICE Resume Sample");
-      await page.reload(); // Bug 81446
     });
 
     await test.step("Submit the form (first submission)", async () => {
@@ -563,6 +566,8 @@ test.describe("FormFilling base tests", () => {
       await filesTable.openContextMenuForItem("ONLYOFFICE Resume Sample");
       await filesTable.contextMenu.clickOption("Fill");
       fillPage = await pagePromise;
+      await fillPage.waitForLoadState("load");
+      await fillPage.reload(); // Bug 81446 - editor may not init if tab is inactive on load
       await fillPage.waitForLoadState("load");
       const pdfForm = new FilesPdfForm(fillPage);
       const completed = await pdfForm.clickSubmitButton();
@@ -740,7 +745,6 @@ test.describe("FormFilling base tests", () => {
         formFillingRoomPdfContextMenuOption.startFilling,
       );
       await shortTour.clickModalCloseButton();
-      await page.reload(); // Bug 81446
     });
 
     await test.step("Verify draft label is not visible before opening form", async () => {
@@ -756,6 +760,8 @@ test.describe("FormFilling base tests", () => {
         formFillingRoomPdfContextMenuOption.fill,
       );
       formPage = await pagePromise;
+      await formPage.waitForLoadState("load");
+      await formPage.reload(); // Bug 81446 - editor may not init if tab is inactive on load
       await formPage.waitForLoadState("load");
       const pdfForm = new FilesPdfForm(formPage);
       await pdfForm.clickCloseButton();

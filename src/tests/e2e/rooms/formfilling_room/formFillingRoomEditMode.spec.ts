@@ -181,7 +181,6 @@ test.describe("FormFilling room - Edit mode", () => {
 
       await test.step("Verify fill icon on file", async () => {
         await filesTable.expectFillingIconVisible("ONLYOFFICE Resume Sample");
-        await page.reload(); // Bug 81446
       });
 
       await test.step("Owner switches form to edit mode", async () => {
@@ -195,6 +194,8 @@ test.describe("FormFilling room - Edit mode", () => {
         const pauseDialog = new PauseSubmissionsDialog(page);
         await pauseDialog.clickEdit();
         const editorPage = await pagePromise;
+        await editorPage.waitForLoadState("load");
+        await editorPage.reload(); // Bug 81446 - editor may not init if tab is inactive on load
         await editorPage.waitForLoadState("load");
         await editorPage.close();
         await page.bringToFront();
@@ -230,7 +231,6 @@ test.describe("FormFilling room - Edit mode", () => {
       );
       await shortTour.clickModalCloseButton();
       await filesTable.expectFillingIconVisible("ONLYOFFICE Resume Sample");
-      await page.reload(); // Bug 81446
     });
 
     await test.step("Open form in editor", async () => {
@@ -242,6 +242,8 @@ test.describe("FormFilling room - Edit mode", () => {
         formFillingRoomPdfContextMenuOption.fill,
       );
       formPage = await pagePromise;
+      await formPage.waitForLoadState("load");
+      await formPage.reload(); // Bug 81446 - editor may not init if tab is inactive on load
       await formPage.waitForLoadState("load");
     });
 

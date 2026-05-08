@@ -68,7 +68,6 @@ test.describe("FormFilling room - Sync responses to XLSX", () => {
     );
     await shortTour.clickModalCloseButton();
     await filesTable.expectFillingIconVisible(FORM_NAME);
-    await page.reload(); // Bug 81446
 
     const pagePromise = page.context().waitForEvent("page", { timeout: 30000 });
     await filesTable.openContextMenuForItem(FORM_NAME);
@@ -76,6 +75,9 @@ test.describe("FormFilling room - Sync responses to XLSX", () => {
       formFillingRoomPdfContextMenuOption.fill,
     );
     const fillPage = await pagePromise;
+    await fillPage.waitForLoadState("load");
+    await fillPage.reload(); // Bug 81446 - editor may not init if tab is inactive on load
+    await fillPage.waitForLoadState("load");
     const pdfForm = new FilesPdfForm(fillPage);
     await pdfForm.waitForEditorFrame();
     await pdfForm.clickSubmitButton();
@@ -261,7 +263,6 @@ test.describe("FormFilling room - Sync responses to XLSX", () => {
       );
       await shortTour.clickModalCloseButton();
       await filesTable.expectFillingIconVisible(FORM_NAME);
-      await page.reload(); // Bug 81446
 
       // Open the form editor (new tab)
       const pagePromise = page
@@ -272,6 +273,9 @@ test.describe("FormFilling room - Sync responses to XLSX", () => {
         formFillingRoomPdfContextMenuOption.fill,
       );
       const fillPage = await pagePromise;
+      await fillPage.waitForLoadState("load");
+      await fillPage.reload(); // Bug 81446 - editor may not init if tab is inactive on load
+      await fillPage.waitForLoadState("load");
 
       // 1st submission
       const pdfForm = new FilesPdfForm(fillPage);

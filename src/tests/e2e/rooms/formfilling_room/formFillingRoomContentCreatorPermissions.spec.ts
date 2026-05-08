@@ -549,7 +549,6 @@ test.describe("FormFilling room - Content creator permissions", () => {
       await myRooms.filesTable.expectFillingIconVisible(
         "ONLYOFFICE Resume Sample",
       );
-      await page.reload(); // Bug 81446
     });
 
     await test.step("Verify 'Stop filling' is visible in context menu for own PDF form", async () => {
@@ -684,7 +683,6 @@ test.describe("FormFilling room - Content creator permissions", () => {
 
     await test.step("Verify editing icon appears on owner's PDF form after start filling", async () => {
       await myRooms.filesTable.expectFillingIconVisible("PDF from device");
-      await page.reload(); // Bug 81446
     });
 
     await test.step("Verify 'Stop filling' is visible in context menu for owner's PDF form", async () => {
