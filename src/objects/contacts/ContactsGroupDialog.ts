@@ -2,7 +2,7 @@ import { expect, Page } from "@playwright/test";
 import BaseDialog from "../common/BaseDialog";
 import BaseSelector from "../common/BaseSelector";
 
-const ME_LABEL = ".me-label";
+const ME_LABEL = '[class*="isMeLabel"]';
 const SELECTOR_ITEM = '[data-testid^="selector-item-"]';
 
 class ContactsGroupDialog extends BaseDialog {

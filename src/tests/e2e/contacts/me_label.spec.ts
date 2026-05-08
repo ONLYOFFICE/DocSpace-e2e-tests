@@ -31,7 +31,7 @@ test.describe("Contacts - Me label", () => {
     });
   });
 
-  test.skip("[Bug 78363] Me label is shown in people selector", async () => {
+  test("Me label is shown in people selector", async () => {
     await test.step("Navigate to Groups tab", async () => {
       await contacts.openTab("Groups");
     });
