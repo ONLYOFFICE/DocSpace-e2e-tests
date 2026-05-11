@@ -30,7 +30,6 @@ export const DEFAULT_TEMPLATE_NAMES: Record<TTemplateFormat, string> = {
   pdf: "Blank Form",
 };
 
-
 class DefaultTemplates {
   private readonly page: Page;
 
@@ -53,28 +52,28 @@ class DefaultTemplates {
   }
 
   async checkRowName(format: TTemplateFormat) {
-    await expect(
-      this.getRow(format).getByTestId(ROW_NAME).first(),
-    ).toHaveText(DEFAULT_TEMPLATE_NAMES[format]);
+    await expect(this.getRow(format).getByTestId(ROW_NAME).first()).toHaveText(
+      DEFAULT_TEMPLATE_NAMES[format],
+    );
   }
 
   async checkBadge(format: TTemplateFormat, text: string) {
-    await expect(
-      this.getRow(format).getByTestId(BADGE_TEXT),
-    ).toContainText(text);
+    await expect(this.getRow(format).getByTestId(BADGE_TEXT)).toContainText(
+      text,
+    );
   }
 
   async checkModifiedInfo(format: TTemplateFormat) {
     // Customized row shows date and file size - contains digits; "Not modified" has none
-    await expect(
-      this.getRow(format).locator(MODIFIED_INFO),
-    ).toContainText(/\d/);
+    await expect(this.getRow(format).locator(MODIFIED_INFO)).toContainText(
+      /\d/,
+    );
   }
 
   async checkNotModifiedInfo(format: TTemplateFormat) {
-    await expect(
-      this.getRow(format).locator(MODIFIED_INFO),
-    ).toContainText("Not modified");
+    await expect(this.getRow(format).locator(MODIFIED_INFO)).toContainText(
+      "Not modified",
+    );
   }
 
   async getTemplateSizeInBytes(format: TTemplateFormat): Promise<number> {

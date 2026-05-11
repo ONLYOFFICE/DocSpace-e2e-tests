@@ -197,7 +197,9 @@ class Customization extends BasePage {
     await this.checkGeneralExist();
   }
 
-  async openTab(tab: "General" | "Branding" | "Appearance" | "Default Templates") {
+  async openTab(
+    tab: "General" | "Branding" | "Appearance" | "Default Templates",
+  ) {
     const tabTestIds: Record<typeof tab, string> = {
       General: "general_tab",
       Branding: "branding_tab",

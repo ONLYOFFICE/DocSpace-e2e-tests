@@ -13,7 +13,7 @@ const PDF_FILE_NAME = "PDF from device";
 test.describe("Settings - Customization: Default Templates", () => {
   let customization: Customization;
 
-  test.beforeEach(async ({ page, api, login }) => {
+  test.beforeEach(async ({ page, login }) => {
     customization = new Customization(page);
     await login.loginToPortal();
     await customization.open();
