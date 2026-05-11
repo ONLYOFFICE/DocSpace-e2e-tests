@@ -2,6 +2,9 @@ import { expect, Page } from "@playwright/test";
 import BaseDialog from "../common/BaseDialog";
 import BaseSelector from "../common/BaseSelector";
 
+const ME_LABEL = '[class*="isMeLabel"]';
+const SELECTOR_ITEM = '[data-testid^="selector-item-"]';
+
 class ContactsGroupDialog extends BaseDialog {
   private contactSelector: BaseSelector;
 
@@ -20,16 +23,12 @@ class ContactsGroupDialog extends BaseDialog {
 
   async openAddMembersSelector() {
     await this.dialog.getByText("Add members", { exact: true }).click();
-    await expect(
-      this.page.locator('[data-testid^="selector-item-"]').first(),
-    ).toBeVisible();
+    await expect(this.page.locator(SELECTOR_ITEM).first()).toBeVisible();
   }
 
   async openHeadOfGroupSelector() {
     await this.dialog.getByText("Select", { exact: true }).click();
-    await expect(
-      this.page.locator('[data-testid^="selector-item-"]').first(),
-    ).toBeVisible();
+    await expect(this.page.locator(SELECTOR_ITEM).first()).toBeVisible();
   }
 
   async selectContact(contact: string, doubleClick = false) {
@@ -78,6 +77,11 @@ class ContactsGroupDialog extends BaseDialog {
 
   async submitEditGroup() {
     await this.dialog.getByText("Save", { exact: true }).click();
+  }
+
+  async checkMeLabelOnContact(name: string) {
+    const item = this.page.locator(SELECTOR_ITEM).filter({ hasText: name });
+    await expect(item.locator(ME_LABEL)).toBeVisible();
   }
 }
 
