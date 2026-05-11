@@ -1,6 +1,8 @@
 import { expect, Page } from "@playwright/test";
 import InfoPanel from "../common/InfoPanel";
 
+const ME_LABEL = "[class*='isMeLabel']";
+
 class ContactsInfoPanel extends InfoPanel {
   constructor(page: Page) {
     super(page);
@@ -37,6 +39,10 @@ class ContactsInfoPanel extends InfoPanel {
       .locator('[data-testid^="selector-item-"]')
       .first();
     await expect(groupMember).toBeVisible();
+  }
+
+  async checkMeLabel() {
+    await expect(this.infoPanel.locator(ME_LABEL)).toBeVisible();
   }
 }
 export default ContactsInfoPanel;
