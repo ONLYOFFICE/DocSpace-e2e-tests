@@ -4,6 +4,7 @@ import BaseSelector from "../common/BaseSelector";
 
 const ME_LABEL = '[class*="isMeLabel"]';
 const SELECTOR_ITEM = '[data-testid^="selector-item-"]';
+const SELECT_GROUP_MANAGER = "select_group_manager";
 
 class ContactsGroupDialog extends BaseDialog {
   private contactSelector: BaseSelector;
@@ -27,8 +28,10 @@ class ContactsGroupDialog extends BaseDialog {
   }
 
   async openHeadOfGroupSelector() {
-    await this.dialog.getByText("Select", { exact: true }).click();
-    await expect(this.page.locator(SELECTOR_ITEM).first()).toBeVisible();
+    await this.dialog.getByTestId(SELECT_GROUP_MANAGER).click();
+    await expect(
+      this.page.locator('[data-testid^="selector-item-"]').first(),
+    ).toBeVisible();
   }
 
   async selectContact(contact: string, doubleClick = false) {
