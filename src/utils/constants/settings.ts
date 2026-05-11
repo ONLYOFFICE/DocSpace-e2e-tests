@@ -108,6 +108,10 @@ const toastMessages = {
   invalidBinding:
     "Invalid binding: SSO urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
 
+  // default templates
+  defaultTemplateRestored: "Default template has been restored.",
+  defaultTemplateApplied: "New default template has been applied.",
+
   // payments
   walletToppedUp: "Wallet has been successfully topped up",
   planUpdated: "Business plan updated",
