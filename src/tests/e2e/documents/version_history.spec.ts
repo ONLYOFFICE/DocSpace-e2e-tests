@@ -85,6 +85,9 @@ test.describe("My Documents: Version History", () => {
       page.context().waitForEvent("page"),
       versionHistory.clickVersionMenuOption(earliestIndex, "Open"),
     ]);
+    await versionPage.waitForLoadState("load");
+    await versionPage.reload(); // Bug 81446 — editor may not init if tab is inactive on load
+    await versionPage.waitForLoadState("load");
     const viewEditor = new DocumentEditor(versionPage);
     viewEditor.setupConsoleCapture();
     await viewEditor.waitForLoad();

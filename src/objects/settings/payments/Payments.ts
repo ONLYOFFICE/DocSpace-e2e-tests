@@ -431,7 +431,10 @@ export class Payments extends BasePage {
     const cardAccordionItem = stripePage.getByTestId("card-accordion-item");
 
     if (await cardAccordionItem.isVisible()) {
-      await cardAccordionItem.click();
+      await expect(async () => {
+        await stripePage.keyboard.press("Escape");
+        await cardAccordionItem.click({ timeout: 3000 });
+      }).toPass({ timeout: 20000 });
     }
 
     await expect(async () => {
@@ -516,7 +519,10 @@ export class Payments extends BasePage {
     const cardAccordionItem = stripePage.getByTestId("card-accordion-item");
 
     if (await cardAccordionItem.isVisible()) {
-      await cardAccordionItem.click();
+      await expect(async () => {
+        await stripePage.keyboard.press("Escape");
+        await cardAccordionItem.click({ timeout: 3000 });
+      }).toPass({ timeout: 20000 });
     }
 
     await expect(async () => {
