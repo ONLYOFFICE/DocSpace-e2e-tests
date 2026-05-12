@@ -231,9 +231,6 @@ test.describe("Settings - Customization: Default Templates", () => {
       await infoPanel.open();
       const docSizeBytes = await infoPanel.getSizeInBytes();
       await infoPanel.checkDocxFileProperties();
-      console.log(
-        `[debug] post-reset doc size: ${docSizeBytes} bytes, custom template was: ${customTemplateSizeBytes} bytes`,
-      );
     });
   });
 
