@@ -243,7 +243,9 @@ class MyRooms extends BasePage {
 
   async openFileInEditorInSameTab(fileName: string): Promise<DocumentEditor> {
     await this.filesTable.openContextMenuForItem(fileName, true);
-    await this.filesTable.contextMenu.clickOption(documentContextMenuOption.edit);
+    await this.filesTable.contextMenu.clickOption(
+      documentContextMenuOption.edit,
+    );
     await this.page.waitForURL(/doceditor/, {
       waitUntil: "load",
       timeout: 30000,

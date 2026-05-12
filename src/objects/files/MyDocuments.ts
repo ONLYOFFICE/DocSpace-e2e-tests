@@ -29,7 +29,8 @@ import {
 } from "@/src/utils/constants/files";
 import { TRoomCreateTitles } from "@/src/utils/constants/rooms";
 
-const CONTEXT_MENU_ENTERED = ".p-contextmenu.p-component.p-contextmenu-enter-done";
+const CONTEXT_MENU_ENTERED =
+  ".p-contextmenu.p-component.p-contextmenu-enter-done";
 
 class MyDocuments extends BasePage {
   private portalDomain: string;
@@ -178,7 +179,9 @@ class MyDocuments extends BasePage {
 
   async openDocumentInSameTab(fileName: string): Promise<DocumentEditor> {
     await this.filesTable.openContextMenuForItem(fileName, true);
-    await this.filesTable.contextMenu.clickOption(documentContextMenuOption.edit);
+    await this.filesTable.contextMenu.clickOption(
+      documentContextMenuOption.edit,
+    );
     await this.page.waitForURL(/doceditor/, {
       waitUntil: "load",
       timeout: 30000,
@@ -190,7 +193,9 @@ class MyDocuments extends BasePage {
 
   async openSpreadsheetInSameTab(fileName: string): Promise<SpreadsheetEditor> {
     await this.filesTable.openContextMenuForItem(fileName, true);
-    await this.filesTable.contextMenu.clickOption(documentContextMenuOption.edit);
+    await this.filesTable.contextMenu.clickOption(
+      documentContextMenuOption.edit,
+    );
     await this.page.waitForURL(/doceditor/, {
       waitUntil: "load",
       timeout: 30000,
@@ -204,7 +209,9 @@ class MyDocuments extends BasePage {
     fileName: string,
   ): Promise<PresentationEditor> {
     await this.filesTable.openContextMenuForItem(fileName, true);
-    await this.filesTable.contextMenu.clickOption(documentContextMenuOption.edit);
+    await this.filesTable.contextMenu.clickOption(
+      documentContextMenuOption.edit,
+    );
     await this.page.waitForURL(/doceditor/, {
       waitUntil: "load",
       timeout: 30000,
@@ -321,7 +328,9 @@ class MyDocuments extends BasePage {
 
   async openPdfFormInSameTab(fileName: string): Promise<PdfFormEditor> {
     await this.filesTable.openContextMenuForItem(fileName, true);
-    await this.filesTable.contextMenu.clickOption(documentContextMenuOption.edit);
+    await this.filesTable.contextMenu.clickOption(
+      documentContextMenuOption.edit,
+    );
     await this.page.waitForURL(/doceditor/, {
       waitUntil: "load",
       timeout: 30000,

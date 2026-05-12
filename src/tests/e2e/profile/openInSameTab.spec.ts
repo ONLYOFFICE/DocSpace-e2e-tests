@@ -69,24 +69,20 @@ test.describe("Profile - Open ONLYOFFICE editor in same tab", () => {
     });
   });
 
-  test(
-    "Setting is personal and does not apply to other users",
-    async ({ apiSdk }) => {
-      await test.step("Logout and login as another user", async () => {
-        const { userData } = await apiSdk.profiles.addMember("owner", "User");
-        await login.logout();
-        await login.loginWithCredentials(userData.email, userData.password);
-      });
+  test("Setting is personal and does not apply to other users", async ({
+    apiSdk,
+  }) => {
+    await test.step("Logout and login as another user", async () => {
+      const { userData } = await apiSdk.profiles.addMember("owner", "User");
+      await login.logout();
+      await login.loginWithCredentials(userData.email, userData.password);
+    });
 
-      await test.step(
-        "Verify open in same tab is disabled for the other user",
-        async () => {
-          await profileFileManagement.open();
-          await profileFileManagement.expectOpenInSameTabEnabled(false);
-        },
-      );
-    },
-  );
+    await test.step("Verify open in same tab is disabled for the other user", async () => {
+      await profileFileManagement.open();
+      await profileFileManagement.expectOpenInSameTabEnabled(false);
+    });
+  });
 
   test("Setting persists after re-login", async ({ page }) => {
     await test.step("Logout and log in again as the same user", async () => {
@@ -132,37 +128,37 @@ test.describe("Profile - Open ONLYOFFICE editor in same tab", () => {
     });
   });
 
-  test(
-    "File in Collaboration room opens in same tab",
-    async ({ page, apiSdk }) => {
-      const ROOM_NAME = "Collaboration Room";
-      const FILE_NAME = "Room Document";
+  test("File in Collaboration room opens in same tab", async ({
+    page,
+    apiSdk,
+  }) => {
+    const ROOM_NAME = "Collaboration Room";
+    const FILE_NAME = "Room Document";
 
-      await test.step("Create Collaboration room with a file via API", async () => {
-        const roomResponse = await apiSdk.rooms.createRoom("owner", {
-          title: ROOM_NAME,
-          roomType: "EditingRoom",
-        });
-        const roomBody = await roomResponse.json();
-        const roomId = roomBody.response.id;
-        await apiSdk.files.createFile("owner", roomId, { title: FILE_NAME });
+    await test.step("Create Collaboration room with a file via API", async () => {
+      const roomResponse = await apiSdk.rooms.createRoom("owner", {
+        title: ROOM_NAME,
+        roomType: "EditingRoom",
       });
+      const roomBody = await roomResponse.json();
+      const roomId = roomBody.response.id;
+      await apiSdk.files.createFile("owner", roomId, { title: FILE_NAME });
+    });
 
-      await test.step("Navigate to room", async () => {
-        await myRooms.openWithoutEmptyCheck();
-        await myRooms.roomsTable.openRoomByName(ROOM_NAME);
-      });
+    await test.step("Navigate to room", async () => {
+      await myRooms.openWithoutEmptyCheck();
+      await myRooms.roomsTable.openRoomByName(ROOM_NAME);
+    });
 
-      await test.step("Open file in room via context menu", async () => {
-        await myRooms.openFileInEditorInSameTab(FILE_NAME);
-      });
+    await test.step("Open file in room via context menu", async () => {
+      await myRooms.openFileInEditorInSameTab(FILE_NAME);
+    });
 
-      await test.step("Verify editor opened in same tab with no new tabs", async () => {
-        await expect(page).toHaveURL(/doceditor/);
-        expect(page.context().pages()).toHaveLength(1);
-      });
-    },
-  );
+    await test.step("Verify editor opened in same tab with no new tabs", async () => {
+      await expect(page).toHaveURL(/doceditor/);
+      expect(page.context().pages()).toHaveLength(1);
+    });
+  });
 
   test.describe("Opening existing files", () => {
     test("Document sample opens in same tab", async ({ page }) => {
