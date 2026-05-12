@@ -431,8 +431,6 @@ export class Payments extends BasePage {
     const cardAccordionItem = stripePage.getByTestId("card-accordion-item");
 
     if (await cardAccordionItem.isVisible()) {
-      // AddressAutocomplete dropdown may still intercept clicks in Firefox;
-      // retry click — Escape will eventually close it on a fresh attempt.
       await expect(async () => {
         await stripePage.keyboard.press("Escape");
         await cardAccordionItem.click({ timeout: 3000 });
@@ -521,8 +519,6 @@ export class Payments extends BasePage {
     const cardAccordionItem = stripePage.getByTestId("card-accordion-item");
 
     if (await cardAccordionItem.isVisible()) {
-      // AddressAutocomplete dropdown may still intercept clicks in Firefox;
-      // retry click — Escape will eventually close it on a fresh attempt.
       await expect(async () => {
         await stripePage.keyboard.press("Escape");
         await cardAccordionItem.click({ timeout: 3000 });
