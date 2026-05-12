@@ -4,15 +4,18 @@ import { expect, Page, Locator } from "@playwright/test";
 import { BaseDropdown } from "@/src/objects/common/BaseDropdown";
 import path from "path";
 import fs from "fs";
+import DefaultTemplates from "./DefaultTemplates";
 
 class Customization extends BasePage {
   protected dropdown: BaseDropdown;
+  defaultTemplates: DefaultTemplates;
 
   constructor(page: Page) {
     super(page);
     this.dropdown = new BaseDropdown(page, {
       menu: this.page.getByRole("listbox"),
     });
+    this.defaultTemplates = new DefaultTemplates(page);
   }
 
   get languageSelector() {
@@ -194,11 +197,14 @@ class Customization extends BasePage {
     await this.checkGeneralExist();
   }
 
-  async openTab(tab: "General" | "Branding" | "Appearance") {
+  async openTab(
+    tab: "General" | "Branding" | "Appearance" | "Default Templates",
+  ) {
     const tabTestIds: Record<typeof tab, string> = {
       General: "general_tab",
       Branding: "branding_tab",
       Appearance: "appearance_tab",
+      "Default Templates": "default-templates_tab",
     };
     await this.page.getByTestId(tabTestIds[tab]).click();
 
@@ -211,6 +217,9 @@ class Customization extends BasePage {
         break;
       case "Appearance":
         await this.checkAppearanceExist();
+        break;
+      case "Default Templates":
+        await this.defaultTemplates.checkAllRowsVisible();
         break;
       default:
         throw new Error("Invalid tab");
