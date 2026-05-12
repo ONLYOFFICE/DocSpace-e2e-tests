@@ -203,14 +203,10 @@ test.describe("Settings - Customization: Default Templates", () => {
     const DOC_NAME = "Post-Reset Document";
     const myDocuments = new MyDocuments(page, api.portalDomain);
     const infoPanel = new InfoPanel(page);
-    let customTemplateSizeBytes: number;
-
-    await test.step("Upload custom DOCX template and record its size", async () => {
+    await test.step("Upload custom DOCX template", async () => {
       await customization.defaultTemplates.uploadFromDevice("docx", DOCX_FILE);
       await customization.removeToast(toastMessages.defaultTemplateApplied);
       await customization.defaultTemplates.checkBadge("docx", "Customized");
-      customTemplateSizeBytes =
-        await customization.defaultTemplates.getTemplateSizeInBytes("docx");
     });
 
     await test.step("Reset DOCX template to default", async () => {
@@ -226,10 +222,9 @@ test.describe("Settings - Customization: Default Templates", () => {
       await myDocuments.filesTable.checkRowExist(DOC_NAME);
     });
 
-    await test.step("Verify document is valid DOCX and log size", async () => {
+    await test.step("Verify document is valid DOCX", async () => {
       await myDocuments.filesTable.selectRow(DOC_NAME);
       await infoPanel.open();
-      const docSizeBytes = await infoPanel.getSizeInBytes();
       await infoPanel.checkDocxFileProperties();
     });
   });
