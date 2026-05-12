@@ -452,6 +452,7 @@ test.describe("FormFilling room - Form filler permissions", () => {
         ),
       ]);
       await pdfPage.waitForLoadState("load");
+      await pdfPage.reload({ waitUntil: "load" }); // Bug 81446
       pdfForm = new FilesPdfForm(pdfPage);
       await pdfForm.waitForEditorFrame();
       await expect(pdfForm.submitButton).toBeVisible({ timeout: 60000 });
@@ -541,6 +542,7 @@ test.describe("FormFilling room - Form filler permissions", () => {
         ),
       ]);
       await pdfPage.waitForLoadState("load");
+      await pdfPage.reload({ waitUntil: "load" }); // Bug 81446
       pdfForm = new FilesPdfForm(pdfPage);
       await pdfForm.waitForEditorFrame();
       await expect(pdfForm.submitButton).toBeVisible({ timeout: 60000 });

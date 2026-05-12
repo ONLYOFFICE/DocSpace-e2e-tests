@@ -621,6 +621,7 @@ test.describe("FormFilling room - Room manager permissions", () => {
         ),
       ]);
       await pdfPage.waitForLoadState("load");
+      await pdfPage.reload({ waitUntil: "load" }); // Bug 81446
       await pdfPage.waitForSelector('iframe[name="frameEditor"]', {
         state: "attached",
         timeout: 60000,

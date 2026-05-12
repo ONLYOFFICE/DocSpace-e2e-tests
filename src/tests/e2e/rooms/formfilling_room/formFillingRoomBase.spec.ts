@@ -618,6 +618,7 @@ test.describe("FormFilling base tests", () => {
       await filesTable.contextMenu.clickOption("Fill");
       fillPage = await pagePromise;
       await fillPage.waitForLoadState("load");
+      await fillPage.reload({ waitUntil: "load" }); // Bug 81446
       const pdfForm = new FilesPdfForm(fillPage);
       const completed = await pdfForm.clickSubmitButton();
       await completed.chooseBackToRoom();
