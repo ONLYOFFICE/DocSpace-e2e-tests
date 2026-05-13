@@ -41,6 +41,15 @@ const DETAILS_AUTHOR_LINK = "info_panel_details_author_link";
 const MEMBERS_LIST_ITEM = ".members-list-item";
 const MEMBER_NAME_WRAPPER = ".name-wrapper";
 const MEMBER_ROLE_WRAPPER = ".role-wrapper";
+const USER_ROLE_COMBOBOX_PANEL = "info_panel_members_user_role_combobox";
+
+export type FileShareRole =
+  | "full-access"
+  | "editing"
+  | "review"
+  | "commenting"
+  | "viewing"
+  | "deny-access";
 
 class InfoPanel {
   protected page: Page;
@@ -386,6 +395,26 @@ class InfoPanel {
       has: this.page.locator(MEMBER_NAME_WRAPPER, { hasText: name }),
     });
     await expect(member).not.toBeVisible();
+  }
+
+  async changeUserShareRole(userName: string, role: FileShareRole) {
+    const member = this.page.locator(MEMBERS_LIST_ITEM).filter({
+      has: this.page.locator(MEMBER_NAME_WRAPPER, { hasText: userName }),
+    });
+    await member.locator(SHARED_LINK_COMBOBOX_ACCESS).click();
+    await this.page.getByTestId(`access_right_option_${role}`).click();
+  }
+
+  async removeUserFromSharing(userName: string) {
+    const member = this.page.locator(MEMBERS_LIST_ITEM).filter({
+      has: this.page.locator(MEMBER_NAME_WRAPPER, { hasText: userName }),
+    });
+    await member.getByTestId(USER_ROLE_COMBOBOX_PANEL).click();
+    await this.page.getByTestId("access_right_option_remove").click();
+  }
+
+  async checkNoSharedLinks() {
+    await expect(this.sharedLinksAvatar).toHaveCount(0);
   }
 }
 

@@ -169,4 +169,225 @@ test.describe("Document sharing", () => {
       await infoPanel.checkUserHasAccess(userName);
     });
   });
+
+  test("Share file with user and set Editing access", async ({ apiSdk }) => {
+    let userName: string;
+
+    await test.step("Create user via API", async () => {
+      const { userData } = await apiSdk.profiles.addMember("owner", "User");
+      userName = `${userData.firstName} ${userData.lastName}`;
+    });
+
+    await test.step("Open sharing settings for document", async () => {
+      await myDocuments.filesTable.openContextMenuForItem("TestDocument");
+      await myDocuments.filesTable.contextMenu.clickSubmenuOption(
+        "Share",
+        "Sharing settings",
+      );
+      await infoPanel.checkShareExist();
+    });
+
+    await test.step("Add user and set Editing access", async () => {
+      await infoPanel.addUserToShare(userName);
+      await infoPanel.checkMemberInList(userName);
+      await infoPanel.changeUserShareRole(userName, "editing");
+    });
+
+    await test.step("Verify user has Editing role", async () => {
+      await infoPanel.checkMemberHasRole(userName, "Editing");
+    });
+  });
+
+  test("Share file with user and set Review access", async ({ apiSdk }) => {
+    let userName: string;
+
+    await test.step("Create user via API", async () => {
+      const { userData } = await apiSdk.profiles.addMember("owner", "User");
+      userName = `${userData.firstName} ${userData.lastName}`;
+    });
+
+    await test.step("Open sharing settings for document", async () => {
+      await myDocuments.filesTable.openContextMenuForItem("TestDocument");
+      await myDocuments.filesTable.contextMenu.clickSubmenuOption(
+        "Share",
+        "Sharing settings",
+      );
+      await infoPanel.checkShareExist();
+    });
+
+    await test.step("Add user and set Review access", async () => {
+      await infoPanel.addUserToShare(userName);
+      await infoPanel.checkMemberInList(userName);
+      await infoPanel.changeUserShareRole(userName, "review");
+    });
+
+    await test.step("Verify user has Review role", async () => {
+      await infoPanel.checkMemberHasRole(userName, "Review");
+    });
+  });
+
+  test("Share file with user and set Read only access", async ({ apiSdk }) => {
+    let userName: string;
+
+    await test.step("Create user via API", async () => {
+      const { userData } = await apiSdk.profiles.addMember("owner", "User");
+      userName = `${userData.firstName} ${userData.lastName}`;
+    });
+
+    await test.step("Open sharing settings for document", async () => {
+      await myDocuments.filesTable.openContextMenuForItem("TestDocument");
+      await myDocuments.filesTable.contextMenu.clickSubmenuOption(
+        "Share",
+        "Sharing settings",
+      );
+      await infoPanel.checkShareExist();
+    });
+
+    await test.step("Add user and set Read only access", async () => {
+      await infoPanel.addUserToShare(userName);
+      await infoPanel.checkMemberInList(userName);
+      await infoPanel.changeUserShareRole(userName, "viewing");
+    });
+
+    await test.step("Verify user has Read only role", async () => {
+      await infoPanel.checkMemberHasRole(userName, "Read only");
+    });
+  });
+
+  test("Share file with user and set Full access", async ({ apiSdk }) => {
+    let userName: string;
+
+    await test.step("Create user via API", async () => {
+      const { userData } = await apiSdk.profiles.addMember("owner", "User");
+      userName = `${userData.firstName} ${userData.lastName}`;
+    });
+
+    await test.step("Open sharing settings for document", async () => {
+      await myDocuments.filesTable.openContextMenuForItem("TestDocument");
+      await myDocuments.filesTable.contextMenu.clickSubmenuOption(
+        "Share",
+        "Sharing settings",
+      );
+      await infoPanel.checkShareExist();
+    });
+
+    await test.step("Add user and set Full access", async () => {
+      await infoPanel.addUserToShare(userName);
+      await infoPanel.checkMemberInList(userName);
+      await infoPanel.changeUserShareRole(userName, "full-access");
+    });
+
+    await test.step("Verify user has Full access role", async () => {
+      await infoPanel.checkMemberHasRole(userName, "Full access");
+    });
+  });
+
+  test("Share file with user and set Comment access", async ({ apiSdk }) => {
+    let userName: string;
+
+    await test.step("Create user via API", async () => {
+      const { userData } = await apiSdk.profiles.addMember("owner", "User");
+      userName = `${userData.firstName} ${userData.lastName}`;
+    });
+
+    await test.step("Open sharing settings for document", async () => {
+      await myDocuments.filesTable.openContextMenuForItem("TestDocument");
+      await myDocuments.filesTable.contextMenu.clickSubmenuOption(
+        "Share",
+        "Sharing settings",
+      );
+      await infoPanel.checkShareExist();
+    });
+
+    await test.step("Add user and set Comment access", async () => {
+      await infoPanel.addUserToShare(userName);
+      await infoPanel.checkMemberInList(userName);
+      await infoPanel.changeUserShareRole(userName, "commenting");
+    });
+
+    await test.step("Verify user has Comment role", async () => {
+      await infoPanel.checkMemberHasRole(userName, "Comment");
+    });
+  });
+
+  test("Deny user access to shared file", async ({ apiSdk }) => {
+    let userName: string;
+
+    await test.step("Create user via API", async () => {
+      const { userData } = await apiSdk.profiles.addMember("owner", "User");
+      userName = `${userData.firstName} ${userData.lastName}`;
+    });
+
+    await test.step("Open sharing settings and add user", async () => {
+      await myDocuments.filesTable.openContextMenuForItem("TestDocument");
+      await myDocuments.filesTable.contextMenu.clickSubmenuOption(
+        "Share",
+        "Sharing settings",
+      );
+      await infoPanel.checkShareExist();
+      await infoPanel.addUserToShare(userName);
+      await infoPanel.checkMemberInList(userName);
+    });
+
+    await test.step("Deny user access", async () => {
+      await infoPanel.changeUserShareRole(userName, "deny-access");
+    });
+
+    await test.step("Verify user access is denied", async () => {
+      await infoPanel.checkMemberHasRole(userName, "Deny access");
+    });
+  });
+
+  test("Remove user from file sharing", async ({ apiSdk }) => {
+    let userName: string;
+
+    await test.step("Create user via API", async () => {
+      const { userData } = await apiSdk.profiles.addMember("owner", "User");
+      userName = `${userData.firstName} ${userData.lastName}`;
+    });
+
+    await test.step("Open sharing settings and add user", async () => {
+      await myDocuments.filesTable.openContextMenuForItem("TestDocument");
+      await myDocuments.filesTable.contextMenu.clickSubmenuOption(
+        "Share",
+        "Sharing settings",
+      );
+      await infoPanel.checkShareExist();
+      await infoPanel.addUserToShare(userName);
+      await infoPanel.checkMemberInList(userName);
+    });
+
+    await test.step("Remove user from sharing", async () => {
+      await infoPanel.removeUserFromSharing(userName);
+    });
+
+    await test.step("Verify user is no longer in sharing list", async () => {
+      await infoPanel.checkMemberNotInList(userName);
+    });
+  });
+
+  test("Delete file shared link", async ({ page }) => {
+    await test.step("Open sharing settings and create external link", async () => {
+      await myDocuments.filesTable.openContextMenuForItem("TestDocument");
+      await myDocuments.filesTable.contextMenu.clickSubmenuOption(
+        "Share",
+        "Sharing settings",
+      );
+      await infoPanel.checkShareExist();
+      const linkPromise = waitForShareLinkResponse(page);
+      await infoPanel.createFirstSharedLink();
+      await linkPromise;
+      await myDocuments.dismissToastSafely("Link copied to clipboard");
+      await infoPanel.checkSharedLinkCreated();
+    });
+
+    await test.step("Delete shared link via context menu", async () => {
+      await infoPanel.openLinkContextMenu();
+      await infoPanel.clickDeleteLink();
+    });
+
+    await test.step("Verify link is deleted", async () => {
+      await infoPanel.checkNoSharedLinks();
+    });
+  });
 });
