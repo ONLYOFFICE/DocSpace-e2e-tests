@@ -7,8 +7,10 @@ class BaseDialog {
 
   constructor(page: Page) {
     this.page = page;
-    // Workaround: two modals share data-testid="modal-dialog" in DOM
-    this.dialog = this.page.getByTestId("modal-dialog").last();
+    // Workaround: two modals share testid/id in DOM
+    this.dialog = this.page
+      .locator('#modal-dialog, [data-testid="modal-dialog"]')
+      .last();
     this.dialogHeader = this.dialog.getByTestId("aside-header");
   }
 
