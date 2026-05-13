@@ -3,7 +3,7 @@ import { expect, Page } from "@playwright/test";
 const COPY_PUBLIC_LINK_BUTTON = "created_pdf_form_dialog_copy_public_link";
 const CLOSE_BUTTON = "aside_header_close_icon_button";
 
-class CreatedPdfFormDialog {
+class PdfFormModal {
   private page: Page;
 
   constructor(page: Page) {
@@ -40,4 +40,4 @@ class CreatedPdfFormDialog {
   }
 }
 
-export default CreatedPdfFormDialog;
+export default PdfFormModal;
