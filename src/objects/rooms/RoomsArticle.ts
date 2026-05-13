@@ -14,7 +14,8 @@ class RoomsArticle extends BaseArticle {
     return this.articleContainer.getByTestId(NEW_ROOM_BUTTON);
   }
   private get dialogHeader() {
-    return this.page.locator(DIALOG_HEADER).filter({ hasText: DIALOG_TITLE });
+    // Workaround: two modals share data-testid in DOM
+    return this.page.getByTestId("aside-header").last();
   }
 
   async openCreateDialog() {

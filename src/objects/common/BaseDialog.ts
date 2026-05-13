@@ -1,7 +1,5 @@
 import { expect, Locator, Page } from "@playwright/test";
 
-const MODAL_DIALOG = "#modal-dialog";
-
 class BaseDialog {
   protected page: Page;
   protected dialog: Locator;
@@ -9,7 +7,8 @@ class BaseDialog {
 
   constructor(page: Page) {
     this.page = page;
-    this.dialog = this.page.locator(MODAL_DIALOG);
+    // Workaround: two modals share data-testid="modal-dialog" in DOM
+    this.dialog = this.page.getByTestId("modal-dialog").last();
     this.dialogHeader = this.dialog.getByTestId("aside-header");
   }
 

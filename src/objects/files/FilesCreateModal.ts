@@ -1,6 +1,5 @@
 import { expect, Page } from "@playwright/test";
 
-const MODAL_DIALOG = "#modal-dialog";
 const CREATE_TEXT_INPUT = "#create-text-input";
 const CREATE_BUTTON = ".modal-footer button[type='submit']";
 
@@ -12,7 +11,8 @@ class FilesCreateModal {
   }
 
   private get modal() {
-    return this.page.locator(MODAL_DIALOG);
+    // Workaround: two modals share data-testid="modal-dialog" in DOM
+    return this.page.getByTestId("modal-dialog").last();
   }
 
   private get createTextInput() {
