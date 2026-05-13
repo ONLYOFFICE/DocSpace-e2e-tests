@@ -219,16 +219,26 @@ test.describe(() => {
     });
   });
 
-  test.skip("[Bug 81480] Cannot create group without head of group - error not shown", async () => {
+  test("Cannot create group without head of group - Create button is disabled", async () => {
     await contacts.openTab("Groups");
     await contacts.navigation.openCreateGroupDialog();
     await contacts.groupDialog.checkDialogExist();
-    await contacts.groupDialog.fillGroupName("Group Without Head");
-    await contacts.groupDialog.submitCreateGroup();
-    // Expected: dialog stays open and shows a validation error
-    // Actual: request returns 400 and the error is not displayed to the user
-    await contacts.groupDialog.checkDialogExist();
-    await contacts.table.checkRowNotExist("Group Without Head");
+
+    await test.step("Create button is disabled with no name and no head", async () => {
+      await contacts.groupDialog.expectCreateButtonDisabled();
+    });
+
+    await test.step("Create button is disabled with name but no head", async () => {
+      await contacts.groupDialog.fillGroupName("Group Without Head");
+      await contacts.groupDialog.expectCreateButtonDisabled();
+    });
+
+    await test.step("Create button is disabled with members added but still no head", async () => {
+      await contacts.groupDialog.openAddMembersSelector();
+      await contacts.groupDialog.selectContact(ADMIN_OWNER_NAME);
+      await contacts.groupDialog.submitSelectContacts();
+      await contacts.groupDialog.expectCreateButtonDisabled();
+    });
   });
 
   test("Members filter and sort", async () => {
