@@ -29,6 +29,9 @@ import {
 } from "@/src/utils/constants/files";
 import { TRoomCreateTitles } from "@/src/utils/constants/rooms";
 
+const CONTEXT_MENU_ENTERED =
+  ".p-contextmenu.p-component.p-contextmenu-enter-done";
+
 class MyDocuments extends BasePage {
   private portalDomain: string;
 
@@ -174,6 +177,50 @@ class MyDocuments extends BasePage {
     return new DocumentEditor(editorPage);
   }
 
+  async openDocumentInSameTab(fileName: string): Promise<DocumentEditor> {
+    await this.filesTable.openContextMenuForItem(fileName, true);
+    await this.filesTable.contextMenu.clickOption(
+      documentContextMenuOption.edit,
+    );
+    await this.page.waitForURL(/doceditor/, {
+      waitUntil: "load",
+      timeout: 30000,
+    });
+    const editor = new DocumentEditor(this.page);
+    await editor.waitForLoad();
+    return editor;
+  }
+
+  async openSpreadsheetInSameTab(fileName: string): Promise<SpreadsheetEditor> {
+    await this.filesTable.openContextMenuForItem(fileName, true);
+    await this.filesTable.contextMenu.clickOption(
+      documentContextMenuOption.edit,
+    );
+    await this.page.waitForURL(/doceditor/, {
+      waitUntil: "load",
+      timeout: 30000,
+    });
+    const editor = new SpreadsheetEditor(this.page);
+    await editor.waitForLoad();
+    return editor;
+  }
+
+  async openPresentationInSameTab(
+    fileName: string,
+  ): Promise<PresentationEditor> {
+    await this.filesTable.openContextMenuForItem(fileName, true);
+    await this.filesTable.contextMenu.clickOption(
+      documentContextMenuOption.edit,
+    );
+    await this.page.waitForURL(/doceditor/, {
+      waitUntil: "load",
+      timeout: 30000,
+    });
+    const editor = new PresentationEditor(this.page);
+    await editor.waitForLoad();
+    return editor;
+  }
+
   async createDocumentAndOpenEditor(fileName = "Document") {
     await expect(async () => {
       await this.filesNavigation.openCreateDropdown();
@@ -189,6 +236,108 @@ class MyDocuments extends BasePage {
     ]);
     await editorPage.waitForLoadState("load");
     return new DocumentEditor(editorPage);
+  }
+
+  async createDocumentAndOpenEditorInSameTab(fileName = "Document") {
+    await expect(async () => {
+      await this.filesNavigation.openCreateDropdown();
+      await this.page
+        .locator(CONTEXT_MENU_ENTERED)
+        .waitFor({ state: "visible" });
+      await this.filesNavigation.selectCreateAction(
+        DOC_ACTIONS.CREATE_DOCUMENT,
+      );
+      await this.filesNavigation.modal.checkModalExist();
+    }).toPass({ timeout: 20000 });
+    await this.filesNavigation.modal.fillCreateTextInput(fileName);
+    await this.filesNavigation.modal.clickCreateButton();
+    await this.page.waitForURL(/doceditor/, {
+      waitUntil: "load",
+      timeout: 30000,
+    });
+    const editor = new DocumentEditor(this.page);
+    await editor.waitForLoad();
+    return editor;
+  }
+
+  async createSpreadsheetAndOpenEditorInSameTab(fileName = "Spreadsheet") {
+    await expect(async () => {
+      await this.filesNavigation.openCreateDropdown();
+      await this.page
+        .locator(CONTEXT_MENU_ENTERED)
+        .waitFor({ state: "visible" });
+      await this.filesNavigation.selectCreateAction(
+        DOC_ACTIONS.CREATE_SPREADSHEET,
+      );
+      await this.filesNavigation.modal.checkModalExist();
+    }).toPass({ timeout: 20000 });
+    await this.filesNavigation.modal.fillCreateTextInput(fileName);
+    await this.filesNavigation.modal.clickCreateButton();
+    await this.page.waitForURL(/doceditor/, {
+      waitUntil: "load",
+      timeout: 30000,
+    });
+    const editor = new SpreadsheetEditor(this.page);
+    await editor.waitForLoad();
+    return editor;
+  }
+
+  async createPresentationAndOpenEditorInSameTab(fileName = "Presentation") {
+    await expect(async () => {
+      await this.filesNavigation.openCreateDropdown();
+      await this.page
+        .locator(CONTEXT_MENU_ENTERED)
+        .waitFor({ state: "visible" });
+      await this.filesNavigation.selectCreateAction(
+        DOC_ACTIONS.CREATE_PRESENTATION,
+      );
+      await this.filesNavigation.modal.checkModalExist();
+    }).toPass({ timeout: 20000 });
+    await this.filesNavigation.modal.fillCreateTextInput(fileName);
+    await this.filesNavigation.modal.clickCreateButton();
+    await this.page.waitForURL(/doceditor/, {
+      waitUntil: "load",
+      timeout: 30000,
+    });
+    const editor = new PresentationEditor(this.page);
+    await editor.waitForLoad();
+    return editor;
+  }
+
+  async createPdfFormAndOpenEditorInSameTab(fileName = "PDF Form") {
+    await expect(async () => {
+      await this.filesNavigation.openCreateDropdown();
+      await this.page
+        .locator(CONTEXT_MENU_ENTERED)
+        .waitFor({ state: "visible" });
+      await this.filesNavigation.selectCreateAction(
+        DOC_ACTIONS.CREATE_PDF_BLANK,
+      );
+      await this.filesNavigation.modal.checkModalExist();
+    }).toPass({ timeout: 20000 });
+    await this.filesNavigation.modal.fillCreateTextInput(fileName);
+    await this.filesNavigation.modal.clickCreateButton();
+    await this.page.waitForURL(/doceditor/, {
+      waitUntil: "load",
+      timeout: 30000,
+    });
+    const editor = new PdfFormEditor(this.page);
+    await editor.waitForLoad();
+    return editor;
+  }
+
+  async openPdfFormInSameTab(fileName: string): Promise<PdfFormEditor> {
+    await this.filesTable.openContextMenuForItem(fileName, true);
+    await this.filesTable.contextMenu.clickOption(
+      documentContextMenuOption.edit,
+    );
+    await this.page.waitForURL(/doceditor/, {
+      waitUntil: "load",
+      timeout: 30000,
+    });
+    const editor = new PdfFormEditor(this.page);
+    await editor.waitForLoad();
+    return editor;
   }
 
   async createSpreadsheetAndOpenEditor(fileName = "Spreadsheet") {

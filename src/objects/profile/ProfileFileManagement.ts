@@ -2,6 +2,7 @@ import { expect, Page } from "@playwright/test";
 import { getPortalUrl } from "../../../config";
 
 const ROOM_GROUPING_TOGGLE = "room_grouping_toggle_button";
+const OPEN_SAME_TAB_TOGGLE = "open_same_tab_toggle_button";
 const DEFAULT_HOMEPAGE_COMBO = "default_homepage_combobox";
 const DEFAULT_HOMEPAGE_DROPDOWN =
   '[data-testid="default_homepage_combobox_dropdown"]';
@@ -34,6 +35,25 @@ class ProfileFileManagement {
 
   async toggleRoomGrouping() {
     await this.page.getByTestId(ROOM_GROUPING_TOGGLE).click();
+  }
+
+  async toggleOpenInSameTab() {
+    const toggle = this.page.getByTestId(OPEN_SAME_TAB_TOGGLE);
+    await expect(toggle).toBeEnabled();
+    await toggle.click();
+    await expect(toggle).toHaveAttribute("aria-checked", "true");
+  }
+
+  async disableOpenInSameTab() {
+    const toggle = this.page.getByTestId(OPEN_SAME_TAB_TOGGLE);
+    await expect(toggle).toBeEnabled();
+    await toggle.click();
+    await expect(toggle).toHaveAttribute("aria-checked", "false");
+  }
+
+  async expectOpenInSameTabEnabled(enabled: boolean) {
+    const toggle = this.page.getByTestId(OPEN_SAME_TAB_TOGGLE);
+    await expect(toggle).toHaveAttribute("aria-checked", String(enabled));
   }
 
   async selectDefaultHomepage(option: string) {

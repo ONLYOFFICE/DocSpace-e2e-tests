@@ -28,6 +28,8 @@ import BaseSelector from "../common/BaseSelector";
 import BaseToast from "../common/BaseToast";
 import FilesTable from "../files/FilesTable";
 import RoomsGroupTags from "./RoomsGroupTags";
+import DocumentEditor from "../files/DocumentEditor";
+import { documentContextMenuOption } from "@/src/utils/constants/files";
 
 const navActions = {
   moveToArchive: {
@@ -237,6 +239,20 @@ class MyRooms extends BasePage {
   async openRoom(roomName: string) {
     await this.roomsTable.openContextMenu(roomName);
     await this.roomsTable.contextMenu.clickOption("Open");
+  }
+
+  async openFileInEditorInSameTab(fileName: string): Promise<DocumentEditor> {
+    await this.filesTable.openContextMenuForItem(fileName, true);
+    await this.filesTable.contextMenu.clickOption(
+      documentContextMenuOption.edit,
+    );
+    await this.page.waitForURL(/doceditor/, {
+      waitUntil: "load",
+      timeout: 30000,
+    });
+    const editor = new DocumentEditor(this.page);
+    await editor.waitForLoad();
+    return editor;
   }
   async verifyCompleteFolderVisible() {
     await expect(
