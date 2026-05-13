@@ -29,6 +29,7 @@ import Login from "@/src/objects/common/Login";
 import { uploadAndVerifyPDF } from "@/src/utils/helpers/formFillingRoom";
 import TemplateGallery from "@/src/objects/rooms/TemplateGallery";
 import BaseFloatingProgress from "@/src/objects/common/BaseFloatingProgress";
+import PdfFormModal from "@/src/objects/rooms/PdfFormModal";
 
 test.describe("FormFilling base tests", () => {
   let myRooms: MyRooms;
@@ -40,10 +41,12 @@ test.describe("FormFilling base tests", () => {
   let roomInfoPanel: RoomInfoPanel;
   let roomsInviteDialog: RoomsInviteDialog;
   let login: Login;
+  let pdfFormModal: PdfFormModal;
 
   test.beforeEach(async ({ page, api }) => {
     myRooms = new MyRooms(page, api.portalDomain);
     shortTour = new ShortTour(page);
+    pdfFormModal = new PdfFormModal(page);
     roomEmptyView = new RoomEmptyView(page);
     filesTable = new FilesTable(page);
     selectPanel = new RoomSelectPanel(page);
@@ -161,7 +164,7 @@ test.describe("FormFilling base tests", () => {
     await test.step("Start filling the form", async () => {
       await filesTable.openContextMenuForItem("ONLYOFFICE Resume Sample");
       await filesTable.contextMenu.clickOption("Start filling");
-      await shortTour.clickModalCloseButton();
+      await pdfFormModal.close();
       await filesTable.expectFillingIconVisible("ONLYOFFICE Resume Sample");
     });
 
