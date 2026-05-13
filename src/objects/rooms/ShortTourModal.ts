@@ -4,9 +4,8 @@ const TAKE_A_TOUR_BUTTON = "#form-filling_tips_start";
 const SKIP_BUTTON = "#form-filling_tips_skip";
 const NEXT_BUTTON = "#form-filling_tips_next";
 const BACK_BUTTON = "#form-filling_tips_back";
-const MODAL_CLOSE_BUTTON = "#modal-header-swipe svg";
-const MODAL_WINDOW_COPY_PUBLIC_LINK =
-  '#modal-dialog [data-testid="created_pdf_form_dialog_copy_public_link"]';
+const MODAL_CLOSE_BUTTON = "aside_header_close_icon_button";
+const TOUR_BUTTON_SELECTOR = '[id^="form-filling_tips"]';
 
 export class ShortTour {
   private page: Page;
@@ -31,43 +30,33 @@ export class ShortTour {
     return this.page.locator(BACK_BUTTON);
   }
 
-  private get modalCloseButton() {
-    return this.page.locator(MODAL_CLOSE_BUTTON);
-  }
-  private get modalWindowCopyPublicLink() {
-    return this.page.locator(MODAL_WINDOW_COPY_PUBLIC_LINK);
-  }
-
-  async clickCopyPublicLink() {
-    await expect(this.modalWindowCopyPublicLink).toBeVisible();
-    await this.modalWindowCopyPublicLink.click();
+  private get tourDialog() {
+    return this.page
+      .getByRole("dialog")
+      .filter({ has: this.page.locator(TOUR_BUTTON_SELECTOR) });
   }
 
   async clickStartTour() {
-    const button = this.page.locator(TAKE_A_TOUR_BUTTON);
-    await expect(button).toBeVisible();
-    await expect(button).toBeEnabled();
+    await expect(this.startTourButton).toBeVisible();
+    await expect(this.startTourButton).toBeEnabled();
     await this.startTourButton.click();
   }
 
   async clickNextStep() {
-    const button = this.page.locator(NEXT_BUTTON);
-    await expect(button).toBeVisible();
-    await expect(button).toBeEnabled();
+    await expect(this.nextStepButton).toBeVisible();
+    await expect(this.nextStepButton).toBeEnabled();
     await this.nextStepButton.click();
   }
 
   async clickSkipTour() {
-    const button = this.page.locator(SKIP_BUTTON);
-    await expect(button).toBeVisible();
-    await expect(button).toBeEnabled();
+    await expect(this.skipButton).toBeVisible();
+    await expect(this.skipButton).toBeEnabled();
     await this.skipButton.click();
   }
 
   async clickBackStep() {
-    const button = this.page.locator(BACK_BUTTON);
-    await expect(button).toBeVisible();
-    await expect(button).toBeEnabled();
+    await expect(this.backButton).toBeVisible();
+    await expect(this.backButton).toBeEnabled();
     await this.backButton.click();
   }
 
@@ -78,9 +67,10 @@ export class ShortTour {
   }
 
   async clickModalCloseButton() {
-    await expect(this.modalCloseButton).toBeVisible();
-    await this.modalCloseButton.click();
-    await expect(this.page.locator("#modal-dialog")).toBeHidden();
+    const closeButton = this.tourDialog.getByTestId(MODAL_CLOSE_BUTTON);
+    await expect(closeButton).toBeVisible();
+    await closeButton.evaluate((el) => (el as HTMLElement).click());
+    await expect(this.tourDialog).toBeHidden();
   }
   async isTourVisible(timeout = 3000): Promise<boolean> {
     try {
