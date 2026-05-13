@@ -11,8 +11,10 @@ class FilesCreateModal {
   }
 
   private get modal() {
-    // Workaround: two modals share data-testid="modal-dialog" in DOM
-    return this.page.getByTestId("modal-dialog").last();
+    // Workaround: two modals share testid/id in DOM
+    return this.page
+      .locator('#modal-dialog, [data-testid="modal-dialog"]')
+      .last();
   }
 
   private get createTextInput() {
