@@ -4,6 +4,11 @@ import Contacts from "@/src/objects/contacts/Contacts";
 import MyRooms from "@/src/objects/rooms/Rooms";
 import RoomInfoPanel from "@/src/objects/rooms/RoomInfoPanel";
 import RoomsInviteDialog from "@/src/objects/rooms/RoomsInviteDialog";
+import { Login } from "@/src/objects/common/Login";
+import {
+  setupIncognitoContext,
+  cleanupIncognitoContext,
+} from "@/src/utils/helpers/linkTest";
 import { test } from "@/src/fixtures";
 import { expect } from "@playwright/test";
 import { getPortalUrl } from "@/config";
@@ -52,6 +57,54 @@ test.describe("Security tests", () => {
     });
   });
 
+  test("Trusted mail domain: self-registration blocked for disallowed domain", async ({
+    api,
+    browser,
+  }) => {
+    const disallowedEmail = `user_${Date.now()}@notallowed.test`;
+
+    await test.step("Enable Custom domains with gmail.com", async () => {
+      await security.customDomainsActivation();
+      await expect(security.customDomains.locator("input")).toBeChecked();
+    });
+
+    const { context: incognitoContext, page: incognitoPage } =
+      await setupIncognitoContext(browser);
+
+    try {
+      const guestLogin = new Login(incognitoPage, api.portalDomain);
+      await guestLogin.openLoginPage();
+      await guestLogin.requestSelfRegistration(disallowedEmail);
+      await guestLogin.expectSelfRegistrationBlocked();
+    } finally {
+      await cleanupIncognitoContext(incognitoContext, incognitoPage);
+    }
+  });
+
+  test("Trusted mail domain: self-registration allowed for allowed domain", async ({
+    api,
+    browser,
+  }) => {
+    const allowedEmail = `user_${Date.now()}@gmail.com`;
+
+    await test.step("Enable Custom domains with gmail.com", async () => {
+      await security.customDomainsActivation();
+      await expect(security.customDomains.locator("input")).toBeChecked();
+    });
+
+    const { context: incognitoContext, page: incognitoPage } =
+      await setupIncognitoContext(browser);
+
+    try {
+      const guestLogin = new Login(incognitoPage, api.portalDomain);
+      await guestLogin.openLoginPage();
+      await guestLogin.requestSelfRegistration(allowedEmail);
+      await guestLogin.expectSelfRegistrationSent();
+    } finally {
+      await cleanupIncognitoContext(incognitoContext, incognitoPage);
+    }
+  });
+
   test("Ip security", async () => {
     await test.step("Ip activation", async () => {
       await security.ipActivation();
@@ -88,6 +141,19 @@ test.describe("Security tests", () => {
       await expect(
         security.adminMessageDisabled.locator("input"),
       ).toBeChecked();
+    });
+  });
+
+  test("Session lifetime", async () => {
+    await test.step("Session lifetime activation", async () => {
+      await security.sessionLifetimeActivation();
+      await expect(security.lifetimeEnable.locator("input")).toBeChecked();
+      await expect(security.lifetimeInput).toHaveValue("60");
+    });
+
+    await test.step("Session lifetime deactivation", async () => {
+      await security.sessionLifetimeDeactivation();
+      await expect(security.lifetimeDisabled.locator("input")).toBeChecked();
     });
   });
 

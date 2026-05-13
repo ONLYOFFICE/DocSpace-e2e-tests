@@ -102,6 +102,10 @@ const toastMessages = {
   // security
   addTrustedDomain: "Add at least 1 trusted domain.",
   addAllowedIp: "Add at least 1 allowed IP address.",
+  registrationBlocked:
+    "Emails from this domain are not allowed for registration",
+  registrationSent:
+    "The link to confirm your account has been sent to the specified email",
 
   //sso
   certificateExists: "Certificate with same action type already exists",

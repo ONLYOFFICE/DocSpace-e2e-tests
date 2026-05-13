@@ -190,6 +190,50 @@ class AiSettings extends BasePage {
     ).toBeVisible();
   }
 
+  async expectProviderNotInList(title: string) {
+    await expect(
+      this.page
+        .getByTestId("ai-provider-list")
+        .getByRole("heading", { name: title, exact: true }),
+    ).toBeHidden();
+  }
+
+  private providerCard(title: string): Locator {
+    return this.page.getByTestId("ai-provider-tile").filter({
+      has: this.page.getByRole("heading", { name: title, exact: true }),
+    });
+  }
+
+  async openProviderMenu(title: string) {
+    const card = this.providerCard(title);
+    await card.getByTestId("context-menu-button").click();
+  }
+
+  async openProviderSettings(title: string) {
+    await this.openProviderMenu(title);
+    await this.page.getByTestId("settings_item").click();
+    await expect(this.page.getByTestId("update-provider-form")).toBeVisible();
+  }
+
+  async openDeleteProviderDialog(title: string) {
+    await this.openProviderMenu(title);
+    await this.page.getByTestId("delete_item").click();
+    await expect(this.page.getByTestId("delete-provider-button")).toBeVisible();
+  }
+
+  async confirmDeleteProvider() {
+    await this.page.getByTestId("delete-provider-button").click();
+  }
+
+  async renameProvider(oldTitle: string, newTitle: string) {
+    await this.openProviderSettings(oldTitle);
+    const titleInput = this.page.getByTestId("provider-title-input");
+    await titleInput.fill(newTitle);
+    const saveButton = this.page.getByTestId("provider-save-button");
+    await expect(saveButton).toBeEnabled();
+    await saveButton.click();
+  }
+
   async clickAddMcpServerButton() {
     await expect(this.addMcpServerButton).toBeEnabled();
     await this.addMcpServerButton.click();

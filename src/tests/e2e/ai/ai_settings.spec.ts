@@ -121,6 +121,45 @@ test.describe("AI Settings", () => {
     await aiSettings.expectMcpServerInList(mcpName);
   });
 
+  test("Rename AI provider", async () => {
+    const initialName = "DeepSeek";
+    const newName = "DeepSeek Renamed";
+
+    await test.step("Precondition: add DeepSeek provider", async () => {
+      await aiSettings.open();
+      await aiSettings.clickAddProviderButton();
+      await aiSettings.selectProviderType("DeepSeek");
+      await aiSettings.fillProviderTitle(initialName);
+      await aiSettings.fillProviderKey(config.DEEPSEEK_API_KEY!);
+      await aiSettings.selectFirstAvailableModel();
+      await aiSettings.saveProvider();
+      await aiSettings.expectProviderInList(initialName);
+    });
+
+    await aiSettings.renameProvider(initialName, newName);
+    await aiSettings.checkToastMessage("AI provider updated successfully");
+    await aiSettings.expectProviderInList(newName);
+  });
+
+  test("Delete AI provider", async () => {
+    const providerName = "DeepSeek";
+
+    await test.step("Precondition: add DeepSeek provider", async () => {
+      await aiSettings.open();
+      await aiSettings.clickAddProviderButton();
+      await aiSettings.selectProviderType("DeepSeek");
+      await aiSettings.fillProviderTitle(providerName);
+      await aiSettings.fillProviderKey(config.DEEPSEEK_API_KEY!);
+      await aiSettings.selectFirstAvailableModel();
+      await aiSettings.saveProvider();
+      await aiSettings.expectProviderInList(providerName);
+    });
+
+    await aiSettings.openDeleteProviderDialog(providerName);
+    await aiSettings.confirmDeleteProvider();
+    await aiSettings.expectProviderNotInList(providerName);
+  });
+
   test("Configure Knowledge base", async () => {
     await test.step("Precondition: add DeepSeek provider to enable knowledge base", async () => {
       await aiSettings.open();

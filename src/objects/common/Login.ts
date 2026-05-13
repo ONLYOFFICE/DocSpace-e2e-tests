@@ -1,6 +1,7 @@
 import { Page, Locator, expect } from "@playwright/test";
 import BasePage from "./BasePage";
 import config, { getPortalUrl } from "../../../config";
+import { toastMessages } from "@/src/utils/constants/settings";
 
 const EMAIL_FIELD_CONTAINER = "email_field";
 const PASSWORD_FIELD_CONTAINER = '[data-testid="password_field_container"]';
@@ -26,6 +27,9 @@ const HCAPTCHA_IFRAME =
 const HCAPTCHA_CHECKBOX = "#anchor-tc";
 const PASSWORD_EYE_ICON = '[class*="password_eye"]';
 const LOGO_LIGHT_ALT = "greeting-logo";
+const REGISTER_LINK = "#login_register";
+const REGISTRATION_EMAIL_INPUT = "#registration-modal_email";
+const REGISTRATION_SEND_BUTTON = "#registration-modal_send";
 
 export class Login extends BasePage {
   portalDomain: string;
@@ -116,6 +120,33 @@ export class Login extends BasePage {
       waitUntil: "load",
     });
     await expect(this.emailInput).toBeVisible();
+  }
+
+  get registerLink() {
+    return this.page.locator(REGISTER_LINK);
+  }
+
+  get registrationEmailInput() {
+    return this.page.locator(REGISTRATION_EMAIL_INPUT);
+  }
+
+  get registrationSendButton() {
+    return this.page.locator(REGISTRATION_SEND_BUTTON);
+  }
+
+  async requestSelfRegistration(email: string) {
+    await this.registerLink.click();
+    await expect(this.registrationEmailInput).toBeVisible();
+    await this.registrationEmailInput.fill(email);
+    await this.registrationSendButton.click();
+  }
+
+  async expectSelfRegistrationBlocked() {
+    await this.checkToastMessage(toastMessages.registrationBlocked);
+  }
+
+  async expectSelfRegistrationSent() {
+    await this.checkToastMessage(toastMessages.registrationSent);
   }
 
   async checkLanguageComboboxVisible() {
