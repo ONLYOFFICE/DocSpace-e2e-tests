@@ -11,9 +11,12 @@ class FilesCreateModal {
   }
 
   private get modal() {
-    return this.page
-      .getByRole("dialog")
-      .filter({ has: this.page.getByRole("button", { name: CREATE_BUTTON_TEXT, exact: true }) });
+    return this.page.getByRole("dialog").filter({
+      has: this.page.getByRole("button", {
+        name: CREATE_BUTTON_TEXT,
+        exact: true,
+      }),
+    });
   }
 
   private get createTextInput() {
@@ -21,7 +24,10 @@ class FilesCreateModal {
   }
 
   private get createButton() {
-    return this.modal.getByRole("button", { name: CREATE_BUTTON_TEXT, exact: true });
+    return this.modal.getByRole("button", {
+      name: CREATE_BUTTON_TEXT,
+      exact: true,
+    });
   }
 
   async checkModalExist() {
