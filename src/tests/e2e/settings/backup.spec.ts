@@ -34,6 +34,21 @@ test.describe("Manual backup", () => {
     });
   });
 
+  test("Stop backup in progress", async () => {
+    await test.step("Start backup", async () => {
+      await backup.locators.createBackupButton.click();
+    });
+
+    await test.step("Stop backup via floating progress button", async () => {
+      await backup.stopBackup();
+    });
+
+    await test.step("Verify backup was stopped", async () => {
+      await expect(backup.locators.backupCancelledMessage).toBeVisible();
+      await expect(backup.locators.floatingButton).not.toBeVisible();
+    });
+  });
+
   test("Backup room storage", async () => {
     await backup.selectBackupMethod(mapBackupMethodsIds.backupRoom);
     await backup.openRoomSelector();
