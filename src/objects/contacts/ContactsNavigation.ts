@@ -52,7 +52,7 @@ class ContactsNavigation extends BaseNavigation {
   }
 
   async openCreateGroupDialog() {
-    const modalDialog = this.page.locator("#modal-dialog");
+    const modalDialog = this.page.getByTestId("modal-dialog").last();
     await this.openHeaderMenu();
     // On empty Groups page the + button opens the dialog directly;
     // on non-empty page it opens a dropdown - click the option in that case.

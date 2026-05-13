@@ -74,6 +74,12 @@ class ContactsGroupDialog extends BaseDialog {
     await selectButton.click();
   }
 
+  async expectCreateButtonDisabled() {
+    await expect(
+      this.dialog.getByRole("button", { name: "Create", exact: true }),
+    ).toBeDisabled();
+  }
+
   async submitCreateGroup() {
     await this.dialog.getByText("Create", { exact: true }).click();
   }
