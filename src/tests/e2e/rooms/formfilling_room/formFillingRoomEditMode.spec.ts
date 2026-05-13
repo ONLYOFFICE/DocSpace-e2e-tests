@@ -21,6 +21,7 @@ import { formFillingRoomPdfContextMenuOption } from "@/src/utils/constants/files
 import { formFillingSystemFolders } from "@/src/utils/constants/rooms";
 import PauseSubmissionsDialog from "@/src/objects/files/PauseSubmissionsDialog";
 import FolderDeleteModal from "@/src/objects/files/FolderDeleteModal";
+import CreatedPdfFormDialog from "@/src/objects/rooms/CreatedPdfFormDialog";
 
 test.describe("FormFilling room - Edit mode", () => {
   let myRooms: MyRooms;
@@ -31,10 +32,12 @@ test.describe("FormFilling room - Edit mode", () => {
   let incognitoContext: BrowserContext | null = null;
   let incognitoPage: Page | null = null;
   let login: Login;
+  let createdPdfFormDialog: CreatedPdfFormDialog;
 
   test.beforeEach(async ({ page, api }) => {
     myRooms = new MyRooms(page, api.portalDomain);
     shortTour = new ShortTour(page);
+    createdPdfFormDialog = new CreatedPdfFormDialog(page);
     roomEmptyView = new RoomEmptyView(page);
     filesTable = new FilesTable(page);
     selectPanel = new RoomSelectPanel(page);
@@ -70,7 +73,7 @@ test.describe("FormFilling room - Edit mode", () => {
           formFillingRoomPdfContextMenuOption.startFilling,
         );
         await setupClipboardPermissions(page);
-        await shortTour.clickCopyPublicLink();
+        await createdPdfFormDialog.copyPublicLink();
         await myRooms.toast.dismissToastSafely(
           "Link copied to clipboard",
           5000,
@@ -78,7 +81,7 @@ test.describe("FormFilling room - Edit mode", () => {
         publicLink = await getLinkFromClipboard(page);
         if (!publicLink)
           throw new Error("Failed to get public link from clipboard");
-        await shortTour.clickModalCloseButton().catch(() => {});
+        await createdPdfFormDialog.close().catch(() => {});
       });
 
       await test.step("Verify fill icon on file", async () => {
@@ -168,7 +171,7 @@ test.describe("FormFilling room - Edit mode", () => {
           formFillingRoomPdfContextMenuOption.startFilling,
         );
         await setupClipboardPermissions(page);
-        await shortTour.clickCopyPublicLink();
+        await createdPdfFormDialog.copyPublicLink();
         await myRooms.toast.dismissToastSafely(
           "Link copied to clipboard",
           5000,
@@ -176,7 +179,7 @@ test.describe("FormFilling room - Edit mode", () => {
         publicLink = await getLinkFromClipboard(page);
         if (!publicLink)
           throw new Error("Failed to get public link from clipboard");
-        await shortTour.clickModalCloseButton().catch(() => {});
+        await createdPdfFormDialog.close().catch(() => {});
       });
 
       await test.step("Verify fill icon on file", async () => {
@@ -229,7 +232,7 @@ test.describe("FormFilling room - Edit mode", () => {
       await filesTable.contextMenu.clickOption(
         formFillingRoomPdfContextMenuOption.startFilling,
       );
-      await shortTour.clickModalCloseButton();
+      await createdPdfFormDialog.close();
       await filesTable.expectFillingIconVisible("ONLYOFFICE Resume Sample");
     });
 

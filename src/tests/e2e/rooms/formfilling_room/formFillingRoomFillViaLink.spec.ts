@@ -28,6 +28,7 @@ import {
 } from "@/src/utils/constants/files";
 import { formFillingSystemFolders } from "@/src/utils/constants/rooms";
 import FilesSelectPanel from "@/src/objects/files/FilesSelectPanel";
+import CreatedPdfFormDialog from "@/src/objects/rooms/CreatedPdfFormDialog";
 
 test.describe("FormFilling room - Fill via link", () => {
   let myRooms: MyRooms;
@@ -39,10 +40,12 @@ test.describe("FormFilling room - Fill via link", () => {
   let incognitoPage: Page | null = null;
   let login: Login;
   let infoPanel: InfoPanel;
+  let createdPdfFormDialog: CreatedPdfFormDialog;
 
   test.beforeEach(async ({ page, api }) => {
     myRooms = new MyRooms(page, api.portalDomain);
     shortTour = new ShortTour(page);
+    createdPdfFormDialog = new CreatedPdfFormDialog(page);
     roomEmptyView = new RoomEmptyView(page);
     filesTable = new FilesTable(page);
     selectPanel = new RoomSelectPanel(page);
@@ -80,7 +83,7 @@ test.describe("FormFilling room - Fill via link", () => {
           formFillingRoomPdfContextMenuOption.startFilling,
         );
         await setupClipboardPermissions(page);
-        await shortTour.clickCopyPublicLink();
+        await createdPdfFormDialog.copyPublicLink();
         await myRooms.toast.dismissToastSafely(
           "Link copied to clipboard",
           5000,
@@ -151,7 +154,7 @@ test.describe("FormFilling room - Fill via link", () => {
 
       await test.step("Copy shared link in modal window", async () => {
         await setupClipboardPermissions(page);
-        await shortTour.clickCopyPublicLink();
+        await createdPdfFormDialog.copyPublicLink();
         await myRooms.toast.dismissToastSafely(
           "Link copied to clipboard",
           5000,
@@ -162,7 +165,7 @@ test.describe("FormFilling room - Fill via link", () => {
       });
 
       await test.step("Verify fill icon on file", async () => {
-        await shortTour.clickModalCloseButton().catch(() => {});
+        await createdPdfFormDialog.close().catch(() => {});
         await filesTable.expectFillingIconVisible("ONLYOFFICE Resume Sample");
       });
 
@@ -217,7 +220,7 @@ test.describe("FormFilling room - Fill via link", () => {
           formFillingRoomPdfContextMenuOption.startFilling,
         );
         await setupClipboardPermissions(page);
-        await shortTour.clickCopyPublicLink();
+        await createdPdfFormDialog.copyPublicLink();
         await myRooms.toast.dismissToastSafely(
           "Link copied to clipboard",
           5000,
@@ -225,7 +228,7 @@ test.describe("FormFilling room - Fill via link", () => {
         publicLink = await getLinkFromClipboard(page);
         if (!publicLink)
           throw new Error("Failed to get public link from clipboard");
-        await shortTour.clickModalCloseButton().catch(() => {});
+        await createdPdfFormDialog.close().catch(() => {});
       });
 
       await test.step("Verify fill icon on file", async () => {
@@ -317,7 +320,7 @@ test.describe("FormFilling room - Fill via link", () => {
           formFillingRoomPdfContextMenuOption.startFilling,
         );
         await setupClipboardPermissions(page);
-        await shortTour.clickCopyPublicLink();
+        await createdPdfFormDialog.copyPublicLink();
         await myRooms.toast.dismissToastSafely(
           "Link copied to clipboard",
           5000,
@@ -325,7 +328,7 @@ test.describe("FormFilling room - Fill via link", () => {
         publicLink = await getLinkFromClipboard(page);
         if (!publicLink)
           throw new Error("Failed to get public link from clipboard");
-        await shortTour.clickModalCloseButton().catch(() => {});
+        await createdPdfFormDialog.close().catch(() => {});
       });
 
       await test.step("Verify fill icon on file", async () => {
@@ -386,7 +389,7 @@ test.describe("FormFilling room - Fill via link", () => {
           formFillingRoomPdfContextMenuOption.startFilling,
         );
         await setupClipboardPermissions(page);
-        await shortTour.clickCopyPublicLink();
+        await createdPdfFormDialog.copyPublicLink();
         await myRooms.toast.dismissToastSafely(
           "Link copied to clipboard",
           5000,
@@ -394,7 +397,7 @@ test.describe("FormFilling room - Fill via link", () => {
         publicLink = await getLinkFromClipboard(page);
         if (!publicLink)
           throw new Error("Failed to get public link from clipboard");
-        await shortTour.clickModalCloseButton().catch(() => {});
+        await createdPdfFormDialog.close().catch(() => {});
       });
 
       await test.step("Verify fill icon on file", async () => {
@@ -491,7 +494,7 @@ test.describe("FormFilling room - Fill via link", () => {
           formFillingRoomPdfContextMenuOption.startFilling,
         );
         await setupClipboardPermissions(page);
-        await shortTour.clickCopyPublicLink();
+        await createdPdfFormDialog.copyPublicLink();
         await myRooms.toast.dismissToastSafely(
           "Link copied to clipboard",
           5000,
@@ -499,7 +502,7 @@ test.describe("FormFilling room - Fill via link", () => {
         publicLink = await getLinkFromClipboard(page);
         if (!publicLink)
           throw new Error("Failed to get public link from clipboard");
-        await shortTour.clickModalCloseButton().catch(() => {});
+        await createdPdfFormDialog.close().catch(() => {});
       });
 
       await test.step("Verify fill icon on file", async () => {
@@ -596,7 +599,7 @@ test.describe("FormFilling room - Fill via link", () => {
           formFillingRoomPdfContextMenuOption.startFilling,
         );
         await setupClipboardPermissions(page);
-        await shortTour.clickCopyPublicLink();
+        await createdPdfFormDialog.copyPublicLink();
         await myRooms.toast.dismissToastSafely(
           "Link copied to clipboard",
           5000,
@@ -604,7 +607,7 @@ test.describe("FormFilling room - Fill via link", () => {
         publicLink = await getLinkFromClipboard(page);
         if (!publicLink)
           throw new Error("Failed to get public link from clipboard");
-        await shortTour.clickModalCloseButton().catch(() => {});
+        await createdPdfFormDialog.close().catch(() => {});
       });
 
       await test.step("Verify fill icon on file", async () => {
@@ -701,7 +704,7 @@ test.describe("FormFilling room - Fill via link", () => {
         await filesTable.contextMenu.clickOption(
           formFillingRoomPdfContextMenuOption.startFilling,
         );
-        await shortTour.clickModalCloseButton().catch(() => {});
+        await createdPdfFormDialog.close().catch(() => {});
       });
 
       await test.step("Verify fill icon on file", async () => {
@@ -753,7 +756,7 @@ test.describe("FormFilling room - Fill via link", () => {
         await filesTable.contextMenu.clickOption(
           formFillingRoomPdfContextMenuOption.startFilling,
         );
-        await shortTour.clickModalCloseButton().catch(() => {});
+        await createdPdfFormDialog.close().catch(() => {});
       });
 
       await test.step("Verify fill icon on file", async () => {
