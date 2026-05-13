@@ -2,8 +2,6 @@ import { expect, Page } from "@playwright/test";
 import BaseArticle from "../common/BaseArticle";
 
 const NEW_ROOM_BUTTON = "create_new_room_button";
-const DIALOG_HEADER = "#modal-header-swipe";
-const DIALOG_TITLE = "Choose room type";
 
 class RoomsArticle extends BaseArticle {
   constructor(page: Page) {
@@ -14,7 +12,6 @@ class RoomsArticle extends BaseArticle {
     return this.articleContainer.getByTestId(NEW_ROOM_BUTTON);
   }
   private get dialogHeader() {
-    // Workaround: two modals share data-testid in DOM
     return this.page.getByTestId("aside-header").last();
   }
 
