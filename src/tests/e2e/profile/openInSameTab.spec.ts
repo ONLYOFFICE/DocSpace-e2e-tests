@@ -32,6 +32,7 @@ test.describe("Profile - Open ONLYOFFICE editor in same tab", () => {
       await test.step("Verify editor opened in same tab with no new tabs", async () => {
         await expect(page).toHaveURL(/doceditor/);
         expect(page.context().pages()).toHaveLength(1);
+        await page.waitForTimeout(10000);
       });
     });
 
@@ -86,6 +87,7 @@ test.describe("Profile - Open ONLYOFFICE editor in same tab", () => {
 
   test("Setting persists after re-login", async ({ page }) => {
     await test.step("Logout and log in again as the same user", async () => {
+      await myRooms.openWithoutEmptyCheck();
       await login.logout();
       await login.loginToPortal();
     });
