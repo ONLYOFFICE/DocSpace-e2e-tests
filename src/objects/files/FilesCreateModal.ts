@@ -1,8 +1,7 @@
 import { expect, Page } from "@playwright/test";
 
-const MODAL_DIALOG = "#modal-dialog";
 const CREATE_TEXT_INPUT = "#create-text-input";
-const CREATE_BUTTON = ".modal-footer button[type='submit']";
+const CREATE_BUTTON_TEXT = "Create";
 
 class FilesCreateModal {
   page: Page;
@@ -12,15 +11,17 @@ class FilesCreateModal {
   }
 
   private get modal() {
-    return this.page.locator(MODAL_DIALOG);
+    return this.page
+      .getByRole("dialog")
+      .filter({ has: this.page.getByRole("button", { name: CREATE_BUTTON_TEXT, exact: true }) });
   }
 
   private get createTextInput() {
-    return this.page.locator(CREATE_TEXT_INPUT);
+    return this.modal.locator(CREATE_TEXT_INPUT);
   }
 
   private get createButton() {
-    return this.page.locator(CREATE_BUTTON);
+    return this.modal.getByRole("button", { name: CREATE_BUTTON_TEXT, exact: true });
   }
 
   async checkModalExist() {
