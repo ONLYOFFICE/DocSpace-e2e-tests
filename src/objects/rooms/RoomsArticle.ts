@@ -10,6 +10,7 @@ class RoomsArticle extends BaseArticle {
     return this.articleContainer.getByRole("button", { name: "New room" });
   }
   private get dialogHeader() {
+    // Workaround: two modals share data-testid in DOM
     return this.page.getByTestId("aside-header").last();
   }
 
