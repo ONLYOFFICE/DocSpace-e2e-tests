@@ -3,6 +3,7 @@ import { expect, Page } from "@playwright/test";
 import FilesPdfForm from "@/src/objects/files/FilesPdfForm";
 import MyRooms from "@/src/objects/rooms/Rooms";
 import { ShortTour } from "@/src/objects/rooms/ShortTourModal";
+import PdfFormModal from "@/src/objects/rooms/PdfFormModal";
 import RoomInfoPanel from "@/src/objects/rooms/RoomInfoPanel";
 import RoomsInviteDialog from "@/src/objects/rooms/RoomsInviteDialog";
 import Login from "@/src/objects/common/Login";
@@ -227,7 +228,7 @@ test.describe("FormFilling room - Form filler permissions", () => {
       await myRooms.filesTable.contextMenu.clickOption(
         formFillingRoomPdfContextMenuOption.startFilling,
       );
-      await shortTour.clickModalCloseButton();
+      await new PdfFormModal(page).close();
 
       await page.context().clearCookies();
     });
@@ -429,7 +430,7 @@ test.describe("FormFilling room - Form filler permissions", () => {
       await myRooms.filesTable.contextMenu.clickOption(
         formFillingRoomPdfContextMenuOption.startFilling,
       );
-      await shortTour.clickModalCloseButton();
+      await new PdfFormModal(page).close();
 
       await page.context().clearCookies();
     });

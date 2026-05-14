@@ -2,6 +2,7 @@ import { test } from "@/src/fixtures";
 import { expect } from "@playwright/test";
 import MyRooms from "@/src/objects/rooms/Rooms";
 import { ShortTour } from "@/src/objects/rooms/ShortTourModal";
+import PdfFormModal from "@/src/objects/rooms/PdfFormModal";
 import RoomInfoPanel from "@/src/objects/rooms/RoomInfoPanel";
 import RoomsInviteDialog from "@/src/objects/rooms/RoomsInviteDialog";
 import Login from "@/src/objects/common/Login";
@@ -553,7 +554,7 @@ test.describe("FormFilling room - Room manager permissions", () => {
         formFillingRoomPdfContextMenuOption.startFilling,
       );
       // Modal with copy link appears — confirms the action was allowed
-      await shortTour.clickModalCloseButton();
+      await new PdfFormModal(page).close();
     });
 
     await test.step("Verify 'Stop filling' is visible in context menu for owner's PDF form", async () => {

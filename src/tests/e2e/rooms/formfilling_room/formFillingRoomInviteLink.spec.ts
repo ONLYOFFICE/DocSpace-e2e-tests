@@ -1,5 +1,6 @@
 import { test } from "@/src/fixtures";
 import { ShortTour } from "@/src/objects/rooms/ShortTourModal";
+import PdfFormModal from "@/src/objects/rooms/PdfFormModal";
 import MyRooms from "@/src/objects/rooms/Rooms";
 import { expect } from "@playwright/test";
 import RoomInfoPanel from "@/src/objects/rooms/RoomInfoPanel";
@@ -334,7 +335,7 @@ test.describe("FormFilling room - Invite via link tests", () => {
       await myRooms.filesTable.contextMenu.clickOption(
         formFillingRoomPdfContextMenuOption.startFilling,
       );
-      await shortTour.clickModalCloseButton();
+      await new PdfFormModal(page).close();
     });
 
     await test.step("Open invite link in incognito and login", async () => {
@@ -555,7 +556,7 @@ test.describe("FormFilling room - Invite via link tests", () => {
       await myRooms.filesTable.contextMenu.clickOption(
         formFillingRoomPdfContextMenuOption.startFilling,
       );
-      await shortTour.clickModalCloseButton();
+      await new PdfFormModal(page).close();
     });
 
     await test.step("Open invite link in incognito and enter non-existing email", async () => {

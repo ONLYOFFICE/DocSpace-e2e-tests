@@ -1,5 +1,6 @@
 import { test } from "@/src/fixtures";
 import { ShortTour } from "@/src/objects/rooms/ShortTourModal";
+import PdfFormModal from "@/src/objects/rooms/PdfFormModal";
 import MyRooms from "@/src/objects/rooms/Rooms";
 import FilesPdfForm from "@/src/objects/files/FilesPdfForm";
 import InfoPanel from "@/src/objects/common/InfoPanel";
@@ -68,7 +69,7 @@ test.describe("FormFilling room - Link tests", () => {
       await selectPanel.select("documents");
       await selectPanel.selectItemByText("ONLYOFFICE Resume Sample");
       await selectPanel.confirmSelection();
-      await shortTour.clickModalCloseButton().catch(() => {});
+      await new PdfFormModal(page).close().catch(() => {});
       await myRooms.infoPanel.close();
       //Check file added to room
       await expect(page.getByLabel("ONLYOFFICE Resume Sample,")).toBeVisible();

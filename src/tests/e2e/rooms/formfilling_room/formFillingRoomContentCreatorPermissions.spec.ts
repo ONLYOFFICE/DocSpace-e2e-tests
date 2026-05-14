@@ -2,6 +2,7 @@ import { test } from "@/src/fixtures";
 import { expect } from "@playwright/test";
 import MyRooms from "@/src/objects/rooms/Rooms";
 import { ShortTour } from "@/src/objects/rooms/ShortTourModal";
+import PdfFormModal from "@/src/objects/rooms/PdfFormModal";
 import RoomInfoPanel from "@/src/objects/rooms/RoomInfoPanel";
 import RoomsInviteDialog from "@/src/objects/rooms/RoomsInviteDialog";
 import Login from "@/src/objects/common/Login";
@@ -542,7 +543,7 @@ test.describe("FormFilling room - Content creator permissions", () => {
         formFillingRoomPdfContextMenuOption.startFilling,
       );
       // Modal with copy link appears — confirms the action was allowed
-      await shortTour.clickModalCloseButton();
+      await new PdfFormModal(page).close();
     });
 
     await test.step("Verify editing icon appears on own PDF form after start filling", async () => {
@@ -678,7 +679,7 @@ test.describe("FormFilling room - Content creator permissions", () => {
         formFillingRoomPdfContextMenuOption.startFilling,
       );
       // Modal with copy link appears — confirms the action was allowed
-      await shortTour.clickModalCloseButton();
+      await new PdfFormModal(page).close();
     });
 
     await test.step("Verify editing icon appears on owner's PDF form after start filling", async () => {
@@ -823,7 +824,7 @@ test.describe("FormFilling room - Content creator permissions", () => {
       await myRooms.filesTable.contextMenu.clickOption(
         formFillingRoomPdfContextMenuOption.startFilling,
       );
-      await shortTour.clickModalCloseButton();
+      await new PdfFormModal(page).close();
       await myRooms.filesTable.expectFillingIconVisible(OWNER_FORM);
       await fillAndSubmit(OWNER_FORM);
 
@@ -859,7 +860,7 @@ test.describe("FormFilling room - Content creator permissions", () => {
       await myRooms.filesTable.contextMenu.clickOption(
         formFillingRoomPdfContextMenuOption.startFilling,
       );
-      await shortTour.clickModalCloseButton();
+      await new PdfFormModal(page).close();
       await myRooms.filesTable.expectFillingIconVisible(CC_FORM);
       await fillAndSubmit(CC_FORM);
 

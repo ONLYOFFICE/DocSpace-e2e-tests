@@ -1,5 +1,6 @@
 import { test } from "@/src/fixtures";
 import { ShortTour } from "@/src/objects/rooms/ShortTourModal";
+import PdfFormModal from "@/src/objects/rooms/PdfFormModal";
 import MyRooms from "@/src/objects/rooms/Rooms";
 import FilesTable from "@/src/objects/files/FilesTable";
 import FilesNavigation from "@/src/objects/files/FilesNavigation";
@@ -66,7 +67,7 @@ test.describe("FormFilling room - Sync responses to XLSX", () => {
     await filesTable.contextMenu.clickOption(
       formFillingRoomPdfContextMenuOption.startFilling,
     );
-    await shortTour.clickModalCloseButton();
+    await new PdfFormModal(page).close();
     await filesTable.expectFillingIconVisible(FORM_NAME);
 
     const pagePromise = page.context().waitForEvent("page", { timeout: 30000 });
@@ -261,7 +262,7 @@ test.describe("FormFilling room - Sync responses to XLSX", () => {
       await filesTable.contextMenu.clickOption(
         formFillingRoomPdfContextMenuOption.startFilling,
       );
-      await shortTour.clickModalCloseButton();
+      await new PdfFormModal(page).close();
       await filesTable.expectFillingIconVisible(FORM_NAME);
 
       // Open the form editor (new tab)

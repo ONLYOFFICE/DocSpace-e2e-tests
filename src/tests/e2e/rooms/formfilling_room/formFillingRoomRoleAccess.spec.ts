@@ -1,6 +1,7 @@
 import { test } from "@/src/fixtures";
 import { expect, BrowserContext, Page } from "@playwright/test";
 import { ShortTour } from "@/src/objects/rooms/ShortTourModal";
+import PdfFormModal from "@/src/objects/rooms/PdfFormModal";
 import MyRooms from "@/src/objects/rooms/Rooms";
 import FilesTable from "@/src/objects/files/FilesTable";
 import FilesPdfForm from "@/src/objects/files/FilesPdfForm";
@@ -86,7 +87,7 @@ test.describe("FormFillingRoomRoleBasedFormVisibility", () => {
       await myRooms.filesTable.contextMenu.clickOption(
         formFillingRoomPdfContextMenuOption.startFilling,
       );
-      await shortTour.clickModalCloseButton();
+      await new PdfFormModal(page).close();
     });
 
     // Get FormFiller invite link (default access)
