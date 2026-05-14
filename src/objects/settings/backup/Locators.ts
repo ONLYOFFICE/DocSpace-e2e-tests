@@ -207,4 +207,20 @@ export class BackupLocators {
   get autoThirdPartyDropdown() {
     return this.page.getByTestId("auto_backup_accounts_dropdown");
   }
+
+  get floatingButton() {
+    return this.page.getByTestId("floating-button-progress");
+  }
+
+  get iconBackup() {
+    return this.page.getByTestId("icon-backup");
+  }
+
+  get floatingButtonCloseIcon() {
+    return this.page.getByTestId("floating-button-close-icon");
+  }
+
+  get backupCancelledMessage() {
+    return this.page.getByText("Backup cancelled");
+  }
 }

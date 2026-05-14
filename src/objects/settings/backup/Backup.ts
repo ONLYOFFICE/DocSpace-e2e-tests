@@ -457,6 +457,13 @@ export class Backup extends BasePage {
     await page1.waitForLoadState("domcontentloaded");
   }
 
+  async stopBackup() {
+    await expect(this.locators.floatingButton).toBeVisible({ timeout: 15000 });
+    await expect(this.locators.iconBackup).toBeVisible();
+    await this.locators.floatingButton.hover();
+    await this.locators.floatingButtonCloseIcon.click();
+  }
+
   async openThirdPartyServiceAutoBackup() {
     await expect(
       this.locators.thirdPartyDropdownButtonAutoBackup,
