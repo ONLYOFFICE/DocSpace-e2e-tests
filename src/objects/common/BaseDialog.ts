@@ -30,7 +30,7 @@ class BaseDialog {
 
   async close() {
     await this.page.mouse.click(1, 1);
-    await this.dialog.waitFor({ state: "detached" });
+    await expect(this.dialog).not.toHaveClass(/visible/);
   }
 
   protected async clickSubmitButton(buttonLocator: Locator) {
