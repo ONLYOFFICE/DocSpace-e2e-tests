@@ -106,13 +106,13 @@ class Security extends BasePage {
     return this.page.getByTestId("developer_tools_access_disabled");
   }
   get lifetimeEnable() {
-    return this.page.getByTestId("session_lifetime_enable");
+    return this.page.getByTestId("session_lifetime_enabled");
   }
   get lifetimeDisabled() {
     return this.page.getByTestId("session_lifetime_disabled");
   }
   get lifetimeInput() {
-    return this.page.getByPlaceholder(" ", { exact: true });
+    return this.page.getByTestId("session_lifetime_input");
   }
   get passwordStrengthGuideLink() {
     return this.page.getByTestId("password_strength_learn_more");
@@ -247,13 +247,15 @@ class Security extends BasePage {
     await this.lifetimeEnable.click();
     await this.page.getByTestId("session_lifetime_cancel_button").click();
     await this.lifetimeEnable.click();
-    await this.lifetimeInput.fill("45");
+    await this.lifetimeInput.fill("60");
     await this.page.getByTestId("session_lifetime_save_button").click();
+    await this.dismissToastSafely(toastMessages.settingsUpdated);
   }
 
   async sessionLifetimeDeactivation() {
     await this.lifetimeDisabled.click();
     await this.page.getByTestId("session_lifetime_save_button").click();
+    await this.dismissToastSafely(toastMessages.settingsUpdated);
   }
 
   get tfaDisabled() {
