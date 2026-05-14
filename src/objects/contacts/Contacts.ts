@@ -345,7 +345,6 @@ class Contacts extends BasePage {
       await this.groupDialog.submitSelectContacts();
     }
     await this.groupDialog.submitCreateGroup();
-    await this.groupDialog.close();
     await this.table.checkRowExist(groupName);
   }
 
