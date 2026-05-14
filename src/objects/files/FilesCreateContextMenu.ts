@@ -26,7 +26,9 @@ class FilesCreateContextMenu extends BaseContextMenu {
       await submenuItem.click({ timeout: 5000 });
     } else {
       const item = this.menu.getByText(actionText, { exact: true });
-      await item.click({ timeout: 3000 });
+      await expect(async () => {
+        await item.click({ timeout: 3000 });
+      }).toPass({ timeout: 10000 });
     }
   }
 

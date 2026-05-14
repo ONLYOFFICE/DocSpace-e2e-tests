@@ -51,7 +51,10 @@ class BaseFilter {
   }
 
   get filterDialog() {
-    return this.page.locator(FILTER.DIALOG);
+    // Workaround: background Sync aside also has #modal-dialog/testid in DOM
+    return this.page
+      .locator(FILTER.DIALOG)
+      .filter({ has: this.page.locator(FILTER.APPLY_BUTTON) });
   }
 
   get filterApplyButton() {
