@@ -257,7 +257,7 @@ test.describe("FormFilling base tests", () => {
     await test.step("Start filling the form", async () => {
       await filesTable.openContextMenuForItem("ONLYOFFICE Resume Sample");
       await filesTable.contextMenu.clickOption("Start filling");
-      await shortTour.clickModalCloseButton();
+      await pdfFormModal.close();
       await filesTable.expectFillingIconVisible("ONLYOFFICE Resume Sample");
     });
     await test.step("Open and close pdf form", async () => {
@@ -386,7 +386,7 @@ test.describe("FormFilling base tests", () => {
     await test.step("Start filling the form", async () => {
       await filesTable.openContextMenuForItem("ONLYOFFICE Resume Sample");
       await filesTable.contextMenu.clickOption("Start filling");
-      await shortTour.clickModalCloseButton();
+      await pdfFormModal.close();
       await filesTable.expectFillingIconVisible("ONLYOFFICE Resume Sample");
     });
 
@@ -440,8 +440,7 @@ test.describe("FormFilling base tests", () => {
       const pdfForm = new FilesPdfForm(editorPage);
       await pdfForm.checkEditorMode();
       await pdfForm.clickStartFillButton();
-      const shortTour = new ShortTour(editorPage);
-      await shortTour.clickModalCloseButton();
+      await new PdfFormModal(editorPage).close();
       await editorPage.close();
     });
 
@@ -508,7 +507,7 @@ test.describe("FormFilling base tests", () => {
     await test.step("Start filling the form", async () => {
       await filesTable.openContextMenuForItem("ONLYOFFICE Resume Sample");
       await filesTable.contextMenu.clickOption("Start filling");
-      await shortTour.clickModalCloseButton();
+      await pdfFormModal.close();
       await filesTable.expectFillingIconVisible("ONLYOFFICE Resume Sample");
     });
 
@@ -558,7 +557,7 @@ test.describe("FormFilling base tests", () => {
       );
       await filesTable.openContextMenuForItem("ONLYOFFICE Resume Sample");
       await filesTable.contextMenu.clickOption("Start filling");
-      await shortTour.clickModalCloseButton();
+      await pdfFormModal.close();
       await filesTable.expectFillingIconVisible("ONLYOFFICE Resume Sample");
     });
 
@@ -594,8 +593,8 @@ test.describe("FormFilling base tests", () => {
       await pdfForm.checkEditorMode();
       await pdfForm.clickStartFillButton();
       // Editor saves and navigates back to room; wait for the "copy public link" modal
-      const startFillModal = new ShortTour(editorPage);
-      await startFillModal.clickModalCloseButton();
+      const startFillModal = new PdfFormModal(editorPage);
+      await startFillModal.close();
       await editorPage.close();
       await page.bringToFront();
       await myRooms.filesTable.expectFillingIconVisible(
@@ -710,7 +709,7 @@ test.describe("FormFilling base tests", () => {
       await filesTable.contextMenu.clickOption(
         formFillingRoomPdfContextMenuOption.startFilling,
       );
-      await shortTour.clickModalCloseButton();
+      await pdfFormModal.close();
     });
 
     await test.step("Verify filling icon is visible after starting", async () => {
@@ -748,7 +747,7 @@ test.describe("FormFilling base tests", () => {
       await filesTable.contextMenu.clickOption(
         formFillingRoomPdfContextMenuOption.startFilling,
       );
-      await shortTour.clickModalCloseButton();
+      await pdfFormModal.close();
     });
 
     await test.step("Verify draft label is not visible before opening form", async () => {

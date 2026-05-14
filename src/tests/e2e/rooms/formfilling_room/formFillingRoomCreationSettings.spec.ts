@@ -3,6 +3,7 @@ import { expect, Page } from "@playwright/test";
 import MyRooms from "@/src/objects/rooms/Rooms";
 import RoomsCreateDialog from "@/src/objects/rooms/RoomsCreateDialog";
 import { ShortTour } from "@/src/objects/rooms/ShortTourModal";
+import PdfFormModal from "@/src/objects/rooms/PdfFormModal";
 import RoomSelectPanel from "@/src/objects/rooms/RoomSelectPanel";
 import RoomEmptyView from "@/src/objects/rooms/RoomEmptyView";
 import FilesPdfForm from "@/src/objects/files/FilesPdfForm";
@@ -149,7 +150,7 @@ test.describe("FormFilling room: creation settings", () => {
       const filesTable = new FilesTable(page);
       await filesTable.openContextMenuForItem("ONLYOFFICE Resume Sample");
       await filesTable.contextMenu.clickOption("Start filling");
-      await shortTour.clickModalCloseButton();
+      await new PdfFormModal(page).close();
     });
 
     await test.step("Fill and submit the form", async () => {
