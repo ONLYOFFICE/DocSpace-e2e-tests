@@ -52,14 +52,14 @@ class ContactsNavigation extends BaseNavigation {
   }
 
   async openCreateGroupDialog() {
-    const modalDialog = this.page.getByTestId("modal-dialog").last();
     await this.openHeaderMenu();
     // On empty Groups page the + button opens the dialog directly;
     // on non-empty page it opens a dropdown - click the option in that case.
-    if (!(await modalDialog.isVisible())) {
-      await this.performAction({ button: navActions.createGroup.button });
+    const dropdownOption = this.page.locator(navActions.createGroup.button);
+    if (await dropdownOption.isVisible()) {
+      await dropdownOption.click();
     }
-    await expect(modalDialog).toBeVisible();
+    await expect(this.page.getByTestId("modal-dialog").last()).toBeVisible();
   }
 
   async clickHeaderSubmenuOption(_parentText: string, childText: string) {
