@@ -75,16 +75,10 @@ class MyArchive extends BasePage {
 
   async selectRooms(titles: string[]) {
     if (titles.length === 0) return;
-
-    const firstRow = await this.archiveTable.getRowByTitle(titles[0]);
-    await expect(firstRow).toBeVisible();
-    await firstRow.click();
-    await this.archiveTable.expectRowIsChecked(firstRow);
-
-    for (const title of titles.slice(1)) {
+    for (const title of titles) {
       const row = await this.archiveTable.getRowByTitle(title);
       await expect(row).toBeVisible();
-      await row.click({ modifiers: ["Control"] });
+      await row.locator("[data-testid='table-cell']").first().click();
       await this.archiveTable.expectRowIsChecked(row);
     }
   }

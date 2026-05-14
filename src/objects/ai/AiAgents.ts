@@ -175,7 +175,9 @@ export class AiAgents extends BasePage {
   async deleteAgent(name: string) {
     await this.openAgentContextMenu(name);
     await this.contextMenu.clickOption("Delete agent");
-    const dialog = this.page.locator("#modal-dialog");
+    const dialog = this.page
+      .getByTestId("delete-dialog")
+      .getByTestId("modal-dialog");
     await expect(dialog).toBeVisible();
     const warningCheckbox = dialog.locator(
       "label[data-testid='delete_warning_checkbox']",
