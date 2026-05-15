@@ -1,8 +1,13 @@
 import { Integration } from "@/src/objects/settings/integration/Integration";
 import { PaymentApi } from "@/src/api/payment";
+import { expect } from "@playwright/test";
 import { test } from "@/src/fixtures";
 import { Plugins } from "@/src/objects/settings/integration/Plugins";
-import { integrationTabs } from "@/src/utils/constants/settings";
+import {
+  integrationTabs,
+  samplePluginZip,
+  toastMessages,
+} from "@/src/utils/constants/settings";
 
 test.describe("Integration tests - Plugins", () => {
   let paymentApi: PaymentApi;
@@ -99,4 +104,21 @@ test.describe("Integration tests - Plugins", () => {
       await plugins.disablePdfConverter();
     });
   });
+
+  test("Plugin cache warning on re-upload of same version", async () => {
+    await test.step("Upload plugin first time", async () => {
+      await plugins.uploadPlugin(samplePluginZip.path);
+      await plugins.dismissToastSafely(toastMessages.pluginLoaded);
+      await expect(plugins.sdkInfoPluginArea).toBeVisible();
+    });
+
+    await test.step("Upload same plugin version again", async () => {
+      await plugins.uploadPlugin(samplePluginZip.path);
+    });
+
+    await test.step("Verify cache warning dialog appears and dismiss it", async () => {
+      await plugins.confirmCacheWarning();
+    });
+  });
+
 });

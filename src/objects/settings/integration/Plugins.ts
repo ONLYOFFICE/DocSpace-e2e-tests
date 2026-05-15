@@ -1,7 +1,10 @@
-import { Page, Locator } from "@playwright/test";
+import { expect, Page, Locator } from "@playwright/test";
 import BasePage from "../../common/BasePage";
 import config from "@/config";
 import { toastMessages } from "@/src/utils/constants/settings";
+
+const DROPZONE_MAIN_TEXT = "dropzone-main-text";
+const CACHE_WARNING_OK_BUTTON = "plugin_cache_warning_ok_button";
 
 export class Plugins extends BasePage {
   constructor(page: Page) {
@@ -238,5 +241,37 @@ export class Plugins extends BasePage {
     await this.textInput.fill(config.PDF_CONVERTER_KEY);
     await this.saveButton.click();
     await this.removeToast(toastMessages.tokenSaved);
+  }
+
+  get sdkInfoPluginArea(): Locator {
+    return this.page.getByTestId("plugin_sdk-info");
+  }
+
+  get uploadPluginDropzone(): Locator {
+    return this.page.getByTestId(DROPZONE_MAIN_TEXT);
+  }
+
+  get cacheWarningDialog(): Locator {
+    return this.page
+      .locator("#modal-dialog")
+      .filter({ has: this.page.getByTestId(CACHE_WARNING_OK_BUTTON) });
+  }
+
+  get cacheWarningOkButton(): Locator {
+    return this.page.getByTestId(CACHE_WARNING_OK_BUTTON);
+  }
+
+  async uploadPlugin(filePath: string) {
+    const [fileChooser] = await Promise.all([
+      this.page.waitForEvent("filechooser"),
+      this.uploadPluginDropzone.click(),
+    ]);
+    await fileChooser.setFiles(filePath);
+  }
+
+  async confirmCacheWarning() {
+    await expect(this.cacheWarningOkButton).toBeVisible();
+    await this.cacheWarningOkButton.click();
+    await expect(this.cacheWarningDialog).not.toHaveClass(/visible/);
   }
 }
