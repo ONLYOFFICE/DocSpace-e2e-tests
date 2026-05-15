@@ -18,7 +18,7 @@ class BaseFloatingProgress {
     return this.page.getByTestId(FLOATING_BUTTON);
   }
 
-  // Workaround: multiple dialogs share role in DOM when Synchronization dialog is open
+  // Workaround: two modals share data-testid in DOM
   get errorPanel() {
     return this.page
       .getByRole("dialog")
