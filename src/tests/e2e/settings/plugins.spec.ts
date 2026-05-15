@@ -120,5 +120,4 @@ test.describe("Integration tests - Plugins", () => {
       await plugins.confirmCacheWarning();
     });
   });
-
 });
