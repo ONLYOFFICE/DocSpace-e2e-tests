@@ -18,9 +18,13 @@ class BaseFloatingProgress {
     return this.page.getByTestId(FLOATING_BUTTON);
   }
 
-  // Error panel
+  // Error panel - scoped to the upload dialog to avoid strict mode violation
+  // when another dialog (e.g. "Synchronization with database") is open simultaneously
   get errorPanel() {
-    return this.page.locator(`#${ERROR_PANEL_HEADER}`);
+    return this.page
+      .getByRole("dialog")
+      .filter({ has: this.page.locator(FILE_NAME) })
+      .locator(`#${ERROR_PANEL_HEADER}`);
   }
 
   get fileName() {
