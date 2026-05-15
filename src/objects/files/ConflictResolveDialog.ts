@@ -42,6 +42,7 @@ class ConflictResolveDialog extends BaseDialog {
   async submit() {
     await expect(this.submitButton).toBeVisible();
     await this.submitButton.click();
+    // Workaround: two modals share data-testid in DOM
     await this.submitButton.waitFor({ state: "detached" });
   }
 
@@ -49,6 +50,7 @@ class ConflictResolveDialog extends BaseDialog {
   async cancel() {
     await expect(this.cancelButton).toBeVisible();
     await this.cancelButton.click();
+    // Workaround: two modals share data-testid in DOM
     await this.cancelButton.waitFor({ state: "detached" });
   }
 

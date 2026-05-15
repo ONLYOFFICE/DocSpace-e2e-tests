@@ -18,8 +18,7 @@ class BaseFloatingProgress {
     return this.page.getByTestId(FLOATING_BUTTON);
   }
 
-  // Error panel - scoped to the upload dialog to avoid strict mode violation
-  // when another dialog (e.g. "Synchronization with database") is open simultaneously
+  // Workaround: multiple dialogs share role in DOM when Synchronization dialog is open
   get errorPanel() {
     return this.page
       .getByRole("dialog")
