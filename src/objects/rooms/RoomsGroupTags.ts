@@ -178,7 +178,13 @@ class RoomsGroupTags {
   }
 
   async closePanel() {
-    await this.page.getByTestId(CLOSE_PANEL_BUTTON).click();
+    // Workaround: background Sync aside also has #modal-dialog/testid in DOM
+    await this.page
+      .locator(
+        `[data-testid="${MODAL_DIALOG}"]:has([data-testid="${GROUP_NAME_INPUT}"])`,
+      )
+      .getByTestId(CLOSE_PANEL_BUTTON)
+      .click();
   }
 
   async clickSave() {

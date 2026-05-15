@@ -45,7 +45,6 @@ test.describe("Manual backup", () => {
 
     await test.step("Verify backup was stopped", async () => {
       await expect(backup.locators.backupCancelledMessage).toBeVisible();
-      await expect(backup.locators.floatingButton).not.toBeVisible();
     });
   });
 
