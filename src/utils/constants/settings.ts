@@ -97,6 +97,7 @@ const toastMessages = {
   // plugins
   pluginEnabled: "Plugin enabled",
   pluginDisabled: "Plugin disabled",
+  pluginLoaded: "Plugin loaded successfully",
   tokenSaved: "Token is saved",
 
   // security
@@ -123,6 +124,10 @@ const toastMessages = {
     "Your message was successfully sent. You will be contacted by the Sales Department.",
 } as const;
 
+const samplePluginZip = {
+  path: "data/plugins/SDK info_0.0.5.zip",
+} as const;
+
 export {
   navItems,
   TBackupMethodsIds,
@@ -142,4 +147,5 @@ export {
   TPaymentsTab,
   transactionHistoryFilter,
   TTransactionHistoryFilter,
+  samplePluginZip,
 };
