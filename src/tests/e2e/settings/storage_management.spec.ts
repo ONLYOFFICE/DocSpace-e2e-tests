@@ -345,7 +345,7 @@ test.describe("Storage Management: room quota banners", () => {
     });
   });
 
-  test("Quota exceeded room - creating new document shows banner in editor", async ({
+  test.skip("[Bug 81579] Quota exceeded room - creating new document shows banner in editor", async ({
     page,
   }) => {
     await test.step("Create a room and add a document to fill space", async () => {

@@ -5,6 +5,7 @@ const EMPTY_SCREEN_CONTAINER = "empty-screen-container";
 const CLEAR_FILTER = "Clear filter";
 const SUBMIT_TO_TEMPLATE_GALLERY = "Submit to Template Gallery";
 const SUBMIT_MODAL_HEADER = "modal-header-swipe";
+const SUBMIT_MODAL_TEXT = "Submit to Template";
 const SUBMIT_SELECT_TEMPLATE_BUTTON = "submit_to_gallery_select_form_button";
 const SUBMIT_CANCEL_BUTTON = "submit_to_gallery_cancel_button";
 const SUBMIT_APPLY_BUTTON = "submit_to_gallery_apply_button";
@@ -76,7 +77,11 @@ class TemplateGallery {
   // ==================== Submit to Template Gallery Modal ====================
 
   get submitModalHeader() {
-    return this.page.locator(`#${SUBMIT_MODAL_HEADER}`);
+    // Workaround: two modals share data-testid in DOM
+    return this.page
+      .getByRole("dialog")
+      .filter({ hasText: SUBMIT_MODAL_TEXT })
+      .locator(`#${SUBMIT_MODAL_HEADER}`);
   }
 
   get submitSelectTemplateButton() {

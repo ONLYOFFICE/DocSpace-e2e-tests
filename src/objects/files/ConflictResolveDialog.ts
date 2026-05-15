@@ -42,14 +42,16 @@ class ConflictResolveDialog extends BaseDialog {
   async submit() {
     await expect(this.submitButton).toBeVisible();
     await this.submitButton.click();
-    await this.dialog.waitFor({ state: "detached" });
+    // Workaround: two modals share data-testid in DOM
+    await this.submitButton.waitFor({ state: "detached" });
   }
 
   // Clicks the cancel button and waits for the dialog to close.
   async cancel() {
     await expect(this.cancelButton).toBeVisible();
     await this.cancelButton.click();
-    await this.dialog.waitFor({ state: "detached" });
+    // Workaround: two modals share data-testid in DOM
+    await this.cancelButton.waitFor({ state: "detached" });
   }
 
   // Shorthand: selects the given option and submits in one call.
