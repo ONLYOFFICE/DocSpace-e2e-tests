@@ -77,6 +77,7 @@ test.describe("AI Settings", () => {
     await aiSettings.selectProviderType("TogetherAI");
     await aiSettings.fillProviderTitle("Together AI");
     await aiSettings.fillProviderKey(config.TOGETHER_AI_API_KEY!);
+    await aiSettings.selectFirstAvailableModel();
     await aiSettings.saveProvider();
     await aiSettings.expectProviderInList("Together AI");
   });

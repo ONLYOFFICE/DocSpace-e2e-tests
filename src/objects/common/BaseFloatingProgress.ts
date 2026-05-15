@@ -18,9 +18,12 @@ class BaseFloatingProgress {
     return this.page.getByTestId(FLOATING_BUTTON);
   }
 
-  // Error panel
+  // Workaround: two modals share data-testid in DOM
   get errorPanel() {
-    return this.page.locator(`#${ERROR_PANEL_HEADER}`);
+    return this.page
+      .getByRole("dialog")
+      .filter({ has: this.page.locator(FILE_NAME) })
+      .locator(`#${ERROR_PANEL_HEADER}`);
   }
 
   get fileName() {

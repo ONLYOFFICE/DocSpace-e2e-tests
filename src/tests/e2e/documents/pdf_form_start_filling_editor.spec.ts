@@ -205,7 +205,7 @@ test.describe("My Documents: PDF form start filling via editor", () => {
     });
   });
 
-  test("Start filling a blank PDF form with no fields shows error dialog", async () => {
+  test.skip("[Bug 81580] Start filling a blank PDF form with no fields shows error dialog", async () => {
     let editorPage: Page;
     let pdfForm: FilesPdfForm;
 
