@@ -152,9 +152,10 @@ class OAuth extends BasePage {
   }
 
   get closeInfoPanel() {
-    return this.page
-      .getByTestId("aside_header_close_icon_button")
-      .getByRole("img");
+    // Workaround: background Sync aside also has aside_header_close button
+    return this.page.locator(
+      '[class*="visible"] [data-testid="aside_header_close_icon_button"]',
+    );
   }
 
   get generateToken() {
