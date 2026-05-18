@@ -13,6 +13,7 @@ import FileVersionHistory from "@/src/objects/files/FileVersionHistory";
 import FilesPdfForm from "@/src/objects/files/FilesPdfForm";
 import RoomSelectPanel from "@/src/objects/rooms/RoomSelectPanel";
 import StopFillingModal from "@/src/objects/files/StopFillingModal";
+import PauseSubmissionsDialog from "@/src/objects/files/PauseSubmissionsDialog";
 import {
   folderContextMenuOption,
   formFillingRoomPdfContextMenuOption,
@@ -59,6 +60,11 @@ test.describe("FormFilling room - Content creator permissions", () => {
         "data/rooms/PDF from device.pdf",
       ),
       apiSdk.files.uploadToFolder("owner", roomId, "data/rooms/PDF block.pdf"),
+      apiSdk.files.uploadToFolder(
+        "owner",
+        roomId,
+        "data/rooms/PDF with a required field.pdf",
+      ),
     ]);
 
     ownerFolderName = "OwnerFolder";
@@ -444,6 +450,13 @@ test.describe("FormFilling room - Content creator permissions", () => {
       );
       await myRooms.filesTable.expectLockIconVisible("PDF block");
 
+      // Start filling "PDF with a required field" as owner so CC cannot see Stop filling/Edit for it
+      await myRooms.filesTable.openContextMenuForItem("PDF with a required field");
+      await myRooms.filesTable.contextMenu.clickOption(
+        formFillingRoomPdfContextMenuOption.startFilling,
+      );
+      await new PdfFormModal(page).close();
+
       // Clear cookies to logout from owner account
       await page.context().clearCookies();
     });
@@ -686,26 +699,43 @@ test.describe("FormFilling room - Content creator permissions", () => {
       await myRooms.filesTable.expectFillingIconVisible("PDF from device");
     });
 
-    await test.step("Verify 'Stop filling' is visible in context menu for owner's PDF form", async () => {
+    await test.step("Verify 'Stop filling' works for CC-started form (confirmation dialog, no permission error)", async () => {
+      const stopFillingModal = new StopFillingModal(page);
       await myRooms.filesTable.openContextMenuForItem("PDF from device");
+      await myRooms.filesTable.contextMenu.clickOption(
+        formFillingRoomPdfContextMenuOption.stopFilling,
+      );
+      await stopFillingModal.clickCancel();
+    });
+
+    await test.step("Verify 'Edit' works for CC-started form (pause dialog appears, no permission error)", async () => {
+      await myRooms.filesTable.openContextMenuForItem("PDF from device");
+      await myRooms.filesTable.contextMenu.clickOption(
+        formFillingRoomPdfContextMenuOption.edit,
+      );
+      const pauseDialog = new PauseSubmissionsDialog(page);
+      await expect(pauseDialog.editButton).toBeVisible();
+      await page.keyboard.press("Escape");
+    });
+
+    await test.step("Verify 'Stop filling' is NOT visible for form started by owner (CC is not the filler)", async () => {
+      await myRooms.filesTable.openContextMenuForItem("PDF with a required field");
       await expect(
         myRooms.filesTable.contextMenu.getItemLocator(
           formFillingRoomPdfContextMenuOption.stopFilling,
         ),
-      ).toBeVisible();
+      ).not.toBeVisible();
       await myRooms.filesTable.contextMenu.close();
     });
 
-    // TODO: Bug 80858 - Stop filling and Edit should not be visible for Content creator on owner's form.
-    // Currently both options appear in the context menu: Stop filling shows a permission error toast,
-    // Edit triggers a stop filling dialog, stops filling and opens the file for editing.
-    // Step is skipped until the bug is fixed.
-    await test.step("TODO Bug 80858: Verify Stop filling is hidden for Content creator on owner's form", async () => {
-      test.info().annotations.push({
-        type: "issue",
-        description:
-          "Bug 80858: Stop filling and Edit incorrectly visible for Content creator on owner's form",
-      });
+    await test.step("Verify 'Edit' is NOT visible for form started by owner (CC is not the filler)", async () => {
+      await myRooms.filesTable.openContextMenuForItem("PDF with a required field");
+      await expect(
+        myRooms.filesTable.contextMenu.getItemLocator(
+          formFillingRoomPdfContextMenuOption.edit,
+        ),
+      ).not.toBeVisible();
+      await myRooms.filesTable.contextMenu.close();
     });
 
     await test.step("Verify PDF form editor shows 'Download as PDF' and 'Print' buttons", async () => {

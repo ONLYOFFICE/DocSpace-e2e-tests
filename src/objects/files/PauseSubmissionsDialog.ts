@@ -9,10 +9,13 @@ class PauseSubmissionsDialog {
     this.page = page;
   }
 
+  get editButton() {
+    return this.page.locator(EDIT_BUTTON);
+  }
+
   async clickEdit() {
-    const button = this.page.locator(EDIT_BUTTON);
-    await expect(button).toBeVisible();
-    await button.click();
+    await expect(this.editButton).toBeVisible();
+    await this.editButton.click();
   }
 }
 
