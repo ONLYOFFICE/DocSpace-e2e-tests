@@ -130,6 +130,12 @@ class FilesTable extends BaseTable {
     }
   }
 
+  async openItem(name: string) {
+    const row = await this.getRowByTitle(name);
+    await expect(row).toBeVisible();
+    await row.locator("[data-testid='link']").click();
+  }
+
   async openContextMenuForItem(name: string | RegExp, exact = false) {
     const item =
       exact && typeof name === "string"
