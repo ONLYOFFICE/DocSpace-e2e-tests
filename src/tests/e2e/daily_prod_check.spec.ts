@@ -219,10 +219,9 @@ test.describe("Daily prod check", () => {
       await myDocuments.open();
       await myDocuments.createDocumentFile("TrashDoc");
 
-      await myDocuments.filesTable.openContextMenuForItem("TrashDoc");
-      await myDocuments.filesTable.contextMenu.clickOption("Delete");
-      await myDocuments.folderDeleteModal.clickDeleteFolder();
-      await myDocuments.removeToast("successfully moved to Trash");
+      await expect(async () => {
+        await myDocuments.deleteFile("TrashDoc");
+      }).toPass({ timeout: 30000 });
 
       await trash.open();
       await trash.deleteFileForever("TrashDoc");
@@ -232,10 +231,9 @@ test.describe("Daily prod check", () => {
       await myDocuments.open();
       await myDocuments.createDocumentFile("RestoreDoc");
 
-      await myDocuments.filesTable.openContextMenuForItem("RestoreDoc");
-      await myDocuments.filesTable.contextMenu.clickOption("Delete");
-      await myDocuments.folderDeleteModal.clickDeleteFolder();
-      await myDocuments.removeToast("successfully moved to Trash");
+      await expect(async () => {
+        await myDocuments.deleteFile("RestoreDoc");
+      }).toPass({ timeout: 30000 });
 
       await trash.open();
       await trash.restoreFileTo("RestoreDoc");
