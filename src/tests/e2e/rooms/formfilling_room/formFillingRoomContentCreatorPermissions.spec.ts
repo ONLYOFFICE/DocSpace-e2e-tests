@@ -451,7 +451,9 @@ test.describe("FormFilling room - Content creator permissions", () => {
       await myRooms.filesTable.expectLockIconVisible("PDF block");
 
       // Start filling "PDF with a required field" as owner so CC cannot see Stop filling/Edit for it
-      await myRooms.filesTable.openContextMenuForItem("PDF with a required field");
+      await myRooms.filesTable.openContextMenuForItem(
+        "PDF with a required field",
+      );
       await myRooms.filesTable.contextMenu.clickOption(
         formFillingRoomPdfContextMenuOption.startFilling,
       );
@@ -719,7 +721,9 @@ test.describe("FormFilling room - Content creator permissions", () => {
     });
 
     await test.step("Verify 'Stop filling' is NOT visible for form started by owner (CC is not the filler)", async () => {
-      await myRooms.filesTable.openContextMenuForItem("PDF with a required field");
+      await myRooms.filesTable.openContextMenuForItem(
+        "PDF with a required field",
+      );
       await expect(
         myRooms.filesTable.contextMenu.getItemLocator(
           formFillingRoomPdfContextMenuOption.stopFilling,
@@ -729,7 +733,9 @@ test.describe("FormFilling room - Content creator permissions", () => {
     });
 
     await test.step("Verify 'Edit' is NOT visible for form started by owner (CC is not the filler)", async () => {
-      await myRooms.filesTable.openContextMenuForItem("PDF with a required field");
+      await myRooms.filesTable.openContextMenuForItem(
+        "PDF with a required field",
+      );
       await expect(
         myRooms.filesTable.contextMenu.getItemLocator(
           formFillingRoomPdfContextMenuOption.edit,
