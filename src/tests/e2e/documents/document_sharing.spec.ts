@@ -3,6 +3,9 @@ import InfoPanel from "@/src/objects/common/InfoPanel";
 import FileLinkSettings from "@/src/objects/files/FileLinkSettings";
 import BasePasswordRequire from "@/src/objects/common/BasePasswordRequire";
 import FilesEditor from "@/src/objects/files/FilesEditor";
+import FilesTable from "@/src/objects/files/FilesTable";
+import SharedWithMe from "@/src/objects/files/SharedWithMe";
+import Login from "@/src/objects/common/Login";
 import { test } from "@/src/fixtures";
 import { BrowserContext, expect, Page } from "@playwright/test";
 import {
@@ -388,6 +391,437 @@ test.describe("Document sharing", () => {
 
     await test.step("Verify link is deleted", async () => {
       await infoPanel.checkNoSharedLinks();
+    });
+  });
+});
+
+test.describe("Document sharing: access verification", () => {
+  test("User with Editing access opens document in edit mode", async ({
+    page,
+    api,
+    apiSdk,
+  }) => {
+    const fileName = "EditableDocument";
+    let fileId: number;
+    let userEmail: string;
+    let userPassword: string;
+
+    await test.step("Create file via API", async () => {
+      const fileResponse = await apiSdk.files.createFileInMyDocuments("owner", {
+        title: fileName,
+      });
+      const fileBody = await fileResponse.json();
+      fileId = fileBody.response.id;
+    });
+
+    await test.step("Create user and share file with Editing access", async () => {
+      const { userData, response } = await apiSdk.profiles.addMember(
+        "owner",
+        "User",
+      );
+      userEmail = userData.email;
+      userPassword = userData.password;
+      const userBody = await response.json();
+      const userId = userBody.response.id;
+
+      await apiSdk.files.shareFile("owner", fileId, {
+        share: [{ shareTo: userId, access: 10 }],
+        notify: false,
+      });
+    });
+
+    await test.step("Login as user", async () => {
+      const userLogin = new Login(page, api.portalDomain);
+      await userLogin.loginWithCredentials(userEmail, userPassword);
+    });
+
+    await test.step("Open Shared with me", async () => {
+      const sharedWithMe = new SharedWithMe(page, api.portalDomain);
+      await sharedWithMe.open();
+    });
+
+    type RecentResponse = { security: { Edit: boolean } };
+    const recentResponsePromise = new Promise<RecentResponse>((resolve) => {
+      page.context().once("page", (newPage) => {
+        newPage
+          .waitForResponse(
+            (resp) =>
+              resp.url().includes("/api/2.0/files/file/") &&
+              resp.url().endsWith("/recent"),
+          )
+          .then(async (resp) => {
+            const body = await resp.json();
+            resolve(body.response);
+          });
+      });
+    });
+
+    await test.step("Open file", async () => {
+      const editorPagePromise = page.context().waitForEvent("page");
+      const filesTable = new FilesTable(page);
+      await filesTable.openItem(fileName);
+      await editorPagePromise;
+    });
+
+    await test.step("Verify Edit access is enabled in file security", async () => {
+      const recentData = await recentResponsePromise;
+      expect(recentData.security.Edit).toBe(true);
+    });
+  });
+
+  test("User with Read only access opens document in view mode", async ({
+    page,
+    api,
+    apiSdk,
+  }) => {
+    const fileName = "ReadOnlyDocument";
+    let fileId: number;
+    let userEmail: string;
+    let userPassword: string;
+
+    await test.step("Create file via API", async () => {
+      const fileResponse = await apiSdk.files.createFileInMyDocuments("owner", {
+        title: fileName,
+      });
+      const fileBody = await fileResponse.json();
+      fileId = fileBody.response.id;
+    });
+
+    await test.step("Create user and share file with Read only access", async () => {
+      const { userData, response } = await apiSdk.profiles.addMember(
+        "owner",
+        "User",
+      );
+      userEmail = userData.email;
+      userPassword = userData.password;
+      const userBody = await response.json();
+      const userId = userBody.response.id;
+
+      await apiSdk.files.shareFile("owner", fileId, {
+        share: [{ shareTo: userId, access: 2 }],
+        notify: false,
+      });
+    });
+
+    await test.step("Login as user", async () => {
+      const userLogin = new Login(page, api.portalDomain);
+      await userLogin.loginWithCredentials(userEmail, userPassword);
+    });
+
+    await test.step("Open Shared with me", async () => {
+      const sharedWithMe = new SharedWithMe(page, api.portalDomain);
+      await sharedWithMe.open();
+    });
+
+    type RecentResponse = { security: { Comment: boolean } };
+    const recentResponsePromise = new Promise<RecentResponse>((resolve) => {
+      page.context().once("page", (newPage) => {
+        newPage
+          .waitForResponse(
+            (resp) =>
+              resp.url().includes("/api/2.0/files/file/") &&
+              resp.url().endsWith("/recent"),
+          )
+          .then(async (resp) => {
+            const body = await resp.json();
+            resolve(body.response);
+          });
+      });
+    });
+
+    await test.step("Open file", async () => {
+      const editorPagePromise = page.context().waitForEvent("page");
+      const filesTable = new FilesTable(page);
+      await filesTable.openItem(fileName);
+      await editorPagePromise;
+    });
+
+    await test.step("Verify commenting is disabled in file security", async () => {
+      const recentData = await recentResponsePromise;
+      expect(recentData.security.Comment).toBe(false);
+    });
+  });
+
+  test("User with Comment access opens document with commenting enabled", async ({
+    page,
+    api,
+    apiSdk,
+  }) => {
+    const fileName = "CommentDocument";
+    let fileId: number;
+    let userEmail: string;
+    let userPassword: string;
+
+    await test.step("Create file via API", async () => {
+      const fileResponse = await apiSdk.files.createFileInMyDocuments("owner", {
+        title: fileName,
+      });
+      const fileBody = await fileResponse.json();
+      fileId = fileBody.response.id;
+    });
+
+    await test.step("Create user and share file with Comment access", async () => {
+      const { userData, response } = await apiSdk.profiles.addMember(
+        "owner",
+        "User",
+      );
+      userEmail = userData.email;
+      userPassword = userData.password;
+      const userBody = await response.json();
+      const userId = userBody.response.id;
+
+      await apiSdk.files.shareFile("owner", fileId, {
+        share: [{ shareTo: userId, access: 6 }],
+        notify: false,
+      });
+    });
+
+    await test.step("Login as user", async () => {
+      const userLogin = new Login(page, api.portalDomain);
+      await userLogin.loginWithCredentials(userEmail, userPassword);
+    });
+
+    await test.step("Open Shared with me", async () => {
+      const sharedWithMe = new SharedWithMe(page, api.portalDomain);
+      await sharedWithMe.open();
+    });
+
+    type RecentResponse = {
+      security: { Comment: boolean };
+    };
+    const recentResponsePromise = new Promise<RecentResponse>((resolve) => {
+      page.context().once("page", (newPage) => {
+        newPage
+          .waitForResponse(
+            (resp) =>
+              resp.url().includes("/api/2.0/files/file/") &&
+              resp.url().endsWith("/recent"),
+          )
+          .then(async (resp) => {
+            const body = await resp.json();
+            resolve(body.response);
+          });
+      });
+    });
+
+    await test.step("Open file", async () => {
+      const editorPagePromise = page.context().waitForEvent("page");
+      const filesTable = new FilesTable(page);
+      await filesTable.openItem(fileName);
+      await editorPagePromise;
+    });
+
+    await test.step("Verify Comment access is enabled in file security", async () => {
+      const recentData = await recentResponsePromise;
+      expect(recentData.security.Comment).toBe(true);
+    });
+  });
+
+  test("User with Review access opens document with review enabled", async ({
+    page,
+    api,
+    apiSdk,
+  }) => {
+    const fileName = "ReviewDocument";
+    let fileId: number;
+    let userEmail: string;
+    let userPassword: string;
+
+    await test.step("Create file via API", async () => {
+      const fileResponse = await apiSdk.files.createFileInMyDocuments("owner", {
+        title: fileName,
+      });
+      const fileBody = await fileResponse.json();
+      fileId = fileBody.response.id;
+    });
+
+    await test.step("Create user and share file with Review access", async () => {
+      const { userData, response } = await apiSdk.profiles.addMember(
+        "owner",
+        "User",
+      );
+      userEmail = userData.email;
+      userPassword = userData.password;
+      const userBody = await response.json();
+      const userId = userBody.response.id;
+
+      await apiSdk.files.shareFile("owner", fileId, {
+        share: [{ shareTo: userId, access: 5 }],
+        notify: false,
+      });
+    });
+
+    await test.step("Login as user", async () => {
+      const userLogin = new Login(page, api.portalDomain);
+      await userLogin.loginWithCredentials(userEmail, userPassword);
+    });
+
+    await test.step("Open Shared with me", async () => {
+      const sharedWithMe = new SharedWithMe(page, api.portalDomain);
+      await sharedWithMe.open();
+    });
+
+    type RecentResponse = { security: { Review: boolean; Edit: boolean } };
+    const recentResponsePromise = new Promise<RecentResponse>((resolve) => {
+      page.context().once("page", (newPage) => {
+        newPage
+          .waitForResponse(
+            (resp) =>
+              resp.url().includes("/api/2.0/files/file/") &&
+              resp.url().endsWith("/recent"),
+          )
+          .then(async (resp) => {
+            const body = await resp.json();
+            resolve(body.response);
+          });
+      });
+    });
+
+    await test.step("Open file", async () => {
+      const editorPagePromise = page.context().waitForEvent("page");
+      const filesTable = new FilesTable(page);
+      await filesTable.openItem(fileName);
+      await editorPagePromise;
+    });
+
+    await test.step("Verify Review access is enabled in file security", async () => {
+      const recentData = await recentResponsePromise;
+      expect(recentData.security.Review).toBe(true);
+      expect(recentData.security.Edit).toBe(false);
+    });
+  });
+
+  test("User with Full access opens document with full permissions", async ({
+    page,
+    api,
+    apiSdk,
+  }) => {
+    const fileName = "FullAccessDocument";
+    let fileId: number;
+    let userEmail: string;
+    let userPassword: string;
+
+    await test.step("Create file via API", async () => {
+      const fileResponse = await apiSdk.files.createFileInMyDocuments("owner", {
+        title: fileName,
+      });
+      const fileBody = await fileResponse.json();
+      fileId = fileBody.response.id;
+    });
+
+    await test.step("Create user and share file with Full access", async () => {
+      const { userData, response } = await apiSdk.profiles.addMember(
+        "owner",
+        "User",
+      );
+      userEmail = userData.email;
+      userPassword = userData.password;
+      const userBody = await response.json();
+      const userId = userBody.response.id;
+
+      await apiSdk.files.shareFile("owner", fileId, {
+        share: [{ shareTo: userId, access: 1 }],
+        notify: false,
+      });
+    });
+
+    await test.step("Login as user", async () => {
+      const userLogin = new Login(page, api.portalDomain);
+      await userLogin.loginWithCredentials(userEmail, userPassword);
+    });
+
+    await test.step("Open Shared with me", async () => {
+      const sharedWithMe = new SharedWithMe(page, api.portalDomain);
+      await sharedWithMe.open();
+    });
+
+    type RecentResponse = {
+      canShare: boolean;
+      security: { Rename: boolean };
+    };
+    const recentResponsePromise = new Promise<RecentResponse>((resolve) => {
+      page.context().once("page", (newPage) => {
+        newPage
+          .waitForResponse(
+            (resp) =>
+              resp.url().includes("/api/2.0/files/file/") &&
+              resp.url().endsWith("/recent"),
+          )
+          .then(async (resp) => {
+            const body = await resp.json();
+            resolve(body.response);
+          });
+      });
+    });
+
+    await test.step("Open file", async () => {
+      const editorPagePromise = page.context().waitForEvent("page");
+      const filesTable = new FilesTable(page);
+      await filesTable.openItem(fileName);
+      await editorPagePromise;
+    });
+
+    await test.step("Verify Full access permissions in file security", async () => {
+      const recentData = await recentResponsePromise;
+      expect(recentData.security.Rename).toBe(true);
+      expect(recentData.canShare).toBe(true);
+    });
+  });
+
+  test("File disappears from Shared with me after access is denied", async ({
+    page,
+    api,
+    apiSdk,
+  }) => {
+    const fileName = "DeniedFile";
+    let fileId: number;
+    let userId: string;
+    let userEmail: string;
+    let userPassword: string;
+
+    await test.step("Create file and share with user via API", async () => {
+      const fileResponse = await apiSdk.files.createFileInMyDocuments("owner", {
+        title: fileName,
+      });
+      const fileBody = await fileResponse.json();
+      fileId = fileBody.response.id;
+
+      const { userData, response } = await apiSdk.profiles.addMember(
+        "owner",
+        "User",
+      );
+      userEmail = userData.email;
+      userPassword = userData.password;
+      const userBody = await response.json();
+      userId = userBody.response.id;
+
+      await apiSdk.files.shareFile("owner", fileId, {
+        share: [{ shareTo: userId, access: 10 }],
+        notify: false,
+      });
+    });
+
+    await test.step("Login as user and verify file appears in Shared with me", async () => {
+      const userLogin = new Login(page, api.portalDomain);
+      await userLogin.loginWithCredentials(userEmail, userPassword);
+      const sharedWithMe = new SharedWithMe(page, api.portalDomain);
+      await sharedWithMe.open();
+      const filesTable = new FilesTable(page);
+      await filesTable.checkRowExist(fileName);
+    });
+
+    await test.step("Deny access via API", async () => {
+      await apiSdk.files.shareFile("owner", fileId, {
+        share: [{ shareTo: userId, access: 3 }],
+        notify: false,
+      });
+    });
+
+    await test.step("Verify file is no longer visible in Shared with me", async () => {
+      const sharedWithMe = new SharedWithMe(page, api.portalDomain);
+      await sharedWithMe.open();
+      const filesTable = new FilesTable(page);
+      await filesTable.checkRowNotExist(fileName);
     });
   });
 });

@@ -20,6 +20,16 @@ class FilesEditor {
     }).toPass({ timeout });
   }
 
+  async checkEditMode(timeout = 30000) {
+    await expect(async () => {
+      expect(
+        this.consoleMessages.some((m) =>
+          m.includes("ONLYOFFICE Document Editor is opened in mode edit"),
+        ),
+      ).toBe(true);
+    }).toPass({ timeout });
+  }
+
   protected get frame() {
     return this.page.frameLocator('iframe[name="frameEditor"]');
   }
