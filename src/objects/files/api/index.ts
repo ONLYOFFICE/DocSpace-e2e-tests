@@ -1,4 +1,33 @@
-import { Page } from "@playwright/test";
+import { BrowserContext, Page } from "@playwright/test";
+
+export type FileRecentData = {
+  canShare: boolean;
+  security: {
+    Edit: boolean;
+    Comment: boolean;
+    Review: boolean;
+    Rename: boolean;
+  };
+};
+
+export function waitForFileRecentResponse(
+  context: BrowserContext,
+): Promise<FileRecentData> {
+  return new Promise<FileRecentData>((resolve) => {
+    context.once("page", (newPage) => {
+      newPage
+        .waitForResponse(
+          (resp) =>
+            resp.url().includes("/api/2.0/files/file/") &&
+            resp.url().endsWith("/recent"),
+        )
+        .then(async (resp) => {
+          const body = await resp.json();
+          resolve(body.response);
+        });
+    });
+  });
+}
 
 export const waitForGetFilesResponse = (page: Page) => {
   return page.waitForResponse((response) => {

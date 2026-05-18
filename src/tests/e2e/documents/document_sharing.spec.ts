@@ -13,7 +13,10 @@ import {
   cleanupIncognitoContext,
   verifyLoginPageInIncognito,
 } from "@/src/utils/helpers/linkTest";
-import { waitForShareLinkResponse } from "@/src/objects/files/api";
+import {
+  waitForShareLinkResponse,
+  waitForFileRecentResponse,
+} from "@/src/objects/files/api";
 
 test.describe("Document sharing", () => {
   let myDocuments: MyDocuments;
@@ -440,21 +443,7 @@ test.describe("Document sharing: access verification", () => {
       await sharedWithMe.open();
     });
 
-    type RecentResponse = { security: { Edit: boolean } };
-    const recentResponsePromise = new Promise<RecentResponse>((resolve) => {
-      page.context().once("page", (newPage) => {
-        newPage
-          .waitForResponse(
-            (resp) =>
-              resp.url().includes("/api/2.0/files/file/") &&
-              resp.url().endsWith("/recent"),
-          )
-          .then(async (resp) => {
-            const body = await resp.json();
-            resolve(body.response);
-          });
-      });
-    });
+    const recentResponsePromise = waitForFileRecentResponse(page.context());
 
     await test.step("Open file", async () => {
       const editorPagePromise = page.context().waitForEvent("page");
@@ -513,21 +502,7 @@ test.describe("Document sharing: access verification", () => {
       await sharedWithMe.open();
     });
 
-    type RecentResponse = { security: { Comment: boolean } };
-    const recentResponsePromise = new Promise<RecentResponse>((resolve) => {
-      page.context().once("page", (newPage) => {
-        newPage
-          .waitForResponse(
-            (resp) =>
-              resp.url().includes("/api/2.0/files/file/") &&
-              resp.url().endsWith("/recent"),
-          )
-          .then(async (resp) => {
-            const body = await resp.json();
-            resolve(body.response);
-          });
-      });
-    });
+    const recentResponsePromise = waitForFileRecentResponse(page.context());
 
     await test.step("Open file", async () => {
       const editorPagePromise = page.context().waitForEvent("page");
@@ -586,23 +561,7 @@ test.describe("Document sharing: access verification", () => {
       await sharedWithMe.open();
     });
 
-    type RecentResponse = {
-      security: { Comment: boolean };
-    };
-    const recentResponsePromise = new Promise<RecentResponse>((resolve) => {
-      page.context().once("page", (newPage) => {
-        newPage
-          .waitForResponse(
-            (resp) =>
-              resp.url().includes("/api/2.0/files/file/") &&
-              resp.url().endsWith("/recent"),
-          )
-          .then(async (resp) => {
-            const body = await resp.json();
-            resolve(body.response);
-          });
-      });
-    });
+    const recentResponsePromise = waitForFileRecentResponse(page.context());
 
     await test.step("Open file", async () => {
       const editorPagePromise = page.context().waitForEvent("page");
@@ -661,21 +620,7 @@ test.describe("Document sharing: access verification", () => {
       await sharedWithMe.open();
     });
 
-    type RecentResponse = { security: { Review: boolean; Edit: boolean } };
-    const recentResponsePromise = new Promise<RecentResponse>((resolve) => {
-      page.context().once("page", (newPage) => {
-        newPage
-          .waitForResponse(
-            (resp) =>
-              resp.url().includes("/api/2.0/files/file/") &&
-              resp.url().endsWith("/recent"),
-          )
-          .then(async (resp) => {
-            const body = await resp.json();
-            resolve(body.response);
-          });
-      });
-    });
+    const recentResponsePromise = waitForFileRecentResponse(page.context());
 
     await test.step("Open file", async () => {
       const editorPagePromise = page.context().waitForEvent("page");
@@ -735,24 +680,7 @@ test.describe("Document sharing: access verification", () => {
       await sharedWithMe.open();
     });
 
-    type RecentResponse = {
-      canShare: boolean;
-      security: { Rename: boolean };
-    };
-    const recentResponsePromise = new Promise<RecentResponse>((resolve) => {
-      page.context().once("page", (newPage) => {
-        newPage
-          .waitForResponse(
-            (resp) =>
-              resp.url().includes("/api/2.0/files/file/") &&
-              resp.url().endsWith("/recent"),
-          )
-          .then(async (resp) => {
-            const body = await resp.json();
-            resolve(body.response);
-          });
-      });
-    });
+    const recentResponsePromise = waitForFileRecentResponse(page.context());
 
     await test.step("Open file", async () => {
       const editorPagePromise = page.context().waitForEvent("page");
