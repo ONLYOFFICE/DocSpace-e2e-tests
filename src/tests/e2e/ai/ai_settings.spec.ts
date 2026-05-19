@@ -60,7 +60,6 @@ test.describe("AI Settings", () => {
     await aiSettings.selectProviderType("OpenAI");
     await aiSettings.fillProviderTitle("OpenAI");
     await aiSettings.fillProviderKey(config.OPENAI_API_KEY!);
-    await aiSettings.selectFirstAvailableModel();
     await aiSettings.saveProvider();
     await aiSettings.expectProviderInList("OpenAI");
   });
@@ -94,7 +93,6 @@ test.describe("AI Settings", () => {
       await aiSettings.selectProviderType("OpenAI");
       await aiSettings.fillProviderTitle("OpenAI");
       await aiSettings.fillProviderKey(config.OPENAI_API_KEY!);
-      await aiSettings.selectFirstAvailableModel();
       await aiSettings.saveProvider();
     });
 
@@ -115,7 +113,6 @@ test.describe("AI Settings", () => {
       await aiSettings.selectProviderType("OpenAI");
       await aiSettings.fillProviderTitle("OpenAI");
       await aiSettings.fillProviderKey(config.OPENAI_API_KEY!);
-      await aiSettings.selectFirstAvailableModel();
       await aiSettings.saveProvider();
       await aiSettings.expectProviderInList("OpenAI");
     });
