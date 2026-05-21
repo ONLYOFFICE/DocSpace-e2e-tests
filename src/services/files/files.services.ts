@@ -168,7 +168,9 @@ export class FilesApi {
 
       if (!response.ok()) {
         const body = await response.text();
-        throw new Error(`Create new version failed: ${response.status()} - ${body}`);
+        throw new Error(
+          `Create new version failed: ${response.status()} - ${body}`,
+        );
       }
 
       return response;
