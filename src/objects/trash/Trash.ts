@@ -10,6 +10,8 @@ import InfoPanel from "../common/InfoPanel";
 import BasePage from "../common/BasePage";
 import { toastMessages } from "@/src/utils/constants/trash";
 
+const EMPTY_TRASH_CONFIRM_BUTTON = "Delete forever";
+
 const navActions = {
   restore: {
     button: "#menu-restore",
@@ -48,8 +50,8 @@ class Trash extends BasePage {
     await this.page.waitForLoadState("load");
   }
 
-  async openRestoreSelector() {
-    await this.trashTable.selectAllRows();
+  async openRestoreSelector(fileName: string) {
+    await this.trashTable.selectRow(fileName);
     await this.navigation.performAction(navActions.restore);
     await this.trashSelector.checkSelectorExist();
   }
@@ -67,6 +69,20 @@ class Trash extends BasePage {
 
   async closeActionRequiredDialog() {
     await this.dialog.close();
+  }
+
+  async emptyTrash() {
+    await this.navigation.openContextMenu();
+    await this.navigation.performAction({
+      button: "#header_option_empty-trash",
+    });
+    const confirmButton = this.page.getByRole("button", {
+      name: EMPTY_TRASH_CONFIRM_BUTTON,
+      exact: true,
+    });
+    await expect(confirmButton).toBeVisible();
+    await confirmButton.click();
+    await this.trashEmptyView.checkNoDocsTextExist();
   }
 
   async openEmptyTrashDialog(source: "header" | "table") {
