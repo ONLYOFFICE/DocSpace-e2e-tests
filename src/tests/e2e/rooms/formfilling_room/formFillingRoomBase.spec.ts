@@ -43,7 +43,16 @@ test.describe("FormFilling base tests", () => {
   let login: Login;
   let pdfFormModal: PdfFormModal;
 
-  test.beforeEach(async ({ page, api }) => {
+  const FF_SKIP_TESTS = [
+    "Check work with Draft PDF Form",
+    "In Progress folder appears with draft file after opening form and closing without submitting",
+  ];
+
+  test.beforeEach(async ({ page, api, browserName }, testInfo) => {
+    // Extra editor reload required in FF headless mode causes the draft close button to disappear
+    test.skip(
+      browserName === "firefox" && FF_SKIP_TESTS.includes(testInfo.title),
+    );
     myRooms = new MyRooms(page, api.portalDomain);
     shortTour = new ShortTour(page);
     pdfFormModal = new PdfFormModal(page);
