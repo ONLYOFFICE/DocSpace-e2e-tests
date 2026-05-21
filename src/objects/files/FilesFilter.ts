@@ -2,20 +2,7 @@ import { expect, Page } from "@playwright/test";
 import BaseFilter from "../common/BaseFilter";
 import { docSort, TDocSort } from "@/src/utils/constants/files";
 import { waitForGetFilesResponse } from "./api";
-
-const filesFilter = {
-  byFolders: "#filter_type-folders",
-  byMedia: "#filter_type-media",
-  byFiles: "#filter_type-all-files",
-  byDocuments: "#filter_type-documents",
-  bySpreadsheets: "#filter_type-spreadsheets",
-  byPresentations: "#filter_type-presentations",
-  byPdfDocuments: "#filter_type-pdf",
-  byPdfForms: "#filter_type-forms",
-  byDiagrams: "#filter_type-diagrams",
-  byArchives: "#filter_type-archive",
-  byImages: "#filter_type-images",
-} as const;
+import { FILTER_TYPE } from "@/src/utils/constants/filter";
 
 const TITLE_FOLDERS = "#folder-tile-heading";
 const EMPTY_VIEW_FILTER = "#empty-view-filter";
@@ -38,47 +25,47 @@ class FilesFilter extends BaseFilter {
   }
 
   async selectFilterByFolders() {
-    await super.selectFilterTag(filesFilter.byFolders);
+    await super.selectFilterTag(FILTER_TYPE.FOLDERS);
   }
 
   async selectFilterByMedia() {
-    await super.selectFilterTag(filesFilter.byMedia);
+    await super.selectFilterTag(FILTER_TYPE.MEDIA);
   }
 
   async selectFilterByFiles() {
-    await super.selectFilterTag(filesFilter.byFiles);
+    await super.selectFilterTag(FILTER_TYPE.ALL_FILES);
   }
 
   async selectFilterByDocuments() {
-    await super.selectFilterTag(filesFilter.byDocuments);
+    await super.selectFilterTag(FILTER_TYPE.DOCUMENTS);
   }
 
   async selectFilterBySpreadsheets() {
-    await super.selectFilterTag(filesFilter.bySpreadsheets);
+    await super.selectFilterTag(FILTER_TYPE.SPREADSHEETS);
   }
 
   async selectFilterByPresentations() {
-    await super.selectFilterTag(filesFilter.byPresentations);
+    await super.selectFilterTag(FILTER_TYPE.PRESENTATIONS);
   }
 
   async selectFilterByPdfDocuments() {
-    await super.selectFilterTag(filesFilter.byPdfDocuments);
+    await super.selectFilterTag(FILTER_TYPE.PDF);
   }
 
   async selectFilterByPdfForms() {
-    await super.selectFilterTag(filesFilter.byPdfForms);
+    await super.selectFilterTag(FILTER_TYPE.FORMS);
   }
 
   async selectFilterByDiagrams() {
-    await super.selectFilterTag(filesFilter.byDiagrams);
+    await super.selectFilterTag(FILTER_TYPE.DIAGRAMS);
   }
 
   async selectFilterByArchives() {
-    await super.selectFilterTag(filesFilter.byArchives);
+    await super.selectFilterTag(FILTER_TYPE.ARCHIVE);
   }
 
   async selectFilterByImages() {
-    await super.selectFilterTag(filesFilter.byImages);
+    await super.selectFilterTag(FILTER_TYPE.IMAGES);
   }
 
   async applyFilter() {

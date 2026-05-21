@@ -217,6 +217,19 @@ export class FilesApi {
     });
   }
 
+  async deleteFile(role: Role, fileId: number) {
+    return test.step(`${role} delete file ${fileId} to trash`, async () => {
+      const response = await this.request.delete(
+        `${this.portalBaseUrl}/api/2.0/files/file/${fileId}`,
+        {
+          headers: { Authorization: `Bearer ${this.getToken(role)}` },
+          data: { deleteAfter: false },
+        },
+      );
+      return response;
+    });
+  }
+
   async shareFile(
     role: Role,
     fileId: number,
