@@ -5,7 +5,7 @@ import BaseTable from "../common/BaseTable";
 import TrashSelector from "./TrashSelector";
 import TrashEmptyView from "./TrashEmptyView";
 import BaseDialog from "../common/BaseDialog";
-import BaseFilter from "../common/BaseFilter";
+import TrashFilter from "./TrashFilter";
 import InfoPanel from "../common/InfoPanel";
 import BasePage from "../common/BasePage";
 import { toastMessages } from "@/src/utils/constants/trash";
@@ -29,7 +29,7 @@ class Trash extends BasePage {
 
   dialog: BaseDialog;
   trashSelector: TrashSelector;
-  filter: BaseFilter;
+  filter: TrashFilter;
   infoPanel: InfoPanel;
 
   constructor(page: Page) {
@@ -40,7 +40,7 @@ class Trash extends BasePage {
     this.trashEmptyView = new TrashEmptyView(page);
     this.dialog = new BaseDialog(page);
     this.trashSelector = new TrashSelector(page);
-    this.filter = new BaseFilter(page);
+    this.filter = new TrashFilter(page);
     this.infoPanel = new InfoPanel(page);
   }
 

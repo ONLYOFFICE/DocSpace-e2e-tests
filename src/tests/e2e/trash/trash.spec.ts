@@ -3,6 +3,7 @@ import Trash from "@/src/objects/trash/Trash";
 import Rooms from "@/src/objects/rooms/Rooms";
 import RoomInfoPanel from "@/src/objects/rooms/RoomInfoPanel";
 import RoomsInviteDialog from "@/src/objects/rooms/RoomsInviteDialog";
+import { FILTER_TYPE, FILTER_AUTHOR } from "@/src/utils/constants/filter";
 import { DOC_ACTIONS } from "@/src/utils/constants/files";
 import { expect } from "@playwright/test";
 import { test } from "@/src/fixtures";
@@ -197,7 +198,7 @@ test.describe("Trash", () => {
       await trash.trashTable.checkRowExist("DocInTrash");
       await trash.trashTable.checkRowExist("FolderInTrash");
       await trash.filter.openFilterDialog();
-      await trash.filter.selectFilterTag("#filter_type-folders");
+      await trash.filter.selectFilterTag(FILTER_TYPE.FOLDERS);
       await trash.filter.filterApplyButton.click();
     });
 
@@ -230,7 +231,7 @@ test.describe("Trash", () => {
       await trash.trashTable.checkRowExist("AuthorFilterFile1");
       await trash.trashTable.checkRowExist("AuthorFilterFile2");
       await trash.filter.openFilterDialog();
-      await trash.filter.selectFilterTag("[data-testid='filter_tag_me']");
+      await trash.filter.selectFilterTag(FILTER_AUTHOR.ME);
       await trash.filter.filterApplyButton.click();
     });
 
@@ -266,9 +267,7 @@ test.describe("Trash", () => {
     });
 
     await test.step("Select Other author filter and pick the user", async () => {
-      await trash.filter.filterDialog
-        .locator("[data-testid='filter_tag_other']")
-        .click();
+      await trash.filter.authorOtherTag.click();
       const userPickerModal = trash.filter.page.locator("#modal-dialog");
       await userPickerModal
         .getByText(userName, { exact: true })
@@ -291,54 +290,26 @@ test.describe("Trash", () => {
     });
 
     await test.step("Verify Author filter options are visible", async () => {
-      await expect(
-        trash.filter.filterDialog.locator("[data-testid='filter_tag_me']"),
-      ).toBeVisible();
-      await expect(
-        trash.filter.filterDialog.locator("[data-testid='filter_tag_other']"),
-      ).toBeVisible();
+      await expect(trash.filter.authorMeTag).toBeVisible();
+      await expect(trash.filter.authorOtherTag).toBeVisible();
     });
 
     await test.step("Verify Type filter options are visible", async () => {
-      await expect(
-        trash.filter.filterDialog.locator("#filter_type-folders"),
-      ).toBeVisible();
-      await expect(
-        trash.filter.filterDialog.locator("#filter_type-all-files"),
-      ).toBeVisible();
-      await expect(
-        trash.filter.filterDialog.locator("#filter_type-documents"),
-      ).toBeVisible();
-      await expect(
-        trash.filter.filterDialog.locator("#filter_type-spreadsheets"),
-      ).toBeVisible();
-      await expect(
-        trash.filter.filterDialog.locator("#filter_type-presentations"),
-      ).toBeVisible();
-      await expect(
-        trash.filter.filterDialog.locator("#filter_type-pdf"),
-      ).toBeVisible();
-      await expect(
-        trash.filter.filterDialog.locator("#filter_type-forms"),
-      ).toBeVisible();
-      await expect(
-        trash.filter.filterDialog.locator("#filter_type-diagrams"),
-      ).toBeVisible();
-      await expect(
-        trash.filter.filterDialog.locator("#filter_type-archive"),
-      ).toBeVisible();
-      await expect(
-        trash.filter.filterDialog.locator("#filter_type-images"),
-      ).toBeVisible();
-      await expect(
-        trash.filter.filterDialog.locator("#filter_type-media"),
-      ).toBeVisible();
+      await expect(trash.filter.typeFoldersTag).toBeVisible();
+      await expect(trash.filter.typeAllFilesTag).toBeVisible();
+      await expect(trash.filter.typeDocumentsTag).toBeVisible();
+      await expect(trash.filter.typeSpreadsheetsTag).toBeVisible();
+      await expect(trash.filter.typePresentationsTag).toBeVisible();
+      await expect(trash.filter.typePdfTag).toBeVisible();
+      await expect(trash.filter.typeFormsTag).toBeVisible();
+      await expect(trash.filter.typeDiagramsTag).toBeVisible();
+      await expect(trash.filter.typeArchiveTag).toBeVisible();
+      await expect(trash.filter.typeImagesTag).toBeVisible();
+      await expect(trash.filter.typeMediaTag).toBeVisible();
     });
 
     await test.step("Verify Room filter option is visible", async () => {
-      await expect(
-        trash.filter.filterDialog.getByText("Select room"),
-      ).toBeVisible();
+      await expect(trash.filter.roomFilterTag).toBeVisible();
     });
 
     await test.step("Close filter dialog", async () => {
@@ -460,7 +431,7 @@ test.describe("Trash", () => {
       await trash.trashTable.checkRowExist("TypeDocFile");
       await trash.trashTable.checkRowExist("TypeDocFolder");
       await trash.filter.openFilterDialog();
-      await trash.filter.selectFilterTag("#filter_type-documents");
+      await trash.filter.selectFilterTag(FILTER_TYPE.DOCUMENTS);
       await trash.filter.filterApplyButton.click();
     });
 
@@ -540,14 +511,7 @@ test.describe("Trash", () => {
 
     await test.step("Filter by room and verify only room file is shown", async () => {
       await trash.filter.openFilterDialog();
-      await trash.filter.filterDialog.getByText("Select room").click();
-      const roomListModal = trash.filter.page.locator("#modal-dialog");
-      await roomListModal
-        .getByText(roomName, { exact: true })
-        .click({ force: true });
-      await roomListModal
-        .getByRole("button", { name: "Select", exact: true })
-        .click({ force: true });
+      await trash.filter.selectRoomFilter(roomName);
       await trash.filter.filterApplyButton.click();
       await trash.trashTable.checkRowExist("RoomFile");
       await trash.trashTable.checkRowNotExist("MyDocsFile");
@@ -681,9 +645,7 @@ test.describe("Trash", () => {
       await trash.open();
       await trash.trashTable.checkRowExist("RoomManagerFile");
       await trash.filter.openFilterDialog();
-      await trash.filter.filterDialog
-        .locator("[data-testid='filter_tag_other']")
-        .click();
+      await trash.filter.authorOtherTag.click();
       const userPickerModal = trash.filter.page.locator("#modal-dialog");
       await userPickerModal
         .getByText(memberName, { exact: true })
