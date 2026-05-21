@@ -300,17 +300,39 @@ test.describe("Trash", () => {
     });
 
     await test.step("Verify Type filter options are visible", async () => {
-      await expect(trash.filter.filterDialog.locator("#filter_type-folders")).toBeVisible();
-      await expect(trash.filter.filterDialog.locator("#filter_type-all-files")).toBeVisible();
-      await expect(trash.filter.filterDialog.locator("#filter_type-documents")).toBeVisible();
-      await expect(trash.filter.filterDialog.locator("#filter_type-spreadsheets")).toBeVisible();
-      await expect(trash.filter.filterDialog.locator("#filter_type-presentations")).toBeVisible();
-      await expect(trash.filter.filterDialog.locator("#filter_type-pdf")).toBeVisible();
-      await expect(trash.filter.filterDialog.locator("#filter_type-forms")).toBeVisible();
-      await expect(trash.filter.filterDialog.locator("#filter_type-diagrams")).toBeVisible();
-      await expect(trash.filter.filterDialog.locator("#filter_type-archive")).toBeVisible();
-      await expect(trash.filter.filterDialog.locator("#filter_type-images")).toBeVisible();
-      await expect(trash.filter.filterDialog.locator("#filter_type-media")).toBeVisible();
+      await expect(
+        trash.filter.filterDialog.locator("#filter_type-folders"),
+      ).toBeVisible();
+      await expect(
+        trash.filter.filterDialog.locator("#filter_type-all-files"),
+      ).toBeVisible();
+      await expect(
+        trash.filter.filterDialog.locator("#filter_type-documents"),
+      ).toBeVisible();
+      await expect(
+        trash.filter.filterDialog.locator("#filter_type-spreadsheets"),
+      ).toBeVisible();
+      await expect(
+        trash.filter.filterDialog.locator("#filter_type-presentations"),
+      ).toBeVisible();
+      await expect(
+        trash.filter.filterDialog.locator("#filter_type-pdf"),
+      ).toBeVisible();
+      await expect(
+        trash.filter.filterDialog.locator("#filter_type-forms"),
+      ).toBeVisible();
+      await expect(
+        trash.filter.filterDialog.locator("#filter_type-diagrams"),
+      ).toBeVisible();
+      await expect(
+        trash.filter.filterDialog.locator("#filter_type-archive"),
+      ).toBeVisible();
+      await expect(
+        trash.filter.filterDialog.locator("#filter_type-images"),
+      ).toBeVisible();
+      await expect(
+        trash.filter.filterDialog.locator("#filter_type-media"),
+      ).toBeVisible();
     });
 
     await test.step("Verify Room filter option is visible", async () => {
@@ -505,7 +527,8 @@ test.describe("Trash", () => {
         "owner",
         { title: "MyDocsFile" },
       );
-      const myDocFileId = (await myDocFileResponse.json()).response.id as number;
+      const myDocFileId = (await myDocFileResponse.json()).response
+        .id as number;
       await apiSdk.files.deleteFile("owner", myDocFileId);
     });
 
@@ -519,8 +542,12 @@ test.describe("Trash", () => {
       await trash.filter.openFilterDialog();
       await trash.filter.filterDialog.getByText("Select room").click();
       const roomListModal = trash.filter.page.locator("#modal-dialog");
-      await roomListModal.getByText(roomName, { exact: true }).click({ force: true });
-      await roomListModal.getByRole("button", { name: "Select", exact: true }).click({ force: true });
+      await roomListModal
+        .getByText(roomName, { exact: true })
+        .click({ force: true });
+      await roomListModal
+        .getByRole("button", { name: "Select", exact: true })
+        .click({ force: true });
       await trash.filter.filterApplyButton.click();
       await trash.trashTable.checkRowExist("RoomFile");
       await trash.trashTable.checkRowNotExist("MyDocsFile");
@@ -563,7 +590,11 @@ test.describe("Trash", () => {
     });
   });
 
-  test("Filter trash by author: file created by room manager appears when filtering by their name", async ({ page, apiSdk, login }) => {
+  test("Filter trash by author: file created by room manager appears when filtering by their name", async ({
+    page,
+    apiSdk,
+    login,
+  }) => {
     let memberName: string;
     let memberEmail: string;
     let memberPassword: string;
@@ -577,14 +608,18 @@ test.describe("Trash", () => {
         roomType: "CustomRoom",
       });
       if (!roomResponse.ok()) {
-        throw new Error(`createRoom failed: ${roomResponse.status()} - ${await roomResponse.text()}`);
+        throw new Error(
+          `createRoom failed: ${roomResponse.status()} - ${await roomResponse.text()}`,
+        );
       }
       roomId = (await roomResponse.json()).response.id as number;
 
       const { response: memberResponse, userData: memberData } =
         await apiSdk.profiles.addMember("owner", "RoomAdmin");
       if (!memberResponse.ok()) {
-        throw new Error(`addMember failed: ${memberResponse.status()} - ${await memberResponse.text()}`);
+        throw new Error(
+          `addMember failed: ${memberResponse.status()} - ${await memberResponse.text()}`,
+        );
       }
       const memberBody = await memberResponse.json();
       memberName = `${memberBody.response.firstName} ${memberBody.response.lastName}`;
@@ -664,7 +699,9 @@ test.describe("Trash", () => {
     });
   });
 
-  test("Action required dialog appears when restoring a file that conflicts with an existing one", async ({ apiSdk }) => {
+  test("Action required dialog appears when restoring a file that conflicts with an existing one", async ({
+    apiSdk,
+  }) => {
     await test.step("Create file, delete to trash, then create file with same name in My Documents", async () => {
       const fileResponse = await apiSdk.files.createFileInMyDocuments("owner", {
         title: "ActionRequiredFile",
