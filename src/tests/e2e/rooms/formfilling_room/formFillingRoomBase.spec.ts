@@ -49,7 +49,7 @@ test.describe("FormFilling base tests", () => {
   ];
 
   test.beforeEach(async ({ page, api, browserName }, testInfo) => {
-    // Extra editor reload required in FF headless mode causes the draft close button to disappear
+    // [Bug 81601] Extra editor reload required in FF headless mode causes the draft close button to disappear
     test.skip(
       browserName === "firefox" && FF_SKIP_TESTS.includes(testInfo.title),
     );
