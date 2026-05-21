@@ -108,9 +108,11 @@ class MyRooms extends BasePage {
   }
 
   async openWithoutEmptyCheck() {
-    await this.page.goto(`${getPortalUrl(this.portalDomain)}/rooms/shared`, {
-      waitUntil: "load",
-    });
+    await expect(async () => {
+      await this.page.goto(`${getPortalUrl(this.portalDomain)}/rooms/shared`, {
+        waitUntil: "load",
+      });
+    }).toPass({ timeout: 30000 });
     await expect(this.page).toHaveURL(/.*rooms\/shared.*/);
     await expect(this.page.locator(ARTICLE_CONTAINER)).toBeVisible();
   }

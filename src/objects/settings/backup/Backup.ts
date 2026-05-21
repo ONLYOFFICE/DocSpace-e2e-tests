@@ -460,8 +460,10 @@ export class Backup extends BasePage {
   async stopBackup() {
     await expect(this.locators.floatingButton).toBeVisible({ timeout: 15000 });
     await expect(this.locators.iconBackup).toBeVisible();
-    await this.locators.floatingButton.hover();
-    await this.locators.floatingButtonCloseIcon.click();
+    await expect(async () => {
+      await this.locators.floatingButton.hover();
+      await this.locators.floatingButtonCloseIcon.click({ timeout: 10000 });
+    }).toPass({ timeout: 30000 });
   }
 
   async openThirdPartyServiceAutoBackup() {
