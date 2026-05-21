@@ -144,6 +144,39 @@ export class FilesApi {
     });
   }
 
+  async createNewVersion(role: Role, fileId: number, filePath: string) {
+    return test.step(`${role} create new version of file ${fileId}`, async () => {
+      const resolvedPath = path.resolve(process.cwd(), filePath);
+
+      if (!fs.existsSync(resolvedPath)) {
+        throw new Error(`File not found: ${resolvedPath}`);
+      }
+
+      const response = await this.request.put(
+        `${this.portalBaseUrl}/api/2.0/files/${fileId}/update`,
+        {
+          headers: { Authorization: `Bearer ${this.getToken(role)}` },
+          multipart: {
+            file: {
+              name: path.basename(resolvedPath),
+              mimeType: "application/pdf",
+              buffer: fs.readFileSync(resolvedPath),
+            },
+          },
+        },
+      );
+
+      if (!response.ok()) {
+        const body = await response.text();
+        throw new Error(
+          `Create new version failed: ${response.status()} - ${body}`,
+        );
+      }
+
+      return response;
+    });
+  }
+
   async getFileIdByTitle(role: Role, title: string) {
     return test.step(`${role} get file id by title "${title}"`, async () => {
       const response = await this.request.get(

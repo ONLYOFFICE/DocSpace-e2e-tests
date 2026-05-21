@@ -116,4 +116,293 @@ test.describe("Version History: room permissions", () => {
       });
     });
   });
+
+  test.describe("Reviewer", () => {
+    let myRooms: MyRooms;
+    let login: Login;
+
+    test.beforeEach(async ({ page, api, apiSdk }) => {
+      myRooms = new MyRooms(page, api.portalDomain);
+      login = new Login(page, api.portalDomain);
+
+      const roomResponse = await apiSdk.rooms.createRoom("owner", {
+        title: ROOM_NAME,
+        roomType: "CustomRoom",
+      });
+      const roomBody = await roomResponse.json();
+      const roomId = roomBody.response.id;
+
+      await apiSdk.files.uploadToFolder(
+        "owner",
+        roomId,
+        "data/documents/test-document.docx",
+      );
+
+      const { userData, response: userResponse } =
+        await apiSdk.profiles.addMember("owner", "User");
+      const userBody = await userResponse.json();
+
+      await apiSdk.rooms.setRoomAccessRights("owner", roomId, {
+        invitations: [{ id: userBody.response.id, access: "Review" }],
+        notify: false,
+      });
+
+      await login.loginWithCredentials(userData.email, userData.password);
+      await myRooms.openWithoutEmptyCheck();
+    });
+
+    test("Reviewer cannot access version history", async () => {
+      await test.step("Navigate into room and open file context menu", async () => {
+        await myRooms.roomsTable.openRoomByName(ROOM_NAME);
+        await myRooms.filesTable.openContextMenuForItem(FILE_NAME);
+        await expect(
+          myRooms.filesTable.contextMenu.getItemLocator(
+            documentContextMenuOption.moreOptions,
+          ),
+        ).not.toBeVisible();
+        await myRooms.filesTable.contextMenu.close();
+      });
+    });
+  });
+
+  test.describe("Commenter", () => {
+    let myRooms: MyRooms;
+    let login: Login;
+
+    test.beforeEach(async ({ page, api, apiSdk }) => {
+      myRooms = new MyRooms(page, api.portalDomain);
+      login = new Login(page, api.portalDomain);
+
+      const roomResponse = await apiSdk.rooms.createRoom("owner", {
+        title: ROOM_NAME,
+        roomType: "CustomRoom",
+      });
+      const roomBody = await roomResponse.json();
+      const roomId = roomBody.response.id;
+
+      await apiSdk.files.uploadToFolder(
+        "owner",
+        roomId,
+        "data/documents/test-document.docx",
+      );
+
+      const { userData, response: userResponse } =
+        await apiSdk.profiles.addMember("owner", "User");
+      const userBody = await userResponse.json();
+
+      await apiSdk.rooms.setRoomAccessRights("owner", roomId, {
+        invitations: [{ id: userBody.response.id, access: "Comment" }],
+        notify: false,
+      });
+
+      await login.loginWithCredentials(userData.email, userData.password);
+      await myRooms.openWithoutEmptyCheck();
+    });
+
+    test("Commenter cannot access version history", async () => {
+      await test.step("Navigate into room and open file context menu", async () => {
+        await myRooms.roomsTable.openRoomByName(ROOM_NAME);
+        await myRooms.filesTable.openContextMenuForItem(FILE_NAME);
+        await expect(
+          myRooms.filesTable.contextMenu.getItemLocator(
+            documentContextMenuOption.moreOptions,
+          ),
+        ).not.toBeVisible();
+        await myRooms.filesTable.contextMenu.close();
+      });
+    });
+  });
+
+  test.describe("Room Manager", () => {
+    let myRooms: MyRooms;
+    let login: Login;
+    let versionHistory: FileVersionHistory;
+
+    test.beforeEach(async ({ page, api, apiSdk }) => {
+      myRooms = new MyRooms(page, api.portalDomain);
+      login = new Login(page, api.portalDomain);
+      versionHistory = new FileVersionHistory(page);
+
+      const roomResponse = await apiSdk.rooms.createRoom("owner", {
+        title: ROOM_NAME,
+        roomType: "CustomRoom",
+      });
+      const roomBody = await roomResponse.json();
+      const roomId = roomBody.response.id;
+
+      const uploadedFile = await apiSdk.files.uploadToFolder(
+        "owner",
+        roomId,
+        "data/documents/test-document.docx",
+      );
+      await apiSdk.files.createNewVersion(
+        "owner",
+        uploadedFile.id,
+        "data/documents/test-document.docx",
+      );
+
+      const { userData, response: userResponse } =
+        await apiSdk.profiles.addMember("owner", "RoomAdmin");
+      const userBody = await userResponse.json();
+
+      await apiSdk.rooms.setRoomAccessRights("owner", roomId, {
+        invitations: [{ id: userBody.response.id, access: "RoomManager" }],
+        notify: false,
+      });
+
+      await login.loginWithCredentials(userData.email, userData.password);
+      await myRooms.openWithoutEmptyCheck();
+    });
+
+    test("Room Manager can view and manage version history", async () => {
+      await test.step("Navigate into room and open version history", async () => {
+        await myRooms.roomsTable.openRoomByName(ROOM_NAME);
+        await myRooms.filesTable.openContextMenuForItem(FILE_NAME);
+        await myRooms.filesTable.contextMenu.clickSubmenuOption(
+          documentContextMenuOption.moreOptions,
+          pdfFormMoreOptionsSubmenu.showVersionHistory,
+        );
+      });
+
+      await test.step("Verify room manager sees all version history options", async () => {
+        const versionIndex = await versionHistory.getEarliestVersionIndex();
+        await versionHistory.checkVersionMenuOptions(versionIndex, [
+          "Open",
+          "Download",
+          "Edit comment",
+          "Restore",
+          "Delete",
+        ]);
+      });
+    });
+  });
+
+  test.describe("Content Creator", () => {
+    test.describe("other's file", () => {
+      let myRooms: MyRooms;
+      let login: Login;
+      let versionHistory: FileVersionHistory;
+
+      test.beforeEach(async ({ page, api, apiSdk }) => {
+        myRooms = new MyRooms(page, api.portalDomain);
+        login = new Login(page, api.portalDomain);
+        versionHistory = new FileVersionHistory(page);
+
+        const roomResponse = await apiSdk.rooms.createRoom("owner", {
+          title: ROOM_NAME,
+          roomType: "CustomRoom",
+        });
+        const roomBody = await roomResponse.json();
+        const roomId = roomBody.response.id;
+
+        const uploadedFile = await apiSdk.files.uploadToFolder(
+          "owner",
+          roomId,
+          "data/documents/test-document.docx",
+        );
+        await apiSdk.files.createNewVersion(
+          "owner",
+          uploadedFile.id,
+          "data/documents/test-document.docx",
+        );
+
+        const { userData, response: userResponse } =
+          await apiSdk.profiles.addMember("owner", "User");
+        const userBody = await userResponse.json();
+
+        await apiSdk.rooms.setRoomAccessRights("owner", roomId, {
+          invitations: [{ id: userBody.response.id, access: "ContentCreator" }],
+          notify: false,
+        });
+
+        await login.loginWithCredentials(userData.email, userData.password);
+        await myRooms.openWithoutEmptyCheck();
+      });
+
+      test("Content Creator cannot delete others' files from version history", async () => {
+        await test.step("Navigate into room and open version history", async () => {
+          await myRooms.roomsTable.openRoomByName(ROOM_NAME);
+          await myRooms.filesTable.openContextMenuForItem(FILE_NAME);
+          await myRooms.filesTable.contextMenu.clickSubmenuOption(
+            documentContextMenuOption.moreOptions,
+            pdfFormMoreOptionsSubmenu.showVersionHistory,
+          );
+        });
+
+        await test.step("Verify content creator cannot delete others' file versions", async () => {
+          const versionIndex = await versionHistory.getEarliestVersionIndex();
+          await versionHistory.checkVersionMenuOptions(
+            versionIndex,
+            ["Open", "Download", "Edit comment", "Restore"],
+            ["Delete"],
+          );
+        });
+      });
+    });
+
+    test.describe("own file", () => {
+      let myRooms: MyRooms;
+      let login: Login;
+      let versionHistory: FileVersionHistory;
+
+      test.beforeEach(async ({ page, api, apiSdk }) => {
+        myRooms = new MyRooms(page, api.portalDomain);
+        login = new Login(page, api.portalDomain);
+        versionHistory = new FileVersionHistory(page);
+
+        const roomResponse = await apiSdk.rooms.createRoom("owner", {
+          title: ROOM_NAME,
+          roomType: "CustomRoom",
+        });
+        const roomBody = await roomResponse.json();
+        const roomId = roomBody.response.id;
+
+        const { userData, response: userResponse } =
+          await apiSdk.profiles.addMember("owner", "User");
+        const userBody = await userResponse.json();
+
+        await apiSdk.rooms.setRoomAccessRights("owner", roomId, {
+          invitations: [{ id: userBody.response.id, access: "ContentCreator" }],
+          notify: false,
+        });
+
+        await api.auth.authenticateUser();
+        const uploadedFile = await apiSdk.files.uploadToFolder(
+          "user",
+          roomId,
+          "data/documents/test-document.docx",
+        );
+        await apiSdk.files.createNewVersion(
+          "user",
+          uploadedFile.id,
+          "data/documents/test-document.docx",
+        );
+
+        await login.loginWithCredentials(userData.email, userData.password);
+        await myRooms.openWithoutEmptyCheck();
+      });
+
+      test("Content Creator can delete own files from version history", async () => {
+        await test.step("Navigate into room and open version history", async () => {
+          await myRooms.roomsTable.openRoomByName(ROOM_NAME);
+          await myRooms.filesTable.openContextMenuForItem(FILE_NAME);
+          await myRooms.filesTable.contextMenu.clickSubmenuOption(
+            documentContextMenuOption.moreOptions,
+            pdfFormMoreOptionsSubmenu.showVersionHistory,
+          );
+        });
+
+        await test.step("Verify content creator can delete own file versions", async () => {
+          const versionIndex = await versionHistory.getEarliestVersionIndex();
+          await versionHistory.checkVersionMenuOptions(versionIndex, [
+            "Open",
+            "Download",
+            "Edit comment",
+            "Restore",
+            "Delete",
+          ]);
+        });
+      });
+    });
+  });
 });
