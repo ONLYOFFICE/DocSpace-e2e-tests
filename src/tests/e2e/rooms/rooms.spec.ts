@@ -109,8 +109,12 @@ test.describe("Rooms", () => {
     await test.step("Precondition: create two rooms", async () => {
       await myRooms.openWithoutEmptyCheck();
       await myRooms.openCreateRoomDialog(roomDialogSource.navigation);
-      await myRooms.roomsCreateDialog.openRoomType(roomCreateTitles.collaboration);
-      await myRooms.roomsCreateDialog.createRoom(roomCreateTitles.collaboration);
+      await myRooms.roomsCreateDialog.openRoomType(
+        roomCreateTitles.collaboration,
+      );
+      await myRooms.roomsCreateDialog.createRoom(
+        roomCreateTitles.collaboration,
+      );
       await myRooms.backToRooms();
       await myRooms.openCreateRoomDialog(roomDialogSource.navigation);
       await myRooms.roomsCreateDialog.openRoomType(roomCreateTitles.public);
@@ -119,7 +123,9 @@ test.describe("Rooms", () => {
     });
 
     await test.step("Pin room to top via context menu", async () => {
-      await myRooms.roomsTable.openContextMenu(roomCreateTitles.collaboration);
+      await myRooms.roomsTable.openContextMenu(
+        roomCreateTitles.collaboration,
+      );
       await myRooms.roomsTable.clickContextMenuOption(
         roomContextMenuOption.pinToTop,
       );
