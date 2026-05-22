@@ -1,4 +1,5 @@
 import { expect, Page } from "@playwright/test";
+import { hoverGradually } from "@/src/utils/helpers/hover";
 import BaseTable from "../common/BaseTable";
 
 import { BaseContextMenu } from "../common/BaseContextMenu";
@@ -151,14 +152,10 @@ class RoomsTable extends BaseTable {
   async openInlineTagsPanelByHover(roomName: string) {
     const row = await this.getRowByTitle(roomName);
     const tagsHeader = this.page.locator(TABLE_HEADER_TAGS);
-    const headerBox = await tagsHeader.boundingBox();
-    const rowBox = await row.boundingBox();
-    const targetX = headerBox!.x + headerBox!.width / 2;
-    const targetY = rowBox!.y + rowBox!.height / 2;
-    // Move from row start to Tags column gradually to trigger hover on nested elements
-    await this.page.mouse.move(rowBox!.x + 10, targetY);
-    await this.page.mouse.move(targetX, targetY, { steps: 10 });
-    await row.locator(TAG_ITEM_BUTTON).click({ force: true });
+    await hoverGradually(this.page, tagsHeader, row.locator(TAG_ITEM_BUTTON), {
+      startLocator: row,
+      startOffsetX: 10,
+    });
   }
 
   async openInlineTagsPanelInThumbnailView(roomName: string) {
