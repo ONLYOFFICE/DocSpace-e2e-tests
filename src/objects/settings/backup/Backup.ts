@@ -1,5 +1,6 @@
 import config from "@/config";
 import { expect, Page } from "@playwright/test";
+import { hoverGradually } from "@/src/utils/helpers/hover";
 import {
   navItems,
   mapBackupMethodsIds,
@@ -461,8 +462,11 @@ export class Backup extends BasePage {
     await expect(this.locators.floatingButton).toBeVisible({ timeout: 15000 });
     await expect(this.locators.iconBackup).toBeVisible();
     await expect(async () => {
-      await this.locators.floatingButton.hover();
-      await this.locators.floatingButtonCloseIcon.click({ timeout: 10000 });
+      await hoverGradually(
+        this.page,
+        this.locators.floatingButton,
+        this.locators.floatingButtonCloseIcon,
+      );
     }).toPass({ timeout: 30000 });
   }
 
