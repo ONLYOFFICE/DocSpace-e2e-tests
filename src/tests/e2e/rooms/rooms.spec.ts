@@ -123,14 +123,14 @@ test.describe("Rooms", () => {
     });
 
     await test.step("Pin room to top via context menu", async () => {
-      await myRooms.roomsTable.openContextMenu(
-        roomCreateTitles.collaboration,
-      );
+      await myRooms.roomsTable.openContextMenu(roomCreateTitles.collaboration);
       await myRooms.roomsTable.clickContextMenuOption(
         roomContextMenuOption.pinToTop,
       );
       await myRooms.removeToast(roomToastMessages.pinned);
-      await myRooms.roomsTable.checkRoomIsPinned(roomCreateTitles.collaboration);
+      await myRooms.roomsTable.checkRoomIsPinned(
+        roomCreateTitles.collaboration,
+      );
       await expect(myRooms.roomsTable.tableRows.first()).toContainText(
         roomCreateTitles.collaboration,
       );
