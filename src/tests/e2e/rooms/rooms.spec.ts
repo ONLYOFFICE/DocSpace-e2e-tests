@@ -6,7 +6,7 @@ import {
   roomToastMessages,
 } from "@/src/utils/constants/rooms";
 import { test } from "@/src/fixtures";
-import { Page } from "@playwright/test";
+import { expect, Page } from "@playwright/test";
 
 test.describe("Rooms", () => {
   let myRooms: MyRooms;
@@ -106,20 +106,35 @@ test.describe("Rooms", () => {
   });
 
   test("Pin room to top", async () => {
-    await test.step("Precondition: create public room", async () => {
+    await test.step("Precondition: create two rooms", async () => {
       await myRooms.openWithoutEmptyCheck();
+      await myRooms.openCreateRoomDialog(roomDialogSource.navigation);
+      await myRooms.roomsCreateDialog.openRoomType(
+        roomCreateTitles.collaboration,
+      );
+      await myRooms.roomsCreateDialog.createRoom(
+        roomCreateTitles.collaboration,
+      );
+      await myRooms.backToRooms();
       await myRooms.openCreateRoomDialog(roomDialogSource.navigation);
       await myRooms.roomsCreateDialog.openRoomType(roomCreateTitles.public);
       await myRooms.roomsCreateDialog.createRoom(roomCreateTitles.public);
       await myRooms.backToRooms();
     });
 
-    await myRooms.roomsTable.openContextMenu(roomCreateTitles.public);
-    await myRooms.roomsTable.clickContextMenuOption(
-      roomContextMenuOption.pinToTop,
-    );
-    await myRooms.removeToast(roomToastMessages.pinned);
-    await myRooms.roomsTable.checkRoomPinnedToTopExist();
+    await test.step("Pin room to top via context menu", async () => {
+      await myRooms.roomsTable.openContextMenu(roomCreateTitles.collaboration);
+      await myRooms.roomsTable.clickContextMenuOption(
+        roomContextMenuOption.pinToTop,
+      );
+      await myRooms.removeToast(roomToastMessages.pinned);
+      await myRooms.roomsTable.checkRoomIsPinned(
+        roomCreateTitles.collaboration,
+      );
+      await expect(myRooms.roomsTable.tableRows.first()).toContainText(
+        roomCreateTitles.collaboration,
+      );
+    });
   });
 
   test("Rename room", async () => {
