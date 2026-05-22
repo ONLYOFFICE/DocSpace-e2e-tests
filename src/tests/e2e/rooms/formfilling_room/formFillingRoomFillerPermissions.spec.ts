@@ -82,8 +82,8 @@ test.describe("FormFilling room - Form filler permissions", () => {
       await myRooms.roomsTable.openRoomByName(roomName);
 
       // Add user with Form filler role (default role in Form Filling rooms)
-      await myRooms.infoPanel.open();
       await shortTour.clickSkipTour();
+      await myRooms.infoPanel.open();
       await myRooms.infoPanel.openTab("Contacts");
       await roomInfoPanel.clickAddUser();
       await roomsInviteDialog.openPeopleList();
@@ -207,8 +207,8 @@ test.describe("FormFilling room - Form filler permissions", () => {
       await myRooms.openWithoutEmptyCheck();
       await myRooms.roomsTable.openRoomByName(roomName);
 
-      await myRooms.infoPanel.open();
       await shortTour.clickSkipTour();
+      await myRooms.infoPanel.open();
       await myRooms.infoPanel.openTab("Contacts");
       await roomInfoPanel.clickAddUser();
       await roomsInviteDialog.openPeopleList();
@@ -409,8 +409,8 @@ test.describe("FormFilling room - Form filler permissions", () => {
       await myRooms.openWithoutEmptyCheck();
       await myRooms.roomsTable.openRoomByName(roomName);
 
-      await myRooms.infoPanel.open();
       await shortTour.clickSkipTour();
+      await myRooms.infoPanel.open();
       await myRooms.infoPanel.openTab("Contacts");
       await roomInfoPanel.clickAddUser();
       await roomsInviteDialog.openPeopleList();
