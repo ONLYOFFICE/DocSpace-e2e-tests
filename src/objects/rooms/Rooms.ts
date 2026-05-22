@@ -133,6 +133,8 @@ class MyRooms extends BasePage {
 
   async backToRooms() {
     await this.navigation.gotoBack();
+    await expect(this.page).toHaveURL(/\/rooms\/shared\/?(filter)?([\?#].*)?$/);
+    await expect(this.page.locator(ARTICLE_CONTAINER)).toBeVisible();
     await this.roomsTable.checkTableExist();
   }
 
