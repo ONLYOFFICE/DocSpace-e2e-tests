@@ -57,7 +57,7 @@ class VdrStartFillingPage {
 
   async waitForPageLoad() {
     await expect(this.page).toHaveURL(START_FILLING_URL, { timeout: 15000 });
-    await expect(this.layout).toBeVisible();
+    await expect(this.layout.first()).toBeVisible();
   }
 
   async checkButtonsVisible() {
