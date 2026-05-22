@@ -12,7 +12,11 @@ export async function hoverGradually(
   page: Page,
   hoverTarget: Locator,
   clickTarget: Locator,
-  options: { steps?: number; startLocator?: Locator; startOffsetX?: number } = {},
+  options: {
+    steps?: number;
+    startLocator?: Locator;
+    startOffsetX?: number;
+  } = {},
 ): Promise<void> {
   const { steps = 10, startLocator, startOffsetX = 0 } = options;
   const targetBox = await hoverTarget.boundingBox();
