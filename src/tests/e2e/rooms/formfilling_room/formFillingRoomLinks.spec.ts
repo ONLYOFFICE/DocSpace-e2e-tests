@@ -301,8 +301,8 @@ test.describe("FormFilling room - Link tests", () => {
         await setupIncognitoContext(browser);
       await incognitoPage.goto(newShareLink, { waitUntil: "load" });
       const anonView = new RoomAnonymousView(incognitoPage);
-      await anonView.signInButtonVisible();
       await anonView.checkSignInNotificationVisible();
+      await anonView.signInButtonVisible();
       await cleanupIncognitoContext(context, incognitoPage);
     });
   });
@@ -389,8 +389,8 @@ test.describe("FormFilling room - Link tests", () => {
         await setupIncognitoContext(browser);
       await roomPage.goto(roomLink, { waitUntil: "domcontentloaded" });
       const anonView = new RoomAnonymousView(roomPage);
-      await anonView.signInButtonVisible();
       await anonView.checkSignInNotificationVisible();
+      await anonView.signInButtonVisible();
       await cleanupIncognitoContext(roomContext, roomPage);
 
       // Verify file link works
