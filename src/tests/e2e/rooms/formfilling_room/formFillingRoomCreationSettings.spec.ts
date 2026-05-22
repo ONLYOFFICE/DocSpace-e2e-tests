@@ -64,7 +64,6 @@ test.describe("FormFilling room: creation settings", () => {
       await page.waitForURL(
         /\/portal-settings\/integration\/third-party-services\?consumer=externaldb/,
       );
-      await expect(page.locator("#modal-header-swipe")).toBeVisible();
       await expect(
         page.locator("#modal-header-swipe").getByText("Database connection"),
       ).toBeVisible();
