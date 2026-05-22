@@ -6,6 +6,11 @@ import { BaseDropdown } from "./BaseDropdown";
 import BaseToast from "./BaseToast";
 
 const TAG_ADD_BUTTON = "[data-testid='tag_item_']";
+const SHARE_ADD_USER_BUTTON = "info_panel_share_add_share_user_button";
+const SHARE_SELECTOR_SEARCH_INPUT = "selector_search_input";
+const SHARE_SELECTOR_SEARCH_TEXT_INPUT = "text-input";
+const SHARE_SELECTOR_ITEM = "[data-testid^='selector-item-']";
+const SHARE_SELECTOR_SUBMIT_BUTTON = "selector_submit_button";
 const NO_ITEM_TEXT = ".no-item-text";
 const INFO_OPTIONS_ICON = "#info-options";
 
@@ -256,15 +261,25 @@ class InfoPanel {
     await expect(this.formFillingSharedLink).toBeVisible();
   }
   async addUserToShare(userName: string) {
-    await this.page
-      .getByTestId("info_panel_share_add_share_user_button")
-      .click();
+    await this.page.getByTestId(SHARE_ADD_USER_BUTTON).click();
     const item = this.page
-      .locator('[data-testid^="selector-item-"]')
+      .locator(SHARE_SELECTOR_ITEM)
       .filter({ hasText: userName });
     await expect(item).toBeVisible();
     await item.click();
-    await this.page.getByTestId("selector_submit_button").click();
+    await this.page.getByTestId(SHARE_SELECTOR_SUBMIT_BUTTON).click();
+  }
+
+  async checkUserNotInShareSelector(userEmail: string) {
+    await this.page.getByTestId(SHARE_ADD_USER_BUTTON).click();
+    const searchInput = this.page
+      .getByTestId(SHARE_SELECTOR_SEARCH_INPUT)
+      .getByTestId(SHARE_SELECTOR_SEARCH_TEXT_INPUT);
+    await searchInput.fill(userEmail);
+    await expect(
+      this.page.locator(`[aria-label*="${userEmail}"]`),
+    ).not.toBeVisible();
+    await this.page.keyboard.press("Escape");
   }
 
   async checkUserHasAccess(userName: string) {
