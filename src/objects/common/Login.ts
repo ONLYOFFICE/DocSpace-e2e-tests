@@ -8,6 +8,7 @@ const PASSWORD_FIELD_CONTAINER = '[data-testid="password_field_container"]';
 const REQUIRED_FIELD_ERROR = "Required field";
 const INCORRECT_EMAIL_ERROR = "Incorrect email";
 const AUTH_FAILED_ERROR = "User authentication failed";
+const USER_DISABLED_ERROR = "User disabled";
 const SOCIAL_PANEL_CLOSE_BUTTON = "aside_header_close_icon_button";
 const GOOGLE_SOCIAL_BUTTON = '[data-test-id="google-social-button"]';
 const LINKEDIN_SOCIAL_BUTTON = '[data-test-id="linkedin-button-wrapper"]';
@@ -41,6 +42,7 @@ export class Login extends BasePage {
   emailFormatError: Locator;
   passwordFieldError: Locator;
   authFailedError: Locator;
+  userDisabledError: Locator;
   rememberMeCheckbox: Locator;
   googleSocialButton: Locator;
   linkedInSocialButton: Locator;
@@ -77,6 +79,7 @@ export class Login extends BasePage {
       .locator(PASSWORD_FIELD_CONTAINER)
       .getByText(REQUIRED_FIELD_ERROR);
     this.authFailedError = page.getByText(AUTH_FAILED_ERROR);
+    this.userDisabledError = page.getByText(USER_DISABLED_ERROR);
     this.rememberMeCheckbox = page.locator(REMEMBER_ME_CHECKBOX);
     this.googleSocialButton = page.locator(GOOGLE_SOCIAL_BUTTON);
     this.linkedInSocialButton = page.locator(LINKEDIN_SOCIAL_BUTTON);
