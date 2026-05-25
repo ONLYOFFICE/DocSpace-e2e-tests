@@ -90,4 +90,57 @@ test.describe("Favorites", () => {
       await favorites.clearSearch();
     });
   });
+
+  test("Filter favorites by type", async () => {
+    await test.step("Mark all documents as favorites", async () => {
+      await myDocuments.addToFavorites(documentName);
+      await myDocuments.addToFavorites(spreadsheetName);
+      await myDocuments.addToFavorites(presentationName);
+      await myDocuments.addToFavorites(pdfFormName);
+      await myDocuments.addToFavorites(folderName);
+    });
+
+    await favorites.openFromNavigation();
+    await favorites.filesTable.checkRowExist(spreadsheetName);
+
+    await test.step("Filter by documents", async () => {
+      await favorites.filesFilter.openFilterDialog();
+      await favorites.filesFilter.selectFilterByDocuments();
+      await favorites.filesFilter.applyFilterNoWait();
+      await favorites.filesTable.checkRowExist(documentName);
+      await favorites.filesTable.checkRowNotExist(spreadsheetName);
+    });
+
+    await test.step("Filter by spreadsheets", async () => {
+      await favorites.filesFilter.openFilterDialog();
+      await favorites.filesFilter.selectFilterBySpreadsheets();
+      await favorites.filesFilter.applyFilterNoWait();
+      await favorites.filesTable.checkRowExist(spreadsheetName);
+      await favorites.filesTable.checkRowNotExist(documentName);
+    });
+
+    await test.step("Filter by presentations", async () => {
+      await favorites.filesFilter.openFilterDialog();
+      await favorites.filesFilter.selectFilterByPresentations();
+      await favorites.filesFilter.applyFilterNoWait();
+      await favorites.filesTable.checkRowExist(presentationName);
+      await favorites.filesTable.checkRowNotExist(spreadsheetName);
+    });
+
+    await test.step("Filter by folders", async () => {
+      await favorites.filesFilter.openFilterDialog();
+      await favorites.filesFilter.selectFilterByFolders();
+      await favorites.filesFilter.applyFilterNoWait();
+      await favorites.filesTable.checkRowExist(folderName);
+      await favorites.filesTable.checkRowNotExist(presentationName);
+    });
+
+    await test.step("Filter by media (empty result)", async () => {
+      await favorites.filesFilter.openFilterDialog();
+      await favorites.filesFilter.selectFilterByMedia();
+      await favorites.filesFilter.applyFilterNoWait();
+      await favorites.filesFilter.checkFilesEmptyViewExist();
+      await favorites.filesFilter.clearFilterFromEmptyView();
+    });
+  });
 });

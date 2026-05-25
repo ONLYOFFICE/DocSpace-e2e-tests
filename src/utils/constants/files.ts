@@ -90,6 +90,9 @@ export const documentContextMenuOption = {
   markAsRead: testId("option_mark-read"), // conditional: visible after external edits
   blockVersion: testId("block-unblock-version"), // rooms only
   moreOptions: testId("option_info"),
+  openLocation: testId("option_open-location"), // recent / search results only
+  removeFromRecent: testId("option_remove-from-recent"), // recent only
+  removeFromShared: testId("option_remove-shared-file-or-folder"), // shared with me only
   delete: testId("option_delete"),
 };
 

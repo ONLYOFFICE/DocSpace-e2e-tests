@@ -2,7 +2,7 @@ import { expect, Page } from "@playwright/test";
 import BaseFilter from "../common/BaseFilter";
 import { docSort, TDocSort } from "@/src/utils/constants/files";
 import { waitForGetFilesResponse } from "./api";
-import { FILTER_TYPE } from "@/src/utils/constants/filter";
+import { FILTER_TYPE, FILTER_LOCATION } from "@/src/utils/constants/filter";
 
 const TITLE_FOLDERS = "#folder-tile-heading";
 const EMPTY_VIEW_FILTER = "#empty-view-filter";
@@ -66,6 +66,18 @@ class FilesFilter extends BaseFilter {
 
   async selectFilterByImages() {
     await super.selectFilterTag(FILTER_TYPE.IMAGES);
+  }
+
+  async selectFilterByLocationRooms() {
+    await super.selectFilterTag(FILTER_LOCATION.ROOMS);
+  }
+
+  async selectFilterByLocationDocuments() {
+    await super.selectFilterTag(FILTER_LOCATION.DOCUMENTS);
+  }
+
+  async selectFilterByLocationLink() {
+    await super.selectFilterTag(FILTER_LOCATION.LINK);
   }
 
   async applyFilter() {
