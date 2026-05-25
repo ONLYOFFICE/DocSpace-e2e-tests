@@ -16,3 +16,9 @@ export const FILTER_TYPE = {
   IMAGES: "#filter_type-images",
   MEDIA: "#filter_type-media",
 } as const;
+
+export const FILTER_LOCATION = {
+  ROOMS: "#filter_location-rooms",
+  DOCUMENTS: "#filter_location-documents",
+  LINK: "#filter_location-accessible-via-link",
+} as const;
