@@ -37,6 +37,7 @@ test.describe("Manual backup", () => {
   test("Stop backup in progress", async () => {
     await test.step("Start backup", async () => {
       await backup.locators.createBackupButton.click();
+      await expect(backup.locators.floatingButton).toBeVisible({ timeout: 10000 });
     });
 
     await test.step("Stop backup via floating progress button", async () => {
