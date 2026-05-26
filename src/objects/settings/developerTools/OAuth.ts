@@ -1,4 +1,5 @@
 import { expect, Page } from "@playwright/test";
+import type { APIRequestContext, PlaywrightWorkerArgs } from "@playwright/test";
 import BasePage from "@/src/objects/common/BasePage";
 import BaseTable, { TBaseTableLocators } from "../../common/BaseTable";
 
@@ -252,6 +253,21 @@ class OAuth extends BasePage {
     await this.oauthSaveButton.click();
   }
 
+  async createApplicationOnlyProfileWriteScope() {
+    await this.oauthNameInput.fill("Autotest");
+    await this.oauthWebsiteUrlInput.fill("https://google.com");
+    await this.oauthDescriptionInput.fill("Autotest");
+    await this.oauthRedirectUriInput.fill("https://google.com");
+    await this.oauthRedirectUriInput.press("Enter");
+    await this.oauthAllowedOriginsInput.fill("https://google.com");
+    await this.oauthAllowedOriginsInput.press("Enter");
+    await this.oauthIconInput.setInputFiles("data/avatars/OAuthApp.jpg");
+    await this.profileWritrCheckBox.click();
+    await this.oauthPolicyUrlInput.fill("https://google.com");
+    await this.oauthTermsOfServiceUrlInput.fill("https://google.com");
+    await this.oauthSaveButton.click();
+  }
+
   async editOAuthApplication() {
     await this.oauthEditApplication.click();
     await this.oauthNameInput.click();
@@ -371,6 +387,20 @@ class OAuth extends BasePage {
   async deleteOAuthApplication() {
     await this.oauthActionMenu.click();
     await this.deleteApplication.click();
+  }
+
+  async loginAsOAuthClient(
+    playwright: PlaywrightWorkerArgs["playwright"],
+    baseUrl: string,
+  ): Promise<APIRequestContext> {
+    await this.generateOauthToken();
+    await this.saveGeneratedToken();
+    await this.copyTokenButton.click();
+    return playwright.request.newContext({
+      baseURL: baseUrl,
+      timeout: 60000,
+      extraHTTPHeaders: { Authorization: `Bearer ${this.storedToken}` },
+    });
   }
 }
 
