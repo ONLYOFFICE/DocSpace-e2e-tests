@@ -442,7 +442,8 @@ test.describe("Contacts - Invite links", () => {
     });
   });
 
-  test("[Bug 81017] Pending user sees error when joining portal via general invite link", async ({
+  // Bug 81017
+  test("Pending user sees error when joining portal via general invite link", async ({
     apiSdk,
     browser,
   }) => {
@@ -492,7 +493,8 @@ test.describe("Contacts - Invite links", () => {
     });
   });
 
-  test("[Bug 80334] Existing user can log in via invite link by pressing Enter on password field", async ({
+  // Bug 80334
+  test("Existing user can log in via invite link by pressing Enter on password field", async ({
     apiSdk,
     browser,
   }) => {
