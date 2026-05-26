@@ -107,15 +107,6 @@ class ContactsTable extends BaseTable {
     const row = await this.getRowByNameText(name);
     await expect(row.locator(ME_LABEL)).toBeVisible();
   }
-
-  async getFirstVisibleRowText() {
-    return this.tableRows.first().innerText();
-  }
-
-  async scrollToBottom() {
-    await this.tableRows.nth(15).waitFor({ state: "visible", timeout: 30000 });
-    await this.tableRows.last().scrollIntoViewIfNeeded();
-  }
 }
 
 export default ContactsTable;

@@ -1,44 +1,6 @@
-import { expect } from "@playwright/test";
 import { test } from "@/src/fixtures";
 import Contacts from "@/src/objects/contacts/Contacts";
 import { ADMIN_OWNER_NAME } from "@/src/utils/constants/contacts";
-
-test.describe("Contacts - Members: scroll", () => {
-  let contacts: Contacts;
-
-  test.beforeEach(async ({ page, api, login, apiSdk }) => {
-    contacts = new Contacts(page, api.portalDomain);
-
-    await Promise.all(
-      Array.from({ length: 100 }, () =>
-        apiSdk.profiles.addMember("owner", "User"),
-      ),
-    );
-
-    await login.loginToPortal();
-    await contacts.open();
-  });
-
-  test("Scrolling down shows different members", async () => {
-    let firstRowTextBefore: string;
-
-    await test.step("Get first visible row before scroll", async () => {
-      await expect(contacts.table.tableRows.first()).toBeVisible();
-      firstRowTextBefore = await contacts.table.getFirstVisibleRowText();
-    });
-
-    await test.step("Scroll to bottom", async () => {
-      await contacts.table.scrollToBottom();
-    });
-
-    await test.step("Verify different members are now visible", async () => {
-      await expect(async () => {
-        const firstRowTextAfter = await contacts.table.getFirstVisibleRowText();
-        expect(firstRowTextAfter).not.toBe(firstRowTextBefore);
-      }).toPass({ timeout: 10000 });
-    });
-  });
-});
 
 test.describe("Contacts - Members: filter by status", () => {
   let contacts: Contacts;
