@@ -1,4 +1,4 @@
-import { Page, Response } from "@playwright/test";
+import { expect, Page, Response } from "@playwright/test";
 import BaseFilter from "../common/BaseFilter";
 import { waitForGetGroupResponse, waitForGetPeopleResponse } from "./api";
 import { TContactSort } from "@/src/utils/constants/contacts";
@@ -40,6 +40,13 @@ class ContactsFilter extends BaseFilter {
     const promise = this.waitForGetResponse(this.page);
     await super.clearFilter();
     await promise;
+  }
+
+  async selectFilterByAccountStatus(
+    status: "Active" | "Disabled" | "Pending invite",
+  ) {
+    await this.filterDialog.getByText(status, { exact: true }).click();
+    await expect(this.filterApplyButton).toBeEnabled({ timeout: 10000 });
   }
 
   async fillSearchContactsInputAndCheckRequest(searchValue: string) {

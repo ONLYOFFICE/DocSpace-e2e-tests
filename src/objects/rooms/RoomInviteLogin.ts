@@ -49,6 +49,11 @@ export class RoomInviteLogin {
     await this.signInButton.click();
   }
 
+  async submitPasswordWithEnter() {
+    await expect(this.passwordInput).toBeVisible();
+    await this.passwordInput.press("Enter");
+  }
+
   async login(email: string, password: string) {
     await this.fillEmail(email);
     await this.clickContinue();

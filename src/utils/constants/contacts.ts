@@ -139,7 +139,7 @@ export const toastMessages = {
   userTypeChanged: "The user type was successfully changed",
   usersInvited: "Users invited",
   groupDeleted: "Group was deleted successfully",
-  guestDeleted: "Guest was deleted successfully",
+  guestDeleted: "The guest has been successfully deleted",
   guestTypeChanged: "The guest type was successfully changed",
   guestStatusChanged: "The guest status was successfully changed",
   passwordChangeInstructions: "The password change instruction has been sent",
