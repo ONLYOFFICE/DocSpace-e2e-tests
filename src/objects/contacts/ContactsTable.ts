@@ -113,22 +113,8 @@ class ContactsTable extends BaseTable {
   }
 
   async scrollToBottom() {
-    await this.page.evaluate(() => {
-      const sectionScroll = document.querySelector("#sectionScroll");
-      if (!sectionScroll) return;
-      for (const el of Array.from(sectionScroll.querySelectorAll("*"))) {
-        const htmlEl = el as HTMLElement;
-        const overflowY = window.getComputedStyle(htmlEl).overflowY;
-        if (
-          (overflowY === "scroll" || overflowY === "auto") &&
-          htmlEl.scrollHeight > htmlEl.clientHeight
-        ) {
-          htmlEl.scrollTop = htmlEl.scrollHeight;
-          htmlEl.dispatchEvent(new Event("scroll"));
-          return;
-        }
-      }
-    });
+    await this.tableRows.nth(15).waitFor({ state: "visible", timeout: 30000 });
+    await this.tableRows.last().scrollIntoViewIfNeeded();
   }
 }
 
