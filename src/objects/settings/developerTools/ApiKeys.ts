@@ -1,4 +1,5 @@
 import { expect, Locator, Page } from "@playwright/test";
+import type { APIRequestContext, PlaywrightWorkerArgs } from "@playwright/test";
 import BaseDevTools from "./BaseDevTools";
 
 class ApiKeys extends BaseDevTools {
@@ -116,6 +117,25 @@ class ApiKeys extends BaseDevTools {
     await this.contextMenuButton.first().click();
     await this.page.getByTestId("api-key_delete").click();
     await this.page.getByRole("button", { name: "Delete" }).click();
+  }
+
+  async loginAsApiKeyClient(
+    playwright: PlaywrightWorkerArgs["playwright"],
+    baseUrl: string,
+    name: string,
+  ): Promise<APIRequestContext> {
+    await this.createButton.click();
+    await this.nameInput.fill(name);
+    await this.generateButton.click();
+    await expect(this.secretKeyInput).toBeVisible();
+    const secret = (await this.secretKeyInput.inputValue()).trim();
+    expect(secret).not.toBe("");
+    await this.doneButton.click();
+    return playwright.request.newContext({
+      baseURL: baseUrl,
+      timeout: 60000,
+      extraHTTPHeaders: { Authorization: `Bearer ${secret}` },
+    });
   }
 }
 
