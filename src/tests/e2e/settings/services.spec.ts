@@ -88,7 +88,9 @@ test.describe("Disk storage and AI services", () => {
     await services.checkCurrentSubscriptionVisible();
   });
 
-  test("AI credits top up", async ({ page }) => {
+  test.skip("AI credits top up", async ({ page }) => {
+    // Service is disabled
+
     await services.openAiCreditsModal();
 
     await services.aiAmountInput.fill("100");
