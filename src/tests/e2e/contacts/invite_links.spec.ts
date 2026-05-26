@@ -438,9 +438,7 @@ test.describe("Contacts - Invite links", () => {
 
       await incognitoPage.goto(inviteLink, { waitUntil: "load" });
 
-      await expect(
-        incognitoPage.getByText("Invalid link"),
-      ).toBeVisible();
+      await expect(incognitoPage.getByText("Invalid link")).toBeVisible();
     });
   });
 
@@ -486,9 +484,9 @@ test.describe("Contacts - Invite links", () => {
     });
 
     await test.step("Verify error message is shown and Continue button is disabled", async () => {
-      await expect(
-        incognitoPage!.getByText(ALREADY_INVITED_ERROR),
-      ).toBeVisible({ timeout: 10000 });
+      await expect(incognitoPage!.getByText(ALREADY_INVITED_ERROR)).toBeVisible(
+        { timeout: 10000 },
+      );
       const inviteLogin = new RoomInviteLogin(incognitoPage!);
       await expect(inviteLogin.continueButton).toBeDisabled();
     });

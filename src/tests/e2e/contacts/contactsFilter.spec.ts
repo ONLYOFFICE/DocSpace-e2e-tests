@@ -33,8 +33,7 @@ test.describe("Contacts - Members: scroll", () => {
 
     await test.step("Verify different members are now visible", async () => {
       await expect(async () => {
-        const firstRowTextAfter =
-          await contacts.table.getFirstVisibleRowText();
+        const firstRowTextAfter = await contacts.table.getFirstVisibleRowText();
         expect(firstRowTextAfter).not.toBe(firstRowTextBefore);
       }).toPass({ timeout: 10000 });
     });

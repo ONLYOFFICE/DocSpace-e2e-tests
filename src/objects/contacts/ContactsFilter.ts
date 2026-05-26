@@ -42,7 +42,9 @@ class ContactsFilter extends BaseFilter {
     await promise;
   }
 
-  async selectFilterByAccountStatus(status: "Active" | "Disabled" | "Pending invite") {
+  async selectFilterByAccountStatus(
+    status: "Active" | "Disabled" | "Pending invite",
+  ) {
     await this.filterDialog.getByText(status, { exact: true }).click();
     await expect(this.filterApplyButton).toBeEnabled({ timeout: 10000 });
   }
