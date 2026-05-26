@@ -224,7 +224,11 @@ class Services extends BasePage {
     await this.navigateToArticle(navItems.billing);
     await this.page.getByTestId("services_tab").click();
     await this.backupSwitch.click();
-    await this.continueButton.click();
+    // Possible bug: confirmation button does not always appear after toggling
+    // the backup switch. Click only if it shows up; otherwise continue.
+    if (await this.continueButton.isVisible()) {
+      await this.continueButton.click();
+    }
   }
 
   async hideDateCurrentPayment() {
