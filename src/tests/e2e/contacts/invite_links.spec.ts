@@ -10,6 +10,9 @@ import {
   ensureIncognitoPage,
 } from "@/src/utils/helpers/linkTest";
 
+const ALREADY_INVITED_ERROR =
+  "You have already been invited. Please complete the registration using the link from the email.";
+
 test.describe("Contacts - Invite links", () => {
   let contacts: Contacts;
   let incognitoContext: BrowserContext | null = null;
@@ -402,6 +405,135 @@ test.describe("Contacts - Invite links", () => {
       await expect(
         incognitoPage.getByText("Link no longer available"),
       ).toBeVisible();
+    });
+  });
+
+  test("Disable invite link", async ({ browser }) => {
+    let inviteLink: string;
+
+    await test.step("Open invite dialog and enable invite via link", async () => {
+      await contacts.navigation.clickHeaderSubmenuOption(
+        invite.label,
+        invite.submenu.user,
+      );
+      await contacts.inviteDialog.enableInviteViaLink();
+      await contacts.inviteDialog.checkLinkCopiedToast();
+      await contacts.inviteDialog.dismissLinkCopiedToast();
+    });
+
+    await test.step("Save link and verify it is visible", async () => {
+      inviteLink = await contacts.inviteDialog.getInviteLinkValue();
+      await contacts.inviteDialog.checkInviteLinkVisible();
+    });
+
+    await test.step("Disable invite via link", async () => {
+      await contacts.inviteDialog.disableInviteViaLink();
+      await contacts.inviteDialog.checkInviteLinkNotVisible();
+    });
+
+    await test.step("Verify disabled link is no longer available", async () => {
+      const result = await setupIncognitoContext(browser);
+      incognitoContext = result.context;
+      incognitoPage = result.page;
+
+      await incognitoPage.goto(inviteLink, { waitUntil: "load" });
+
+      await expect(
+        incognitoPage.getByText("Invalid link"),
+      ).toBeVisible();
+    });
+  });
+
+  test("[Bug 81017] Pending user sees error when joining portal via general invite link", async ({
+    apiSdk,
+    browser,
+  }) => {
+    const pendingEmail = `pending_invite_${Date.now()}@test.com`;
+
+    await test.step("Invite user by email to create a pending entry", async () => {
+      await apiSdk.profiles.inviteUser("owner", {
+        type: "4",
+        email: pendingEmail,
+      });
+    });
+
+    await test.step("Open invite dialog for User role and enable invite via link", async () => {
+      await contacts.navigation.clickHeaderSubmenuOption(
+        invite.label,
+        invite.submenu.user,
+      );
+      await contacts.inviteDialog.enableInviteViaLink();
+      await contacts.inviteDialog.checkLinkCopiedToast();
+      await contacts.inviteDialog.dismissLinkCopiedToast();
+    });
+
+    let inviteLink: string;
+
+    await test.step("Get general invite link", async () => {
+      inviteLink = await contacts.inviteDialog.getInviteLinkValue();
+    });
+
+    await test.step("Open general invite link in incognito and enter pending user email", async () => {
+      const result = await setupIncognitoContext(browser);
+      incognitoContext = result.context;
+      incognitoPage = result.page;
+
+      await incognitoPage.goto(inviteLink, { waitUntil: "load" });
+
+      const inviteLogin = new RoomInviteLogin(incognitoPage);
+      await inviteLogin.fillEmail(pendingEmail);
+      await inviteLogin.clickContinue();
+    });
+
+    await test.step("Verify error message is shown and Continue button is disabled", async () => {
+      await expect(
+        incognitoPage!.getByText(ALREADY_INVITED_ERROR),
+      ).toBeVisible({ timeout: 10000 });
+      const inviteLogin = new RoomInviteLogin(incognitoPage!);
+      await expect(inviteLogin.continueButton).toBeDisabled();
+    });
+  });
+
+  test("[Bug 80334] Existing user can log in via invite link by pressing Enter on password field", async ({
+    apiSdk,
+    browser,
+  }) => {
+    const { userData } = await apiSdk.profiles.addMember("owner", "User");
+
+    await test.step("Open invite dialog for User role and enable invite via link", async () => {
+      await contacts.navigation.clickHeaderSubmenuOption(
+        invite.label,
+        invite.submenu.user,
+      );
+      await contacts.inviteDialog.enableInviteViaLink();
+      await contacts.inviteDialog.checkLinkCopiedToast();
+      await contacts.inviteDialog.dismissLinkCopiedToast();
+    });
+
+    let inviteLink: string;
+
+    await test.step("Get general invite link", async () => {
+      inviteLink = await contacts.inviteDialog.getInviteLinkValue();
+    });
+
+    await test.step("Open invite link in incognito, enter credentials and submit with Enter", async () => {
+      const result = await setupIncognitoContext(browser);
+      incognitoContext = result.context;
+      incognitoPage = result.page;
+
+      await incognitoPage.goto(inviteLink, { waitUntil: "load" });
+
+      const inviteLogin = new RoomInviteLogin(incognitoPage);
+      await inviteLogin.fillEmail(userData.email);
+      await inviteLogin.clickContinue();
+      await inviteLogin.fillPassword(userData.password);
+      await inviteLogin.submitPasswordWithEnter();
+    });
+
+    await test.step("Verify user is authorized on the portal", async () => {
+      await expect(async () => {
+        await expect(incognitoPage!).toHaveURL(/.*rooms\/shared\/filter.*/);
+      }).toPass({ timeout: 30000 });
     });
   });
 });
