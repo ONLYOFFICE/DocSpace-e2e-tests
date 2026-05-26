@@ -4,6 +4,7 @@ import BasePage from "../common/BasePage";
 import FilesEmptyView from "./FilesEmptyView";
 import FilesTable from "./FilesTable";
 import FilesFilter from "./FilesFilter";
+import InfoPanel from "../common/InfoPanel";
 
 const RECENT_NAV_ITEM = "#document_catalog-recent";
 
@@ -12,6 +13,7 @@ class Recent extends BasePage {
   filesEmptyView: FilesEmptyView;
   filesTable: FilesTable;
   filesFilter: FilesFilter;
+  infoPanel: InfoPanel;
 
   constructor(page: Page, portalDomain: string) {
     super(page);
@@ -19,6 +21,7 @@ class Recent extends BasePage {
     this.filesEmptyView = new FilesEmptyView(page);
     this.filesTable = new FilesTable(page);
     this.filesFilter = new FilesFilter(page);
+    this.infoPanel = new InfoPanel(page);
   }
 
   private async waitForRecentPage() {
