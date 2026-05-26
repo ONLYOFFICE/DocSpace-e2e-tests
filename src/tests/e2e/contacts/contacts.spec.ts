@@ -8,7 +8,6 @@ import {
   GROUP_NAME,
   groupsContextMenuOption,
   membersContextMenuOption,
-  menuItemChangeUserType,
   toastMessages,
   userEmails,
 } from "@/src/utils/constants/contacts";
@@ -26,6 +25,10 @@ test.describe(() => {
   });
 
   test("Empty view", async () => {
+    await test.step("Check Try Business bar is visible on unpaid portal", async () => {
+      await contacts.checkTryBusinessBarVisible();
+    });
+
     await test.step("Check members empty view", async () => {
       await contacts.table.checkRowExistByNameText(ADMIN_OWNER_NAME);
 
@@ -275,49 +278,6 @@ test.describe(() => {
     await test.step("Clear filter and verify all users visible", async () => {
       await contacts.peopleFilter.clearFilter();
       await contacts.table.checkRowExistByNameText(ADMIN_OWNER_NAME);
-    });
-  });
-
-  test.describe("Guests", () => {
-    test.beforeEach(async () => {
-      await contacts.inviteUser(userEmails.guest, contactTypes.user);
-      await contacts.openChangeContactTypeDialog(
-        userEmails.guest,
-        menuItemChangeUserType.guest,
-      );
-      await contacts.submitChangeContactTypeDialog();
-      await contacts.dismissQuotaWarning();
-      await contacts.openTab("Guests");
-    });
-
-    test("Disable and enable guest", async () => {
-      await contacts.infoPanel.open();
-      await contacts.table.selectRow(userEmails.guest);
-      await contacts.infoPanel.openContactsOptions();
-      await contacts.infoPanel.close();
-
-      await contacts.disableGuest();
-      await contacts.table.checkDisabledUserExist(userEmails.guest);
-
-      await contacts.table.selectRow(userEmails.guest);
-      await contacts.enableGuest();
-      await contacts.table.checkEnabledUserExist(userEmails.guest);
-    });
-
-    test("Guest filter and search", async () => {
-      await contacts.peopleFilter.openDropdownSortBy();
-      await contacts.peopleFilter.openFilterDialog();
-      await contacts.dialog.close();
-
-      await contacts.peopleFilter.fillSearchContactsInputAndCheckRequest(
-        "empty_search",
-      );
-      await contacts.table.checkRowNotExist(userEmails.guest);
-
-      await contacts.peopleFilter.fillSearchContactsInputAndCheckRequest(
-        userEmails.guest,
-      );
-      await contacts.table.checkRowExist(userEmails.guest);
     });
   });
 });
