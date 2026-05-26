@@ -107,6 +107,29 @@ class ContactsTable extends BaseTable {
     const row = await this.getRowByNameText(name);
     await expect(row.locator(ME_LABEL)).toBeVisible();
   }
+
+  async getFirstVisibleRowText() {
+    return this.tableRows.first().innerText();
+  }
+
+  async scrollToBottom() {
+    await this.page.evaluate(() => {
+      const sectionScroll = document.querySelector("#sectionScroll");
+      if (!sectionScroll) return;
+      for (const el of Array.from(sectionScroll.querySelectorAll("*"))) {
+        const htmlEl = el as HTMLElement;
+        const overflowY = window.getComputedStyle(htmlEl).overflowY;
+        if (
+          (overflowY === "scroll" || overflowY === "auto") &&
+          htmlEl.scrollHeight > htmlEl.clientHeight
+        ) {
+          htmlEl.scrollTop = htmlEl.scrollHeight;
+          htmlEl.dispatchEvent(new Event("scroll"));
+          return;
+        }
+      }
+    });
+  }
 }
 
 export default ContactsTable;

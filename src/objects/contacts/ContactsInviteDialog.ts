@@ -52,6 +52,10 @@ class ContactsInviteDialog extends BaseInviteDialog {
     await expect(this.externalLinkInput).toBeVisible();
   }
 
+  async checkInviteLinkNotVisible() {
+    await expect(this.externalLinkInput).not.toBeVisible();
+  }
+
   async getInviteLinkValue(): Promise<string> {
     const input = this.externalLinkInput.locator("input");
     await expect(input).toBeVisible();

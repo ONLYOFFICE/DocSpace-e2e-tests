@@ -1,6 +1,8 @@
-import { Locator, Page } from "@playwright/test";
+import { expect, Locator, Page } from "@playwright/test";
 import BaseArticle from "./BaseArticle";
 import BaseToast from "./BaseToast";
+
+const TARIFF_BAR_TEXT = "tariff_bar_text";
 
 export default class BasePage {
   protected page: Page;
@@ -50,6 +52,10 @@ export default class BasePage {
 
   async navigateToArticle(title: string) {
     await this.article.navigate(title);
+  }
+
+  async checkTryBusinessBarVisible() {
+    await expect(this.page.getByTestId(TARIFF_BAR_TEXT)).toBeVisible();
   }
 
   async waitForDownload(action: () => Promise<void>) {
