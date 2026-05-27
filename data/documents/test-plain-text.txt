@@ -1,0 +1,1 @@
+This is a plain-text test file used to verify lossy-edit view-mode behaviour in DocSpace.

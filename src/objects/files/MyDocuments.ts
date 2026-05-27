@@ -17,6 +17,7 @@ import DownloadDialog from "./DownloadDialog";
 import FilesSelectPanel from "./FilesSelectPanel";
 import FolderDeleteModal from "./FolderDeleteModal";
 import ConflictResolveDialog from "./ConflictResolveDialog";
+import ConvertDialog from "./ConvertDialog";
 import DocumentEditor from "./DocumentEditor";
 import SpreadsheetEditor from "./SpreadsheetEditor";
 import PresentationEditor from "./PresentationEditor";
@@ -45,6 +46,7 @@ class MyDocuments extends BasePage {
   filesSelectPanel: FilesSelectPanel;
   folderDeleteModal: FolderDeleteModal;
   conflictResolveDialog: ConflictResolveDialog;
+  convertDialog: ConvertDialog;
 
   infoPanel: InfoPanel;
 
@@ -62,6 +64,7 @@ class MyDocuments extends BasePage {
     this.filesSelectPanel = new FilesSelectPanel(page);
     this.folderDeleteModal = new FolderDeleteModal(page);
     this.conflictResolveDialog = new ConflictResolveDialog(page);
+    this.convertDialog = new ConvertDialog(page);
   }
 
   async open() {
@@ -389,6 +392,23 @@ class MyDocuments extends BasePage {
     ]);
     await editorPage.waitForLoadState("load");
     return new PdfFormEditor(editorPage);
+  }
+
+  /**
+   * Opens a file via the "Preview" context menu option (used for lossy-edit
+   * formats such as CSV that open in view mode rather than the editor directly).
+   * Call `editor.setupConsoleCapture()` BEFORE this method so that the editor's
+   * console messages are captured from the moment navigation starts.
+   */
+  async openFileViaPreview(fileName: string) {
+    await this.filesTable.openContextMenuForItem(fileName, true);
+    await this.filesTable.contextMenu.clickOption(
+      documentContextMenuOption.preview,
+    );
+    await this.page.waitForURL(/doceditor/, {
+      waitUntil: "load",
+      timeout: 30000,
+    });
   }
 
   async openVersionHistory(fileName: string) {

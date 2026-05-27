@@ -184,3 +184,34 @@ export const sampleCsvFile = {
   name: "sample.csv",
   path: "data/documents/sample.csv",
 } as const;
+
+// Legacy Office formats — auto-convert to modern OOXML on upload
+// Lossy-edit plain-text format (type: "word")
+export const plainTextFile = {
+  name: "test-plain-text.txt",
+  path: "data/documents/test-plain-text.txt",
+} as const;
+
+/**
+ * Legacy Office formats that trigger the ConvertDialog on UI upload.
+ * After confirmation DocSpace creates TWO entries in the file table:
+ *   - originalName: the uploaded legacy file (shown with extension, e.g. "file.doc")
+ *   - name:         the converted OOXML copy (shown without extension, e.g. "file")
+ */
+export const legacyDocFile = {
+  name: "test-legacy-document",
+  originalName: "test-legacy-document.doc",
+  path: "data/documents/test-legacy-document.doc",
+} as const;
+
+export const legacyXlsFile = {
+  name: "test-legacy-spreadsheet",
+  originalName: "test-legacy-spreadsheet.xls",
+  path: "data/documents/test-legacy-spreadsheet.xls",
+} as const;
+
+export const legacyPptFile = {
+  name: "test-legacy-presentation",
+  originalName: "test-legacy-presentation.ppt",
+  path: "data/documents/test-legacy-presentation.ppt",
+} as const;
