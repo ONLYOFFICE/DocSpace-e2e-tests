@@ -133,6 +133,33 @@ export const contactSort = {
 
 export type TContactSort = (typeof contactSort)[keyof typeof contactSort];
 
+export const memberFilterSections = [
+  "Group",
+  "Status",
+  "Type",
+  "Account",
+  "Account login type",
+  "Storage quota",
+] as const;
+
+export const memberFilterOptions = [
+  "Without group",
+  "Other",
+  "Active",
+  "Pending invite",
+  "Disabled",
+  "DocSpace admin",
+  "Room admin",
+  "User",
+  "Paid",
+  "Free",
+  "SSO",
+  "LDAP",
+  "Standard login",
+  "Custom quota",
+  "Default quota",
+] as const;
+
 export const toastMessages = {
   changesSaved: "Changes saved successfully",
   userStatusChanged: "The user status was successfully changed",
