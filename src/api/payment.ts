@@ -165,6 +165,58 @@ export class PaymentApi {
     };
   }
 
+  async makeWalletTopUp(sum = 1000, currency = "USD") {
+    const token = this.createToken();
+    const portalInfo = await this.getPortalInfo();
+    const region = process.env.AWS_REGION;
+    const portalId =
+      region === "us-east-2"
+        ? `docspace.io.ohio${portalInfo.tenantId}`
+        : `docspace.io${portalInfo.tenantId}`;
+
+    const response = await this.apiContext.post(
+      "https://payments.teamlab.info/api/license/setwallettopup",
+      {
+        headers: {
+          Authorization: token,
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        data: {
+          portalId,
+          customerEmail: config.DOCSPACE_OWNER_EMAIL,
+          sum: String(sum),
+          currency,
+        },
+        timeout: 60000,
+      },
+    );
+
+    if (!response.ok()) {
+      const error = await response.json();
+      throw new Error(
+        `Wallet top up failed: ${error.message || "Unknown error"}`,
+      );
+    }
+
+    const ownerToken = this.portalSetupApi.getOwnerAuthToken();
+    if (ownerToken) {
+      await this.apiContext.get(
+        `${this.portalBaseUrl}/api/2.0/portal/payment/customerinfo`,
+        {
+          headers: {
+            Authorization: `Bearer ${ownerToken}`,
+            Accept: "application/json",
+          },
+          params: { refresh: true },
+          timeout: 60000,
+        },
+      );
+    }
+
+    return response.json();
+  }
+
   async setupPayment(quantity = 10) {
     if (this.portalSetupApi.isLocal) {
       return;

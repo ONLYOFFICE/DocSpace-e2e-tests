@@ -276,6 +276,11 @@ export class Backup extends BasePage {
     await this.dismissToastSafely(toastMessages.backCopyCreated);
   }
 
+  async createAnotherBackupCopy() {
+    await this.locators.createCopyButton.click();
+    await this.dismissToastSafely(toastMessages.backCopyCreated, 40000);
+  }
+
   async activateAWSS3() {
     await this.navigateToArticle(navItems.integration);
     await this.integration.openTab(integrationTabs.thirdPartyServices);
