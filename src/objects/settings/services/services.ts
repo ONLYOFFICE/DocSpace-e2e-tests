@@ -28,18 +28,10 @@ class Services extends BasePage {
     return this.page.getByTestId("storage_service_backup_toggle");
   }
 
-  get backupActiveToggle() {
+  get serviceActiveToggle() {
     return this.page
       .locator('[class*="serviceToggleSection"]')
       .getByTestId("toggle-button-icon");
-  }
-
-  get continueButton() {
-    return this.page.getByTestId("service-confirmation-dialog-continue-button");
-  }
-
-  get closeButton() {
-    return this.page.getByTestId("service-confirmation-dialog-close-button");
   }
 
   get closeBackupServiceModal() {
@@ -60,6 +52,42 @@ class Services extends BasePage {
 
   get diskStorageCancelButton() {
     return this.page.getByTestId("storage_plan_upgrade_cancel_button");
+  }
+
+  get diskStorageCancelOkButton() {
+    return this.page.getByTestId("storage_plan_cancel_ok_button");
+  }
+
+  get diskStorageSettingsIcon() {
+    return this.page.locator('[class*="settingsIcon"]');
+  }
+
+  get cancelSubscriptionMenuItem() {
+    return this.page.getByRole("menuitem", { name: "Cancel subscription" });
+  }
+
+  get editSubscriptionMenuItem() {
+    return this.page.getByRole("menuitem", { name: "Edit subscription" });
+  }
+
+  get downloadReportButton() {
+    return this.page.getByTestId("download_report_button");
+  }
+
+  get subscriptionCancellationWarning() {
+    return this.page.getByText("Change scheduled: Subscription cancellation");
+  }
+
+  async downloadReport() {
+    const editorPromise = this.page.waitForEvent("popup", { timeout: 30000 });
+    await this.downloadReportButton.click();
+    const editor = await editorPromise;
+    await editor.waitForURL("https://*.onlyoffice.io/doceditor?*");
+    await editor.close();
+  }
+
+  async checkCancellationScheduled() {
+    await expect(this.subscriptionCancellationWarning).toBeVisible();
   }
 
   get addStorageInput() {
@@ -168,11 +196,6 @@ class Services extends BasePage {
     await this.dialog.checkDialogTitleExist("Top up wallet");
   }
 
-  async openBackupConfirmationModal() {
-    await this.backupSwitch.click();
-    await this.dialog.checkDialogTitleExist("Confirmation");
-  }
-
   async openDiskStorageModal() {
     await this.diskStorageSwitch.click();
     await this.dialog.checkDialogTitleExist("Additional disk storage");
@@ -211,6 +234,12 @@ class Services extends BasePage {
     await expect(this.page.getByText("Current subscription")).toBeVisible();
   }
 
+  async checkDiskStorageSubscriptionSize(gb: string) {
+    await expect(this.page.locator('[class*="sizeText"]')).toContainText(
+      `${gb} GB`,
+    );
+  }
+
   async waitForAiServicesPage() {
     await this.page.waitForURL(/.*ai-services.*/, { waitUntil: "load" });
   }
@@ -224,11 +253,6 @@ class Services extends BasePage {
     await this.navigateToArticle(navItems.billing);
     await this.page.getByTestId("services_tab").click();
     await this.backupSwitch.click();
-    // Possible bug: confirmation button does not always appear after toggling
-    // the backup switch. Click only if it shows up; otherwise continue.
-    if (await this.continueButton.isVisible()) {
-      await this.continueButton.click();
-    }
   }
 
   async hideDateCurrentPayment() {

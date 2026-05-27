@@ -27,7 +27,6 @@ test.describe("AI Settings", () => {
     await aiSettings.selectProviderType("xAI");
     await aiSettings.fillProviderTitle("xAI");
     await aiSettings.fillProviderKey(config.XAI_API_KEY!);
-    await aiSettings.selectFirstAvailableModel();
     await aiSettings.saveProvider();
     await aiSettings.expectProviderInList("xAI");
   });
