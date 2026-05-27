@@ -1,3 +1,4 @@
+import { expect } from "@playwright/test";
 import { test } from "@/src/fixtures";
 import ApiKeys from "@/src/objects/settings/developerTools/ApiKeys";
 
@@ -39,5 +40,33 @@ test.describe("API Keys tests", () => {
     await apiKeys.createApiKey("AutotestKeyDelete");
     await apiKeys.checkApiKeyVisible("AutotestKeyDelete");
     await apiKeys.deleteApiKey();
+  });
+
+  test("API key grants access to user profile", async ({ api, playwright }) => {
+    const apiCtx = await apiKeys.loginAsApiKeyClient(
+      playwright,
+      api.tokenStore.portalBaseUrl,
+      "AutotestKeyLogin",
+    );
+    const resp = await apiCtx.get("/api/2.0/people/@self");
+    expect(resp.status()).toBe(200);
+    await apiCtx.dispose();
+  });
+
+  test("Deleted API key can no longer access the API", async ({
+    api,
+    playwright,
+  }) => {
+    const apiCtx = await apiKeys.loginAsApiKeyClient(
+      playwright,
+      api.tokenStore.portalBaseUrl,
+      "AutotestKeyRevoke",
+    );
+    expect((await apiCtx.get("/api/2.0/people/@self")).status()).toBe(200);
+
+    await apiKeys.deleteApiKey();
+
+    expect((await apiCtx.get("/api/2.0/people/@self")).status()).toBe(401);
+    await apiCtx.dispose();
   });
 });

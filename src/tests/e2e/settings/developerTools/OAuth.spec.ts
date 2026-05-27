@@ -145,4 +145,46 @@ test.describe("OAuth tests", () => {
       expect(response.status()).toBe(200);
     });
   });
+
+  test("OAuth token grants access to user profile", async ({
+    api,
+    playwright,
+  }) => {
+    await oauth.newApplicationButton.click();
+    await oauth.createApplication();
+    await oauth.checkApplicationName();
+
+    const oauthApi = await oauth.loginAsOAuthClient(
+      playwright,
+      api.tokenStore.portalBaseUrl,
+    );
+    const resp = await oauthApi.get("/api/2.0/people/@self");
+    expect(resp.status()).toBe(200);
+    await oauthApi.dispose();
+  });
+
+  test("Revoked OAuth token can no longer access the API", async ({
+    page,
+    api,
+    playwright,
+  }) => {
+    await oauth.newApplicationButton.click();
+    await oauth.createApplication();
+    await oauth.checkApplicationName();
+
+    const oauthApi = await oauth.loginAsOAuthClient(
+      playwright,
+      api.tokenStore.portalBaseUrl,
+    );
+    expect((await oauthApi.get("/api/2.0/people/@self")).status()).toBe(200);
+
+    await oauth.openRevokeOAuthTokenWindow();
+    await Promise.all([
+      page.waitForResponse((r) => r.url().includes("/api/2.0/oauth2/revoke")),
+      oauth.revokeOAuthToken(),
+    ]);
+
+    expect((await oauthApi.get("/api/2.0/people/@self")).status()).toBe(401);
+    await oauthApi.dispose();
+  });
 });
