@@ -142,7 +142,9 @@ test.describe("Contacts - Members: filter dialog options", () => {
     await test.step("Verify all filter sections are visible", async () => {
       for (const section of FILTER_SECTIONS) {
         await expect(
-          contacts.peopleFilter.filterDialog.getByText(section, { exact: true }),
+          contacts.peopleFilter.filterDialog.getByText(section, {
+            exact: true,
+          }),
         ).toBeVisible();
       }
     });
@@ -286,7 +288,9 @@ test.describe("Contacts - Members: filter by group", () => {
 
     await login.loginToPortal();
     await contacts.open();
-    await contacts.createGroupWithMembers(FILTER_GROUP_NAME, [groupMemberEmail]);
+    await contacts.createGroupWithMembers(FILTER_GROUP_NAME, [
+      groupMemberEmail,
+    ]);
     await contacts.openTab("Members");
   });
 
@@ -298,13 +302,17 @@ test.describe("Contacts - Members: filter by group", () => {
     });
 
     await test.step("Verify user without group is shown and group member is not", async () => {
-      await contacts.table.checkRowExistByNameText(memberWithoutGroupDisplayName);
+      await contacts.table.checkRowExistByNameText(
+        memberWithoutGroupDisplayName,
+      );
       await contacts.table.checkRowNotExist(groupMemberDisplayName);
     });
 
     await test.step("Remove filter and verify all users are visible again", async () => {
       await contacts.peopleFilter.removeFilter("Without group");
-      await contacts.table.checkRowExistByNameText(memberWithoutGroupDisplayName);
+      await contacts.table.checkRowExistByNameText(
+        memberWithoutGroupDisplayName,
+      );
       await contacts.table.checkRowExistByNameText(groupMemberDisplayName);
     });
   });
@@ -312,7 +320,9 @@ test.describe("Contacts - Members: filter by group", () => {
   test("Filter by specific group shows only group members", async () => {
     await test.step("Open filter, click Other, and select the group", async () => {
       await contacts.peopleFilter.openFilterDialog();
-      await contacts.peopleFilter.selectFilterBySpecificGroup(FILTER_GROUP_NAME);
+      await contacts.peopleFilter.selectFilterBySpecificGroup(
+        FILTER_GROUP_NAME,
+      );
       await contacts.peopleFilter.applyFilter();
     });
 
@@ -324,7 +334,9 @@ test.describe("Contacts - Members: filter by group", () => {
     await test.step("Remove filter and verify all users are visible again", async () => {
       await contacts.peopleFilter.removeFilter(FILTER_GROUP_NAME);
       await contacts.table.checkRowExistByNameText(groupMemberDisplayName);
-      await contacts.table.checkRowExistByNameText(memberWithoutGroupDisplayName);
+      await contacts.table.checkRowExistByNameText(
+        memberWithoutGroupDisplayName,
+      );
     });
   });
 });
@@ -503,7 +515,10 @@ test.describe("Contacts - Members: filter by storage quota", () => {
       quota: QuotaPlan.Minimal,
     });
 
-    const { userData: data2 } = await apiSdk.profiles.addMember("owner", "User");
+    const { userData: data2 } = await apiSdk.profiles.addMember(
+      "owner",
+      "User",
+    );
     defaultQuotaUserDisplayName = `${data2.firstName} ${data2.lastName}`;
 
     await login.loginToPortal();
