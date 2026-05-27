@@ -1,36 +1,14 @@
 import { expect } from "@playwright/test";
 import { test } from "@/src/fixtures";
 import Contacts from "@/src/objects/contacts/Contacts";
-import { ADMIN_OWNER_NAME } from "@/src/utils/constants/contacts";
+import {
+  ADMIN_OWNER_NAME,
+  memberFilterSections,
+  memberFilterOptions,
+} from "@/src/utils/constants/contacts";
 import { QuotaPlan, DefaultQuota, defaultQuotaToBytes } from "@/src/services";
 import { PaymentApi } from "@/src/api/payment";
 
-const FILTER_SECTIONS = [
-  "Group",
-  "Status",
-  "Type",
-  "Account",
-  "Account login type",
-  "Storage quota",
-];
-
-const FILTER_OPTIONS = [
-  "Without group",
-  "Other",
-  "Active",
-  "Pending invite",
-  "Disabled",
-  "DocSpace admin",
-  "Room admin",
-  "User",
-  "Paid",
-  "Free",
-  "SSO",
-  "LDAP",
-  "Standard login",
-  "Custom quota",
-  "Default quota",
-];
 
 test.describe("Contacts - Members: filter by status", () => {
   let contacts: Contacts;
@@ -140,7 +118,7 @@ test.describe("Contacts - Members: filter dialog options", () => {
     });
 
     await test.step("Verify all filter sections are visible", async () => {
-      for (const section of FILTER_SECTIONS) {
+      for (const section of memberFilterSections) {
         await expect(
           contacts.peopleFilter.filterDialog.getByText(section, {
             exact: true,
@@ -150,7 +128,7 @@ test.describe("Contacts - Members: filter dialog options", () => {
     });
 
     await test.step("Verify all filter options are visible", async () => {
-      for (const option of FILTER_OPTIONS) {
+      for (const option of memberFilterOptions) {
         await expect(
           contacts.peopleFilter.filterDialog.getByText(option, { exact: true }),
         ).toBeVisible();
