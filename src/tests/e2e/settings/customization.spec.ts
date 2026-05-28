@@ -1,5 +1,6 @@
 import Customization from "@/src/objects/settings/customization/Customization";
 import { PaymentApi } from "@/src/api/payment";
+import { AiAgents } from "@/src/objects/ai/AiAgents";
 
 import { test } from "@/src/fixtures";
 import { expect } from "@playwright/test";
@@ -180,5 +181,37 @@ test.describe("Customization", () => {
     await customization.configureDeepLinkSaveButton.click();
     await customization.removeToast(toastMessages.settingsUpdated);
     await customization.checkDeepLinkOption("webOrApp");
+  });
+
+  test("Disable and re-enable AI services", async () => {
+    await test.step("Disable AI services", async () => {
+      await customization.disableAiServices();
+      await customization.checkAiServicesHidden();
+    });
+
+    await test.step("Re-enable AI services", async () => {
+      await customization.enableAiServices();
+      await customization.checkAiServicesAvailable();
+    });
+  });
+
+  test("Disabled AI services are hidden for non-admin users", async ({
+    page,
+    api,
+    apiSdk,
+    login,
+  }) => {
+    const { userData } = await apiSdk.profiles.addMember("owner", "User");
+
+    await test.step("Precondition: disable AI services", async () => {
+      await customization.disableAiServices();
+    });
+
+    await test.step("User logs in and AI agents are hidden", async () => {
+      await login.logout();
+      await login.loginWithCredentials(userData.email, userData.password);
+      const aiAgents = new AiAgents(page, api.portalDomain);
+      await aiAgents.checkNotAvailable();
+    });
   });
 });
