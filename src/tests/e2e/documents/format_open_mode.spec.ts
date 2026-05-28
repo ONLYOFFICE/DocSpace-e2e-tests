@@ -10,15 +10,18 @@ import { documentContextMenuOption } from "@/src/utils/constants/files";
  * confirmation because saving back may lose data incompatible with the source
  * format (no diagrams in CSV/TSV, no images in TXT, etc.).
  *
- * Full lossy-edit list (source: onlyoffice-docs-formats.json):
- *   word:  epub, fb2, html, odt, ott, rtf, txt
- *   cell:  csv, ods, ots, tsv
- *   slide: odp, otp
+ * Lossy-edit formats tested here (source: onlyoffice-docs-formats.json):
+ *   word:  txt
+ *   cell:  csv, tsv
  *
- * Planned behaviour (not yet implemented):
- *   Nextcloud-style admin setting will allow enabling editing per format.
- *   csv and txt are expected to be enabled by default (with a data-loss warning).
- *   Other formats will be disabled by default (admin opt-in).
+ * Not included here (auto-convert via ConvertDialog on UI upload):
+ *   word:  epub, odt, rtf, fb2, html, ott → docx
+ *   cell:  ods, ots → xlsx
+ *   slide: odp, otp → pptx
+ * Those are covered in format_conversion.spec.ts.
+ *
+ * Planned behaviour (not yet implemented, Bug 79081):
+ *   Admin setting will allow enabling editing per format with a data-loss warning.
  *
  * TODO: When the Edit+warning flow lands, update the "no Edit" tests below
  * so they assert that "Edit" IS present (opens with data-loss warning) while
@@ -36,86 +39,23 @@ interface LossyEditFormat {
 }
 
 const LOSSY_EDIT_FORMATS: LossyEditFormat[] = [
-  // word-type (document editor)
-  {
-    ext: "epub",
-    name: "test-epub.epub",
-    filePath: "data/documents/test-epub.epub",
-    type: "word",
-  },
-  {
-    ext: "fb2",
-    name: "test-fb2.fb2",
-    filePath: "data/documents/test-fb2.fb2",
-    type: "word",
-  },
-  {
-    ext: "html",
-    name: "test-html.html",
-    filePath: "data/documents/test-html.html",
-    type: "word",
-  },
-  {
-    ext: "odt",
-    name: "test-odt.odt",
-    filePath: "data/documents/test-odt.odt",
-    type: "word",
-  },
-  {
-    ext: "ott",
-    name: "test-ott.ott",
-    filePath: "data/documents/test-ott.ott",
-    type: "word",
-  },
-  {
-    ext: "rtf",
-    name: "test-rtf.rtf",
-    filePath: "data/documents/test-rtf.rtf",
-    type: "word",
-  },
   {
     ext: "txt",
-    name: "test-plain-text.txt",
+    name: "test-plain-text",
     filePath: "data/documents/test-plain-text.txt",
     type: "word",
   },
-  // cell-type (spreadsheet editor)
   {
     ext: "csv",
-    name: "sample.csv",
+    name: "sample",
     filePath: "data/documents/sample.csv",
     type: "cell",
   },
   {
-    ext: "ods",
-    name: "test-ods.ods",
-    filePath: "data/documents/test-ods.ods",
-    type: "cell",
-  },
-  {
-    ext: "ots",
-    name: "test-ots.ots",
-    filePath: "data/documents/test-ots.ots",
-    type: "cell",
-  },
-  {
     ext: "tsv",
-    name: "test-tsv.tsv",
+    name: "test-tsv",
     filePath: "data/documents/test-tsv.tsv",
     type: "cell",
-  },
-  // slide-type (presentation editor)
-  {
-    ext: "odp",
-    name: "test-odp.odp",
-    filePath: "data/documents/test-odp.odp",
-    type: "slide",
-  },
-  {
-    ext: "otp",
-    name: "test-otp.otp",
-    filePath: "data/documents/test-otp.otp",
-    type: "slide",
   },
 ];
 
@@ -161,25 +101,26 @@ test.describe("My Documents: all lossy-edit formats open in view mode", () => {
         await myDocuments.filesTable.contextMenu.close();
       });
 
-      test("opens in view mode via Preview", async ({ page }) => {
-        // setupConsoleCapture() must be called BEFORE navigation so the
-        // "opened in mode view" message emitted by the editor is captured.
-        const editor = new FilesEditor(page);
-        editor.setupConsoleCapture();
+      test("opens in view mode via Preview", async () => {
+        let editor: FilesEditor;
 
         await test.step(`Open .${format.ext} via Preview`, async () => {
-          await myDocuments.openFileViaPreview(format.name);
+          const editorPage = await myDocuments.openFileViaPreview(format.name);
+          editor = new FilesEditor(editorPage);
+          // Set up capture immediately — the editor takes several seconds to
+          // initialise, so the "opened in mode view" message won't be missed.
+          editor.setupConsoleCapture();
         });
 
         await test.step("Wait for editor to load", async () => {
-          await editor.waitForLoad();
+          await editor!.waitForLoad();
         });
 
         await test.step("Editor is in view mode (no edit approval given)", async () => {
-          await editor.checkViewMode();
+          await editor!.checkViewMode();
         });
 
-        await editor.close();
+        await editor!.close();
       });
     });
   }

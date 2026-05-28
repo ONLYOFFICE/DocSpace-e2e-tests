@@ -395,20 +395,24 @@ class MyDocuments extends BasePage {
   }
 
   /**
-   * Opens a file via the "Preview" context menu option (used for lossy-edit
-   * formats such as CSV that open in view mode rather than the editor directly).
-   * Call `editor.setupConsoleCapture()` BEFORE this method so that the editor's
-   * console messages are captured from the moment navigation starts.
+   * Opens a file via the "Preview" context menu option. DocSpace opens the
+   * editor in a new tab, so this method returns the new Page. Set up
+   * console capture on the returned page immediately to avoid missing the
+   * "opened in mode view" message emitted during editor initialisation.
    */
-  async openFileViaPreview(fileName: string) {
+  async openFileViaPreview(fileName: string): Promise<Page> {
     await this.filesTable.openContextMenuForItem(fileName, true);
-    await this.filesTable.contextMenu.clickOption(
-      documentContextMenuOption.preview,
-    );
-    await this.page.waitForURL(/doceditor/, {
-      waitUntil: "load",
-      timeout: 30000,
-    });
+    const [editorPage] = await Promise.all([
+      this.page.context().waitForEvent("page", { timeout: 30000 }),
+      this.filesTable.contextMenu.clickOption(
+        documentContextMenuOption.preview,
+      ),
+    ]);
+    // bringToFront ensures the tab is active so the editor initialises correctly
+    // (avoids the background-tab throttling described in Bug 81446 without reload)
+    await editorPage.bringToFront();
+    await editorPage.waitForLoadState("load");
+    return editorPage;
   }
 
   async openVersionHistory(fileName: string) {

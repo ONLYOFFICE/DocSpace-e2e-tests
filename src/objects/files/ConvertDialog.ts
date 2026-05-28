@@ -1,3 +1,4 @@
+import { expect } from "@playwright/test";
 import BaseDialog from "../common/BaseDialog";
 
 /**
@@ -21,7 +22,9 @@ class ConvertDialog extends BaseDialog {
     await this.clickSubmitButton(
       this.page.getByTestId("convert_dialog_continue_button"),
     );
-    await this.dialog.waitFor({ state: "hidden" });
+    // The modal hides by removing the "visible" CSS class, not via
+    // display:none — so we check class removal rather than state:"hidden".
+    await expect(this.dialog).not.toHaveClass(/visible/);
   }
 }
 
