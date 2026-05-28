@@ -3,6 +3,10 @@ import BaseFilter from "../common/BaseFilter";
 import { waitForGetGroupResponse, waitForGetPeopleResponse } from "./api";
 import { TContactSort } from "@/src/utils/constants/contacts";
 
+const FILTER_TAG_WITHOUT_GROUP = "filter_tag_withoutGroup";
+const FILTER_TAG_OTHER_GROUP = "filter_tag_other";
+const GROUP_PICKER_DIALOG = "#modal-dialog";
+
 class ContactsFilter extends BaseFilter {
   private waitForGetResponse: (page: Page) => Promise<Response>;
   constructor(page: Page, isGroup: boolean = false) {
@@ -46,6 +50,43 @@ class ContactsFilter extends BaseFilter {
     status: "Active" | "Disabled" | "Pending invite",
   ) {
     await this.filterDialog.getByText(status, { exact: true }).click();
+    await expect(this.filterApplyButton).toBeEnabled({ timeout: 10000 });
+  }
+
+  async selectFilterByType(type: "DocSpace admin" | "Room admin" | "User") {
+    await this.filterDialog.getByText(type, { exact: true }).click();
+    await expect(this.filterApplyButton).toBeEnabled({ timeout: 10000 });
+  }
+
+  async selectFilterByWithoutGroup() {
+    await this.filterDialog.getByTestId(FILTER_TAG_WITHOUT_GROUP).click();
+    await expect(this.filterApplyButton).toBeEnabled({ timeout: 10000 });
+  }
+
+  async selectFilterBySpecificGroup(groupName: string) {
+    await this.filterDialog.getByTestId(FILTER_TAG_OTHER_GROUP).click();
+    const groupPickerModal = this.page.locator(GROUP_PICKER_DIALOG);
+    await groupPickerModal
+      .getByText(groupName, { exact: true })
+      .click({ force: true });
+    await groupPickerModal
+      .getByRole("button", { name: "Select", exact: true })
+      .click({ force: true });
+    await expect(this.filterApplyButton).toBeEnabled({ timeout: 10000 });
+  }
+
+  async selectFilterByAccount(account: "Paid" | "Free") {
+    await this.filterDialog.getByText(account, { exact: true }).click();
+    await expect(this.filterApplyButton).toBeEnabled({ timeout: 10000 });
+  }
+
+  async selectFilterByLoginType(loginType: "SSO" | "LDAP" | "Standard login") {
+    await this.filterDialog.getByText(loginType, { exact: true }).click();
+    await expect(this.filterApplyButton).toBeEnabled({ timeout: 10000 });
+  }
+
+  async selectFilterByStorageQuota(quota: "Custom quota" | "Default quota") {
+    await this.filterDialog.getByText(quota, { exact: true }).click();
     await expect(this.filterApplyButton).toBeEnabled({ timeout: 10000 });
   }
 

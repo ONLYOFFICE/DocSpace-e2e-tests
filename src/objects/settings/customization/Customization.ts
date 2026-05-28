@@ -1,5 +1,5 @@
 import BasePage from "@/src/objects/common/BasePage";
-import { navItems } from "@/src/utils/constants/settings";
+import { navItems, toastMessages } from "@/src/utils/constants/settings";
 import { expect, Page, Locator } from "@playwright/test";
 import { BaseDropdown } from "@/src/objects/common/BaseDropdown";
 import path from "path";
@@ -52,6 +52,46 @@ class Customization extends BasePage {
   }
   get brandNameCancelButton() {
     return this.page.getByTestId("brand_name_cancel_button");
+  }
+
+  get aiServicesManagementEnable() {
+    return this.page.getByTestId("ai_services_management_enable");
+  }
+  get aiServicesManagementDisable() {
+    return this.page.getByTestId("ai_services_management_disabled");
+  }
+  get aiServicesManagementSaveButton() {
+    return this.page.getByTestId("ai_services_management_save_button");
+  }
+  get disableAiServicesContinueButton() {
+    return this.page.getByTestId("disable_ai_services_continue_button");
+  }
+
+  async enableAiServices() {
+    await this.aiServicesManagementEnable.click();
+    await this.aiServicesManagementSaveButton.click();
+    await this.dismissToastSafely(toastMessages.settingsUpdated);
+  }
+
+  async disableAiServices() {
+    await this.aiServicesManagementDisable.click();
+    await this.aiServicesManagementSaveButton.click();
+    await this.disableAiServicesContinueButton.click();
+    await this.dismissToastSafely(toastMessages.settingsUpdated);
+  }
+
+  async checkAiServicesAvailable() {
+    await expect(
+      this.article.articleNavItems.filter({ hasText: "AI settings" }),
+    ).toBeVisible();
+    await expect(this.page.locator('a[href*="/ai-agents"]')).toBeVisible();
+  }
+
+  async checkAiServicesHidden() {
+    await expect(
+      this.article.articleNavItems.filter({ hasText: "AI settings" }),
+    ).toBeHidden();
+    await expect(this.page.locator('a[href*="/ai-agents"]')).toBeHidden();
   }
   get logoSaveButton() {
     return this.page.getByTestId("white-label-save");
