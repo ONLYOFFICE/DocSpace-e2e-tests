@@ -76,6 +76,10 @@ export class AiAgents extends BasePage {
     await this.waitForAiAgentsPage();
   }
 
+  async checkNotAvailable() {
+    await expect(this.page.locator('a[href*="/ai-agents"]')).toBeHidden();
+  }
+
   async expectNoProvidersMessage() {
     await expect(this.emptyProvidersHeading).toBeVisible();
   }
