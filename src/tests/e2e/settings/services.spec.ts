@@ -1,7 +1,6 @@
 import { expect } from "@playwright/test";
 import { test } from "@/src/fixtures";
 import Services from "@/src/objects/settings/services/services";
-import { Payments } from "@/src/objects/settings/payments/Payments";
 import { PaymentApi } from "@/src/api/payment";
 import MyDocuments from "@/src/objects/files/MyDocuments";
 import { Backup } from "@/src/objects/settings/backup/Backup";
@@ -85,13 +84,15 @@ test.describe("Backup service", () => {
 
 test.describe("Disk storage service", () => {
   let services: Services;
-  let payments: Payments;
+  let paymentApi: PaymentApi;
 
-  test.beforeEach(async ({ page, login }) => {
+  test.beforeEach(async ({ page, api, login }) => {
+    paymentApi = new PaymentApi(api.apiRequestContext, api.apisystem);
+    await paymentApi.setupPayment();
+    await paymentApi.makeWalletTopUp();
+
     services = new Services(page);
-    payments = new Payments(page);
     await login.loginToPortal();
-    await payments.setupPaymentMethodAndTopUp(page);
     await services.open();
   });
 
@@ -185,13 +186,15 @@ test.describe("Disk storage service", () => {
 
 test.describe("AI services", () => {
   let services: Services;
-  let payments: Payments;
+  let paymentApi: PaymentApi;
 
-  test.beforeEach(async ({ page, login }) => {
+  test.beforeEach(async ({ page, api, login }) => {
+    paymentApi = new PaymentApi(api.apiRequestContext, api.apisystem);
+    await paymentApi.setupPayment();
+    await paymentApi.makeWalletTopUp();
+
     services = new Services(page);
-    payments = new Payments(page);
     await login.loginToPortal();
-    await payments.setupPaymentMethodAndTopUp(page);
     await services.open();
   });
 
