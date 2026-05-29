@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FictionBook xmlns="http://www.gribuser.ru/xml/fictionbook/2.0"
+             xmlns:l="http://www.w3.org/1999/xlink">
+  <description>
+    <title-info>
+      <genre>other</genre>
+      <author><first-name>Test</first-name><last-name>Author</last-name></author>
+      <book-title>Test FB2 Document</book-title>
+      <lang>en</lang>
+    </title-info>
+    <document-info>
+      <author><nickname>test</nickname></author>
+      <id>test-fb2-001</id>
+      <version>1.0</version>
+    </document-info>
+  </description>
+  <body>
+    <section><title><p>Test Section</p></title>
+      <p>This is a test FB2 document for lossy-edit view-mode testing.</p>
+    </section>
+  </body>
+</FictionBook>

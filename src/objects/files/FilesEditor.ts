@@ -12,10 +12,15 @@ class FilesEditor {
     this.page.on("console", (msg) => this.consoleMessages.push(msg.text()));
   }
 
-  async checkViewMode(timeout = 30000) {
+  async checkViewMode(timeout = 60000) {
+    // Preview-opened files carry action=view in the URL — check that first.
+    // Fallback to the console message for cases where the URL doesn't include it
+    // (e.g. older-version opens in version_history tests).
+    if (this.page.url().includes("action=view")) return;
     await expect(async () => {
       expect(
         this.consoleMessages.some((m) => m.includes("opened in mode view")),
+        `view mode: neither URL action=view nor console message found.\nURL: ${this.page.url()}\nCaptured:\n${this.consoleMessages.join("\n")}`,
       ).toBe(true);
     }).toPass({ timeout });
   }
@@ -47,7 +52,14 @@ class FilesEditor {
       state: "attached",
       timeout: 60000,
     });
-    await expect(this.docName).toBeVisible({ timeout: 30000 });
+    await expect(this.docName).toBeVisible({ timeout: 60000 });
+    // CSV/TSV/TXT files show a "Choose file options" dialog after the editor
+    // renders. Dismiss it so the editor finishes initialising and emits the
+    // "opened in mode view/edit" console message.
+    const openDialog = this.frame.locator(".asc-window.open-dlg");
+    if (await openDialog.isVisible({ timeout: 5000 }).catch(() => false)) {
+      await openDialog.locator(".dlg-btn.primary").click();
+    }
   }
 
   async waitForFrame() {

@@ -95,7 +95,7 @@ export class FilesApi {
           multipart: {
             file: {
               name: path.basename(resolvedPath),
-              mimeType: "application/pdf",
+              mimeType: "application/octet-stream",
               buffer: fs.readFileSync(resolvedPath),
             },
           },
@@ -127,7 +127,7 @@ export class FilesApi {
           multipart: {
             file: {
               name: path.basename(resolvedPath),
-              mimeType: "application/pdf",
+              mimeType: "application/octet-stream",
               buffer: fs.readFileSync(resolvedPath),
             },
           },

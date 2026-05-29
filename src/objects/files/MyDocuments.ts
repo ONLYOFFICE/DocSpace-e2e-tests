@@ -17,6 +17,7 @@ import DownloadDialog from "./DownloadDialog";
 import FilesSelectPanel from "./FilesSelectPanel";
 import FolderDeleteModal from "./FolderDeleteModal";
 import ConflictResolveDialog from "./ConflictResolveDialog";
+import ConvertDialog from "./ConvertDialog";
 import DocumentEditor from "./DocumentEditor";
 import SpreadsheetEditor from "./SpreadsheetEditor";
 import PresentationEditor from "./PresentationEditor";
@@ -45,6 +46,7 @@ class MyDocuments extends BasePage {
   filesSelectPanel: FilesSelectPanel;
   folderDeleteModal: FolderDeleteModal;
   conflictResolveDialog: ConflictResolveDialog;
+  convertDialog: ConvertDialog;
 
   infoPanel: InfoPanel;
 
@@ -62,6 +64,7 @@ class MyDocuments extends BasePage {
     this.filesSelectPanel = new FilesSelectPanel(page);
     this.folderDeleteModal = new FolderDeleteModal(page);
     this.conflictResolveDialog = new ConflictResolveDialog(page);
+    this.convertDialog = new ConvertDialog(page);
   }
 
   async open() {
@@ -389,6 +392,34 @@ class MyDocuments extends BasePage {
     ]);
     await editorPage.waitForLoadState("load");
     return new PdfFormEditor(editorPage);
+  }
+
+  /**
+   * Opens a file via the "Preview" context menu option. DocSpace opens the
+   * editor in a new tab, so this method returns the new Page. Set up
+   * console capture on the returned page immediately to avoid missing the
+   * "opened in mode view" message emitted during editor initialisation.
+   */
+  async openFileViaPreview(fileName: string): Promise<Page> {
+    await this.filesTable.openContextMenuForItem(fileName, true);
+    const [editorPage] = await Promise.all([
+      this.page.context().waitForEvent("page", { timeout: 30000 }),
+      this.filesTable.contextMenu.clickOption(
+        documentContextMenuOption.preview,
+      ),
+    ]);
+    // bringToFront ensures the tab is active so the editor initialises correctly
+    // (avoids the background-tab throttling described in Bug 81446 without reload)
+    await editorPage.bringToFront();
+    await editorPage.waitForLoadState("load");
+    return editorPage;
+  }
+
+  async uploadAndVerifyConversion(filePath: string, fileName: string) {
+    await this.filesNavigation.uploadFiles(filePath);
+    await this.convertDialog.checkDialogVisible();
+    await this.convertDialog.confirm();
+    await expect(await this.filesTable.getRowByTitle(fileName)).toHaveCount(2);
   }
 
   async openVersionHistory(fileName: string) {

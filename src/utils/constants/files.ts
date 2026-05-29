@@ -184,3 +184,77 @@ export const sampleCsvFile = {
   name: "sample.csv",
   path: "data/documents/sample.csv",
 } as const;
+
+// Lossy-edit plain-text format (type: "word")
+export const plainTextFile = {
+  name: "test-plain-text",
+  path: "data/documents/test-plain-text.txt",
+} as const;
+
+// Legacy Office formats that trigger the ConvertDialog on UI upload.
+// After confirmation DocSpace creates TWO entries in the file table —
+// both show the same base name (no extension) in the DOM.
+export const legacyDocFile = {
+  name: "test-legacy-document",
+  path: "data/documents/test-legacy-document.doc",
+} as const;
+
+export const legacyXlsFile = {
+  name: "test-legacy-spreadsheet",
+  path: "data/documents/test-legacy-spreadsheet.xls",
+} as const;
+
+export const legacyPptFile = {
+  name: "test-legacy-presentation",
+  path: "data/documents/test-legacy-presentation.ppt",
+} as const;
+
+export const legacyEpubFile = {
+  name: "test-epub",
+  path: "data/documents/test-epub.epub",
+} as const;
+
+export const legacyOdtFile = {
+  name: "test-odt",
+  path: "data/documents/test-odt.odt",
+} as const;
+
+export const legacyRtfFile = {
+  name: "test-rtf",
+  path: "data/documents/test-rtf.rtf",
+} as const;
+
+export const legacyOdsFile = {
+  name: "test-ods",
+  path: "data/documents/test-ods.ods",
+} as const;
+
+export const legacyFb2File = {
+  name: "test-fb2",
+  path: "data/documents/test-fb2.fb2",
+} as const;
+
+export const legacyHtmlFile = {
+  name: "test-html",
+  path: "data/documents/test-html.html",
+} as const;
+
+export const legacyOttFile = {
+  name: "test-ott",
+  path: "data/documents/test-ott.ott",
+} as const;
+
+export const legacyOtsFile = {
+  name: "test-ots",
+  path: "data/documents/test-ots.ots",
+} as const;
+
+export const legacyOdpFile = {
+  name: "test-odp",
+  path: "data/documents/test-odp.odp",
+} as const;
+
+export const legacyOtpFile = {
+  name: "test-otp",
+  path: "data/documents/test-otp.otp",
+} as const;
