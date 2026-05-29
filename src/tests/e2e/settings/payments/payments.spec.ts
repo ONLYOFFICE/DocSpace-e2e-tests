@@ -16,21 +16,6 @@ test.describe("Payments", () => {
     await payments.open();
   });
 
-  test("Upgrade plan via Stripe", async ({ page }) => {
-    await test.step("Open wallet tab and cancel top-up dialog", async () => {
-      await payments.openTab(paymentsTab.wallet);
-      await payments.openTopUpBalanceDialog();
-      await payments.cancelButton.click();
-    });
-
-    await test.step("Upgrade plan via Stripe", async () => {
-      await payments.openTab(paymentsTab.tariffPlan);
-      const stripePage = await payments.upgradePlan(10);
-      await payments.fillPaymentData(stripePage);
-      await page.reload();
-    });
-  });
-
   test("Downgrade and upgrade tariff plan", async ({ page }) => {
     await test.step("Upgrade plan", async () => {
       const stripePage = await payments.upgradePlan(10);

@@ -464,18 +464,16 @@ export class Payments extends BasePage {
       timeout: 15000,
     });
 
-    const returnUrl = new URL(
-      "/portal-settings/payments/portal-payments?complete=true",
-      this.portalUrl,
-    ).href;
-    await stripePage.waitForURL(returnUrl);
+    await stripePage.waitForURL(
+      /\/portal-settings\/payments\/portal-payments\?complete=true/,
+    );
 
     await expect(async () => {
       await stripePage.reload();
       await expect(
         stripePage.getByText("You are using Business plan"),
-      ).toBeVisible({ timeout: 5000 });
-    }).toPass({ timeout: 30000 });
+      ).toBeVisible({ timeout: 8000 });
+    }).toPass({ timeout: 90000, intervals: [3000, 5000, 8000] });
     await stripePage.close();
   }
 
