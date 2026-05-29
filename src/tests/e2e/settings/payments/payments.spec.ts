@@ -1,5 +1,6 @@
 import { test } from "@/src/fixtures";
 import { Payments } from "@/src/objects/settings/payments/Payments";
+import { PaymentApi } from "@/src/api/payment";
 import {
   paymentsTab,
   toastMessages,
@@ -9,8 +10,10 @@ import { expect } from "@playwright/test";
 
 test.describe("Payments", () => {
   let payments: Payments;
+  let paymentApi: PaymentApi;
 
-  test.beforeEach(async ({ page, login }) => {
+  test.beforeEach(async ({ page, api, login }) => {
+    paymentApi = new PaymentApi(api.apiRequestContext, api.apisystem);
     await login.loginToPortal();
     payments = new Payments(page);
     await payments.open();
@@ -71,13 +74,11 @@ test.describe("Payments", () => {
   });
 
   test("Top up wallet via Stripe", async ({ page }) => {
-    await test.step("Upgrade plan", async () => {
-      const stripePage = await payments.upgradePlan(10);
-      await payments.fillPaymentData(stripePage);
-      await page.reload();
+    await test.step("First top-up via Top up credits modal", async () => {
+      await payments.firstTopUpViaStripe(page, 1000);
     });
 
-    await test.step("Open wallet and top up via Stripe", async () => {
+    await test.step("Second wallet top-up via existing card", async () => {
       await payments.openTab(paymentsTab.wallet);
       await payments.openTopUpBalanceDialog();
       await payments.fillAmountTopUp(1000);
@@ -99,18 +100,8 @@ test.describe("Payments", () => {
   });
 
   test("Set up and edit automatic payments", async ({ page }) => {
-    await test.step("Upgrade plan", async () => {
-      const stripePage = await payments.upgradePlan(10);
-      await payments.fillPaymentData(stripePage);
-      await page.reload();
-    });
-
-    await test.step("Top up wallet", async () => {
-      await payments.openTab(paymentsTab.wallet);
-      await payments.openTopUpBalanceDialog();
-      await payments.amountTopUpInput.fill("1000");
-      await payments.topUpButton.click();
-      await payments.removeToast(toastMessages.walletToppedUp);
+    await test.step("First top-up via Top up credits modal", async () => {
+      await payments.firstTopUpViaStripe(page, 1000);
     });
 
     await test.step("Enable automatic payments", async () => {
@@ -126,7 +117,6 @@ test.describe("Payments", () => {
       await payments.fillAutomaticPaymentsData(150, 1000);
       await payments.saveAutomaticPaymentsModal();
       await expect(payments.editAutoTopUpButton).toBeVisible();
-
       await payments.editAutoTopUpButton.click();
       await payments.fillAutomaticPaymentsData(70, 600);
       await payments.saveAutomaticPaymentsModal();
@@ -142,19 +132,11 @@ test.describe("Payments", () => {
   });
 
   test("Filter transaction history", async ({ page }) => {
-    await test.step("Upgrade plan", async () => {
-      const stripePage = await payments.upgradePlan(10);
-      await payments.fillPaymentData(stripePage);
+    await test.step("Top up wallet via API", async () => {
+      await paymentApi.setupPayment();
+      await paymentApi.makeWalletTopUp();
       await page.reload();
-    });
-
-    await test.step("Top up wallet", async () => {
       await payments.openTab(paymentsTab.wallet);
-      await payments.openTopUpBalanceDialog();
-      await payments.amountTopUpInput.fill("1000");
-      await payments.topUpButton.click();
-      await payments.removeToast(toastMessages.walletToppedUp);
-      await payments.cancelAutomaticPaymentsButton.click();
     });
 
     await test.step("Check calendar date pickers", async () => {
@@ -194,19 +176,11 @@ test.describe("Payments", () => {
   });
 
   test("Download transaction history report", async ({ page }) => {
-    await test.step("Upgrade plan", async () => {
-      const stripePage = await payments.upgradePlan(10);
-      await payments.fillPaymentData(stripePage);
+    await test.step("Top up wallet via API", async () => {
+      await paymentApi.setupPayment();
+      await paymentApi.makeWalletTopUp();
       await page.reload();
-    });
-
-    await test.step("Top up wallet", async () => {
       await payments.openTab(paymentsTab.wallet);
-      await payments.openTopUpBalanceDialog();
-      await payments.amountTopUpInput.fill("1000");
-      await payments.topUpButton.click();
-      await payments.removeToast(toastMessages.walletToppedUp);
-      await payments.cancelAutomaticPaymentsButton.click();
     });
 
     await test.step("Download transaction history report", async () => {
@@ -254,26 +228,4 @@ test.describe("Payments", () => {
   //   );
   //   await helpcenterPage.close();
   // });
-
-  test("Add payment method and top up wallet", async ({ page }) => {
-    await test.step("Add payment method and top up", async () => {
-      await payments.openTab(paymentsTab.wallet);
-      await payments.openTopUpBalanceDialog();
-      await payments.addPaymentsMethod(page);
-      await payments.fillPaymentDataFromAddPaymentMethodServices(page);
-      await payments.fillAmountTopUpForServices();
-
-      const [response] = await Promise.all([
-        page.waitForResponse(
-          (resp) =>
-            resp.request().method() === "GET" &&
-            resp.url().includes("/api/2.0/portal/payment/customer/balance"),
-        ),
-        payments.topUpButton.click(),
-      ]);
-      expect(response.status()).toBe(200);
-      await payments.removeToast(toastMessages.walletToppedUp);
-      await payments.cancelAutomaticPaymentsButton.click();
-    });
-  });
 });

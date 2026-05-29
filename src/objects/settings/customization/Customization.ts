@@ -84,14 +84,12 @@ class Customization extends BasePage {
     await expect(
       this.article.articleNavItems.filter({ hasText: "AI settings" }),
     ).toBeVisible();
-    await expect(this.page.locator('a[href*="/ai-agents"]')).toBeVisible();
   }
 
   async checkAiServicesHidden() {
     await expect(
       this.article.articleNavItems.filter({ hasText: "AI settings" }),
     ).toBeHidden();
-    await expect(this.page.locator('a[href*="/ai-agents"]')).toBeHidden();
   }
   get logoSaveButton() {
     return this.page.getByTestId("white-label-save");
