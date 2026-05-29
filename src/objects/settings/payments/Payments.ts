@@ -578,6 +578,24 @@ export class Payments extends BasePage {
     await this.cancelAutomaticPaymentsButton.click();
   }
 
+  async firstTopUpViaStripe(page: Page, amount = 1000) {
+    await this.openTab(paymentsTab.wallet);
+    await this.topUpBalanceButton.click();
+    await this.dialog.checkDialogTitleExist("Top up credits");
+    await this.amountTopUpInput.fill(amount.toString());
+
+    const stripePagePromise = page.waitForEvent("popup", { timeout: 30000 });
+    await page.getByTestId("first_topup_continue_to_stripe").click();
+    const stripePage = await stripePagePromise;
+    await stripePage.waitForLoadState();
+    await this.fillPaymentDataFromAddPaymentMethodServices(stripePage);
+    await stripePage.waitForURL(
+      /\/portal-settings\/payments\/portal-payments\?complete=true/,
+    );
+    await stripePage.close();
+    await this.removeToast(toastMessages.walletToppedUp);
+  }
+
   thisStartUpPlan() {
     return this.page
       .getByTestId("text")
