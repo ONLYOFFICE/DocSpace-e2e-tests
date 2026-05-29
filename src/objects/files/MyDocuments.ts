@@ -415,6 +415,13 @@ class MyDocuments extends BasePage {
     return editorPage;
   }
 
+  async uploadAndVerifyConversion(filePath: string, fileName: string) {
+    await this.filesNavigation.uploadFiles(filePath);
+    await this.convertDialog.checkDialogVisible();
+    await this.convertDialog.confirm();
+    await expect(await this.filesTable.getRowByTitle(fileName)).toHaveCount(2);
+  }
+
   async openVersionHistory(fileName: string) {
     await this.filesTable.openContextMenuForItem(fileName);
     await this.filesTable.contextMenu.clickSubmenuOption(

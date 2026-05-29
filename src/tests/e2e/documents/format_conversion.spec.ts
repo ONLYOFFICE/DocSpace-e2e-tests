@@ -1,4 +1,3 @@
-import { expect } from "@playwright/test";
 import { test } from "@/src/fixtures";
 import MyDocuments from "@/src/objects/files/MyDocuments";
 import {
@@ -17,16 +16,6 @@ import {
   legacyOtpFile,
 } from "@/src/utils/constants/files";
 
-/**
- * All formats that trigger the ConvertDialog on UI upload. After confirmation
- * DocSpace keeps both the original file and a converted OOXML copy. Both entries
- * share the same base name in the DOM (extension is CSS-only), so the table must
- * show exactly 2 rows with that name.
- *
- * doc/xls/ppt → docx/xlsx/pptx (legacy MS Office)
- * epub/odt/rtf/fb2/html/ott → docx (word-family auto-convert)
- * ods/ots/odp/otp → xlsx/xlsx/pptx/pptx (cell/slide auto-convert)
- */
 test.describe("My Documents: legacy format auto-conversion on upload", () => {
   let myDocuments: MyDocuments;
 
@@ -36,87 +25,94 @@ test.describe("My Documents: legacy format auto-conversion on upload", () => {
     await myDocuments.open();
   });
 
-  async function verifyConversionFlow(
-    filePath: string,
-    fileName: string,
-    extLabel: string,
-  ) {
-    await test.step(`Upload ${extLabel} file via file picker`, async () => {
-      await myDocuments.filesNavigation.uploadFiles(filePath);
-    });
-
-    await test.step("Conversion dialog is shown", async () => {
-      await myDocuments.convertDialog.checkDialogVisible();
-    });
-
-    await test.step("Confirm conversion", async () => {
-      await myDocuments.convertDialog.confirm();
-    });
-
-    await test.step("Both original and converted files appear in the table", async () => {
-      await expect(
-        await myDocuments.filesTable.getRowByTitle(fileName),
-      ).toHaveCount(2);
-    });
-  }
-
   test("Upload .doc — conversion dialog shown, two rows appear", async () => {
-    await verifyConversionFlow(legacyDocFile.path, legacyDocFile.name, ".doc");
+    await myDocuments.uploadAndVerifyConversion(
+      legacyDocFile.path,
+      legacyDocFile.name,
+    );
   });
 
   test("Upload .xls — conversion dialog shown, two rows appear", async () => {
-    await verifyConversionFlow(legacyXlsFile.path, legacyXlsFile.name, ".xls");
+    await myDocuments.uploadAndVerifyConversion(
+      legacyXlsFile.path,
+      legacyXlsFile.name,
+    );
   });
 
   test("Upload .ppt — conversion dialog shown, two rows appear", async () => {
-    await verifyConversionFlow(legacyPptFile.path, legacyPptFile.name, ".ppt");
+    await myDocuments.uploadAndVerifyConversion(
+      legacyPptFile.path,
+      legacyPptFile.name,
+    );
   });
 
   test("Upload .epub — conversion dialog shown, two rows appear", async () => {
-    await verifyConversionFlow(
+    await myDocuments.uploadAndVerifyConversion(
       legacyEpubFile.path,
       legacyEpubFile.name,
-      ".epub",
     );
   });
 
   test("Upload .odt — conversion dialog shown, two rows appear", async () => {
-    await verifyConversionFlow(legacyOdtFile.path, legacyOdtFile.name, ".odt");
+    await myDocuments.uploadAndVerifyConversion(
+      legacyOdtFile.path,
+      legacyOdtFile.name,
+    );
   });
 
   test("Upload .rtf — conversion dialog shown, two rows appear", async () => {
-    await verifyConversionFlow(legacyRtfFile.path, legacyRtfFile.name, ".rtf");
+    await myDocuments.uploadAndVerifyConversion(
+      legacyRtfFile.path,
+      legacyRtfFile.name,
+    );
   });
 
   test("Upload .ods — conversion dialog shown, two rows appear", async () => {
-    await verifyConversionFlow(legacyOdsFile.path, legacyOdsFile.name, ".ods");
+    await myDocuments.uploadAndVerifyConversion(
+      legacyOdsFile.path,
+      legacyOdsFile.name,
+    );
   });
 
   test("Upload .fb2 — conversion dialog shown, two rows appear", async () => {
-    await verifyConversionFlow(legacyFb2File.path, legacyFb2File.name, ".fb2");
+    await myDocuments.uploadAndVerifyConversion(
+      legacyFb2File.path,
+      legacyFb2File.name,
+    );
   });
 
   test("Upload .html — conversion dialog shown, two rows appear", async () => {
-    await verifyConversionFlow(
+    await myDocuments.uploadAndVerifyConversion(
       legacyHtmlFile.path,
       legacyHtmlFile.name,
-      ".html",
     );
   });
 
   test("Upload .ott — conversion dialog shown, two rows appear", async () => {
-    await verifyConversionFlow(legacyOttFile.path, legacyOttFile.name, ".ott");
+    await myDocuments.uploadAndVerifyConversion(
+      legacyOttFile.path,
+      legacyOttFile.name,
+    );
   });
 
   test("Upload .ots — conversion dialog shown, two rows appear", async () => {
-    await verifyConversionFlow(legacyOtsFile.path, legacyOtsFile.name, ".ots");
+    await myDocuments.uploadAndVerifyConversion(
+      legacyOtsFile.path,
+      legacyOtsFile.name,
+    );
   });
 
   test("Upload .odp — conversion dialog shown, two rows appear", async () => {
-    await verifyConversionFlow(legacyOdpFile.path, legacyOdpFile.name, ".odp");
+    await myDocuments.uploadAndVerifyConversion(
+      legacyOdpFile.path,
+      legacyOdpFile.name,
+    );
   });
 
   test("Upload .otp — conversion dialog shown, two rows appear", async () => {
-    await verifyConversionFlow(legacyOtpFile.path, legacyOtpFile.name, ".otp");
+    await myDocuments.uploadAndVerifyConversion(
+      legacyOtpFile.path,
+      legacyOtpFile.name,
+    );
   });
 });
