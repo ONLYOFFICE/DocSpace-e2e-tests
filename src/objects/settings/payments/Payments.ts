@@ -590,10 +590,9 @@ export class Payments extends BasePage {
     await stripePage.waitForLoadState();
     await this.fillPaymentDataFromAddPaymentMethodServices(stripePage);
     await stripePage.waitForURL(
-      /\/portal-settings\/payments\/portal-payments\?complete=true/,
+      /\/portal-settings\/payments\/wallet\?complete=true/,
     );
     await stripePage.close();
-    await this.removeToast(toastMessages.walletToppedUp);
   }
 
   thisStartUpPlan() {

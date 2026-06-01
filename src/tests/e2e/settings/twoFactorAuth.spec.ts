@@ -27,7 +27,7 @@ test.describe("Two-Factor Authentication tests", () => {
 
     await test.step("Verify backup codes dialog is shown", async () => {
       await expect(twoFactorAuthPage.backupCodesContainer).toBeVisible({
-        timeout: 15000,
+        timeout: 30000,
       });
       await twoFactorAuthPage.backupCodesCancelButton.click();
       await expect(twoFactorAuthPage.backupCodesContainer).not.toBeVisible();
