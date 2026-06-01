@@ -110,27 +110,13 @@ class Webhooks extends BaseDevTools {
     await this.createNameInput.fill(name);
     await this.createPayloadUrlInput.fill(url);
     await this.generateSecretKeyLink.click();
-
-    const [response] = await Promise.all([
-      this.page
-        .waitForResponse(
-          (resp) =>
-            resp.url().includes("/api/2.0/settings/webhooks") &&
-            resp.request().method() === "POST",
-          { timeout: 10000 },
-        )
-        .catch(() => {
-          console.log("[Webhooks] no POST response received");
-          return null;
-        }),
-      this.createSubmitButton.click(),
-    ]);
-
-    if (response) {
-      console.log(
-        `[Webhooks] create response: ${response.status()} ${response.url()}`,
-      );
-    }
+    await expect(this.secretKeyInput).not.toHaveValue("");
+    await expect(async () => {
+      if (await this.createDialog.isVisible()) {
+        await this.createSubmitButton.click();
+      }
+      await expect(this.page.getByText(name)).toBeVisible({ timeout: 5000 });
+    }).toPass({ timeout: 30000 });
   }
 
   async checkWebhookVisible(name: string) {
