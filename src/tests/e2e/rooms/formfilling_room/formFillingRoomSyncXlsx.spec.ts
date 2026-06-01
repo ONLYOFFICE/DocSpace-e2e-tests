@@ -21,6 +21,7 @@ import {
 } from "@/src/utils/constants/rooms";
 import RoomsCreateDialog from "@/src/objects/rooms/RoomsCreateDialog";
 import FolderDeleteModal from "@/src/objects/files/FolderDeleteModal";
+import BaseToast from "@/src/objects/common/BaseToast";
 
 // Tests for "Sync responses to XLSX" in a FormFilling room.
 // After form submission, an XLSX file is auto-created inside the submission folder
@@ -250,7 +251,7 @@ test.describe("FormFilling room - Sync responses to XLSX", () => {
   });
 
   // Bug 81181: Deleted PDF still included in sync report until permanently removed from Trash
-  test.skip("[Bug 81181] Sync reflects only remaining submission after one PDF is deleted", async ({
+  test("Sync reflects only remaining submission after one PDF is deleted", async ({
     page,
   }) => {
     let newPage!: Page;
@@ -302,7 +303,6 @@ test.describe("FormFilling room - Sync responses to XLSX", () => {
 
     // newPage is now the page returned after 2nd submission
     const finalTable = new FilesTable(newPage);
-    const finalNav = new FilesNavigation(newPage);
 
     await test.step("Navigate to submission folder inside Complete", async () => {
       await finalTable.openContextMenuForItem("Complete");
@@ -336,23 +336,11 @@ test.describe("FormFilling room - Sync responses to XLSX", () => {
       await deleteModal.clickDeleteFolder();
     });
 
-    await test.step("Navigate back to Complete and sync submission folder", async () => {
-      await finalNav.gotoBack();
-      await expect(
-        newPage.getByRole("heading", { name: "Complete" }),
-      ).toBeVisible();
-      await finalTable.openContextMenuForItem(FORM_NAME);
+    await test.step("Sync via XLSX context menu", async () => {
+      await finalTable.openContextMenuForXlsxItem();
       await finalTable.contextMenu.clickOption(
-        folderContextMenuOption.syncResponsesToXlsx,
+        spreadsheetContextMenuOption.syncResponsesToXlsx,
       );
-    });
-
-    await test.step("Navigate into submission folder", async () => {
-      await finalTable.openContextMenuForItem(FORM_NAME);
-      await finalTable.contextMenu.clickOption(folderContextMenuOption.open);
-      await expect(
-        newPage.getByRole("heading", { name: FORM_NAME }),
-      ).toBeVisible();
     });
 
     await test.step("Verify XLSX exists after sync", async () => {
@@ -371,19 +359,18 @@ test.describe("FormFilling room - Sync responses to XLSX", () => {
     });
   });
 
-  // TODO Bug 81181: unskip when fixed - form in trash is still counted
-  test.skip("[Bug 81181] Sync option is absent from submission folder when PDF is deleted", async ({
+  // Bug 81217: sync is always available even when all submitted PDFs are deleted
+  test("Sync generates empty XLSX when all PDF submissions are deleted", async ({
     page,
   }) => {
     let newPage!: Page;
+    let xlsxSizeWith1Submission: number;
 
     await test.step("Submit the form", async () => {
       newPage = await startFillingAndSubmit(page);
     });
 
     const newFilesTable = new FilesTable(newPage);
-    const filesNav = new FilesNavigation(newPage);
-
     await test.step("Navigate to submission folder inside Complete", async () => {
       await newFilesTable.openContextMenuForItem("Complete");
       await newFilesTable.contextMenu.clickOption(folderContextMenuOption.open);
@@ -397,52 +384,54 @@ test.describe("FormFilling room - Sync responses to XLSX", () => {
       ).toBeVisible();
     });
 
-    await test.step("Delete PDF submission copy from submission folder", async () => {
+    await test.step("Record XLSX size with 1 submission", async () => {
       await newFilesTable.expectXlsxItemVisible(10000);
+      await newFilesTable.openContextMenuForXlsxItem();
+      await newFilesTable.contextMenu.clickOption(
+        spreadsheetContextMenuOption.select,
+      );
+      const infoPanel = new InfoPanel(newPage);
+      await infoPanel.open();
+      xlsxSizeWith1Submission = await infoPanel.getSizeInBytes();
+      expect(xlsxSizeWith1Submission).toBeGreaterThan(0);
+    });
+
+    await test.step("Delete the only PDF submission", async () => {
       await newFilesTable.openContextMenuForPdfItem();
       await newFilesTable.contextMenu.clickOption(
         pdfFormContextMenuOption.delete,
       );
       const deleteModal = new FolderDeleteModal(newPage);
       await deleteModal.clickDeleteFolder();
+      await new BaseToast(newPage).dismissToastSafely(
+        "successfully moved to Trash",
+      );
     });
 
-    await test.step("Navigate back to Complete", async () => {
-      await filesNav.gotoBack();
-      await expect(
-        newPage.getByRole("heading", { name: "Complete" }),
-      ).toBeVisible();
-    });
-
-    await test.step("Verify Sync option is absent from submission folder context menu", async () => {
-      await newFilesTable.openContextMenuForItem(FORM_NAME);
-      await expect(
-        newFilesTable.contextMenu.getItemLocator(folderContextMenuOption.open),
-      ).toBeVisible();
-      await expect(
-        newFilesTable.contextMenu.getItemLocator(
-          folderContextMenuOption.syncResponsesToXlsx,
-        ),
-      ).not.toBeVisible();
-      await newFilesTable.contextMenu.close();
-    });
-
-    await test.step("Navigate into submission folder", async () => {
-      await newFilesTable.openContextMenuForItem(FORM_NAME);
-      await newFilesTable.contextMenu.clickOption(folderContextMenuOption.open);
-      await expect(
-        newPage.getByRole("heading", { name: FORM_NAME }),
-      ).toBeVisible();
-    });
-
-    await test.step("Verify Sync option is absent from XLSX context menu", async () => {
+    await test.step("Sync via XLSX context menu and wait for completion", async () => {
       await newFilesTable.openContextMenuForXlsxItem();
-      await expect(
-        newFilesTable.contextMenu.getItemLocator(
-          spreadsheetContextMenuOption.syncResponsesToXlsx,
-        ),
-      ).not.toBeVisible();
-      await newFilesTable.contextMenu.close();
+      await newFilesTable.contextMenu.clickOption(
+        spreadsheetContextMenuOption.syncResponsesToXlsx,
+      );
+      await new BaseToast(newPage).dismissToastSafely(
+        "is updated based on all completed copies",
+      );
+    });
+
+    await test.step("Verify XLSX exists after sync", async () => {
+      await newFilesTable.expectXlsxItemVisible(15000);
+    });
+
+    await test.step("Verify synced XLSX is smaller than with 1 submission (empty table)", async () => {
+      const infoPanel = new InfoPanel(newPage);
+      await infoPanel.close();
+      await newFilesTable.openContextMenuForXlsxItem();
+      await newFilesTable.contextMenu.clickOption(
+        spreadsheetContextMenuOption.select,
+      );
+      await infoPanel.open();
+      const sizeAfterSync = await infoPanel.getSizeInBytes();
+      expect(sizeAfterSync).toBeLessThan(xlsxSizeWith1Submission);
     });
   });
 });
