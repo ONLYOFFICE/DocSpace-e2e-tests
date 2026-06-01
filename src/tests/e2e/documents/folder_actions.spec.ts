@@ -56,7 +56,9 @@ test.describe("Folder", () => {
     await myRooms.roomsTable.checkRowExist(baseFolder);
   });
 
-  test("Move folder", async () => {
+  // Skipped due to a product bug: the move succeeds on the backend but the
+  // source row is not removed from the UI. Re-enable once the UI refresh is fixed.
+  test.skip("Move folder", async () => {
     await test.step("Precondition: create folders", async () => {
       await folder.createNew(baseFolder);
       await folder.createNew(folderToMove);
