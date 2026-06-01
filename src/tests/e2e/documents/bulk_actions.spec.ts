@@ -56,9 +56,9 @@ test.describe("My Documents: Bulk actions", () => {
     });
   });
 
-  // Skipped due to a product bug: the bulk move succeeds on the backend but the
-  // source rows are not removed from the UI. Re-enable once the UI refresh is fixed.
-  test.skip("Bulk move files to folder", async () => {
+  // Bug 81812: the bulk move succeeds on the backend but the source rows are not
+  // removed from the UI until page refresh.
+  test.fail("Bulk move files to folder", async () => {
     const targetFolder = "TargetFolder";
 
     await test.step("Create files and target folder", async () => {
