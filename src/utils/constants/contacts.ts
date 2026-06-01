@@ -139,7 +139,7 @@ export const memberFilterSections = [
   "Type",
   "Account",
   "Account login type",
-  "Storage quota",
+  //"Storage quota",
 ] as const;
 
 export const memberFilterOptions = [
@@ -156,8 +156,10 @@ export const memberFilterOptions = [
   "SSO",
   "LDAP",
   "Standard login",
-  "Custom quota",
-  "Default quota",
+  // "Custom quota" / "Default quota" belong to the Storage quota section,
+  // which is unavailable on an unpaid portal (see commented section above).
+  //"Custom quota",
+  //"Default quota",
 ] as const;
 
 export const toastMessages = {
