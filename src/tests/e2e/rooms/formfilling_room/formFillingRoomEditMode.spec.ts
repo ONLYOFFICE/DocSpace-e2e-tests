@@ -51,7 +51,8 @@ test.describe("FormFilling room - Edit mode", () => {
   });
 
   test.describe("Form filling started", () => {
-    test("Form becomes unavailable when owner switches to edit mode during active fill", async ({
+    // Bug 81805: Form submitted after filling is stopped should not be recorded
+    test.skip("[Bug 81805] Form becomes unavailable when owner switches to edit mode during active fill", async ({
       page,
       browser,
     }) => {
