@@ -360,83 +360,78 @@ test.describe("FormFilling room - Sync responses to XLSX", () => {
   });
 
   // Bug 81217: sync is always available even when all submitted PDFs are deleted
-  test(
-    "Sync generates empty XLSX when all PDF submissions are deleted",
-    async ({ page }) => {
-      let newPage!: Page;
-      let xlsxSizeWith1Submission: number;
+  test("Sync generates empty XLSX when all PDF submissions are deleted", async ({
+    page,
+  }) => {
+    let newPage!: Page;
+    let xlsxSizeWith1Submission: number;
 
-      await test.step("Submit the form", async () => {
-        newPage = await startFillingAndSubmit(page);
-      });
+    await test.step("Submit the form", async () => {
+      newPage = await startFillingAndSubmit(page);
+    });
 
-      const newFilesTable = new FilesTable(newPage);
-      await test.step("Navigate to submission folder inside Complete", async () => {
-        await newFilesTable.openContextMenuForItem("Complete");
-        await newFilesTable.contextMenu.clickOption(
-          folderContextMenuOption.open,
-        );
-        await expect(
-          newPage.getByRole("heading", { name: "Complete" }),
-        ).toBeVisible();
-        await newFilesTable.openContextMenuForItem(FORM_NAME);
-        await newFilesTable.contextMenu.clickOption(
-          folderContextMenuOption.open,
-        );
-        await expect(
-          newPage.getByRole("heading", { name: FORM_NAME }),
-        ).toBeVisible();
-      });
+    const newFilesTable = new FilesTable(newPage);
+    await test.step("Navigate to submission folder inside Complete", async () => {
+      await newFilesTable.openContextMenuForItem("Complete");
+      await newFilesTable.contextMenu.clickOption(folderContextMenuOption.open);
+      await expect(
+        newPage.getByRole("heading", { name: "Complete" }),
+      ).toBeVisible();
+      await newFilesTable.openContextMenuForItem(FORM_NAME);
+      await newFilesTable.contextMenu.clickOption(folderContextMenuOption.open);
+      await expect(
+        newPage.getByRole("heading", { name: FORM_NAME }),
+      ).toBeVisible();
+    });
 
-      await test.step("Record XLSX size with 1 submission", async () => {
-        await newFilesTable.expectXlsxItemVisible(10000);
-        await newFilesTable.openContextMenuForXlsxItem();
-        await newFilesTable.contextMenu.clickOption(
-          spreadsheetContextMenuOption.select,
-        );
-        const infoPanel = new InfoPanel(newPage);
-        await infoPanel.open();
-        xlsxSizeWith1Submission = await infoPanel.getSizeInBytes();
-        expect(xlsxSizeWith1Submission).toBeGreaterThan(0);
-      });
+    await test.step("Record XLSX size with 1 submission", async () => {
+      await newFilesTable.expectXlsxItemVisible(10000);
+      await newFilesTable.openContextMenuForXlsxItem();
+      await newFilesTable.contextMenu.clickOption(
+        spreadsheetContextMenuOption.select,
+      );
+      const infoPanel = new InfoPanel(newPage);
+      await infoPanel.open();
+      xlsxSizeWith1Submission = await infoPanel.getSizeInBytes();
+      expect(xlsxSizeWith1Submission).toBeGreaterThan(0);
+    });
 
-      await test.step("Delete the only PDF submission", async () => {
-        await newFilesTable.openContextMenuForPdfItem();
-        await newFilesTable.contextMenu.clickOption(
-          pdfFormContextMenuOption.delete,
-        );
-        const deleteModal = new FolderDeleteModal(newPage);
-        await deleteModal.clickDeleteFolder();
-        await new BaseToast(newPage).dismissToastSafely(
-          "successfully moved to Trash",
-        );
-      });
+    await test.step("Delete the only PDF submission", async () => {
+      await newFilesTable.openContextMenuForPdfItem();
+      await newFilesTable.contextMenu.clickOption(
+        pdfFormContextMenuOption.delete,
+      );
+      const deleteModal = new FolderDeleteModal(newPage);
+      await deleteModal.clickDeleteFolder();
+      await new BaseToast(newPage).dismissToastSafely(
+        "successfully moved to Trash",
+      );
+    });
 
-      await test.step("Sync via XLSX context menu and wait for completion", async () => {
-        await newFilesTable.openContextMenuForXlsxItem();
-        await newFilesTable.contextMenu.clickOption(
-          spreadsheetContextMenuOption.syncResponsesToXlsx,
-        );
-        await new BaseToast(newPage).dismissToastSafely(
-          "is updated based on all completed copies",
-        );
-      });
+    await test.step("Sync via XLSX context menu and wait for completion", async () => {
+      await newFilesTable.openContextMenuForXlsxItem();
+      await newFilesTable.contextMenu.clickOption(
+        spreadsheetContextMenuOption.syncResponsesToXlsx,
+      );
+      await new BaseToast(newPage).dismissToastSafely(
+        "is updated based on all completed copies",
+      );
+    });
 
-      await test.step("Verify XLSX exists after sync", async () => {
-        await newFilesTable.expectXlsxItemVisible(15000);
-      });
+    await test.step("Verify XLSX exists after sync", async () => {
+      await newFilesTable.expectXlsxItemVisible(15000);
+    });
 
-      await test.step("Verify synced XLSX is smaller than with 1 submission (empty table)", async () => {
-        const infoPanel = new InfoPanel(newPage);
-        await infoPanel.close();
-        await newFilesTable.openContextMenuForXlsxItem();
-        await newFilesTable.contextMenu.clickOption(
-          spreadsheetContextMenuOption.select,
-        );
-        await infoPanel.open();
-        const sizeAfterSync = await infoPanel.getSizeInBytes();
-        expect(sizeAfterSync).toBeLessThan(xlsxSizeWith1Submission);
-      });
-    },
-  );
+    await test.step("Verify synced XLSX is smaller than with 1 submission (empty table)", async () => {
+      const infoPanel = new InfoPanel(newPage);
+      await infoPanel.close();
+      await newFilesTable.openContextMenuForXlsxItem();
+      await newFilesTable.contextMenu.clickOption(
+        spreadsheetContextMenuOption.select,
+      );
+      await infoPanel.open();
+      const sizeAfterSync = await infoPanel.getSizeInBytes();
+      expect(sizeAfterSync).toBeLessThan(xlsxSizeWith1Submission);
+    });
+  });
 });
