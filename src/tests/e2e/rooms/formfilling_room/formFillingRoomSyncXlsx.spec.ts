@@ -359,8 +359,8 @@ test.describe("FormFilling room - Sync responses to XLSX", () => {
     });
   });
 
-  // TODO: rewrite after Bug 81217 is fixed - sync should be unavailable when all submitted PDFs are deleted
-  test.fail(
+  // Bug 81217: sync is always available even when all submitted PDFs are deleted
+  test(
     "Sync generates empty XLSX when all PDF submissions are deleted",
     async ({ page }) => {
       let newPage!: Page;
