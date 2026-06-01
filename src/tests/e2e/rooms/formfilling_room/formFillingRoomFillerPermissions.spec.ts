@@ -160,10 +160,14 @@ test.describe("FormFilling room - Form filler permissions", () => {
       ).toBeVisible();
     });
 
+    // Form filler sees the History tab but only gets history of started forms,
+    // not the full room activity - shown as a placeholder message
     await test.step("Verify Form filler CAN view room history", async () => {
       await myRooms.infoPanel.openTab("History");
       await expect(page.getByTestId("info_history_tab")).toBeVisible();
-      await expect(page.getByText("Today")).toBeVisible();
+      await expect(
+        page.getByText("Activity history will be shown here"),
+      ).toBeVisible();
     });
 
     await test.step("Verify Form filler CAN view Details tab", async () => {
