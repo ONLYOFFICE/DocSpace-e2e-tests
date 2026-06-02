@@ -5,34 +5,43 @@ import MyRooms from "@/src/objects/rooms/Rooms";
 import { ShortTour } from "@/src/objects/rooms/ShortTourModal";
 import RoomEmptyView from "@/src/objects/rooms/RoomEmptyView";
 import RoomSelectPanel from "@/src/objects/rooms/RoomSelectPanel";
+import PdfFormModal from "@/src/objects/rooms/PdfFormModal";
+import { formFillingRoomPdfContextMenuOption } from "@/src/utils/constants/files";
 import {
   setupClipboardPermissions,
   getLinkFromClipboard,
 } from "@/src/utils/helpers/linkTest";
 
-/**
- * Form Filling Room specific helper functions
- * These functions are tailored for Form Filling Room workflows
- */
+const PDF_FILE_NAME = "ONLYOFFICE Resume Sample";
 
-/**
- * Copies shared link for a file using context menu
- */
+export async function uploadAndStartFillingPDF(
+  shortTour: ShortTour,
+  roomEmptyView: RoomEmptyView,
+  selectPanel: RoomSelectPanel,
+  myRooms: MyRooms,
+  page: Page,
+  filesTable: FilesTable,
+): Promise<void> {
+  await uploadAndVerifyPDF(shortTour, roomEmptyView, selectPanel, myRooms, page);
+  await filesTable.openContextMenuForItem(PDF_FILE_NAME);
+  await filesTable.contextMenu.clickOption(
+    formFillingRoomPdfContextMenuOption.startFilling,
+  );
+  await new PdfFormModal(page).close();
+}
+
 export async function copyFileLink(
   page: Page,
   filesTable: FilesTable,
   myRooms: MyRooms,
 ): Promise<string> {
   await setupClipboardPermissions(page);
-  await filesTable.openContextMenuForItem("ONLYOFFICE Resume Sample");
+  await filesTable.openContextMenuForItem(PDF_FILE_NAME);
   await filesTable.contextMenu.clickSubmenuOption("Share", "Copy shared link");
   await myRooms.toast.dismissToastSafely("Link copied to clipboard", 5000);
   return await getLinkFromClipboard(page);
 }
 
-/**
- * Uploads PDF and verifies it's visible
- */
 export async function uploadAndVerifyPDF(
   shortTour: ShortTour,
   roomEmptyView: RoomEmptyView,
@@ -47,8 +56,8 @@ export async function uploadAndVerifyPDF(
   await roomEmptyView.uploadPdfFromDocSpace();
   await selectPanel.checkSelectorExist();
   await selectPanel.select("documents");
-  await selectPanel.selectItemByText("ONLYOFFICE Resume Sample");
+  await selectPanel.selectItemByText(PDF_FILE_NAME);
   await selectPanel.confirmSelection();
   await myRooms.infoPanel.close();
-  await expect(page.getByLabel("ONLYOFFICE Resume Sample,")).toBeVisible();
+  await expect(page.getByLabel(`${PDF_FILE_NAME},`)).toBeVisible();
 }
