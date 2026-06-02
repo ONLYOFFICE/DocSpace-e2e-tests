@@ -96,9 +96,7 @@ export class Payments extends BasePage {
   }
 
   get goToStripeLink() {
-    return this.page.getByText("Go to the Stripe", {
-      exact: true,
-    });
+    return this.page.getByTestId("payment_method_link");
   }
 
   get saveAutomaticPaymentsButton() {
@@ -245,6 +243,11 @@ export class Payments extends BasePage {
 
   async checkWalletRefilledDialogExist() {
     await this.dialog.checkDialogTitleExist("Wallet refilled");
+  }
+
+  async closeWalletRefilledDialog() {
+    await this.checkWalletRefilledDialogExist();
+    await this.cancelAutomaticPaymentsButton.click();
   }
 
   async hideDatesWallet() {
@@ -589,9 +592,11 @@ export class Payments extends BasePage {
     const stripePage = await stripePagePromise;
     await stripePage.waitForLoadState();
     await this.fillPaymentDataFromAddPaymentMethodServices(stripePage);
-    await stripePage.waitForURL(
-      /\/portal-settings\/payments\/wallet\?complete=true/,
-    );
+    await stripePage.waitForURL(/\/billing\/payment-complete\?.*type=wallet/);
+    // Wait for the wallet to finish processing before closing the Stripe page.
+    await expect(stripePage.getByText(/topped up/i)).toBeVisible({
+      timeout: 60000,
+    });
     await stripePage.close();
   }
 
