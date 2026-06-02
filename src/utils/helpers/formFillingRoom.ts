@@ -22,7 +22,13 @@ export async function uploadAndStartFillingPDF(
   page: Page,
   filesTable: FilesTable,
 ): Promise<void> {
-  await uploadAndVerifyPDF(shortTour, roomEmptyView, selectPanel, myRooms, page);
+  await uploadAndVerifyPDF(
+    shortTour,
+    roomEmptyView,
+    selectPanel,
+    myRooms,
+    page,
+  );
   await filesTable.openContextMenuForItem(PDF_FILE_NAME);
   await filesTable.contextMenu.clickOption(
     formFillingRoomPdfContextMenuOption.startFilling,
