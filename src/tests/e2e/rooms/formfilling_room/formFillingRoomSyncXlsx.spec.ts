@@ -334,7 +334,9 @@ test.describe("FormFilling room - Sync responses to XLSX", () => {
       await finalTable.contextMenu.clickOption(pdfFormContextMenuOption.delete);
       const deleteModal = new FolderDeleteModal(newPage);
       await deleteModal.clickDeleteFolder();
-      await new BaseToast(newPage).dismissToastSafely("successfully moved to Trash");
+      await new BaseToast(newPage).dismissToastSafely(
+        "successfully moved to Trash",
+      );
     });
 
     await test.step("Sync via XLSX context menu", async () => {
