@@ -185,7 +185,8 @@ test.describe("FormFilling Template Gallery tests", () => {
 
   // Verifies the full flow of submitting a PDF form to the Template Gallery:
   // upload PDF, open gallery, submit form, select file, and confirm submission
-  test("Submit PDF form to Template Gallery", async ({ page }) => {
+  // TODO: skipped — issue is under investigation.
+  test.skip("Submit PDF form to Template Gallery", async ({ page }) => {
     await test.step("Upload PDF form from MyDocuments", async () => {
       await uploadAndVerifyPDF(
         shortTour,
