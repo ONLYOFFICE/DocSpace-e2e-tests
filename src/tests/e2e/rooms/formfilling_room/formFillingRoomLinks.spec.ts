@@ -30,6 +30,7 @@ import {
 import {
   copyFileLink,
   uploadAndVerifyPDF,
+  uploadAndStartFillingPDF,
 } from "@/src/utils/helpers/formFillingRoom";
 import { formFillingRoomContextMenuOption } from "@/src/utils/constants/rooms";
 
@@ -131,15 +132,17 @@ test.describe("FormFilling room - Link tests", () => {
     browser,
   }) => {
     let shareLink: string;
-    await test.step("Upload PDF form from My Documents", async () => {
-      await uploadAndVerifyPDF(
+    await test.step("Upload PDF form and start filling", async () => {
+      await uploadAndStartFillingPDF(
         shortTour,
         roomEmptyView,
         selectPanel,
         myRooms,
         page,
+        filesTable,
       );
     });
+
     await test.step("Change and copy link to file access docspace users only", async () => {
       await filesTable.openContextMenuForItem("ONLYOFFICE Resume Sample");
       await filesTable.contextMenu.clickSubmenuOption(
@@ -741,13 +744,14 @@ test.describe("FormFilling room - Link tests", () => {
     let fileLink: string;
     let incognitoPage: Page;
 
-    await test.step("Upload PDF form", async () => {
-      await uploadAndVerifyPDF(
+    await test.step("Upload PDF form and start filling", async () => {
+      await uploadAndStartFillingPDF(
         shortTour,
         roomEmptyView,
         selectPanel,
         myRooms,
         page,
+        filesTable,
       );
     });
 
@@ -775,7 +779,7 @@ test.describe("FormFilling room - Link tests", () => {
 
       await incognitoPage.goto(fileLink, { waitUntil: "load" });
 
-      // Filling was not started, so the submit button should not be present
+      // Form is not completed yet, so the submit button should not be present
       const pdfForm = new FilesPdfForm(incognitoPage);
       await pdfForm.checkSubmitButtonNotVisible();
     });

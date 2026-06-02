@@ -26,7 +26,10 @@ import RoomSelectPanel from "@/src/objects/rooms/RoomSelectPanel";
 import RoomInfoPanel from "@/src/objects/rooms/RoomInfoPanel";
 import RoomsInviteDialog from "@/src/objects/rooms/RoomsInviteDialog";
 import Login from "@/src/objects/common/Login";
-import { uploadAndVerifyPDF } from "@/src/utils/helpers/formFillingRoom";
+import {
+  uploadAndVerifyPDF,
+  uploadAndStartFillingPDF,
+} from "@/src/utils/helpers/formFillingRoom";
 import TemplateGallery from "@/src/objects/rooms/TemplateGallery";
 import BaseFloatingProgress from "@/src/objects/common/BaseFloatingProgress";
 import PdfFormModal from "@/src/objects/rooms/PdfFormModal";
@@ -41,7 +44,6 @@ test.describe("FormFilling base tests", () => {
   let roomInfoPanel: RoomInfoPanel;
   let roomsInviteDialog: RoomsInviteDialog;
   let login: Login;
-  let pdfFormModal: PdfFormModal;
 
   const FF_SKIP_TESTS = [
     "Check work with Draft PDF Form",
@@ -55,7 +57,6 @@ test.describe("FormFilling base tests", () => {
     );
     myRooms = new MyRooms(page, api.portalDomain);
     shortTour = new ShortTour(page);
-    pdfFormModal = new PdfFormModal(page);
     roomEmptyView = new RoomEmptyView(page);
     filesTable = new FilesTable(page);
     selectPanel = new RoomSelectPanel(page);
@@ -160,20 +161,15 @@ test.describe("FormFilling base tests", () => {
     });
   });
   test("Submit Not Filling PDF Form", async ({ page }) => {
-    await test.step("UploadPDFFormFromMyDocuments", async () => {
-      await uploadAndVerifyPDF(
+    await test.step("Upload PDF form and start filling", async () => {
+      await uploadAndStartFillingPDF(
         shortTour,
         roomEmptyView,
         selectPanel,
         myRooms,
         page,
+        filesTable,
       );
-    });
-
-    await test.step("Start filling the form", async () => {
-      await filesTable.openContextMenuForItem("ONLYOFFICE Resume Sample");
-      await filesTable.contextMenu.clickOption("Start filling");
-      await pdfFormModal.close();
       await filesTable.expectFillingIconVisible("ONLYOFFICE Resume Sample");
     });
 
@@ -254,19 +250,15 @@ test.describe("FormFilling base tests", () => {
   });
 
   test("Check work with Draft PDF Form", async ({ page }) => {
-    await test.step("UploadPDFFormFromMyDocuments", async () => {
-      await uploadAndVerifyPDF(
+    await test.step("Upload PDF form and start filling", async () => {
+      await uploadAndStartFillingPDF(
         shortTour,
         roomEmptyView,
         selectPanel,
         myRooms,
         page,
+        filesTable,
       );
-    });
-    await test.step("Start filling the form", async () => {
-      await filesTable.openContextMenuForItem("ONLYOFFICE Resume Sample");
-      await filesTable.contextMenu.clickOption("Start filling");
-      await pdfFormModal.close();
       await filesTable.expectFillingIconVisible("ONLYOFFICE Resume Sample");
     });
     await test.step("Open and close pdf form", async () => {
@@ -383,19 +375,15 @@ test.describe("FormFilling base tests", () => {
   }) => {
     let newPage: Page;
 
-    await test.step("Upload PDF form", async () => {
-      await uploadAndVerifyPDF(
+    await test.step("Upload PDF form and start filling", async () => {
+      await uploadAndStartFillingPDF(
         shortTour,
         roomEmptyView,
         selectPanel,
         myRooms,
         page,
+        filesTable,
       );
-    });
-    await test.step("Start filling the form", async () => {
-      await filesTable.openContextMenuForItem("ONLYOFFICE Resume Sample");
-      await filesTable.contextMenu.clickOption("Start filling");
-      await pdfFormModal.close();
       await filesTable.expectFillingIconVisible("ONLYOFFICE Resume Sample");
     });
 
@@ -503,20 +491,15 @@ test.describe("FormFilling base tests", () => {
   }) => {
     let editorPage: Page;
 
-    await test.step("Upload PDF form", async () => {
-      await uploadAndVerifyPDF(
+    await test.step("Upload PDF form and start filling", async () => {
+      await uploadAndStartFillingPDF(
         shortTour,
         roomEmptyView,
         selectPanel,
         myRooms,
         page,
+        filesTable,
       );
-    });
-
-    await test.step("Start filling the form", async () => {
-      await filesTable.openContextMenuForItem("ONLYOFFICE Resume Sample");
-      await filesTable.contextMenu.clickOption("Start filling");
-      await pdfFormModal.close();
       await filesTable.expectFillingIconVisible("ONLYOFFICE Resume Sample");
     });
 
@@ -557,16 +540,14 @@ test.describe("FormFilling base tests", () => {
     let fillPage: Page;
 
     await test.step("Upload PDF form and start filling", async () => {
-      await uploadAndVerifyPDF(
+      await uploadAndStartFillingPDF(
         shortTour,
         roomEmptyView,
         selectPanel,
         myRooms,
         page,
+        filesTable,
       );
-      await filesTable.openContextMenuForItem("ONLYOFFICE Resume Sample");
-      await filesTable.contextMenu.clickOption("Start filling");
-      await pdfFormModal.close();
       await filesTable.expectFillingIconVisible("ONLYOFFICE Resume Sample");
     });
 
@@ -707,18 +688,14 @@ test.describe("FormFilling base tests", () => {
     page,
   }) => {
     await test.step("Upload PDF form and start filling", async () => {
-      await uploadAndVerifyPDF(
+      await uploadAndStartFillingPDF(
         shortTour,
         roomEmptyView,
         selectPanel,
         myRooms,
         page,
+        filesTable,
       );
-      await filesTable.openContextMenuForItem("ONLYOFFICE Resume Sample");
-      await filesTable.contextMenu.clickOption(
-        formFillingRoomPdfContextMenuOption.startFilling,
-      );
-      await pdfFormModal.close();
     });
 
     await test.step("Verify filling icon is visible after starting", async () => {
@@ -745,18 +722,14 @@ test.describe("FormFilling base tests", () => {
     let formPage: Page;
 
     await test.step("Upload PDF form and start filling", async () => {
-      await uploadAndVerifyPDF(
+      await uploadAndStartFillingPDF(
         shortTour,
         roomEmptyView,
         selectPanel,
         myRooms,
         page,
+        filesTable,
       );
-      await filesTable.openContextMenuForItem("ONLYOFFICE Resume Sample");
-      await filesTable.contextMenu.clickOption(
-        formFillingRoomPdfContextMenuOption.startFilling,
-      );
-      await pdfFormModal.close();
     });
 
     await test.step("Verify draft label is not visible before opening form", async () => {

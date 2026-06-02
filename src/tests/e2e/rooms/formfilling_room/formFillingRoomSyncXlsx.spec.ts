@@ -334,12 +334,18 @@ test.describe("FormFilling room - Sync responses to XLSX", () => {
       await finalTable.contextMenu.clickOption(pdfFormContextMenuOption.delete);
       const deleteModal = new FolderDeleteModal(newPage);
       await deleteModal.clickDeleteFolder();
+      await new BaseToast(newPage).dismissToastSafely(
+        "successfully moved to Trash",
+      );
     });
 
     await test.step("Sync via XLSX context menu", async () => {
       await finalTable.openContextMenuForXlsxItem();
       await finalTable.contextMenu.clickOption(
         spreadsheetContextMenuOption.syncResponsesToXlsx,
+      );
+      await new BaseToast(newPage).dismissToastSafely(
+        "is updated based on all completed copies",
       );
     });
 
@@ -348,11 +354,12 @@ test.describe("FormFilling room - Sync responses to XLSX", () => {
     });
 
     await test.step("Verify synced XLSX is smaller than with 2 submissions", async () => {
+      const infoPanel = new InfoPanel(newPage);
+      await infoPanel.close();
       await finalTable.openContextMenuForXlsxItem();
       await finalTable.contextMenu.clickOption(
         spreadsheetContextMenuOption.select,
       );
-      const infoPanel = new InfoPanel(newPage);
       await infoPanel.open();
       const sizeAfterSync = await infoPanel.getSizeInBytes();
       expect(sizeAfterSync).toBeLessThan(xlsxSizeWith2Submissions);
