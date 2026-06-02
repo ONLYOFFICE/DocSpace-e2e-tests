@@ -205,7 +205,7 @@ test.describe("My Documents: PDF form start filling via editor", () => {
     });
   });
 
-  test("Start filling a blank PDF form with no fields opens room selector", async () => {
+  test("PDF form with no fields can be sent for filling", async () => {
     let editorPage: Page;
     let pdfForm: FilesPdfForm;
     let selector: BaseSelector;
