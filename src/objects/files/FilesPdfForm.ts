@@ -82,6 +82,17 @@ class FilesPdfForm {
     await expect(this.infoBox).toBeVisible();
   }
 
+  async checkAccessDeniedVisible() {
+    if (!this.page) {
+      throw new Error("PDF form page not set. Please call setPdfPage() first");
+    }
+    await expect(
+      this.page
+        .frameLocator(EDITOR_IFRAME)
+        .getByText("Access denied Click to close"),
+    ).toBeVisible();
+  }
+
   get startFillButton() {
     if (!this.page) {
       throw new Error("PDF form page not set. Please call setPdfPage() first");

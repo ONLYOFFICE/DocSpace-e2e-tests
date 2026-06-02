@@ -815,50 +815,49 @@ test.describe("FormFilling room - Fill via link", () => {
   });
 
   test.describe("Form filling not started", () => {
-    // TODO: rewrite after Bug 81814 is fixed - form should not open via link when filling is not started
-    test.fail(
-      "DocSpace user sees info-box when opening Anyone fill link when filling not started",
-      async ({ page, apiSdk }) => {
-        let fileLink: string;
-        let userEmail: string;
-        let userPassword: string;
+    // Fixed in Bug 81814 - form now shows Access denied instead of opening
+    test("DocSpace user sees Access denied when opening Anyone fill link when filling not started", async ({
+      page,
+      apiSdk,
+    }) => {
+      let fileLink: string;
+      let userEmail: string;
+      let userPassword: string;
 
-        await test.step("Upload PDF form from My Documents", async () => {
-          await uploadAndVerifyPDF(
-            shortTour,
-            roomEmptyView,
-            selectPanel,
-            myRooms,
-            page,
-          );
-        });
+      await test.step("Upload PDF form from My Documents", async () => {
+        await uploadAndVerifyPDF(
+          shortTour,
+          roomEmptyView,
+          selectPanel,
+          myRooms,
+          page,
+        );
+      });
 
-        await test.step("Copy shared file link", async () => {
-          fileLink = await copyFileLink(page, filesTable, myRooms);
-        });
+      await test.step("Copy shared file link", async () => {
+        fileLink = await copyFileLink(page, filesTable, myRooms);
+      });
 
-        await test.step("Create DocSpace user via API", async () => {
-          const { userData } = await apiSdk.profiles.addMember("owner", "User");
-          userEmail = userData.email;
-          userPassword = userData.password;
-        });
+      await test.step("Create DocSpace user via API", async () => {
+        const { userData } = await apiSdk.profiles.addMember("owner", "User");
+        userEmail = userData.email;
+        userPassword = userData.password;
+      });
 
-        await test.step("Logout and login as DocSpace user", async () => {
-          await page.context().clearCookies();
-          await login.loginWithCredentials(userEmail, userPassword);
-        });
+      await test.step("Logout and login as DocSpace user", async () => {
+        await page.context().clearCookies();
+        await login.loginWithCredentials(userEmail, userPassword);
+      });
 
-        await test.step("Open file link", async () => {
-          await page.goto(fileLink, { waitUntil: "domcontentloaded" });
-          await page.waitForTimeout(12000);
-        });
+      await test.step("Open file link", async () => {
+        await page.goto(fileLink, { waitUntil: "domcontentloaded" });
+      });
 
-        await test.step("Verify info-box message is visible", async () => {
-          const pdfForm = new FilesPdfForm(page);
-          await pdfForm.checkInfoBoxVisible();
-        });
-      },
-    );
+      await test.step("Verify Access denied message is visible", async () => {
+        const pdfForm = new FilesPdfForm(page);
+        await pdfForm.checkAccessDeniedVisible();
+      });
+    });
 
     test("Anonymous user sees fill viewer without submit button", async ({
       page,
@@ -939,60 +938,59 @@ test.describe("FormFilling room - Fill via link", () => {
       });
     });
 
-    // TODO: rewrite after Bug 81814 is fixed - form should not open via link when filling is not started
-    test.fail(
-      "DocSpace user sees info-box when link access is DocSpace users only",
-      async ({ page, apiSdk }) => {
-        let shareLink: string;
-        let userEmail: string;
-        let userPassword: string;
+    // Fixed in Bug 81814 - form now shows Access denied instead of opening
+    test("DocSpace user sees Access denied when link access is DocSpace users only and filling not started", async ({
+      page,
+      apiSdk,
+    }) => {
+      let shareLink: string;
+      let userEmail: string;
+      let userPassword: string;
 
-        await test.step("Upload PDF form from My Documents", async () => {
-          await uploadAndVerifyPDF(
-            shortTour,
-            roomEmptyView,
-            selectPanel,
-            myRooms,
-            page,
-          );
-        });
+      await test.step("Upload PDF form from My Documents", async () => {
+        await uploadAndVerifyPDF(
+          shortTour,
+          roomEmptyView,
+          selectPanel,
+          myRooms,
+          page,
+        );
+      });
 
-        await test.step("Change link access to DocSpace users only", async () => {
-          await filesTable.openContextMenuForItem("ONLYOFFICE Resume Sample");
-          await filesTable.contextMenu.clickSubmenuOption(
-            "Share",
-            "Sharing settings",
-          );
-          await setupClipboardPermissions(page);
-          await infoPanel.selectLinkAccess("docspace users only");
-          await myRooms.toast.dismissToastSafely(
-            "Link copied to clipboard",
-            10000,
-          );
-          shareLink = await getLinkFromClipboard(page);
-        });
+      await test.step("Change link access to DocSpace users only", async () => {
+        await filesTable.openContextMenuForItem("ONLYOFFICE Resume Sample");
+        await filesTable.contextMenu.clickSubmenuOption(
+          "Share",
+          "Sharing settings",
+        );
+        await setupClipboardPermissions(page);
+        await infoPanel.selectLinkAccess("docspace users only");
+        await myRooms.toast.dismissToastSafely(
+          "Link copied to clipboard",
+          10000,
+        );
+        shareLink = await getLinkFromClipboard(page);
+      });
 
-        await test.step("Create DocSpace user via API", async () => {
-          const { userData } = await apiSdk.profiles.addMember("owner", "User");
-          userEmail = userData.email;
-          userPassword = userData.password;
-        });
+      await test.step("Create DocSpace user via API", async () => {
+        const { userData } = await apiSdk.profiles.addMember("owner", "User");
+        userEmail = userData.email;
+        userPassword = userData.password;
+      });
 
-        await test.step("Logout and login as DocSpace user", async () => {
-          await page.context().clearCookies();
-          await login.loginWithCredentials(userEmail, userPassword);
-        });
+      await test.step("Logout and login as DocSpace user", async () => {
+        await page.context().clearCookies();
+        await login.loginWithCredentials(userEmail, userPassword);
+      });
 
-        await test.step("Open file link", async () => {
-          await page.goto(shareLink, { waitUntil: "domcontentloaded" });
-          await page.waitForTimeout(12000);
-        });
+      await test.step("Open file link", async () => {
+        await page.goto(shareLink, { waitUntil: "domcontentloaded" });
+      });
 
-        await test.step("Verify info-box message is visible", async () => {
-          const pdfForm = new FilesPdfForm(page);
-          await pdfForm.checkInfoBoxVisible();
-        });
-      },
-    );
+      await test.step("Verify Access denied message is visible", async () => {
+        const pdfForm = new FilesPdfForm(page);
+        await pdfForm.checkAccessDeniedVisible();
+      });
+    });
   });
 });
