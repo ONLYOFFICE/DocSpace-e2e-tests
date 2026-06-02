@@ -205,33 +205,48 @@ test.describe("My Documents: PDF form start filling via editor", () => {
     });
   });
 
-  test.skip("[Bug 81580] Start filling a blank PDF form with no fields shows error dialog", async () => {
+  test("Start filling a blank PDF form with no fields opens room selector", async () => {
     let editorPage: Page;
     let pdfForm: FilesPdfForm;
+    let selector: BaseSelector;
 
     await test.step("Create blank PDF form and open editor", async () => {
       const editor = await myDocuments.createPdfFormAndOpenEditor("PDF Form");
       await editor.waitForLoad();
       editorPage = editor.editorPage;
       pdfForm = new FilesPdfForm(editorPage);
+      selector = new BaseSelector(editorPage);
     });
 
     await test.step("Click Start filling without adding fields", async () => {
       await pdfForm.clickStartFillButton();
     });
 
-    await test.step("Verify error dialog appears", async () => {
-      await pdfForm.checkNoFieldsDialogVisible();
+    await test.step("Click Form data collections on the panel", async () => {
+      const startFillingPanel = new EditorStartFillingPanel(editorPage);
+      await startFillingPanel.clickFormDataCollections();
     });
 
-    await test.step("Click OK and verify dialog closes", async () => {
-      await pdfForm.clickNoFieldsDialogOk();
-      await pdfForm.checkNoFieldsDialogClosed();
+    await test.step("Verify room selector opens and create new room", async () => {
+      await selector.checkSelectorAddButtonExist();
+      await selector.createNewItem();
+      await selector.fillNewItemName("Form Filling Room");
+      await selector.acceptCreate();
     });
 
-    await test.step("Click Start filling again and verify dialog reappears", async () => {
-      await pdfForm.clickStartFillButton();
-      await pdfForm.checkNoFieldsDialogVisible();
+    await test.step("Select created room from the list and submit", async () => {
+      await selector.selectItemByText("Form Filling Room");
+      await selector.submitSelection();
+    });
+
+    await test.step("Close room tour modal", async () => {
+      const shortTour = new ShortTour(editorPage);
+      await shortTour.clickSkipTour();
+    });
+
+    await test.step("Verify form is in room with filling icon", async () => {
+      const filesTable = new FilesTable(editorPage);
+      await filesTable.expectFillingIconVisible("PDF Form");
     });
   });
 
