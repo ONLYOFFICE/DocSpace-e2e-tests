@@ -689,6 +689,9 @@ test.describe("FormFilling room - Content creator permissions", () => {
     });
 
     await test.step("Verify Content creator CAN start filling owner's PDF form", async () => {
+      // [Bug 81849] Form status does not update after Start filling when a file copy
+      // operation preceded it; reload ensures fresh state. Remove once the bug is fixed.
+      await page.reload({ waitUntil: "load" });
       await myRooms.filesTable.openContextMenuForItem("PDF from device");
       await myRooms.filesTable.contextMenu.clickOption(
         formFillingRoomPdfContextMenuOption.startFilling,
