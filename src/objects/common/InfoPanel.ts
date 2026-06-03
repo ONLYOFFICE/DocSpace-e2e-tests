@@ -318,6 +318,14 @@ class InfoPanel {
   async clickLinkComboboxAccess() {
     await this.linkComboboxAccess.click();
   }
+
+  async checkAnyoneWithLinkDisabled() {
+    await expect(
+      this.page.locator(
+        `[data-testid="${SHARING_ACCESS_ANYONE_WITH_LINK}"][aria-disabled="true"]`,
+      ),
+    ).toHaveCount(1);
+  }
   async getCurrentLinkAccess(): Promise<
     "anyone with the link" | "docspace users only" | null
   > {
