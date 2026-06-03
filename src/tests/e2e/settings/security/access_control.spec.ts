@@ -1,150 +1,19 @@
-import { Page, expect } from "@playwright/test";
+import { expect } from "@playwright/test";
 import { test } from "@/src/fixtures";
 import Security from "@/src/objects/settings/security/Security";
-import MyDocuments from "@/src/objects/files/MyDocuments";
 import FilesTable from "@/src/objects/files/FilesTable";
 import MyRooms from "@/src/objects/rooms/Rooms";
 import RoomInfoPanel from "@/src/objects/rooms/RoomInfoPanel";
 import InfoPanel from "@/src/objects/common/InfoPanel";
-import { waitForShareLinkResponse } from "@/src/objects/files/api";
-import { ApiSDK } from "@/src/services";
 import {
   verifyLoginPageInIncognito,
   verifyAccessDeniedInIncognito,
   expectEditorOpensAnonymously,
   expectRoomOpensAnonymously,
+  createSharedLinkOnNewDocument,
+  getPublicRoomLink,
+  getRoomFileLink,
 } from "@/src/utils/helpers/linkTest";
-
-/**
- * Creates a document in My Documents and a sharing link on it via
- * "Create and copy", leaving the share panel open. When `apiSdk` is given the
- * document is created via API as the owner (robust); otherwise it is created
- * in the UI as the currently logged-in user. The link type reflects the
- * current Access Control settings. Returns the link URL.
- */
-async function createSharedLinkOnNewDocument(
-  page: Page,
-  portalDomain: string,
-  docName: string,
-  apiSdk?: ApiSDK,
-): Promise<string> {
-  const myDocuments = new MyDocuments(page, portalDomain);
-  const infoPanel = new InfoPanel(page);
-
-  if (apiSdk) {
-    await apiSdk.files.createFileInMyDocuments("owner", { title: docName });
-    await myDocuments.open();
-  } else {
-    await myDocuments.open();
-    await myDocuments.createDocumentFile(docName);
-  }
-  await myDocuments.filesTable.checkRowExist(docName);
-  await myDocuments.filesTable.openContextMenuForItem(docName);
-  await myDocuments.filesTable.contextMenu.clickSubmenuOption(
-    "Share",
-    "Sharing settings",
-  );
-  await infoPanel.checkShareExist();
-
-  const linkPromise = waitForShareLinkResponse(page);
-  await infoPanel.createFirstSharedLink();
-  const link = await linkPromise;
-  await myDocuments.dismissToastSafely("Link copied to clipboard");
-
-  return link;
-}
-
-type RoomShareEntry = { sharedTo?: { shareLink?: string } };
-type RoomShareBody = { response?: RoomShareEntry[] | RoomShareEntry };
-
-/** Extracts all sharing-link URLs from a room share/links response body. */
-function extractRoomShareLinks(body: RoomShareBody): string[] {
-  const r = body?.response;
-  const entries = Array.isArray(r) ? r : r ? [r] : [];
-  return entries
-    .map((e) => e.sharedTo?.shareLink)
-    .filter((l): l is string => Boolean(l));
-}
-
-/**
- * Creates a Public room, opens its members/links panel in the UI, and returns
- * its general sharing link captured from the room share response (waiting for
- * the response that actually carries a link).
- */
-async function getPublicRoomLink(
-  page: Page,
-  portalDomain: string,
-  apiSdk: ApiSDK,
-  roomTitle: string,
-): Promise<string> {
-  await apiSdk.rooms.createRoom("owner", {
-    title: roomTitle,
-    roomType: "PublicRoom",
-  });
-
-  const myRooms = new MyRooms(page, portalDomain);
-  const roomInfoPanel = new RoomInfoPanel(page);
-
-  // Set up the response waiter before the navigation that triggers it.
-  const linkResponse = page.waitForResponse(async (resp) => {
-    if (
-      resp.status() !== 200 ||
-      !resp.url().includes("/api/2.0/files/rooms/") ||
-      !resp.url().includes("/share")
-    ) {
-      return false;
-    }
-    try {
-      return extractRoomShareLinks(await resp.json()).length > 0;
-    } catch {
-      return false;
-    }
-  }, {});
-
-  await myRooms.openWithoutEmptyCheck();
-  await myRooms.roomsTable.openRoomByName(roomTitle);
-  await roomInfoPanel.open();
-  await roomInfoPanel.openTab("Contacts");
-
-  const links = extractRoomShareLinks(await (await linkResponse).json());
-  if (!links.length) throw new Error("room sharing link not found in response");
-  return links[0];
-}
-
-/**
- * Creates a room with a file inside it (via API), opens the room, and creates
- * an external sharing link on that file via "Copy shared link". Returns the
- * link URL. The link type reflects the current Access Control settings.
- */
-async function getRoomFileLink(
-  page: Page,
-  portalDomain: string,
-  apiSdk: ApiSDK,
-  roomTitle: string,
-  fileName: string,
-): Promise<string> {
-  const roomResp = await apiSdk.rooms.createRoom("owner", {
-    title: roomTitle,
-    roomType: "CustomRoom",
-  });
-  const roomId = (await roomResp.json()).response.id;
-  await apiSdk.files.createFile("owner", roomId, { title: fileName });
-
-  const myRooms = new MyRooms(page, portalDomain);
-  await myRooms.openWithoutEmptyCheck();
-  await myRooms.roomsTable.openRoomByName(roomTitle);
-
-  const filesTable = new FilesTable(page);
-  await filesTable.checkRowExist(fileName);
-
-  const linkPromise = waitForShareLinkResponse(page);
-  await filesTable.openContextMenuForItem(fileName);
-  await filesTable.contextMenu.clickSubmenuOption("Share", "Copy shared link");
-  const link = await linkPromise;
-  await myRooms.dismissToastSafely("Link copied to clipboard");
-
-  return link;
-}
 
 test.describe("Access Control settings UI", () => {
   let security: Security;
