@@ -1,4 +1,4 @@
-import { Locator, Page } from "@playwright/test";
+import { expect, Locator, Page } from "@playwright/test";
 import BasePage from "@/src/objects/common/BasePage";
 import { navItems, toastMessages } from "@/src/utils/constants/settings";
 import BaseTable, { TBaseTableLocators } from "../../common/BaseTable";
@@ -348,6 +348,141 @@ class Security extends BasePage {
     }
     await this.invitationSettingsSaveButton.click();
     await this.dismissToastSafely(toastMessages.settingsUpdated);
+  }
+
+  get externalSharingAllowed() {
+    return this.page.getByTestId("external_sharing_allowed");
+  }
+
+  get externalSharingRestricted() {
+    return this.page.getByTestId("external_sharing_restricted");
+  }
+
+  get defaultLinkTypeAnyone() {
+    return this.page.getByTestId("default_link_type_anyone");
+  }
+
+  get defaultLinkTypeDocspace() {
+    return this.page.getByTestId("default_link_type_docspace");
+  }
+
+  get appliesToDocumentsCheckbox() {
+    return this.page.getByTestId("applies_to_documents_checkbox");
+  }
+
+  get appliesToRoomsCheckbox() {
+    return this.page.getByTestId("applies_to_rooms_checkbox");
+  }
+
+  get linksBlockAccess() {
+    return this.page.getByTestId("links_block_access");
+  }
+
+  get linksAllowExisting() {
+    return this.page.getByTestId("links_allow_existing");
+  }
+
+  get accessControlSaveButton() {
+    return this.page.getByTestId("access_control_save_button");
+  }
+
+  get accessControlCancelButton() {
+    return this.page.getByTestId("access_control_cancel_button");
+  }
+
+  async setExternalSharing(
+    value: "allowed" | "restricted",
+    options?: {
+      documents?: boolean;
+      rooms?: boolean;
+      existingLinks?: "block" | "allow";
+    },
+  ) {
+    const radio =
+      value === "allowed"
+        ? this.externalSharingAllowed
+        : this.externalSharingRestricted;
+    await radio.click();
+
+    // Selecting "Restricted" reveals the "Applies to:" checkboxes
+    // (My documents / Rooms, both checked by default) and the radio group for
+    // what happens to links created before the restriction. The latter has no
+    // default selection and the Save button stays disabled until one is picked,
+    // so we always choose it (defaulting to the recommended "Block access").
+    if (value === "restricted") {
+      if (options?.documents !== undefined) {
+        await this.setCheckbox(
+          this.appliesToDocumentsCheckbox,
+          options.documents,
+        );
+      }
+      if (options?.rooms !== undefined) {
+        await this.setCheckbox(this.appliesToRoomsCheckbox, options.rooms);
+      }
+      const existingLinks = options?.existingLinks ?? "block";
+      const linksRadio =
+        existingLinks === "block"
+          ? this.linksBlockAccess
+          : this.linksAllowExisting;
+      await linksRadio.click();
+    }
+
+    await this.accessControlSaveButton.click();
+    await this.dismissToastSafely(toastMessages.settingsUpdated);
+  }
+
+  async setDefaultLinkType(value: "anyone" | "docspace") {
+    const radio =
+      value === "anyone"
+        ? this.defaultLinkTypeAnyone
+        : this.defaultLinkTypeDocspace;
+    await radio.click();
+    await this.accessControlSaveButton.click();
+    await this.dismissToastSafely(toastMessages.settingsUpdated);
+  }
+
+  async expectExternalSharing(value: "allowed" | "restricted") {
+    const radio =
+      value === "allowed"
+        ? this.externalSharingAllowed
+        : this.externalSharingRestricted;
+    await expect(radio.locator("input")).toBeChecked();
+  }
+
+  async expectAppliesTo(options: { documents: boolean; rooms: boolean }) {
+    await expect(
+      this.appliesToDocumentsCheckbox.locator("input[type='checkbox']"),
+    ).toBeChecked({ checked: options.documents });
+    await expect(
+      this.appliesToRoomsCheckbox.locator("input[type='checkbox']"),
+    ).toBeChecked({ checked: options.rooms });
+  }
+
+  async expectExistingLinksChoice(value: "block" | "allow") {
+    const radio =
+      value === "block" ? this.linksBlockAccess : this.linksAllowExisting;
+    await expect(radio.locator("input")).toBeChecked();
+  }
+
+  async expectDefaultLinkType(value: "anyone" | "docspace") {
+    const radio =
+      value === "anyone"
+        ? this.defaultLinkTypeAnyone
+        : this.defaultLinkTypeDocspace;
+    await expect(radio.locator("input")).toBeChecked();
+  }
+
+  async expectRestrictionOptionsVisible() {
+    await expect(this.appliesToDocumentsCheckbox).toBeVisible();
+    await expect(this.appliesToRoomsCheckbox).toBeVisible();
+    await expect(this.linksBlockAccess).toBeVisible();
+    await expect(this.linksAllowExisting).toBeVisible();
+  }
+
+  async expectRestrictionOptionsHidden() {
+    await expect(this.appliesToDocumentsCheckbox).toBeHidden();
+    await expect(this.appliesToRoomsCheckbox).toBeHidden();
+    await expect(this.linksBlockAccess).toBeHidden();
   }
 }
 

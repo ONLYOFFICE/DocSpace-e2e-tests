@@ -22,6 +22,10 @@ const CHANGE_QUOTA_UNIT_COMBO =
 const CHANGE_QUOTA_SUBMIT = "change_quota_dialog_submit";
 const CHANGE_QUOTA_CANCEL = "change_quota_dialog_cancel";
 
+const ADD_NEW_LINK_BUTTON = "info_panel_members_add_new_link_button";
+const EXTERNAL_LINKS_DISABLED_TEXT =
+  "external links are disabled by your administrator";
+
 class RoomInfoPanel extends InfoPanel {
   private get searchButton() {
     return this.infoPanel.locator(SEARCH_BUTTON);
@@ -118,11 +122,16 @@ class RoomInfoPanel extends InfoPanel {
   }
 
   async addNewSharedLink() {
-    const button = this.page.getByTestId(
-      "info_panel_members_add_new_link_button",
-    );
+    const button = this.page.getByTestId(ADD_NEW_LINK_BUTTON);
     await button.waitFor({ state: "visible" });
     await button.click();
+  }
+
+  async expectExternalLinksDisabled() {
+    await expect(
+      this.page.getByText(EXTERNAL_LINKS_DISABLED_TEXT, { exact: false }),
+    ).toBeVisible();
+    await expect(this.page.getByTestId(ADD_NEW_LINK_BUTTON)).toHaveCount(0);
   }
 }
 export default RoomInfoPanel;

@@ -2,6 +2,7 @@ import { Browser, BrowserContext, Page } from "@playwright/test";
 import { expect } from "@playwright/test";
 import Login from "@/src/objects/common/Login";
 import RoomAnonymousView from "@/src/objects/rooms/RoomAnonymousView";
+import FilesEditor from "@/src/objects/files/FilesEditor";
 
 /**
  * Universal helper functions for link testing
@@ -144,4 +145,38 @@ export async function verifyAccessDeniedInIncognito(
   const frame = iframeLocator.contentFrame();
   await expect(frame.getByText("Access denied Click to close")).toBeVisible();
   await cleanupIncognitoContext(context, page);
+}
+
+/**
+ * Opens a link in incognito and asserts the document editor loads (the file is
+ * publicly accessible to anonymous users).
+ */
+export async function expectEditorOpensAnonymously(
+  browser: Browser,
+  link: string,
+): Promise<void> {
+  const { context, page } = await setupIncognitoContext(browser);
+  try {
+    await page.goto(link, { waitUntil: "domcontentloaded" });
+    await new FilesEditor(page).waitForLoad();
+  } finally {
+    await cleanupIncognitoContext(context, page);
+  }
+}
+
+/**
+ * Opens a public room link in incognito and asserts the anonymous room view
+ * loads (the "Sign in" button is shown to the unauthenticated visitor).
+ */
+export async function expectRoomOpensAnonymously(
+  browser: Browser,
+  link: string,
+): Promise<void> {
+  const { context, page } = await setupIncognitoContext(browser);
+  try {
+    await page.goto(link, { waitUntil: "domcontentloaded" });
+    await new RoomAnonymousView(page).signInButtonVisible();
+  } finally {
+    await cleanupIncognitoContext(context, page);
+  }
 }
