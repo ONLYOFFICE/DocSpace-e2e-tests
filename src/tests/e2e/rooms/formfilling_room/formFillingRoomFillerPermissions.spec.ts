@@ -259,7 +259,9 @@ test.describe("FormFilling room - Form filler permissions", () => {
       await new PdfFormModal(page).close();
 
       // Navigate into FolderWithStartedForm and start filling the form inside
-      await myRooms.filesTable.openContextMenuForItem(folderWithStartedFormName);
+      await myRooms.filesTable.openContextMenuForItem(
+        folderWithStartedFormName,
+      );
       await myRooms.filesTable.contextMenu.clickOption(
         folderContextMenuOption.open,
       );
@@ -316,7 +318,9 @@ test.describe("FormFilling room - Form filler permissions", () => {
     });
 
     await test.step("Verify Form filler CANNOT move or copy folder with started form", async () => {
-      await myRooms.filesTable.openContextMenuForItem(folderWithStartedFormName);
+      await myRooms.filesTable.openContextMenuForItem(
+        folderWithStartedFormName,
+      );
       await expect(
         myRooms.filesTable.contextMenu.getItemLocator(
           folderContextMenuOption.open,
@@ -331,7 +335,9 @@ test.describe("FormFilling room - Form filler permissions", () => {
     });
 
     await test.step("Verify Form filler CANNOT delete folder with started form", async () => {
-      await myRooms.filesTable.openContextMenuForItem(folderWithStartedFormName);
+      await myRooms.filesTable.openContextMenuForItem(
+        folderWithStartedFormName,
+      );
       await expect(
         myRooms.filesTable.contextMenu.getItemLocator(
           folderContextMenuOption.open,
@@ -346,7 +352,9 @@ test.describe("FormFilling room - Form filler permissions", () => {
     });
 
     await test.step("Verify Form filler CANNOT rename folder with started form", async () => {
-      await myRooms.filesTable.openContextMenuForItem(folderWithStartedFormName);
+      await myRooms.filesTable.openContextMenuForItem(
+        folderWithStartedFormName,
+      );
       await expect(
         myRooms.filesTable.contextMenu.getItemLocator(
           folderContextMenuOption.open,
