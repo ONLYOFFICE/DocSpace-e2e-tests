@@ -53,8 +53,7 @@ test.describe("AI Agents", () => {
     });
 
     await test.step("Verify agent appears in the list", async () => {
-      await aiAgents.openDirectly();
-      await aiAgents.expectAgentInList(agentName);
+      await aiAgents.openAndExpectAgentInList(agentName);
     });
   });
 });
@@ -87,8 +86,7 @@ test.describe("AI Agents: management", () => {
       await aiAgents.selectProvider("DeepSeek");
       await aiAgents.fillInstructions("Test agent for management scenarios.");
       await aiAgents.saveAgent();
-      await aiAgents.openDirectly();
-      await aiAgents.expectAgentInList(AGENT_NAME);
+      await aiAgents.openAndExpectAgentInList(AGENT_NAME);
     });
   });
 
