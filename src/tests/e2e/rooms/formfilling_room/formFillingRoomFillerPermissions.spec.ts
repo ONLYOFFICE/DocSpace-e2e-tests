@@ -28,7 +28,8 @@ test.describe("FormFilling room - Form filler permissions", () => {
   let contentCreatorEmail: string;
   let roomName: string;
   let roomId: number;
-  let ownerFolderName: string;
+  let folderWithStartedFormName: string;
+  let folderWithoutStartedFormName: string;
 
   test.beforeEach(async ({ page, api, apiSdk }) => {
     myRooms = new MyRooms(page, api.portalDomain);
@@ -58,9 +59,32 @@ test.describe("FormFilling room - Form filler permissions", () => {
       "data/rooms/PDF from device.pdf",
     );
 
-    // Create a folder owned by the owner
-    ownerFolderName = "OwnerFolder";
-    await apiSdk.files.createFolder("owner", roomId, ownerFolderName);
+    // Create two folders for folder visibility test: one with a started form, one without
+    folderWithStartedFormName = "FolderWithStartedForm";
+    const folder1Response = await apiSdk.files.createFolder(
+      "owner",
+      roomId,
+      folderWithStartedFormName,
+    );
+    const folder1Body = await folder1Response.json();
+    await apiSdk.files.uploadToFolder(
+      "owner",
+      folder1Body.response.id,
+      "data/rooms/PDF from device.pdf",
+    );
+
+    folderWithoutStartedFormName = "FolderWithoutStartedForm";
+    const folder2Response = await apiSdk.files.createFolder(
+      "owner",
+      roomId,
+      folderWithoutStartedFormName,
+    );
+    const folder2Body = await folder2Response.json();
+    await apiSdk.files.uploadToFolder(
+      "owner",
+      folder2Body.response.id,
+      "data/rooms/PDF from device.pdf",
+    );
 
     // Create Form filler user via API
     const { userData } = await apiSdk.profiles.addMember("owner", "User");
@@ -234,6 +258,23 @@ test.describe("FormFilling room - Form filler permissions", () => {
       );
       await new PdfFormModal(page).close();
 
+      // Navigate into FolderWithStartedForm and start filling the form inside
+      await myRooms.filesTable.openContextMenuForItem(
+        folderWithStartedFormName,
+      );
+      await myRooms.filesTable.contextMenu.clickOption(
+        folderContextMenuOption.open,
+      );
+      await expect(
+        page.getByRole("heading", { name: folderWithStartedFormName }),
+      ).toBeVisible();
+      await myRooms.filesTable.openContextMenuForItem("PDF from device");
+      await myRooms.filesTable.contextMenu.clickOption(
+        formFillingRoomPdfContextMenuOption.startFilling,
+      );
+      await new PdfFormModal(page).close();
+      await myRooms.filesNavigation.gotoBack();
+
       await page.context().clearCookies();
     });
 
@@ -244,6 +285,16 @@ test.describe("FormFilling room - Form filler permissions", () => {
       if (tourVisible) {
         await shortTour.clickSkipTour();
       }
+    });
+
+    await test.step("Verify Form filler CAN see folder where form was started", async () => {
+      await myRooms.filesTable.expectCellItemVisible(folderWithStartedFormName);
+    });
+
+    await test.step("Verify Form filler CANNOT see folder where form was not started", async () => {
+      await myRooms.filesTable.expectCellItemNotVisible(
+        folderWithoutStartedFormName,
+      );
     });
 
     await test.step("Verify file context menu shows 'Download' option for PDF form", async () => {
@@ -266,8 +317,10 @@ test.describe("FormFilling room - Form filler permissions", () => {
       await myRooms.filesTable.contextMenu.close();
     });
 
-    await test.step("Verify Form filler CANNOT move or copy owner's folder", async () => {
-      await myRooms.filesTable.openContextMenuForItem(ownerFolderName);
+    await test.step("Verify Form filler CANNOT move or copy folder with started form", async () => {
+      await myRooms.filesTable.openContextMenuForItem(
+        folderWithStartedFormName,
+      );
       await expect(
         myRooms.filesTable.contextMenu.getItemLocator(
           folderContextMenuOption.open,
@@ -281,8 +334,10 @@ test.describe("FormFilling room - Form filler permissions", () => {
       await myRooms.filesTable.contextMenu.close();
     });
 
-    await test.step("Verify Form filler CANNOT delete owner's folder", async () => {
-      await myRooms.filesTable.openContextMenuForItem(ownerFolderName);
+    await test.step("Verify Form filler CANNOT delete folder with started form", async () => {
+      await myRooms.filesTable.openContextMenuForItem(
+        folderWithStartedFormName,
+      );
       await expect(
         myRooms.filesTable.contextMenu.getItemLocator(
           folderContextMenuOption.open,
@@ -296,8 +351,10 @@ test.describe("FormFilling room - Form filler permissions", () => {
       await myRooms.filesTable.contextMenu.close();
     });
 
-    await test.step("Verify Form filler CANNOT rename owner's folder", async () => {
-      await myRooms.filesTable.openContextMenuForItem(ownerFolderName);
+    await test.step("Verify Form filler CANNOT rename folder with started form", async () => {
+      await myRooms.filesTable.openContextMenuForItem(
+        folderWithStartedFormName,
+      );
       await expect(
         myRooms.filesTable.contextMenu.getItemLocator(
           folderContextMenuOption.open,
