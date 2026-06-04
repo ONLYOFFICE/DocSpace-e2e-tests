@@ -56,9 +56,7 @@ test.describe("Folder", () => {
     await myRooms.roomsTable.checkRowExist(baseFolder);
   });
 
-  // Bug 81812: the move succeeds on the backend but the source row is not
-  // removed from the UI until page refresh.
-  test.fail("Move folder", async () => {
+  test("Move folder", async () => {
     await test.step("Precondition: create folders", async () => {
       await folder.createNew(baseFolder);
       await folder.createNew(folderToMove);
