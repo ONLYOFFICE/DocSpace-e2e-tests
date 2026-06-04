@@ -141,8 +141,10 @@ class BaseFilter {
   }
 
   async cancelFilter() {
-    await this.filterCancelButton.click();
-    await expect(this.filterDialog).not.toBeVisible();
+    await expect(async () => {
+      await this.filterCancelButton.click();
+      await expect(this.filterDialog).not.toBeVisible({ timeout: 3000 });
+    }).toPass({ timeout: 20000 });
   }
 
   protected async clearFilter() {

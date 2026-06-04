@@ -99,6 +99,14 @@ class MyDocuments extends BasePage {
     await this.filesTable.contextMenu.clickOption("Mark as favorite");
   }
 
+  // "Ask AI" appears in the file context menu when at least one AI agent exists.
+  async clickAskAi(fileName: string) {
+    await this.filesTable.openContextMenuForItem(fileName, true);
+    await this.filesTable.contextMenu.clickOption(
+      documentContextMenuOption.askAi,
+    );
+  }
+
   async downloadOriginalFile(fileName: string, expectedExtension: string) {
     const download = await this.waitForDownload(async () => {
       await this.filesTable.openContextMenuForItem(fileName);

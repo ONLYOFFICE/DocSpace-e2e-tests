@@ -1,6 +1,7 @@
 import { getPortalUrl } from "../../../config";
 import BasePage from "../common/BasePage";
 import { BaseContextMenu } from "../common/BaseContextMenu";
+import type { TMenuItem } from "../common/BaseMenu";
 import BaseInviteDialog from "../common/BaseInviteDialog";
 import { expect, Page } from "@playwright/test";
 
@@ -124,8 +125,54 @@ export class AiAgents extends BasePage {
     await expect(this.agentNameCell(name).first()).toBeVisible();
   }
 
+  // Right after creation the list may not include the new agent yet (CI)
+  async openAndExpectAgentInList(name: string) {
+    await expect(async () => {
+      await this.openDirectly();
+      await expect(this.agentNameCell(name).first()).toBeVisible({
+        timeout: 5000,
+      });
+    }).toPass({ timeout: 60000 });
+  }
+
   async expectChatOpened() {
     await expect(this.chatInputButtons).toBeVisible();
+  }
+
+  async expectChatUrl() {
+    await expect(this.page).toHaveURL(/\/ai-agents\/[^/]+\/chat/);
+  }
+
+  // "Tested model for form processing is not available" hint container,
+  // shown in the chat and in the agent settings dialog
+  private get recommendedModelHint() {
+    return this.page.locator(".recomendedModel");
+  }
+
+  async expectFormProcessingHintVisible() {
+    await expect(this.recommendedModelHint.first()).toBeVisible();
+  }
+
+  async expectFormProcessingHintInEditDialog() {
+    await expect(
+      this.page.locator("#modal-dialog .recomendedModel"),
+    ).toBeVisible();
+  }
+
+  async openEditAgentFromChat() {
+    const editAgentOption: TMenuItem = {
+      type: "data-testid",
+      value: "option_edit-agent",
+    };
+    await this.page.locator("#header_optional-button").click();
+    await this.contextMenu.checkMenuExists();
+    const editOption = this.contextMenu.getItemLocator(editAgentOption);
+    if (await editOption.isVisible()) {
+      await editOption.click();
+    } else {
+      await this.contextMenu.clickSubmenuOption("Manage", editAgentOption);
+    }
+    await expect(this.agentNameInput).toBeVisible();
   }
 
   async openAgentContextMenu(name: string) {

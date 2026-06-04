@@ -20,6 +20,7 @@ export const pdfFormContextMenuOption = {
   markAsFavorite: testId("option_mark-as-favorite"),
   markAsRead: testId("option_mark-read"), // conditional: visible after external edits
   blockVersion: testId("block-unblock-version"), // rooms only
+  askAi: testId("option_ask-ai"), // conditional: visible when at least one AI agent exists (security.AskAi)
   moreOptions: testId("option_info"),
 };
 
@@ -89,6 +90,7 @@ export const documentContextMenuOption = {
   markAsFavorite: testId("option_mark-as-favorite"),
   markAsRead: testId("option_mark-read"), // conditional: visible after external edits
   blockVersion: testId("block-unblock-version"), // rooms only
+  askAi: testId("option_ask-ai"), // conditional: visible when at least one AI agent exists (security.AskAi)
   moreOptions: testId("option_info"),
   openLocation: testId("option_open-location"), // recent / search results only
   removeFromRecent: testId("option_remove-from-recent"), // recent only

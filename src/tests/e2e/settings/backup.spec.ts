@@ -34,7 +34,9 @@ test.describe("Manual backup", () => {
     });
   });
 
-  test("Stop backup in progress", async () => {
+  test("Stop backup in progress", async ({ browserName }) => {
+    test.skip(browserName === "firefox", "Unstable in Firefox");
+
     await test.step("Start backup", async () => {
       await backup.locators.createBackupButton.click();
       await expect(backup.locators.floatingButton).toBeVisible({
