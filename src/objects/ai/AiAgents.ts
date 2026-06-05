@@ -139,6 +139,15 @@ export class AiAgents extends BasePage {
     await expect(this.chatInputButtons).toBeVisible();
   }
 
+  async openAttachmentPanel() {
+    await this.page.getByTestId("chat-input-attachment-button").click();
+    await expect(this.page.getByTestId("selector")).toBeVisible();
+  }
+
+  async expectAttachedFile(name: string) {
+    await expect(this.page.getByText(name).first()).toBeVisible();
+  }
+
   async expectChatUrl() {
     await expect(this.page).toHaveURL(/\/ai-agents\/[^/]+\/chat/);
   }
