@@ -470,11 +470,11 @@ export class Integration extends BasePage {
     await expect(textLocator).toBeHidden();
   }
 
-  async activateLdap() {
+  private async fillAndSaveLdapForm(userFilter = config.LDAP_USER_FILTER) {
     if (
       !config.LDAP_SERVER ||
       !config.LDAP_USER_DN ||
-      !config.LDAP_USER_FILTER ||
+      !userFilter ||
       !config.LDAP_LOGIN ||
       !config.LDAP_PASSWORD
     ) {
@@ -486,7 +486,7 @@ export class Integration extends BasePage {
     await this.enableLdap();
     await this.ldapNameServerInput.fill(config.LDAP_SERVER);
     await this.ldapUserDininput.fill(config.LDAP_USER_DN);
-    await this.ldapUserFilterInput.fill(config.LDAP_USER_FILTER);
+    await this.ldapUserFilterInput.fill(userFilter);
     await this.userType.click();
     await expect(this.page.locator('[data-key="roomAdmin"]')).toBeVisible();
     await this.userTypeDocSpaceadmin.click();
@@ -497,7 +497,18 @@ export class Integration extends BasePage {
     await this.ldapLoginInput.fill(config.LDAP_LOGIN);
     await this.ldapPasswordInput.fill(config.LDAP_PASSWORD);
     await this.ldapSaveButton.click();
+  }
+
+  async activateLdap(userFilter = config.LDAP_USER_FILTER) {
+    await this.fillAndSaveLdapForm(userFilter);
     await this.checkOperationCompleted();
+  }
+
+  // Saving with a filter that matches no directory object yields a warning
+  // toast instead of a success operation — proves the filter is applied.
+  async activateLdapExpectNoUsers(userFilter: string) {
+    await this.fillAndSaveLdapForm(userFilter);
+    await this.removeToast("No users could be found.");
   }
 
   async activateSMTP() {

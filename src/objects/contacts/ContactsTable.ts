@@ -36,6 +36,18 @@ class ContactsTable extends BaseTable {
     await expect(row).toBeVisible();
   }
 
+  async checkLdapUserExist() {
+    await expect(
+      this.page.getByTestId("badge-text").filter({ hasText: "LDAP" }).first(),
+    ).toBeVisible();
+  }
+
+  async checkNoLdapUser() {
+    await expect(
+      this.page.getByTestId("badge-text").filter({ hasText: "LDAP" }),
+    ).toHaveCount(0);
+  }
+
   async selectRowByNameText(name: string) {
     const row = await this.getRowByNameText(name);
     await expect(row).toBeVisible();
