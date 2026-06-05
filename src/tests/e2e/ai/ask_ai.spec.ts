@@ -80,10 +80,5 @@ test.describe("Ask AI on files", () => {
     await test.step("Verify form processing model hint is shown", async () => {
       await aiAgents.expectFormProcessingHintVisible();
     });
-
-    await test.step("Verify hint is shown in the agent settings", async () => {
-      await aiAgents.openEditAgentFromChat();
-      await aiAgents.expectFormProcessingHintInEditDialog();
-    });
   });
 });

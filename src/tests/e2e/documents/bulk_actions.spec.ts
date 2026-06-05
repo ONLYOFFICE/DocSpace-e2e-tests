@@ -56,9 +56,7 @@ test.describe("My Documents: Bulk actions", () => {
     });
   });
 
-  // Bug 81812: the bulk move succeeds on the backend but the source rows are not
-  // removed from the UI until page refresh.
-  test.fail("Bulk move files to folder", async () => {
+  test("Bulk move files to folder", async () => {
     const targetFolder = "TargetFolder";
 
     await test.step("Create files and target folder", async () => {

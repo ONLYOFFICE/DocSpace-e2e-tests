@@ -60,9 +60,7 @@ test.describe("File actions", () => {
     });
   });
 
-  // Bug 81812: the move succeeds on the backend but the source row is not
-  // removed from the UI until page refresh.
-  test.fail("Move file to folder", async () => {
+  test("Move file to folder", async () => {
     const targetFolder = "TargetFolder";
 
     await test.step("Create file and target folder", async () => {

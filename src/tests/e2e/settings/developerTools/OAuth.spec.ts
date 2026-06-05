@@ -138,7 +138,7 @@ test.describe("OAuth tests", () => {
         page.waitForResponse(
           (resp) =>
             resp.request().method() === "DELETE" &&
-            resp.url().includes("/api/2.0/clients/"),
+            resp.url().includes("/api/2.0/oauth2/clients/"),
         ),
         oauth.deleteApplicationOKButton.click(),
       ]);
