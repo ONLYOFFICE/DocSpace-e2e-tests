@@ -18,6 +18,8 @@ export class TokenStore {
   isLocal: boolean = false;
 
   get portalBaseUrl(): string {
+    // Already a full URL (reused portal mode) — use as given
+    if (this.portalDomain.includes("://")) return this.portalDomain;
     const scheme = this.isLocal ? "http" : "https";
     return `${scheme}://${this.portalDomain}`;
   }

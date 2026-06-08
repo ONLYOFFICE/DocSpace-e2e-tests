@@ -36,6 +36,17 @@ class API {
   }
 
   async setup() {
+    if (config.REUSED_PORTAL_URL) {
+      // Reuse an existing portal
+      this.portalDomain = config.REUSED_PORTAL_URL;
+
+      this.tokenStore.portalDomain = this.portalDomain;
+      this.tokenStore.newTenantDomain = this.portalDomain;
+      this.apisystem.setPortalDomain(this.portalDomain);
+      await this.auth.authenticateOwner();
+      return;
+    }
+
     const portal = await this.apisystem.createPortal("integration-test-portal");
 
     this.portalDomain = config.LOCAL_PORTAL_DOMAIN || portal.tenant.domain;
@@ -48,6 +59,10 @@ class API {
   }
 
   async cleanup() {
+    if (config.REUSED_PORTAL_URL) {
+      // Never delete a reused portal
+      return;
+    }
     await this.apisystem.deletePortal();
   }
 }

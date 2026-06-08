@@ -78,6 +78,9 @@ class MyDocuments extends BasePage {
   }
 
   async deleteAllDocs() {
+    const noDocsText = this.page.getByText("No docs here yet");
+    if (await noDocsText.isVisible()) return;
+
     await this.filesTable.selectAllRows();
     await this.filesNavigation.delete();
     await this.removeToast("successfully moved to Trash");

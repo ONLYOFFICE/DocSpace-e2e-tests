@@ -1,4 +1,5 @@
 import { test as base, Page } from "@playwright/test";
+import config from "@/config";
 import API from "@/src/api";
 import { ApiSDK } from "../services/index";
 import Login from "@/src/objects/common/Login";
@@ -28,9 +29,11 @@ export const test = base.extend<TestFixtures>({
     await use(api);
 
     try {
-      await api.auth.authenticateOwner();
-      console.log(`Deleting portal: ${api.portalDomain}`);
-      await api.cleanup();
+      if (!config.REUSED_PORTAL_URL) {
+        await api.auth.authenticateOwner();
+        console.log(`Deleting portal: ${api.portalDomain}`);
+        await api.cleanup();
+      }
     } catch (e) {
       console.error(
         `[fixture] teardown error for ${api.portalDomain}:`,

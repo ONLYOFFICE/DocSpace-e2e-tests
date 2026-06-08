@@ -8,6 +8,7 @@ interface Config {
   DOCSPACE_OWNER_EMAIL: string;
   DOCSPACE_OWNER_PASSWORD: string;
   LOCAL_PORTAL_DOMAIN: string;
+  REUSED_PORTAL_URL: string;
 
   AWS_REGION?: string;
   DOCSPACE_USER_EMAIL?: string;
@@ -68,6 +69,7 @@ const config: Config = {
     process.env.DOCSPACE_OWNER_EMAIL ?? "integration-test-email@gmail.com",
   DOCSPACE_OWNER_PASSWORD: process.env.DOCSPACE_OWNER_PASSWORD ?? "test1234",
   LOCAL_PORTAL_DOMAIN: process.env.LOCAL_PORTAL_DOMAIN ?? "",
+  REUSED_PORTAL_URL: process.env.REUSED_PORTAL_URL ?? "",
 
   AWS_REGION: process.env.AWS_REGION,
   DOCSPACE_USER_EMAIL: process.env.DOCSPACE_USER_EMAIL,
@@ -121,6 +123,8 @@ const config: Config = {
 };
 
 export function getPortalUrl(domain: string): string {
+  // Already a full URL (reused portal mode) — use as given
+  if (domain.includes("://")) return domain;
   const scheme = config.LOCAL_PORTAL_DOMAIN ? "http" : "https";
   return `${scheme}://${domain}`;
 }
