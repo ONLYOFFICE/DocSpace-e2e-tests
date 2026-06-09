@@ -8,6 +8,9 @@ const documentName = "Document";
 const spreadsheetName = "Spreadsheet";
 const presentationName = "Presentation";
 const pdfFormName = "PDF Form";
+const pdfDocumentName = "pdf-document";
+const imageName = "image";
+const diagramName = "diagram";
 
 test.describe("My documents: Recent", () => {
   let myDocuments: MyDocuments;
@@ -46,7 +49,7 @@ test.describe("My documents: Recent", () => {
     });
   });
 
-  test("Filter recent files by type", async () => {
+  test("Filter recent files by type", async ({ apiSdk }) => {
     await test.step("Create and edit files in editor", async () => {
       const docEditor =
         await myDocuments.createDocumentAndOpenEditor(documentName);
@@ -63,6 +66,17 @@ test.describe("My documents: Recent", () => {
       const pdfEditor =
         await myDocuments.createPdfFormAndOpenEditor(pdfFormName);
       await pdfEditor.editAndClose("pdf text");
+    });
+
+    await test.step("Upload additional file types and add to Recent", async () => {
+      for (const filePath of [
+        "data/filter/pdf-document.pdf",
+        "data/filter/image.png",
+        "data/filter/diagram.vsdx",
+      ]) {
+        const file = await apiSdk.files.uploadToMyDocuments("owner", filePath);
+        await apiSdk.files.addToRecent("owner", file.id);
+      }
     });
 
     await recent.openFromNavigation();
@@ -98,6 +112,30 @@ test.describe("My documents: Recent", () => {
       await recent.filesFilter.applyFilterNoWait();
       await recent.filesTable.checkRowExist(pdfFormName);
       await recent.filesTable.checkRowNotExist(presentationName);
+    });
+
+    await test.step("Filter by diagrams", async () => {
+      await recent.filesFilter.openFilterDialog();
+      await recent.filesFilter.selectFilterByDiagrams();
+      await recent.filesFilter.applyFilterNoWait();
+      await recent.filesTable.checkRowExist(diagramName);
+      await recent.filesTable.checkRowNotExist(documentName);
+    });
+
+    await test.step("Filter by PDF documents", async () => {
+      await recent.filesFilter.openFilterDialog();
+      await recent.filesFilter.selectFilterByPdfDocuments();
+      await recent.filesFilter.applyFilterNoWait();
+      await recent.filesTable.checkRowExist(pdfDocumentName);
+      await recent.filesTable.checkRowNotExist(documentName);
+    });
+
+    await test.step("Filter by images", async () => {
+      await recent.filesFilter.openFilterDialog();
+      await recent.filesFilter.selectFilterByImages();
+      await recent.filesFilter.applyFilterNoWait();
+      await recent.filesTable.checkRowExist(imageName);
+      await recent.filesTable.checkRowNotExist(documentName);
     });
 
     await test.step("Filter by media (empty result)", async () => {

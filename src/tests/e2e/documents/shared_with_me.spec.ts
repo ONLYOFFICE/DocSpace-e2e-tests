@@ -73,24 +73,57 @@ test.describe("Shared with me", () => {
 
   test.describe("File actions in Shared with me", () => {
     const fileName = "SharedDocument";
+    const spreadsheetFileName = "spreadsheet";
+    const presentationFileName = "presentation";
+    const pdfDocumentFileName = "pdf-document";
+    const pdfFormFileName = "pdf-form";
+    const imageName = "image";
+    const archiveName = "archive";
+    const diagramName = "diagram";
+    const sharedFolderName = "SharedFolder";
     let sharedWithMe: SharedWithMe;
 
     test.beforeEach(async ({ page, api, apiSdk }) => {
-      const fileResponse = await apiSdk.files.createFileInMyDocuments("owner", {
-        title: fileName,
-      });
-      const fileBody = await fileResponse.json();
-      const fileId = fileBody.response.id;
-
       const { userData, response } = await apiSdk.profiles.addMember(
         "owner",
         "User",
       );
       const userBody = await response.json();
       const userId = userBody.response.id;
+      const share = [{ shareTo: userId, access: 2 }];
 
-      await apiSdk.files.shareFile("owner", fileId, {
-        share: [{ shareTo: userId, access: 2 }],
+      const docBody = await (
+        await apiSdk.files.createFileInMyDocuments("owner", { title: fileName })
+      ).json();
+      await apiSdk.files.shareFile("owner", docBody.response.id, {
+        share,
+        notify: false,
+      });
+
+      for (const filePath of [
+        "data/filter/spreadsheet.csv",
+        "data/filter/presentation.odp",
+        "data/filter/pdf-document.pdf",
+        "data/filter/pdf-form.pdf",
+        "data/filter/image.png",
+        "data/filter/archive.zip",
+        "data/filter/diagram.vsdx",
+      ]) {
+        const file = await apiSdk.files.uploadToMyDocuments("owner", filePath);
+        await apiSdk.files.shareFile("owner", file.id, {
+          share,
+          notify: false,
+        });
+      }
+
+      const myDocsId = await apiSdk.folders.getMyDocumentsFolderId("owner");
+      const folderBody = await (
+        await apiSdk.folders.createFolder("owner", myDocsId, {
+          title: sharedFolderName,
+        })
+      ).json();
+      await apiSdk.files.shareFolder("owner", folderBody.response.id, {
+        share,
         notify: false,
       });
 
@@ -128,19 +161,94 @@ test.describe("Shared with me", () => {
     });
 
     test("Filter Shared with me files by type", async () => {
-      await test.step("Filter by documents shows the shared docx", async () => {
+      await test.step("Filter by documents", async () => {
         await sharedWithMe.filesFilter.openFilterDialog();
         await sharedWithMe.filesFilter.selectFilterByDocuments();
         await sharedWithMe.filesFilter.applyFilterNoWait();
         await sharedWithMe.filesTable.checkRowExist(fileName);
+        await sharedWithMe.filesTable.checkRowNotExist(spreadsheetFileName);
       });
 
-      await test.step("Filter by spreadsheets gives empty result", async () => {
+      await test.step("Filter by files", async () => {
+        await sharedWithMe.filesFilter.openFilterDialog();
+        await sharedWithMe.filesFilter.selectFilterByFiles();
+        await sharedWithMe.filesFilter.applyFilterNoWait();
+        await sharedWithMe.filesTable.checkRowExist(spreadsheetFileName);
+        await sharedWithMe.filesTable.checkRowNotExist(sharedFolderName);
+      });
+
+      await test.step("Filter by folders", async () => {
+        await sharedWithMe.filesFilter.openFilterDialog();
+        await sharedWithMe.filesFilter.selectFilterByFolders();
+        await sharedWithMe.filesFilter.applyFilterNoWait();
+        await sharedWithMe.filesTable.checkRowExist(sharedFolderName);
+        await sharedWithMe.filesTable.checkRowNotExist(fileName);
+      });
+
+      await test.step("Filter by spreadsheets", async () => {
         await sharedWithMe.filesFilter.openFilterDialog();
         await sharedWithMe.filesFilter.selectFilterBySpreadsheets();
         await sharedWithMe.filesFilter.applyFilterNoWait();
+        await sharedWithMe.filesTable.checkRowExist(spreadsheetFileName);
+        await sharedWithMe.filesTable.checkRowNotExist(fileName);
+      });
+
+      await test.step("Filter by presentations", async () => {
+        await sharedWithMe.filesFilter.openFilterDialog();
+        await sharedWithMe.filesFilter.selectFilterByPresentations();
+        await sharedWithMe.filesFilter.applyFilterNoWait();
+        await sharedWithMe.filesTable.checkRowExist(presentationFileName);
+        await sharedWithMe.filesTable.checkRowNotExist(fileName);
+      });
+
+      await test.step("Filter by diagrams", async () => {
+        await sharedWithMe.filesFilter.openFilterDialog();
+        await sharedWithMe.filesFilter.selectFilterByDiagrams();
+        await sharedWithMe.filesFilter.applyFilterNoWait();
+        await sharedWithMe.filesTable.checkRowExist(diagramName);
+        await sharedWithMe.filesTable.checkRowNotExist(fileName);
+      });
+
+      await test.step("Filter by archives", async () => {
+        await sharedWithMe.filesFilter.openFilterDialog();
+        await sharedWithMe.filesFilter.selectFilterByArchives();
+        await sharedWithMe.filesFilter.applyFilterNoWait();
+        await sharedWithMe.filesTable.checkRowExist(archiveName);
+        await sharedWithMe.filesTable.checkRowNotExist(fileName);
+      });
+
+      await test.step("Filter by images", async () => {
+        await sharedWithMe.filesFilter.openFilterDialog();
+        await sharedWithMe.filesFilter.selectFilterByImages();
+        await sharedWithMe.filesFilter.applyFilterNoWait();
+        await sharedWithMe.filesTable.checkRowExist(imageName);
+        await sharedWithMe.filesTable.checkRowNotExist(fileName);
+      });
+
+      await test.step("Filter by media (empty result)", async () => {
+        await sharedWithMe.filesFilter.openFilterDialog();
+        await sharedWithMe.filesFilter.selectFilterByMedia();
+        await sharedWithMe.filesFilter.applyFilterNoWait();
         await sharedWithMe.filesFilter.checkFilesEmptyViewExist();
         await sharedWithMe.filesFilter.clearFilterFromEmptyView();
+      });
+    });
+
+    test.fail("Filter by PDF forms and PDF documents [Bug 81919]", async () => {
+      await test.step("Filter by PDF forms", async () => {
+        await sharedWithMe.filesFilter.openFilterDialog();
+        await sharedWithMe.filesFilter.selectFilterByPdfForms();
+        await sharedWithMe.filesFilter.applyFilterNoWait();
+        await sharedWithMe.filesTable.checkRowExist(pdfFormFileName);
+        await sharedWithMe.filesTable.checkRowNotExist(fileName);
+      });
+
+      await test.step("Filter by PDF documents", async () => {
+        await sharedWithMe.filesFilter.openFilterDialog();
+        await sharedWithMe.filesFilter.selectFilterByPdfDocuments();
+        await sharedWithMe.filesFilter.applyFilterNoWait();
+        await sharedWithMe.filesTable.checkRowExist(pdfDocumentFileName);
+        await sharedWithMe.filesTable.checkRowNotExist(fileName);
       });
     });
 

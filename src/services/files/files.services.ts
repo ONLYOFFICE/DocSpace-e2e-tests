@@ -283,4 +283,24 @@ export class FilesApi {
       return response;
     });
   }
+
+  async shareFolder(
+    role: Role,
+    folderId: number,
+    data: {
+      share: { shareTo: string; access: number }[];
+      notify?: boolean;
+    },
+  ) {
+    return test.step(`${role} share folder ${folderId}`, async () => {
+      const response = await this.request.put(
+        `${this.portalBaseUrl}/api/2.0/files/folder/${folderId}/share`,
+        {
+          headers: { Authorization: `Bearer ${this.getToken(role)}` },
+          data,
+        },
+      );
+      return response;
+    });
+  }
 }
