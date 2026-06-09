@@ -530,8 +530,11 @@ test.describe("FormFilling room - Content creator permissions", () => {
       ]);
       await fileChooser.setFiles("data/rooms/PDF from device.pdf");
       const conflictDialog = new ConflictResolveDialog(page);
+      // Start listening for the next load event BEFORE submitting to catch
+      // any DocSpace-triggered page reload that fires after version update.
+      const nextLoad = page.waitForEvent("load", { timeout: 15000 }).catch(() => {});
       await conflictDialog.resolveWith("Overwrite with version update");
-      await page.waitForLoadState("load");
+      await nextLoad;
       await expect(page.locator('[data-version-badge="true"]')).toBeVisible();
     });
 
