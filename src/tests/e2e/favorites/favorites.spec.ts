@@ -7,6 +7,10 @@ const spreadsheetName = "Spreadsheet";
 const presentationName = "Presentation";
 const pdfFormName = "Blank";
 const folderName = "Folder";
+const pdfDocumentName = "pdf-document";
+const imageName = "image";
+const archiveName = "archive";
+const diagramName = "diagram";
 
 test.describe("Favorites", () => {
   let myDocuments: MyDocuments;
@@ -20,6 +24,12 @@ test.describe("Favorites", () => {
     await myDocuments.open();
     await myDocuments.deleteAllDocs();
     await myDocuments.filesArticle.createFiles();
+    await myDocuments.filesNavigation.uploadFiles([
+      "data/filter/pdf-document.pdf",
+      "data/filter/image.png",
+      "data/filter/archive.zip",
+      "data/filter/diagram.vsdx",
+    ]);
   });
 
   test("Add to favorites", async () => {
@@ -98,6 +108,10 @@ test.describe("Favorites", () => {
       await myDocuments.addToFavorites(presentationName);
       await myDocuments.addToFavorites(pdfFormName);
       await myDocuments.addToFavorites(folderName);
+      await myDocuments.addToFavorites(pdfDocumentName);
+      await myDocuments.addToFavorites(imageName);
+      await myDocuments.addToFavorites(archiveName);
+      await myDocuments.addToFavorites(diagramName);
     });
 
     await favorites.openFromNavigation();
@@ -127,12 +141,60 @@ test.describe("Favorites", () => {
       await favorites.filesTable.checkRowNotExist(spreadsheetName);
     });
 
+    await test.step("Filter by PDF forms", async () => {
+      await favorites.filesFilter.openFilterDialog();
+      await favorites.filesFilter.selectFilterByPdfForms();
+      await favorites.filesFilter.applyFilterNoWait();
+      await favorites.filesTable.checkRowExist(pdfFormName);
+      await favorites.filesTable.checkRowNotExist(documentName);
+    });
+
     await test.step("Filter by folders", async () => {
       await favorites.filesFilter.openFilterDialog();
       await favorites.filesFilter.selectFilterByFolders();
       await favorites.filesFilter.applyFilterNoWait();
       await favorites.filesTable.checkRowExist(folderName);
       await favorites.filesTable.checkRowNotExist(presentationName);
+    });
+
+    await test.step("Filter by files", async () => {
+      await favorites.filesFilter.openFilterDialog();
+      await favorites.filesFilter.selectFilterByFiles();
+      await favorites.filesFilter.applyFilterNoWait();
+      await favorites.filesTable.checkRowExist(documentName);
+      await favorites.filesTable.checkRowNotExist(folderName);
+    });
+
+    await test.step("Filter by diagrams", async () => {
+      await favorites.filesFilter.openFilterDialog();
+      await favorites.filesFilter.selectFilterByDiagrams();
+      await favorites.filesFilter.applyFilterNoWait();
+      await favorites.filesTable.checkRowExist(diagramName);
+      await favorites.filesTable.checkRowNotExist(documentName);
+    });
+
+    await test.step("Filter by PDF documents", async () => {
+      await favorites.filesFilter.openFilterDialog();
+      await favorites.filesFilter.selectFilterByPdfDocuments();
+      await favorites.filesFilter.applyFilterNoWait();
+      await favorites.filesTable.checkRowExist(pdfDocumentName);
+      await favorites.filesTable.checkRowNotExist(documentName);
+    });
+
+    await test.step("Filter by archives", async () => {
+      await favorites.filesFilter.openFilterDialog();
+      await favorites.filesFilter.selectFilterByArchives();
+      await favorites.filesFilter.applyFilterNoWait();
+      await favorites.filesTable.checkRowExist(archiveName);
+      await favorites.filesTable.checkRowNotExist(documentName);
+    });
+
+    await test.step("Filter by images", async () => {
+      await favorites.filesFilter.openFilterDialog();
+      await favorites.filesFilter.selectFilterByImages();
+      await favorites.filesFilter.applyFilterNoWait();
+      await favorites.filesTable.checkRowExist(imageName);
+      await favorites.filesTable.checkRowNotExist(documentName);
     });
 
     await test.step("Filter by media (empty result)", async () => {
