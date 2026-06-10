@@ -3,7 +3,7 @@ import { test } from "@/src/fixtures";
 import Login from "@/src/objects/common/Login";
 import { Profile } from "@/src/objects/profile/Profile";
 import Customization from "@/src/objects/settings/customization/Customization";
-import { getPortalUrl } from "@/config";
+import config, { getPortalUrl } from "@/config";
 
 test.describe("Login page", () => {
   let login: Login;
@@ -234,6 +234,46 @@ test.describe("Login page", () => {
     await test.step("Verify only password error is shown", async () => {
       await expect(login.passwordFieldError).toBeVisible();
       await expect(login.emailFieldError).not.toBeVisible();
+    });
+  });
+
+  test.fail("Login page displays validation and auth errors in selected language [Bug 81951]", async ({
+    page,
+  }) => {
+    await test.step("Select Deutsch on login page", async () => {
+      await login.clickLanguageCombobox();
+      await login.selectLanguage("de");
+      await page.reload({ waitUntil: "load" });
+      await login.checkLanguageComboboxText("Deutsch (Deutschland)");
+    });
+
+    await test.step("Enter invalid email format and submit", async () => {
+      await login.emailInput.fill("invalidemail");
+      await login.loginButton.click();
+    });
+
+    await test.step("Verify email format and password required errors are shown in German", async () => {
+      await expect(
+        page.getByTestId("email_field").getByText("Ungültige E-Mail-Adresse"),
+      ).toBeVisible();
+      await expect(
+        page
+          .locator('[data-testid="password_field_container"]')
+          .getByText("Pflichtfeld"),
+      ).toBeVisible();
+    });
+
+    await test.step("Enter correct email and wrong password", async () => {
+      await login.emailInput.fill(config.DOCSPACE_OWNER_EMAIL);
+      await login.passwordInput.fill("wrongpassword123");
+      await login.loginButton.click();
+    });
+
+    await test.step("Verify auth error is shown in German", async () => {
+      await expect(page).toHaveURL(/\/login/);
+      await expect(
+        page.getByText("Benutzerauthentifizierung fehlgeschlagen"),
+      ).toBeVisible();
     });
   });
 
