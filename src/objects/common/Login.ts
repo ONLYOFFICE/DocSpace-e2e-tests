@@ -8,6 +8,9 @@ const PASSWORD_FIELD_CONTAINER = '[data-testid="password_field_container"]';
 const REQUIRED_FIELD_ERROR = "Required field";
 const INCORRECT_EMAIL_ERROR = "Incorrect email";
 const AUTH_FAILED_ERROR = "User authentication failed";
+const REQUIRED_FIELD_ERROR_DE = "Pflichtfeld";
+const INCORRECT_EMAIL_ERROR_DE = "Ungültige E-Mail-Adresse";
+const AUTH_FAILED_ERROR_DE = "Benutzerauthentifizierung fehlgeschlagen";
 const USER_DISABLED_ERROR = "User disabled";
 const SOCIAL_PANEL_CLOSE_BUTTON = "aside_header_close_icon_button";
 const GOOGLE_SOCIAL_BUTTON = '[data-test-id="google-social-button"]';
@@ -42,6 +45,9 @@ export class Login extends BasePage {
   emailFormatError: Locator;
   passwordFieldError: Locator;
   authFailedError: Locator;
+  emailFormatErrorDe: Locator;
+  passwordFieldErrorDe: Locator;
+  authFailedErrorDe: Locator;
   userDisabledError: Locator;
   rememberMeCheckbox: Locator;
   googleSocialButton: Locator;
@@ -79,6 +85,13 @@ export class Login extends BasePage {
       .locator(PASSWORD_FIELD_CONTAINER)
       .getByText(REQUIRED_FIELD_ERROR);
     this.authFailedError = page.getByText(AUTH_FAILED_ERROR);
+    this.emailFormatErrorDe = page
+      .getByTestId(EMAIL_FIELD_CONTAINER)
+      .getByText(INCORRECT_EMAIL_ERROR_DE);
+    this.passwordFieldErrorDe = page
+      .locator(PASSWORD_FIELD_CONTAINER)
+      .getByText(REQUIRED_FIELD_ERROR_DE);
+    this.authFailedErrorDe = page.getByText(AUTH_FAILED_ERROR_DE);
     this.userDisabledError = page.getByText(USER_DISABLED_ERROR);
     this.rememberMeCheckbox = page.locator(REMEMBER_ME_CHECKBOX);
     this.googleSocialButton = page.locator(GOOGLE_SOCIAL_BUTTON);

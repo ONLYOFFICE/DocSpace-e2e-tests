@@ -253,14 +253,8 @@ test.describe("Login page", () => {
       });
 
       await test.step("Verify email format and password required errors are shown in German", async () => {
-        await expect(
-          page.getByTestId("email_field").getByText("Ungültige E-Mail-Adresse"),
-        ).toBeVisible();
-        await expect(
-          page
-            .locator('[data-testid="password_field_container"]')
-            .getByText("Pflichtfeld"),
-        ).toBeVisible();
+        await expect(login.emailFormatErrorDe).toBeVisible();
+        await expect(login.passwordFieldErrorDe).toBeVisible();
       });
 
       await test.step("Enter correct email and wrong password", async () => {
@@ -271,9 +265,7 @@ test.describe("Login page", () => {
 
       await test.step("Verify auth error is shown in German", async () => {
         await expect(page).toHaveURL(/\/login/);
-        await expect(
-          page.getByText("Benutzerauthentifizierung fehlgeschlagen"),
-        ).toBeVisible();
+        await expect(login.authFailedErrorDe).toBeVisible();
       });
     },
   );
