@@ -28,31 +28,31 @@ class VdrStartFillingPage {
   }
 
   private get fillFormButton() {
-    return this.page.locator(FILL_FORM_BUTTON);
+    return this.layout.first().locator(FILL_FORM_BUTTON);
   }
 
   private get copyLinkButton() {
-    return this.page.locator(COPY_LINK_BUTTON);
+    return this.layout.first().locator(COPY_LINK_BUTTON);
   }
 
   private get goToRoomLink() {
-    return this.page.locator(GO_TO_ROOM_LINK);
+    return this.layout.first().locator(GO_TO_ROOM_LINK);
   }
 
   private get goToRoomButton() {
-    return this.page.locator(GO_TO_ROOM_BUTTON);
+    return this.layout.first().locator(GO_TO_ROOM_BUTTON);
   }
 
   private get copyLinkInputBlock() {
-    return this.page.locator(COPY_LINK_INPUT_BLOCK);
+    return this.layout.first().locator(COPY_LINK_INPUT_BLOCK);
   }
 
   private get completedFormFileContainer() {
-    return this.page.locator(COMPLETED_FORM_FILE_CONTAINER);
+    return this.layout.first().locator(COMPLETED_FORM_FILE_CONTAINER);
   }
 
   private get heading() {
-    return this.page.locator(HEADING);
+    return this.layout.first().locator(HEADING);
   }
 
   async waitForPageLoad() {
