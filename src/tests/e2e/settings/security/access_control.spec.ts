@@ -310,6 +310,7 @@ test.describe("Access Control enforcement", () => {
       await security.setExternalSharing("allowed");
       await security.expectExternalSharing("allowed");
       await security.expectRestrictionOptionsHidden();
+      await security.setDefaultLinkType("anyone");
     });
 
     await test.step("A new document link is public again and opens anonymously", async () => {

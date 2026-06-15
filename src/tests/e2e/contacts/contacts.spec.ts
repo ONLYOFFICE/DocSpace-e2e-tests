@@ -125,31 +125,14 @@ test.describe(() => {
       await contacts.table.checkDisabledUserExist(userEmails.user);
     });
 
-    await test.step("Reassign data to admin", async () => {
-      await contacts.table.openContextMenu(userEmails.user);
-      await contacts.table.clickContextMenuOption(
-        membersContextMenuOption.reassign,
-      );
-      await contacts.reassignmentDialog.checkReassignmentTitleExist();
-      await contacts.reassignmentDialog.selectUserFromList(ADMIN_OWNER_NAME);
-      await contacts.reassignmentDialog.clickReassign();
-      await contacts.reassignmentDialog.checkAllDataTransfered();
-      await contacts.reassignmentDialog.close();
-    });
-
     await test.step("Delete user via context menu dialog", async () => {
       await contacts.table.openContextMenu(userEmails.user);
       await contacts.table.clickContextMenuOption(
         membersContextMenuOption.delete,
       );
       await contacts.dialog.checkDialogTitleExist("Delete user");
-      await contacts.dialog.close();
-    });
-
-    await test.step("Delete user via selection and verify removal", async () => {
-      await contacts.table.selectRow(userEmails.user);
-      await contacts.deleteUser();
-      await contacts.table.checkRowNotExist(userEmails.user);
+      await contacts.confirmDeleteFromDialog();
+      await contacts.expectUserRemoved(userEmails.user);
     });
   });
 

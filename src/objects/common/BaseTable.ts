@@ -4,6 +4,7 @@ const TABLE_CONTAINER = "#table-container";
 const TABLE_LIST_ITEM = ".table-list-item.window-item";
 const TABLE_SETTING_CONTAINER = ".table-container_settings";
 const TABLE_SETTINGS_BUTTON = "[data-testid='table-settings-button']";
+const CONTEXT_MENU = ".p-contextmenu.p-component";
 
 export type TBaseTableLocators = {
   tableContainer?: Locator;
@@ -84,7 +85,12 @@ class BaseTable {
 
   async openContextMenuRow(row: Locator) {
     await row.waitFor({ state: "visible", timeout: 10000 });
-    await row.click({ button: "right" });
+
+    const contextMenu = this.page.locator(CONTEXT_MENU);
+    await expect(async () => {
+      await row.click({ button: "right" });
+      await expect(contextMenu).toBeVisible({ timeout: 3000 });
+    }).toPass({ timeout: 15000 });
   }
 
   async checkTableExist() {
