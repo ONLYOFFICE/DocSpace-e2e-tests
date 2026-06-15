@@ -101,6 +101,23 @@ class Contacts extends BasePage {
     );
   }
 
+  async confirmDeleteFromDialog() {
+    const reassignStarted = this.page.waitForResponse(
+      (r) =>
+        r.url().includes("api/2.0/people/reassign/start") &&
+        r.request().method() === "POST",
+    );
+    await this.page.locator(navActions.delete.submit).click();
+    expect((await reassignStarted).status()).toBe(200);
+  }
+
+  async expectUserRemoved(userEmail: TUserEmail) {
+    await expect(async () => {
+      await this.open();
+      await this.table.checkRowNotExist(userEmail);
+    }).toPass({ timeout: 90000 });
+  }
+
   async disableUser(source: "header" | "table" = "header") {
     await this.performContactAction(
       "disable",
