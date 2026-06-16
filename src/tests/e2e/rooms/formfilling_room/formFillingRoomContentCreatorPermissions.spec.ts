@@ -21,6 +21,7 @@ import {
   pdfFormDownloadSubmenu,
   pdfFormMoreOptionsSubmenu,
   pdfFormMoveOrCopySubmenu,
+  spreadsheetContextMenuOption,
 } from "@/src/utils/constants/files";
 import { formFillingSystemFolders } from "@/src/utils/constants/rooms";
 
@@ -806,149 +807,204 @@ test.describe("FormFilling room - Content creator permissions", () => {
     });
   });
 
-  // TODO Bug 81218: unskip when fixed
-  test.skip("[Bug 81218] Verify Sync responses to XLSX access by ContentCreator role", async ({
-    page,
-  }) => {
-    // CC's own form (uploaded from DocSpace templates, not in room yet)
-    const CC_FORM = "ONLYOFFICE Resume Sample";
-    // Owner's form (uploaded by owner in beforeEach)
-    const OWNER_FORM = "PDF from device";
+  // TODO Bug 81970: remove test.fail when fixed
+  test.fail(
+    " Verify Sync responses to XLSX access by ContentCreator role [Bug 81970]",
+    async ({ page }) => {
+      // CC's own form (uploaded from DocSpace templates, not in room yet)
+      const CC_FORM = "ONLYOFFICE Resume Sample";
+      // Owner's form (uploaded by owner in beforeEach)
+      const OWNER_FORM = "PDF from device";
 
-    // Helper: fill and submit a form that is already in filling mode.
-    // Opens the editor in a new tab, submits, and closes the tab.
-    const fillAndSubmit = async (formName: string) => {
-      const pagePromise = page
-        .context()
-        .waitForEvent("page", { timeout: 30000 });
-      await myRooms.filesTable.openContextMenuForItem(formName);
-      await myRooms.filesTable.contextMenu.clickOption(
-        formFillingRoomPdfContextMenuOption.fill,
-      );
-      const pdfPage = await pagePromise;
-      await pdfPage.waitForLoadState("load");
-      const pdfForm = new FilesPdfForm(pdfPage);
-      await pdfForm.waitForEditorFrame();
-      const completed = await pdfForm.clickSubmitButton();
-      await completed.waitForPageLoad();
-      await pdfPage.close();
-      await page.reload({ waitUntil: "load" });
-    };
+      // Helper: fill and submit a form that is already in filling mode.
+      // Opens the editor in a new tab, submits, and closes the tab.
+      const fillAndSubmit = async (formName: string) => {
+        const pagePromise = page
+          .context()
+          .waitForEvent("page", { timeout: 30000 });
+        await myRooms.filesTable.openContextMenuForItem(formName);
+        await myRooms.filesTable.contextMenu.clickOption(
+          formFillingRoomPdfContextMenuOption.fill,
+        );
+        const pdfPage = await pagePromise;
+        await pdfPage.waitForLoadState("load");
+        const pdfForm = new FilesPdfForm(pdfPage);
+        await pdfForm.waitForEditorFrame();
+        const completed = await pdfForm.clickSubmitButton();
+        await completed.waitForPageLoad();
+        await pdfPage.close();
+        await page.reload({ waitUntil: "load" });
+      };
 
-    // Phase 1: owner adds CC to room and submits own form.
-    // After this, "PDF from device" submission folder exists in Complete.
-    await test.step("Setup: Owner adds CC to room and submits own form", async () => {
-      await login.loginToPortal();
-      await myRooms.openWithoutEmptyCheck();
-      await myRooms.roomsTable.openRoomByName(roomName);
-      await shortTour.clickSkipTour();
+      // Phase 1: owner adds CC to room and submits own form.
+      // After this, "PDF from device" submission folder exists in Complete.
+      await test.step("Setup: Owner adds CC to room and submits own form", async () => {
+        await login.loginToPortal();
+        await myRooms.openWithoutEmptyCheck();
+        await myRooms.roomsTable.openRoomByName(roomName);
+        await shortTour.clickSkipTour();
 
-      await myRooms.infoPanel.open();
-      await myRooms.infoPanel.openTab("Contacts");
-      await roomInfoPanel.clickAddUser();
-      await roomsInviteDialog.openPeopleList();
-      await roomsInviteDialog.contactsPanel.selectAccessType("contentCreator");
-      await roomsInviteDialog.contactsPanel.selectUserByEmail(
-        contentCreatorEmail,
-      );
-      await roomsInviteDialog.contactsPanel.clickSelectButton();
-      await roomsInviteDialog.verifyUserRole(
-        contentCreatorEmail,
-        "Content creator",
-      );
-      await roomsInviteDialog.submitInviteDialog();
-      await myRooms.infoPanel.openTab("Contacts");
-      await expect(
-        roomInfoPanel.getMemberByEmail(contentCreatorEmail),
-      ).toBeVisible({ timeout: 10000 });
-      await myRooms.infoPanel.close();
+        await myRooms.infoPanel.open();
+        await myRooms.infoPanel.openTab("Contacts");
+        await roomInfoPanel.clickAddUser();
+        await roomsInviteDialog.openPeopleList();
+        await roomsInviteDialog.contactsPanel.selectAccessType(
+          "contentCreator",
+        );
+        await roomsInviteDialog.contactsPanel.selectUserByEmail(
+          contentCreatorEmail,
+        );
+        await roomsInviteDialog.contactsPanel.clickSelectButton();
+        await roomsInviteDialog.verifyUserRole(
+          contentCreatorEmail,
+          "Content creator",
+        );
+        await roomsInviteDialog.submitInviteDialog();
+        await myRooms.infoPanel.openTab("Contacts");
+        await expect(
+          roomInfoPanel.getMemberByEmail(contentCreatorEmail),
+        ).toBeVisible({ timeout: 10000 });
+        await myRooms.infoPanel.close();
 
-      // Owner starts filling and submits own form
-      await myRooms.filesTable.openContextMenuForItem(OWNER_FORM);
-      await myRooms.filesTable.contextMenu.clickOption(
-        formFillingRoomPdfContextMenuOption.startFilling,
-      );
-      await new PdfFormModal(page).close();
-      await myRooms.filesTable.expectFillingIconVisible(OWNER_FORM);
-      await fillAndSubmit(OWNER_FORM);
+        // Owner starts filling and submits own form
+        await myRooms.filesTable.openContextMenuForItem(OWNER_FORM);
+        await myRooms.filesTable.contextMenu.clickOption(
+          formFillingRoomPdfContextMenuOption.startFilling,
+        );
+        await new PdfFormModal(page).close();
+        await myRooms.filesTable.expectFillingIconVisible(OWNER_FORM);
+        await fillAndSubmit(OWNER_FORM);
 
-      await page.context().clearCookies();
-    });
+        await page.context().clearCookies();
+      });
 
-    // Phase 2: CC uploads own form, submits own form, submits owner's form,
-    // then verifies syncResponsesToXlsx access in Complete without logging out.
-    await test.step("ContentCreator: upload own form and submit both forms", async () => {
-      await login.loginWithCredentials(
-        contentCreatorEmail,
-        contentCreatorPassword,
-      );
-      await myRooms.roomsTable.openRoomByName(roomName);
-      await shortTour.clickSkipTour();
+      // Phase 2: CC uploads own form, submits own form, submits owner's form,
+      // then verifies syncResponsesToXlsx access in Complete without logging out.
+      await test.step("ContentCreator: upload own form and submit both forms", async () => {
+        await login.loginWithCredentials(
+          contentCreatorEmail,
+          contentCreatorPassword,
+        );
+        await myRooms.roomsTable.openRoomByName(roomName);
+        await shortTour.clickSkipTour();
 
-      // Upload CC's own form from DocSpace templates
-      await myRooms.filesNavigation.openCreateDropdown();
-      await myRooms.filesNavigation.contextMenu.clickSubmenuOption(
-        "Upload PDF form",
-        "From DocSpace",
-      );
-      const selectPanel = new RoomSelectPanel(page);
-      await selectPanel.checkSelectorExist();
-      await selectPanel.select("documents");
-      await selectPanel.selectItemByText(CC_FORM);
-      await selectPanel.confirmSelection();
-      await page.waitForLoadState("load");
-      await expect(page.getByText(CC_FORM)).toBeVisible();
+        // Upload CC's own form from DocSpace templates
+        await myRooms.filesNavigation.openCreateDropdown();
+        await myRooms.filesNavigation.contextMenu.clickSubmenuOption(
+          "Upload PDF form",
+          "From DocSpace",
+        );
+        const selectPanel = new RoomSelectPanel(page);
+        await selectPanel.checkSelectorExist();
+        await selectPanel.select("documents");
+        await selectPanel.selectItemByText(CC_FORM);
+        await selectPanel.confirmSelection();
+        await page.waitForLoadState("load");
+        await expect(page.getByText(CC_FORM)).toBeVisible();
 
-      // CC starts filling and submits own form
-      await myRooms.filesTable.openContextMenuForItem(CC_FORM);
-      await myRooms.filesTable.contextMenu.clickOption(
-        formFillingRoomPdfContextMenuOption.startFilling,
-      );
-      await new PdfFormModal(page).close();
-      await myRooms.filesTable.expectFillingIconVisible(CC_FORM);
-      await fillAndSubmit(CC_FORM);
+        // CC starts filling and submits own form
+        await myRooms.filesTable.openContextMenuForItem(CC_FORM);
+        await myRooms.filesTable.contextMenu.clickOption(
+          formFillingRoomPdfContextMenuOption.startFilling,
+        );
+        await new PdfFormModal(page).close();
+        await myRooms.filesTable.expectFillingIconVisible(CC_FORM);
+        await fillAndSubmit(CC_FORM);
 
-      // CC also submits owner's form (already in filling mode from Phase 1)
-      await fillAndSubmit(OWNER_FORM);
-    });
+        // CC also submits owner's form (already in filling mode from Phase 1)
+        await fillAndSubmit(OWNER_FORM);
+      });
 
-    await test.step("ContentCreator navigates to Complete folder", async () => {
-      await myRooms.filesTable.openContextMenuForItem(
-        formFillingSystemFolders.complete,
-      );
-      await myRooms.filesTable.contextMenu.clickOption(
-        folderContextMenuOption.open,
-      );
-      await expect(
-        page.getByRole("heading", {
-          name: formFillingSystemFolders.complete,
-        }),
-      ).toBeVisible();
-    });
+      await test.step("Verify Sync responses to XLSX IS visible for CC on own original form", async () => {
+        await myRooms.filesTable.openContextMenuForItem(CC_FORM);
+        await expect(
+          myRooms.filesTable.contextMenu.getItemLocator(
+            formFillingRoomPdfContextMenuOption.syncResponsesToXlsx,
+          ),
+        ).toBeVisible();
+        await myRooms.filesTable.contextMenu.close();
+      });
 
-    await test.step("Verify Sync responses to XLSX IS visible for CC on own form submission folder", async () => {
-      await myRooms.filesTable.openContextMenuForItem(CC_FORM);
-      await expect(
-        myRooms.filesTable.contextMenu.getItemLocator(
-          folderContextMenuOption.syncResponsesToXlsx,
-        ),
-      ).toBeVisible();
-      await myRooms.filesTable.contextMenu.close();
-    });
+      await test.step("Verify Sync responses to XLSX IS visible for CC on owner's original form", async () => {
+        await myRooms.filesTable.openContextMenuForItem(OWNER_FORM);
+        await expect(
+          myRooms.filesTable.contextMenu.getItemLocator(
+            formFillingRoomPdfContextMenuOption.syncResponsesToXlsx,
+          ),
+        ).toBeVisible();
+        await myRooms.filesTable.contextMenu.close();
+      });
 
-    await test.step("Verify Sync responses to XLSX is NOT visible for CC on owner's form submission folder", async () => {
-      await myRooms.filesTable.openContextMenuForItem(OWNER_FORM);
-      await expect(
-        myRooms.filesTable.contextMenu.getItemLocator(
+      await test.step("ContentCreator navigates to Complete folder", async () => {
+        await myRooms.filesTable.openContextMenuForItem(
+          formFillingSystemFolders.complete,
+        );
+        await myRooms.filesTable.contextMenu.clickOption(
           folderContextMenuOption.open,
-        ),
-      ).toBeVisible(); // anchor: confirms menu is fully loaded
-      await expect(
-        myRooms.filesTable.contextMenu.getItemLocator(
-          folderContextMenuOption.syncResponsesToXlsx,
-        ),
-      ).not.toBeVisible();
-      await myRooms.filesTable.contextMenu.close();
-    });
-  });
+        );
+        await expect(
+          page.getByRole("heading", {
+            name: formFillingSystemFolders.complete,
+          }),
+        ).toBeVisible();
+      });
+
+      await test.step("Verify Sync responses to XLSX IS visible for CC on own form submission folder", async () => {
+        await myRooms.filesTable.openContextMenuForItem(CC_FORM);
+        await expect(
+          myRooms.filesTable.contextMenu.getItemLocator(
+            folderContextMenuOption.syncResponsesToXlsx,
+          ),
+        ).toBeVisible();
+        await myRooms.filesTable.contextMenu.close();
+      });
+
+      await test.step("Verify Sync responses to XLSX IS visible for CC on owner's form submission folder", async () => {
+        await myRooms.filesTable.openContextMenuForItem(OWNER_FORM);
+        await expect(
+          myRooms.filesTable.contextMenu.getItemLocator(
+            folderContextMenuOption.syncResponsesToXlsx,
+          ),
+        ).toBeVisible();
+        await myRooms.filesTable.contextMenu.close();
+      });
+
+      await test.step("Navigate into own form submission folder and verify sync visible on XLSX", async () => {
+        await myRooms.filesTable.openContextMenuForItem(CC_FORM);
+        await myRooms.filesTable.contextMenu.clickOption(
+          folderContextMenuOption.open,
+        );
+        await expect(
+          page.getByRole("heading", { name: CC_FORM }),
+        ).toBeVisible();
+        await myRooms.filesTable.expectXlsxItemVisible(10000);
+        await myRooms.filesTable.openContextMenuForXlsxItem();
+        await expect(
+          myRooms.filesTable.contextMenu.getItemLocator(
+            spreadsheetContextMenuOption.syncResponsesToXlsx,
+          ),
+        ).toBeVisible();
+        await myRooms.filesTable.contextMenu.close();
+        await myRooms.filesNavigation.gotoBack();
+      });
+
+      await test.step("Navigate into owner's form submission folder and verify sync visible on XLSX", async () => {
+        await myRooms.filesTable.openContextMenuForItem(OWNER_FORM);
+        await myRooms.filesTable.contextMenu.clickOption(
+          folderContextMenuOption.open,
+        );
+        await expect(
+          page.getByRole("heading", { name: OWNER_FORM }),
+        ).toBeVisible();
+        await myRooms.filesTable.expectXlsxItemVisible(10000);
+        await myRooms.filesTable.openContextMenuForXlsxItem();
+        await expect(
+          myRooms.filesTable.contextMenu.getItemLocator(
+            spreadsheetContextMenuOption.syncResponsesToXlsx,
+          ),
+        ).toBeVisible();
+        await myRooms.filesTable.contextMenu.close();
+      });
+    },
+  );
 });

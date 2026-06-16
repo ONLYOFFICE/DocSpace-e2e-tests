@@ -31,6 +31,7 @@ export const formFillingRoomPdfContextMenuOption = {
   startFilling: testId("option_start-filling"),
   stopFilling: testId("option_stop-filling"),
   fill: testId("fill-form"),
+  syncResponsesToXlsx: testId("option_sync_xlsx_data"), // visible on forms that have submissions
 };
 
 // VDR room uses different testId for stop-filling than FormFilling rooms.
