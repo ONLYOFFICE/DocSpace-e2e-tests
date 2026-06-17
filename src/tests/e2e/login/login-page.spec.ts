@@ -190,8 +190,7 @@ test.describe("Login page", () => {
     });
   });
 
-  // Skipped: GET /login returns 500, language doesn't apply.
-  test.skip("Language combobox shows language name and allows switching language", async () => {
+  test("Language combobox shows language name and allows switching language", async () => {
     await test.step("Verify language combobox shows default language name", async () => {
       await login.checkLanguageComboboxVisible();
       await login.checkLanguageComboboxText("English (United Kingdom)");
@@ -271,10 +270,7 @@ test.describe("Login page", () => {
     },
   );
 
-  // Skipped: GET /login returns 500, language doesn't apply.
-  test.skip("Language selection persists after page reload", async ({
-    page,
-  }) => {
+  test("Language selection persists after page reload", async ({ page }) => {
     await test.step("Select Deutsch on login page", async () => {
       await login.clickLanguageCombobox();
       await login.selectLanguage("de");
@@ -287,8 +283,7 @@ test.describe("Login page", () => {
     });
   });
 
-  // Skipped: GET /login returns 500, language doesn't apply.
-  test.skip("Language selected on login page is applied to profile", async ({
+  test("Language selected on login page is applied to profile", async ({
     page,
     api,
   }) => {

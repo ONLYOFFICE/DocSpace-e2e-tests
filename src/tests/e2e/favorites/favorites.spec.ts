@@ -24,12 +24,6 @@ test.describe("Favorites", () => {
     await myDocuments.open();
     await myDocuments.deleteAllDocs();
     await myDocuments.filesArticle.createFiles();
-    await myDocuments.filesNavigation.uploadFiles([
-      "data/filter/pdf-document.pdf",
-      "data/filter/image.png",
-      "data/filter/archive.zip",
-      "data/filter/diagram.vsdx",
-    ]);
   });
 
   test("Add to favorites", async () => {
@@ -102,6 +96,15 @@ test.describe("Favorites", () => {
   });
 
   test("Filter favorites by type", async () => {
+    await test.step("Upload extra file types used by the type filters", async () => {
+      await myDocuments.filesNavigation.uploadFiles([
+        "data/filter/pdf-document.pdf",
+        "data/filter/image.png",
+        "data/filter/archive.zip",
+        "data/filter/diagram.vsdx",
+      ]);
+    });
+
     await test.step("Mark all documents as favorites", async () => {
       await myDocuments.addToFavorites(documentName);
       await myDocuments.addToFavorites(spreadsheetName);
