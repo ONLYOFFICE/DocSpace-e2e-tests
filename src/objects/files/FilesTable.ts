@@ -25,6 +25,8 @@ const XLSX_FILE_LINK = ".files-item [data-document-title$='.xlsx']";
 const MODIFIED_CHECKBOX =
   ".table-container_settings-checkbox:has(span:text-is('Modified'))";
 const TABLE_SETTINGS_DROPDOWN = "[data-testid='dropdown'][role='listbox']";
+const SETTINGS_CHECKBOX = ".table-container_settings-checkbox";
+const COLUMN_HEADER = "[data-testid^='column-']";
 const TABLE_SETTINGS_CHECKBOX_AUTHOR = "[data-testid='table_settings_Author']";
 const TABLE_SETTINGS_CHECKBOX_CREATED =
   "[data-testid='table_settings_Created']";
@@ -298,6 +300,89 @@ class FilesTable extends BaseTable {
       .locator(TABLE_LIST_ITEM)
       .filter({ has: this.page.getByText(fileName, { exact: true }) });
     await expect(fileRow.locator(CUSTOM_FILTER_ICON)).toBeVisible();
+  }
+
+  async expectSettingsOptionChecked(columnText: string) {
+    await expect(
+      this.page
+        .locator(SETTINGS_CHECKBOX, { hasText: columnText })
+        .locator("input"),
+    ).toBeChecked();
+  }
+
+  async expectSettingsOptionUnchecked(columnText: string) {
+    await expect(
+      this.page
+        .locator(SETTINGS_CHECKBOX, { hasText: columnText })
+        .locator("input"),
+    ).not.toBeChecked();
+  }
+
+  async expectSettingsOptionVisible(columnText: string) {
+    await expect(
+      this.page.locator(SETTINGS_CHECKBOX, { hasText: columnText }),
+    ).toBeVisible();
+  }
+
+  async enableColumnInSettings(columnText: string) {
+    const checkbox = this.page.locator(SETTINGS_CHECKBOX, {
+      hasText: columnText,
+    });
+    const input = checkbox.locator("input");
+    if (!(await input.isChecked())) {
+      await checkbox.click();
+      await expect(
+        this.page.locator(COLUMN_HEADER, { hasText: columnText }),
+      ).toHaveAttribute("data-enable", "true");
+    }
+  }
+
+  async disableColumnInSettings(columnText: string) {
+    const checkbox = this.page.locator(SETTINGS_CHECKBOX, {
+      hasText: columnText,
+    });
+    const input = checkbox.locator("input");
+    if (await input.isChecked()) {
+      await checkbox.click();
+      await expect(
+        this.page.locator(COLUMN_HEADER, { hasText: columnText }),
+      ).toHaveAttribute("data-enable", "false");
+    }
+  }
+
+  async closeSettingsPortal() {
+    await this.page.mouse.click(1, 1);
+    await expect(this.page.getByRole("listbox")).not.toBeVisible();
+  }
+
+  async expectColumnHeaderVisible(columnText: string) {
+    await expect(
+      this.page.locator(COLUMN_HEADER, { hasText: columnText }),
+    ).toHaveAttribute("data-enable", "true");
+  }
+
+  async expectColumnHeaderHidden(columnText: string) {
+    await expect(
+      this.page.locator(COLUMN_HEADER, { hasText: columnText }),
+    ).toHaveAttribute("data-enable", "false");
+  }
+
+  async expectNewBadgeVisible(fileName: string) {
+    const fileRow = this.page
+      .locator(TABLE_LIST_ITEM)
+      .filter({ has: this.page.getByText(fileName, { exact: true }) });
+    await expect(
+      fileRow.locator(DRAFT_BADGE).filter({ hasText: "New" }),
+    ).toBeVisible();
+  }
+
+  async expectNewBadgeNotVisible(fileName: string) {
+    const fileRow = this.page
+      .locator(TABLE_LIST_ITEM)
+      .filter({ has: this.page.getByText(fileName, { exact: true }) });
+    await expect(
+      fileRow.locator(DRAFT_BADGE).filter({ hasText: "New" }),
+    ).not.toBeVisible();
   }
 
   async expectDraftBadgeVisible(fileName: string) {

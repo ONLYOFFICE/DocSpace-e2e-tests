@@ -6,6 +6,7 @@ import { FILTER_TYPE, FILTER_LOCATION } from "@/src/utils/constants/filter";
 
 const TITLE_FOLDERS = "#folder-tile-heading";
 const EMPTY_VIEW_FILTER = "#empty-view-filter";
+const FILTER_SELECTOR_ADD = "[data-testid='selector-add-button-container']";
 
 class FilesFilter extends BaseFilter {
   constructor(page: Page) {
@@ -66,6 +67,12 @@ class FilesFilter extends BaseFilter {
 
   async selectFilterByImages() {
     await super.selectFilterTag(FILTER_TYPE.IMAGES);
+  }
+
+  async expectPersonSelectorsNotVisible() {
+    await expect(
+      this.filterDialog.locator(FILTER_SELECTOR_ADD),
+    ).toHaveCount(0);
   }
 
   async selectFilterByLocationRooms() {
