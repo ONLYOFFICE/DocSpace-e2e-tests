@@ -70,9 +70,7 @@ class FilesFilter extends BaseFilter {
   }
 
   async expectPersonSelectorsNotVisible() {
-    await expect(
-      this.filterDialog.locator(FILTER_SELECTOR_ADD),
-    ).toHaveCount(0);
+    await expect(this.filterDialog.locator(FILTER_SELECTOR_ADD)).toHaveCount(0);
   }
 
   async selectFilterByLocationRooms() {

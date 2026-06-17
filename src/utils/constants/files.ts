@@ -159,11 +159,7 @@ export const sharedWithMeDefaultColumns = [
 ] as const;
 
 // Columns unchecked by default - can be toggled on/off
-export const sharedWithMeOptionalColumns = [
-  "Author",
-  "Size",
-  "Type",
-] as const;
+export const sharedWithMeOptionalColumns = ["Author", "Size", "Type"] as const;
 
 export type TDocumentContextMenuOption =
   (typeof documentContextMenuOption)[keyof typeof documentContextMenuOption];
