@@ -86,6 +86,7 @@ export const documentContextMenuOption = {
   preview: testId("option_preview"),
   share: testId("option_share"),
   moveOrCopy: testId("option_move-or-copy"),
+  copy: testId("copy-to"),
   download: testId("option_download"),
   rename: testId("option_rename"),
   markAsFavorite: testId("option_mark-as-favorite"),
@@ -135,6 +136,30 @@ export const folderContextMenuOption = {
   delete: testId("delete"),
   syncResponsesToXlsx: testId("option_sync_xlsx_data"), // FormFilling room Complete folder only
 };
+
+export const documentDownloadSubmenu = {
+  originalFormat: testId("option_download"),
+  downloadAs: testId("option_download-as"),
+};
+
+export const sharedWithMeTableColumns = {
+  sharedBy: "Shared by",
+  author: "Author",
+  accessLevel: "Access level",
+  modified: "Modified",
+  size: "Size",
+  type: "Type",
+} as const;
+
+// Columns checked by default
+export const sharedWithMeDefaultColumns = [
+  "Shared by",
+  "Access level",
+  "Modified",
+] as const;
+
+// Columns unchecked by default - can be toggled on/off
+export const sharedWithMeOptionalColumns = ["Author", "Size", "Type"] as const;
 
 export type TDocumentContextMenuOption =
   (typeof documentContextMenuOption)[keyof typeof documentContextMenuOption];
