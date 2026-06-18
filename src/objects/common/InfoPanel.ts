@@ -11,6 +11,7 @@ const SHARE_SELECTOR_SEARCH_INPUT = "selector_search_input";
 const SHARE_SELECTOR_SEARCH_TEXT_INPUT = "text-input";
 const SHARE_SELECTOR_ITEM = "[data-testid^='selector-item-']";
 const SHARE_SELECTOR_SUBMIT_BUTTON = "selector_submit_button";
+const SHARE_SELECTOR_GROUPS_TAB = "1_tab";
 const NO_ITEM_TEXT = ".no-item-text";
 const INFO_OPTIONS_ICON = "#info-options";
 
@@ -260,6 +261,19 @@ class InfoPanel {
   async checkFormFillingSharedLinkExist() {
     await expect(this.formFillingSharedLink).toBeVisible();
   }
+  async addGroupToShare(groupName: string) {
+    await this.page.getByTestId(SHARE_ADD_USER_BUTTON).click();
+    await this.page.getByTestId(SHARE_SELECTOR_GROUPS_TAB).click();
+    const searchInput = this.page
+      .getByTestId(SHARE_SELECTOR_SEARCH_INPUT)
+      .getByTestId(SHARE_SELECTOR_SEARCH_TEXT_INPUT);
+    await searchInput.fill(groupName);
+    const groupRow = this.page.locator(`[aria-label="Group: ${groupName}"]`);
+    await expect(groupRow).toBeVisible({ timeout: 10_000 });
+    await groupRow.click();
+    await this.page.getByTestId(SHARE_SELECTOR_SUBMIT_BUTTON).click();
+  }
+
   async addUserToShare(userName: string) {
     await this.page.getByTestId(SHARE_ADD_USER_BUTTON).click();
     const item = this.page
