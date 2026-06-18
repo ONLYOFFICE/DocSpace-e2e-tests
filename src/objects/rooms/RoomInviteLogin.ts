@@ -1,6 +1,6 @@
 import { Page, expect } from "@playwright/test";
 
-const EMAIL_INPUT = '[data-testid="email-input-invite"][autofocus]';
+const EMAIL_INPUT = "email-input-invite";
 const CONTINUE_BUTTON = "email_continue_button";
 const PASSWORD_INPUT = "text-input";
 const SIGN_IN_BUTTON = "login_button";
@@ -14,7 +14,7 @@ export class RoomInviteLogin {
   }
 
   get emailInput() {
-    return this.page.locator(EMAIL_INPUT);
+    return this.page.getByTestId(EMAIL_INPUT);
   }
 
   get continueButton() {
@@ -30,7 +30,7 @@ export class RoomInviteLogin {
   }
 
   async fillEmail(email: string) {
-    await expect(this.emailInput).toBeVisible();
+    await expect(this.emailInput).toHaveCount(1);
     await this.emailInput.fill(email);
   }
 
