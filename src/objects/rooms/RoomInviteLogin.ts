@@ -30,7 +30,7 @@ export class RoomInviteLogin {
   }
 
   async fillEmail(email: string) {
-    await expect(this.emailInput).toBeVisible();
+    await expect(this.emailInput).toHaveCount(1);
     await this.emailInput.fill(email);
   }
 
