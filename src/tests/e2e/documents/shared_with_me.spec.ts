@@ -381,12 +381,12 @@ test.describe("Shared with me", () => {
         }
       });
 
-      await test.step("Open settings to disable optional columns", async () => {
+      await test.step("Open settings to disable all columns", async () => {
         await sharedWithMe.filesTable.openSettings();
       });
 
-      await test.step("Disable optional columns", async () => {
-        for (const columnText of sharedWithMeOptionalColumns) {
+      await test.step("Disable all columns", async () => {
+        for (const columnText of Object.values(sharedWithMeTableColumns)) {
           await sharedWithMe.filesTable.disableColumnInSettings(columnText);
         }
       });
@@ -395,8 +395,8 @@ test.describe("Shared with me", () => {
         await sharedWithMe.filesTable.closeSettingsPortal();
       });
 
-      await test.step("Verify optional columns are hidden in table header", async () => {
-        for (const columnText of sharedWithMeOptionalColumns) {
+      await test.step("Verify all columns are hidden in table header", async () => {
+        for (const columnText of Object.values(sharedWithMeTableColumns)) {
           await sharedWithMe.filesTable.expectColumnHeaderHidden(columnText);
         }
       });

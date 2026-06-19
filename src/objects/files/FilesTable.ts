@@ -344,9 +344,6 @@ class FilesTable extends BaseTable {
     const input = checkbox.locator("input");
     if (await input.isChecked()) {
       await checkbox.click();
-      await expect(
-        this.page.locator(COLUMN_HEADER, { hasText: columnText }),
-      ).toHaveAttribute("data-enable", "false");
     }
   }
 
@@ -364,7 +361,7 @@ class FilesTable extends BaseTable {
   async expectColumnHeaderHidden(columnText: string) {
     await expect(
       this.page.locator(COLUMN_HEADER, { hasText: columnText }),
-    ).toHaveAttribute("data-enable", "false");
+    ).not.toBeAttached();
   }
 
   async expectNewBadgeVisible(fileName: string) {
