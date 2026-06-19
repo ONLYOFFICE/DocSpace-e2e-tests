@@ -276,6 +276,17 @@ export class Backup extends BasePage {
     await this.dismissToastSafely(toastMessages.backCopyCreated);
   }
 
+  async createBackupToRoom(roomName: string) {
+    await this.selectBackupMethod(mapBackupMethodsIds.backupRoom);
+    await this.openRoomSelector();
+    await this.locators.forwardDocSpace.click();
+    await this.locators.forwardRooms.click();
+    await this.selector.selectItemByText(roomName);
+    await this.locators.selectButton.click();
+    await this.locators.createCopyButton.click();
+    await this.dismissToastSafely(toastMessages.backCopyCreated);
+  }
+
   async createAnotherBackupCopy() {
     await this.locators.createCopyButton.click();
     await this.dismissToastSafely(toastMessages.backCopyCreated, 40000);

@@ -43,6 +43,14 @@ export class BackupLocators {
     return this.page.getByTestId("selector-item-0").getByTestId("text");
   }
 
+  get forwardRooms() {
+    return this.page.getByTestId("selector-item-1").getByTestId("text");
+  }
+
+  get saveBackupToRoomButton() {
+    return this.page.getByTestId("save_backup_to_room_button");
+  }
+
   get combobox() {
     return this.page.getByTestId("combobox");
   }
