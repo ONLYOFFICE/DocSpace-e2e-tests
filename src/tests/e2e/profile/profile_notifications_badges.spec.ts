@@ -65,66 +65,6 @@ test.describe("Profile - Notifications - Badges", () => {
     });
   });
 
-  test("Badge does not appear on Shared with me when file activity notifications are disabled", async ({
-    page,
-    api,
-    apiSdk,
-  }) => {
-    let fileId: number;
-    let userEmail: string;
-    let userPassword: string;
-
-    await test.step("Create file in My Documents via API", async () => {
-      const fileResponse = await apiSdk.files.createFileInMyDocuments("owner", {
-        title: FILE_NAME,
-      });
-      const fileBody = await fileResponse.json();
-      fileId = fileBody.response.id;
-    });
-
-    await test.step("Create member user and share file with them", async () => {
-      const { userData, response } = await apiSdk.profiles.addMember(
-        "owner",
-        "User",
-      );
-      userEmail = userData.email;
-      userPassword = userData.password;
-
-      const userBody = await response.json();
-      const userId = userBody.response.id;
-
-      await apiSdk.files.shareFile("owner", fileId, {
-        share: [{ shareTo: userId, access: 2 }],
-        notify: false,
-      });
-    });
-
-    await test.step("Login as member and disable file activity notifications", async () => {
-      const userLogin = new Login(page, api.portalDomain);
-      await userLogin.loginWithCredentials(userEmail, userPassword);
-
-      const profileNotifications = new ProfileNotifications(
-        page,
-        api.portalDomain,
-      );
-      await profileNotifications.open();
-      await profileNotifications.toggleFileActivity();
-    });
-
-    await test.step("Navigate to Shared with me", async () => {
-      const sharedWithMe = new SharedWithMe(page, api.portalDomain);
-      await sharedWithMe.open();
-    });
-
-    await test.step("Verify badge is not visible on Shared with me", async () => {
-      const profileNotifications = new ProfileNotifications(
-        page,
-        api.portalDomain,
-      );
-      await profileNotifications.expectSharedWithMeBadgeVisible(false);
-    });
-  });
-
   test("Badge appears on Rooms when a file is uploaded to a room the user is a member of", async ({
     page,
     api,
@@ -179,67 +119,6 @@ test.describe("Profile - Notifications - Badges", () => {
     });
   });
 
-  test("Badge does not appear on Rooms when file activity notifications are disabled", async ({
-    page,
-    api,
-    apiSdk,
-  }) => {
-    const ROOM_NAME = "BadgeTestRoom";
-    let userEmail: string;
-    let userPassword: string;
-
-    await test.step("Create room, add member and upload file via API", async () => {
-      const roomResponse = await apiSdk.rooms.createRoom("owner", {
-        title: ROOM_NAME,
-        roomType: "EditingRoom",
-      });
-      const roomBody = await roomResponse.json();
-      const roomId = roomBody.response.id;
-
-      const { userData, response } = await apiSdk.profiles.addMember(
-        "owner",
-        "User",
-      );
-      userEmail = userData.email;
-      userPassword = userData.password;
-
-      const userBody = await response.json();
-      const userId = userBody.response.id;
-
-      await apiSdk.rooms.setRoomAccessRights("owner", roomId, {
-        invitations: [{ id: userId, access: "Editing" }],
-        notify: false,
-      });
-
-      await apiSdk.files.createFile("owner", roomId, { title: FILE_NAME });
-    });
-
-    await test.step("Login as member and disable file activity notifications", async () => {
-      const userLogin = new Login(page, api.portalDomain);
-      await userLogin.loginWithCredentials(userEmail, userPassword);
-
-      const profileNotifications = new ProfileNotifications(
-        page,
-        api.portalDomain,
-      );
-      await profileNotifications.open();
-      await profileNotifications.toggleFileActivity();
-    });
-
-    await test.step("Navigate to Rooms", async () => {
-      const rooms = new Rooms(page, api.portalDomain);
-      await rooms.openWithoutEmptyCheck();
-    });
-
-    await test.step("Verify badge is not visible on Rooms", async () => {
-      const profileNotifications = new ProfileNotifications(
-        page,
-        api.portalDomain,
-      );
-      await profileNotifications.expectRoomsBadgeVisible(false);
-    });
-  });
-
   test("Badge appears on My Documents when member creates file in shared folder", async ({
     page,
     api,
@@ -288,14 +167,47 @@ test.describe("Profile - Notifications - Badges", () => {
     });
   });
 
-  test("Badge does not appear on My Documents when file activity notifications are disabled", async ({
+  test("Badges do not appear anywhere when file activity notifications are disabled", async ({
     page,
     api,
     apiSdk,
   }) => {
+    const ROOM_NAME = "BadgeTestRoom";
     const FOLDER_NAME = "SharedFolder";
+    let userEmail: string;
+    let userPassword: string;
 
-    await test.step("Create folder in My Documents, add member and share folder via API", async () => {
+    await test.step("Setup: create file, room and shared folder via API", async () => {
+      const { userData, response } = await apiSdk.profiles.addMember(
+        "owner",
+        "User",
+      );
+      userEmail = userData.email;
+      userPassword = userData.password;
+      const userBody = await response.json();
+      const userId = userBody.response.id;
+
+      const fileResponse = await apiSdk.files.createFileInMyDocuments("owner", {
+        title: FILE_NAME,
+      });
+      const fileBody = await fileResponse.json();
+      await apiSdk.files.shareFile("owner", fileBody.response.id, {
+        share: [{ shareTo: userId, access: 2 }],
+        notify: false,
+      });
+
+      const roomResponse = await apiSdk.rooms.createRoom("owner", {
+        title: ROOM_NAME,
+        roomType: "EditingRoom",
+      });
+      const roomBody = await roomResponse.json();
+      const roomId = roomBody.response.id;
+      await apiSdk.rooms.setRoomAccessRights("owner", roomId, {
+        invitations: [{ id: userId, access: "Editing" }],
+        notify: false,
+      });
+      await apiSdk.files.createFile("owner", roomId, { title: FILE_NAME });
+
       const myDocsId = await apiSdk.folders.getMyDocumentsFolderId("owner");
       const folderBody = await (
         await apiSdk.folders.createFolder("owner", myDocsId, {
@@ -303,24 +215,17 @@ test.describe("Profile - Notifications - Badges", () => {
         })
       ).json();
       const folderId = folderBody.response.id;
-
-      const { response } = await apiSdk.profiles.addMember("owner", "User");
-      const userBody = await response.json();
-      const userId = userBody.response.id;
-
       await apiSdk.files.shareFolder("owner", folderId, {
         share: [{ shareTo: userId, access: 1 }],
         notify: false,
       });
-
       await api.auth.authenticateUser();
       await apiSdk.files.createFile("user", folderId, { title: FILE_NAME });
     });
 
-    await test.step("Login as owner and disable file activity notifications", async () => {
-      const ownerLogin = new Login(page, api.portalDomain);
-      await ownerLogin.loginToPortal();
-
+    await test.step("Login as member and disable file activity notifications", async () => {
+      const userLogin = new Login(page, api.portalDomain);
+      await userLogin.loginWithCredentials(userEmail, userPassword);
       const profileNotifications = new ProfileNotifications(
         page,
         api.portalDomain,
@@ -329,12 +234,41 @@ test.describe("Profile - Notifications - Badges", () => {
       await profileNotifications.toggleFileActivity();
     });
 
-    await test.step("Navigate to My Documents", async () => {
-      const myDocuments = new MyDocuments(page, api.portalDomain);
-      await myDocuments.open();
+    await test.step("Verify badge is not visible on Shared with me", async () => {
+      const sharedWithMe = new SharedWithMe(page, api.portalDomain);
+      await sharedWithMe.open();
+      const profileNotifications = new ProfileNotifications(
+        page,
+        api.portalDomain,
+      );
+      await profileNotifications.expectSharedWithMeBadgeVisible(false);
+    });
+
+    await test.step("Verify badge is not visible on Rooms", async () => {
+      const rooms = new Rooms(page, api.portalDomain);
+      await rooms.openWithoutEmptyCheck();
+      const profileNotifications = new ProfileNotifications(
+        page,
+        api.portalDomain,
+      );
+      await profileNotifications.expectRoomsBadgeVisible(false);
+    });
+
+    await test.step("Login as owner and disable file activity notifications", async () => {
+      const ownerLogin = new Login(page, api.portalDomain);
+      await ownerLogin.logout();
+      await ownerLogin.loginToPortal();
+      const profileNotifications = new ProfileNotifications(
+        page,
+        api.portalDomain,
+      );
+      await profileNotifications.open();
+      await profileNotifications.toggleFileActivity();
     });
 
     await test.step("Verify badge is not visible on My Documents", async () => {
+      const myDocuments = new MyDocuments(page, api.portalDomain);
+      await myDocuments.open();
       const profileNotifications = new ProfileNotifications(
         page,
         api.portalDomain,
