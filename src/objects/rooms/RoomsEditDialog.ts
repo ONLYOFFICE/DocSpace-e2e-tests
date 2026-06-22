@@ -17,6 +17,12 @@ class RoomsEditDialog extends BaseDialog {
       this.page.getByRole("button", { name: "Save" }),
     );
   }
+
+  async clickCloseButton() {
+    await this.dialogHeader
+      .getByTestId("aside_header_close_icon_button")
+      .click();
+  }
 }
 
 export default RoomsEditDialog;

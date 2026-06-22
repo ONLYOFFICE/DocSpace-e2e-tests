@@ -12,6 +12,7 @@ const ROOM_SUBMIT_BUTTON = "create_room_dialog_save";
 const SAVE_FORM_AS_XLSX_BLOCK = "#save-form-as-xlsx";
 const SEND_FORM_TO_EXTERNAL_DB_BLOCK = "#send-form-to-external-db";
 const TOGGLE_INPUT = "toggle-button-input";
+const EDIT_ROOM_TOGGLE = "create_edit_room_toggle";
 const TOGGLE_LABEL = "toggle-button-container";
 const DB_BAR_DESCRIPTION = '[class*="barDescription"]';
 const DB_DISABLED_DESCRIPTION_TEXT =
@@ -196,9 +197,14 @@ class RoomsCreateDialog extends BaseDialog {
   }
 
   async expectSaveFormAsXlsxChecked(checked: boolean) {
-    const checkbox = this.page
-      .locator(SAVE_FORM_AS_XLSX_BLOCK)
-      .getByTestId(TOGGLE_INPUT);
+    const block = this.page.locator(SAVE_FORM_AS_XLSX_BLOCK);
+    const checkbox =
+      (await block.count()) > 0
+        ? block.getByTestId(TOGGLE_INPUT)
+        : this.page
+            .getByTestId(EDIT_ROOM_TOGGLE)
+            .first()
+            .getByTestId(TOGGLE_INPUT);
     await expect(checkbox).toBeChecked({ checked });
   }
 
