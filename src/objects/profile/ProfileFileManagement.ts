@@ -7,6 +7,12 @@ const DEFAULT_HOMEPAGE_COMBO = "default_homepage_combobox";
 const DEFAULT_HOMEPAGE_DROPDOWN =
   '[data-testid="default_homepage_combobox_dropdown"]';
 const LOGO_BUTTON = ".logo-icon_svg";
+const SAVE_COPY_ORIGINAL_TOGGLE = "save_copy_original_toggle_button";
+const DISPLAY_NOTIFICATION_TOGGLE = "display_notification_toggle_button";
+const DISPLAY_FILE_EXTENSION_TOGGLE = "display_file_extension_toggle_button";
+// Note: "cancelletion" is the actual testid spelling in the app
+const CANCELLATION_NOTIFICATION_TOGGLE =
+  "cancelletion_notification_toggle_button";
 
 class ProfileFileManagement {
   private page: Page;
@@ -68,6 +74,50 @@ class ProfileFileManagement {
     await expect(this.page.getByTestId(DEFAULT_HOMEPAGE_COMBO)).toContainText(
       option,
     );
+  }
+
+  async toggleSaveCopyOriginalFormat() {
+    const toggle = this.page.getByTestId(SAVE_COPY_ORIGINAL_TOGGLE);
+    await expect(toggle).toBeEnabled();
+    await toggle.click();
+  }
+
+  async expectSaveCopyOriginalFormatEnabled(enabled: boolean) {
+    const toggle = this.page.getByTestId(SAVE_COPY_ORIGINAL_TOGGLE);
+    await expect(toggle).toHaveAttribute("aria-checked", String(enabled));
+  }
+
+  async toggleDisplayTrashNotification() {
+    const toggle = this.page.getByTestId(DISPLAY_NOTIFICATION_TOGGLE);
+    await expect(toggle).toBeEnabled();
+    await toggle.click();
+  }
+
+  async expectDisplayTrashNotificationEnabled(enabled: boolean) {
+    const toggle = this.page.getByTestId(DISPLAY_NOTIFICATION_TOGGLE);
+    await expect(toggle).toHaveAttribute("aria-checked", String(enabled));
+  }
+
+  async toggleDisplayFileExtension() {
+    const toggle = this.page.getByTestId(DISPLAY_FILE_EXTENSION_TOGGLE);
+    await expect(toggle).toBeEnabled();
+    await toggle.click();
+  }
+
+  async expectDisplayFileExtensionEnabled(enabled: boolean) {
+    const toggle = this.page.getByTestId(DISPLAY_FILE_EXTENSION_TOGGLE);
+    await expect(toggle).toHaveAttribute("aria-checked", String(enabled));
+  }
+
+  async toggleCancellationNotification() {
+    const toggle = this.page.getByTestId(CANCELLATION_NOTIFICATION_TOGGLE);
+    await expect(toggle).toBeEnabled();
+    await toggle.click();
+  }
+
+  async expectCancellationNotificationEnabled(enabled: boolean) {
+    const toggle = this.page.getByTestId(CANCELLATION_NOTIFICATION_TOGGLE);
+    await expect(toggle).toHaveAttribute("aria-checked", String(enabled));
   }
 
   async expectDefaultHomepageOptionNotAvailable(option: string) {
