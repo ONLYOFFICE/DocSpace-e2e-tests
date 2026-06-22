@@ -99,8 +99,7 @@ test.describe("FormFilling room: creation settings", () => {
     });
   });
 
-  // TODO: Bug 80939
-  test.skip("[Bug 80939] Disabling Collect results in XLSX: no XLSX file appears in Complete folder after form submission", async ({
+  test("Disabling Collect results in XLSX: no XLSX file appears in Complete folder after form submission", async ({
     page,
   }) => {
     const roomName = "FormFillingNoXlsx";
@@ -130,7 +129,7 @@ test.describe("FormFilling room: creation settings", () => {
         .click();
       await myRooms.roomsEditDialog.checkDialogTitleExist();
       await createDialog.expectSaveFormAsXlsxChecked(false);
-      await myRooms.roomsEditDialog.clickSaveButton();
+      await myRooms.roomsEditDialog.clickCloseButton();
     });
 
     await test.step("Upload PDF form from DocSpace", async () => {
