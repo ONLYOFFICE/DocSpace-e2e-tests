@@ -20,12 +20,22 @@ class AiSettings extends BasePage {
     return this.page.getByTestId("add-provider-button");
   }
 
+  private get activateButton() {
+    return this.page
+      .locator('[class*="AIFeaturesBanner-module__banner"]')
+      .getByTestId("button");
+  }
+
   private get addMcpServerButton() {
     return this.page.getByTestId("add-mcp-button");
   }
 
   private get providersTab() {
     return this.page.getByTestId("providers_tab");
+  }
+
+  private get modelsTab() {
+    return this.page.getByTestId("models_tab");
   }
 
   private get serversTab() {
@@ -57,7 +67,7 @@ class AiSettings extends BasePage {
   }
 
   async openDirectly() {
-    await this.page.goto(`${this.aiSettingsBaseUrl}/providers`);
+    await this.page.goto(`${this.aiSettingsBaseUrl}/models`);
     await this.expectLoaded();
   }
 
@@ -68,7 +78,15 @@ class AiSettings extends BasePage {
   }
 
   async expectLoaded() {
-    await expect(this.addProviderButton).toBeVisible();
+    await expect(this.activateButton).toBeVisible();
+  }
+  async activate() {
+    await this.expectLoaded();
+    await this.activateButton.click();
+    await this.page.waitForURL(/\/payments\/services\/ai-services/, {
+      timeout: 30000,
+    });
+    await this.page.waitForTimeout(3000);
   }
 
   async openProvidersTab() {
@@ -182,6 +200,41 @@ class AiSettings extends BasePage {
     ).toBeVisible();
   }
 
+  // The redesigned Web search tab is informational: a description, a "Learn
+  // more" help link and per-engine pricing links.
+  get webSearchLearnMoreLink() {
+    return this.page.locator('[class*="WebSearch-module__learnMore"]');
+  }
+
+  get webSearchPricingLink() {
+    return this.page
+      .locator('[class*="WebSearch-module__detailsLink"]')
+      .first();
+  }
+
+  // The redesigned Knowledge base tab is informational too: a description, a
+  // "Learn more" help link and a vectorization model pricing link.
+  get knowledgeLearnMoreLink() {
+    return this.page.locator('[class*="KnowledgeBase-module__learnMore"]');
+  }
+
+  get knowledgePricingLink() {
+    return this.page
+      .locator('[class*="KnowledgeBase-module__detailsLink"]')
+      .first();
+  }
+
+  // Clicks a link that opens in a new tab and returns the opened page so the
+  // test can assert the destination URL.
+  async openLinkInNewTab(link: Locator): Promise<Page> {
+    const [popup] = await Promise.all([
+      this.page.context().waitForEvent("page"),
+      link.click(),
+    ]);
+    await popup.waitForLoadState("domcontentloaded");
+    return popup;
+  }
+
   async expectProviderInList(title: string) {
     await expect(
       this.page
@@ -292,7 +345,10 @@ class AiSettings extends BasePage {
   }
 
   private async openTab(tab: Locator) {
+    await this.page.goto(`${this.aiSettingsBaseUrl}/models`);
+    await expect(this.modelsTab).toBeVisible();
     await tab.click();
+    await expect(tab).toHaveClass(/Tabs-module__selected/);
   }
 
   private async expectComboVisible(combo: Locator) {

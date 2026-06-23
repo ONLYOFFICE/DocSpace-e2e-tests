@@ -25,6 +25,16 @@ export class AiAgents extends BasePage {
     return this.page.locator("#go-to-ai-provider-settings");
   }
 
+  private get aiNotActiveHeading() {
+    return this.page.getByRole("heading", {
+      name: /AI features aren.t active yet/,
+    });
+  }
+
+  private get topUpAndActivateButton() {
+    return this.page.locator("#top-up-and-activate-ai");
+  }
+
   private get aiAgentsNavigationItem() {
     return this.page.locator(
       'a[href*="/ai-agents"] #document_catalog-undefined',
@@ -37,10 +47,6 @@ export class AiAgents extends BasePage {
 
   private get agentNameInput() {
     return this.page.getByTestId("create_edit_agent_input");
-  }
-
-  private get providerCombobox() {
-    return this.page.getByTestId("create_agent_provider_combobox");
   }
 
   private get modelCombobox() {
@@ -89,11 +95,23 @@ export class AiAgents extends BasePage {
     await this.goToSettingsButton.click();
   }
 
+  // When AI features are not activated, the agents page shows a
+  // "AI features aren't active yet" empty view with a "Top up & activate" CTA.
+  async expectAiNotActive() {
+    await expect(this.aiNotActiveHeading).toBeVisible();
+    await expect(this.topUpAndActivateButton).toBeVisible();
+  }
+
   private async waitForAiAgentsPage() {
     await expect(this.page).toHaveURL(/\/ai-agents/);
   }
 
   async openCreateAgentDialog() {
+    // Right after AI activation the empty view can still render the
+    // "Top up & activate" state; reload so the create-agent action shows.
+    await this.page.reload();
+    await this.waitForAiAgentsPage();
+    await expect(this.createAgentEmptyViewItem).toBeVisible();
     await this.createAgentEmptyViewItem.click();
     await expect(this.agentNameInput).toBeVisible();
   }
@@ -102,12 +120,15 @@ export class AiAgents extends BasePage {
     await this.agentNameInput.fill(name);
   }
 
-  async selectProvider(providerTitle: string) {
-    await this.providerCombobox.click();
+  // The create-agent dialog no longer has a provider step; it exposes a single
+  // model combobox that is pre-filled with a default model. Use this only when a
+  // test needs a specific model — otherwise the default is fine.
+  async selectModel(modelName: string) {
+    await this.modelCombobox.click();
     await this.page
       .getByRole("listbox")
-      .filter({ hasText: providerTitle })
-      .getByText(providerTitle, { exact: true })
+      .filter({ hasText: modelName })
+      .getByText(modelName, { exact: true })
       .click();
   }
 

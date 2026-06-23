@@ -354,10 +354,9 @@ export class Payments extends BasePage {
 
   async checkWalletExist() {
     await expect(
-      this.page.getByText("Balance", {
-        exact: true,
-      }),
-    ).toBeVisible();
+      this.page.locator('[class*="Wallet-module__summaryCardBalance"]'),
+    ).toContainText("Available credits");
+    await expect(this.topUpBalanceButton).toBeVisible();
   }
 
   async checkCalendar() {

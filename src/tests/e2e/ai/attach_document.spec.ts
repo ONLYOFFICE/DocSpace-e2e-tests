@@ -2,38 +2,35 @@ import { test } from "@/src/fixtures";
 import AiAgents from "@/src/objects/ai/AiAgents";
 import AiSettings from "@/src/objects/ai/AiSettings";
 import ChatAttachmentPanel from "@/src/objects/ai/ChatAttachmentPanel";
-import config from "@/config";
+import { PaymentApi } from "@/src/api/payment";
 import { mapInitialDocNames } from "@/src/utils/constants/files";
 
 test.describe("AI Agents: attach document", () => {
   let aiAgents: AiAgents;
   let aiSettings: AiSettings;
   let attachmentPanel: ChatAttachmentPanel;
-  const AGENT_NAME = "DeepSeek Agent";
+  let paymentApi: PaymentApi;
+  const AGENT_NAME = "Test AI Agent";
   const DOCUMENT = mapInitialDocNames.ONLYOFFICE_SAMPLE_DOCUMENT;
 
   test.beforeEach(async ({ page, api, login }) => {
+    paymentApi = new PaymentApi(api.apiRequestContext, api.apisystem);
     aiAgents = new AiAgents(page, api.portalDomain);
     aiSettings = new AiSettings(page, api.portalDomain);
     attachmentPanel = new ChatAttachmentPanel(page);
     await login.loginToPortal();
 
-    await test.step("Precondition: add DeepSeek provider", async () => {
+    await test.step("Precondition: top up wallet and activate AI features", async () => {
+      await paymentApi.setupPayment();
+      await paymentApi.makeWalletTopUp();
       await aiSettings.open();
-      await aiSettings.clickAddProviderButton();
-      await aiSettings.selectProviderType("DeepSeek");
-      await aiSettings.fillProviderTitle("DeepSeek");
-      await aiSettings.fillProviderKey(config.DEEPSEEK_API_KEY!);
-      await aiSettings.selectFirstAvailableModel();
-      await aiSettings.saveProvider();
-      await aiSettings.expectProviderInList("DeepSeek");
+      await aiSettings.activate();
     });
 
     await test.step("Precondition: create AI agent", async () => {
       await aiAgents.openDirectly();
       await aiAgents.openCreateAgentDialog();
       await aiAgents.fillAgentName(AGENT_NAME);
-      await aiAgents.selectProvider("DeepSeek");
       await aiAgents.fillInstructions("Test agent for attachment scenarios.");
       await aiAgents.saveAgent();
     });
