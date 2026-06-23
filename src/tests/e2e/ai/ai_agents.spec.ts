@@ -2,46 +2,40 @@ import { test } from "@/src/fixtures";
 import { expect } from "@playwright/test";
 import AiAgents from "@/src/objects/ai/AiAgents";
 import AiSettings from "@/src/objects/ai/AiSettings";
-import config from "@/config";
+import { PaymentApi } from "@/src/api/payment";
 import { aiAgentToastMessages } from "@/src/utils/constants/ai";
 
 test.describe("AI Agents", () => {
   let aiAgents: AiAgents;
   let aiSettings: AiSettings;
+  let paymentApi: PaymentApi;
 
   test.beforeEach(async ({ page, api, login }) => {
+    paymentApi = new PaymentApi(api.apiRequestContext, api.apisystem);
     aiAgents = new AiAgents(page, api.portalDomain);
     aiSettings = new AiSettings(page, api.portalDomain);
     await login.loginToPortal();
   });
 
-  test("Empty providers state", async () => {
+  test("AI features not active state", async () => {
     await aiAgents.open();
-    await aiAgents.expectNoProvidersMessage();
-
-    await aiAgents.goToSettings();
-    await aiSettings.expectLoaded();
+    await aiAgents.expectAiNotActive();
   });
 
-  test("Create AI agent with DeepSeek provider", async () => {
-    const agentName = "DeepSeek Agent";
+  test("Create AI agent", async () => {
+    const agentName = "Test AI Agent";
 
-    await test.step("Precondition: add DeepSeek provider", async () => {
+    await test.step("Precondition: top up wallet and activate AI features", async () => {
+      await paymentApi.setupPayment();
+      await paymentApi.makeWalletTopUp();
       await aiSettings.open();
-      await aiSettings.clickAddProviderButton();
-      await aiSettings.selectProviderType("DeepSeek");
-      await aiSettings.fillProviderTitle("DeepSeek");
-      await aiSettings.fillProviderKey(config.DEEPSEEK_API_KEY!);
-      await aiSettings.selectFirstAvailableModel();
-      await aiSettings.saveProvider();
-      await aiSettings.expectProviderInList("DeepSeek");
+      await aiSettings.activate();
     });
 
     await test.step("Create AI agent", async () => {
       await aiAgents.openDirectly();
       await aiAgents.openCreateAgentDialog();
       await aiAgents.fillAgentName(agentName);
-      await aiAgents.selectProvider("DeepSeek");
       await aiAgents.fillInstructions(
         "You are a helpful assistant for DocSpace e2e tests.",
       );
@@ -61,29 +55,26 @@ test.describe("AI Agents", () => {
 test.describe("AI Agents: management", () => {
   let aiAgents: AiAgents;
   let aiSettings: AiSettings;
-  const AGENT_NAME = "DeepSeek Agent";
+  let paymentApi: PaymentApi;
+  const AGENT_NAME = "Test AI Agent";
 
   test.beforeEach(async ({ page, api, login }) => {
+    paymentApi = new PaymentApi(api.apiRequestContext, api.apisystem);
     aiAgents = new AiAgents(page, api.portalDomain);
     aiSettings = new AiSettings(page, api.portalDomain);
     await login.loginToPortal();
 
-    await test.step("Precondition: add DeepSeek provider", async () => {
+    await test.step("Precondition: top up wallet and activate AI features", async () => {
+      await paymentApi.setupPayment();
+      await paymentApi.makeWalletTopUp();
       await aiSettings.open();
-      await aiSettings.clickAddProviderButton();
-      await aiSettings.selectProviderType("DeepSeek");
-      await aiSettings.fillProviderTitle("DeepSeek");
-      await aiSettings.fillProviderKey(config.DEEPSEEK_API_KEY!);
-      await aiSettings.selectFirstAvailableModel();
-      await aiSettings.saveProvider();
-      await aiSettings.expectProviderInList("DeepSeek");
+      await aiSettings.activate();
     });
 
     await test.step("Precondition: create AI agent", async () => {
       await aiAgents.openDirectly();
       await aiAgents.openCreateAgentDialog();
       await aiAgents.fillAgentName(AGENT_NAME);
-      await aiAgents.selectProvider("DeepSeek");
       await aiAgents.fillInstructions("Test agent for management scenarios.");
       await aiAgents.saveAgent();
       await aiAgents.openAndExpectAgentInList(AGENT_NAME);

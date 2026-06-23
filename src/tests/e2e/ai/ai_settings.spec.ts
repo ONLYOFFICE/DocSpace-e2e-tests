@@ -1,16 +1,21 @@
 import { test } from "@/src/fixtures";
+import { expect } from "@playwright/test";
 import AiSettings from "@/src/objects/ai/AiSettings";
+import { PaymentApi } from "@/src/api/payment";
 import config from "@/config";
 
 test.describe("AI Settings", () => {
   let aiSettings: AiSettings;
+  let paymentApi: PaymentApi;
 
   test.beforeEach(async ({ page, api, login }) => {
+    paymentApi = new PaymentApi(api.apiRequestContext, api.apisystem);
     aiSettings = new AiSettings(page, api.portalDomain);
     await login.loginToPortal();
   });
 
-  test("Add DeepSeek provider", async () => {
+  // AI settings was redesigned
+  test.skip("Add DeepSeek provider", async () => {
     await aiSettings.open();
     await aiSettings.clickAddProviderButton();
     await aiSettings.selectProviderType("DeepSeek");
@@ -21,7 +26,7 @@ test.describe("AI Settings", () => {
     await aiSettings.expectProviderInList("DeepSeek");
   });
 
-  test("Add xAI provider", async () => {
+  test.skip("Add xAI provider", async () => {
     await aiSettings.open();
     await aiSettings.clickAddProviderButton();
     await aiSettings.selectProviderType("xAI");
@@ -31,7 +36,7 @@ test.describe("AI Settings", () => {
     await aiSettings.expectProviderInList("xAI");
   });
 
-  test("Add Google AI provider", async () => {
+  test.skip("Add Google AI provider", async () => {
     await aiSettings.open();
     await aiSettings.clickAddProviderButton();
     await aiSettings.selectProviderType("Google AI");
@@ -42,7 +47,7 @@ test.describe("AI Settings", () => {
     await aiSettings.expectProviderInList("Google AI");
   });
 
-  test("Add OpenRouter provider", async () => {
+  test.skip("Add OpenRouter provider", async () => {
     await aiSettings.open();
     await aiSettings.clickAddProviderButton();
     await aiSettings.selectProviderType("OpenRouter");
@@ -53,7 +58,7 @@ test.describe("AI Settings", () => {
     await aiSettings.expectProviderInList("OpenRouter");
   });
 
-  test("Add OpenAI provider", async () => {
+  test.skip("Add OpenAI provider", async () => {
     await aiSettings.open();
     await aiSettings.clickAddProviderButton();
     await aiSettings.selectProviderType("OpenAI");
@@ -63,7 +68,7 @@ test.describe("AI Settings", () => {
     await aiSettings.expectProviderInList("OpenAI");
   });
 
-  test("Add Anthropic provider", async () => {
+  test.skip("Add Anthropic provider", async () => {
     await aiSettings.open();
     await aiSettings.clickAddProviderButton();
     await aiSettings.selectProviderType("Anthropic");
@@ -74,7 +79,7 @@ test.describe("AI Settings", () => {
     await aiSettings.expectProviderInList("Anthropic");
   });
 
-  test("Add Together AI provider", async () => {
+  test.skip("Add Together AI provider", async () => {
     await aiSettings.open();
     await aiSettings.clickAddProviderButton();
     await aiSettings.selectProviderType("TogetherAI");
@@ -85,47 +90,7 @@ test.describe("AI Settings", () => {
     await aiSettings.expectProviderInList("Together AI");
   });
 
-  test("Configure Exa web search", async () => {
-    await test.step("Precondition: add AI provider to enable web search", async () => {
-      await aiSettings.openDirectly();
-      await aiSettings.clickAddProviderButton();
-      await aiSettings.selectProviderType("OpenAI");
-      await aiSettings.fillProviderTitle("OpenAI");
-      await aiSettings.fillProviderKey(config.OPENAI_API_KEY!);
-      await aiSettings.saveProvider();
-    });
-
-    await aiSettings.openWebSearchTab();
-    await aiSettings.selectWebSearchEngine("Exa");
-    await aiSettings.fillWebSearchKey(config.EXA_API_KEY!);
-    await aiSettings.saveWebSearch();
-    await aiSettings.expectWebSearchSaved();
-  });
-
-  test("Add custom MCP server", async ({ page }) => {
-    const mcpName = "TestMCP";
-
-    await test.step("Precondition: add AI provider to enable MCP servers", async () => {
-      await aiSettings.open();
-      await aiSettings.clickAddProviderButton();
-      await page.waitForTimeout(3000);
-      await aiSettings.selectProviderType("OpenAI");
-      await aiSettings.fillProviderTitle("OpenAI");
-      await aiSettings.fillProviderKey(config.OPENAI_API_KEY!);
-      await aiSettings.saveProvider();
-      await aiSettings.expectProviderInList("OpenAI");
-    });
-
-    await aiSettings.openMcpServersTab();
-    await aiSettings.clickAddMcpServerButton();
-    await aiSettings.fillMcpServerName(mcpName);
-    await aiSettings.fillMcpServerUrl("https://mcp.deepwiki.com/mcp");
-    await aiSettings.fillMcpServerDescription("MCP server added by e2e test");
-    await aiSettings.saveMcpServer();
-    await aiSettings.expectMcpServerInList(mcpName);
-  });
-
-  test("Rename AI provider", async () => {
+  test.skip("Rename AI provider", async () => {
     const initialName = "DeepSeek";
     const newName = "DeepSeek Renamed";
 
@@ -145,7 +110,7 @@ test.describe("AI Settings", () => {
     await aiSettings.expectProviderInList(newName);
   });
 
-  test("Delete AI provider", async () => {
+  test.skip("Delete AI provider", async () => {
     const providerName = "DeepSeek";
 
     await test.step("Precondition: add DeepSeek provider", async () => {
@@ -164,22 +129,76 @@ test.describe("AI Settings", () => {
     await aiSettings.expectProviderNotInList(providerName);
   });
 
-  test("Configure Knowledge base", async () => {
-    await test.step("Precondition: add DeepSeek provider to enable knowledge base", async () => {
+  test("Web search tab: switching and links", async () => {
+    await test.step("Precondition: top up wallet and activate AI features", async () => {
+      await paymentApi.setupPayment();
+      await paymentApi.makeWalletTopUp();
       await aiSettings.open();
-      await aiSettings.clickAddProviderButton();
-      await aiSettings.selectProviderType("DeepSeek");
-      await aiSettings.fillProviderTitle("DeepSeek");
-      await aiSettings.fillProviderKey(config.DEEPSEEK_API_KEY!);
-      await aiSettings.selectFirstAvailableModel();
-      await aiSettings.saveProvider();
-      await aiSettings.expectProviderInList("DeepSeek");
+      await aiSettings.activate();
+    });
+
+    await aiSettings.openWebSearchTab();
+
+    await test.step("Learn more link opens the help center article", async () => {
+      const learnMore = await aiSettings.openLinkInNewTab(
+        aiSettings.webSearchLearnMoreLink,
+      );
+      expect(learnMore.url()).toContain("docspace-ai-settings");
+      await learnMore.close();
+    });
+
+    await test.step("Engine pricing link opens the Exa pricing page", async () => {
+      const pricing = await aiSettings.openLinkInNewTab(
+        aiSettings.webSearchPricingLink,
+      );
+      expect(pricing.url()).toContain("exa.ai/pricing");
+      await pricing.close();
+    });
+  });
+
+  test("Add custom MCP server", async () => {
+    const mcpName = "TestMCP";
+
+    await test.step("Precondition: top up wallet and activate AI features", async () => {
+      await paymentApi.setupPayment();
+      await paymentApi.makeWalletTopUp();
+      await aiSettings.open();
+      await aiSettings.activate();
+    });
+
+    await aiSettings.openMcpServersTab();
+    await aiSettings.clickAddMcpServerButton();
+    await aiSettings.fillMcpServerName(mcpName);
+    await aiSettings.fillMcpServerUrl("https://mcp.deepwiki.com/mcp");
+    await aiSettings.fillMcpServerDescription("MCP server added by e2e test");
+    await aiSettings.saveMcpServer();
+    await aiSettings.expectMcpServerInList(mcpName);
+  });
+
+  test("Knowledge base tab: switching and links", async () => {
+    await test.step("Precondition: top up wallet and activate AI features", async () => {
+      await paymentApi.setupPayment();
+      await paymentApi.makeWalletTopUp();
+      await aiSettings.open();
+      await aiSettings.activate();
     });
 
     await aiSettings.openKnowledgeTab();
-    await aiSettings.selectKnowledgeProvider("OpenAI");
-    await aiSettings.fillKnowledgeKey(config.OPENAI_API_KEY!);
-    await aiSettings.saveKnowledge();
-    await aiSettings.expectKnowledgeSaved();
+
+    await test.step("Learn more link opens the help center article", async () => {
+      const learnMore = await aiSettings.openLinkInNewTab(
+        aiSettings.knowledgeLearnMoreLink,
+      );
+      expect(learnMore.url()).toContain("docspace-ai-settings");
+      await learnMore.close();
+    });
+
+    await test.step("Vectorization model link opens the OpenRouter page", async () => {
+      const pricing = await aiSettings.openLinkInNewTab(
+        aiSettings.knowledgePricingLink,
+      );
+      expect(pricing.url()).toContain("openrouter.ai/openai/text-embedding");
+      await pricing.close();
+    });
   });
 });

@@ -3,7 +3,7 @@ import AiAgents from "@/src/objects/ai/AiAgents";
 import AiSettings from "@/src/objects/ai/AiSettings";
 import AiAgentSelector from "@/src/objects/ai/AiAgentSelector";
 import MyDocuments from "@/src/objects/files/MyDocuments";
-import config from "@/config";
+import { PaymentApi } from "@/src/api/payment";
 import { mapInitialDocNames } from "@/src/utils/constants/files";
 
 test.describe("Ask AI on files", () => {
@@ -11,31 +11,28 @@ test.describe("Ask AI on files", () => {
   let aiSettings: AiSettings;
   let agentSelector: AiAgentSelector;
   let myDocuments: MyDocuments;
-  const AGENT_NAME = "DeepSeek Agent";
+  let paymentApi: PaymentApi;
+  const AGENT_NAME = "Test AI Agent";
 
   test.beforeEach(async ({ page, api, login }) => {
+    paymentApi = new PaymentApi(api.apiRequestContext, api.apisystem);
     aiAgents = new AiAgents(page, api.portalDomain);
     aiSettings = new AiSettings(page, api.portalDomain);
     agentSelector = new AiAgentSelector(page);
     myDocuments = new MyDocuments(page, api.portalDomain);
     await login.loginToPortal();
 
-    await test.step("Precondition: add DeepSeek provider", async () => {
+    await test.step("Precondition: top up wallet and activate AI features", async () => {
+      await paymentApi.setupPayment();
+      await paymentApi.makeWalletTopUp();
       await aiSettings.open();
-      await aiSettings.clickAddProviderButton();
-      await aiSettings.selectProviderType("DeepSeek");
-      await aiSettings.fillProviderTitle("DeepSeek");
-      await aiSettings.fillProviderKey(config.DEEPSEEK_API_KEY!);
-      await aiSettings.selectFirstAvailableModel();
-      await aiSettings.saveProvider();
-      await aiSettings.expectProviderInList("DeepSeek");
+      await aiSettings.activate();
     });
 
     await test.step("Precondition: create AI agent", async () => {
       await aiAgents.openDirectly();
       await aiAgents.openCreateAgentDialog();
       await aiAgents.fillAgentName(AGENT_NAME);
-      await aiAgents.selectProvider("DeepSeek");
       await aiAgents.fillInstructions("Test agent for Ask AI scenarios.");
       await aiAgents.saveAgent();
       await aiAgents.expectChatOpened();
