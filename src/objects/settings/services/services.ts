@@ -235,9 +235,9 @@ class Services extends BasePage {
   }
 
   async checkDiskStorageSubscriptionSize(gb: string) {
-    await expect(this.page.locator('[class*="sizeText"]')).toContainText(
-      `${gb} GB`,
-    );
+    await expect(
+      this.page.getByText(`${gb} GB`, { exact: true }),
+    ).toBeVisible();
   }
 
   async waitForAiServicesPage() {

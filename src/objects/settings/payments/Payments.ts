@@ -147,12 +147,18 @@ export class Payments extends BasePage {
     return this.page.getByTestId("top_up_button");
   }
 
+  get continueToStripeButton() {
+    return this.page.getByTestId("first_topup_continue_to_stripe");
+  }
+
   get automaticPaymentsSwitch() {
     return this.page.getByTestId("auto_payments_toggle_button");
   }
 
   get automaticPaymentsBlock() {
-    return this.page.getByText(/Automatically top up my card */).locator("..");
+    return this.page.locator(
+      '[class*="AutoPayments-module__automaticPaymentsBlock"]',
+    );
   }
 
   get balanceGoesBelowInput() {
@@ -168,7 +174,7 @@ export class Payments extends BasePage {
   }
 
   get editAutoTopUpLink() {
-    return this.page.getByTestId("auto_edit_button");
+    return this.page.getByTestId("auto_top_up_button");
   }
 
   get transactionHistorySelectorButton() {
@@ -335,7 +341,7 @@ export class Payments extends BasePage {
 
   async openTopUpBalanceDialog() {
     await this.topUpBalanceButton.click();
-    await this.dialog.checkDialogTitleExist("Top up wallet");
+    await this.dialog.checkDialogTitleExist("Top up credits");
   }
 
   async openTransactionHistoryFilter() {
