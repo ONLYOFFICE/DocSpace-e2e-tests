@@ -158,6 +158,18 @@ export class Profile extends BasePage {
     );
   }
 
+  async expectThemeSelected(theme: "Light" | "Dark") {
+    const radio =
+      theme === "Light" ? this.lightThemeRadio : this.darkThemeRadio;
+    await expect(radio.locator("input")).toBeChecked();
+  }
+
+  async expectSystemThemeEnabled(enabled: boolean) {
+    await expect(this.systemThemeCheckbox.locator("input")).toBeChecked({
+      checked: enabled,
+    });
+  }
+
   async expectNameVisible(fullName: string) {
     await expect(this.mainProfile).toContainText(fullName);
   }
