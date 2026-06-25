@@ -111,6 +111,13 @@ class FilesEditor {
     );
   }
 
+  async expectThemeApplied(theme: "Light" | "Dark") {
+    await expect(this.page.locator("html")).toHaveAttribute(
+      "data-theme",
+      theme.toLowerCase(),
+    );
+  }
+
   async close() {
     await this.page.close();
   }
