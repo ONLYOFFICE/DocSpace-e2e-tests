@@ -93,7 +93,7 @@ test.describe("Payments", () => {
       // });
       // await page1.close();
 
-      await payments.topUpButton.click();
+      await payments.continueToStripeButton.click();
       await payments.removeToast(toastMessages.walletToppedUp);
     });
   });
@@ -113,20 +113,23 @@ test.describe("Payments", () => {
 
     await test.step("Edit automatic payments", async () => {
       await payments.editAutoTopUpLink.click();
+      await expect(payments.editAutoTopUpButton).toBeVisible();
+      await payments.editAutoTopUpButton.click();
       await payments.fillAutomaticPaymentsData(150, 1000);
-      await payments.saveAutomaticPaymentsModal();
+      await payments.saveAutomaticPayments();
+
+      await payments.editAutoTopUpLink.click();
       await expect(payments.editAutoTopUpButton).toBeVisible();
       await payments.editAutoTopUpButton.click();
       await payments.fillAutomaticPaymentsData(70, 600);
-      await payments.saveAutomaticPaymentsModal();
-      await expect(payments.editAutoTopUpButton).toBeVisible();
+      await payments.saveAutomaticPayments();
     });
 
     await test.step("Top up again and close dialog", async () => {
+      await payments.openTopUpBalanceDialog();
       await payments.fillAmountTopUp(3333);
-      await payments.topUpButton.click();
+      await payments.continueToStripeButton.click();
       await payments.removeToast(toastMessages.walletToppedUp);
-      await payments.dialog.close();
     });
   });
 
