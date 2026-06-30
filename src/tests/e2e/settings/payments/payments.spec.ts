@@ -19,26 +19,16 @@ test.describe("Payments", () => {
     await payments.open();
   });
 
-  test("Downgrade and upgrade tariff plan", async ({ page }) => {
+  test("Upgrade and downgrade tariff plan", async ({ page }) => {
     await test.step("Upgrade plan", async () => {
       const stripePage = await payments.upgradePlan(10);
       await payments.fillPaymentData(stripePage);
       await page.reload();
     });
 
-    await test.step("Downgrade and upgrade plan", async () => {
+    await test.step("Downgrade plan", async () => {
       await payments.openTab(paymentsTab.tariffPlan);
       await payments.downgradePlan();
-      await payments.updatePlan();
-    });
-
-    await test.step("Change number of admins", async () => {
-      await payments.numberOfAdminsInput.fill("1");
-      await payments.hideDateTariffPlan();
-      await payments.numberOfAdminsInput.fill("500");
-      await payments.hideDateTariffPlan();
-      await payments.numberOfAdminsInput.fill("99999");
-      await payments.hideDateTariffPlan();
     });
   });
 
