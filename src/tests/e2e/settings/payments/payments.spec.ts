@@ -43,17 +43,10 @@ test.describe("Payments", () => {
   });
 
   test("Send sales request", async ({ page }) => {
-    await test.step("Upgrade plan", async () => {
-      const stripePage = await payments.upgradePlan(10);
-      await payments.fillPaymentData(stripePage);
-      await page.reload();
-    });
-
     await test.step("Prepare tariff plan for sales request", async () => {
       // Sales request button appears only after moving the tariff calculator to a custom sales flow.
       await payments.openTab(paymentsTab.tariffPlan);
       await payments.numberOfAdminsInput.fill("99999");
-      await payments.hideDateTariffPlan();
     });
 
     await test.step("Open sales request dialog and send", async () => {
