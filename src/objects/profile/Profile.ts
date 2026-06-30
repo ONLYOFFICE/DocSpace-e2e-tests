@@ -2,18 +2,34 @@ import { expect, Locator, Page } from "@playwright/test";
 import { avatarConstants } from "@/src/utils/constants/profile";
 import BasePage from "../common/BasePage";
 
+const TWO_FACTOR_BANNER = "campaigns-banner";
+const TWO_FACTOR_BANNER_TEXT = "Enable two-factor authentication";
+
 export class Profile extends BasePage {
   constructor(page: Page) {
     super(page);
   }
 
   // Navigation
-  private get userMenuButton(): Locator {
-    return this.page.getByTestId("profile_user_icon_button");
+  private get sidebarAvatarButton(): Locator {
+    return this.page.getByTestId("profile_user_avatar");
   }
 
-  private get profileMenuItem(): Locator {
-    return this.page.getByTestId("user-menu-profile");
+  private get campaignsBanner(): Locator {
+    return this.page.getByTestId(TWO_FACTOR_BANNER);
+  }
+
+  async checkCampaignsBannerVisible() {
+    await expect(this.campaignsBanner).toBeVisible();
+    await expect(this.campaignsBanner).toContainText(TWO_FACTOR_BANNER_TEXT);
+  }
+
+  async checkCampaignsBannerNotVisible() {
+    await expect(this.campaignsBanner).not.toBeVisible();
+  }
+
+  async clickCampaignsBanner() {
+    await this.campaignsBanner.click();
   }
 
   private get profileContextMenuButton(): Locator {
@@ -174,13 +190,19 @@ export class Profile extends BasePage {
     await expect(this.mainProfile).toContainText(fullName);
   }
 
-  async navigateToProfile() {
-    await this.userMenuButton.click();
+  private async navigateToProfile() {
+    await this.optionsButton.waitFor({ state: "visible", timeout: 10000 });
+    await this.optionsButton.click();
     await this.profileMenuItem.click();
   }
 
   async open() {
     await this.navigateToProfile();
+    await this.page.waitForURL(/\/profile/, { waitUntil: "load" });
+  }
+
+  async openViaAvatar() {
+    await this.sidebarAvatarButton.click();
     await this.page.waitForURL(/\/profile/, { waitUntil: "load" });
   }
 
