@@ -19,8 +19,7 @@ const ZOOM_SOCIAL_BUTTON = '[data-test-id="zoom-button-wrapper"]';
 const TWITTER_SOCIAL_BUTTON = "more-login-provider-item-twitter";
 const APPLE_SOCIAL_BUTTON = "more-login-provider-item-apple";
 const WEIXIN_SOCIAL_BUTTON = "more-login-provider-item-weixin";
-const CAMPAIGNS_BANNER = "campaigns-banner";
-const CAMPAIGNS_BANNER_2FA_TEXT = "Enable two-factor authentication";
+
 const REMEMBER_ME_CHECKBOX = "#login_remember";
 const FORGOT_PASSWORD_SEND_BUTTON = "forgot_password_send_button";
 const FORGOT_PASSWORD_EMAIL_FIELD = "email_input_field";

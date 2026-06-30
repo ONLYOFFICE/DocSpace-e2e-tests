@@ -2,6 +2,9 @@ import { expect, Locator, Page } from "@playwright/test";
 import { avatarConstants } from "@/src/utils/constants/profile";
 import BasePage from "../common/BasePage";
 
+const TWO_FACTOR_BANNER = "campaigns-banner";
+const TWO_FACTOR_BANNER_TEXT = "Enable two-factor authentication";
+
 export class Profile extends BasePage {
   constructor(page: Page) {
     super(page);
@@ -10,6 +13,23 @@ export class Profile extends BasePage {
   // Navigation
   private get sidebarAvatarButton(): Locator {
     return this.page.getByTestId("profile_user_avatar");
+  }
+
+  private get campaignsBanner(): Locator {
+    return this.page.getByTestId(TWO_FACTOR_BANNER);
+  }
+
+  async checkCampaignsBannerVisible() {
+    await expect(this.campaignsBanner).toBeVisible();
+    await expect(this.campaignsBanner).toContainText(TWO_FACTOR_BANNER_TEXT);
+  }
+
+  async checkCampaignsBannerNotVisible() {
+    await expect(this.campaignsBanner).not.toBeVisible();
+  }
+
+  async clickCampaignsBanner() {
+    await this.campaignsBanner.click();
   }
 
   private get profileContextMenuButton(): Locator {
