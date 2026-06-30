@@ -3,6 +3,8 @@ import BaseArticle from "./BaseArticle";
 import BaseToast from "./BaseToast";
 
 const TARIFF_BAR_TEXT = "tariff_bar_text";
+const USER_MENU_ACCOUNTS = "user-menu-accounts";
+const USER_MENU_PROFILE = "user-menu-profile";
 
 export default class BasePage {
   protected page: Page;
@@ -25,6 +27,29 @@ export default class BasePage {
 
   protected get paymentsMenuItem(): Locator {
     return this.page.getByTestId("user-menu-payments");
+  }
+
+  protected get profileMenuItem(): Locator {
+    return this.page.getByTestId(USER_MENU_PROFILE);
+  }
+
+  protected get accountsMenuItem(): Locator {
+    return this.page.getByTestId(USER_MENU_ACCOUNTS);
+  }
+
+  async checkAccountsMenuItemVisible() {
+    await this.optionsButton.waitFor({ state: "visible", timeout: 10000 });
+    await this.optionsButton.click();
+    await expect(this.accountsMenuItem).toBeVisible();
+    await this.page.keyboard.press("Escape");
+  }
+
+  async checkAccountsMenuItemNotVisible() {
+    await this.optionsButton.waitFor({ state: "visible", timeout: 10000 });
+    await this.optionsButton.click();
+    await expect(this.profileMenuItem).toBeVisible();
+    await expect(this.accountsMenuItem).not.toBeVisible();
+    await this.page.keyboard.press("Escape");
   }
 
   async removeToast(message?: string, timeout?: number) {

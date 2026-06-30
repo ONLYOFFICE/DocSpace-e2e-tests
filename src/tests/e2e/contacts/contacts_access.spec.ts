@@ -15,11 +15,9 @@ test.describe("Contacts - section access by role", () => {
       await login.loginToPortal();
     });
 
-    test("Owner can open Contacts section", async ({ page }) => {
+    test("Owner can open Contacts section", async () => {
       await test.step("Accounts link is visible in profile menu", async () => {
-        await page.getByTestId("profile_user_icon_button").click();
-        await expect(page.getByTestId("user-menu-accounts")).toBeVisible();
-        await page.keyboard.press("Escape");
+        await contacts.checkAccountsMenuItemVisible();
       });
 
       await test.step("Contacts section opens successfully", async () => {
@@ -41,11 +39,9 @@ test.describe("Contacts - section access by role", () => {
       await login.loginWithCredentials(userData.email, userData.password);
     });
 
-    test("DocSpace admin can open Contacts section", async ({ page }) => {
+    test("DocSpace admin can open Contacts section", async () => {
       await test.step("Accounts link is visible in profile menu", async () => {
-        await page.getByTestId("profile_user_icon_button").click();
-        await expect(page.getByTestId("user-menu-accounts")).toBeVisible();
-        await page.keyboard.press("Escape");
+        await contacts.checkAccountsMenuItemVisible();
       });
 
       await test.step("Contacts section opens successfully", async () => {
@@ -67,11 +63,9 @@ test.describe("Contacts - section access by role", () => {
       await login.loginWithCredentials(userData.email, userData.password);
     });
 
-    test("Room admin can open Contacts section", async ({ page }) => {
+    test("Room admin can open Contacts section", async () => {
       await test.step("Accounts link is visible in profile menu", async () => {
-        await page.getByTestId("profile_user_icon_button").click();
-        await expect(page.getByTestId("user-menu-accounts")).toBeVisible();
-        await page.keyboard.press("Escape");
+        await contacts.checkAccountsMenuItemVisible();
       });
 
       await test.step("Contacts section opens successfully", async () => {
@@ -81,7 +75,10 @@ test.describe("Contacts - section access by role", () => {
   });
 
   test.describe("User does not have access", () => {
+    let contacts: Contacts;
+
     test.beforeEach(async ({ page, api, apiSdk }) => {
+      contacts = new Contacts(page, api.portalDomain);
       const login = new Login(page, api.portalDomain);
       const { userData } = await apiSdk.profiles.addMember("owner", "User");
       await login.loginWithCredentials(userData.email, userData.password);
@@ -89,9 +86,7 @@ test.describe("Contacts - section access by role", () => {
 
     test("User cannot access Contacts section", async ({ page, api }) => {
       await test.step("Accounts link is NOT visible in profile menu", async () => {
-        await page.getByTestId("profile_user_icon_button").click();
-        await expect(page.getByTestId("user-menu-accounts")).not.toBeVisible();
-        await page.keyboard.press("Escape");
+        await contacts.checkAccountsMenuItemNotVisible();
       });
 
       await test.step("Navigate to Contacts URL is redirected away", async () => {
@@ -104,7 +99,10 @@ test.describe("Contacts - section access by role", () => {
   });
 
   test.describe("Guest does not have access", () => {
+    let contacts: Contacts;
+
     test.beforeEach(async ({ page, api, apiSdk }) => {
+      contacts = new Contacts(page, api.portalDomain);
       const login = new Login(page, api.portalDomain);
       const { userData } = await apiSdk.profiles.addMember("owner", "Guest");
       await login.loginWithCredentials(userData.email, userData.password);
@@ -112,9 +110,7 @@ test.describe("Contacts - section access by role", () => {
 
     test("Guest cannot access Contacts section", async ({ page, api }) => {
       await test.step("Accounts link is NOT visible in profile menu", async () => {
-        await page.getByTestId("profile_user_icon_button").click();
-        await expect(page.getByTestId("user-menu-accounts")).not.toBeVisible();
-        await page.keyboard.press("Escape");
+        await contacts.checkAccountsMenuItemNotVisible();
       });
 
       await test.step("Navigate to Contacts URL is redirected away", async () => {
