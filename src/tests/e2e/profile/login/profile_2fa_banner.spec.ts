@@ -2,6 +2,8 @@ import { test } from "@/src/fixtures";
 import { expect } from "@playwright/test";
 import { Profile } from "@/src/objects/profile/Profile";
 import Login from "@/src/objects/common/Login";
+import Security from "@/src/objects/settings/security/Security";
+import TwoFactorAuthPage from "@/src/objects/common/TwoFactorAuthPage";
 import { getPortalUrl } from "@/config";
 
 const PROFILE_LOGIN_URL = /\/profile\/login/;
