@@ -99,6 +99,10 @@ export class Payments extends BasePage {
     return this.page.getByTestId("payment_method_link");
   }
 
+  goToTariffPlanButton(page: Page = this.page) {
+    return page.getByTestId("ai_paywall_go_to_wallet_button");
+  }
+
   get saveAutomaticPaymentsButton() {
     return this.page.getByTestId("wallet_refilled_save_button");
   }
@@ -401,8 +405,10 @@ export class Payments extends BasePage {
 
   async upgradePlan(adminsCount: number) {
     await this.numberOfAdminsInput.fill(adminsCount.toString());
-    const page1Promise = this.page.waitForEvent("popup", { timeout: 30000 });
     await this.upgradeButton.click();
+    await expect(this.continueToStripeButton).toBeEnabled();
+    const page1Promise = this.page.waitForEvent("popup", { timeout: 30000 });
+    await this.continueToStripeButton.click();
     const page1 = await page1Promise;
     await page1.waitForLoadState();
     return page1;
@@ -434,7 +440,7 @@ export class Payments extends BasePage {
     await stripePage.locator("#shippingLocality").fill("Los Angeles");
     await stripePage.locator("#shippingPostalCode").fill("90045");
     await stripePage.locator("#shippingAdministrativeArea").selectOption("CA");
-    await stripePage.locator("#phoneNumber").fill("(800) 555-4545");
+    // await stripePage.locator("#phoneNumber").fill("(800) 555-4545");
 
     const cardAccordionItem = stripePage.getByTestId("card-accordion-item");
 
@@ -472,16 +478,13 @@ export class Payments extends BasePage {
       timeout: 15000,
     });
 
-    await stripePage.waitForURL(
-      /\/portal-settings\/payments\/portal-payments\?complete=true/,
-    );
+    const goToTariffPlanButton = this.goToTariffPlanButton(stripePage);
+    await expect(goToTariffPlanButton).toBeVisible({ timeout: 60000 });
+    await goToTariffPlanButton.click();
 
-    await expect(async () => {
-      await stripePage.reload();
-      await expect(
-        stripePage.getByText("You are using Business plan"),
-      ).toBeVisible({ timeout: 8000 });
-    }).toPass({ timeout: 90000, intervals: [3000, 5000, 8000] });
+    await expect(
+      stripePage.getByText("You are using Business plan"),
+    ).toBeVisible({ timeout: 60000 });
     await stripePage.close();
   }
 
@@ -492,9 +495,7 @@ export class Payments extends BasePage {
   async downgradePlan() {
     await this.minusButton.click();
     await this.downgradeButton.click();
-    await this.expectNumberOfAdminsCount(9);
-    // ISSUE: sometimes toast is not appearing
-    // await this.removeToast(toastMessages.planUpdated);
+    await expect(this.page.getByText(/Admin adjustment/)).toBeVisible();
   }
 
   async updatePlan() {
