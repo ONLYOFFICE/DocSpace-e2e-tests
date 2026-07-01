@@ -540,7 +540,7 @@ class MyDocuments extends BasePage {
   }
 
   async confirmMoveToPublicRoom() {
-    await this.page.getByRole("button", { name: "OK" }).click();
+    await this.page.getByTestId("move_to_public_room_button").click();
   }
 
   async uploadFileByDragAndDrop(filePath: string) {
