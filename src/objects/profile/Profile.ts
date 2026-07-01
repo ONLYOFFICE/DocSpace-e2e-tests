@@ -4,6 +4,15 @@ import BasePage from "../common/BasePage";
 
 const TWO_FACTOR_BANNER = "campaigns-banner";
 const TWO_FACTOR_BANNER_TEXT = "Enable two-factor authentication";
+const TFA_SHOW_BACKUP_CODES = "show_backup_codes_button";
+const TFA_RESET_APP = "reset_app_link";
+const TFA_BACKUP_CODES_CONTAINER = "backup_codes_container";
+const TFA_BACKUP_CODE_ITEMS = '[data-testid^="backup_code_"]';
+const TFA_BACKUP_CODES_CANCEL = "backup_codes_cancel_button";
+const TFA_PRINT_BACKUP_CODES = "print_backup_codes_link";
+const TFA_REQUEST_NEW_CODES = "request_new_backup_codes_button";
+const TFA_RESET_APP_CONFIRM = "dialog_reset_app_button";
+const TFA_RESET_APP_CANCEL = "dialog_reset_app_cancel_button";
 
 export class Profile extends BasePage {
   constructor(page: Page) {
@@ -30,6 +39,91 @@ export class Profile extends BasePage {
 
   async clickCampaignsBanner() {
     await this.campaignsBanner.click();
+  }
+
+  private get showBackupCodesButton(): Locator {
+    return this.page.getByTestId(TFA_SHOW_BACKUP_CODES);
+  }
+
+  private get resetAppLink(): Locator {
+    return this.page.getByTestId(TFA_RESET_APP);
+  }
+
+  private get backupCodesContainer(): Locator {
+    return this.page.getByTestId(TFA_BACKUP_CODES_CONTAINER);
+  }
+
+  private get backupCodes(): Locator {
+    return this.page.locator(TFA_BACKUP_CODE_ITEMS);
+  }
+
+  private get backupCodesCancelButton(): Locator {
+    return this.page.getByTestId(TFA_BACKUP_CODES_CANCEL);
+  }
+
+  private get printBackupCodesLink(): Locator {
+    return this.page.getByTestId(TFA_PRINT_BACKUP_CODES);
+  }
+
+  private get requestNewBackupCodesButton(): Locator {
+    return this.page.getByTestId(TFA_REQUEST_NEW_CODES);
+  }
+
+  private get resetAppConfirmButton(): Locator {
+    return this.page.getByTestId(TFA_RESET_APP_CONFIRM);
+  }
+
+  private get resetAppCancelButton(): Locator {
+    return this.page.getByTestId(TFA_RESET_APP_CANCEL);
+  }
+
+  async checkTfaSettingsBlockVisible() {
+    await expect(this.showBackupCodesButton).toBeVisible();
+    await expect(this.resetAppLink).toBeVisible();
+  }
+
+  async clickShowBackupCodes() {
+    await this.showBackupCodesButton.click();
+  }
+
+  async checkBackupCodesDialogVisible() {
+    await expect(this.backupCodesContainer).toBeVisible();
+    await expect(this.backupCodesCancelButton).toBeVisible();
+    await expect(this.printBackupCodesLink).toBeVisible();
+    await expect(this.requestNewBackupCodesButton).toBeVisible();
+  }
+
+  async checkBackupCodesCount(expected: number) {
+    await expect(this.backupCodes).toHaveCount(expected);
+  }
+
+  async clickPrintBackupCodes() {
+    await this.printBackupCodesLink.click();
+  }
+
+  async closeBackupCodesDialog() {
+    await this.backupCodesCancelButton.click();
+  }
+
+  async checkBackupCodesDialogNotVisible() {
+    await expect(this.backupCodesContainer).not.toBeVisible();
+  }
+
+  async clickResetApp() {
+    await this.resetAppLink.click();
+  }
+
+  async checkResetAppDialogVisible() {
+    await expect(this.resetAppConfirmButton).toBeVisible();
+    await expect(this.resetAppCancelButton).toBeVisible();
+  }
+
+  async confirmResetApp() {
+    await this.resetAppConfirmButton.click();
+  }
+
+  async closeResetAppDialog() {
+    await this.resetAppCancelButton.click();
   }
 
   private get profileContextMenuButton(): Locator {
