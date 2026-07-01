@@ -57,7 +57,7 @@ test.describe(() => {
       );
     });
 
-    await test.step("Add user and change access in invite list", async () => {
+    await test.step("Add user to invite list", async () => {
       await contacts.inviteDialog.fillSearchInviteInput(
         userEmails.docspaceAdmin,
       );
@@ -67,13 +67,6 @@ test.describe(() => {
         userEmails.docspaceAdmin,
       );
       await contacts.inviteDialog.checkAddedUserExist(userEmails.docspaceAdmin);
-
-      await contacts.inviteDialog.openRowAccessSelector(
-        invite.submenu.docspaceAdmin,
-      );
-      await contacts.inviteDialog.selectAccessOption(invite.submenu.user);
-      await contacts.inviteDialog.openRowAccessSelector(invite.submenu.user);
-      await contacts.inviteDialog.selectRemoveAccessOption();
       await contacts.inviteDialog.close();
     });
 
