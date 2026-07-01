@@ -277,6 +277,7 @@ class Security extends BasePage {
   async enableTfa() {
     await this.tfaApp.click();
     await this.tfaSaveButton.click();
+    await this.page.waitForLoadState("load");
   }
 
   async disableTfa() {
