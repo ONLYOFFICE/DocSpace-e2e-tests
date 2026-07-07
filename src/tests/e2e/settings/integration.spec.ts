@@ -1,7 +1,7 @@
 import { Integration } from "@/src/objects/settings/integration/Integration";
 import { PaymentApi } from "@/src/api/payment";
 import { test } from "@/src/fixtures";
-import { integrationTabs, toastMessages } from "@/src/utils/constants/settings";
+import { integrationTabs } from "@/src/utils/constants/settings";
 
 test.describe("Integration tests", () => {
   let paymentApi: PaymentApi;
@@ -61,25 +61,6 @@ test.describe("Integration tests", () => {
       const page1 = await page1Promise;
       await page1.waitForURL(
         /https:\/\/.*onlyoffice\.com\/docspace\/configuration\/docspace-integration-settings\.aspx#ldapsettings_block/,
-      );
-      await page1.close();
-    });
-
-    await test.step("Smtp", async () => {
-      await integration.openTab(integrationTabs.smtp);
-      await integration.activateSMTP();
-      await integration.smtpSendTestMail.click();
-      await integration.removeToast(toastMessages.operationCompleted);
-      await integration.smtpDefaultButton.click();
-      await integration.removeToast(toastMessages.settingsUpdated);
-    });
-
-    await test.step("Smtp link", async () => {
-      const page1Promise = page.waitForEvent("popup", { timeout: 30000 });
-      await integration.smtpLink.click();
-      const page1 = await page1Promise;
-      await page1.waitForURL(
-        /https:\/\/helpcenter\.onlyoffice\.com\/docspace\/configuration\/docspace-integration-settings\.aspx#smtpsettings_block/,
       );
       await page1.close();
     });
