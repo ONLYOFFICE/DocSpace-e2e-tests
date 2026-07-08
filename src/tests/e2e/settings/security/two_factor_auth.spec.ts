@@ -1,8 +1,17 @@
-import { expect } from "@playwright/test";
+import { expect, BrowserContext, Page } from "@playwright/test";
 import { test } from "@/src/fixtures";
 import Security from "@/src/objects/settings/security/Security";
 import TwoFactorAuthPage from "@/src/objects/common/TwoFactorAuthPage";
 import { Profile } from "@/src/objects/profile/Profile";
+import Contacts from "@/src/objects/contacts/Contacts";
+import RoomInviteLogin from "@/src/objects/rooms/RoomInviteLogin";
+import RoomGuestRegistration from "@/src/objects/rooms/RoomGuestRegistration";
+import { contactsActionsMenu } from "@/src/utils/constants/contacts";
+import {
+  setupIncognitoContext,
+  cleanupIncognitoContext,
+  ensureIncognitoPage,
+} from "@/src/utils/helpers/linkTest";
 
 test.describe("Two-Factor Authentication tests", () => {
   let security: Security;
@@ -33,11 +42,6 @@ test.describe("Two-Factor Authentication tests", () => {
       await twoFactorAuthPage.backupCodesCancelButton.click();
       await expect(twoFactorAuthPage.backupCodesContainer).not.toBeVisible();
     });
-
-    await test.step("Disable Two-Factor Authentication", async () => {
-      await security.open();
-      await security.disableTfa();
-    });
   });
 
   test("Login with Two-Factor Authentication enabled", async ({
@@ -67,11 +71,6 @@ test.describe("Two-Factor Authentication tests", () => {
         api.portalDomain,
         secretKey,
       );
-    });
-
-    await test.step("Disable Two-Factor Authentication for cleanup", async () => {
-      await security.open();
-      await security.disableTfa();
     });
   });
 
@@ -104,11 +103,6 @@ test.describe("Two-Factor Authentication tests", () => {
         api.portalDomain,
         secretKey,
       );
-    });
-
-    await test.step("Disable Two-Factor Authentication for cleanup", async () => {
-      await security.open();
-      await security.disableTfa();
     });
   });
 
@@ -149,11 +143,6 @@ test.describe("Two-Factor Authentication tests", () => {
       });
       await twoFactorAuthPage.backupCodesCancelButton.click();
     });
-
-    await test.step("Disable Two-Factor Authentication for cleanup", async () => {
-      await security.open();
-      await security.disableTfa();
-    });
   });
 
   test("Request new backup codes replaces existing codes", async ({ page }) => {
@@ -180,11 +169,6 @@ test.describe("Two-Factor Authentication tests", () => {
         expect(newCodes).not.toEqual(initialCodes);
       }).toPass({ timeout: 15000 });
       await twoFactorAuthPage.backupCodesCancelButton.click();
-    });
-
-    await test.step("Disable Two-Factor Authentication for cleanup", async () => {
-      await security.open();
-      await security.disableTfa();
     });
   });
 
@@ -217,11 +201,6 @@ test.describe("Two-Factor Authentication tests", () => {
       expect(printPage).not.toBeNull();
       await printPage.close();
     });
-
-    await test.step("Disable Two-Factor Authentication for cleanup", async () => {
-      await security.open();
-      await security.disableTfa();
-    });
   });
 
   test("Reset authenticator app - cancel dialog keeps TFA active", async ({
@@ -249,11 +228,6 @@ test.describe("Two-Factor Authentication tests", () => {
       await profile.checkResetAppDialogVisible();
       await profile.closeResetAppDialog();
       await profile.checkTfaSettingsBlockVisible();
-    });
-
-    await test.step("Disable Two-Factor Authentication for cleanup", async () => {
-      await security.open();
-      await security.disableTfa();
     });
   });
 
@@ -283,11 +257,6 @@ test.describe("Two-Factor Authentication tests", () => {
     await test.step("Close backup codes dialog", async () => {
       await profile.closeBackupCodesDialog();
       await profile.checkBackupCodesDialogNotVisible();
-    });
-
-    await test.step("Disable Two-Factor Authentication for cleanup", async () => {
-      await security.open();
-      await security.disableTfa();
     });
   });
 
@@ -320,11 +289,10 @@ test.describe("Two-Factor Authentication tests", () => {
   test("Used backup code is rejected on reuse", async ({ page, api }) => {
     const twoFactorAuthPage = new TwoFactorAuthPage(page);
     let backupCode: string;
-    let secretKey: string;
 
     await test.step("Enable and activate TFA, save a backup code", async () => {
       await security.enableTfa();
-      secretKey = await twoFactorAuthPage.activateWithTotpCode();
+      await twoFactorAuthPage.activateWithTotpCode();
       await expect(twoFactorAuthPage.backupCodesContainer).toBeVisible({
         timeout: 30000,
       });
@@ -351,12 +319,6 @@ test.describe("Two-Factor Authentication tests", () => {
     await test.step("Try to reuse the same backup code and verify it is rejected", async () => {
       await twoFactorAuthPage.loginWithBackupCode(api.portalDomain, backupCode);
       await twoFactorAuthPage.checkInvalidCodeError();
-    });
-
-    await test.step("Disable Two-Factor Authentication for cleanup", async () => {
-      await twoFactorAuthPage.completeTfaLoginWithSecret(secretKey);
-      await security.open();
-      await security.disableTfa();
     });
   });
 
@@ -422,8 +384,22 @@ test.describe("Two-Factor Authentication tests", () => {
     await test.step("Verify redirect to TFA activation page", async () => {
       await twoFactorAuthPage.waitForActivationPage();
     });
+  });
 
-    await test.step("Re-activate TFA for cleanup", async () => {
+  test("New user registers via invite link and completes TFA activation", async ({
+    page,
+    api,
+    browser,
+  }) => {
+    const twoFactorAuthPage = new TwoFactorAuthPage(page);
+    const contacts = new Contacts(page, api.portalDomain);
+    const invite = contactsActionsMenu.invite;
+    let inviteLink: string;
+    let incognitoContext: BrowserContext | null = null;
+    let incognitoPage: Page | null = null;
+
+    await test.step("Enable and activate Two-Factor Authentication", async () => {
+      await security.enableTfa();
       await twoFactorAuthPage.activateWithTotpCode();
       await expect(twoFactorAuthPage.backupCodesContainer).toBeVisible({
         timeout: 30000,
@@ -431,9 +407,45 @@ test.describe("Two-Factor Authentication tests", () => {
       await twoFactorAuthPage.backupCodesCancelButton.click();
     });
 
-    await test.step("Disable Two-Factor Authentication for cleanup", async () => {
-      await security.open();
-      await security.disableTfa();
+    await test.step("Generate invite link for new user", async () => {
+      await contacts.open();
+      await contacts.navigation.clickHeaderSubmenuOption(
+        invite.label,
+        invite.submenu.user,
+      );
+      await contacts.inviteDialog.enableInviteViaLink();
+      await contacts.inviteDialog.checkLinkCopiedToast();
+      await contacts.inviteDialog.dismissLinkCopiedToast();
+      inviteLink = await contacts.inviteDialog.getInviteLinkValue();
+      await contacts.inviteDialog.close();
     });
+
+    try {
+      await test.step("Open invite link in incognito and fill registration form", async () => {
+        const result = await setupIncognitoContext(browser);
+        incognitoContext = result.context;
+        incognitoPage = result.page;
+
+        await incognitoPage.goto(inviteLink, { waitUntil: "load" });
+
+        const inviteLogin = new RoomInviteLogin(incognitoPage);
+        await inviteLogin.fillEmail(`tfa_complete_${Date.now()}@test.com`);
+        await inviteLogin.clickContinue();
+
+        const registration = new RoomGuestRegistration(incognitoPage);
+        await registration.register("TfaComplete", "User", "TestPassword123!");
+      });
+
+      await test.step("Complete TFA activation and verify access to portal", async () => {
+        ensureIncognitoPage(incognitoPage);
+        const incognitoTfa = new TwoFactorAuthPage(incognitoPage);
+        await incognitoTfa.activateWithTotpCode();
+        await expect(incognitoTfa.backupCodesContainer).toBeVisible({
+          timeout: 30000,
+        });
+      });
+    } finally {
+      await cleanupIncognitoContext(incognitoContext, incognitoPage);
+    }
   });
 });

@@ -5,6 +5,11 @@ import config from "@/config";
 
 const APP_CODE_FIELD = "app_code_field";
 const INVALID_CODE_ERROR = "Incorrect code";
+const FIELD_CONTAINER = "field-container";
+const TOAST_CONTENT = "toast-content";
+const PROFILE_ICON_BUTTON = "profile_user_icon_button";
+const USER_MENU_LOGOUT = "user-menu-logout";
+const DESCRIPTION_TEXT = ".description-text";
 
 export class TwoFactorAuthPage {
   page: Page;
@@ -14,7 +19,7 @@ export class TwoFactorAuthPage {
 
   constructor(page: Page) {
     this.page = page;
-    this.codeInput = page.getByTestId("app_code_input");
+    this.codeInput = page.getByTestId("app_code_input").first();
     this.connectButton = page.getByTestId("app_connect_button");
     this.continueButton = page.getByTestId("app_code_continue_button");
   }
@@ -25,12 +30,12 @@ export class TwoFactorAuthPage {
 
   async checkInvalidCodeError() {
     await expect(
-      this.page.getByTestId("field-container").getByText(INVALID_CODE_ERROR),
+      this.page.getByTestId(FIELD_CONTAINER).getByText(INVALID_CODE_ERROR),
     ).toBeVisible({
       timeout: 10000,
     });
     await expect(
-      this.page.getByTestId("toast-content").getByText(INVALID_CODE_ERROR),
+      this.page.getByTestId(TOAST_CONTENT).getByText(INVALID_CODE_ERROR),
     ).toBeVisible({
       timeout: 10000,
     });
@@ -41,7 +46,7 @@ export class TwoFactorAuthPage {
       timeout: 10000,
     });
     await expect(
-      this.page.getByTestId("toast-content").getByText(INVALID_CODE_ERROR),
+      this.page.getByTestId(TOAST_CONTENT).getByText(INVALID_CODE_ERROR),
     ).toBeVisible({
       timeout: 10000,
     });
@@ -89,7 +94,7 @@ export class TwoFactorAuthPage {
   }
 
   async getSecretKeyFromPage(): Promise<string> {
-    const descriptionText = this.page.locator(".description-text");
+    const descriptionText = this.page.locator(DESCRIPTION_TEXT);
     await expect(descriptionText.first()).toBeVisible({ timeout: 10000 });
 
     const strongElement = descriptionText.locator("strong");
@@ -142,10 +147,7 @@ export class TwoFactorAuthPage {
     await this.waitForAuthPage();
     const code = generateTotpCode(secretKey);
     await this.enterCodeAndLogin(code);
-
-    await this.page
-      .getByTestId("profile_user_icon_button")
-      .waitFor({ state: "visible", timeout: 30000 });
+    await this.waitForSuccessfulLogin();
   }
 
   async loginWithBackupCode(portalDomain: string, backupCode: string) {
@@ -172,16 +174,14 @@ export class TwoFactorAuthPage {
 
   async waitForSuccessfulLogin() {
     await this.page
-      .getByTestId("profile_user_icon_button")
+      .getByTestId(PROFILE_ICON_BUTTON)
       .waitFor({ state: "visible", timeout: 30000 });
   }
 
   async completeTfaLoginWithSecret(secretKey: string) {
     const code = generateTotpCode(secretKey);
     await this.enterCodeAndLogin(code);
-    await this.page
-      .getByTestId("profile_user_icon_button")
-      .waitFor({ state: "visible", timeout: 30000 });
+    await this.waitForSuccessfulLogin();
   }
 
   async loginAsUserAndWaitForActivation(
@@ -231,10 +231,10 @@ export class TwoFactorAuthPage {
       return;
     }
 
-    const optionsButton = this.page.getByTestId("profile_user_icon_button");
+    const optionsButton = this.page.getByTestId(PROFILE_ICON_BUTTON);
     await optionsButton.waitFor({ state: "visible", timeout: 10000 });
     await optionsButton.click();
-    await this.page.getByTestId("user-menu-logout").click();
+    await this.page.getByTestId(USER_MENU_LOGOUT).click();
     await expect(this.page).toHaveURL(/login|TfaAuth/, { timeout: 30000 });
   }
 }
