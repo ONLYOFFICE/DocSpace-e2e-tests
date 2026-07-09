@@ -172,6 +172,24 @@ test.describe("My documents: Base", () => {
     await myDocuments.filesFilter.checkFilesEmptyViewExist();
   });
 
+  test("Search by part of the name", async () => {
+    await test.step("Precondition: create files sharing a name fragment", async () => {
+      await myDocuments.deleteAllDocs();
+      await myDocuments.createDocumentFile("ReportAlpha");
+      await myDocuments.createDocumentFile("ReportBeta");
+      await myDocuments.createDocumentFile("Summary");
+    });
+
+    await test.step("A partial name returns only the matching files", async () => {
+      await myDocuments.filesFilter.fillFilesSearchInputAndCheckRequest(
+        "Report",
+      );
+      await myDocuments.filesTable.expectItemVisible("ReportAlpha");
+      await myDocuments.filesTable.expectItemVisible("ReportBeta");
+      await myDocuments.filesTable.expectItemNotVisible("Summary");
+    });
+  });
+
   test("Rename files", async () => {
     await test.step("Precondition: create files", async () => {
       await myDocuments.deleteAllDocs();
