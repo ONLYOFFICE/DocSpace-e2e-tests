@@ -215,25 +215,25 @@ test.describe("Daily prod check", () => {
       await login.loginToPortal();
     });
 
-    test("Delete file from Trash", async () => {
+    test("Delete file from Trash", async ({ apiSdk }) => {
+      await apiSdk.files.createFileInMyDocuments("owner", {
+        title: "TrashDoc",
+      });
       await myDocuments.open();
-      await myDocuments.createDocumentFile("TrashDoc");
 
-      await expect(async () => {
-        await myDocuments.deleteFile("TrashDoc");
-      }).toPass({ timeout: 30000 });
+      await myDocuments.deleteFile("TrashDoc");
 
       await trash.open();
       await trash.deleteFileForever("TrashDoc");
     });
 
-    test("Restore file from Trash", async () => {
+    test("Restore file from Trash", async ({ apiSdk }) => {
+      await apiSdk.files.createFileInMyDocuments("owner", {
+        title: "RestoreDoc",
+      });
       await myDocuments.open();
-      await myDocuments.createDocumentFile("RestoreDoc");
 
-      await expect(async () => {
-        await myDocuments.deleteFile("RestoreDoc");
-      }).toPass({ timeout: 30000 });
+      await myDocuments.deleteFile("RestoreDoc");
 
       await trash.open();
       await trash.restoreFileTo("RestoreDoc");
