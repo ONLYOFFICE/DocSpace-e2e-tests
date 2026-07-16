@@ -232,7 +232,7 @@ export class Login extends BasePage {
       ]);
     }).toPass();
 
-    await this.page.waitForURL(/.*rooms\/shared\/filter.*/, {
+    await this.page.waitForURL(/.*(dashboard|rooms\/shared\/filter).*/, {
       waitUntil: "load",
     });
     await this.page.waitForTimeout(3000);
@@ -261,7 +261,7 @@ export class Login extends BasePage {
       ]);
     }).toPass();
 
-    await this.page.waitForURL(/.*rooms\/shared\/filter.*/, {
+    await this.page.waitForURL(/.*(dashboard|rooms\/shared\/filter).*/, {
       waitUntil: "load",
     });
     await this.page.waitForTimeout(3000);
