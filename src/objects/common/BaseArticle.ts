@@ -1,6 +1,6 @@
 import { expect, Locator, Page } from "@playwright/test";
 
-const ACTIONS_BUTTON = "#actions-main-button";
+const ACTIONS_BUTTON = "[data-testid='main-button']";
 const ARTICLE_CONTAINER = "#article-container";
 
 class BaseArticle {

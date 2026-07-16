@@ -2,6 +2,7 @@ import { expect, Page } from "@playwright/test";
 import BaseArticle from "../common/BaseArticle";
 import FilesCreateContextMenu from "./FilesCreateContextMenu";
 import {
+  listDocActions,
   listArticleDocActions,
   DOC_ACTIONS,
 } from "@/src/utils/constants/files";
@@ -33,12 +34,14 @@ class FilesArticle extends BaseArticle {
   }
 
   async createFiles() {
-    for (const actionText of listArticleDocActions) {
-      await this.openMainDropdown();
-      await this.contextMenu.selectCreateAction(actionText);
-      await this.modal.fillCreateTextInput(actionText);
+    for (const [i, menuLabel] of listDocActions.entries()) {
+      const fileName = listArticleDocActions[i];
 
-      if (actionText !== "Folder") {
+      await this.openMainDropdown();
+      await this.contextMenu.selectCreateAction(menuLabel);
+      await this.modal.fillCreateTextInput(fileName);
+
+      if (menuLabel !== DOC_ACTIONS.CREATE_FOLDER) {
         const [newPage] = await Promise.all([
           this.page.context().waitForEvent("page", { timeout: 5000 }),
           this.modal.clickCreateButton(),
@@ -49,7 +52,7 @@ class FilesArticle extends BaseArticle {
         await this.modal.clickCreateButton();
       }
 
-      await this.checkCreatedFileByActionExist(actionText);
+      await this.checkCreatedFileByActionExist(fileName);
     }
   }
   async createPDFBlank(fileName: string) {

@@ -3,7 +3,7 @@ import { BaseContextMenu } from "./BaseContextMenu";
 
 const CLOSE_BUTTON =
   "[data-testid='aside-header'] [data-testid='icon-button-svg']";
-const HEADER_ADD_BUTTON = "#header_add-button";
+const MAIN_BUTTON = "[data-testid='main-button']";
 const BACK_ARROW_ICON =
   ".navigation-arrow-container [data-testid='icon-button']";
 
@@ -25,8 +25,8 @@ class BaseNavigation {
     this.contextMenu = new BaseContextMenu(page);
   }
 
-  private get headerAddButton() {
-    return this.page.locator(HEADER_ADD_BUTTON);
+  private get mainButton() {
+    return this.page.locator(MAIN_BUTTON);
   }
 
   private get backArrowIcon() {
@@ -42,7 +42,7 @@ class BaseNavigation {
   }
 
   async openCreateDropdown() {
-    await expect(this.headerAddButton).toBeVisible({ timeout: 5000 });
+    await expect(this.mainButton).toBeVisible({ timeout: 5000 });
     await expect(async () => {
       if (!(await this.contextMenu.isMenuOpen())) {
         await this.clickAddButton();
@@ -52,11 +52,11 @@ class BaseNavigation {
   }
 
   async clickAddButton() {
-    await this.headerAddButton.click();
+    await this.mainButton.click();
   }
 
   async checkAddButtonVisible() {
-    await expect(this.headerAddButton).toBeVisible();
+    await expect(this.mainButton).toBeVisible();
   }
 
   async clickSelectAllCheckbox() {
