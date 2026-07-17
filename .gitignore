@@ -11,6 +11,8 @@ traces/
 .DS_Store
 # Ignore Playwright browser cache
 playwright/.cache/
+# Ignore Playwright MCP session artifacts
+.playwright-mcp/
 playwright-report
 test-output
 
