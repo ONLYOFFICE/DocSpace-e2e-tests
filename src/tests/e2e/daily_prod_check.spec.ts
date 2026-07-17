@@ -7,6 +7,7 @@ import Trash from "@/src/objects/trash/Trash";
 import FileVersionHistory from "@/src/objects/files/FileVersionHistory";
 import VdrRoomSettings from "@/src/objects/rooms/VdrRoomSettings";
 import { Profile } from "@/src/objects/profile/Profile";
+import BaseNavigation from "@/src/objects/common/BaseNavigation";
 import { createMailChecker } from "@/src/utils/helpers/email/createMailChecker";
 import { getOwnerConfirmLink } from "@/src/utils/helpers/email/getOwnerConfirmLink";
 import {
@@ -20,6 +21,15 @@ test.describe("Daily prod check", () => {
     !process.env.RUN_PROD_CHECK,
     "Runs only in Prod Daily Check workflow",
   );
+
+  const newUiMainButton = BaseNavigation.mainButtonSelector;
+  test.beforeAll(() => {
+    BaseNavigation.mainButtonSelector = "#header_add-button";
+  });
+  test.afterAll(() => {
+    BaseNavigation.mainButtonSelector = newUiMainButton;
+  });
+
   test.describe("Rooms", () => {
     let myRooms: MyRooms;
 
