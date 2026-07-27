@@ -1,28 +1,28 @@
-import MyDocuments from "@/src/objects/files/MyDocuments";
-import Trash from "@/src/objects/trash/Trash";
+import Files from "@/src/objects/files/Files";
+import Trash from "@/src/objects/files/trash/Trash";
 import { DOC_ACTIONS } from "@/src/utils/constants/files";
 import { test } from "@/src/fixtures";
 
 test.describe("File actions", () => {
-  let myDocuments: MyDocuments;
+  let files: Files;
   let trash: Trash;
 
   test.beforeEach(async ({ page, api, login }) => {
-    myDocuments = new MyDocuments(page, api.portalDomain);
+    files = new Files(page, api.portalDomain);
     trash = new Trash(page);
 
     await login.loginToPortal();
-    await myDocuments.open();
-    await myDocuments.deleteAllDocs();
+    await files.open();
+    await files.deleteAllDocs();
   });
 
   test("Delete file to trash", async () => {
     await test.step("Create file", async () => {
-      await myDocuments.createDocumentFile();
+      await files.createDocumentFile();
     });
 
     await test.step("Delete file via context menu", async () => {
-      await myDocuments.deleteFile("Document");
+      await files.deleteFile("Document");
     });
 
     await test.step("Verify file appears in trash", async () => {
@@ -33,8 +33,8 @@ test.describe("File actions", () => {
 
   test("Restore file from trash", async () => {
     await test.step("Create and delete file", async () => {
-      await myDocuments.createDocumentFile();
-      await myDocuments.deleteFile("Document");
+      await files.createDocumentFile();
+      await files.deleteFile("Document");
     });
 
     await test.step("Restore file to My Documents", async () => {
@@ -43,15 +43,15 @@ test.describe("File actions", () => {
     });
 
     await test.step("Verify file is back in My Documents", async () => {
-      await myDocuments.open();
-      await myDocuments.filesTable.checkRowExist("Document");
+      await files.open();
+      await files.filesTable.checkRowExist("Document");
     });
   });
 
   test("Permanent delete from trash", async () => {
     await test.step("Create and delete file", async () => {
-      await myDocuments.createDocumentFile();
-      await myDocuments.deleteFile("Document");
+      await files.createDocumentFile();
+      await files.deleteFile("Document");
     });
 
     await test.step("Permanently delete file from trash", async () => {
@@ -64,18 +64,16 @@ test.describe("File actions", () => {
     const targetFolder = "TargetFolder";
 
     await test.step("Create file and target folder", async () => {
-      await myDocuments.createDocumentFile();
-      await myDocuments.filesNavigation.openCreateDropdown();
-      await myDocuments.filesNavigation.selectCreateAction(
-        DOC_ACTIONS.CREATE_FOLDER,
-      );
-      await myDocuments.filesNavigation.modal.fillCreateTextInput(targetFolder);
-      await myDocuments.filesNavigation.modal.clickCreateButton();
-      await myDocuments.filesTable.checkRowExist(targetFolder);
+      await files.createDocumentFile();
+      await files.filesNavigation.openCreateDropdown();
+      await files.filesNavigation.selectCreateAction(DOC_ACTIONS.CREATE_FOLDER);
+      await files.filesNavigation.modal.fillCreateTextInput(targetFolder);
+      await files.filesNavigation.modal.clickCreateButton();
+      await files.filesTable.checkRowExist(targetFolder);
     });
 
     await test.step("Move file to folder", async () => {
-      await myDocuments.moveFileTo("Document", targetFolder);
+      await files.moveFileTo("Document", targetFolder);
     });
   });
 
@@ -83,34 +81,32 @@ test.describe("File actions", () => {
     const targetFolder = "TargetFolder";
 
     await test.step("Create file and target folder", async () => {
-      await myDocuments.createDocumentFile();
-      await myDocuments.filesNavigation.openCreateDropdown();
-      await myDocuments.filesNavigation.selectCreateAction(
-        DOC_ACTIONS.CREATE_FOLDER,
-      );
-      await myDocuments.filesNavigation.modal.fillCreateTextInput(targetFolder);
-      await myDocuments.filesNavigation.modal.clickCreateButton();
-      await myDocuments.filesTable.checkRowExist(targetFolder);
+      await files.createDocumentFile();
+      await files.filesNavigation.openCreateDropdown();
+      await files.filesNavigation.selectCreateAction(DOC_ACTIONS.CREATE_FOLDER);
+      await files.filesNavigation.modal.fillCreateTextInput(targetFolder);
+      await files.filesNavigation.modal.clickCreateButton();
+      await files.filesTable.checkRowExist(targetFolder);
     });
 
     await test.step("Copy file to folder", async () => {
-      await myDocuments.copyFileTo("Document", targetFolder);
+      await files.copyFileTo("Document", targetFolder);
     });
 
     await test.step("Verify copy exists in target folder", async () => {
-      await myDocuments.filesTable.openContextMenuForItem(targetFolder);
-      await myDocuments.filesTable.contextMenu.clickOption("Open");
-      await myDocuments.filesTable.checkRowExist("Document");
+      await files.filesTable.openContextMenuForItem(targetFolder);
+      await files.filesTable.contextMenu.clickOption("Open");
+      await files.filesTable.checkRowExist("Document");
     });
   });
 
   test("Duplicate file", async () => {
     await test.step("Create file", async () => {
-      await myDocuments.createDocumentFile();
+      await files.createDocumentFile();
     });
 
     await test.step("Duplicate file", async () => {
-      await myDocuments.duplicateFile("Document");
+      await files.duplicateFile("Document");
     });
   });
 });

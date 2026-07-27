@@ -1,5 +1,5 @@
-import MyDocuments from "@/src/objects/files/MyDocuments";
-import Trash from "@/src/objects/trash/Trash";
+import Files from "@/src/objects/files/Files";
+import Trash from "@/src/objects/files/trash/Trash";
 import Rooms from "@/src/objects/rooms/Rooms";
 import RoomInfoPanel from "@/src/objects/rooms/RoomInfoPanel";
 import RoomsInviteDialog from "@/src/objects/rooms/RoomsInviteDialog";
@@ -10,30 +10,26 @@ import { test } from "@/src/fixtures";
 import { getPortalUrl } from "@/config";
 
 test.describe("Trash", () => {
-  let myDocuments: MyDocuments;
+  let files: Files;
   let trash: Trash;
   let rooms: Rooms;
 
   test.beforeEach(async ({ page, api, login }) => {
-    myDocuments = new MyDocuments(page, api.portalDomain);
+    files = new Files(page, api.portalDomain);
     trash = new Trash(page);
     rooms = new Rooms(page, api.portalDomain);
 
     await login.loginToPortal();
-    await myDocuments.open();
-    await myDocuments.deleteAllDocs();
+    await files.open();
+    await files.deleteAllDocs();
   });
 
   test("Delete all files from trash forever", async () => {
     await test.step("Create files and delete them to trash", async () => {
-      await myDocuments.createDocumentFile("TrashFile1");
-      await myDocuments.createDocumentFile("TrashFile2");
-      await myDocuments.createDocumentFile("TrashFile3");
-      await myDocuments.bulkDeleteFiles([
-        "TrashFile1",
-        "TrashFile2",
-        "TrashFile3",
-      ]);
+      await files.createDocumentFile("TrashFile1");
+      await files.createDocumentFile("TrashFile2");
+      await files.createDocumentFile("TrashFile3");
+      await files.bulkDeleteFiles(["TrashFile1", "TrashFile2", "TrashFile3"]);
     });
 
     await test.step("Open trash and verify files exist", async () => {
@@ -54,9 +50,9 @@ test.describe("Trash", () => {
 
   test("Delete single file from trash forever", async () => {
     await test.step("Create files and delete them to trash", async () => {
-      await myDocuments.createDocumentFile("KeepFile");
-      await myDocuments.createDocumentFile("DeleteFile");
-      await myDocuments.bulkDeleteFiles(["KeepFile", "DeleteFile"]);
+      await files.createDocumentFile("KeepFile");
+      await files.createDocumentFile("DeleteFile");
+      await files.bulkDeleteFiles(["KeepFile", "DeleteFile"]);
     });
 
     await test.step("Open trash and permanently delete one file", async () => {
@@ -72,8 +68,8 @@ test.describe("Trash", () => {
 
   test("Restore single file from trash to Documents", async () => {
     await test.step("Create file and delete to trash", async () => {
-      await myDocuments.createDocumentFile("RestoreMe");
-      await myDocuments.deleteFile("RestoreMe");
+      await files.createDocumentFile("RestoreMe");
+      await files.deleteFile("RestoreMe");
     });
 
     await test.step("Restore file from trash", async () => {
@@ -82,17 +78,17 @@ test.describe("Trash", () => {
     });
 
     await test.step("Verify file is back in My Documents", async () => {
-      await myDocuments.open();
-      await myDocuments.filesTable.checkRowExist("RestoreMe");
+      await files.open();
+      await files.filesTable.checkRowExist("RestoreMe");
     });
   });
 
   test("Restore all files from trash via header menu", async () => {
     await test.step("Create files and delete them to trash", async () => {
-      await myDocuments.createDocumentFile("RestoreAll1");
-      await myDocuments.createDocumentFile("RestoreAll2");
-      await myDocuments.deleteFile("RestoreAll1");
-      await myDocuments.deleteFile("RestoreAll2");
+      await files.createDocumentFile("RestoreAll1");
+      await files.createDocumentFile("RestoreAll2");
+      await files.deleteFile("RestoreAll1");
+      await files.deleteFile("RestoreAll2");
     });
 
     await test.step("Open trash and restore all via header", async () => {
@@ -102,30 +98,26 @@ test.describe("Trash", () => {
     });
 
     await test.step("Verify files are restored to My Documents", async () => {
-      await myDocuments.open();
-      await myDocuments.filesTable.checkRowExist("RestoreAll1");
-      await myDocuments.filesTable.checkRowExist("RestoreAll2");
+      await files.open();
+      await files.filesTable.checkRowExist("RestoreAll1");
+      await files.filesTable.checkRowExist("RestoreAll2");
     });
   });
 
   test("Deleted folder appears in trash", async () => {
     await test.step("Create folder", async () => {
-      await myDocuments.filesNavigation.openCreateDropdown();
-      await myDocuments.filesNavigation.selectCreateAction(
-        DOC_ACTIONS.CREATE_FOLDER,
-      );
-      await myDocuments.filesNavigation.modal.fillCreateTextInput(
-        "TrashFolder",
-      );
-      await myDocuments.filesNavigation.modal.clickCreateButton();
-      await myDocuments.filesTable.checkRowExist("TrashFolder");
+      await files.filesNavigation.openCreateDropdown();
+      await files.filesNavigation.selectCreateAction(DOC_ACTIONS.CREATE_FOLDER);
+      await files.filesNavigation.modal.fillCreateTextInput("TrashFolder");
+      await files.filesNavigation.modal.clickCreateButton();
+      await files.filesTable.checkRowExist("TrashFolder");
     });
 
     await test.step("Delete folder", async () => {
-      await myDocuments.filesTable.openContextMenuForItem("TrashFolder");
-      await myDocuments.filesTable.contextMenu.clickOption("Delete");
-      await myDocuments.folderDeleteModal.clickDeleteFolder();
-      await myDocuments.removeToast("successfully moved to Trash");
+      await files.filesTable.openContextMenuForItem("TrashFolder");
+      await files.filesTable.contextMenu.clickOption("Delete");
+      await files.folderDeleteModal.clickDeleteFolder();
+      await files.removeToast("successfully moved to Trash");
     });
 
     await test.step("Verify folder is in trash", async () => {
@@ -136,9 +128,9 @@ test.describe("Trash", () => {
 
   test("Empty trash via header context menu", async () => {
     await test.step("Create files and delete them to trash", async () => {
-      await myDocuments.createDocumentFile("EmptyTrashFile1");
-      await myDocuments.createDocumentFile("EmptyTrashFile2");
-      await myDocuments.bulkDeleteFiles(["EmptyTrashFile1", "EmptyTrashFile2"]);
+      await files.createDocumentFile("EmptyTrashFile1");
+      await files.createDocumentFile("EmptyTrashFile2");
+      await files.bulkDeleteFiles(["EmptyTrashFile1", "EmptyTrashFile2"]);
     });
 
     await test.step("Open trash and verify files exist", async () => {
@@ -154,9 +146,9 @@ test.describe("Trash", () => {
 
   test("Filter trash by file name using search", async () => {
     await test.step("Create files and delete them to trash", async () => {
-      await myDocuments.createDocumentFile("SearchTarget");
-      await myDocuments.createDocumentFile("OtherFile");
-      await myDocuments.bulkDeleteFiles(["SearchTarget", "OtherFile"]);
+      await files.createDocumentFile("SearchTarget");
+      await files.createDocumentFile("OtherFile");
+      await files.bulkDeleteFiles(["SearchTarget", "OtherFile"]);
     });
 
     await test.step("Open trash and search by name", async () => {
@@ -176,21 +168,17 @@ test.describe("Trash", () => {
 
   test("Filter trash by type: Folders", async () => {
     await test.step("Create a document and a folder, delete both to trash", async () => {
-      await myDocuments.createDocumentFile("DocInTrash");
-      await myDocuments.filesNavigation.openCreateDropdown();
-      await myDocuments.filesNavigation.selectCreateAction(
-        DOC_ACTIONS.CREATE_FOLDER,
-      );
-      await myDocuments.filesNavigation.modal.fillCreateTextInput(
-        "FolderInTrash",
-      );
-      await myDocuments.filesNavigation.modal.clickCreateButton();
-      await myDocuments.filesTable.checkRowExist("FolderInTrash");
-      await myDocuments.bulkDeleteFiles(["DocInTrash"]);
-      await myDocuments.filesTable.openContextMenuForItem("FolderInTrash");
-      await myDocuments.filesTable.contextMenu.clickOption("Delete");
-      await myDocuments.folderDeleteModal.clickDeleteFolder();
-      await myDocuments.removeToast("successfully moved to Trash");
+      await files.createDocumentFile("DocInTrash");
+      await files.filesNavigation.openCreateDropdown();
+      await files.filesNavigation.selectCreateAction(DOC_ACTIONS.CREATE_FOLDER);
+      await files.filesNavigation.modal.fillCreateTextInput("FolderInTrash");
+      await files.filesNavigation.modal.clickCreateButton();
+      await files.filesTable.checkRowExist("FolderInTrash");
+      await files.bulkDeleteFiles(["DocInTrash"]);
+      await files.filesTable.openContextMenuForItem("FolderInTrash");
+      await files.filesTable.contextMenu.clickOption("Delete");
+      await files.folderDeleteModal.clickDeleteFolder();
+      await files.removeToast("successfully moved to Trash");
     });
 
     await test.step("Open trash and filter by type Folders", async () => {
@@ -218,12 +206,9 @@ test.describe("Trash", () => {
 
   test("Filter trash by author: Me", async () => {
     await test.step("Create files and delete them to trash", async () => {
-      await myDocuments.createDocumentFile("AuthorFilterFile1");
-      await myDocuments.createDocumentFile("AuthorFilterFile2");
-      await myDocuments.bulkDeleteFiles([
-        "AuthorFilterFile1",
-        "AuthorFilterFile2",
-      ]);
+      await files.createDocumentFile("AuthorFilterFile1");
+      await files.createDocumentFile("AuthorFilterFile2");
+      await files.bulkDeleteFiles(["AuthorFilterFile1", "AuthorFilterFile2"]);
     });
 
     await test.step("Open trash and filter by author Me", async () => {
@@ -256,8 +241,8 @@ test.describe("Trash", () => {
       const { userData } = await apiSdk.profiles.addMember("owner", "User");
       userName = `${userData.firstName} ${userData.lastName}`;
 
-      await myDocuments.createDocumentFile("AuthorOtherFile");
-      await myDocuments.deleteFile("AuthorOtherFile");
+      await files.createDocumentFile("AuthorOtherFile");
+      await files.deleteFile("AuthorOtherFile");
     });
 
     await test.step("Open trash and open filter dialog", async () => {
@@ -319,20 +304,16 @@ test.describe("Trash", () => {
 
   test("Restore file to a custom subfolder in My Documents", async () => {
     await test.step("Create subfolder in My Documents", async () => {
-      await myDocuments.filesNavigation.openCreateDropdown();
-      await myDocuments.filesNavigation.selectCreateAction(
-        DOC_ACTIONS.CREATE_FOLDER,
-      );
-      await myDocuments.filesNavigation.modal.fillCreateTextInput(
-        "RestoreTarget",
-      );
-      await myDocuments.filesNavigation.modal.clickCreateButton();
-      await myDocuments.filesTable.checkRowExist("RestoreTarget");
+      await files.filesNavigation.openCreateDropdown();
+      await files.filesNavigation.selectCreateAction(DOC_ACTIONS.CREATE_FOLDER);
+      await files.filesNavigation.modal.fillCreateTextInput("RestoreTarget");
+      await files.filesNavigation.modal.clickCreateButton();
+      await files.filesTable.checkRowExist("RestoreTarget");
     });
 
     await test.step("Create file and delete to trash", async () => {
-      await myDocuments.createDocumentFile("FileToRestore");
-      await myDocuments.deleteFile("FileToRestore");
+      await files.createDocumentFile("FileToRestore");
+      await files.deleteFile("FileToRestore");
     });
 
     await test.step("Open trash and restore file to custom subfolder", async () => {
@@ -345,18 +326,18 @@ test.describe("Trash", () => {
     });
 
     await test.step("Verify file is restored inside the subfolder", async () => {
-      await myDocuments.open();
-      await myDocuments.filesTable.checkRowNotExist("FileToRestore");
-      await myDocuments.filesTable.openContextMenuForItem("RestoreTarget");
-      await myDocuments.filesTable.contextMenu.clickOption("Open");
-      await myDocuments.filesTable.checkRowExist("FileToRestore");
+      await files.open();
+      await files.filesTable.checkRowNotExist("FileToRestore");
+      await files.filesTable.openContextMenuForItem("RestoreTarget");
+      await files.filesTable.contextMenu.clickOption("Open");
+      await files.filesTable.checkRowExist("FileToRestore");
     });
   });
 
   test("Info panel shows file details for item in trash", async () => {
     await test.step("Create file and delete to trash", async () => {
-      await myDocuments.createDocumentFile("InfoPanelDoc");
-      await myDocuments.deleteFile("InfoPanelDoc");
+      await files.createDocumentFile("InfoPanelDoc");
+      await files.deleteFile("InfoPanelDoc");
     });
 
     await test.step("Open trash and select the file", async () => {
@@ -373,18 +354,16 @@ test.describe("Trash", () => {
 
   test("Restore all files from trash to a custom subfolder via header menu", async () => {
     await test.step("Create subfolder and files, delete files to trash", async () => {
-      await myDocuments.filesNavigation.openCreateDropdown();
-      await myDocuments.filesNavigation.selectCreateAction(
-        DOC_ACTIONS.CREATE_FOLDER,
-      );
-      await myDocuments.filesNavigation.modal.fillCreateTextInput(
+      await files.filesNavigation.openCreateDropdown();
+      await files.filesNavigation.selectCreateAction(DOC_ACTIONS.CREATE_FOLDER);
+      await files.filesNavigation.modal.fillCreateTextInput(
         "BulkRestoreTarget",
       );
-      await myDocuments.filesNavigation.modal.clickCreateButton();
-      await myDocuments.filesTable.checkRowExist("BulkRestoreTarget");
-      await myDocuments.createDocumentFile("BulkFile1");
-      await myDocuments.createDocumentFile("BulkFile2");
-      await myDocuments.bulkDeleteFiles(["BulkFile1", "BulkFile2"]);
+      await files.filesNavigation.modal.clickCreateButton();
+      await files.filesTable.checkRowExist("BulkRestoreTarget");
+      await files.createDocumentFile("BulkFile1");
+      await files.createDocumentFile("BulkFile2");
+      await files.bulkDeleteFiles(["BulkFile1", "BulkFile2"]);
     });
 
     await test.step("Open trash and restore all to custom subfolder", async () => {
@@ -397,33 +376,29 @@ test.describe("Trash", () => {
     });
 
     await test.step("Verify files are inside the subfolder", async () => {
-      await myDocuments.open();
-      await myDocuments.filesTable.checkRowNotExist("BulkFile1");
-      await myDocuments.filesTable.checkRowNotExist("BulkFile2");
-      await myDocuments.filesTable.openContextMenuForItem("BulkRestoreTarget");
-      await myDocuments.filesTable.contextMenu.clickOption("Open");
-      await myDocuments.filesTable.checkRowExist("BulkFile1");
-      await myDocuments.filesTable.checkRowExist("BulkFile2");
+      await files.open();
+      await files.filesTable.checkRowNotExist("BulkFile1");
+      await files.filesTable.checkRowNotExist("BulkFile2");
+      await files.filesTable.openContextMenuForItem("BulkRestoreTarget");
+      await files.filesTable.contextMenu.clickOption("Open");
+      await files.filesTable.checkRowExist("BulkFile1");
+      await files.filesTable.checkRowExist("BulkFile2");
     });
   });
 
   test("Filter trash by type: Documents excludes folders", async () => {
     await test.step("Create document and folder, delete both to trash", async () => {
-      await myDocuments.createDocumentFile("TypeDocFile");
-      await myDocuments.filesNavigation.openCreateDropdown();
-      await myDocuments.filesNavigation.selectCreateAction(
-        DOC_ACTIONS.CREATE_FOLDER,
-      );
-      await myDocuments.filesNavigation.modal.fillCreateTextInput(
-        "TypeDocFolder",
-      );
-      await myDocuments.filesNavigation.modal.clickCreateButton();
-      await myDocuments.filesTable.checkRowExist("TypeDocFolder");
-      await myDocuments.bulkDeleteFiles(["TypeDocFile"]);
-      await myDocuments.filesTable.openContextMenuForItem("TypeDocFolder");
-      await myDocuments.filesTable.contextMenu.clickOption("Delete");
-      await myDocuments.folderDeleteModal.clickDeleteFolder();
-      await myDocuments.removeToast("successfully moved to Trash");
+      await files.createDocumentFile("TypeDocFile");
+      await files.filesNavigation.openCreateDropdown();
+      await files.filesNavigation.selectCreateAction(DOC_ACTIONS.CREATE_FOLDER);
+      await files.filesNavigation.modal.fillCreateTextInput("TypeDocFolder");
+      await files.filesNavigation.modal.clickCreateButton();
+      await files.filesTable.checkRowExist("TypeDocFolder");
+      await files.bulkDeleteFiles(["TypeDocFile"]);
+      await files.filesTable.openContextMenuForItem("TypeDocFolder");
+      await files.filesTable.contextMenu.clickOption("Delete");
+      await files.folderDeleteModal.clickDeleteFolder();
+      await files.removeToast("successfully moved to Trash");
     });
 
     await test.step("Open trash and filter by type Documents", async () => {
@@ -451,20 +426,16 @@ test.describe("Trash", () => {
 
   test("Restore folder from trash to Documents", async () => {
     await test.step("Create folder and delete to trash", async () => {
-      await myDocuments.filesNavigation.openCreateDropdown();
-      await myDocuments.filesNavigation.selectCreateAction(
-        DOC_ACTIONS.CREATE_FOLDER,
-      );
-      await myDocuments.filesNavigation.modal.fillCreateTextInput(
-        "RestoreFolder",
-      );
-      await myDocuments.filesNavigation.modal.clickCreateButton();
-      await myDocuments.filesTable.checkRowExist("RestoreFolder");
+      await files.filesNavigation.openCreateDropdown();
+      await files.filesNavigation.selectCreateAction(DOC_ACTIONS.CREATE_FOLDER);
+      await files.filesNavigation.modal.fillCreateTextInput("RestoreFolder");
+      await files.filesNavigation.modal.clickCreateButton();
+      await files.filesTable.checkRowExist("RestoreFolder");
 
-      await myDocuments.filesTable.openContextMenuForItem("RestoreFolder");
-      await myDocuments.filesTable.contextMenu.clickOption("Delete");
-      await myDocuments.folderDeleteModal.clickDeleteFolder();
-      await myDocuments.removeToast("successfully moved to Trash");
+      await files.filesTable.openContextMenuForItem("RestoreFolder");
+      await files.filesTable.contextMenu.clickOption("Delete");
+      await files.folderDeleteModal.clickDeleteFolder();
+      await files.removeToast("successfully moved to Trash");
     });
 
     await test.step("Restore folder from trash", async () => {
@@ -473,8 +444,8 @@ test.describe("Trash", () => {
     });
 
     await test.step("Verify folder is back in My Documents", async () => {
-      await myDocuments.open();
-      await myDocuments.filesTable.checkRowExist("RestoreFolder");
+      await files.open();
+      await files.filesTable.checkRowExist("RestoreFolder");
     });
   });
 
@@ -534,8 +505,8 @@ test.describe("Trash", () => {
         title: roomName,
         roomType: "CustomRoom",
       });
-      await myDocuments.createDocumentFile("FileToRoom");
-      await myDocuments.deleteFile("FileToRoom");
+      await files.createDocumentFile("FileToRoom");
+      await files.deleteFile("FileToRoom");
     });
 
     await test.step("Open trash and restore file to room", async () => {
@@ -637,8 +608,8 @@ test.describe("Trash", () => {
       await rooms.filesTable.checkRowExist("RoomManagerFile");
       await rooms.filesTable.openContextMenuForItem("RoomManagerFile");
       await rooms.filesTable.contextMenu.clickOption("Delete");
-      await myDocuments.folderDeleteModal.clickDeleteFolder();
-      await myDocuments.removeToast("successfully moved to Trash");
+      await files.folderDeleteModal.clickDeleteFolder();
+      await files.removeToast("successfully moved to Trash");
     });
 
     await test.step("Open trash and filter by room manager as Other author", async () => {

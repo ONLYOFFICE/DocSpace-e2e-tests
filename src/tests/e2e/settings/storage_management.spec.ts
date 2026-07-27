@@ -2,7 +2,7 @@ import { test } from "@/src/fixtures";
 import StorageManagement from "@/src/objects/settings/storageManagement/StorageManagement";
 import RoomInfoPanel from "@/src/objects/rooms/RoomInfoPanel";
 import MyRooms from "@/src/objects/rooms/Rooms";
-import MyDocuments from "@/src/objects/files/MyDocuments";
+import Files from "@/src/objects/files/Files";
 import { PaymentApi } from "@/src/api/payment";
 import { toastMessages } from "@/src/utils/constants/settings";
 import {
@@ -84,14 +84,14 @@ test.describe("Storage Management: settings", () => {
 test.describe("Storage Management: room quota enforcement", () => {
   let storageManagement: StorageManagement;
   let myRooms: MyRooms;
-  let myDocuments: MyDocuments;
+  let files: Files;
 
   test.beforeEach(async ({ page, api, login }) => {
     const paymentApi = new PaymentApi(api.apiRequestContext, api.apisystem);
     await paymentApi.setupPayment();
     storageManagement = new StorageManagement(page);
     myRooms = new MyRooms(page, api.portalDomain);
-    myDocuments = new MyDocuments(page, api.portalDomain);
+    files = new Files(page, api.portalDomain);
     await login.loginToPortal();
   });
 
@@ -103,7 +103,7 @@ test.describe("Storage Management: room quota enforcement", () => {
         roomCreateTitles.collaboration,
       );
       await myRooms.roomsCreateDialog.createRoom("Quota Exceed Room");
-      await myDocuments.createDocumentFile("Existing Doc");
+      await files.createDocumentFile("Existing Doc");
     });
 
     await test.step("Set room quota to 1 KB", async () => {
@@ -129,7 +129,7 @@ test.describe("Storage Management: room quota enforcement", () => {
         roomCreateTitles.collaboration,
       );
       await myRooms.roomsCreateDialog.createRoom("Upload Quota Room");
-      await myDocuments.createDocumentFile("Seed Doc");
+      await files.createDocumentFile("Seed Doc");
     });
 
     await test.step("Set room quota to 1 KB", async () => {
@@ -172,7 +172,7 @@ test.describe("Storage Management: room quota enforcement", () => {
       await myRooms.openWithoutEmptyCheck();
       await myRooms.roomsTable.openRoomByName("Empty Quota Room");
       await page.reload({ waitUntil: "load" });
-      await myDocuments.createDocumentFile("Ghost Doc", false);
+      await files.createDocumentFile("Ghost Doc", false);
     });
 
     await test.step("Reload and verify document was not saved", async () => {
@@ -184,13 +184,13 @@ test.describe("Storage Management: room quota enforcement", () => {
 
 test.describe("Storage Management: user quota enforcement", () => {
   let storageManagement: StorageManagement;
-  let myDocuments: MyDocuments;
+  let files: Files;
 
   test.beforeEach(async ({ page, api, login }) => {
     const paymentApi = new PaymentApi(api.apiRequestContext, api.apisystem);
     await paymentApi.setupPayment();
     storageManagement = new StorageManagement(page);
-    myDocuments = new MyDocuments(page, api.portalDomain);
+    files = new Files(page, api.portalDomain);
     await login.loginToPortal();
   });
 
@@ -199,8 +199,8 @@ test.describe("Storage Management: user quota enforcement", () => {
     page,
   }) => {
     await test.step("Create a document to have data in My Documents", async () => {
-      await myDocuments.open();
-      await myDocuments.createDocumentFile("Fill Space");
+      await files.open();
+      await files.createDocumentFile("Fill Space");
     });
 
     await test.step("Set user quota to 1 KB", async () => {
@@ -212,7 +212,7 @@ test.describe("Storage Management: user quota enforcement", () => {
     });
 
     await test.step("Navigate to My Documents and verify snackbar", async () => {
-      await myDocuments.open();
+      await files.open();
       await page.reload({ waitUntil: "load" });
       await storageManagement.expectUserQuotaExceededSnackbar();
     });
@@ -222,8 +222,8 @@ test.describe("Storage Management: user quota enforcement", () => {
     page,
   }) => {
     await test.step("Create a document to exceed future quota", async () => {
-      await myDocuments.open();
-      await myDocuments.createDocumentFile("Fill Space");
+      await files.open();
+      await files.createDocumentFile("Fill Space");
     });
 
     await test.step("Set user quota to 1 KB", async () => {
@@ -235,20 +235,20 @@ test.describe("Storage Management: user quota enforcement", () => {
     });
 
     await test.step("Navigate to My Documents and try to create a document", async () => {
-      await myDocuments.open();
-      await myDocuments.createDocumentFile("Quota User Doc", false);
+      await files.open();
+      await files.createDocumentFile("Quota User Doc", false);
     });
 
     await test.step("Reload and verify document was not saved", async () => {
       await page.reload({ waitUntil: "load" });
-      await myDocuments.filesTable.checkRowNotExist("Quota User Doc");
+      await files.filesTable.checkRowNotExist("Quota User Doc");
     });
   });
 
   test("User quota exceeded - upload file shows error toast", async () => {
     await test.step("Create a document to exceed future quota", async () => {
-      await myDocuments.open();
-      await myDocuments.createDocumentFile("Fill Space");
+      await files.open();
+      await files.createDocumentFile("Fill Space");
     });
 
     await test.step("Set user quota to 1 KB", async () => {
@@ -260,10 +260,8 @@ test.describe("Storage Management: user quota enforcement", () => {
     });
 
     await test.step("Navigate to My Documents and upload a file", async () => {
-      await myDocuments.open();
-      await myDocuments.filesNavigation.uploadFiles(
-        "data/avatars/AvatarPNG.png",
-      );
+      await files.open();
+      await files.filesNavigation.uploadFiles("data/avatars/AvatarPNG.png");
       await storageManagement.expectUserQuotaExceededToast();
     });
   });
@@ -272,14 +270,14 @@ test.describe("Storage Management: user quota enforcement", () => {
 test.describe("Storage Management: room quota banners", () => {
   let storageManagement: StorageManagement;
   let myRooms: MyRooms;
-  let myDocuments: MyDocuments;
+  let files: Files;
 
   test.beforeEach(async ({ page, api, login }) => {
     const paymentApi = new PaymentApi(api.apiRequestContext, api.apisystem);
     await paymentApi.setupPayment();
     storageManagement = new StorageManagement(page);
     myRooms = new MyRooms(page, api.portalDomain);
-    myDocuments = new MyDocuments(page, api.portalDomain);
+    files = new Files(page, api.portalDomain);
     await login.loginToPortal();
     await storageManagement.open();
     await storageManagement.enableRoomQuota("500");
@@ -296,7 +294,7 @@ test.describe("Storage Management: room quota banners", () => {
         roomCreateTitles.collaboration,
       );
       await myRooms.roomsCreateDialog.createRoom("Editor Banner Room");
-      await myDocuments.createDocumentFile("Banner Doc");
+      await files.createDocumentFile("Banner Doc");
     });
 
     await test.step("Set room quota to 1 KB via Details panel", async () => {
@@ -309,7 +307,7 @@ test.describe("Storage Management: room quota banners", () => {
     await test.step("Open document and verify view mode with quota banner", async () => {
       await myRooms.openWithoutEmptyCheck();
       await myRooms.roomsTable.openRoomByName("Editor Banner Room");
-      const editor = await myDocuments.openDocumentInEditor("Banner Doc");
+      const editor = await files.openDocumentInEditor("Banner Doc");
       editor.setupConsoleCapture();
       await editor.waitForLoad();
       await editor.checkViewMode();
@@ -328,7 +326,7 @@ test.describe("Storage Management: room quota banners", () => {
         roomCreateTitles.collaboration,
       );
       await myRooms.roomsCreateDialog.createRoom("Warning Banner Room");
-      await myDocuments.createDocumentFile("Fill Doc");
+      await files.createDocumentFile("Fill Doc");
     });
 
     await test.step("Set room quota to 1 KB via Details panel", async () => {
@@ -355,7 +353,7 @@ test.describe("Storage Management: room quota banners", () => {
         roomCreateTitles.collaboration,
       );
       await myRooms.roomsCreateDialog.createRoom("Quota Create Room");
-      await myDocuments.createDocumentFile("Fill Doc");
+      await files.createDocumentFile("Fill Doc");
     });
 
     await test.step("Set room quota to 1 KB via Details panel", async () => {
@@ -366,7 +364,7 @@ test.describe("Storage Management: room quota banners", () => {
     });
 
     await test.step("Create new document and verify quota banner in editor", async () => {
-      const editor = await myDocuments.createDocumentAndOpenEditor("New Doc");
+      const editor = await files.createDocumentAndOpenEditor("New Doc");
       await editor.waitForFrame();
       await editor.expectQuotaExceededBanner();
       await editor.close();
@@ -383,7 +381,7 @@ test.describe("Storage Management: room quota banners", () => {
         roomCreateTitles.collaboration,
       );
       await myRooms.roomsCreateDialog.createRoom("Upload Quota Room");
-      await myDocuments.createDocumentFile("Fill Doc");
+      await files.createDocumentFile("Fill Doc");
     });
 
     await test.step("Set room quota to 1 KB via Details panel", async () => {
@@ -409,7 +407,7 @@ test.describe("Storage Management: room quota banners", () => {
         roomCreateTitles.collaboration,
       );
       await myRooms.roomsCreateDialog.createRoom("No Quota Room");
-      await myDocuments.createDocumentFile("Fill Doc");
+      await files.createDocumentFile("Fill Doc");
     });
 
     await test.step("Set room quota to 1 KB and verify warning", async () => {
@@ -441,7 +439,7 @@ test.describe("Storage Management: room quota banners", () => {
         roomCreateTitles.collaboration,
       );
       await myRooms.roomsCreateDialog.createRoom("Default Quota Room");
-      await myDocuments.createDocumentFile("Fill Doc");
+      await files.createDocumentFile("Fill Doc");
     });
 
     await test.step("Set room quota to 1 KB and verify warning", async () => {

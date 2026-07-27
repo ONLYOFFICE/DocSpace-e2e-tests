@@ -1,6 +1,6 @@
 import { test } from "@/src/fixtures";
 import ProfileFileManagement from "@/src/objects/profile/ProfileFileManagement";
-import MyDocuments from "@/src/objects/files/MyDocuments";
+import Files from "@/src/objects/files/Files";
 import { mapInitialDocNames } from "@/src/utils/constants/files";
 
 const SAMPLE_DOC = mapInitialDocNames.ONLYOFFICE_SAMPLE_DOCUMENT;
@@ -8,28 +8,24 @@ const SAMPLE_SHEET = mapInitialDocNames.ONLYOFFICE_SAMPLE_SPREADSHEETS;
 
 test.describe("Profile - Display file extension next to file name", () => {
   let profileFileManagement: ProfileFileManagement;
-  let myDocuments: MyDocuments;
+  let files: Files;
 
   test.beforeEach(async ({ page, api, login }) => {
     profileFileManagement = new ProfileFileManagement(page, api.portalDomain);
-    myDocuments = new MyDocuments(page, api.portalDomain);
+    files = new Files(page, api.portalDomain);
     await login.loginToPortal();
   });
 
   test("Files are shown without extensions by default", async () => {
     await test.step("Open My Documents and verify no extensions are shown", async () => {
-      await myDocuments.open();
-      await myDocuments.filesTable.expectCellItemVisible(SAMPLE_DOC);
-      await myDocuments.filesTable.expectCellItemVisible(SAMPLE_SHEET);
+      await files.open();
+      await files.filesTable.expectCellItemVisible(SAMPLE_DOC);
+      await files.filesTable.expectCellItemVisible(SAMPLE_SHEET);
     });
 
     await test.step("Verify extensions are not shown in name cells", async () => {
-      await myDocuments.filesTable.expectCellItemNotVisible(
-        `${SAMPLE_DOC}.docx`,
-      );
-      await myDocuments.filesTable.expectCellItemNotVisible(
-        `${SAMPLE_SHEET}.xlsx`,
-      );
+      await files.filesTable.expectCellItemNotVisible(`${SAMPLE_DOC}.docx`);
+      await files.filesTable.expectCellItemNotVisible(`${SAMPLE_SHEET}.xlsx`);
     });
   });
 
@@ -41,14 +37,12 @@ test.describe("Profile - Display file extension next to file name", () => {
     });
 
     await test.step("Verify document shows with .docx extension", async () => {
-      await myDocuments.open();
-      await myDocuments.filesTable.expectCellItemVisible(`${SAMPLE_DOC}.docx`);
+      await files.open();
+      await files.filesTable.expectCellItemVisible(`${SAMPLE_DOC}.docx`);
     });
 
     await test.step("Verify spreadsheet shows with .xlsx extension", async () => {
-      await myDocuments.filesTable.expectCellItemVisible(
-        `${SAMPLE_SHEET}.xlsx`,
-      );
+      await files.filesTable.expectCellItemVisible(`${SAMPLE_SHEET}.xlsx`);
     });
   });
 
@@ -65,11 +59,9 @@ test.describe("Profile - Display file extension next to file name", () => {
     });
 
     await test.step("Verify extensions are no longer shown", async () => {
-      await myDocuments.open();
-      await myDocuments.filesTable.expectCellItemVisible(SAMPLE_DOC);
-      await myDocuments.filesTable.expectCellItemNotVisible(
-        `${SAMPLE_DOC}.docx`,
-      );
+      await files.open();
+      await files.filesTable.expectCellItemVisible(SAMPLE_DOC);
+      await files.filesTable.expectCellItemNotVisible(`${SAMPLE_DOC}.docx`);
     });
   });
 });

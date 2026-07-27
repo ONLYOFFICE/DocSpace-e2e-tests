@@ -3,7 +3,7 @@ import { expect } from "@playwright/test";
 import Login from "@/src/objects/common/Login";
 import RoomAnonymousView from "@/src/objects/rooms/RoomAnonymousView";
 import FilesEditor from "@/src/objects/files/FilesEditor";
-import MyDocuments from "@/src/objects/files/MyDocuments";
+import Files from "@/src/objects/files/Files";
 import InfoPanel from "@/src/objects/common/InfoPanel";
 import MyRooms from "@/src/objects/rooms/Rooms";
 import RoomInfoPanel from "@/src/objects/rooms/RoomInfoPanel";
@@ -201,19 +201,19 @@ export async function createSharedLinkOnNewDocument(
   docName: string,
   apiSdk?: ApiSDK,
 ): Promise<string> {
-  const myDocuments = new MyDocuments(page, portalDomain);
+  const files = new Files(page, portalDomain);
   const infoPanel = new InfoPanel(page);
 
   if (apiSdk) {
     await apiSdk.files.createFileInMyDocuments("owner", { title: docName });
-    await myDocuments.open();
+    await files.open();
   } else {
-    await myDocuments.open();
-    await myDocuments.createDocumentFile(docName);
+    await files.open();
+    await files.createDocumentFile(docName);
   }
-  await myDocuments.filesTable.checkRowExist(docName);
-  await myDocuments.filesTable.openContextMenuForItem(docName);
-  await myDocuments.filesTable.contextMenu.clickSubmenuOption(
+  await files.filesTable.checkRowExist(docName);
+  await files.filesTable.openContextMenuForItem(docName);
+  await files.filesTable.contextMenu.clickSubmenuOption(
     "Share",
     "Sharing settings",
   );
@@ -222,7 +222,7 @@ export async function createSharedLinkOnNewDocument(
   const linkPromise = waitForShareLinkResponse(page);
   await infoPanel.createFirstSharedLink();
   const link = await linkPromise;
-  await myDocuments.dismissToastSafely("Link copied to clipboard");
+  await files.dismissToastSafely("Link copied to clipboard");
 
   return link;
 }

@@ -1,5 +1,5 @@
 import { expect, Page } from "@playwright/test";
-import MyDocuments from "@/src/objects/files/MyDocuments";
+import Files from "@/src/objects/files/Files";
 import FilesPdfForm from "@/src/objects/files/FilesPdfForm";
 import EditorStartFillingPanel from "@/src/objects/files/EditorStartFillingPanel";
 import MyRooms from "@/src/objects/rooms/Rooms";
@@ -14,12 +14,12 @@ import {
 import { test } from "@/src/fixtures";
 
 test.describe("My Documents: PDF form start filling via editor", () => {
-  let myDocuments: MyDocuments;
+  let files: Files;
 
   test.beforeEach(async ({ page, api, login }) => {
-    myDocuments = new MyDocuments(page, api.portalDomain);
+    files = new Files(page, api.portalDomain);
     await login.loginToPortal();
-    await myDocuments.open();
+    await files.open();
   });
 
   test("Owner sees all fill options when clicking Start filling on a blank PDF form", async () => {
@@ -27,7 +27,7 @@ test.describe("My Documents: PDF form start filling via editor", () => {
     let pdfForm: FilesPdfForm;
 
     await test.step("Create blank PDF form and open editor", async () => {
-      const editor = await myDocuments.createPdfFormAndOpenEditor("PDF Form");
+      const editor = await files.createPdfFormAndOpenEditor("PDF Form");
       await editor.waitForLoad();
       editorPage = editor.editorPage;
       pdfForm = new FilesPdfForm(editorPage);
@@ -53,7 +53,7 @@ test.describe("My Documents: PDF form start filling via editor", () => {
     let shareLink: string;
 
     await test.step("Create blank PDF form and open editor", async () => {
-      const editor = await myDocuments.createPdfFormAndOpenEditor("PDF Form");
+      const editor = await files.createPdfFormAndOpenEditor("PDF Form");
       await editor.waitForLoad();
       editorPage = editor.editorPage;
       pdfForm = new FilesPdfForm(editorPage);
@@ -88,10 +88,10 @@ test.describe("My Documents: PDF form start filling via editor", () => {
     });
 
     await test.step("Verify Share tab in info panel shows fill link", async () => {
-      await myDocuments.filesTable.selectFolderByName("PDF Form");
-      await myDocuments.infoPanel.open();
-      await myDocuments.infoPanel.openTab("Share");
-      await myDocuments.infoPanel.checkSharedLinkCreated();
+      await files.filesTable.selectFolderByName("PDF Form");
+      await files.infoPanel.open();
+      await files.infoPanel.openTab("Share");
+      await files.infoPanel.checkSharedLinkCreated();
     });
   });
 
@@ -108,7 +108,7 @@ test.describe("My Documents: PDF form start filling via editor", () => {
     });
 
     await test.step("Create blank PDF form and open editor", async () => {
-      const editor = await myDocuments.createPdfFormAndOpenEditor("PDF Form");
+      const editor = await files.createPdfFormAndOpenEditor("PDF Form");
       await editor.waitForLoad();
       editorPage = editor.editorPage;
       pdfForm = new FilesPdfForm(editorPage);
@@ -131,10 +131,10 @@ test.describe("My Documents: PDF form start filling via editor", () => {
     });
 
     await test.step("Verify user is added in Share tab of info panel", async () => {
-      await myDocuments.filesTable.selectFolderByName("PDF Form");
-      await myDocuments.infoPanel.open();
-      await myDocuments.infoPanel.openTab("Share");
-      await myDocuments.infoPanel.checkUserHasAccess(userName);
+      await files.filesTable.selectFolderByName("PDF Form");
+      await files.infoPanel.open();
+      await files.infoPanel.openTab("Share");
+      await files.infoPanel.checkUserHasAccess(userName);
     });
   });
 
@@ -146,7 +146,7 @@ test.describe("My Documents: PDF form start filling via editor", () => {
     let selector: BaseSelector;
 
     await test.step("Create blank PDF form and open editor", async () => {
-      const editor = await myDocuments.createPdfFormAndOpenEditor("PDF Form");
+      const editor = await files.createPdfFormAndOpenEditor("PDF Form");
       await editor.waitForLoad();
       editorPage = editor.editorPage;
       pdfForm = new FilesPdfForm(editorPage);
@@ -211,7 +211,7 @@ test.describe("My Documents: PDF form start filling via editor", () => {
     let selector: BaseSelector;
 
     await test.step("Create blank PDF form and open editor", async () => {
-      const editor = await myDocuments.createPdfFormAndOpenEditor("PDF Form");
+      const editor = await files.createPdfFormAndOpenEditor("PDF Form");
       await editor.waitForLoad();
       editorPage = editor.editorPage;
       pdfForm = new FilesPdfForm(editorPage);
@@ -256,7 +256,7 @@ test.describe("My Documents: PDF form start filling via editor", () => {
     let selector: BaseSelector;
 
     await test.step("Create blank PDF form and open editor", async () => {
-      const editor = await myDocuments.createPdfFormAndOpenEditor("PDF Form");
+      const editor = await files.createPdfFormAndOpenEditor("PDF Form");
       await editor.waitForLoad();
       editorPage = editor.editorPage;
       pdfForm = new FilesPdfForm(editorPage);

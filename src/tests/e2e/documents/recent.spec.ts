@@ -1,4 +1,4 @@
-import MyDocuments from "@/src/objects/files/MyDocuments";
+import Files from "@/src/objects/files/Files";
 import Recent from "@/src/objects/files/Recent";
 import { test } from "@/src/fixtures";
 import { expect } from "@playwright/test";
@@ -13,15 +13,15 @@ const imageName = "image";
 const diagramName = "diagram";
 
 test.describe("My documents: Recent", () => {
-  let myDocuments: MyDocuments;
+  let files: Files;
   let recent: Recent;
 
   test.beforeEach(async ({ page, api, login }) => {
-    myDocuments = new MyDocuments(page, api.portalDomain);
+    files = new Files(page, api.portalDomain);
     recent = new Recent(page, api.portalDomain);
 
     await login.loginToPortal();
-    await myDocuments.open();
+    await files.open();
   });
 
   test("Recent section shows empty view", async () => {
@@ -31,13 +31,12 @@ test.describe("My documents: Recent", () => {
 
   test("Files appear in Recent after opening", async () => {
     await test.step("Create and open files in editor", async () => {
-      const docEditor =
-        await myDocuments.createDocumentAndOpenEditor(documentName);
+      const docEditor = await files.createDocumentAndOpenEditor(documentName);
       await docEditor.waitForLoad();
       await docEditor.close();
 
       const sheetEditor =
-        await myDocuments.createSpreadsheetAndOpenEditor(spreadsheetName);
+        await files.createSpreadsheetAndOpenEditor(spreadsheetName);
       await sheetEditor.waitForLoad();
       await sheetEditor.close();
     });
@@ -51,20 +50,18 @@ test.describe("My documents: Recent", () => {
 
   test("Filter recent files by type", async ({ apiSdk }) => {
     await test.step("Create and edit files in editor", async () => {
-      const docEditor =
-        await myDocuments.createDocumentAndOpenEditor(documentName);
+      const docEditor = await files.createDocumentAndOpenEditor(documentName);
       await docEditor.editAndClose("doc text");
 
       const sheetEditor =
-        await myDocuments.createSpreadsheetAndOpenEditor(spreadsheetName);
+        await files.createSpreadsheetAndOpenEditor(spreadsheetName);
       await sheetEditor.editAndClose("sheet text");
 
       const presEditor =
-        await myDocuments.createPresentationAndOpenEditor(presentationName);
+        await files.createPresentationAndOpenEditor(presentationName);
       await presEditor.editAndClose("pres text");
 
-      const pdfEditor =
-        await myDocuments.createPdfFormAndOpenEditor(pdfFormName);
+      const pdfEditor = await files.createPdfFormAndOpenEditor(pdfFormName);
       await pdfEditor.editAndClose("pdf text");
     });
 
@@ -149,23 +146,21 @@ test.describe("My documents: Recent", () => {
 
   test("Search in Recent", async () => {
     await test.step("Create and open files in editor", async () => {
-      const docEditor =
-        await myDocuments.createDocumentAndOpenEditor(documentName);
+      const docEditor = await files.createDocumentAndOpenEditor(documentName);
       await docEditor.waitForLoad();
       await docEditor.close();
 
       const sheetEditor =
-        await myDocuments.createSpreadsheetAndOpenEditor(spreadsheetName);
+        await files.createSpreadsheetAndOpenEditor(spreadsheetName);
       await sheetEditor.waitForLoad();
       await sheetEditor.close();
 
       const presEditor =
-        await myDocuments.createPresentationAndOpenEditor(presentationName);
+        await files.createPresentationAndOpenEditor(presentationName);
       await presEditor.waitForLoad();
       await presEditor.close();
 
-      const pdfEditor =
-        await myDocuments.createPdfFormAndOpenEditor(pdfFormName);
+      const pdfEditor = await files.createPdfFormAndOpenEditor(pdfFormName);
       await pdfEditor.waitForLoad();
       await pdfEditor.close();
     });
@@ -196,8 +191,7 @@ test.describe("My documents: Recent", () => {
 
   test.skip("Remove file from Recent", async () => {
     await test.step("Create and open file to add it to Recent", async () => {
-      const docEditor =
-        await myDocuments.createDocumentAndOpenEditor(documentName);
+      const docEditor = await files.createDocumentAndOpenEditor(documentName);
       await docEditor.editAndClose("doc text");
     });
 
@@ -212,15 +206,14 @@ test.describe("My documents: Recent", () => {
     });
 
     await test.step("Verify file still exists in My Documents", async () => {
-      await myDocuments.open();
-      await myDocuments.filesTable.checkRowExist(documentName);
+      await files.open();
+      await files.filesTable.checkRowExist(documentName);
     });
   });
 
   test.skip("Download file from Recent", async () => {
     await test.step("Create and open file to add it to Recent", async () => {
-      const docEditor =
-        await myDocuments.createDocumentAndOpenEditor(documentName);
+      const docEditor = await files.createDocumentAndOpenEditor(documentName);
       await docEditor.editAndClose("doc text");
     });
 
@@ -243,8 +236,7 @@ test.describe("My documents: Recent", () => {
 
   test("Info panel shows file properties", async () => {
     await test.step("Create and open file to add it to Recent", async () => {
-      const docEditor =
-        await myDocuments.createDocumentAndOpenEditor(documentName);
+      const docEditor = await files.createDocumentAndOpenEditor(documentName);
       await docEditor.editAndClose("doc text");
     });
 
@@ -264,8 +256,7 @@ test.describe("My documents: Recent", () => {
     page,
   }) => {
     await test.step("Create and open file to add it to Recent", async () => {
-      const docEditor =
-        await myDocuments.createDocumentAndOpenEditor(documentName);
+      const docEditor = await files.createDocumentAndOpenEditor(documentName);
       await docEditor.editAndClose("doc text");
     });
 
@@ -280,7 +271,7 @@ test.describe("My documents: Recent", () => {
 
     await test.step("Verify we are in My Documents with the file visible", async () => {
       await expect(page).toHaveURL(/.*rooms\/personal.*/);
-      await myDocuments.filesTable.checkRowExist(documentName);
+      await files.filesTable.checkRowExist(documentName);
     });
   });
 });

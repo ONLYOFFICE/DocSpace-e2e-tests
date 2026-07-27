@@ -2,7 +2,7 @@ import { expect } from "@playwright/test";
 import { test } from "@/src/fixtures";
 import Services from "@/src/objects/settings/services/services";
 import { PaymentApi } from "@/src/api/payment";
-import MyDocuments from "@/src/objects/files/MyDocuments";
+import Files from "@/src/objects/files/Files";
 import { Backup } from "@/src/objects/settings/backup/Backup";
 
 test.describe("Backup service", () => {
@@ -75,9 +75,9 @@ test.describe("Backup service", () => {
       await services.open();
       await services.backupService.click();
       await services.downloadReport();
-      const myDocuments = new MyDocuments(page, api.portalDomain);
-      await myDocuments.open();
-      await myDocuments.filesTable.expectItemVisible(/report/i);
+      const files = new Files(page, api.portalDomain);
+      await files.open();
+      await files.filesTable.expectItemVisible(/report/i);
     });
   });
 });
@@ -177,9 +177,9 @@ test.describe("Disk storage service", () => {
 
     await test.step("Verify report appears in My Documents", async () => {
       await services.downloadReport();
-      const myDocuments = new MyDocuments(page, api.portalDomain);
-      await myDocuments.open();
-      await myDocuments.filesTable.expectItemVisible(/report/i);
+      const files = new Files(page, api.portalDomain);
+      await files.open();
+      await files.filesTable.expectItemVisible(/report/i);
     });
   });
 });

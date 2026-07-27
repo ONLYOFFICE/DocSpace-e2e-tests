@@ -1,32 +1,32 @@
 import { expect } from "@playwright/test";
 import { test } from "@/src/fixtures";
 import ProfileFileManagement from "@/src/objects/profile/ProfileFileManagement";
-import MyDocuments from "@/src/objects/files/MyDocuments";
+import Files from "@/src/objects/files/Files";
 import Rooms from "@/src/objects/rooms/Rooms";
 import Login from "@/src/objects/common/Login";
 import { mapInitialDocNames } from "@/src/utils/constants/files";
 
 test.describe("Profile - Open ONLYOFFICE editor in same tab", () => {
   let profileFileManagement: ProfileFileManagement;
-  let myDocuments: MyDocuments;
+  let files: Files;
   let myRooms: Rooms;
   let login: Login;
 
   test.beforeEach(async ({ page, api }) => {
     profileFileManagement = new ProfileFileManagement(page, api.portalDomain);
-    myDocuments = new MyDocuments(page, api.portalDomain);
+    files = new Files(page, api.portalDomain);
     myRooms = new Rooms(page, api.portalDomain);
     login = new Login(page, api.portalDomain);
     await login.loginToPortal();
     await profileFileManagement.open();
     await profileFileManagement.toggleOpenInSameTab();
-    await myDocuments.open();
+    await files.open();
   });
 
   test.describe("Creating new files", () => {
     test("New document opens in same tab", async ({ page }) => {
       await test.step("Create document and open editor", async () => {
-        await myDocuments.createDocumentAndOpenEditorInSameTab();
+        await files.createDocumentAndOpenEditorInSameTab();
       });
 
       await test.step("Verify editor opened in same tab with no new tabs", async () => {
@@ -38,7 +38,7 @@ test.describe("Profile - Open ONLYOFFICE editor in same tab", () => {
 
     test("New spreadsheet opens in same tab", async ({ page }) => {
       await test.step("Create spreadsheet and open editor", async () => {
-        await myDocuments.createSpreadsheetAndOpenEditorInSameTab();
+        await files.createSpreadsheetAndOpenEditorInSameTab();
       });
 
       await test.step("Verify editor opened in same tab with no new tabs", async () => {
@@ -49,7 +49,7 @@ test.describe("Profile - Open ONLYOFFICE editor in same tab", () => {
 
     test("New presentation opens in same tab", async ({ page }) => {
       await test.step("Create presentation and open editor", async () => {
-        await myDocuments.createPresentationAndOpenEditorInSameTab();
+        await files.createPresentationAndOpenEditorInSameTab();
       });
 
       await test.step("Verify editor opened in same tab with no new tabs", async () => {
@@ -60,7 +60,7 @@ test.describe("Profile - Open ONLYOFFICE editor in same tab", () => {
 
     test("New PDF form opens in same tab", async ({ page }) => {
       await test.step("Create PDF form and open editor", async () => {
-        await myDocuments.createPdfFormAndOpenEditorInSameTab();
+        await files.createPdfFormAndOpenEditorInSameTab();
       });
 
       await test.step("Verify editor opened in same tab with no new tabs", async () => {
@@ -98,8 +98,8 @@ test.describe("Profile - Open ONLYOFFICE editor in same tab", () => {
     });
 
     await test.step("Open document sample", async () => {
-      await myDocuments.open();
-      await myDocuments.openDocumentInSameTab(
+      await files.open();
+      await files.openDocumentInSameTab(
         mapInitialDocNames.ONLYOFFICE_SAMPLE_DOCUMENT,
       );
     });
@@ -117,8 +117,8 @@ test.describe("Profile - Open ONLYOFFICE editor in same tab", () => {
     });
 
     await test.step("Open document sample - editor should open in new tab", async () => {
-      await myDocuments.open();
-      const editor = await myDocuments.openDocumentInEditor(
+      await files.open();
+      const editor = await files.openDocumentInEditor(
         mapInitialDocNames.ONLYOFFICE_SAMPLE_DOCUMENT,
       );
       await editor.waitForLoad();

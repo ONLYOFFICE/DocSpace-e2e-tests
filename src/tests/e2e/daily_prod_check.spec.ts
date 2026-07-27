@@ -1,13 +1,15 @@
 import { test } from "@/src/fixtures";
 import { expect } from "@playwright/test";
 import config from "@/config";
-import MyDocuments from "@/src/objects/files/MyDocuments";
+import Files from "@/src/objects/files/Files";
 import MyRooms from "@/src/objects/rooms/Rooms";
-import Trash from "@/src/objects/trash/Trash";
+import Trash from "@/src/objects/files/trash/Trash";
 import FileVersionHistory from "@/src/objects/files/FileVersionHistory";
 import VdrRoomSettings from "@/src/objects/rooms/VdrRoomSettings";
 import { Profile } from "@/src/objects/profile/Profile";
 import BaseNavigation from "@/src/objects/common/BaseNavigation";
+import AppsSidebar from "@/src/objects/common/AppsSidebar";
+import { apps, filesSubItems } from "@/src/utils/constants/navigation";
 import { createMailChecker } from "@/src/utils/helpers/email/createMailChecker";
 import { getOwnerConfirmLink } from "@/src/utils/helpers/email/getOwnerConfirmLink";
 import {
@@ -22,12 +24,28 @@ test.describe("Daily prod check", () => {
     "Runs only in Prod Daily Check workflow",
   );
 
+  // Prod still runs the pre-redesign UI: the create button lives in the header
+  // and the left rail items still carry their #document_catalog-* ids.
   const newUiMainButton = BaseNavigation.mainButtonSelector;
+  const newUiLegacySelectors = AppsSidebar.legacySelectors;
+
   test.beforeAll(() => {
     BaseNavigation.mainButtonSelector = "#header_add-button";
+    AppsSidebar.legacySelectors = {
+      [apps.files]: "#document_catalog-personal",
+      [apps.rooms]: "#document_catalog-shared",
+      [`${apps.files}/${filesSubItems.trash}`]: "#document_catalog-trash",
+      [`${apps.files}/${filesSubItems.recent}`]: "#document_catalog-recent",
+      [`${apps.files}/${filesSubItems.favorites}`]:
+        "#document_catalog-favorites",
+      [`${apps.files}/${filesSubItems.sharedWithMe}`]:
+        "#document_catalog-share",
+    };
   });
+
   test.afterAll(() => {
     BaseNavigation.mainButtonSelector = newUiMainButton;
+    AppsSidebar.legacySelectors = newUiLegacySelectors;
   });
 
   test.describe("Rooms", () => {
@@ -126,67 +144,64 @@ test.describe("Daily prod check", () => {
   });
 
   test.describe("Documents", () => {
-    let myDocuments: MyDocuments;
+    let files: Files;
 
     test.beforeEach(async ({ page, api, login }) => {
-      myDocuments = new MyDocuments(page, api.portalDomain);
+      files = new Files(page, api.portalDomain);
       await login.loginToPortal();
-      await myDocuments.open();
+      await files.open();
     });
 
     test("Render Documents", async () => {
-      await myDocuments.filesTable.checkInitialDocsExist();
+      await files.filesTable.checkInitialDocsExist();
     });
 
     test("Create all document types and verify editors open", async () => {
       await test.step("Create document and open editor", async () => {
-        const docEditor = await myDocuments.createDocumentAndOpenEditor("Doc");
+        const docEditor = await files.createDocumentAndOpenEditor("Doc");
         await docEditor.waitForLoad();
         await docEditor.close();
       });
 
       await test.step("Create spreadsheet and open editor", async () => {
-        const sheetEditor =
-          await myDocuments.createSpreadsheetAndOpenEditor("Sheet");
+        const sheetEditor = await files.createSpreadsheetAndOpenEditor("Sheet");
         await sheetEditor.waitForLoad();
         await sheetEditor.close();
       });
 
       await test.step("Create presentation and open editor", async () => {
         const slideEditor =
-          await myDocuments.createPresentationAndOpenEditor("Slides");
+          await files.createPresentationAndOpenEditor("Slides");
         await slideEditor.waitForLoad();
         await slideEditor.close();
       });
 
       await test.step("Create PDF form and open editor", async () => {
-        const pdfEditor = await myDocuments.createPdfFormAndOpenEditor("PDF");
+        const pdfEditor = await files.createPdfFormAndOpenEditor("PDF");
         await pdfEditor.waitForLoad();
         await pdfEditor.close();
       });
     });
 
     test("Download file in original format", async () => {
-      await myDocuments.createDocumentFile("DownloadDoc");
-      await myDocuments.downloadOriginalFile("DownloadDoc", ".docx");
+      await files.createDocumentFile("DownloadDoc");
+      await files.downloadOriginalFile("DownloadDoc", ".docx");
     });
 
     test("Convert and download file as PDF", async () => {
-      await myDocuments.createDocumentFile("ConvertDoc");
-      await myDocuments.downloadFileAs(".pdf", "ConvertDoc");
+      await files.createDocumentFile("ConvertDoc");
+      await files.downloadFileAs(".pdf", "ConvertDoc");
     });
 
     test("Delete file", async () => {
-      await myDocuments.createDocumentFile("DeleteDoc");
-      await myDocuments.deleteFile("DeleteDoc");
+      await files.createDocumentFile("DeleteDoc");
+      await files.deleteFile("DeleteDoc");
     });
 
     test("Search Documents", async () => {
-      await myDocuments.createDocumentFile("FindMe");
-      await myDocuments.filesFilter.fillFilesSearchInputAndCheckRequest(
-        "FindMe",
-      );
-      await myDocuments.filesTable.checkRowExist("FindMe");
+      await files.createDocumentFile("FindMe");
+      await files.filesFilter.fillFilesSearchInputAndCheckRequest("FindMe");
+      await files.filesTable.checkRowExist("FindMe");
     });
 
     test("Open editor, edit, and verify new version arrives via WebSocket", async ({
@@ -195,8 +210,7 @@ test.describe("Daily prod check", () => {
       const versionHistory = new FileVersionHistory(page);
 
       await test.step("Create document, type text and save", async () => {
-        const editor =
-          await myDocuments.createDocumentAndOpenEditor("EditorCheck");
+        const editor = await files.createDocumentAndOpenEditor("EditorCheck");
         await editor.editAndClose(
           [
             "Daily production check: editor opens and accepts keyboard input",
@@ -209,18 +223,18 @@ test.describe("Daily prod check", () => {
       });
 
       await test.step("Open version history and verify version 2 exists", async () => {
-        await myDocuments.openVersionHistory("EditorCheck");
+        await files.openVersionHistory("EditorCheck");
         await versionHistory.checkVersionCount(2, 60000);
       });
     });
   });
 
   test.describe("Trash", () => {
-    let myDocuments: MyDocuments;
+    let files: Files;
     let trash: Trash;
 
     test.beforeEach(async ({ page, api, login }) => {
-      myDocuments = new MyDocuments(page, api.portalDomain);
+      files = new Files(page, api.portalDomain);
       trash = new Trash(page);
       await login.loginToPortal();
     });
@@ -229,9 +243,9 @@ test.describe("Daily prod check", () => {
       await apiSdk.files.createFileInMyDocuments("owner", {
         title: "TrashDoc",
       });
-      await myDocuments.open();
+      await files.open();
 
-      await myDocuments.deleteFile("TrashDoc");
+      await files.deleteFile("TrashDoc");
 
       await trash.open();
       await trash.deleteFileForever("TrashDoc");
@@ -241,9 +255,9 @@ test.describe("Daily prod check", () => {
       await apiSdk.files.createFileInMyDocuments("owner", {
         title: "RestoreDoc",
       });
-      await myDocuments.open();
+      await files.open();
 
-      await myDocuments.deleteFile("RestoreDoc");
+      await files.deleteFile("RestoreDoc");
 
       await trash.open();
       await trash.restoreFileTo("RestoreDoc");

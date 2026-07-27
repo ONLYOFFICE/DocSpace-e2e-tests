@@ -1,4 +1,4 @@
-import MyDocuments from "@/src/objects/files/MyDocuments";
+import Files from "@/src/objects/files/Files";
 import InfoPanel from "@/src/objects/common/InfoPanel";
 import FileLinkSettings from "@/src/objects/files/FileLinkSettings";
 import BasePasswordRequire from "@/src/objects/common/BasePasswordRequire";
@@ -19,19 +19,19 @@ import {
 } from "@/src/objects/files/api";
 
 test.describe("Document sharing", () => {
-  let myDocuments: MyDocuments;
+  let files: Files;
   let infoPanel: InfoPanel;
   let incognitoContext: BrowserContext | null = null;
   let incognitoPage: Page | null = null;
 
   test.beforeEach(async ({ page, api, login }) => {
-    myDocuments = new MyDocuments(page, api.portalDomain);
+    files = new Files(page, api.portalDomain);
     infoPanel = new InfoPanel(page);
 
     await login.loginToPortal();
-    await myDocuments.open();
-    await myDocuments.deleteAllDocs();
-    await myDocuments.createDocumentFile("TestDocument");
+    await files.open();
+    await files.deleteAllDocs();
+    await files.createDocumentFile("TestDocument");
   });
 
   test.afterEach(async () => {
@@ -45,8 +45,8 @@ test.describe("Document sharing", () => {
     let shareLink: string;
 
     await test.step("Open sharing settings via context menu", async () => {
-      await myDocuments.filesTable.openContextMenuForItem("TestDocument");
-      await myDocuments.filesTable.contextMenu.clickSubmenuOption(
+      await files.filesTable.openContextMenuForItem("TestDocument");
+      await files.filesTable.contextMenu.clickSubmenuOption(
         "Share",
         "Sharing settings",
       );
@@ -57,7 +57,7 @@ test.describe("Document sharing", () => {
       const linkPromise = waitForShareLinkResponse(page);
       await infoPanel.createFirstSharedLink();
       shareLink = await linkPromise;
-      await myDocuments.dismissToastSafely("Link copied to clipboard");
+      await files.dismissToastSafely("Link copied to clipboard");
     });
 
     await test.step("Open shared link in incognito and verify editor loads", async () => {
@@ -77,8 +77,8 @@ test.describe("Document sharing", () => {
     let shareLink: string;
 
     await test.step("Open sharing settings via context menu", async () => {
-      await myDocuments.filesTable.openContextMenuForItem("TestDocument");
-      await myDocuments.filesTable.contextMenu.clickSubmenuOption(
+      await files.filesTable.openContextMenuForItem("TestDocument");
+      await files.filesTable.contextMenu.clickSubmenuOption(
         "Share",
         "Sharing settings",
       );
@@ -87,7 +87,7 @@ test.describe("Document sharing", () => {
     await test.step("Create shared link", async () => {
       await infoPanel.checkShareExist();
       await infoPanel.createFirstSharedLink();
-      await myDocuments.dismissToastSafely("Link copied to clipboard");
+      await files.dismissToastSafely("Link copied to clipboard");
     });
 
     await test.step("Change link access to 'docspace users only' via link settings", async () => {
@@ -112,8 +112,8 @@ test.describe("Document sharing", () => {
     let shareLink: string;
 
     await test.step("Open sharing settings via context menu", async () => {
-      await myDocuments.filesTable.openContextMenuForItem("TestDocument");
-      await myDocuments.filesTable.contextMenu.clickSubmenuOption(
+      await files.filesTable.openContextMenuForItem("TestDocument");
+      await files.filesTable.contextMenu.clickSubmenuOption(
         "Share",
         "Sharing settings",
       );
@@ -122,7 +122,7 @@ test.describe("Document sharing", () => {
     await test.step("Create shared link", async () => {
       await infoPanel.checkShareExist();
       await infoPanel.createFirstSharedLink();
-      await myDocuments.dismissToastSafely("Link copied to clipboard");
+      await files.dismissToastSafely("Link copied to clipboard");
     });
 
     await test.step("Open link settings and set password", async () => {
@@ -159,8 +159,8 @@ test.describe("Document sharing", () => {
     });
 
     await test.step("Open sharing settings for document", async () => {
-      await myDocuments.filesTable.openContextMenuForItem("TestDocument");
-      await myDocuments.filesTable.contextMenu.clickSubmenuOption(
+      await files.filesTable.openContextMenuForItem("TestDocument");
+      await files.filesTable.contextMenu.clickSubmenuOption(
         "Share",
         "Sharing settings",
       );
@@ -185,8 +185,8 @@ test.describe("Document sharing", () => {
     });
 
     await test.step("Open sharing settings for document", async () => {
-      await myDocuments.filesTable.openContextMenuForItem("TestDocument");
-      await myDocuments.filesTable.contextMenu.clickSubmenuOption(
+      await files.filesTable.openContextMenuForItem("TestDocument");
+      await files.filesTable.contextMenu.clickSubmenuOption(
         "Share",
         "Sharing settings",
       );
@@ -213,8 +213,8 @@ test.describe("Document sharing", () => {
     });
 
     await test.step("Open sharing settings for document", async () => {
-      await myDocuments.filesTable.openContextMenuForItem("TestDocument");
-      await myDocuments.filesTable.contextMenu.clickSubmenuOption(
+      await files.filesTable.openContextMenuForItem("TestDocument");
+      await files.filesTable.contextMenu.clickSubmenuOption(
         "Share",
         "Sharing settings",
       );
@@ -241,8 +241,8 @@ test.describe("Document sharing", () => {
     });
 
     await test.step("Open sharing settings for document", async () => {
-      await myDocuments.filesTable.openContextMenuForItem("TestDocument");
-      await myDocuments.filesTable.contextMenu.clickSubmenuOption(
+      await files.filesTable.openContextMenuForItem("TestDocument");
+      await files.filesTable.contextMenu.clickSubmenuOption(
         "Share",
         "Sharing settings",
       );
@@ -269,8 +269,8 @@ test.describe("Document sharing", () => {
     });
 
     await test.step("Open sharing settings for document", async () => {
-      await myDocuments.filesTable.openContextMenuForItem("TestDocument");
-      await myDocuments.filesTable.contextMenu.clickSubmenuOption(
+      await files.filesTable.openContextMenuForItem("TestDocument");
+      await files.filesTable.contextMenu.clickSubmenuOption(
         "Share",
         "Sharing settings",
       );
@@ -297,8 +297,8 @@ test.describe("Document sharing", () => {
     });
 
     await test.step("Open sharing settings for document", async () => {
-      await myDocuments.filesTable.openContextMenuForItem("TestDocument");
-      await myDocuments.filesTable.contextMenu.clickSubmenuOption(
+      await files.filesTable.openContextMenuForItem("TestDocument");
+      await files.filesTable.contextMenu.clickSubmenuOption(
         "Share",
         "Sharing settings",
       );
@@ -325,8 +325,8 @@ test.describe("Document sharing", () => {
     });
 
     await test.step("Open sharing settings and add user", async () => {
-      await myDocuments.filesTable.openContextMenuForItem("TestDocument");
-      await myDocuments.filesTable.contextMenu.clickSubmenuOption(
+      await files.filesTable.openContextMenuForItem("TestDocument");
+      await files.filesTable.contextMenu.clickSubmenuOption(
         "Share",
         "Sharing settings",
       );
@@ -353,8 +353,8 @@ test.describe("Document sharing", () => {
     });
 
     await test.step("Open sharing settings and add user", async () => {
-      await myDocuments.filesTable.openContextMenuForItem("TestDocument");
-      await myDocuments.filesTable.contextMenu.clickSubmenuOption(
+      await files.filesTable.openContextMenuForItem("TestDocument");
+      await files.filesTable.contextMenu.clickSubmenuOption(
         "Share",
         "Sharing settings",
       );
@@ -374,8 +374,8 @@ test.describe("Document sharing", () => {
 
   test("Delete file shared link", async ({ page }) => {
     await test.step("Open sharing settings and create external link", async () => {
-      await myDocuments.filesTable.openContextMenuForItem("TestDocument");
-      await myDocuments.filesTable.contextMenu.clickSubmenuOption(
+      await files.filesTable.openContextMenuForItem("TestDocument");
+      await files.filesTable.contextMenu.clickSubmenuOption(
         "Share",
         "Sharing settings",
       );
@@ -383,7 +383,7 @@ test.describe("Document sharing", () => {
       const linkPromise = waitForShareLinkResponse(page);
       await infoPanel.createFirstSharedLink();
       await linkPromise;
-      await myDocuments.dismissToastSafely("Link copied to clipboard");
+      await files.dismissToastSafely("Link copied to clipboard");
       await infoPanel.checkSharedLinkCreated();
     });
 

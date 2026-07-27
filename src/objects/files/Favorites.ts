@@ -3,8 +3,7 @@ import { getPortalUrl } from "../../../config";
 import BasePage from "../common/BasePage";
 import FilesTable from "./FilesTable";
 import FilesFilter from "./FilesFilter";
-
-const FAVORITES_NAV_ITEM = "#document_catalog-favorites";
+import { apps, filesSubItems } from "@/src/utils/constants/navigation";
 
 class Favorites extends BasePage {
   private portalDomain: string;
@@ -32,9 +31,7 @@ class Favorites extends BasePage {
   }
 
   async openFromNavigation() {
-    const navItem = this.page.locator(FAVORITES_NAV_ITEM);
-    await expect(navItem).toBeVisible();
-    await navItem.click();
+    await this.sidebar.openSubItem(apps.files, filesSubItems.favorites);
     await this.waitForFavoritesPage();
   }
 

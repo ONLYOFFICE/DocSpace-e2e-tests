@@ -1,5 +1,5 @@
 import { Page } from "@playwright/test";
-import BaseFilter from "../common/BaseFilter";
+import BaseFilter from "../../common/BaseFilter";
 import { FILTER_TYPE, FILTER_AUTHOR } from "@/src/utils/constants/filter";
 
 const ROOM_FILTER_LABEL = "Select room";

@@ -1,6 +1,6 @@
 import { expect } from "@playwright/test";
 import { test } from "@/src/fixtures";
-import MyDocuments from "@/src/objects/files/MyDocuments";
+import Files from "@/src/objects/files/Files";
 import FilesEditor from "@/src/objects/files/FilesEditor";
 import { documentContextMenuOption } from "@/src/utils/constants/files";
 
@@ -36,27 +36,24 @@ const LOSSY_EDIT_FORMATS: LossyEditFormat[] = [
 test.describe("My Documents: all lossy-edit formats open in view mode", () => {
   for (const format of LOSSY_EDIT_FORMATS) {
     test.describe(`.${format.ext} (${format.type})`, () => {
-      let myDocuments: MyDocuments;
+      let files: Files;
 
       test.beforeEach(async ({ page, api, login, apiSdk }) => {
-        myDocuments = new MyDocuments(page, api.portalDomain);
+        files = new Files(page, api.portalDomain);
         await login.loginToPortal();
         await apiSdk.files.uploadToMyDocuments("owner", format.filePath);
-        await myDocuments.open();
+        await files.open();
       });
 
       // TODO: update when Edit+warning flow is implemented (Bug 79081)
       test("context menu: no Edit, has Preview", async () => {
         await test.step(`Open context menu for ${format.name}`, async () => {
-          await myDocuments.filesTable.openContextMenuForItem(
-            format.name,
-            true,
-          );
+          await files.filesTable.openContextMenuForItem(format.name, true);
         });
 
         await test.step("Edit option is absent (view-only by default)", async () => {
           await expect(
-            myDocuments.filesTable.contextMenu.getItemLocator(
+            files.filesTable.contextMenu.getItemLocator(
               documentContextMenuOption.edit,
             ),
           ).not.toBeVisible();
@@ -64,20 +61,20 @@ test.describe("My Documents: all lossy-edit formats open in view mode", () => {
 
         await test.step("Preview option is present", async () => {
           await expect(
-            myDocuments.filesTable.contextMenu.getItemLocator(
+            files.filesTable.contextMenu.getItemLocator(
               documentContextMenuOption.preview,
             ),
           ).toBeVisible();
         });
 
-        await myDocuments.filesTable.contextMenu.close();
+        await files.filesTable.contextMenu.close();
       });
 
       test("opens in view mode via Preview", async () => {
         let editor: FilesEditor;
 
         await test.step(`Open .${format.ext} via Preview`, async () => {
-          const editorPage = await myDocuments.openFileViaPreview(format.name);
+          const editorPage = await files.openFileViaPreview(format.name);
           editor = new FilesEditor(editorPage);
           // Set up capture immediately — the editor takes several seconds to
           // initialise, so the "opened in mode view" message won't be missed.

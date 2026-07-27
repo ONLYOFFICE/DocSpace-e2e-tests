@@ -1,4 +1,4 @@
-import MyDocuments from "@/src/objects/files/MyDocuments";
+import Files from "@/src/objects/files/Files";
 import Favorites from "@/src/objects/files/Favorites";
 import { test } from "@/src/fixtures";
 
@@ -13,26 +13,26 @@ const archiveName = "archive";
 const diagramName = "diagram";
 
 test.describe("Favorites", () => {
-  let myDocuments: MyDocuments;
+  let files: Files;
   let favorites: Favorites;
 
   test.beforeEach(async ({ page, api, login }) => {
-    myDocuments = new MyDocuments(page, api.portalDomain);
+    files = new Files(page, api.portalDomain);
     favorites = new Favorites(page, api.portalDomain);
 
     await login.loginToPortal();
-    await myDocuments.open();
-    await myDocuments.deleteAllDocs();
-    await myDocuments.filesArticle.createFiles();
+    await files.open();
+    await files.deleteAllDocs();
+    await files.createFiles();
   });
 
   test("Add to favorites", async () => {
     await test.step("Mark all documents as favorites", async () => {
-      await myDocuments.addToFavorites(documentName);
-      await myDocuments.addToFavorites(spreadsheetName);
-      await myDocuments.addToFavorites(presentationName);
-      await myDocuments.addToFavorites(pdfFormName);
-      await myDocuments.addToFavorites(folderName);
+      await files.addToFavorites(documentName);
+      await files.addToFavorites(spreadsheetName);
+      await files.addToFavorites(presentationName);
+      await files.addToFavorites(pdfFormName);
+      await files.addToFavorites(folderName);
     });
 
     await test.step("Open Favorites", async () => {
@@ -50,11 +50,11 @@ test.describe("Favorites", () => {
 
   test("Remove from favorites", async ({}) => {
     await test.step("Mark all documents as favorites", async () => {
-      await myDocuments.addToFavorites(documentName);
-      await myDocuments.addToFavorites(spreadsheetName);
-      await myDocuments.addToFavorites(presentationName);
-      await myDocuments.addToFavorites(pdfFormName);
-      await myDocuments.addToFavorites(folderName);
+      await files.addToFavorites(documentName);
+      await files.addToFavorites(spreadsheetName);
+      await files.addToFavorites(presentationName);
+      await files.addToFavorites(pdfFormName);
+      await files.addToFavorites(folderName);
     });
 
     await test.step("Remove from Favorites", async () => {
@@ -73,11 +73,11 @@ test.describe("Favorites", () => {
 
   test("Search in favorites", async () => {
     await test.step("Mark all documents", async () => {
-      await myDocuments.addToFavorites(documentName);
-      await myDocuments.addToFavorites(spreadsheetName);
-      await myDocuments.addToFavorites(presentationName);
-      await myDocuments.addToFavorites(pdfFormName);
-      await myDocuments.addToFavorites(folderName);
+      await files.addToFavorites(documentName);
+      await files.addToFavorites(spreadsheetName);
+      await files.addToFavorites(presentationName);
+      await files.addToFavorites(pdfFormName);
+      await files.addToFavorites(folderName);
     });
 
     await test.step("Open Favorites", async () => {
@@ -97,7 +97,7 @@ test.describe("Favorites", () => {
 
   test("Filter favorites by type", async () => {
     await test.step("Upload extra file types used by the type filters", async () => {
-      await myDocuments.filesNavigation.uploadFiles([
+      await files.filesNavigation.uploadFiles([
         "data/filter/pdf-document.pdf",
         "data/filter/image.png",
         "data/filter/archive.zip",
@@ -106,15 +106,15 @@ test.describe("Favorites", () => {
     });
 
     await test.step("Mark all documents as favorites", async () => {
-      await myDocuments.addToFavorites(documentName);
-      await myDocuments.addToFavorites(spreadsheetName);
-      await myDocuments.addToFavorites(presentationName);
-      await myDocuments.addToFavorites(pdfFormName);
-      await myDocuments.addToFavorites(folderName);
-      await myDocuments.addToFavorites(pdfDocumentName);
-      await myDocuments.addToFavorites(imageName);
-      await myDocuments.addToFavorites(archiveName);
-      await myDocuments.addToFavorites(diagramName);
+      await files.addToFavorites(documentName);
+      await files.addToFavorites(spreadsheetName);
+      await files.addToFavorites(presentationName);
+      await files.addToFavorites(pdfFormName);
+      await files.addToFavorites(folderName);
+      await files.addToFavorites(pdfDocumentName);
+      await files.addToFavorites(imageName);
+      await files.addToFavorites(archiveName);
+      await files.addToFavorites(diagramName);
     });
 
     await favorites.openFromNavigation();

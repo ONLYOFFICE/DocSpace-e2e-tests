@@ -3,7 +3,7 @@ import { expect } from "@playwright/test";
 import NewFilesPanel from "@/src/objects/common/NewFilesPanel";
 import SharedWithMe from "@/src/objects/files/SharedWithMe";
 import Rooms from "@/src/objects/rooms/Rooms";
-import MyDocuments from "@/src/objects/files/MyDocuments";
+import Files from "@/src/objects/files/Files";
 import FilesTable from "@/src/objects/files/FilesTable";
 import Login from "@/src/objects/common/Login";
 
@@ -227,7 +227,7 @@ test.describe("New Files Panel", () => {
   test.describe("My Documents badge", () => {
     const FILE_NAME = "PanelMyDocsDoc";
     const FOLDER_NAME = "PanelSharedFolder";
-    let myDocuments: MyDocuments;
+    let files: Files;
     let newFilesPanel: NewFilesPanel;
 
     test.beforeEach(async ({ page, api, apiSdk }) => {
@@ -254,9 +254,9 @@ test.describe("New Files Panel", () => {
       const ownerLogin = new Login(page, api.portalDomain);
       await ownerLogin.loginToPortal();
 
-      myDocuments = new MyDocuments(page, api.portalDomain);
+      files = new Files(page, api.portalDomain);
       newFilesPanel = new NewFilesPanel(page);
-      await myDocuments.open();
+      await files.open();
     });
 
     test("Panel opens on badge click and shows new file", async () => {

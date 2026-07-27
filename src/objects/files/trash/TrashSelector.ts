@@ -1,5 +1,5 @@
 import { Page } from "@playwright/test";
-import BaseSelector from "../common/BaseSelector";
+import BaseSelector from "../../common/BaseSelector";
 
 class TrashSelector extends BaseSelector {
   constructor(page: Page) {

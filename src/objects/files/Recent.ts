@@ -5,8 +5,7 @@ import FilesEmptyView from "./FilesEmptyView";
 import FilesTable from "./FilesTable";
 import FilesFilter from "./FilesFilter";
 import InfoPanel from "../common/InfoPanel";
-
-const RECENT_NAV_ITEM = "#document_catalog-recent";
+import { apps, filesSubItems } from "@/src/utils/constants/navigation";
 
 class Recent extends BasePage {
   private portalDomain: string;
@@ -34,9 +33,7 @@ class Recent extends BasePage {
   }
 
   async openFromNavigation() {
-    const navItem = this.page.locator(RECENT_NAV_ITEM);
-    await expect(navItem).toBeVisible();
-    await navItem.click();
+    await this.sidebar.openSubItem(apps.files, filesSubItems.recent);
     await this.waitForRecentPage();
   }
 

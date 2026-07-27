@@ -202,7 +202,8 @@ export const docSort = {
 
 export type TDocSort = (typeof docSort)[keyof typeof docSort];
 
-export const listArticleDocActions = transformDocActions(listDocActions);
+// Names the created items get in the list, derived from the create-menu labels.
+export const listCreatedDocNames = transformDocActions(listDocActions);
 
 export const filesToastMessages = {
   customFilterEnabled: "Custom filter for the selected file enabled",

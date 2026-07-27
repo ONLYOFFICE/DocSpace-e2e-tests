@@ -37,16 +37,16 @@ test.describe("Profile - Default Homepage", () => {
   test("My Documents - logo navigates to My Documents URL", async () => {
     await test.step("Select My Documents as default homepage", async () => {
       await profileFileManagement.selectDefaultHomepage(
-        defaultHomepageOptions.myDocuments,
+        defaultHomepageOptions.files,
       );
       await profileFileManagement.expectDefaultHomepageOption(
-        defaultHomepageOptions.myDocuments,
+        defaultHomepageOptions.files,
       );
     });
 
     await test.step("Click logo and verify landing URL", async () => {
       await profileFileManagement.clickLogoAndExpectUrl(
-        defaultHomepageUrls.myDocuments,
+        defaultHomepageUrls.files,
       );
     });
   });
@@ -90,10 +90,10 @@ test.describe("Profile - Default Homepage", () => {
   }) => {
     await test.step("Set My Documents as owner's default homepage", async () => {
       await profileFileManagement.selectDefaultHomepage(
-        defaultHomepageOptions.myDocuments,
+        defaultHomepageOptions.files,
       );
       await profileFileManagement.expectDefaultHomepageOption(
-        defaultHomepageOptions.myDocuments,
+        defaultHomepageOptions.files,
       );
     });
 
@@ -128,7 +128,7 @@ test.describe("Profile - Default Homepage (Guest)", () => {
 
   test("My Documents option is not available for guests", async () => {
     await profileFileManagement.expectDefaultHomepageOptionNotAvailable(
-      defaultHomepageOptions.myDocuments,
+      defaultHomepageOptions.files,
     );
   });
 });

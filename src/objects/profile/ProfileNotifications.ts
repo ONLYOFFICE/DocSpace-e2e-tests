@@ -1,26 +1,24 @@
 import { expect, Page } from "@playwright/test";
 import { getPortalUrl } from "../../../config";
 import { notificationsText } from "@/src/utils/constants/profile";
+import AppsSidebar from "../common/AppsSidebar";
+import { apps, filesSubItems } from "@/src/utils/constants/navigation";
 
 const FILE_ACTIVITY_TOGGLE = "actions_rooms_toggle_button";
 const ROOMS_ACTIVITY_TOGGLE = "rooms_activity_toggle_button";
 const DAILY_FEED_TOGGLE = "daily_feed_toggle_button";
 const USEFUL_TIPS_TOGGLE = "useful_tips_toggle_button";
 const NOTIFICATION_SETTINGS_URL = "/api/2.0/settings/notification";
-const SHARED_WITH_ME_BADGE =
-  '[data-testid="article-item"]:has(#document_catalog-share) [data-testid="badge"]';
-const ROOMS_BADGE =
-  '[data-testid="article-item"]:has(#document_catalog-shared) [data-testid="badge"]';
-const MY_DOCUMENTS_BADGE =
-  '[data-testid="article-item"]:has(#document_catalog-personal) [data-testid="badge"]';
 
 class ProfileNotifications {
   private page: Page;
   private portalDomain: string;
+  private sidebar: AppsSidebar;
 
   constructor(page: Page, portalDomain: string) {
     this.page = page;
     this.portalDomain = portalDomain;
+    this.sidebar = new AppsSidebar(page);
   }
 
   async open() {
@@ -76,31 +74,31 @@ class ProfileNotifications {
     ).toBeVisible();
   }
 
-  async expectSharedWithMeBadgeVisible(visible: boolean) {
-    const badge = this.page.locator(SHARED_WITH_ME_BADGE);
+  private async expectBadgeVisible(
+    badge: ReturnType<Page["locator"]>,
+    visible: boolean,
+  ) {
     if (visible) {
       await expect(badge).toBeVisible();
     } else {
       await expect(badge).not.toBeVisible();
     }
+  }
+
+  async expectSharedWithMeBadgeVisible(visible: boolean) {
+    await this.sidebar.expandApp(apps.files);
+    await this.expectBadgeVisible(
+      this.sidebar.subItemBadge(apps.files, filesSubItems.sharedWithMe),
+      visible,
+    );
   }
 
   async expectRoomsBadgeVisible(visible: boolean) {
-    const badge = this.page.locator(ROOMS_BADGE);
-    if (visible) {
-      await expect(badge).toBeVisible();
-    } else {
-      await expect(badge).not.toBeVisible();
-    }
+    await this.expectBadgeVisible(this.sidebar.itemBadge(apps.rooms), visible);
   }
 
   async expectMyDocumentsBadgeVisible(visible: boolean) {
-    const badge = this.page.locator(MY_DOCUMENTS_BADGE);
-    if (visible) {
-      await expect(badge).toBeVisible();
-    } else {
-      await expect(badge).not.toBeVisible();
-    }
+    await this.expectBadgeVisible(this.sidebar.itemBadge(apps.files), visible);
   }
 
   async toggleRoomsActivity() {

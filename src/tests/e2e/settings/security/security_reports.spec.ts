@@ -1,11 +1,11 @@
 import { test } from "@/src/fixtures";
 import Security from "@/src/objects/settings/security/Security";
-import MyDocuments from "@/src/objects/files/MyDocuments";
+import Files from "@/src/objects/files/Files";
 import { PaymentApi } from "@/src/api/payment";
 
 test.describe("Security: download reports", () => {
   let security: Security;
-  let myDocuments: MyDocuments;
+  let files: Files;
   let paymentApi: PaymentApi;
 
   test.beforeEach(async ({ page, api, login }) => {
@@ -13,7 +13,7 @@ test.describe("Security: download reports", () => {
     await paymentApi.setupPayment();
 
     security = new Security(page);
-    myDocuments = new MyDocuments(page, api.portalDomain);
+    files = new Files(page, api.portalDomain);
     await login.loginToPortal();
     await security.open();
   });
@@ -28,8 +28,8 @@ test.describe("Security: download reports", () => {
     });
 
     await test.step("Verify report appears in My Documents", async () => {
-      await myDocuments.open();
-      await myDocuments.filesTable.expectItemVisible("Login History Report");
+      await files.open();
+      await files.filesTable.expectItemVisible("Login History Report");
     });
   });
 
@@ -43,8 +43,8 @@ test.describe("Security: download reports", () => {
     });
 
     await test.step("Verify report appears in My Documents", async () => {
-      await myDocuments.open();
-      await myDocuments.filesTable.expectItemVisible("Audit Trail Report");
+      await files.open();
+      await files.filesTable.expectItemVisible("Audit Trail Report");
     });
   });
 });

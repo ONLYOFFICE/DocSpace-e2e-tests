@@ -1,4 +1,4 @@
-import MyDocuments from "@/src/objects/files/MyDocuments";
+import Files from "@/src/objects/files/Files";
 import FillOptionsPanel from "@/src/objects/files/FillOptionsPanel";
 import FilesPdfForm from "@/src/objects/files/FilesPdfForm";
 import BaseSelector from "@/src/objects/common/BaseSelector";
@@ -9,24 +9,22 @@ import { test } from "@/src/fixtures";
 import { expect } from "@playwright/test";
 
 test.describe("My Documents: PDF form fill options panel", () => {
-  let myDocuments: MyDocuments;
+  let files: Files;
 
   test.beforeEach(async ({ page, api, login }) => {
-    myDocuments = new MyDocuments(page, api.portalDomain);
+    files = new Files(page, api.portalDomain);
     await login.loginToPortal();
-    await myDocuments.open();
-    await myDocuments.filesNavigation.uploadFiles(
-      "data/rooms/PDF from device.pdf",
-    );
-    await myDocuments.filesTable.checkRowExist("PDF from device");
+    await files.open();
+    await files.filesNavigation.uploadFiles("data/rooms/PDF from device.pdf");
+    await files.filesTable.checkRowExist("PDF from device");
   });
 
   test("Owner sees all fill options when clicking Fill on a PDF form", async ({
     page,
   }) => {
     await test.step("Open context menu and click Fill", async () => {
-      await myDocuments.filesTable.openContextMenuForItem("PDF from device");
-      await myDocuments.filesTable.contextMenu.clickOption(
+      await files.filesTable.openContextMenuForItem("PDF from device");
+      await files.filesTable.contextMenu.clickOption(
         pdfFormContextMenuOption.fill,
       );
     });
@@ -41,8 +39,8 @@ test.describe("My Documents: PDF form fill options panel", () => {
     page,
   }) => {
     await test.step("Open context menu and click Fill", async () => {
-      await myDocuments.filesTable.openContextMenuForItem("PDF from device");
-      await myDocuments.filesTable.contextMenu.clickOption(
+      await files.filesTable.openContextMenuForItem("PDF from device");
+      await files.filesTable.contextMenu.clickOption(
         pdfFormContextMenuOption.fill,
       );
     });
@@ -71,8 +69,8 @@ test.describe("My Documents: PDF form fill options panel", () => {
     const selector = new BaseSelector(page);
 
     await test.step("Open context menu and click Fill", async () => {
-      await myDocuments.filesTable.openContextMenuForItem("PDF from device");
-      await myDocuments.filesTable.contextMenu.clickOption(
+      await files.filesTable.openContextMenuForItem("PDF from device");
+      await files.filesTable.contextMenu.clickOption(
         pdfFormContextMenuOption.fill,
       );
     });
@@ -111,8 +109,8 @@ test.describe("My Documents: PDF form fill options panel", () => {
     const selector = new BaseSelector(page);
 
     await test.step("Open context menu and click Fill", async () => {
-      await myDocuments.filesTable.openContextMenuForItem("PDF from device");
-      await myDocuments.filesTable.contextMenu.clickOption(
+      await files.filesTable.openContextMenuForItem("PDF from device");
+      await files.filesTable.contextMenu.clickOption(
         pdfFormContextMenuOption.fill,
       );
     });

@@ -4,9 +4,9 @@ import BasePage from "../common/BasePage";
 import FilesTable from "./FilesTable";
 import FilesFilter from "./FilesFilter";
 import InfoPanel from "../common/InfoPanel";
+import { apps, filesSubItems } from "@/src/utils/constants/navigation";
 
 const SHARED_WITH_ME_URL = /shared-with-me/;
-const SHARED_NAV_ITEM = "#document_catalog-share";
 
 class SharedWithMe extends BasePage {
   private portalDomain: string;
@@ -30,9 +30,7 @@ class SharedWithMe extends BasePage {
   }
 
   async openFromNavigation() {
-    const navItem = this.page.locator(SHARED_NAV_ITEM);
-    await expect(navItem).toBeVisible();
-    await navItem.click();
+    await this.sidebar.openSubItem(apps.files, filesSubItems.sharedWithMe);
     await this.waitForSharedWithMePage();
   }
 
