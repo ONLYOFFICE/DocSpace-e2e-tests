@@ -2,7 +2,7 @@ import { test } from "@/src/fixtures";
 import { expect, BrowserContext } from "@playwright/test";
 import Contacts from "@/src/objects/contacts/Contacts";
 import Login from "@/src/objects/common/Login";
-import MyDocuments from "@/src/objects/files/MyDocuments";
+import Files from "@/src/objects/files/Files";
 import InfoPanel from "@/src/objects/common/InfoPanel";
 import FileLinkSettings from "@/src/objects/files/FileLinkSettings";
 import { waitForShareLinkResponse } from "@/src/objects/files/api";
@@ -79,7 +79,7 @@ test.describe("Contacts - Disabled user: document link access", () => {
 
   test.beforeEach(async ({ page, api, login, apiSdk }) => {
     contacts = new Contacts(page, api.portalDomain);
-    const myDocuments = new MyDocuments(page, api.portalDomain);
+    const files = new Files(page, api.portalDomain);
     const infoPanel = new InfoPanel(page);
 
     const { userData } = await apiSdk.profiles.addMember("owner", "User");
@@ -89,18 +89,18 @@ test.describe("Contacts - Disabled user: document link access", () => {
 
     await login.loginToPortal();
 
-    await myDocuments.open();
-    await myDocuments.deleteAllDocs();
-    await myDocuments.createDocumentFile("TestDocument");
+    await files.open();
+    await files.deleteAllDocs();
+    await files.createDocumentFile("TestDocument");
 
-    await myDocuments.filesTable.openContextMenuForItem("TestDocument");
-    await myDocuments.filesTable.contextMenu.clickSubmenuOption(
+    await files.filesTable.openContextMenuForItem("TestDocument");
+    await files.filesTable.contextMenu.clickSubmenuOption(
       "Share",
       "Sharing settings",
     );
     await infoPanel.checkShareExist();
     await infoPanel.createFirstSharedLink();
-    await myDocuments.dismissToastSafely("Link copied to clipboard");
+    await files.dismissToastSafely("Link copied to clipboard");
 
     await infoPanel.openLinkSettings();
     const linkSettings = new FileLinkSettings(page);
@@ -198,13 +198,13 @@ test.describe("Contacts - Disabled user: active session redirect", () => {
 });
 
 test.describe("Contacts - Disabled user: file sharing selector", () => {
-  let myDocuments: MyDocuments;
+  let files: Files;
   let infoPanel: InfoPanel;
   let userEmail: string;
   let userDisplayName: string;
 
   test.beforeEach(async ({ page, api, login, apiSdk }) => {
-    myDocuments = new MyDocuments(page, api.portalDomain);
+    files = new Files(page, api.portalDomain);
     infoPanel = new InfoPanel(page);
     const contacts = new Contacts(page, api.portalDomain);
 
@@ -214,17 +214,17 @@ test.describe("Contacts - Disabled user: file sharing selector", () => {
 
     await login.loginToPortal();
 
-    await myDocuments.open();
-    await myDocuments.deleteAllDocs();
-    await myDocuments.createDocumentFile("TestDocument");
+    await files.open();
+    await files.deleteAllDocs();
+    await files.createDocumentFile("TestDocument");
 
     await contacts.open();
     await contacts.table.selectRow(userDisplayName);
     await contacts.disableUser();
 
-    await myDocuments.open();
-    await myDocuments.filesTable.openContextMenuForItem("TestDocument");
-    await myDocuments.filesTable.contextMenu.clickSubmenuOption(
+    await files.open();
+    await files.filesTable.openContextMenuForItem("TestDocument");
+    await files.filesTable.contextMenu.clickSubmenuOption(
       "Share",
       "Sharing settings",
     );

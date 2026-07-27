@@ -1,25 +1,25 @@
 import { expect } from "@playwright/test";
 import { test } from "@/src/fixtures";
-import MyDocuments from "@/src/objects/files/MyDocuments";
+import Files from "@/src/objects/files/Files";
 import FileVersionHistory from "@/src/objects/files/FileVersionHistory";
 import DocumentEditor from "@/src/objects/files/DocumentEditor";
 
 const FILE_NAME = "VersionHistoryTest";
 
 test.describe("My Documents: Version History", () => {
-  let myDocuments: MyDocuments;
+  let files: Files;
   let versionHistory: FileVersionHistory;
 
   test.beforeEach(async ({ page, api, login }) => {
-    myDocuments = new MyDocuments(page, api.portalDomain);
+    files = new Files(page, api.portalDomain);
     versionHistory = new FileVersionHistory(page);
     await login.loginToPortal();
-    await myDocuments.open();
+    await files.open();
   });
 
   test("Open version history and verify initial version", async () => {
-    await myDocuments.createDocumentFile(FILE_NAME);
-    await myDocuments.openVersionHistory(FILE_NAME);
+    await files.createDocumentFile(FILE_NAME);
+    await files.openVersionHistory(FILE_NAME);
 
     await versionHistory.checkFileNameVisible(FILE_NAME);
     await versionHistory.checkVersionsVisible();
@@ -27,12 +27,12 @@ test.describe("My Documents: Version History", () => {
   });
 
   test("Create new version by editing in editor", async () => {
-    const editor = await myDocuments.createDocumentAndOpenEditor(FILE_NAME);
+    const editor = await files.createDocumentAndOpenEditor(FILE_NAME);
     await editor.editAndClose(
       "This is a new version of the document with updated content for testing version history",
     );
-    await myDocuments.open();
-    await myDocuments.openVersionHistory(FILE_NAME);
+    await files.open();
+    await files.openVersionHistory(FILE_NAME);
 
     await versionHistory.checkVersionsVisible();
     await versionHistory.checkVersionCount(2);
@@ -40,20 +40,20 @@ test.describe("My Documents: Version History", () => {
 
   test("Edit version comment", async () => {
     const commentText = "Updated via e2e test";
-    await myDocuments.createDocumentFile(FILE_NAME);
-    await myDocuments.openVersionHistory(FILE_NAME);
+    await files.createDocumentFile(FILE_NAME);
+    await files.openVersionHistory(FILE_NAME);
 
     await versionHistory.editComment(0, commentText);
     await versionHistory.checkComment(0, commentText);
   });
 
   test("Restore older version", async () => {
-    const editor = await myDocuments.createDocumentAndOpenEditor(FILE_NAME);
+    const editor = await files.createDocumentAndOpenEditor(FILE_NAME);
     await editor.editAndClose(
       "This is a new version of the document with updated content for testing version history functionality",
     );
-    await myDocuments.open();
-    await myDocuments.openVersionHistory(FILE_NAME);
+    await files.open();
+    await files.openVersionHistory(FILE_NAME);
 
     const earliestIndex = await versionHistory.getEarliestVersionIndex();
     await versionHistory.restoreVersion(earliestIndex);
@@ -61,8 +61,8 @@ test.describe("My Documents: Version History", () => {
   });
 
   test("Download version", async ({ page }) => {
-    await myDocuments.createDocumentFile(FILE_NAME);
-    await myDocuments.openVersionHistory(FILE_NAME);
+    await files.createDocumentFile(FILE_NAME);
+    await files.openVersionHistory(FILE_NAME);
 
     const [download] = await Promise.all([
       page.waitForEvent("download"),
@@ -73,12 +73,12 @@ test.describe("My Documents: Version History", () => {
   });
 
   test("Open older version opens in view mode", async ({ page }) => {
-    const editor = await myDocuments.createDocumentAndOpenEditor(FILE_NAME);
+    const editor = await files.createDocumentAndOpenEditor(FILE_NAME);
     await editor.editAndClose(
       "This is a new version of the document with updated content for testing version history",
     );
-    await myDocuments.open();
-    await myDocuments.openVersionHistory(FILE_NAME);
+    await files.open();
+    await files.openVersionHistory(FILE_NAME);
 
     const earliestIndex = await versionHistory.getEarliestVersionIndex();
     const [versionPage] = await Promise.all([
@@ -96,12 +96,12 @@ test.describe("My Documents: Version History", () => {
   });
 
   test("Delete older version", async () => {
-    const editor = await myDocuments.createDocumentAndOpenEditor(FILE_NAME);
+    const editor = await files.createDocumentAndOpenEditor(FILE_NAME);
     await editor.editAndClose(
       "This is a new version of the document with updated content for testing version history functionality",
     );
-    await myDocuments.open();
-    await myDocuments.openVersionHistory(FILE_NAME);
+    await files.open();
+    await files.openVersionHistory(FILE_NAME);
 
     const earliestIndex = await versionHistory.getEarliestVersionIndex();
     await versionHistory.deleteVersion(earliestIndex);

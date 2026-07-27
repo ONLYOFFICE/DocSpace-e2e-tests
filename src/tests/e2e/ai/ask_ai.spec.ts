@@ -2,7 +2,7 @@ import { test } from "@/src/fixtures";
 import AiAgents from "@/src/objects/ai/AiAgents";
 import AiSettings from "@/src/objects/ai/AiSettings";
 import AiAgentSelector from "@/src/objects/ai/AiAgentSelector";
-import MyDocuments from "@/src/objects/files/MyDocuments";
+import Files from "@/src/objects/files/Files";
 import { PaymentApi } from "@/src/api/payment";
 import { mapInitialDocNames } from "@/src/utils/constants/files";
 
@@ -10,7 +10,7 @@ test.describe("Ask AI on files", () => {
   let aiAgents: AiAgents;
   let aiSettings: AiSettings;
   let agentSelector: AiAgentSelector;
-  let myDocuments: MyDocuments;
+  let files: Files;
   let paymentApi: PaymentApi;
   const AGENT_NAME = "Test AI Agent";
 
@@ -19,7 +19,7 @@ test.describe("Ask AI on files", () => {
     aiAgents = new AiAgents(page, api.portalDomain);
     aiSettings = new AiSettings(page, api.portalDomain);
     agentSelector = new AiAgentSelector(page);
-    myDocuments = new MyDocuments(page, api.portalDomain);
+    files = new Files(page, api.portalDomain);
     await login.loginToPortal();
 
     await test.step("Precondition: top up wallet and activate AI features", async () => {
@@ -38,14 +38,12 @@ test.describe("Ask AI on files", () => {
       await aiAgents.expectChatOpened();
     });
 
-    await myDocuments.open();
+    await files.open();
   });
 
   test("Ask AI on a document opens the agent chat", async () => {
     await test.step("Click Ask AI in the document context menu", async () => {
-      await myDocuments.clickAskAi(
-        mapInitialDocNames.ONLYOFFICE_SAMPLE_DOCUMENT,
-      );
+      await files.clickAskAi(mapInitialDocNames.ONLYOFFICE_SAMPLE_DOCUMENT);
     });
 
     await test.step("Select the agent in the side panel", async () => {
@@ -61,7 +59,7 @@ test.describe("Ask AI on files", () => {
 
   test("Ask AI on a PDF form opens the agent chat with form processing hint", async () => {
     await test.step("Click Ask AI in the form context menu", async () => {
-      await myDocuments.clickAskAi(mapInitialDocNames.ONLYOFFICE_SAMPLE_FORM);
+      await files.clickAskAi(mapInitialDocNames.ONLYOFFICE_SAMPLE_FORM);
     });
 
     await test.step("Select the agent in the side panel", async () => {

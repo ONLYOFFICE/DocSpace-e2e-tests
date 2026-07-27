@@ -1,7 +1,7 @@
 import { test } from "@/src/fixtures";
 import { Page } from "@playwright/test";
 import Customization from "@/src/objects/settings/customization/Customization";
-import MyDocuments from "@/src/objects/files/MyDocuments";
+import Files from "@/src/objects/files/Files";
 import MyRooms from "@/src/objects/rooms/Rooms";
 import InfoPanel from "@/src/objects/common/InfoPanel";
 import { toastMessages } from "@/src/utils/constants/settings";
@@ -138,7 +138,7 @@ test.describe("Settings - Customization: Default Templates", () => {
     api,
   }) => {
     const DOC_NAME = "Template Document";
-    const myDocuments = new MyDocuments(page, api.portalDomain);
+    const files = new Files(page, api.portalDomain);
     const infoPanel = new InfoPanel(page);
     let templateSizeBytes: number;
 
@@ -152,16 +152,16 @@ test.describe("Settings - Customization: Default Templates", () => {
     });
 
     await test.step("Navigate to My Documents and create new document", async () => {
-      await myDocuments.open();
-      await myDocuments.createDocumentFile(DOC_NAME);
+      await files.open();
+      await files.createDocumentFile(DOC_NAME);
     });
 
     await test.step("Verify document appears in file list with correct name", async () => {
-      await myDocuments.filesTable.checkRowExist(DOC_NAME);
+      await files.filesTable.checkRowExist(DOC_NAME);
     });
 
     await test.step("Open info panel for the created document", async () => {
-      await myDocuments.filesTable.selectRow(DOC_NAME);
+      await files.filesTable.selectRow(DOC_NAME);
       await infoPanel.open();
     });
 
@@ -201,7 +201,7 @@ test.describe("Settings - Customization: Default Templates", () => {
     api,
   }) => {
     const DOC_NAME = "Post-Reset Document";
-    const myDocuments = new MyDocuments(page, api.portalDomain);
+    const files = new Files(page, api.portalDomain);
     const infoPanel = new InfoPanel(page);
     await test.step("Upload custom DOCX template", async () => {
       await customization.defaultTemplates.uploadFromDevice("docx", DOCX_FILE);
@@ -217,13 +217,13 @@ test.describe("Settings - Customization: Default Templates", () => {
     });
 
     await test.step("Navigate to My Documents and create new document", async () => {
-      await myDocuments.open();
-      await myDocuments.createDocumentFile(DOC_NAME);
-      await myDocuments.filesTable.checkRowExist(DOC_NAME);
+      await files.open();
+      await files.createDocumentFile(DOC_NAME);
+      await files.filesTable.checkRowExist(DOC_NAME);
     });
 
     await test.step("Verify document is valid DOCX", async () => {
-      await myDocuments.filesTable.selectRow(DOC_NAME);
+      await files.filesTable.selectRow(DOC_NAME);
       await infoPanel.open();
       await infoPanel.checkDocxFileProperties();
     });

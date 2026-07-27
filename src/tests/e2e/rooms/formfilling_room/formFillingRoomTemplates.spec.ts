@@ -187,7 +187,7 @@ test.describe("FormFilling Template Gallery tests", () => {
   // upload PDF, open gallery, submit form, select file, and confirm submission
   // TODO: skipped — issue is under investigation.
   test.skip("Submit PDF form to Template Gallery", async ({ page }) => {
-    await test.step("Upload PDF form from MyDocuments", async () => {
+    await test.step("Upload PDF form from Files", async () => {
       await uploadAndVerifyPDF(
         shortTour,
         roomEmptyView,

@@ -1,5 +1,5 @@
 import { test } from "@/src/fixtures";
-import MyDocuments from "@/src/objects/files/MyDocuments";
+import Files from "@/src/objects/files/Files";
 import { plainTextFile } from "@/src/utils/constants/files";
 
 // A word that appears in the fixture's CONTENT but NOT in its file name, so a
@@ -7,21 +7,19 @@ import { plainTextFile } from "@/src/utils/constants/files";
 const CONTENT_WORD = "behaviour";
 
 test.describe.skip("My Documents: full-text search by content", () => {
-  let myDocuments: MyDocuments;
+  let files: Files;
 
   test.beforeEach(async ({ page, api, login }) => {
-    myDocuments = new MyDocuments(page, api.portalDomain);
+    files = new Files(page, api.portalDomain);
     await login.loginToPortal();
   });
 
   test("Finds a file by its content in My Documents", async ({ apiSdk }) => {
     await apiSdk.files.uploadToMyDocuments("owner", plainTextFile.path);
 
-    await myDocuments.open();
-    await myDocuments.filesFilter.fillFilesSearchInputAndCheckRequest(
-      CONTENT_WORD,
-    );
-    await myDocuments.filesTable.expectItemVisible(plainTextFile.name);
+    await files.open();
+    await files.filesFilter.fillFilesSearchInputAndCheckRequest(CONTENT_WORD);
+    await files.filesTable.expectItemVisible(plainTextFile.name);
   });
 
   test("Finds a file by its content inside a subfolder", async ({ apiSdk }) => {
@@ -37,10 +35,8 @@ test.describe.skip("My Documents: full-text search by content", () => {
       plainTextFile.path,
     );
 
-    await myDocuments.open();
-    await myDocuments.filesFilter.fillFilesSearchInputAndCheckRequest(
-      CONTENT_WORD,
-    );
-    await myDocuments.filesTable.expectItemVisible(plainTextFile.name);
+    await files.open();
+    await files.filesFilter.fillFilesSearchInputAndCheckRequest(CONTENT_WORD);
+    await files.filesTable.expectItemVisible(plainTextFile.name);
   });
 });

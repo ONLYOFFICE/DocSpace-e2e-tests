@@ -5,7 +5,6 @@ import {
   dropFolder,
   dropFolderWithFiles,
 } from "@/src/utils/helpers/dragDrop";
-import FilesArticle from "./FilesArticle";
 import FilesCreateContextMenu from "./FilesCreateContextMenu";
 import FilesNavigation from "./FilesNavigation";
 import InfoPanel from "../common/InfoPanel";
@@ -26,6 +25,8 @@ import { ORIGINAL_DOC_EXTENSIONS } from "@/src/constants/downloadFormats";
 import {
   DOC_ACTIONS,
   documentContextMenuOption,
+  listCreatedDocNames,
+  listDocActions,
   pdfFormMoreOptionsSubmenu,
 } from "@/src/utils/constants/files";
 import { TRoomCreateTitles } from "@/src/utils/constants/rooms";
@@ -33,10 +34,9 @@ import { TRoomCreateTitles } from "@/src/utils/constants/rooms";
 const CONTEXT_MENU_ENTERED =
   ".p-contextmenu.p-component.p-contextmenu-enter-done";
 
-class MyDocuments extends BasePage {
+class Files extends BasePage {
   private portalDomain: string;
 
-  filesArticle: FilesArticle;
   filesCreateContextMenu: FilesCreateContextMenu;
   filesNavigation: FilesNavigation;
   filesTable: FilesTable;
@@ -54,7 +54,6 @@ class MyDocuments extends BasePage {
     super(page);
     this.portalDomain = portalDomain;
     this.infoPanel = new InfoPanel(page);
-    this.filesArticle = new FilesArticle(page);
     this.filesCreateContextMenu = new FilesCreateContextMenu(page);
     this.filesNavigation = new FilesNavigation(page);
     this.filesTable = new FilesTable(page);
@@ -75,6 +74,36 @@ class MyDocuments extends BasePage {
 
   async openRecentlyAccessibleTab() {
     await this.page.getByText("Recently accessible via link").click();
+  }
+
+  async checkCreatedFileByActionExist(actionText: string) {
+    await expect(
+      this.page.getByText(actionText, { exact: true }),
+    ).toBeVisible();
+  }
+
+  /** Creates one item of every type available in the "New" menu. */
+  async createFiles() {
+    for (const [i, menuLabel] of listDocActions.entries()) {
+      const fileName = listCreatedDocNames[i];
+
+      await this.filesNavigation.openCreateDropdown();
+      await this.filesNavigation.selectCreateAction(menuLabel);
+      await this.filesNavigation.modal.fillCreateTextInput(fileName);
+
+      if (menuLabel !== DOC_ACTIONS.CREATE_FOLDER) {
+        const [newPage] = await Promise.all([
+          this.page.context().waitForEvent("page", { timeout: 5000 }),
+          this.filesNavigation.modal.clickCreateButton(),
+        ]).catch(() => [null]);
+
+        await newPage?.close();
+      } else {
+        await this.filesNavigation.modal.clickCreateButton();
+      }
+
+      await this.checkCreatedFileByActionExist(fileName);
+    }
   }
 
   async deleteAllDocs() {
@@ -558,4 +587,4 @@ class MyDocuments extends BasePage {
   }
 }
 
-export default MyDocuments;
+export default Files;

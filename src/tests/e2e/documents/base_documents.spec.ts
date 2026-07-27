@@ -1,226 +1,220 @@
-import MyDocuments from "@/src/objects/files/MyDocuments";
+import Files from "@/src/objects/files/Files";
 import { test } from "@/src/fixtures";
 
 test.describe("My documents: Base", () => {
-  let myDocuments: MyDocuments;
+  let files: Files;
 
   test.beforeEach(async ({ page, api, login }) => {
-    myDocuments = new MyDocuments(page, api.portalDomain);
+    files = new Files(page, api.portalDomain);
 
     await login.loginToPortal();
-    await myDocuments.open();
+    await files.open();
   });
 
   test("Empty state", async () => {
-    await myDocuments.deleteAllDocs();
-    await myDocuments.filesEmptyView.checkNoDocsTextExist();
+    await files.deleteAllDocs();
+    await files.filesEmptyView.checkNoDocsTextExist();
   });
 
   test("Create files", async () => {
-    await myDocuments.filesNavigation.openCreateDropdown();
-    await myDocuments.filesNavigation.closeContextMenu();
-    await myDocuments.filesNavigation.openAndValidateFileCreateModals();
-    await myDocuments.filesArticle.openMainDropdown();
-    await myDocuments.filesArticle.closeMainDropdown();
-    await myDocuments.filesArticle.createFiles();
+    await files.filesNavigation.openCreateDropdown();
+    await files.filesNavigation.closeContextMenu();
+    await files.filesNavigation.openAndValidateFileCreateModals();
+    await files.createFiles();
   });
 
   test("Info panel", async () => {
     await test.step("Precondition: create files", async () => {
-      await myDocuments.deleteAllDocs();
-      await myDocuments.filesArticle.createFiles();
+      await files.deleteAllDocs();
+      await files.createFiles();
     });
 
     await test.step("Empty selection", async () => {
-      await myDocuments.infoPanel.open();
-      await myDocuments.infoPanel.checkNoItemTextExist();
+      await files.infoPanel.open();
+      await files.infoPanel.checkNoItemTextExist();
     });
 
     await test.step("File properties and history", async () => {
-      await myDocuments.filesTable.selectDocxFile();
-      await myDocuments.infoPanel.checkDocxFileProperties();
-      await myDocuments.infoPanel.openTab("History");
-      await myDocuments.infoPanel.checkHistoryExist("File created.");
+      await files.filesTable.selectDocxFile();
+      await files.infoPanel.checkDocxFileProperties();
+      await files.infoPanel.openTab("History");
+      await files.infoPanel.checkHistoryExist("File created.");
     });
 
     await test.step("File share", async () => {
-      await myDocuments.infoPanel.openTab("Share");
-      await myDocuments.infoPanel.checkShareExist();
-      await myDocuments.infoPanel.createFirstSharedLink();
-      await myDocuments.infoPanel.createMoreSharedLink();
+      await files.infoPanel.openTab("Share");
+      await files.infoPanel.checkShareExist();
+      await files.infoPanel.createFirstSharedLink();
+      await files.infoPanel.createMoreSharedLink();
     });
   });
 
   test("View and sort", async () => {
     await test.step("Precondition: create files", async () => {
-      await myDocuments.deleteAllDocs();
-      await myDocuments.filesArticle.createFiles();
+      await files.deleteAllDocs();
+      await files.createFiles();
     });
 
     await test.step("Switch views", async () => {
-      await myDocuments.filesFilter.switchToDocumentsThumbnailView();
-      await myDocuments.filesFilter.switchToDocumentsCompactView();
+      await files.filesFilter.switchToDocumentsThumbnailView();
+      await files.filesFilter.switchToDocumentsCompactView();
     });
 
     await test.step("Sort by name", async () => {
-      await myDocuments.filesFilter.openDropdownSortBy();
-      await myDocuments.filesFilter.selectSortByName();
+      await files.filesFilter.openDropdownSortBy();
+      await files.filesFilter.selectSortByName();
     });
   });
 
   test("Filter", async () => {
     await test.step("Precondition: create files", async () => {
-      await myDocuments.deleteAllDocs();
-      await myDocuments.filesArticle.createFiles();
+      await files.deleteAllDocs();
+      await files.createFiles();
     });
 
     await test.step("Filter by folders", async () => {
-      await myDocuments.filesFilter.openFilterDialog();
-      await myDocuments.filesFilter.selectFilterByFolders();
-      await myDocuments.filesFilter.applyFilterNoWait();
-      await myDocuments.filesTable.checkRowExist("Folder");
+      await files.filesFilter.openFilterDialog();
+      await files.filesFilter.selectFilterByFolders();
+      await files.filesFilter.applyFilterNoWait();
+      await files.filesTable.checkRowExist("Folder");
     });
 
     await test.step("Filter by media (empty)", async () => {
-      await myDocuments.filesFilter.openFilterDialog();
-      await myDocuments.filesFilter.selectFilterByMedia();
-      await myDocuments.filesFilter.applyFilterNoWait();
-      await myDocuments.filesFilter.checkFilesEmptyViewExist();
+      await files.filesFilter.openFilterDialog();
+      await files.filesFilter.selectFilterByMedia();
+      await files.filesFilter.applyFilterNoWait();
+      await files.filesFilter.checkFilesEmptyViewExist();
 
-      await myDocuments.filesFilter.clearFilter();
-      await myDocuments.filesTable.checkRowExist("Folder");
+      await files.filesFilter.clearFilter();
+      await files.filesTable.checkRowExist("Folder");
     });
 
     await test.step("Filter by files", async () => {
-      await myDocuments.filesFilter.openFilterDialog();
-      await myDocuments.filesFilter.selectFilterByFiles();
-      await myDocuments.filesFilter.applyFilterNoWait();
-      await myDocuments.filesTable.checkRowExist("Document");
+      await files.filesFilter.openFilterDialog();
+      await files.filesFilter.selectFilterByFiles();
+      await files.filesFilter.applyFilterNoWait();
+      await files.filesTable.checkRowExist("Document");
     });
 
     await test.step("Filter by documents", async () => {
-      await myDocuments.filesFilter.openFilterDialog();
-      await myDocuments.filesFilter.selectFilterByDocuments();
-      await myDocuments.filesFilter.applyFilterNoWait();
-      await myDocuments.filesTable.checkRowExist("Document");
-      await myDocuments.filesTable.checkRowNotExist("Spreadsheet");
+      await files.filesFilter.openFilterDialog();
+      await files.filesFilter.selectFilterByDocuments();
+      await files.filesFilter.applyFilterNoWait();
+      await files.filesTable.checkRowExist("Document");
+      await files.filesTable.checkRowNotExist("Spreadsheet");
     });
 
     await test.step("Filter by spreadsheets", async () => {
-      await myDocuments.filesFilter.openFilterDialog();
-      await myDocuments.filesFilter.selectFilterBySpreadsheets();
-      await myDocuments.filesFilter.applyFilterNoWait();
-      await myDocuments.filesTable.checkRowExist("Spreadsheet");
-      await myDocuments.filesTable.checkRowNotExist("Presentation");
+      await files.filesFilter.openFilterDialog();
+      await files.filesFilter.selectFilterBySpreadsheets();
+      await files.filesFilter.applyFilterNoWait();
+      await files.filesTable.checkRowExist("Spreadsheet");
+      await files.filesTable.checkRowNotExist("Presentation");
     });
 
     await test.step("Filter by presentations", async () => {
-      await myDocuments.filesFilter.openFilterDialog();
-      await myDocuments.filesFilter.selectFilterByPresentations();
-      await myDocuments.filesFilter.applyFilterNoWait();
-      await myDocuments.filesTable.checkRowExist("Presentation");
-      await myDocuments.filesTable.checkRowNotExist("Document");
+      await files.filesFilter.openFilterDialog();
+      await files.filesFilter.selectFilterByPresentations();
+      await files.filesFilter.applyFilterNoWait();
+      await files.filesTable.checkRowExist("Presentation");
+      await files.filesTable.checkRowNotExist("Document");
     });
 
     await test.step("Filter by PDF forms", async () => {
-      await myDocuments.filesFilter.openFilterDialog();
-      await myDocuments.filesFilter.selectFilterByPdfForms();
-      await myDocuments.filesFilter.applyFilterNoWait();
-      await myDocuments.filesTable.checkRowExist("Blank");
+      await files.filesFilter.openFilterDialog();
+      await files.filesFilter.selectFilterByPdfForms();
+      await files.filesFilter.applyFilterNoWait();
+      await files.filesTable.checkRowExist("Blank");
     });
 
     await test.step("Filter by empty categories", async () => {
-      await myDocuments.filesFilter.openFilterDialog();
-      await myDocuments.filesFilter.selectFilterByDiagrams();
-      await myDocuments.filesFilter.applyFilterNoWait();
-      await myDocuments.filesFilter.checkFilesEmptyViewExist();
+      await files.filesFilter.openFilterDialog();
+      await files.filesFilter.selectFilterByDiagrams();
+      await files.filesFilter.applyFilterNoWait();
+      await files.filesFilter.checkFilesEmptyViewExist();
 
-      await myDocuments.filesFilter.openFilterDialog();
-      await myDocuments.filesFilter.selectFilterByPdfDocuments();
-      await myDocuments.filesFilter.applyFilterNoWait();
-      await myDocuments.filesFilter.checkFilesEmptyViewExist();
+      await files.filesFilter.openFilterDialog();
+      await files.filesFilter.selectFilterByPdfDocuments();
+      await files.filesFilter.applyFilterNoWait();
+      await files.filesFilter.checkFilesEmptyViewExist();
 
-      await myDocuments.filesFilter.openFilterDialog();
-      await myDocuments.filesFilter.selectFilterByArchives();
-      await myDocuments.filesFilter.applyFilterNoWait();
-      await myDocuments.filesFilter.checkFilesEmptyViewExist();
+      await files.filesFilter.openFilterDialog();
+      await files.filesFilter.selectFilterByArchives();
+      await files.filesFilter.applyFilterNoWait();
+      await files.filesFilter.checkFilesEmptyViewExist();
 
-      await myDocuments.filesFilter.openFilterDialog();
-      await myDocuments.filesFilter.selectFilterByImages();
-      await myDocuments.filesFilter.applyFilterNoWait();
-      await myDocuments.filesFilter.checkFilesEmptyViewExist();
-      await myDocuments.filesFilter.clearFilterFromEmptyView();
+      await files.filesFilter.openFilterDialog();
+      await files.filesFilter.selectFilterByImages();
+      await files.filesFilter.applyFilterNoWait();
+      await files.filesFilter.checkFilesEmptyViewExist();
+      await files.filesFilter.clearFilterFromEmptyView();
     });
   });
 
   test("Search", async () => {
     await test.step("Precondition: create files", async () => {
-      await myDocuments.deleteAllDocs();
-      await myDocuments.filesArticle.createFiles();
+      await files.deleteAllDocs();
+      await files.createFiles();
     });
 
-    await myDocuments.filesFilter.fillFilesSearchInputAndCheckRequest(
-      "Document",
-    );
+    await files.filesFilter.fillFilesSearchInputAndCheckRequest("Document");
 
-    await myDocuments.filesFilter.clearSearchText();
-    await myDocuments.filesTable.checkRowExist("Folder");
+    await files.filesFilter.clearSearchText();
+    await files.filesTable.checkRowExist("Folder");
 
-    await myDocuments.filesFilter.fillFilesSearchInputAndCheckRequest(
+    await files.filesFilter.fillFilesSearchInputAndCheckRequest(
       "empty view search",
     );
-    await myDocuments.filesFilter.checkFilesEmptyViewExist();
+    await files.filesFilter.checkFilesEmptyViewExist();
   });
 
   test("Search by part of the name", async () => {
     await test.step("Precondition: create files sharing a name fragment", async () => {
-      await myDocuments.deleteAllDocs();
-      await myDocuments.createDocumentFile("ReportAlpha");
-      await myDocuments.createDocumentFile("ReportBeta");
-      await myDocuments.createDocumentFile("Summary");
+      await files.deleteAllDocs();
+      await files.createDocumentFile("ReportAlpha");
+      await files.createDocumentFile("ReportBeta");
+      await files.createDocumentFile("Summary");
     });
 
     await test.step("A partial name returns only the matching files", async () => {
-      await myDocuments.filesFilter.fillFilesSearchInputAndCheckRequest(
-        "Report",
-      );
-      await myDocuments.filesTable.expectItemVisible("ReportAlpha");
-      await myDocuments.filesTable.expectItemVisible("ReportBeta");
-      await myDocuments.filesTable.expectItemNotVisible("Summary");
+      await files.filesFilter.fillFilesSearchInputAndCheckRequest("Report");
+      await files.filesTable.expectItemVisible("ReportAlpha");
+      await files.filesTable.expectItemVisible("ReportBeta");
+      await files.filesTable.expectItemNotVisible("Summary");
     });
   });
 
   test("Rename files", async () => {
     await test.step("Precondition: create files", async () => {
-      await myDocuments.deleteAllDocs();
-      await myDocuments.filesArticle.createFiles();
+      await files.deleteAllDocs();
+      await files.createFiles();
     });
 
-    await myDocuments.open();
-    await myDocuments.renameFile("Document", "Document (renamed)");
-    await myDocuments.renameFile("Spreadsheet", "Spreadsheet (renamed)");
-    await myDocuments.renameFile("Presentation", "Presentation (renamed)");
-    await myDocuments.renameFile("Folder", "Folder (renamed)");
-    await myDocuments.renameFile("Blank", "Blank (renamed)");
+    await files.open();
+    await files.renameFile("Document", "Document (renamed)");
+    await files.renameFile("Spreadsheet", "Spreadsheet (renamed)");
+    await files.renameFile("Presentation", "Presentation (renamed)");
+    await files.renameFile("Folder", "Folder (renamed)");
+    await files.renameFile("Blank", "Blank (renamed)");
   });
 
   test("Table settings", async () => {
-    await myDocuments.filesTable.openTableSettings();
-    await myDocuments.filesTable.expectColumnVisible("Modified");
-    await myDocuments.filesTable.expectColumnVisible("Size");
+    await files.filesTable.openTableSettings();
+    await files.filesTable.expectColumnVisible("Modified");
+    await files.filesTable.expectColumnVisible("Size");
 
-    await myDocuments.filesTable.setColumnVisible("Author");
-    await myDocuments.filesTable.setColumnVisible("Created");
-    await myDocuments.filesTable.setColumnVisible("Type");
+    await files.filesTable.setColumnVisible("Author");
+    await files.filesTable.setColumnVisible("Created");
+    await files.filesTable.setColumnVisible("Type");
 
-    await myDocuments.filesTable.setColumnNotVisible("Modified");
-    await myDocuments.filesTable.setColumnNotVisible("Size");
-    await myDocuments.filesTable.setColumnNotVisible("Author");
-    await myDocuments.filesTable.setColumnNotVisible("Created");
-    await myDocuments.filesTable.setColumnNotVisible("Type");
+    await files.filesTable.setColumnNotVisible("Modified");
+    await files.filesTable.setColumnNotVisible("Size");
+    await files.filesTable.setColumnNotVisible("Author");
+    await files.filesTable.setColumnNotVisible("Created");
+    await files.filesTable.setColumnNotVisible("Type");
 
-    await myDocuments.filesTable.setColumnVisible("Modified");
-    await myDocuments.filesTable.setColumnVisible("Size");
-    await myDocuments.filesTable.closeTableSettings();
+    await files.filesTable.setColumnVisible("Modified");
+    await files.filesTable.setColumnVisible("Size");
+    await files.filesTable.closeTableSettings();
   });
 });

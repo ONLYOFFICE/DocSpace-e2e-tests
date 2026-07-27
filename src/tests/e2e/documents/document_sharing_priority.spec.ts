@@ -5,7 +5,7 @@ import InfoPanel from "@/src/objects/common/InfoPanel";
 import Login from "@/src/objects/common/Login";
 import FilesTable from "@/src/objects/files/FilesTable";
 import SharedWithMe from "@/src/objects/files/SharedWithMe";
-import MyDocuments from "@/src/objects/files/MyDocuments";
+import Files from "@/src/objects/files/Files";
 import {
   waitForFileRecentResponse,
   waitForShareLinkResponse,
@@ -51,11 +51,11 @@ test.describe("Document sharing: access priority (Personal > Group > Link)", () 
     });
 
     await test.step("Share file with group (Editing access)", async () => {
-      const myDocuments = new MyDocuments(page, api.portalDomain);
+      const files = new Files(page, api.portalDomain);
       const infoPanel = new InfoPanel(page);
-      await myDocuments.open();
-      await myDocuments.filesTable.openContextMenuForItem(FILE_NAME);
-      await myDocuments.filesTable.contextMenu.clickSubmenuOption(
+      await files.open();
+      await files.filesTable.openContextMenuForItem(FILE_NAME);
+      await files.filesTable.contextMenu.clickSubmenuOption(
         "Share",
         "Sharing settings",
       );
@@ -126,11 +126,11 @@ test.describe("Document sharing: access priority (Personal > Group > Link)", () 
     });
 
     await test.step("Share file with group (Read only access)", async () => {
-      const myDocuments = new MyDocuments(page, api.portalDomain);
+      const files = new Files(page, api.portalDomain);
       const infoPanel = new InfoPanel(page);
-      await myDocuments.open();
-      await myDocuments.filesTable.openContextMenuForItem(FILE_NAME);
-      await myDocuments.filesTable.contextMenu.clickSubmenuOption(
+      await files.open();
+      await files.filesTable.openContextMenuForItem(FILE_NAME);
+      await files.filesTable.contextMenu.clickSubmenuOption(
         "Share",
         "Sharing settings",
       );
@@ -200,11 +200,11 @@ test.describe("Document sharing: access priority (Personal > Group > Link)", () 
     });
 
     await test.step("Share file with group (Editing access)", async () => {
-      const myDocuments = new MyDocuments(page, api.portalDomain);
+      const files = new Files(page, api.portalDomain);
       const infoPanel = new InfoPanel(page);
-      await myDocuments.open();
-      await myDocuments.filesTable.openContextMenuForItem(FILE_NAME);
-      await myDocuments.filesTable.contextMenu.clickSubmenuOption(
+      await files.open();
+      await files.filesTable.openContextMenuForItem(FILE_NAME);
+      await files.filesTable.contextMenu.clickSubmenuOption(
         "Share",
         "Sharing settings",
       );
@@ -262,11 +262,11 @@ test.describe("Document sharing: access priority (Personal > Group > Link)", () 
     });
 
     await test.step("Share file with group (Editing access) and create external link", async () => {
-      const myDocuments = new MyDocuments(page, api.portalDomain);
+      const files = new Files(page, api.portalDomain);
       const infoPanel = new InfoPanel(page);
-      await myDocuments.open();
-      await myDocuments.filesTable.openContextMenuForItem(FILE_NAME);
-      await myDocuments.filesTable.contextMenu.clickSubmenuOption(
+      await files.open();
+      await files.filesTable.openContextMenuForItem(FILE_NAME);
+      await files.filesTable.contextMenu.clickSubmenuOption(
         "Share",
         "Sharing settings",
       );
@@ -277,7 +277,7 @@ test.describe("Document sharing: access priority (Personal > Group > Link)", () 
       const linkPromise = waitForShareLinkResponse(page);
       await infoPanel.createFirstSharedLink(); // Read only by default
       await linkPromise;
-      await myDocuments.dismissToastSafely("Link copied to clipboard");
+      await files.dismissToastSafely("Link copied to clipboard");
     });
 
     const recentResponsePromise = waitForFileRecentResponse(page.context());
@@ -334,11 +334,11 @@ test.describe("Document sharing: access priority (Personal > Group > Link)", () 
     });
 
     await test.step("Share file with group (Read only), create Anyone-with-link external link", async () => {
-      const myDocuments = new MyDocuments(page, api.portalDomain);
+      const files = new Files(page, api.portalDomain);
       const infoPanel = new InfoPanel(page);
-      await myDocuments.open();
-      await myDocuments.filesTable.openContextMenuForItem(FILE_NAME);
-      await myDocuments.filesTable.contextMenu.clickSubmenuOption(
+      await files.open();
+      await files.filesTable.openContextMenuForItem(FILE_NAME);
+      await files.filesTable.contextMenu.clickSubmenuOption(
         "Share",
         "Sharing settings",
       );
@@ -349,7 +349,7 @@ test.describe("Document sharing: access priority (Personal > Group > Link)", () 
       const linkPromise = waitForShareLinkResponse(page);
       await infoPanel.createFirstSharedLink(); // Anyone with the link, Read only
       await linkPromise;
-      await myDocuments.dismissToastSafely("Link copied to clipboard");
+      await files.dismissToastSafely("Link copied to clipboard");
     });
 
     await test.step("Set personal Full access via API", async () => {
@@ -414,11 +414,11 @@ test.describe("Document sharing: access priority (Personal > Group > Link)", () 
     });
 
     await test.step("Share file with group (Editing), create Anyone-with-link external link", async () => {
-      const myDocuments = new MyDocuments(page, api.portalDomain);
+      const files = new Files(page, api.portalDomain);
       const infoPanel = new InfoPanel(page);
-      await myDocuments.open();
-      await myDocuments.filesTable.openContextMenuForItem(FILE_NAME);
-      await myDocuments.filesTable.contextMenu.clickSubmenuOption(
+      await files.open();
+      await files.filesTable.openContextMenuForItem(FILE_NAME);
+      await files.filesTable.contextMenu.clickSubmenuOption(
         "Share",
         "Sharing settings",
       );
@@ -429,7 +429,7 @@ test.describe("Document sharing: access priority (Personal > Group > Link)", () 
       const linkPromise = waitForShareLinkResponse(page);
       await infoPanel.createFirstSharedLink(); // Anyone with the link, Read only
       await linkPromise;
-      await myDocuments.dismissToastSafely("Link copied to clipboard");
+      await files.dismissToastSafely("Link copied to clipboard");
     });
 
     await test.step("Login as user and verify file visible in Shared with Me", async () => {

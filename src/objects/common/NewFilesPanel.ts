@@ -1,4 +1,6 @@
 import { expect, Page } from "@playwright/test";
+import AppsSidebar from "./AppsSidebar";
+import { apps, filesSubItems } from "@/src/utils/constants/navigation";
 
 const PANEL = ".new-files-panel";
 const MARK_AS_READ_BUTTON = "mark_as_read_button";
@@ -8,38 +10,35 @@ const FILE_ITEM = '[class*="fileItem"]';
 const OPEN_LOCATION_BUTTON = ".open-location-button";
 const MORE_ITEMS_LINK = ".more-items__link";
 
-const SHARED_WITH_ME_BADGE =
-  '[data-testid="article-item"]:has(#document_catalog-share) [data-testid="badge"]';
-const ROOMS_BADGE =
-  '[data-testid="article-item"]:has(#document_catalog-shared) [data-testid="badge"]';
-const MY_DOCUMENTS_BADGE =
-  '[data-testid="article-item"]:has(#document_catalog-personal) [data-testid="badge"]';
-
 class NewFilesPanel {
   private page: Page;
   private panel: ReturnType<Page["locator"]>;
+  private sidebar: AppsSidebar;
 
   constructor(page: Page) {
     this.page = page;
     this.panel = page.locator(PANEL);
+    this.sidebar = new AppsSidebar(page);
+  }
+
+  private async clickBadge(badge: ReturnType<Page["locator"]>) {
+    await expect(badge).toBeVisible();
+    await badge.click();
   }
 
   async openByClickingSharedWithMeBadge() {
-    const badge = this.page.locator(SHARED_WITH_ME_BADGE);
-    await expect(badge).toBeVisible();
-    await badge.click();
+    await this.sidebar.expandApp(apps.files);
+    await this.clickBadge(
+      this.sidebar.subItemBadge(apps.files, filesSubItems.sharedWithMe),
+    );
   }
 
   async openByClickingRoomsBadge() {
-    const badge = this.page.locator(ROOMS_BADGE);
-    await expect(badge).toBeVisible();
-    await badge.click();
+    await this.clickBadge(this.sidebar.itemBadge(apps.rooms));
   }
 
   async openByClickingMyDocumentsBadge() {
-    const badge = this.page.locator(MY_DOCUMENTS_BADGE);
-    await expect(badge).toBeVisible();
-    await badge.click();
+    await this.clickBadge(this.sidebar.itemBadge(apps.files));
   }
 
   async expectVisible() {
@@ -70,31 +69,31 @@ class NewFilesPanel {
     await expect(this.panel.locator(MORE_ITEMS_LINK)).toBeVisible();
   }
 
-  async expectSharedWithMeBadgeVisible(visible: boolean) {
-    const badge = this.page.locator(SHARED_WITH_ME_BADGE);
+  private async expectBadgeVisible(
+    badge: ReturnType<Page["locator"]>,
+    visible: boolean,
+  ) {
     if (visible) {
       await expect(badge).toBeVisible();
     } else {
       await expect(badge).not.toBeVisible();
     }
+  }
+
+  async expectSharedWithMeBadgeVisible(visible: boolean) {
+    await this.sidebar.expandApp(apps.files);
+    await this.expectBadgeVisible(
+      this.sidebar.subItemBadge(apps.files, filesSubItems.sharedWithMe),
+      visible,
+    );
   }
 
   async expectRoomsBadgeVisible(visible: boolean) {
-    const badge = this.page.locator(ROOMS_BADGE);
-    if (visible) {
-      await expect(badge).toBeVisible();
-    } else {
-      await expect(badge).not.toBeVisible();
-    }
+    await this.expectBadgeVisible(this.sidebar.itemBadge(apps.rooms), visible);
   }
 
   async expectMyDocumentsBadgeVisible(visible: boolean) {
-    const badge = this.page.locator(MY_DOCUMENTS_BADGE);
-    if (visible) {
-      await expect(badge).toBeVisible();
-    } else {
-      await expect(badge).not.toBeVisible();
-    }
+    await this.expectBadgeVisible(this.sidebar.itemBadge(apps.files), visible);
   }
 
   async clickMarkAsRead(fileName: string) {

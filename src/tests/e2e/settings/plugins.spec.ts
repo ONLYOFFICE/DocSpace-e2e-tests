@@ -3,7 +3,7 @@ import { PaymentApi } from "@/src/api/payment";
 import { expect } from "@playwright/test";
 import { test } from "@/src/fixtures";
 import { Plugins } from "@/src/objects/settings/integration/Plugins";
-import MyDocuments from "@/src/objects/files/MyDocuments";
+import Files from "@/src/objects/files/Files";
 import {
   integrationTabs,
   samplePluginZip,
@@ -110,15 +110,15 @@ test.describe("Integration tests - Plugins", () => {
     page,
     api,
   }) => {
-    const myDocuments = new MyDocuments(page, api.portalDomain);
+    const files = new Files(page, api.portalDomain);
 
     await test.step("Enable the Draw.io plugin", async () => {
       await plugins.enableDrawIo();
     });
 
     await test.step("Plugin appears under the My Documents Actions menu", async () => {
-      await myDocuments.open();
-      await myDocuments.filesNavigation.openActionsDropdown();
+      await files.open();
+      await files.filesNavigation.openActionsDropdown();
       await expect(page.locator("#actions_more-plugins")).toBeVisible();
     });
   });

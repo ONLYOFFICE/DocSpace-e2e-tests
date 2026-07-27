@@ -1,4 +1,5 @@
 import { expect, Locator, Page } from "@playwright/test";
+import AppsSidebar from "./AppsSidebar";
 import BaseArticle from "./BaseArticle";
 import BaseToast from "./BaseToast";
 
@@ -10,11 +11,13 @@ export default class BasePage {
   protected page: Page;
   protected article: BaseArticle;
   protected toast: BaseToast;
+  sidebar: AppsSidebar;
 
   constructor(page: Page) {
     this.page = page;
     this.article = new BaseArticle(page);
     this.toast = new BaseToast(page);
+    this.sidebar = new AppsSidebar(page);
   }
 
   protected get optionsButton(): Locator {
@@ -75,8 +78,14 @@ export default class BasePage {
     await this.settingsMenuItem.click();
   }
 
+  /** Top-level rail item: an app in the main rail, a section in settings. */
   async navigateToArticle(title: string) {
-    await this.article.navigate(title);
+    await this.sidebar.navigate(title);
+  }
+
+  /** Sub-item of an app — scoped, since labels repeat across apps. */
+  async navigateToSubItem(app: string, item: string) {
+    await this.sidebar.openSubItem(app, item);
   }
 
   async checkTryBusinessBarVisible() {

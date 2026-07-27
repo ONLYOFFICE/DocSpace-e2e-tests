@@ -1,6 +1,6 @@
 import { test } from "@/src/fixtures";
 import MyRooms from "@/src/objects/rooms/Rooms";
-import MyDocuments from "@/src/objects/files/MyDocuments";
+import Files from "@/src/objects/files/Files";
 import RoomInfoPanel from "@/src/objects/rooms/RoomInfoPanel";
 import BaseEditLink from "@/src/objects/common/BaseLinkSettings";
 import { waitForRoomShareLinkResponse } from "@/src/objects/rooms/api";
@@ -126,8 +126,8 @@ test.describe("Public room - Shared link", () => {
     browser,
   }) => {
     await test.step("Create document inside room", async () => {
-      const myDocuments = new MyDocuments(page, "");
-      await myDocuments.createDocumentFile("TestDocument");
+      const files = new Files(page, "");
+      await files.createDocumentFile("TestDocument");
     });
 
     let sharedLink: string;

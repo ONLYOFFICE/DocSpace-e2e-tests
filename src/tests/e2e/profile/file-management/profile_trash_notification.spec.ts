@@ -1,17 +1,17 @@
 import { expect } from "@playwright/test";
 import { test } from "@/src/fixtures";
 import ProfileFileManagement from "@/src/objects/profile/ProfileFileManagement";
-import MyDocuments from "@/src/objects/files/MyDocuments";
+import Files from "@/src/objects/files/Files";
 
 const FILE_NAME = "TestFileForDeletion";
 
 test.describe("Profile - Display notification when moving items to Trash", () => {
   let profileFileManagement: ProfileFileManagement;
-  let myDocuments: MyDocuments;
+  let files: Files;
 
   test.beforeEach(async ({ page, api, apiSdk, login }) => {
     profileFileManagement = new ProfileFileManagement(page, api.portalDomain);
-    myDocuments = new MyDocuments(page, api.portalDomain);
+    files = new Files(page, api.portalDomain);
     await login.loginToPortal();
     await apiSdk.files.createFileInMyDocuments("owner", { title: FILE_NAME });
     await profileFileManagement.open();
@@ -19,11 +19,11 @@ test.describe("Profile - Display notification when moving items to Trash", () =>
 
   test("Trash notification appears when deleting a file with toggle enabled", async () => {
     await test.step("Delete file and verify toast notification appears", async () => {
-      await myDocuments.open();
-      await myDocuments.filesTable.openContextMenuForItem(FILE_NAME);
-      await myDocuments.filesTable.contextMenu.clickOption("Delete");
-      await myDocuments.folderDeleteModal.clickDeleteFolder();
-      await myDocuments.checkToastMessage("successfully moved to Trash");
+      await files.open();
+      await files.filesTable.openContextMenuForItem(FILE_NAME);
+      await files.filesTable.contextMenu.clickOption("Delete");
+      await files.folderDeleteModal.clickDeleteFolder();
+      await files.checkToastMessage("successfully moved to Trash");
     });
   });
 
@@ -33,13 +33,13 @@ test.describe("Profile - Display notification when moving items to Trash", () =>
     });
 
     await test.step("Delete file", async () => {
-      await myDocuments.open();
-      await myDocuments.filesTable.openContextMenuForItem(FILE_NAME);
-      await myDocuments.filesTable.contextMenu.clickOption("Delete");
+      await files.open();
+      await files.filesTable.openContextMenuForItem(FILE_NAME);
+      await files.filesTable.contextMenu.clickOption("Delete");
     });
 
     await test.step("Verify file is deleted and no toast appears", async () => {
-      await myDocuments.filesTable.checkRowNotExist(FILE_NAME);
+      await files.filesTable.checkRowNotExist(FILE_NAME);
       await expect(
         page
           .locator("#toast-container")

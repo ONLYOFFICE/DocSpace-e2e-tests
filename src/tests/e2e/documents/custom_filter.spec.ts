@@ -1,4 +1,4 @@
-import MyDocuments from "@/src/objects/files/MyDocuments";
+import Files from "@/src/objects/files/Files";
 import { test } from "@/src/fixtures";
 import { expect } from "@playwright/test";
 import {
@@ -8,43 +8,39 @@ import {
 } from "@/src/utils/constants/files";
 
 test.describe("My documents: Custom filter", () => {
-  let myDocuments: MyDocuments;
+  let files: Files;
 
   test.beforeEach(async ({ page, api, login }) => {
-    myDocuments = new MyDocuments(page, api.portalDomain);
+    files = new Files(page, api.portalDomain);
 
     await login.loginToPortal();
-    await myDocuments.open();
-    await myDocuments.deleteAllDocs();
+    await files.open();
+    await files.deleteAllDocs();
   });
 
   test("Enable Custom filter for Spreadsheet", async () => {
     await test.step("Create files", async () => {
-      await myDocuments.filesArticle.createFiles();
+      await files.createFiles();
     });
 
     await test.step("Enable Custom filter and verify toast and icon", async () => {
-      await myDocuments.filesTable.openContextMenuForItem("Spreadsheet");
-      await myDocuments.filesTable.contextMenu.clickOption(
+      await files.filesTable.openContextMenuForItem("Spreadsheet");
+      await files.filesTable.contextMenu.clickOption(
         spreadsheetContextMenuOption.customFilter,
       );
-      await myDocuments.checkToastMessage(
-        filesToastMessages.customFilterEnabled,
-      );
-      await myDocuments.filesTable.expectCustomFilterIconVisible("Spreadsheet");
-      await myDocuments.dismissToastSafely(
-        filesToastMessages.customFilterEnabled,
-      );
+      await files.checkToastMessage(filesToastMessages.customFilterEnabled);
+      await files.filesTable.expectCustomFilterIconVisible("Spreadsheet");
+      await files.dismissToastSafely(filesToastMessages.customFilterEnabled);
     });
 
     await test.step("Document does not have Enable Custom filter option", async () => {
-      await myDocuments.filesTable.openContextMenuForItem("Document");
+      await files.filesTable.openContextMenuForItem("Document");
       await expect(
-        myDocuments.filesTable.contextMenu.getItemLocator(
+        files.filesTable.contextMenu.getItemLocator(
           spreadsheetContextMenuOption.customFilter,
         ),
       ).not.toBeVisible();
-      await myDocuments.filesTable.contextMenu.close();
+      await files.filesTable.contextMenu.close();
     });
   });
 
@@ -53,26 +49,17 @@ test.describe("My documents: Custom filter", () => {
   }) => {
     await test.step("Upload CSV file", async () => {
       await apiSdk.files.uploadToMyDocuments("owner", sampleCsvFile.path);
-      await myDocuments.open();
+      await files.open();
     });
 
     await test.step("Enable Custom filter and verify toast and icon", async () => {
-      await myDocuments.filesTable.openContextMenuForItem(
-        sampleCsvFile.name,
-        true,
-      );
-      await myDocuments.filesTable.contextMenu.clickOption(
+      await files.filesTable.openContextMenuForItem(sampleCsvFile.name, true);
+      await files.filesTable.contextMenu.clickOption(
         spreadsheetContextMenuOption.customFilter,
       );
-      await myDocuments.checkToastMessage(
-        filesToastMessages.customFilterEnabled,
-      );
-      await myDocuments.filesTable.expectCustomFilterIconVisible(
-        sampleCsvFile.name,
-      );
-      await myDocuments.dismissToastSafely(
-        filesToastMessages.customFilterEnabled,
-      );
+      await files.checkToastMessage(filesToastMessages.customFilterEnabled);
+      await files.filesTable.expectCustomFilterIconVisible(sampleCsvFile.name);
+      await files.dismissToastSafely(filesToastMessages.customFilterEnabled);
     });
   });
 });

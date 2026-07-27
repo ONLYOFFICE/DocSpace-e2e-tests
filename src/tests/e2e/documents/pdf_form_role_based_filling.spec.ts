@@ -1,7 +1,7 @@
 import { Page } from "@playwright/test";
 import { test } from "@/src/fixtures";
 
-import MyDocuments from "@/src/objects/files/MyDocuments";
+import Files from "@/src/objects/files/Files";
 import FilesPdfForm from "@/src/objects/files/FilesPdfForm";
 import EditorStartFillingPanel from "@/src/objects/files/EditorStartFillingPanel";
 import AssignRoleDialog from "@/src/objects/files/AssignRoleDialog";
@@ -16,12 +16,12 @@ const VDR_ROOM_NAME = "VDR Room";
 const PDF_FORM_NAME = "PDF Form";
 
 test.describe("My Documents: PDF form role-based filling via editor", () => {
-  let myDocuments: MyDocuments;
+  let files: Files;
 
   test.beforeEach(async ({ page, api, login }) => {
-    myDocuments = new MyDocuments(page, api.portalDomain);
+    files = new Files(page, api.portalDomain);
     await login.loginToPortal();
-    await myDocuments.open();
+    await files.open();
   });
 
   test("Owner assigns role via editor and verifies Your turn badge in VDR room", async ({
@@ -32,8 +32,7 @@ test.describe("My Documents: PDF form role-based filling via editor", () => {
     let selector: BaseSelector;
 
     await test.step("Create blank PDF form and open editor", async () => {
-      const editor =
-        await myDocuments.createPdfFormAndOpenEditor(PDF_FORM_NAME);
+      const editor = await files.createPdfFormAndOpenEditor(PDF_FORM_NAME);
       await editor.waitForLoad();
       editorPage = editor.editorPage;
       pdfForm = new FilesPdfForm(editorPage);

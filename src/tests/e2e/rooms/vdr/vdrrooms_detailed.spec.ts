@@ -1,7 +1,7 @@
 import { test } from "@/src/fixtures";
 import { expect } from "@playwright/test";
 import MyRooms from "@/src/objects/rooms/Rooms";
-import MyDocuments from "@/src/objects/files/MyDocuments";
+import Files from "@/src/objects/files/Files";
 import VdrRoomSettings from "@/src/objects/rooms/VdrRoomSettings";
 import FolderDeleteModal from "@/src/objects/files/FolderDeleteModal";
 import {
@@ -113,9 +113,9 @@ test.describe("VDR Room: index operations", () => {
     });
 
     await test.step("Verify exported file is saved to My Documents", async () => {
-      const myDocuments = new MyDocuments(page, api.portalDomain);
-      await myDocuments.open();
-      await myDocuments.filesTable.checkRowExist(`${VDR_ROOM_NAME}_index`);
+      const files = new Files(page, api.portalDomain);
+      await files.open();
+      await files.filesTable.checkRowExist(`${VDR_ROOM_NAME}_index`);
     });
   });
 });

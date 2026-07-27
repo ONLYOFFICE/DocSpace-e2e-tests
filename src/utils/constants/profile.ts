@@ -8,7 +8,7 @@ export const avatarConstants = {
 
 export const defaultHomepageOptions = {
   aiAgents: "AI agents",
-  myDocuments: "My documents",
+  files: "My documents",
   rooms: "Rooms",
   sharedWithMe: "Shared with me",
   favorites: "Favorites",
@@ -27,7 +27,7 @@ export const notificationsText = {
 
 export const defaultHomepageUrls = {
   aiAgents: /ai-agents\/filter/,
-  myDocuments: /rooms\/personal/,
+  files: /rooms\/personal/,
   rooms: /rooms\/shared\/filter/,
   sharedWithMe: /shared-with-me/,
   favorites: /files\/favorite/,

@@ -2,7 +2,7 @@ import { test } from "@/src/fixtures";
 import ProfileNotifications from "@/src/objects/profile/ProfileNotifications";
 import SharedWithMe from "@/src/objects/files/SharedWithMe";
 import Rooms from "@/src/objects/rooms/Rooms";
-import MyDocuments from "@/src/objects/files/MyDocuments";
+import Files from "@/src/objects/files/Files";
 import LeaveRoomDialog from "@/src/objects/rooms/LeaveRoomDialog";
 import Login from "@/src/objects/common/Login";
 import { Backup } from "@/src/objects/settings/backup/Backup";
@@ -154,8 +154,8 @@ test.describe("Profile - Notifications - Badges", () => {
     });
 
     await test.step("Navigate to My Documents", async () => {
-      const myDocuments = new MyDocuments(page, api.portalDomain);
-      await myDocuments.open();
+      const files = new Files(page, api.portalDomain);
+      await files.open();
     });
 
     await test.step("Verify badge is visible on My Documents", async () => {
@@ -267,8 +267,8 @@ test.describe("Profile - Notifications - Badges", () => {
     });
 
     await test.step("Verify badge is not visible on My Documents", async () => {
-      const myDocuments = new MyDocuments(page, api.portalDomain);
-      await myDocuments.open();
+      const files = new Files(page, api.portalDomain);
+      await files.open();
       const profileNotifications = new ProfileNotifications(
         page,
         api.portalDomain,
@@ -441,8 +441,8 @@ test.describe("Profile - Notifications - Badges", () => {
     });
 
     await test.step("Navigate to My Documents", async () => {
-      const myDocuments = new MyDocuments(page, api.portalDomain);
-      await myDocuments.open();
+      const files = new Files(page, api.portalDomain);
+      await files.open();
     });
 
     await test.step("Verify badge is visible on My Documents", async () => {
@@ -495,8 +495,8 @@ test.describe("Profile - Notifications - Badges", () => {
     });
 
     await test.step("Navigate to My Documents and verify Rooms badge is visible", async () => {
-      const myDocuments = new MyDocuments(page, api.portalDomain);
-      await myDocuments.open();
+      const files = new Files(page, api.portalDomain);
+      await files.open();
       const profileNotifications = new ProfileNotifications(
         page,
         api.portalDomain,
@@ -516,8 +516,8 @@ test.describe("Profile - Notifications - Badges", () => {
     });
 
     await test.step("Navigate to My Documents and verify Rooms badge is gone", async () => {
-      const myDocuments = new MyDocuments(page, api.portalDomain);
-      await myDocuments.open();
+      const files = new Files(page, api.portalDomain);
+      await files.open();
       const profileNotifications = new ProfileNotifications(
         page,
         api.portalDomain,

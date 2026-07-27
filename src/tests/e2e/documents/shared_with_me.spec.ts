@@ -1,5 +1,5 @@
 import SharedWithMe from "@/src/objects/files/SharedWithMe";
-import MyDocuments from "@/src/objects/files/MyDocuments";
+import Files from "@/src/objects/files/Files";
 import FilesTable from "@/src/objects/files/FilesTable";
 import FolderDeleteModal from "@/src/objects/files/FolderDeleteModal";
 import FilesSelectPanel from "@/src/objects/files/FilesSelectPanel";
@@ -318,9 +318,9 @@ test.describe("Shared with me", () => {
         });
 
         await test.step("Verify file appears in My Documents", async () => {
-          const myDocuments = new MyDocuments(page, api.portalDomain);
-          await myDocuments.open();
-          await myDocuments.filesTable.checkRowExist(fileName);
+          const files = new Files(page, api.portalDomain);
+          await files.open();
+          await files.filesTable.checkRowExist(fileName);
         });
       });
 
