@@ -76,12 +76,6 @@ class Files extends BasePage {
     await this.page.getByText("Recently accessible via link").click();
   }
 
-  async checkCreatedFileByActionExist(actionText: string) {
-    await expect(
-      this.page.getByText(actionText, { exact: true }),
-    ).toBeVisible();
-  }
-
   /** Creates one item of every type available in the "New" menu. */
   async createFiles() {
     for (const [i, menuLabel] of listDocActions.entries()) {
@@ -101,8 +95,7 @@ class Files extends BasePage {
       } else {
         await this.filesNavigation.modal.clickCreateButton();
       }
-
-      await this.checkCreatedFileByActionExist(fileName);
+      await this.filesTable.checkRowExist(fileName);
     }
   }
 

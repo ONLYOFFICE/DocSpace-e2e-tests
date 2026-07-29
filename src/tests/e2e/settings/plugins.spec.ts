@@ -118,7 +118,7 @@ test.describe("Integration tests - Plugins", () => {
 
     await test.step("Plugin appears under the My Documents Actions menu", async () => {
       await files.open();
-      await files.filesNavigation.openActionsDropdown();
+      await files.filesNavigation.openCreateDropdown();
       await expect(page.locator("#actions_more-plugins")).toBeVisible();
     });
   });

@@ -3,7 +3,7 @@ import { BaseContextMenu } from "./BaseContextMenu";
 
 const CLOSE_BUTTON =
   "[data-testid='aside-header'] [data-testid='icon-button-svg']";
-const MAIN_BUTTON = "[data-testid='main-button']";
+const MAIN_BUTTON = "[data-testid='main-button'], [data-testid='plus-button']";
 const BACK_ARROW_ICON =
   ".navigation-arrow-container [data-testid='icon-button']";
 
@@ -31,7 +31,7 @@ class BaseNavigation {
   }
 
   private get mainButton() {
-    return this.page.locator(BaseNavigation.mainButtonSelector);
+    return this.page.locator(BaseNavigation.mainButtonSelector).first();
   }
 
   private get backArrowIcon() {

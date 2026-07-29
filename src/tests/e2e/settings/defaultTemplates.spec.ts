@@ -263,7 +263,7 @@ test.describe("Settings - Customization: Default Templates", () => {
     });
 
     await test.step("Create new document in room", async () => {
-      await myRooms.filesNavigation.openActionsDropdown();
+      await myRooms.filesNavigation.openCreateDropdown();
       await myRooms.filesNavigation.selectCreateAction("Document");
       await myRooms.filesNavigation.modal.fillCreateTextInput(DOC_NAME);
       const [newPage] = await Promise.all([
