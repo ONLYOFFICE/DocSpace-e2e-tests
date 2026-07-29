@@ -237,7 +237,7 @@ test.describe("Rooms - Change room owner", () => {
       await rooms.filesNavigation.uploadFiles([FILE_PATH, DOC_FILE_PATH]);
       await rooms.filesTable.checkRowExist(FILE_NAME);
       await rooms.filesTable.checkRowExist(DOC_FILE_NAME);
-      await rooms.filesNavigation.openActionsDropdown();
+      await rooms.filesNavigation.openCreateDropdown();
       await rooms.filesNavigation.selectCreateAction("Folder");
       await rooms.filesNavigation.modal.fillCreateTextInput(FOLDER_NAME);
       await rooms.filesNavigation.modal.clickCreateButton();

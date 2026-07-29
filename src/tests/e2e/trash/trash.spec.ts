@@ -587,7 +587,7 @@ test.describe("Trash", () => {
         `${getPortalUrl(login.portalDomain)}/rooms/shared/${roomId}/filter?folder=${roomId}`,
         { waitUntil: "load" },
       );
-      await rooms.filesNavigation.openActionsDropdown();
+      await rooms.filesNavigation.openCreateDropdown();
       await rooms.filesNavigation.selectCreateAction("Document");
       await rooms.filesNavigation.modal.checkModalExist();
       await rooms.filesNavigation.modal.fillCreateTextInput("RoomManagerFile");
