@@ -64,6 +64,10 @@ class BaseNavigation {
     await expect(this.mainButton).toBeVisible();
   }
 
+  async checkAddButtonHidden() {
+    await expect(this.mainButton).toBeHidden();
+  }
+
   async clickSelectAllCheckbox() {
     await expect(this.selectAllCheckbox).toBeVisible();
     await this.selectAllCheckbox.click();

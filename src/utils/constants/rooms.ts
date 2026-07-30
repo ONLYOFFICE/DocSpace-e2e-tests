@@ -1,10 +1,30 @@
+// Room types offered by the "Choose room type" dialog, keyed by the label shown
+// in the UI. `formFilling` is no longer creatable from the Rooms app — the type
+// moved to the Forms app and was renamed to "Form Set" — but the constant stays
+// because prod still runs the legacy UI (see daily_prod_check.spec.ts).
 export const roomCreateTitles = {
   public: "Public room",
   formFilling: "Form Filling room",
   collaboration: "Collaboration room",
-  virtualData: "Virtual Data room",
+  virtualData: "Virtual Data Room",
   custom: "Custom room",
+  private: "Private Room",
   fromTemplate: "From template",
+} as const;
+
+// Types the Rooms app creates without any extra setup. `private` is excluded on
+// purpose: it needs an end-to-end encryption key first, so it has its own test.
+export const roomTypesCreatableFromRooms = [
+  roomCreateTitles.public,
+  roomCreateTitles.collaboration,
+  roomCreateTitles.virtualData,
+  roomCreateTitles.custom,
+] as const;
+
+export const encryptionKeyDialog = {
+  title: "Encryption key required",
+  description:
+    "Private rooms use end-to-end encryption. To continue, you need an encryption key.",
 } as const;
 
 export const roomTemplateTitles = {
@@ -13,10 +33,14 @@ export const roomTemplateTitles = {
   editedTemplate: "Edited template name",
 } as const;
 
+// Entry points to room creation. The old "article" source is gone: the create
+// button moved out of the left rail into the filter toolbar (= navigation).
+// "quickActions" are the tiles above the list, which skip type selection and
+// open the create form for their type directly.
 export const roomDialogSource = {
   navigation: "navigation",
   emptyView: "emptyView",
-  article: "article",
+  quickActions: "quickActions",
 } as const;
 
 export const roomContextMenuOption = {

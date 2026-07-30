@@ -109,7 +109,7 @@ test.describe("Room templates: management", () => {
       );
       await myRooms.backToRooms();
       await myRooms.infoPanel.close();
-      await myRooms.openTemplatesTab();
+      await myRooms.openTemplates();
       await myRooms.roomsTable.checkRowExist(roomTemplateTitles.roomTemplate);
     });
   });

@@ -4,6 +4,7 @@ import MyRooms from "@/src/objects/rooms/Rooms";
 import {
   roomContextMenuOption,
   roomCreateTitles,
+  roomDialogSource,
 } from "@/src/utils/constants/rooms";
 
 /**
@@ -20,7 +21,7 @@ test.describe("Tags", () => {
   });
   test("Tags", async ({ page }) => {
     await test.step("CreateRoomWithTag", async () => {
-      await myRooms.roomsArticle.openCreateDialog();
+      await myRooms.openCreateRoomDialog(roomDialogSource.navigation);
       await myRooms.roomsCreateDialog.openRoomType(
         roomCreateTitles.collaboration,
       );
@@ -60,7 +61,7 @@ test.describe("Tags", () => {
     });
 
     await test.step("CreateFiveTagsInRoom", async () => {
-      await myRooms.roomsArticle.openCreateDialog();
+      await myRooms.openCreateRoomDialog(roomDialogSource.navigation);
       await myRooms.roomsCreateDialog.openRoomType(
         roomCreateTitles.collaboration,
       );
@@ -75,7 +76,7 @@ test.describe("Tags", () => {
     });
 
     await test.step("CollapsingLongNameTag", async () => {
-      await myRooms.roomsArticle.openCreateDialog();
+      await myRooms.openCreateRoomDialog(roomDialogSource.navigation);
       await myRooms.roomsCreateDialog.openRoomType(
         roomCreateTitles.collaboration,
       );
