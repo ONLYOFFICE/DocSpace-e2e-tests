@@ -4,6 +4,7 @@ import {
   roomCreateTitles,
   roomDialogSource,
   roomToastMessages,
+  roomTypesCreatableFromRooms,
 } from "@/src/utils/constants/rooms";
 import { test } from "@/src/fixtures";
 import { expect, Page } from "@playwright/test";
@@ -24,21 +25,54 @@ test.describe("Rooms", () => {
   test("Open create room dialog from different entry points", async () => {
     await myRooms.open();
 
+    await test.step("Toolbar button opens the room type list", async () => {
+      await myRooms.openCreateRoomDialog(roomDialogSource.navigation);
+      await myRooms.roomsCreateDialog.close();
+    });
+
+    await test.step("Empty view opens the room type list", async () => {
+      await myRooms.openCreateRoomDialog(roomDialogSource.emptyView);
+      await myRooms.roomsCreateDialog.close();
+    });
+
+    await test.step("Type can be switched from the type list", async () => {
+      await myRooms.openCreateRoomDialog(roomDialogSource.navigation);
+      await myRooms.roomsCreateDialog.openRoomType(
+        roomCreateTitles.collaboration,
+      );
+      await myRooms.roomsTypeDropdown.openRoomTypeDropdown();
+      await myRooms.roomsTypeDropdown.selectRoomTypeByTitle(
+        roomCreateTitles.public,
+      );
+      await myRooms.roomsCreateDialog.clickBackArrow();
+      await page.mouse.dblclick(1, 1);
+    });
+
+    await test.step("Precondition: quick-action tiles only exist once a room does", async () => {
+      await myRooms.openCreateRoomDialog(roomDialogSource.navigation);
+      await myRooms.roomsCreateDialog.openRoomType(roomCreateTitles.public);
+      await myRooms.roomsCreateDialog.createRoom(roomCreateTitles.public);
+      await myRooms.backToRooms();
+    });
+
+    await test.step("Quick-action tile opens the create form for its type", async () => {
+      // The tile preselects the type, so this path skips the type list — and with
+      // it the type dropdown, which only exists on the type-list path.
+      await myRooms.openCreateRoomDialog(
+        roomDialogSource.quickActions,
+        roomCreateTitles.collaboration,
+      );
+      await myRooms.roomsCreateDialog.close();
+    });
+  });
+
+  test("Private room requires an encryption key", async () => {
+    await myRooms.openWithoutEmptyCheck();
     await myRooms.openCreateRoomDialog(roomDialogSource.navigation);
-    await myRooms.roomsCreateDialog.close();
 
-    await myRooms.openCreateRoomDialog(roomDialogSource.emptyView);
-    await myRooms.roomsCreateDialog.close();
-
-    await myRooms.openCreateRoomDialog(roomDialogSource.article);
-
-    await myRooms.roomsCreateDialog.openRoomType(roomCreateTitles.formFilling);
-    await myRooms.roomsTypeDropdown.openRoomTypeDropdown();
-    await myRooms.roomsTypeDropdown.selectRoomTypeByTitle(
-      roomCreateTitles.public,
-    );
-    await myRooms.roomsCreateDialog.clickBackArrow();
-    await page.mouse.dblclick(1, 1);
+    await myRooms.roomsCreateDialog.clickRoomType(roomCreateTitles.private);
+    await myRooms.roomsCreateDialog.checkEncryptionKeyRequiredExist();
+    await myRooms.roomsCreateDialog.cancelEncryptionKey();
   });
 
   test("Create all room types", async () => {
@@ -46,11 +80,9 @@ test.describe("Rooms", () => {
     await myRooms.createRooms();
     await myRooms.infoPanel.close();
 
-    await myRooms.roomsTable.checkRowExist(roomCreateTitles.public);
-    await myRooms.roomsTable.checkRowExist(roomCreateTitles.formFilling);
-    await myRooms.roomsTable.checkRowExist(roomCreateTitles.collaboration);
-    await myRooms.roomsTable.checkRowExist(roomCreateTitles.virtualData);
-    await myRooms.roomsTable.checkRowExist(roomCreateTitles.custom);
+    for (const roomType of roomTypesCreatableFromRooms) {
+      await myRooms.roomsTable.checkRowExist(roomType);
+    }
   });
 
   test("Invite contacts", async () => {
@@ -258,7 +290,9 @@ test.describe("Rooms", () => {
   });
 
   test("Room cover - Create room with cover color and icon", async () => {
-    await myRooms.roomsArticle.openCreateDialog();
+    // Login now lands on Overview, which has no room create button.
+    await myRooms.openWithoutEmptyCheck();
+    await myRooms.openCreateRoomDialog(roomDialogSource.navigation);
     await myRooms.roomsCreateDialog.openRoomType(
       roomCreateTitles.collaboration,
     );
@@ -274,7 +308,7 @@ test.describe("Rooms", () => {
 
   test("Table settings", async () => {
     await myRooms.openWithoutEmptyCheck();
-    await myRooms.openRoomsTab();
+    await myRooms.openRooms();
     await myRooms.createRooms();
     await myRooms.infoPanel.close();
 

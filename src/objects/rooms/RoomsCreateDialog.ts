@@ -1,4 +1,5 @@
 import {
+  encryptionKeyDialog,
   roomCreateTitles,
   roomTemplateTitles,
   TRoomCreateTitles,
@@ -59,13 +60,49 @@ class RoomsCreateDialog extends BaseDialog {
     return this.page.getByTestId(CUSTOMIZE_COVER_BUTTON);
   }
 
+  async checkCreateFormExist() {
+    await expect(this.page.getByTestId(ROOM_NAME_INPUT)).toBeVisible();
+  }
+
+  // Private rooms are end-to-end encrypted: picking that type on a portal with no
+  // key yet interrupts creation with this prompt. Its buttons share the generic
+  // "button" testid, so the dialog has to be found by its title.
+  private get encryptionKeyDialog() {
+    return this.page
+      .locator('[data-testid="modal-dialog"]')
+      .filter({ hasText: encryptionKeyDialog.title });
+  }
+
+  async checkEncryptionKeyRequiredExist() {
+    await expect(this.encryptionKeyDialog).toBeVisible();
+    await expect(
+      this.encryptionKeyDialog.getByText(encryptionKeyDialog.description, {
+        exact: false,
+      }),
+    ).toBeVisible();
+  }
+
+  // No disappearance assertion on purpose: modal-dialog is a shared container and
+  // keeps this dialog's markup after it closes, so "hidden" can't be asserted on
+  // it reliably.
+  async cancelEncryptionKey() {
+    await this.encryptionKeyDialog
+      .getByRole("button", { name: "Cancel" })
+      .click();
+  }
+
   async checkRoomTypeExist(roomType: TRoomCreateTitles) {
     await expect(this.dialog.getByText(roomType)).toBeVisible();
   }
 
+  /** Picks a type without asserting the create form opened. */
+  async clickRoomType(title: TRoomCreateTitles) {
+    await this.dialog.getByText(title).click();
+  }
+
   async openRoomType(title: TRoomCreateTitles) {
     if (title !== roomCreateTitles.fromTemplate) {
-      await this.dialog.getByText(title).click();
+      await this.clickRoomType(title);
       await expect(this.roomTypeDropdownButton).toBeVisible();
     } else {
       const promise = waitForGetRoomsResponse(this.page);

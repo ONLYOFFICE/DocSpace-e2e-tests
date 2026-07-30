@@ -58,7 +58,7 @@ test.describe("Rooms - DocSpace Admin access", () => {
   });
 
   test("DocSpace Admin can create a room", async ({ page }) => {
-    await expect(page.locator("#header_add-button")).toBeVisible();
+    await myRooms.navigation.checkAddButtonVisible();
     await myRooms.navigation.clickAddButton();
     await myRooms.roomsCreateDialog.checkRoomTypeExist(roomCreateTitles.public);
     await myRooms.roomsCreateDialog.openRoomType(roomCreateTitles.custom);

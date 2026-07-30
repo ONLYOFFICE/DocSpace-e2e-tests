@@ -12,6 +12,7 @@ import FilesTable from "@/src/objects/files/FilesTable";
 import {
   roomCreateTitles,
   roomContextMenuOption,
+  roomDialogSource,
   formFillingSystemFolders,
 } from "@/src/utils/constants/rooms";
 import Login from "@/src/objects/common/Login";
@@ -30,7 +31,7 @@ test.describe("FormFilling room: creation settings", () => {
     selectPanel = new RoomSelectPanel(page);
     roomEmptyView = new RoomEmptyView(page);
     await login.loginToPortal();
-    await myRooms.roomsArticle.openCreateDialog();
+    await myRooms.openCreateRoomDialog(roomDialogSource.navigation);
     await createDialog.openRoomType(roomCreateTitles.formFilling);
   });
 
@@ -214,7 +215,7 @@ test.describe("FormFilling room: creation settings - database connection feature
     await login.loginWithCredentials(roomAdminEmail, roomAdminPassword);
     const myRooms = new MyRooms(page, api.portalDomain);
     await myRooms.open();
-    await myRooms.roomsArticle.openCreateDialog();
+    await myRooms.openCreateRoomDialog(roomDialogSource.navigation);
     const createDialog = new RoomsCreateDialog(page);
     await createDialog.openRoomType(roomCreateTitles.formFilling);
 
@@ -236,7 +237,7 @@ test.describe("FormFilling room: creation settings - database connection feature
     await login.loginWithCredentials(docSpaceAdminEmail, docSpaceAdminPassword);
     const myRooms = new MyRooms(page, api.portalDomain);
     await myRooms.open();
-    await myRooms.roomsArticle.openCreateDialog();
+    await myRooms.openCreateRoomDialog(roomDialogSource.navigation);
     const createDialog = new RoomsCreateDialog(page);
     await createDialog.openRoomType(roomCreateTitles.formFilling);
 

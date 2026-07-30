@@ -41,8 +41,8 @@ test.describe("Rooms - Guest access", () => {
     await myRooms.openWithoutEmptyCheck();
   });
 
-  test("Guest does NOT have create room button", async ({ page }) => {
-    await expect(page.locator("#header_add-button")).not.toBeVisible();
+  test("Guest does NOT have create room button", async () => {
+    await myRooms.navigation.checkAddButtonHidden();
   });
 
   test.describe("Invited room", () => {
