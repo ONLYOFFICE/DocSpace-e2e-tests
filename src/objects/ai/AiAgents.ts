@@ -5,7 +5,6 @@ import type { TMenuItem } from "../common/BaseMenu";
 import BaseInviteDialog from "../common/BaseInviteDialog";
 import BaseNavigation from "../common/BaseNavigation";
 import { apps } from "@/src/utils/constants/navigation";
-import { waitForCreateAgentResponse } from "./api";
 import { expect, Page } from "@playwright/test";
 
 export class AiAgents extends BasePage {
