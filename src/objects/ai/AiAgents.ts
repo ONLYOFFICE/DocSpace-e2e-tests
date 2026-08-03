@@ -3,18 +3,23 @@ import BasePage from "../common/BasePage";
 import { BaseContextMenu } from "../common/BaseContextMenu";
 import type { TMenuItem } from "../common/BaseMenu";
 import BaseInviteDialog from "../common/BaseInviteDialog";
+import BaseNavigation from "../common/BaseNavigation";
+import { apps } from "@/src/utils/constants/navigation";
+import { waitForCreateAgentResponse } from "./api";
 import { expect, Page } from "@playwright/test";
 
 export class AiAgents extends BasePage {
   private portalDomain: string;
   contextMenu: BaseContextMenu;
   inviteDialog: BaseInviteDialog;
+  navigation: BaseNavigation;
 
   constructor(page: Page, portalDomain: string) {
     super(page);
     this.portalDomain = portalDomain;
     this.contextMenu = new BaseContextMenu(page);
     this.inviteDialog = new BaseInviteDialog(page);
+    this.navigation = new BaseNavigation(page, {});
   }
 
   private get emptyProvidersHeading() {
@@ -35,22 +40,12 @@ export class AiAgents extends BasePage {
     return this.page.locator("#top-up-and-activate-ai");
   }
 
-  private get aiAgentsNavigationItem() {
-    return this.page.locator(
-      'a[href*="/ai-agents"] #document_catalog-undefined',
-    );
-  }
-
-  private get createAgentEmptyViewItem() {
-    return this.page.locator("#create-ai-agent");
-  }
-
   private get agentNameInput() {
     return this.page.getByTestId("create_edit_agent_input");
   }
 
   private get modelCombobox() {
-    return this.page.getByTestId("create_agent_model_combobox");
+    return this.page.getByTestId("create_agent_profile_combobox");
   }
 
   private get instructionsTextarea() {
@@ -67,8 +62,10 @@ export class AiAgents extends BasePage {
       .filter({ hasText: name });
   }
 
-  private get chatInputButtons() {
-    return this.page.getByTestId("chat-input-buttons");
+  // The message composer is the reliable "chat is loaded" marker: the old
+  // chat-input-buttons wrapper is gone from the redesigned chat.
+  private get chatComposerInput() {
+    return this.page.getByTestId("composer-input");
   }
 
   async openDirectly() {
@@ -77,14 +74,15 @@ export class AiAgents extends BasePage {
   }
 
   async open() {
-    const navItem = this.aiAgentsNavigationItem;
-    await expect(navItem).toBeVisible();
-    await navItem.click();
+    await this.sidebar.navigate(apps.aiAgents);
     await this.waitForAiAgentsPage();
   }
 
+  // Checks the sidebar item, not links to agents: an `a[href*="/ai-agents"]`
+  // locator matches the agent rows in the list, so it used to pass for the wrong
+  // reason whenever the user simply had no agents.
   async checkNotAvailable() {
-    await expect(this.page.locator('a[href*="/ai-agents"]')).toBeHidden();
+    await this.sidebar.checkItemNotExist(apps.aiAgents);
   }
 
   async expectNoProvidersMessage() {
@@ -111,8 +109,9 @@ export class AiAgents extends BasePage {
     // "Top up & activate" state; reload so the create-agent action shows.
     await this.page.reload();
     await this.waitForAiAgentsPage();
-    await expect(this.createAgentEmptyViewItem).toBeVisible();
-    await this.createAgentEmptyViewItem.click();
+    // Goes through the state-aware create button ("New agent" in the toolbar when
+    // agents exist, "+" in the header when the list is empty).
+    await this.navigation.clickAddButton();
     await expect(this.agentNameInput).toBeVisible();
   }
 
@@ -157,11 +156,11 @@ export class AiAgents extends BasePage {
   }
 
   async expectChatOpened() {
-    await expect(this.chatInputButtons).toBeVisible();
+    await expect(this.chatComposerInput).toBeVisible();
   }
 
   async openAttachmentPanel() {
-    await this.page.getByTestId("chat-input-attachment-button").click();
+    await this.page.getByTestId("attachment-button").click();
     await expect(this.page.getByTestId("selector")).toBeVisible();
   }
 
