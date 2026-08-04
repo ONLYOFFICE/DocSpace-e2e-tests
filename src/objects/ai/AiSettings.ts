@@ -16,10 +16,6 @@ class AiSettings extends BasePage {
     });
   }
 
-  private get addProviderButton() {
-    return this.page.getByTestId("add-provider-button");
-  }
-
   private get activateButton() {
     return this.page
       .locator('[class*="AIFeaturesBanner-module__banner"]')
@@ -30,20 +26,20 @@ class AiSettings extends BasePage {
     return this.page.getByTestId("add-mcp-button");
   }
 
-  private get providersTab() {
-    return this.page.getByTestId("providers_tab");
+  private get addProviderButton() {
+    return this.page.getByTestId("add-provider-button");
   }
 
   private get modelsTab() {
-    return this.page.getByTestId("models_tab");
+    return this.page.getByTestId("ai-models_tab");
   }
 
   private get serversTab() {
-    return this.page.getByTestId("servers_tab");
+    return this.page.getByTestId("mcp-servers_tab");
   }
 
   private get searchTab() {
-    return this.page.getByTestId("search_tab");
+    return this.page.getByTestId("web-search_tab");
   }
 
   private get knowledgeTab() {
@@ -67,7 +63,7 @@ class AiSettings extends BasePage {
   }
 
   async openDirectly() {
-    await this.page.goto(`${this.aiSettingsBaseUrl}/models`);
+    await this.page.goto(`${this.aiSettingsBaseUrl}/ai-models`);
     await this.expectLoaded();
   }
 
@@ -87,14 +83,6 @@ class AiSettings extends BasePage {
       timeout: 30000,
     });
     await this.page.waitForTimeout(3000);
-  }
-
-  async openProvidersTab() {
-    await this.openTab(this.providersTab);
-  }
-
-  async expectAddProviderButtonVisible() {
-    await expect(this.addProviderButton).toBeVisible();
   }
 
   async openMcpServersTab() {
@@ -345,7 +333,7 @@ class AiSettings extends BasePage {
   }
 
   private async openTab(tab: Locator) {
-    await this.page.goto(`${this.aiSettingsBaseUrl}/models`);
+    await this.page.goto(`${this.aiSettingsBaseUrl}/ai-models`);
     await expect(this.modelsTab).toBeVisible();
     await tab.click();
     await expect(tab).toHaveClass(/Tabs-module__selected/);
