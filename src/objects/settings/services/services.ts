@@ -1,6 +1,5 @@
 import { expect, Page } from "@playwright/test";
 import BasePage from "@/src/objects/common/BasePage";
-import { navItems } from "@/src/utils/constants/settings";
 import BaseTable, { TBaseTableLocators } from "../../common/BaseTable";
 import { Payments } from "@/src/objects/settings/payments/Payments";
 import BaseDialog from "../../common/BaseDialog";
@@ -161,9 +160,9 @@ class Services extends BasePage {
   }
 
   async open() {
-    await this.navigateToSettings();
-    await this.navigateToArticle(navItems.billing);
-    await this.page.getByTestId("services_tab").click();
+    const url = new URL("/billing/addons", this.page.url());
+    await this.page.goto(url.toString(), { waitUntil: "load" });
+    await expect(this.backupService).toBeVisible();
   }
 
   async checkServicesRendered() {
@@ -249,10 +248,10 @@ class Services extends BasePage {
   }
 
   async activateBackupService() {
-    await this.navigateToSettings();
-    await this.navigateToArticle(navItems.billing);
-    await this.page.getByTestId("services_tab").click();
-    await this.backupSwitch.click();
+    await this.open();
+    if ((await this.backupSwitch.getAttribute("aria-checked")) !== "true") {
+      await this.backupSwitch.click();
+    }
   }
 
   async hideDateCurrentPayment() {

@@ -209,14 +209,17 @@ class Contacts extends BasePage {
   }
 
   async closeWarningModalIfPresent() {
-    const cancelBtn = this.page
-      .locator("#modal-onMouseDown-close")
-      .getByRole("button", { name: "Cancel" });
-    try {
-      await cancelBtn.waitFor({ state: "visible", timeout: 5000 });
-      await cancelBtn.click();
-    } catch {
-      // No warning dialog appeared
+    const modal = this.page.locator("#modal-onMouseDown-close").first();
+    const cancel = this.page.getByRole("button", { name: "Cancel" });
+    for (
+      let i = 0;
+      i < 4 && (await modal.isVisible().catch(() => false));
+      i++
+    ) {
+      await cancel
+        .last()
+        .click({ timeout: 3000 })
+        .catch(() => {});
     }
   }
   async inviteUsers() {
