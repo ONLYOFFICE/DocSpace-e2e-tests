@@ -36,7 +36,6 @@ class Overview extends BaseDevTools {
 
   async open() {
     await this.openDevTools();
-    await this.navigateToSection("overview");
   }
 }
 

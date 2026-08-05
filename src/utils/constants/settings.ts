@@ -5,7 +5,7 @@ const navItems = {
   integration: "Integration",
   billing: "Billing",
   developerTools: "Developer Tools",
-  storageManagement: "Storage Management",
+  storageManagement: "Storage management",
   aiSettings: "AI settings",
 } as const;
 

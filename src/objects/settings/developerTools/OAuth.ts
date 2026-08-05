@@ -1,9 +1,9 @@
 import { expect, Page } from "@playwright/test";
 import type { APIRequestContext, PlaywrightWorkerArgs } from "@playwright/test";
-import BasePage from "@/src/objects/common/BasePage";
+import BaseDevTools from "./BaseDevTools";
 import BaseTable, { TBaseTableLocators } from "../../common/BaseTable";
 
-class OAuth extends BasePage {
+class OAuth extends BaseDevTools {
   table: BaseTable;
   constructor(page: Page) {
     super(page);
@@ -208,11 +208,8 @@ class OAuth extends BasePage {
   }
 
   async open() {
-    await this.navigateToSettings();
-    await this.page.getByTestId("dev-tools-bar").click();
-    await this.page.waitForLoadState("load");
-    await this.page.locator("#devtools-oauth").click();
-    await this.page.waitForLoadState("load");
+    await this.openDevTools();
+    await this.navigateToSection("oauth");
   }
 
   async checkUseOAuth() {
@@ -279,8 +276,7 @@ class OAuth extends BasePage {
   }
 
   async checkApplicationName() {
-    await this.page.locator("#devtools-oauth").click();
-    await this.page.waitForLoadState("load");
+    await this.navigateToSection("oauth");
 
     // UI bug: created app doesn't appear in list without reload
     await expect(async () => {
@@ -298,8 +294,7 @@ class OAuth extends BasePage {
   }
 
   async checkNewApplicationName() {
-    await this.page.locator("#devtools-oauth").click();
-    await this.page.waitForLoadState("load");
+    await this.navigateToSection("oauth");
 
     // UI bug: created app doesn't appear in list without reload
     await expect(async () => {

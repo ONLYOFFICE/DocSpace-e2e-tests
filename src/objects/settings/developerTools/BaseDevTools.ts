@@ -13,7 +13,8 @@ class BaseDevTools extends BasePage {
   }
 
   async navigateToSection(sectionId: string) {
-    await this.page.locator(`#devtools-${sectionId}`).click();
+    const url = new URL(`/developer-tools/${sectionId}`, this.page.url());
+    await this.page.goto(url.toString());
     await this.page.waitForLoadState("load");
   }
 }
