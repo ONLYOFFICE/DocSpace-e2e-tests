@@ -177,8 +177,8 @@ class MyRooms extends BasePage {
     }
   }
   async createFormFillingRoom(roomName: string, tags?: string[]) {
-    await this.openCreateRoomDialog(roomDialogSource.navigation);
-    await this.roomsCreateDialog.openRoomType(roomCreateTitles.formFilling);
+    await this.sidebar.navigate(apps.forms);
+    await this.navigation.clickAddButton();
     await this.roomsCreateDialog.fillRoomName(roomName);
 
     // Add tags if they are provided
