@@ -173,12 +173,17 @@ class Contacts extends BasePage {
   }
 
   async openTab(tab: "Members" | "Groups" | "Guests") {
+    const itemId: Record<typeof tab, string> = {
+      Members: "accounts-members",
+      Groups: "accounts-groups",
+      Guests: "accounts-guests",
+    };
     const urlSegment: Record<typeof tab, string> = {
       Members: "people",
       Groups: "groups",
       Guests: "guests",
     };
-    const tabLocator = this.page.getByRole("link", { name: tab, exact: true });
+    const tabLocator = this.page.locator(`[data-item-id="${itemId[tab]}"]`);
     await expect(tabLocator).toBeVisible();
     await tabLocator.click();
     await expect(this.page).toHaveURL(
@@ -385,7 +390,7 @@ class Contacts extends BasePage {
   }
 
   async checkEmptyGuestsExist() {
-    await expect(this.page.getByText("No guests found")).toBeVisible();
+    await expect(this.page.getByText("No added guests yet")).toBeVisible();
   }
 }
 
