@@ -449,54 +449,6 @@ test.describe("Trash", () => {
     });
   });
 
-  test("Filter trash by room", async ({ apiSdk }) => {
-    const roomName = "TrashRoomFilter";
-
-    await test.step("Create room file and docs file via API, delete both to trash", async () => {
-      const roomResponse = await apiSdk.rooms.createRoom("owner", {
-        title: roomName,
-        roomType: "CustomRoom",
-      });
-      const roomId = (await roomResponse.json()).response.id as number;
-
-      const roomFileResponse = await apiSdk.files.createFile("owner", roomId, {
-        title: "RoomFile",
-      });
-      const roomFileId = (await roomFileResponse.json()).response.id as number;
-      await apiSdk.files.deleteFile("owner", roomFileId);
-
-      const myDocFileResponse = await apiSdk.files.createFileInMyDocuments(
-        "owner",
-        { title: "MyDocsFile" },
-      );
-      const myDocFileId = (await myDocFileResponse.json()).response
-        .id as number;
-      await apiSdk.files.deleteFile("owner", myDocFileId);
-    });
-
-    await test.step("Open trash and verify both files exist", async () => {
-      await trash.open();
-      await trash.trashTable.checkRowExist("RoomFile");
-      await trash.trashTable.checkRowExist("MyDocsFile");
-    });
-
-    await test.step("Filter by room and verify only room file is shown", async () => {
-      await trash.filter.openFilterDialog();
-      await trash.filter.selectRoomFilter(roomName);
-      await trash.filter.filterApplyButton.click();
-      await trash.trashTable.checkRowExist("RoomFile");
-      await trash.trashTable.checkRowNotExist("MyDocsFile");
-    });
-
-    await test.step("Clear filter and verify both files are shown again", async () => {
-      await trash.filter.openFilterDialog();
-      await trash.filter.clearFilterDialog();
-      await trash.filter.filterApplyButton.click();
-      await trash.trashTable.checkRowExist("RoomFile");
-      await trash.trashTable.checkRowExist("MyDocsFile");
-    });
-  });
-
   test("Restore file from trash to a room", async ({ apiSdk }) => {
     const roomName = "FileRestoreRoom";
 

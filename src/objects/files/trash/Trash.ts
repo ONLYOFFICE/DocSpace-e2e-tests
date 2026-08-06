@@ -9,7 +9,11 @@ import TrashFilter from "./TrashFilter";
 import InfoPanel from "../../common/InfoPanel";
 import BasePage from "../../common/BasePage";
 import { toastMessages } from "@/src/utils/constants/trash";
-import { apps, filesSubItems } from "@/src/utils/constants/navigation";
+import {
+  apps,
+  filesSubItems,
+  roomsSubItems,
+} from "@/src/utils/constants/navigation";
 
 const EMPTY_TRASH_CONFIRM_BUTTON = "Delete forever";
 
@@ -50,6 +54,11 @@ class Trash extends BasePage {
   async open() {
     await this.sidebar.openSubItem(apps.files, filesSubItems.trash);
     await expect(this.page).toHaveURL(/.*files\/trash.*/);
+    await this.page.waitForLoadState("load");
+  }
+
+  async openRoomsTrash() {
+    await this.sidebar.openSubItem(apps.rooms, roomsSubItems.trash);
     await this.page.waitForLoadState("load");
   }
 
