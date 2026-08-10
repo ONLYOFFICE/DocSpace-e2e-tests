@@ -148,7 +148,7 @@ export const memberFilterOptions = [
   "Active",
   "Pending invite",
   "Disabled",
-  "DocSpace admin",
+  "Docs admin",
   "Room admin",
   "User",
   "Paid",
