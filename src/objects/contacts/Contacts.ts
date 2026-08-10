@@ -63,7 +63,7 @@ class Contacts extends BasePage {
     this.reassignmentDialog = new ContactsReassignmentDialog(page);
     this.groupDialog = new ContactsGroupDialog(page);
     this.changeContactTypeDropdown = new BaseDropdown(page, {
-      menu: this.page.getByText("DocSpace adminPaidRoom"),
+      menu: this.page.getByText("Docs adminPaidRoom"),
     });
   }
 
@@ -222,6 +222,27 @@ class Contacts extends BasePage {
         .catch(() => {});
     }
   }
+
+  async dismissPaymentModalIfPresent() {
+    for (let i = 0; i < 4; i++) {
+      let acted = false;
+      for (const title of ["Warning", "Top up"]) {
+        const cancel = this.page
+          .getByRole("dialog")
+          .filter({ hasText: title })
+          .first()
+          .getByRole("button", { name: "Cancel" })
+          .first();
+        if (await cancel.isVisible().catch(() => false)) {
+          await cancel.click({ timeout: 3000 }).catch(() => {});
+          acted = true;
+        }
+      }
+      if (!acted) break;
+      await this.page.waitForTimeout(200);
+    }
+  }
+
   async inviteUsers() {
     const { submenu } = contactsActionsMenu.invite;
     await this.inviteUser(userEmails.docspaceAdmin, submenu.docspaceAdmin);
@@ -336,11 +357,7 @@ class Contacts extends BasePage {
   }
 
   async dismissQuotaWarning() {
-    await this.dialog.checkDialogTitleExist("Warning");
-    await this.page
-      .getByTestId("modal-dialog")
-      .getByRole("button", { name: "Cancel" })
-      .click();
+    await this.dismissPaymentModalIfPresent();
   }
 
   async selectAllContacts() {
