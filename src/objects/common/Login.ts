@@ -236,6 +236,20 @@ export class Login extends BasePage {
       waitUntil: "load",
     });
     await this.page.waitForTimeout(3000);
+    await this.dismissWelcomeTour();
+  }
+
+  async dismissWelcomeTour(timeout = 3000) {
+    const maybeLaterButton = this.page.getByRole("button", {
+      name: "Maybe later",
+    });
+    try {
+      await maybeLaterButton.waitFor({ state: "visible", timeout });
+      await maybeLaterButton.click();
+      await maybeLaterButton.waitFor({ state: "hidden", timeout: 5000 });
+    } catch {
+      // Tour not shown - nothing to dismiss
+    }
   }
 
   async loginWithCredentials(email: string, password: string) {
@@ -265,6 +279,7 @@ export class Login extends BasePage {
       waitUntil: "load",
     });
     await this.page.waitForTimeout(3000);
+    await this.dismissWelcomeTour();
   }
 
   async resetPassword(email: string) {

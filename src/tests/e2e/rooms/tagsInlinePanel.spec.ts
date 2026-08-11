@@ -19,6 +19,7 @@ test.describe("Rooms: inline tags panel", () => {
     });
     await login.loginToPortal();
     await page.waitForLoadState("load");
+    await myRooms.openWithoutEmptyCheck();
     await myRooms.roomsTable.checkRowExist(roomName);
   });
 
