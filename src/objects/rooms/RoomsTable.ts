@@ -196,12 +196,13 @@ class RoomsTable extends BaseTable {
     await link.click({ button: "right" });
   }
 
-  // Open a room by clicking its link and waiting for navigation
+  // Open a room by clicking its link and waiting for navigation. Form Set
+  // rooms live under /forms/ instead of /rooms/shared/.
   async openRoomByName(roomName: string) {
     const link = this.page.getByRole("link", { name: roomName });
     await link.waitFor({ state: "visible" });
     await link.click();
-    await this.page.waitForURL(/rooms\/shared\/.*\/filter\?folder=/, {
+    await this.page.waitForURL(/(rooms\/shared|forms)\/.*\/filter\?folder=/, {
       waitUntil: "load",
     });
   }

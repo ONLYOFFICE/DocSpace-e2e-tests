@@ -5,6 +5,7 @@
 export const roomCreateTitles = {
   public: "Public room",
   formFilling: "Form Filling room",
+  formSet: "Form Set",
   collaboration: "Collaboration room",
   virtualData: "Virtual Data Room",
   custom: "Custom room",
@@ -117,6 +118,8 @@ export const roomToastMessages = {
   roomsArchived: "The rooms are archived",
   selectedTemplatesDeleted: "Selected room templates have been deleted",
   linkCopied: "Link copied to clipboard",
+  formFillingLinkShared:
+    "Anyone with the link will be able to fill out the form of the room. The link has no expiration date",
 
   duplicate: (folderName: string) =>
     `The folder ${folderName} successfully duplicated`,
