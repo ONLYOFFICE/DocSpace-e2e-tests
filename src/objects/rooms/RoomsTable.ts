@@ -26,6 +26,7 @@ const TABLE_HEADER_OWNER = "[data-testid='column-Owner']";
 const TABLE_HEADER_ACTIVITY = "[data-testid='column-Activity']";
 const TAG_ITEM_BUTTON = "[data-testid='tag_item_']";
 const CONTEXT_MENU_SELECT = "select";
+const ADD_TAG_INPUT = "add_tag_input";
 
 const TILE_ITEM = (roomName: string) => `[data-document-title="${roomName}"]`;
 
@@ -146,22 +147,39 @@ class RoomsTable extends BaseTable {
       value: CONTEXT_MENU_SELECT,
     });
     const row = await this.getRowByTitle(roomName);
-    await row.locator(TAG_ITEM_BUTTON).click();
+    const tagInput = this.page.getByTestId(ADD_TAG_INPUT);
+    await expect(async () => {
+      await row.locator(TAG_ITEM_BUTTON).click();
+      await expect(tagInput).toBeVisible({ timeout: 2000 });
+    }).toPass({ timeout: 20000 });
   }
 
   async openInlineTagsPanelByHover(roomName: string) {
     const row = await this.getRowByTitle(roomName);
     const tagsHeader = this.page.locator(TABLE_HEADER_TAGS);
-    await hoverGradually(this.page, tagsHeader, row.locator(TAG_ITEM_BUTTON), {
-      startLocator: row,
-      startOffsetX: 10,
-    });
+    const tagInput = this.page.getByTestId(ADD_TAG_INPUT);
+    await expect(async () => {
+      await hoverGradually(
+        this.page,
+        tagsHeader,
+        row.locator(TAG_ITEM_BUTTON),
+        {
+          startLocator: row,
+          startOffsetX: 10,
+        },
+      );
+      await expect(tagInput).toBeVisible({ timeout: 2000 });
+    }).toPass({ timeout: 20000 });
   }
 
   async openInlineTagsPanelInThumbnailView(roomName: string) {
     const tile = this.page.locator(TILE_ITEM(roomName));
-    await tile.hover();
-    await tile.locator(TAG_ITEM_BUTTON).click({ force: true });
+    const tagInput = this.page.getByTestId(ADD_TAG_INPUT);
+    await expect(async () => {
+      await tile.hover();
+      await tile.locator(TAG_ITEM_BUTTON).click({ force: true });
+      await expect(tagInput).toBeVisible({ timeout: 2000 });
+    }).toPass({ timeout: 20000 });
   }
 
   async checkRoomPinnedToTopExist() {
