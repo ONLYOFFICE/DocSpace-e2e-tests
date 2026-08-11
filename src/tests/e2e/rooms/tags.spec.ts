@@ -18,6 +18,7 @@ test.describe("Tags", () => {
     myRooms = new MyRooms(page, api.portalDomain);
 
     await login.loginToPortal();
+    await myRooms.openWithoutEmptyCheck();
   });
   test("Tags", async ({ page }) => {
     await test.step("CreateRoomWithTag", async () => {
