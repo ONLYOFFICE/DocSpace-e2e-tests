@@ -64,7 +64,9 @@ test.describe("FormFilling room - Link tests", () => {
     page,
   }) => {
     await test.step("Upload PDF form from My Documents", async () => {
-      await shortTour.clickSkipTour();
+      // Tour is temporarily not shown; may come back later.
+
+      // await shortTour.clickSkipTour();
       await roomEmptyView.uploadPdfFromDocSpace();
       await selectPanel.checkSelectorExist();
       await selectPanel.select("documents");
@@ -208,7 +210,9 @@ test.describe("FormFilling room - Link tests", () => {
 
     //Copy link to the room with Fill form access
     await test.step("Click Share room in empty view", async () => {
-      await shortTour.clickSkipTour();
+      // Tour is temporarily not shown; may come back later.
+
+      // await shortTour.clickSkipTour();
       await setupClipboardPermissions(page);
       await roomEmptyView.shareRoomClick();
       await myRooms.toast.dismissToastSafely("Link copied to clipboard", 10000);
@@ -255,7 +259,9 @@ test.describe("FormFilling room - Link tests", () => {
     let shareLink: string;
 
     await test.step("Copy link to the room", async () => {
-      await shortTour.clickSkipTour();
+      // Tour is temporarily not shown; may come back later.
+
+      // await shortTour.clickSkipTour();
       await setupClipboardPermissions(page);
       await roomEmptyView.shareRoomClick();
       await myRooms.toast.dismissToastSafely("Link copied to clipboard", 10000);
@@ -279,7 +285,9 @@ test.describe("FormFilling room - Link tests", () => {
     let newShareLink: string;
 
     await test.step("Copy initial link", async () => {
-      await shortTour.clickSkipTour();
+      // Tour is temporarily not shown; may come back later.
+
+      // await shortTour.clickSkipTour();
       await setupClipboardPermissions(page);
       await roomEmptyView.shareRoomClick();
       await myRooms.toast.dismissToastSafely("Link copied to clipboard", 10000);
@@ -366,7 +374,9 @@ test.describe("FormFilling room - Link tests", () => {
     let fileLink: string;
 
     await test.step("Copy initial room link", async () => {
-      await shortTour.clickSkipTour();
+      // Tour is temporarily not shown; may come back later.
+
+      // await shortTour.clickSkipTour();
       await setupClipboardPermissions(page);
       await roomEmptyView.shareRoomClick();
       await myRooms.toast.dismissToastSafely("Link copied to clipboard", 10000);
@@ -530,7 +540,9 @@ test.describe("FormFilling room - Link tests", () => {
     let baseEditLink: BaseEditLink;
 
     await test.step("Open sharing settings and click link settings", async () => {
-      await shortTour.clickSkipTour();
+      // Tour is temporarily not shown; may come back later.
+
+      // await shortTour.clickSkipTour();
       await myRooms.infoPanel.open();
       const membersTab = page.getByTestId(INFO_PANEL_TABS.Contacts.testId);
       await expect(membersTab).toBeVisible();
@@ -560,7 +572,7 @@ test.describe("FormFilling room - Link tests", () => {
       await expect(baseEditLink.linkNameInput).toHaveValue("Test Link");
 
       const combo = baseEditLink.comboLinkAccess;
-      await expect(combo).toContainText("DocSpace users only");
+      await expect(combo).toContainText("Docs users only");
 
       await expect(baseEditLink.passwordInput).toBeVisible();
       const passwordValue = await baseEditLink.passwordInput.inputValue();
@@ -583,7 +595,9 @@ test.describe("FormFilling room - Link tests", () => {
     let incognitoPage: Page;
 
     await test.step("Setup password for room link and get link", async () => {
-      await shortTour.clickSkipTour();
+      // Tour is temporarily not shown; may come back later.
+
+      // await shortTour.clickSkipTour();
       await myRooms.infoPanel.open();
       const membersTab = page.getByTestId(INFO_PANEL_TABS.Contacts.testId);
       await expect(membersTab).toBeVisible();
@@ -879,7 +893,9 @@ test.describe("FormFilling room - Link tests", () => {
     let incognitoPage: Page;
 
     await test.step("Setup password for room link and get link", async () => {
-      await shortTour.clickSkipTour();
+      // Tour is temporarily not shown; may come back later.
+
+      // await shortTour.clickSkipTour();
       await myRooms.infoPanel.open();
       const membersTab = page.getByTestId(INFO_PANEL_TABS.Contacts.testId);
       await expect(membersTab).toBeVisible();
@@ -972,7 +988,9 @@ test.describe("FormFilling room - Link tests", () => {
     let fileLink: string;
 
     await test.step("Configure room link settings and get link", async () => {
-      await shortTour.clickSkipTour();
+      // Tour is temporarily not shown; may come back later.
+
+      // await shortTour.clickSkipTour();
       await myRooms.infoPanel.open();
       const membersTab = page.getByTestId(INFO_PANEL_TABS.Contacts.testId);
       await expect(membersTab).toBeVisible();
@@ -1033,7 +1051,7 @@ test.describe("FormFilling room - Link tests", () => {
 
       // Verify access level is inherited
       const combo = baseEditLink.comboLinkAccess;
-      await expect(combo).toContainText("DocSpace users only");
+      await expect(combo).toContainText("Docs users only");
 
       // Verify password is inherited - click show password to verify exact value
       await expect(baseEditLink.passwordInput).toBeVisible();

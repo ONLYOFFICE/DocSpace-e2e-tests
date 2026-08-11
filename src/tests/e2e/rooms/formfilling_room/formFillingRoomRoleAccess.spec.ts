@@ -1,5 +1,6 @@
 import { test } from "@/src/fixtures";
 import { expect, BrowserContext, Page } from "@playwright/test";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- tour is temporarily not shown; kept for when it comes back
 import { ShortTour } from "@/src/objects/rooms/ShortTourModal";
 import PdfFormModal from "@/src/objects/rooms/PdfFormModal";
 import MyRooms from "@/src/objects/rooms/Rooms";
@@ -18,6 +19,7 @@ import {
 } from "@/src/utils/helpers/linkTest";
 import { formFillingRoomPdfContextMenuOption } from "@/src/utils/constants/files";
 import { formFillingSystemFolders } from "@/src/utils/constants/rooms";
+import { apps } from "@/src/utils/constants/navigation";
 
 // Tests for role-based form visibility in FormFilling rooms
 test.describe("FormFillingRoomRoleBasedFormVisibility", () => {
@@ -73,10 +75,13 @@ test.describe("FormFillingRoomRoleBasedFormVisibility", () => {
       await login.loginToPortal();
 
       myRooms = new MyRooms(page, api.portalDomain);
+      // Form Set rooms live under the Forms app, not the Rooms list
+      await myRooms.sidebar.navigate(apps.forms);
       await myRooms.roomsTable.openRoomByName("FormFillingRoom");
 
-      const shortTour = new ShortTour(page);
-      await shortTour.clickSkipTour();
+      // Tour is temporarily not shown; may come back later.
+      // const shortTour = new ShortTour(page);
+      // await shortTour.clickSkipTour();
       await myRooms.infoPanel.close();
 
       roomInfoPanel = new RoomInfoPanel(page);
@@ -115,8 +120,9 @@ test.describe("FormFillingRoomRoleBasedFormVisibility", () => {
 
       await userPage.waitForURL(/.*rooms.*/, { waitUntil: "load" });
 
-      const shortTour = new ShortTour(userPage);
-      await shortTour.clickSkipTour();
+      // Tour is temporarily not shown; may come back later.
+      // const shortTour = new ShortTour(userPage);
+      // await shortTour.clickSkipTour();
 
       return { context, page: userPage };
     }
@@ -154,8 +160,9 @@ test.describe("FormFillingRoomRoleBasedFormVisibility", () => {
       await userPage.reload({ waitUntil: "load" });
 
       // After reload ContentCreator may land on the rooms list — navigate into the room if needed
-      if (!userPage.url().includes("/rooms/shared/")) {
+      if (!/(rooms\/shared|forms)\/.*\/filter\?folder=/.test(userPage.url())) {
         const userRooms = new MyRooms(userPage, api.portalDomain);
+        await userRooms.sidebar.navigate(apps.forms);
         await userRooms.roomsTable.openRoomByName("FormFillingRoom");
       }
 

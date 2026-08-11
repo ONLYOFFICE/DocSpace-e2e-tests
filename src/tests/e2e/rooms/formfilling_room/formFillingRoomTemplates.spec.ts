@@ -31,7 +31,9 @@ test.describe("FormFilling Template Gallery tests", () => {
     page,
   }) => {
     await test.step("Skip tour and close info panel", async () => {
-      await shortTour.clickSkipTour();
+      // Tour is temporarily not shown; may come back later.
+
+      // await shortTour.clickSkipTour();
       await myRooms.infoPanel.close();
     });
 
@@ -68,7 +70,9 @@ test.describe("FormFilling Template Gallery tests", () => {
     page,
   }) => {
     await test.step("Skip tour and close info panel", async () => {
-      await shortTour.clickSkipTour();
+      // Tour is temporarily not shown; may come back later.
+
+      // await shortTour.clickSkipTour();
       await myRooms.infoPanel.close();
     });
 
@@ -114,7 +118,9 @@ test.describe("FormFilling Template Gallery tests", () => {
     const englishTemplate = "30-day eviction notice form";
 
     await test.step("Skip tour and close info panel", async () => {
-      await shortTour.clickSkipTour();
+      // Tour is temporarily not shown; may come back later.
+
+      // await shortTour.clickSkipTour();
       await myRooms.infoPanel.close();
     });
 
@@ -158,7 +164,9 @@ test.describe("FormFilling Template Gallery tests", () => {
   // Verifies that searching for an existing template by name returns the correct result
   test("Template Gallery search finds template by name", async ({ page }) => {
     await test.step("Skip tour and close info panel", async () => {
-      await shortTour.clickSkipTour();
+      // Tour is temporarily not shown; may come back later.
+
+      // await shortTour.clickSkipTour();
       await myRooms.infoPanel.close();
     });
 

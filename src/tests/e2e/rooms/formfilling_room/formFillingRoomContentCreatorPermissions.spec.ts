@@ -24,9 +24,11 @@ import {
   spreadsheetContextMenuOption,
 } from "@/src/utils/constants/files";
 import { formFillingSystemFolders } from "@/src/utils/constants/rooms";
+import { apps } from "@/src/utils/constants/navigation";
 
 test.describe("FormFilling room - Content creator permissions", () => {
   let myRooms: MyRooms;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- tour is temporarily not shown; kept for when it comes back
   let shortTour: ShortTour;
   let roomInfoPanel: RoomInfoPanel;
   let roomsInviteDialog: RoomsInviteDialog;
@@ -86,9 +88,12 @@ test.describe("FormFilling room - Content creator permissions", () => {
     await test.step("Setup: Login as owner and add users via UI", async () => {
       // Login as owner
       await login.loginToPortal();
-      await myRooms.openWithoutEmptyCheck();
+      // Form Set rooms live under the Forms app, not the Rooms list
+
+      await myRooms.sidebar.navigate(apps.forms);
       await myRooms.roomsTable.openRoomByName(roomName);
-      await shortTour.clickSkipTour();
+      // Tour is temporarily not shown; may come back later.
+      // await shortTour.clickSkipTour();
 
       // Add user with Content creator role via UI
       await myRooms.infoPanel.open();
@@ -138,8 +143,10 @@ test.describe("FormFilling room - Content creator permissions", () => {
         contentCreatorEmail,
         contentCreatorPassword,
       );
+      await myRooms.sidebar.navigate(apps.forms);
       await myRooms.roomsTable.openRoomByName(roomName);
-      await shortTour.clickSkipTour();
+      // Tour is temporarily not shown; may come back later.
+      // await shortTour.clickSkipTour();
     });
 
     await test.step("Verify Content creator CANNOT invite users", async () => {
@@ -181,9 +188,12 @@ test.describe("FormFilling room - Content creator permissions", () => {
     await test.step("Setup: Login as owner and add Content creator user via UI", async () => {
       // Login as owner
       await login.loginToPortal();
-      await myRooms.openWithoutEmptyCheck();
+      // Form Set rooms live under the Forms app, not the Rooms list
+
+      await myRooms.sidebar.navigate(apps.forms);
       await myRooms.roomsTable.openRoomByName(roomName);
-      await shortTour.clickSkipTour();
+      // Tour is temporarily not shown; may come back later.
+      // await shortTour.clickSkipTour();
 
       // Add user with Content creator role via UI
       await myRooms.infoPanel.open();
@@ -216,8 +226,10 @@ test.describe("FormFilling room - Content creator permissions", () => {
         contentCreatorEmail,
         contentCreatorPassword,
       );
+      await myRooms.sidebar.navigate(apps.forms);
       await myRooms.roomsTable.openRoomByName(roomName);
-      await shortTour.clickSkipTour();
+      // Tour is temporarily not shown; may come back later.
+      // await shortTour.clickSkipTour();
     });
 
     await test.step("Verify room context menu has no 'Edit room' option", async () => {
@@ -418,9 +430,12 @@ test.describe("FormFilling room - Content creator permissions", () => {
     await test.step("Setup: Login as owner and add Content creator user via UI", async () => {
       // Login as owner
       await login.loginToPortal();
-      await myRooms.openWithoutEmptyCheck();
+      // Form Set rooms live under the Forms app, not the Rooms list
+
+      await myRooms.sidebar.navigate(apps.forms);
       await myRooms.roomsTable.openRoomByName(roomName);
-      await shortTour.clickSkipTour();
+      // Tour is temporarily not shown; may come back later.
+      // await shortTour.clickSkipTour();
 
       // Add user with Content creator role via UI
       await myRooms.infoPanel.open();
@@ -469,8 +484,10 @@ test.describe("FormFilling room - Content creator permissions", () => {
         contentCreatorEmail,
         contentCreatorPassword,
       );
+      await myRooms.sidebar.navigate(apps.forms);
       await myRooms.roomsTable.openRoomByName(roomName);
-      await shortTour.clickSkipTour();
+      // Tour is temporarily not shown; may come back later.
+      // await shortTour.clickSkipTour();
     });
 
     await test.step("Verify lock icon is visible on PDF form locked by owner", async () => {
@@ -839,9 +856,12 @@ test.describe("FormFilling room - Content creator permissions", () => {
     // After this, "PDF from device" submission folder exists in Complete.
     await test.step("Setup: Owner adds CC to room and submits own form", async () => {
       await login.loginToPortal();
-      await myRooms.openWithoutEmptyCheck();
+      // Form Set rooms live under the Forms app, not the Rooms list
+
+      await myRooms.sidebar.navigate(apps.forms);
       await myRooms.roomsTable.openRoomByName(roomName);
-      await shortTour.clickSkipTour();
+      // Tour is temporarily not shown; may come back later.
+      // await shortTour.clickSkipTour();
 
       await myRooms.infoPanel.open();
       await myRooms.infoPanel.openTab("Contacts");
@@ -882,8 +902,10 @@ test.describe("FormFilling room - Content creator permissions", () => {
         contentCreatorEmail,
         contentCreatorPassword,
       );
+      await myRooms.sidebar.navigate(apps.forms);
       await myRooms.roomsTable.openRoomByName(roomName);
-      await shortTour.clickSkipTour();
+      // Tour is temporarily not shown; may come back later.
+      // await shortTour.clickSkipTour();
 
       // Upload CC's own form from DocSpace templates
       await myRooms.filesNavigation.openCreateDropdown();

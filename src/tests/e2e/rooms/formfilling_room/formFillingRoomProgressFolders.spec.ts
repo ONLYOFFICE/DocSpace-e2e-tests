@@ -13,6 +13,7 @@ import {
 } from "@/src/utils/constants/files";
 import { formFillingSystemFolders } from "@/src/utils/constants/rooms";
 import FilesSelectPanel from "@/src/objects/files/FilesSelectPanel";
+import { apps } from "@/src/utils/constants/navigation";
 
 // Tests for the "In process" and "Complete" system folders in a Form Filling room.
 // Both folders appear as soon as a PDF form is uploaded to the room.
@@ -23,6 +24,7 @@ const FORM_NAME = "PDF from device";
 
 test.describe("FormFilling room - In process and Complete folders", () => {
   let myRooms: MyRooms;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- tour is temporarily not shown; kept for when it comes back
   let shortTour: ShortTour;
   let filesTable: FilesTable;
   let login: Login;
@@ -47,9 +49,11 @@ test.describe("FormFilling room - In process and Complete folders", () => {
     );
 
     await login.loginToPortal();
-    await myRooms.openWithoutEmptyCheck();
+    // Form Set rooms live under the Forms app, not the Rooms list
+    await myRooms.sidebar.navigate(apps.forms);
     await myRooms.roomsTable.openRoomByName(ROOM_NAME);
-    await shortTour.clickSkipTour();
+    // Tour is temporarily not shown; may come back later.
+    // await shortTour.clickSkipTour();
   });
 
   test("Complete and In process folders have correct context menu options", async () => {

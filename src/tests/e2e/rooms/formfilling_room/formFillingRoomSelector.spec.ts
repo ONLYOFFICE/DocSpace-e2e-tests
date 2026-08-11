@@ -5,9 +5,11 @@ import { expect } from "@playwright/test";
 import RoomEmptyView from "@/src/objects/rooms/RoomEmptyView";
 import RoomSelectPanel from "@/src/objects/rooms/RoomSelectPanel";
 import Login from "@/src/objects/common/Login";
+import { apps } from "@/src/utils/constants/navigation";
 
 test.describe("FormFilling room file selector tests", () => {
   let myRooms: MyRooms;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- tour is temporarily not shown; kept for when it comes back
   let shortTour: ShortTour;
   let roomEmptyView: RoomEmptyView;
   let selectPanel: RoomSelectPanel;
@@ -25,6 +27,8 @@ test.describe("FormFilling room file selector tests", () => {
       title: "FormFillingRoom",
       roomType: "FillingFormsRoom",
     });
+    // Form Set rooms live under the Forms app, not the Rooms list
+    await myRooms.sidebar.navigate(apps.forms);
   });
 
   // Verifies that a simple PDF uploaded to My Documents is not available for selection in the room
@@ -43,7 +47,8 @@ test.describe("FormFilling room file selector tests", () => {
     });
 
     await test.step("Skip tour and close info panel", async () => {
-      await shortTour.clickSkipTour();
+      // Tour is temporarily not shown; may come back later.
+      // await shortTour.clickSkipTour();
       await myRooms.infoPanel.close();
     });
 
@@ -83,7 +88,8 @@ test.describe("FormFilling room file selector tests", () => {
     });
 
     await test.step("Skip tour and close info panel", async () => {
-      await shortTour.clickSkipTour();
+      // Tour is temporarily not shown; may come back later.
+      // await shortTour.clickSkipTour();
       await myRooms.infoPanel.close();
     });
 
@@ -121,7 +127,8 @@ test.describe("FormFilling room file selector tests", () => {
     });
 
     await test.step("Skip tour and close info panel", async () => {
-      await shortTour.clickSkipTour();
+      // Tour is temporarily not shown; may come back later.
+      // await shortTour.clickSkipTour();
       await myRooms.infoPanel.close();
     });
 
@@ -138,7 +145,7 @@ test.describe("FormFilling room file selector tests", () => {
     });
   });
 
-  // Verifies that a PDF form from another FormFilling room is available for selection via the Rooms section
+  // Verifies that a PDF form from another FormFilling room is available for selection via the Forms section
   test("PDF form from another room is available in room selector", async ({
     apiSdk,
   }) => {
@@ -163,7 +170,8 @@ test.describe("FormFilling room file selector tests", () => {
     });
 
     await test.step("Skip tour and close info panel", async () => {
-      await shortTour.clickSkipTour();
+      // Tour is temporarily not shown; may come back later.
+      // await shortTour.clickSkipTour();
       await myRooms.infoPanel.close();
     });
 
@@ -172,8 +180,8 @@ test.describe("FormFilling room file selector tests", () => {
       await selectPanel.checkSelectorExist();
     });
 
-    await test.step("Navigate to Rooms, open SourceRoom and verify PDF form is available", async () => {
-      await selectPanel.select("rooms");
+    await test.step("Navigate to Forms, open SourceRoom and verify PDF form is available", async () => {
+      await selectPanel.select("forms");
       await selectPanel.selectItemByText("SourceRoom", true);
       await expect(
         selectPanel.selector.getByText("PDF from device"),

@@ -17,10 +17,12 @@ import {
   ensureIncognitoPage,
 } from "@/src/utils/helpers/linkTest";
 import { formFillingRoomPdfContextMenuOption } from "@/src/utils/constants/files";
+import { apps } from "@/src/utils/constants/navigation";
 
 // Tests for "Invite via link" in FormFilling rooms
 test.describe("FormFilling room - Invite via link tests", () => {
   let myRooms: MyRooms;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- tour is temporarily not shown; kept for when it comes back
   let shortTour: ShortTour;
   let roomInfoPanel: RoomInfoPanel;
   let roomsInviteDialog: RoomsInviteDialog;
@@ -49,8 +51,11 @@ test.describe("FormFilling room - Invite via link tests", () => {
     );
 
     await login.loginToPortal();
+    // Form Set rooms live under the Forms app, not the Rooms list
+    await myRooms.sidebar.navigate(apps.forms);
     await myRooms.roomsTable.openRoomByName("FormFillingRoom");
-    await shortTour.clickSkipTour();
+    // Tour is temporarily not shown; may come back later.
+    // await shortTour.clickSkipTour();
     await myRooms.infoPanel.close();
   });
 
@@ -271,7 +276,8 @@ test.describe("FormFilling room - Invite via link tests", () => {
       const incognitoShortTour = new ShortTour(incognitoPage);
       const tourVisible = await incognitoShortTour.isTourVisible(6000);
       if (tourVisible) {
-        await incognitoShortTour.clickSkipTour();
+        // Tour is temporarily not shown; may come back later.
+        // await incognitoShortTour.clickSkipTour();
       }
     });
 
@@ -354,8 +360,11 @@ test.describe("FormFilling room - Invite via link tests", () => {
 
       await incognitoPage.waitForURL(/.*rooms.*/, { waitUntil: "load" });
 
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars -- tour is temporarily not shown; kept for when it comes back
       const incognitoShortTour = new ShortTour(incognitoPage);
-      await incognitoShortTour.clickSkipTour();
+      // Tour is temporarily not shown; may come back later.
+
+      // await incognitoShortTour.clickSkipTour();
     });
 
     await test.step("Verify started PDF form is visible to Form Filler", async () => {
@@ -419,8 +428,11 @@ test.describe("FormFilling room - Invite via link tests", () => {
 
       await incognitoPage.waitForURL(/.*rooms.*/, { waitUntil: "load" });
 
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars -- tour is temporarily not shown; kept for when it comes back
       const incognitoShortTour = new ShortTour(incognitoPage);
-      await incognitoShortTour.clickSkipTour();
+      // Tour is temporarily not shown; may come back later.
+
+      // await incognitoShortTour.clickSkipTour();
     });
 
     await test.step("Verify unstarted PDF form is visible to Content Creator", async () => {
@@ -498,8 +510,11 @@ test.describe("FormFilling room - Invite via link tests", () => {
 
       await incognitoPage.waitForURL(/.*rooms.*/, { waitUntil: "load" });
 
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars -- tour is temporarily not shown; kept for when it comes back
       const incognitoShortTour = new ShortTour(incognitoPage);
-      await incognitoShortTour.clickSkipTour();
+      // Tour is temporarily not shown; may come back later.
+
+      // await incognitoShortTour.clickSkipTour();
     });
 
     await test.step("Verify unstarted PDF form is not visible to guest", async () => {
@@ -587,8 +602,11 @@ test.describe("FormFilling room - Invite via link tests", () => {
 
       await incognitoPage.waitForURL(/.*rooms.*/, { waitUntil: "load" });
 
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars -- tour is temporarily not shown; kept for when it comes back
       const incognitoShortTour = new ShortTour(incognitoPage);
-      await incognitoShortTour.clickSkipTour();
+      // Tour is temporarily not shown; may come back later.
+
+      // await incognitoShortTour.clickSkipTour();
     });
 
     await test.step("Verify started PDF form is visible to Guest", async () => {

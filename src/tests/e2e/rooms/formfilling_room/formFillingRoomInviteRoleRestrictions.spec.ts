@@ -7,6 +7,7 @@ import Login from "@/src/objects/common/Login";
 
 test.describe("FormFilling room - Invite role restrictions", () => {
   let myRooms: MyRooms;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- tour is temporarily not shown; kept for when it comes back
   let shortTour: ShortTour;
   let roomInfoPanel: RoomInfoPanel;
   let roomsInviteDialog: RoomsInviteDialog;
@@ -32,8 +33,14 @@ test.describe("FormFilling room - Invite role restrictions", () => {
     const userEmail = userData.email;
 
     await test.step("Open room info panel", async () => {
-      await shortTour.clickSkipTour();
-      await myRooms.infoPanel.open();
+      // Tour is temporarily not shown; may come back later.
+
+      // await shortTour.clickSkipTour();
+
+      // The info panel auto-opens shortly after room creation; calling
+
+      // .open() here can race that and toggle it closed instead. Just wait.
+      await myRooms.infoPanel.checkInfoPanelExist();
       // Navigate to the Contacts tab to manage users
       await myRooms.infoPanel.openTab("Contacts");
     });
@@ -98,8 +105,14 @@ test.describe("FormFilling room - Invite role restrictions", () => {
     const userEmail = userData.email;
 
     await test.step("Open room info panel", async () => {
-      await shortTour.clickSkipTour();
-      await myRooms.infoPanel.open();
+      // Tour is temporarily not shown; may come back later.
+
+      // await shortTour.clickSkipTour();
+
+      // The info panel auto-opens shortly after room creation; calling
+
+      // .open() here can race that and toggle it closed instead. Just wait.
+      await myRooms.infoPanel.checkInfoPanelExist();
       // Navigate to the Contacts tab to manage users
       await myRooms.infoPanel.openTab("Contacts");
     });
@@ -132,8 +145,14 @@ test.describe("FormFilling room - Invite role restrictions", () => {
     const userEmail = userData.email;
 
     await test.step("Open room info panel", async () => {
-      await shortTour.clickSkipTour();
-      await myRooms.infoPanel.open();
+      // Tour is temporarily not shown; may come back later.
+
+      // await shortTour.clickSkipTour();
+
+      // The info panel auto-opens shortly after room creation; calling
+
+      // .open() here can race that and toggle it closed instead. Just wait.
+      await myRooms.infoPanel.checkInfoPanelExist();
       // Navigate to the Contacts tab to manage users
       await myRooms.infoPanel.openTab("Contacts");
     });
