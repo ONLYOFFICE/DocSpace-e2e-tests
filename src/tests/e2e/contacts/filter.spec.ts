@@ -179,7 +179,7 @@ test.describe("Contacts - Members: filter by type", () => {
   test("Filter by DocSpace admin type shows only DocSpace admins", async () => {
     await test.step("Open filter and select DocSpace admin", async () => {
       await contacts.peopleFilter.openFilterDialog();
-      await contacts.peopleFilter.selectFilterByType("DocSpace admin");
+      await contacts.peopleFilter.selectFilterByType("Docs admin");
       await contacts.peopleFilter.applyFilter();
     });
 
@@ -190,7 +190,7 @@ test.describe("Contacts - Members: filter by type", () => {
     });
 
     await test.step("Remove filter and verify all users are visible again", async () => {
-      await contacts.peopleFilter.removeFilter("DocSpace admin");
+      await contacts.peopleFilter.removeFilter("Docs admin");
       await contacts.table.checkRowExistByNameText(adminDisplayName);
       await contacts.table.checkRowExistByNameText(roomAdminDisplayName);
       await contacts.table.checkRowExistByNameText(userDisplayName);

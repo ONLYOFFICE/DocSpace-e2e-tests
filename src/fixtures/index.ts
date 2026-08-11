@@ -87,20 +87,6 @@ export const test = base.extend<TestFixtures>({
       globalThis.localStorage?.setItem("integrationUITests", "true");
     });
 
-    // A fresh portal shows a "Welcome to DocsEverything" onboarding modal at
-    // an unpredictable point after login, blocking whatever action runs next.
-    // addLocatorHandler closes it automatically before any action proceeds.
-    // Scoped to this specific dialog: the close-icon testid is reused by many
-    // other dialogs, and a page-wide .first() could close the wrong one.
-    const welcomeModal = page
-      .getByRole("dialog")
-      .filter({ hasText: "Welcome to DocsEverything" });
-    await page.addLocatorHandler(welcomeModal, async () => {
-      await welcomeModal
-        .getByTestId("aside_header_close_icon_button")
-        .click({ force: true });
-    });
-
     await use(page);
     await page.close();
   },
