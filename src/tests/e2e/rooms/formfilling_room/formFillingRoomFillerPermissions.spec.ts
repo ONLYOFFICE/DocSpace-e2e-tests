@@ -15,6 +15,7 @@ import {
   pdfFormDownloadSubmenu,
 } from "@/src/utils/constants/files";
 import { formFillingSystemFolders } from "@/src/utils/constants/rooms";
+import { apps } from "@/src/utils/constants/navigation";
 
 test.describe("FormFilling room - Form filler permissions", () => {
   let myRooms: MyRooms;
@@ -102,11 +103,15 @@ test.describe("FormFilling room - Form filler permissions", () => {
   test("Verify info panel and room permissions", async ({ page }) => {
     await test.step("Setup: Login as owner and add users via UI", async () => {
       await login.loginToPortal();
-      await myRooms.openWithoutEmptyCheck();
+      // Form Set rooms live under the Forms app, not the Rooms list
+
+      await myRooms.sidebar.navigate(apps.forms);
       await myRooms.roomsTable.openRoomByName(roomName);
 
       // Add user with Form filler role (default role in Form Filling rooms)
-      await shortTour.clickSkipTour();
+      // Tour is temporarily not shown; may come back later.
+
+      // await shortTour.clickSkipTour();
       await myRooms.infoPanel.open();
       await myRooms.infoPanel.openTab("Contacts");
       await roomInfoPanel.clickAddUser();
@@ -146,10 +151,12 @@ test.describe("FormFilling room - Form filler permissions", () => {
 
     await test.step("Login as Form filler", async () => {
       await login.loginWithCredentials(formFillerEmail, formFillerPassword);
+      await myRooms.sidebar.navigate(apps.forms);
       await myRooms.roomsTable.openRoomByName(roomName);
       const tourVisible = await shortTour.isTourVisible(6000);
       if (tourVisible) {
-        await shortTour.clickSkipTour();
+        // Tour is temporarily not shown; may come back later.
+        // await shortTour.clickSkipTour();
       }
     });
 
@@ -232,10 +239,14 @@ test.describe("FormFilling room - Form filler permissions", () => {
   test("Verify file and folder permissions", async ({ page }) => {
     await test.step("Setup: Login as owner, add Form filler user, and start filling", async () => {
       await login.loginToPortal();
-      await myRooms.openWithoutEmptyCheck();
+      // Form Set rooms live under the Forms app, not the Rooms list
+
+      await myRooms.sidebar.navigate(apps.forms);
       await myRooms.roomsTable.openRoomByName(roomName);
 
-      await shortTour.clickSkipTour();
+      // Tour is temporarily not shown; may come back later.
+
+      // await shortTour.clickSkipTour();
       await myRooms.infoPanel.open();
       await myRooms.infoPanel.openTab("Contacts");
       await roomInfoPanel.clickAddUser();
@@ -280,10 +291,12 @@ test.describe("FormFilling room - Form filler permissions", () => {
 
     await test.step("Login as Form filler", async () => {
       await login.loginWithCredentials(formFillerEmail, formFillerPassword);
+      await myRooms.sidebar.navigate(apps.forms);
       await myRooms.roomsTable.openRoomByName(roomName);
       const tourVisible = await shortTour.isTourVisible(6000);
       if (tourVisible) {
-        await shortTour.clickSkipTour();
+        // Tour is temporarily not shown; may come back later.
+        // await shortTour.clickSkipTour();
       }
     });
 
@@ -467,10 +480,14 @@ test.describe("FormFilling room - Form filler permissions", () => {
 
     await test.step("Setup: Login as owner, add Form filler user, and start filling", async () => {
       await login.loginToPortal();
-      await myRooms.openWithoutEmptyCheck();
+      // Form Set rooms live under the Forms app, not the Rooms list
+
+      await myRooms.sidebar.navigate(apps.forms);
       await myRooms.roomsTable.openRoomByName(roomName);
 
-      await shortTour.clickSkipTour();
+      // Tour is temporarily not shown; may come back later.
+
+      // await shortTour.clickSkipTour();
       await myRooms.infoPanel.open();
       await myRooms.infoPanel.openTab("Contacts");
       await roomInfoPanel.clickAddUser();
@@ -498,10 +515,12 @@ test.describe("FormFilling room - Form filler permissions", () => {
 
     await test.step("Login as Form filler", async () => {
       await login.loginWithCredentials(formFillerEmail, formFillerPassword);
+      await myRooms.sidebar.navigate(apps.forms);
       await myRooms.roomsTable.openRoomByName(roomName);
       const tourVisible = await shortTour.isTourVisible(6000);
       if (tourVisible) {
-        await shortTour.clickSkipTour();
+        // Tour is temporarily not shown; may come back later.
+        // await shortTour.clickSkipTour();
       }
     });
 

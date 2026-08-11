@@ -362,14 +362,19 @@ class InfoPanel {
   async selectLinkAccess(
     option: "anyone with the link" | "docspace users only",
   ) {
+    // UI label for the DocSpace-only access type was renamed to "Docs users only".
+    const displayText =
+      option === "docspace users only"
+        ? "Docs users only"
+        : "Anyone with the link";
     const currentText = await this.linkComboboxAccess.textContent();
-    if (currentText?.trim() === option) {
+    if (currentText?.trim() === displayText) {
       await this.linkComboboxAccess.click();
       return;
     }
     await this.linkComboboxAccess.waitFor({ state: "visible" });
     await this.linkComboboxAccess.click();
-    const optionLocator = this.page.getByText(option).first();
+    const optionLocator = this.page.getByText(displayText).first();
     await optionLocator.waitFor({ state: "visible" });
     await optionLocator.click();
   }

@@ -10,16 +10,16 @@ import FilesPdfForm from "@/src/objects/files/FilesPdfForm";
 import RoomPDFCompleted from "@/src/objects/rooms/RoomPDFCompleted";
 import FilesTable from "@/src/objects/files/FilesTable";
 import {
-  roomCreateTitles,
   roomContextMenuOption,
-  roomDialogSource,
   formFillingSystemFolders,
 } from "@/src/utils/constants/rooms";
+import { formFillingRoomPdfContextMenuOption } from "@/src/utils/constants/files";
 import Login from "@/src/objects/common/Login";
 
 test.describe("FormFilling room: creation settings", () => {
   let myRooms: MyRooms;
   let createDialog: RoomsCreateDialog;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- tour is temporarily not shown; kept for when it comes back
   let shortTour: ShortTour;
   let selectPanel: RoomSelectPanel;
   let roomEmptyView: RoomEmptyView;
@@ -31,8 +31,7 @@ test.describe("FormFilling room: creation settings", () => {
     selectPanel = new RoomSelectPanel(page);
     roomEmptyView = new RoomEmptyView(page);
     await login.loginToPortal();
-    await myRooms.openCreateRoomDialog(roomDialogSource.navigation);
-    await createDialog.openRoomType(roomCreateTitles.formFilling);
+    await myRooms.openFormSetCreateDialog();
   });
 
   test("Default state: toggles are in correct positions and Go to Integrations link is visible", async () => {
@@ -85,7 +84,8 @@ test.describe("FormFilling room: creation settings", () => {
     });
 
     await test.step("Skip short tour", async () => {
-      await shortTour.clickSkipTour();
+      // Tour is temporarily not shown; may come back later.
+      // await shortTour.clickSkipTour();
       await myRooms.infoPanel.close();
     });
 
@@ -113,13 +113,13 @@ test.describe("FormFilling room: creation settings", () => {
     await test.step("Create the room", async () => {
       await createDialog.fillRoomName(roomName);
       await createDialog.clickRoomDialogSubmit();
-      await expect(
-        page.getByText("Welcome to the Form Filling Room!"),
-      ).toBeVisible({ timeout: 10000 });
+      // Tour tips modal is temporarily not shown; wait for the room heading instead.
+      await myRooms.checkHeadingExist(roomName);
     });
 
     await test.step("Skip short tour", async () => {
-      await shortTour.clickSkipTour();
+      // Tour is temporarily not shown; may come back later.
+      // await shortTour.clickSkipTour();
       await myRooms.infoPanel.close();
     });
 
@@ -148,8 +148,11 @@ test.describe("FormFilling room: creation settings", () => {
     await test.step("Start filling the form", async () => {
       const filesTable = new FilesTable(page);
       await filesTable.openContextMenuForItem("ONLYOFFICE Resume Sample");
-      await filesTable.contextMenu.clickOption("Start filling");
+      await filesTable.contextMenu.clickOption(
+        formFillingRoomPdfContextMenuOption.startFilling,
+      );
       await new PdfFormModal(page).close();
+      await filesTable.expectFillingIconVisible("ONLYOFFICE Resume Sample");
     });
 
     await test.step("Fill and submit the form", async () => {
@@ -214,10 +217,8 @@ test.describe("FormFilling room: creation settings - database connection feature
     const login = new Login(page, api.portalDomain);
     await login.loginWithCredentials(roomAdminEmail, roomAdminPassword);
     const myRooms = new MyRooms(page, api.portalDomain);
-    await myRooms.open();
-    await myRooms.openCreateRoomDialog(roomDialogSource.navigation);
     const createDialog = new RoomsCreateDialog(page);
-    await createDialog.openRoomType(roomCreateTitles.formFilling);
+    await myRooms.openFormSetCreateDialog();
 
     await test.step("Verify Collect results in XLSX toggle is visible and enabled", async () => {
       await createDialog.checkXlsxToggleEnabled();
@@ -236,10 +237,8 @@ test.describe("FormFilling room: creation settings - database connection feature
     const login = new Login(page, api.portalDomain);
     await login.loginWithCredentials(docSpaceAdminEmail, docSpaceAdminPassword);
     const myRooms = new MyRooms(page, api.portalDomain);
-    await myRooms.open();
-    await myRooms.openCreateRoomDialog(roomDialogSource.navigation);
     const createDialog = new RoomsCreateDialog(page);
-    await createDialog.openRoomType(roomCreateTitles.formFilling);
+    await myRooms.openFormSetCreateDialog();
 
     await test.step("Verify Collect results in XLSX toggle is visible and enabled", async () => {
       await createDialog.checkXlsxToggleEnabled();

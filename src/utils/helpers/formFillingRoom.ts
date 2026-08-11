@@ -57,7 +57,8 @@ export async function uploadAndVerifyPDF(
   skipTour = true,
 ): Promise<void> {
   if (skipTour) {
-    await shortTour.clickSkipTour();
+    // Tour is temporarily not shown; may come back later.
+    // await shortTour.clickSkipTour();
   }
   await roomEmptyView.uploadPdfFromDocSpace();
   await selectPanel.checkSelectorExist();

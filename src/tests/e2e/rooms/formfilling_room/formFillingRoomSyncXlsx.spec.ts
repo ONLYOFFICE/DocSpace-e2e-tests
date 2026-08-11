@@ -22,6 +22,7 @@ import {
 import RoomsCreateDialog from "@/src/objects/rooms/RoomsCreateDialog";
 import FolderDeleteModal from "@/src/objects/files/FolderDeleteModal";
 import BaseToast from "@/src/objects/common/BaseToast";
+import { apps } from "@/src/utils/constants/navigation";
 
 // Tests for "Sync responses to XLSX" in a FormFilling room.
 // After form submission, an XLSX file is auto-created inside the submission folder
@@ -33,6 +34,7 @@ const FORM_NAME = "PDF from device";
 
 test.describe("FormFilling room - Sync responses to XLSX", () => {
   let myRooms: MyRooms;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- tour is temporarily not shown; kept for when it comes back
   let shortTour: ShortTour;
   let filesTable: FilesTable;
   let login: Login;
@@ -57,9 +59,11 @@ test.describe("FormFilling room - Sync responses to XLSX", () => {
     );
 
     await login.loginToPortal();
-    await myRooms.openWithoutEmptyCheck();
+    // Form Set rooms live under the Forms app, not the Rooms list
+    await myRooms.sidebar.navigate(apps.forms);
     await myRooms.roomsTable.openRoomByName(ROOM_NAME);
-    await shortTour.clickSkipTour();
+    // Tour is temporarily not shown; may come back later.
+    // await shortTour.clickSkipTour();
   });
 
   // Helper: submits the form and returns the post-submit page (showing the room).

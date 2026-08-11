@@ -13,6 +13,7 @@ import RoomEmptyView from "@/src/objects/rooms/RoomEmptyView";
 import {
   formFillingRoomContextMenuOption,
   formFillingSystemFolders,
+  roomToastMessages,
 } from "@/src/utils/constants/rooms";
 import {
   formFillingRoomPdfContextMenuOption,
@@ -66,7 +67,7 @@ test.describe("FormFilling base tests", () => {
     await login.loginToPortal();
     await myRooms.createFormFillingRoom("FormFillingRoom");
   });
-  test("Take A Tour", async () => {
+  test.skip("Take A Tour", async () => {
     await test.step("TakeATourAfterCreatingFormFillingRoom", async () => {
       await shortTour.checkStep("welcome");
       await shortTour.clickStartTour();
@@ -123,10 +124,10 @@ test.describe("FormFilling base tests", () => {
   });
   test("Check All Buttons On Empty Page", async ({ page }) => {
     await test.step("ClickShareRoomOnEmptyRoomScreen", async () => {
-      await shortTour.clickSkipTour();
-      await myRooms.infoPanel.close();
       await roomEmptyView.shareRoomClick();
-      await myRooms.toast.clickLinkInToast();
+      await myRooms.toast.checkToastMessage(
+        roomToastMessages.formFillingLinkShared,
+      );
       await myRooms.infoPanel.checkInfoPanelExist();
       //check the form filling shared link exist in info panel
       await myRooms.infoPanel.checkFormFillingSharedLinkExist();
@@ -301,8 +302,11 @@ test.describe("FormFilling base tests", () => {
   });
   test("Search for user in room info panel", async ({ page }) => {
     await test.step("Open room info panel", async () => {
-      await shortTour.clickSkipTour();
-      await myRooms.infoPanel.open();
+      // Tour is temporarily not shown; may come back later.
+      // await shortTour.clickSkipTour();
+      // The info panel auto-opens shortly after room creation; calling
+      // .open() here can race that and toggle it closed instead. Just wait.
+      await myRooms.infoPanel.checkInfoPanelExist();
       await myRooms.infoPanel.openTab("Contacts");
     });
     await test.step("Search for non-existent user", async () => {
@@ -322,8 +326,11 @@ test.describe("FormFilling base tests", () => {
 
   test("Add manualy guest to room", async () => {
     await test.step("Open room info panel", async () => {
-      await shortTour.clickSkipTour();
-      await myRooms.infoPanel.open();
+      // Tour is temporarily not shown; may come back later.
+      // await shortTour.clickSkipTour();
+      // The info panel auto-opens shortly after room creation; calling
+      // .open() here can race that and toggle it closed instead. Just wait.
+      await myRooms.infoPanel.checkInfoPanelExist();
       // Navigate to the Contacts tab to manage users
       await myRooms.infoPanel.openTab("Contacts");
     });
@@ -410,7 +417,8 @@ test.describe("FormFilling base tests", () => {
     const templateTitle = "30-day eviction notice form";
 
     await test.step("Skip tour and close info panel", async () => {
-      await shortTour.clickSkipTour();
+      // Tour is temporarily not shown; may come back later.
+      // await shortTour.clickSkipTour();
       await myRooms.infoPanel.close();
     });
 
@@ -458,7 +466,8 @@ test.describe("FormFilling base tests", () => {
   // Verifies that uploading a simple PDF (not an ONLYOFFICE form) shows a warning message
   test("Upload simple PDF from device shows warning", async ({ page }) => {
     await test.step("Skip tour and close info panel", async () => {
-      await shortTour.clickSkipTour();
+      // Tour is temporarily not shown; may come back later.
+      // await shortTour.clickSkipTour();
       await myRooms.infoPanel.close();
     });
 

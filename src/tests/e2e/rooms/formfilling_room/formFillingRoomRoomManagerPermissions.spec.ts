@@ -20,6 +20,7 @@ import {
   pdfFormMoreOptionsSubmenu,
   pdfFormMoveOrCopySubmenu,
 } from "@/src/utils/constants/files";
+import { apps } from "@/src/utils/constants/navigation";
 
 test.describe("FormFilling room - Room manager permissions", () => {
   let myRooms: MyRooms;
@@ -98,9 +99,12 @@ test.describe("FormFilling room - Room manager permissions", () => {
   test("Verify room management permissions", async ({ page }) => {
     await test.step("Setup: Login as owner and add users via UI", async () => {
       await login.loginToPortal();
-      await myRooms.openWithoutEmptyCheck();
+      // Form Set rooms live under the Forms app, not the Rooms list
+
+      await myRooms.sidebar.navigate(apps.forms);
       await myRooms.roomsTable.openRoomByName(roomName);
-      await shortTour.clickSkipTour();
+      // Tour is temporarily not shown; may come back later.
+      // await shortTour.clickSkipTour();
 
       // Add Room manager
       await myRooms.infoPanel.open();
@@ -151,6 +155,8 @@ test.describe("FormFilling room - Room manager permissions", () => {
 
     await test.step("Login as Room manager", async () => {
       await login.loginWithCredentials(roomManagerEmail, roomManagerPassword);
+      await myRooms.sidebar.navigate(apps.forms);
+
       await myRooms.roomsTable.openRoomByName(roomName);
       const tourVisible = await shortTour.isTourVisible(6000);
       if (tourVisible) {
@@ -263,9 +269,12 @@ test.describe("FormFilling room - Room manager permissions", () => {
   test("Verify folder management permissions", async ({ page }) => {
     await test.step("Setup: Login as owner and add Room manager via UI", async () => {
       await login.loginToPortal();
-      await myRooms.openWithoutEmptyCheck();
+      // Form Set rooms live under the Forms app, not the Rooms list
+
+      await myRooms.sidebar.navigate(apps.forms);
       await myRooms.roomsTable.openRoomByName(roomName);
-      await shortTour.clickSkipTour();
+      // Tour is temporarily not shown; may come back later.
+      // await shortTour.clickSkipTour();
 
       await myRooms.infoPanel.open();
       await myRooms.infoPanel.openTab("Contacts");
@@ -287,6 +296,8 @@ test.describe("FormFilling room - Room manager permissions", () => {
 
     await test.step("Login as Room manager", async () => {
       await login.loginWithCredentials(roomManagerEmail, roomManagerPassword);
+      await myRooms.sidebar.navigate(apps.forms);
+
       await myRooms.roomsTable.openRoomByName(roomName);
       const tourVisible = await shortTour.isTourVisible(6000);
       if (tourVisible) {
@@ -359,9 +370,12 @@ test.describe("FormFilling room - Room manager permissions", () => {
   test("Verify file management permissions", async ({ page }) => {
     await test.step("Setup: Login as owner and add Room manager via UI", async () => {
       await login.loginToPortal();
-      await myRooms.openWithoutEmptyCheck();
+      // Form Set rooms live under the Forms app, not the Rooms list
+
+      await myRooms.sidebar.navigate(apps.forms);
       await myRooms.roomsTable.openRoomByName(roomName);
-      await shortTour.clickSkipTour();
+      // Tour is temporarily not shown; may come back later.
+      // await shortTour.clickSkipTour();
 
       await myRooms.infoPanel.open();
       await myRooms.infoPanel.openTab("Contacts");
@@ -390,6 +404,8 @@ test.describe("FormFilling room - Room manager permissions", () => {
 
     await test.step("Login as Room manager", async () => {
       await login.loginWithCredentials(roomManagerEmail, roomManagerPassword);
+      await myRooms.sidebar.navigate(apps.forms);
+
       await myRooms.roomsTable.openRoomByName(roomName);
       const tourVisible = await shortTour.isTourVisible(6000);
       if (tourVisible) {
@@ -490,9 +506,12 @@ test.describe("FormFilling room - Room manager permissions", () => {
   test("Verify PDF form filling permissions", async ({ page }) => {
     await test.step("Setup: Login as owner and add Room manager via UI", async () => {
       await login.loginToPortal();
-      await myRooms.openWithoutEmptyCheck();
+      // Form Set rooms live under the Forms app, not the Rooms list
+
+      await myRooms.sidebar.navigate(apps.forms);
       await myRooms.roomsTable.openRoomByName(roomName);
-      await shortTour.clickSkipTour();
+      // Tour is temporarily not shown; may come back later.
+      // await shortTour.clickSkipTour();
 
       await myRooms.infoPanel.open();
       await myRooms.infoPanel.openTab("Contacts");
@@ -514,6 +533,8 @@ test.describe("FormFilling room - Room manager permissions", () => {
 
     await test.step("Login as Room manager", async () => {
       await login.loginWithCredentials(roomManagerEmail, roomManagerPassword);
+      await myRooms.sidebar.navigate(apps.forms);
+
       await myRooms.roomsTable.openRoomByName(roomName);
       const tourVisible = await shortTour.isTourVisible(6000);
       if (tourVisible) {

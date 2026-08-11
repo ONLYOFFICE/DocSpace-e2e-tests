@@ -52,6 +52,7 @@ const navActions = {
 const DRAFT_LABEL = "badge-text";
 const ARTICLE_CONTAINER = "#article-container";
 const ROOM_STORAGE_WARNING = ".warning-text";
+const CREATE_FORM_SET_OPTION = "create-form-set";
 
 class MyRooms extends BasePage {
   private portalDomain: string;
@@ -176,9 +177,19 @@ class MyRooms extends BasePage {
       await this.backToRooms();
     }
   }
-  async createFormFillingRoom(roomName: string, tags?: string[]) {
+  // Form Set is only creatable from the Forms app now, not from Rooms.
+  async openFormSetCreateDialog() {
     await this.sidebar.navigate(apps.forms);
-    await this.navigation.clickAddButton();
+    await this.navigation.openCreateDropdown();
+    await this.navigation.contextMenu.clickOption({
+      type: "data-testid",
+      value: CREATE_FORM_SET_OPTION,
+    });
+    await this.roomsCreateDialog.openRoomType(roomCreateTitles.formSet);
+  }
+
+  async createFormFillingRoom(roomName: string, tags?: string[]) {
+    await this.openFormSetCreateDialog();
     await this.roomsCreateDialog.fillRoomName(roomName);
 
     // Add tags if they are provided
@@ -188,8 +199,10 @@ class MyRooms extends BasePage {
       }
     }
     await this.roomsCreateDialog.clickRoomDialogSubmit();
-    const tipsModal = this.page.getByText("Welcome to the Form Filling Room!");
-    await expect(tipsModal).toBeVisible({ timeout: 10000 });
+    // Tour tips modal is temporarily not shown; may come back later.
+    // const tipsModal = this.page.getByText("Welcome to the Form Filling Room!");
+    // await expect(tipsModal).toBeVisible({ timeout: 20000 });
+    await this.checkHeadingExist(roomName);
   }
   async moveAllRoomsToArchive() {
     await this.roomsTable.selectAllRows();
