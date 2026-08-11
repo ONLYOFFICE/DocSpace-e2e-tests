@@ -12,10 +12,10 @@ test.describe("Archive", () => {
     myArchive = new Archive(page, api.portalDomain);
 
     await login.loginToPortal();
+    await myRooms.open();
   });
 
   test("Archive rooms", async () => {
-    await myRooms.roomsEmptyView.checkNoRoomsExist();
     await myRooms.createRooms();
     await myRooms.moveAllRoomsToArchive();
     await myRooms.roomsEmptyView.checkNoRoomsExist();
@@ -29,7 +29,6 @@ test.describe("Archive", () => {
 
   test("Archive info panel", async () => {
     await test.step("Precondition: create rooms and move to archive", async () => {
-      await myRooms.roomsEmptyView.checkNoRoomsExist();
       await myRooms.createRooms();
       await myRooms.moveAllRoomsToArchive();
       await myArchive.open();
@@ -47,7 +46,6 @@ test.describe("Archive", () => {
 
   test("Restore single room from archive", async () => {
     await test.step("Precondition: create rooms and move to archive", async () => {
-      await myRooms.roomsEmptyView.checkNoRoomsExist();
       await myRooms.createRooms();
       await myRooms.moveAllRoomsToArchive();
       await myArchive.open();
@@ -60,7 +58,6 @@ test.describe("Archive", () => {
 
   test("Delete single room from archive", async () => {
     await test.step("Precondition: create rooms and move to archive", async () => {
-      await myRooms.roomsEmptyView.checkNoRoomsExist();
       await myRooms.createRooms();
       await myRooms.moveAllRoomsToArchive();
       await myArchive.open();
@@ -73,7 +70,6 @@ test.describe("Archive", () => {
 
   test("Restore from archive", async () => {
     await test.step("Precondition: create rooms and move to archive", async () => {
-      await myRooms.roomsEmptyView.checkNoRoomsExist();
       await myRooms.createRooms();
       await myRooms.moveAllRoomsToArchive();
       await myArchive.open();

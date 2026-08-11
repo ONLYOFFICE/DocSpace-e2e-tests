@@ -19,7 +19,9 @@ class RoomsEmptyView {
   }
 
   async checkNoRoomsExist() {
-    await expect(this.page.getByText("Welcome to DocSpace")).toBeVisible();
+    await expect(
+      this.page.getByText("Please create the first room."),
+    ).toBeVisible();
   }
 
   async checkNoTemplatesExist() {
