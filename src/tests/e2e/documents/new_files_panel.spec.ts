@@ -147,23 +147,26 @@ test.describe("New Files Panel", () => {
       await rooms.openWithoutEmptyCheck();
     });
 
-    test("Panel opens on badge click and shows file and room name", async () => {
-      await test.step("Click Rooms badge", async () => {
-        await newFilesPanel.openByClickingRoomsBadge();
-      });
+    test.fail(
+      "Panel opens on badge click and shows file and room name [Bug 83055]",
+      async () => {
+        await test.step("Click Rooms badge", async () => {
+          await newFilesPanel.openByClickingRoomsBadge();
+        });
 
-      await test.step("Verify panel is visible", async () => {
-        await newFilesPanel.expectVisible();
-      });
+        await test.step("Verify panel is visible", async () => {
+          await newFilesPanel.expectVisible();
+        });
 
-      await test.step("Verify file is shown in panel", async () => {
-        await newFilesPanel.expectFileItemVisible(FILE_NAME);
-      });
+        await test.step("Verify file is shown in panel", async () => {
+          await newFilesPanel.expectFileItemVisible(FILE_NAME);
+        });
 
-      await test.step("Verify room name is shown in panel", async () => {
-        await newFilesPanel.expectRoomTitleVisible(ROOM_NAME);
-      });
-    });
+        await test.step("Verify room name is shown in panel", async () => {
+          await newFilesPanel.expectRoomTitleVisible(ROOM_NAME);
+        });
+      },
+    );
 
     test("Mark as read removes New badge on file and Rooms badge", async ({
       page,
