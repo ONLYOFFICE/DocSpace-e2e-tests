@@ -347,7 +347,7 @@ test.describe("FormFilling room - Content creator permissions", () => {
       await filesSelectPanel.select("documents");
       await filesSelectPanel.confirmSelection();
       await myRooms.toast.dismissToastSafely(
-        "TestFolder successfully copied to My documents",
+        "TestFolder successfully copied to Files",
       );
       // Original folder remains in the room after copy
       await expect(
@@ -371,9 +371,7 @@ test.describe("FormFilling room - Content creator permissions", () => {
       // Conflict dialog always appears because the folder was copied to My Documents in the previous step
       const folderConflict = new ConflictResolveDialog(page);
       await folderConflict.resolveWith("Copy and keep both folders");
-      await myRooms.toast.dismissToastSafely(
-        "successfully moved to My documents",
-      );
+      await myRooms.toast.dismissToastSafely("successfully moved to Files");
       // Folder is no longer in the room after move
       await expect(
         page.getByText("TestFolder", { exact: true }),
@@ -562,7 +560,7 @@ test.describe("FormFilling room - Content creator permissions", () => {
       await myRooms.filesNavigation.openCreateDropdown();
       await myRooms.filesNavigation.contextMenu.clickSubmenuOption(
         "Upload PDF form",
-        "From DocSpace",
+        "From Docs",
       );
       const selectPanel = new RoomSelectPanel(page);
       await selectPanel.checkSelectorExist();
@@ -632,7 +630,7 @@ test.describe("FormFilling room - Content creator permissions", () => {
       const fileCopyConflict = new ConflictResolveDialog(page);
       await fileCopyConflict.resolveWith("Overwrite with version update");
       await myRooms.toast.dismissToastSafely(
-        "ONLYOFFICE Resume Sample.pdf successfully copied to My documents",
+        "ONLYOFFICE Resume Sample.pdf successfully copied to Files",
       );
       // Original file remains in the room after copy
       await expect(
@@ -659,7 +657,7 @@ test.describe("FormFilling room - Content creator permissions", () => {
       const fileConflict = new ConflictResolveDialog(page);
       await fileConflict.resolveWith("Overwrite with version update");
       await myRooms.toast.dismissToastSafely(
-        "ONLYOFFICE Resume Sample.pdf successfully moved to My documents",
+        "ONLYOFFICE Resume Sample.pdf successfully moved to Files",
       );
       // File is no longer in the room after move
       await expect(
@@ -911,7 +909,7 @@ test.describe("FormFilling room - Content creator permissions", () => {
       await myRooms.filesNavigation.openCreateDropdown();
       await myRooms.filesNavigation.contextMenu.clickSubmenuOption(
         "Upload PDF form",
-        "From DocSpace",
+        "From Docs",
       );
       const selectPanel = new RoomSelectPanel(page);
       await selectPanel.checkSelectorExist();
