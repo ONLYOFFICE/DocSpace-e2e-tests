@@ -318,7 +318,7 @@ test.describe("FormFilling room - Room manager permissions", () => {
       await filesSelectPanel.select("documents");
       await filesSelectPanel.confirmSelection();
       await myRooms.toast.dismissToastSafely(
-        `${ownerFolderName} successfully copied to My documents`,
+        `${ownerFolderName} successfully copied to Files`,
       );
       // Original folder remains in the room after copy
       await expect(
@@ -342,9 +342,7 @@ test.describe("FormFilling room - Room manager permissions", () => {
       // Conflict dialog appears because the folder was copied to My Documents in the previous step
       const folderConflict = new ConflictResolveDialog(page);
       await folderConflict.resolveWith("Copy and keep both folders");
-      await myRooms.toast.dismissToastSafely(
-        "successfully moved to My documents",
-      );
+      await myRooms.toast.dismissToastSafely("successfully moved to Files");
       // Folder is no longer in the room after move
       await expect(
         page.getByText(ownerFolderName, { exact: true }),
@@ -467,7 +465,7 @@ test.describe("FormFilling room - Room manager permissions", () => {
       await filesSelectPanel.select("documents");
       await filesSelectPanel.confirmSelection();
       await myRooms.toast.dismissToastSafely(
-        "PDF from device.pdf successfully copied to My documents",
+        "PDF from device.pdf successfully copied to Files",
       );
       // Original file remains in the room after copy
       await expect(
@@ -492,7 +490,7 @@ test.describe("FormFilling room - Room manager permissions", () => {
       const fileConflict = new ConflictResolveDialog(page);
       await fileConflict.resolveWith("Overwrite with version update");
       await myRooms.toast.dismissToastSafely(
-        "PDF from device.pdf successfully moved to My documents",
+        "PDF from device.pdf successfully moved to Files",
       );
       // File is no longer in the room after move
       await expect(
