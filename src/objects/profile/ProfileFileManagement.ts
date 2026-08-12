@@ -6,7 +6,7 @@ const OPEN_SAME_TAB_TOGGLE = "open_same_tab_toggle_button";
 const DEFAULT_HOMEPAGE_COMBO = "default_homepage_combobox";
 const DEFAULT_HOMEPAGE_DROPDOWN =
   '[data-testid="default_homepage_combobox_dropdown"]';
-const LOGO_BUTTON = ".logo-icon_svg";
+const LOGO_LINK_NAME = "portal logo";
 const SAVE_COPY_ORIGINAL_TOGGLE = "save_copy_original_toggle_button";
 const DISPLAY_NOTIFICATION_TOGGLE = "display_notification_toggle_button";
 const DISPLAY_FILE_EXTENSION_TOGGLE = "display_file_extension_toggle_button";
@@ -35,7 +35,7 @@ class ProfileFileManagement {
   }
 
   async clickLogoAndExpectUrl(expectedUrl: RegExp) {
-    await this.page.locator(LOGO_BUTTON).click();
+    await this.page.getByRole("link", { name: LOGO_LINK_NAME }).click();
     await this.page.waitForURL(expectedUrl, { waitUntil: "load" });
   }
 

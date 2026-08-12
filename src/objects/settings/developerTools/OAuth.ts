@@ -57,7 +57,7 @@ class OAuth extends BaseDevTools {
   }
 
   get oauthIconInput() {
-    return this.page.locator('input[type="file"]');
+    return this.page.locator("#customFileInput");
   }
 
   get oauthPKCE() {

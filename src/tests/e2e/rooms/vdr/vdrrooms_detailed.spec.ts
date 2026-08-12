@@ -17,6 +17,7 @@ test.describe("VDR Room: creation and navigation", () => {
   test.beforeEach(async ({ page, api, login }) => {
     myRooms = new MyRooms(page, api.portalDomain);
     await login.loginToPortal();
+    await myRooms.openWithoutEmptyCheck();
   });
 
   test("Create VDR Room and navigate into it", async () => {
@@ -43,6 +44,7 @@ test.describe("VDR Room: index operations", () => {
     myRooms = new MyRooms(page, api.portalDomain);
     vdr = new VdrRoomSettings(page);
     await login.loginToPortal();
+    await myRooms.openWithoutEmptyCheck();
 
     await myRooms.openCreateRoomDialog(roomDialogSource.navigation);
     await myRooms.roomsCreateDialog.openRoomType(roomCreateTitles.virtualData);
@@ -127,6 +129,7 @@ test.describe("VDR Room: room management", () => {
   test.beforeEach(async ({ page, api, login }) => {
     myRooms = new MyRooms(page, api.portalDomain);
     await login.loginToPortal();
+    await myRooms.openWithoutEmptyCheck();
 
     await myRooms.openCreateRoomDialog(roomDialogSource.navigation);
     await myRooms.roomsCreateDialog.openRoomType(roomCreateTitles.virtualData);

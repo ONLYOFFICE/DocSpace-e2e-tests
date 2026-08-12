@@ -15,6 +15,7 @@ test.describe("VDRRooms", () => {
     myRooms = new MyRooms(page, api.portalDomain);
     vdr = new VdrRoomSettings(page);
     await login.loginToPortal();
+    await myRooms.openWithoutEmptyCheck();
   });
 
   test("Create VDR Room smoke", async () => {
