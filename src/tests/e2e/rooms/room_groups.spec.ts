@@ -30,6 +30,7 @@ test.describe("Rooms: Group Tags", () => {
     });
 
     await login.loginToPortal();
+    await myRooms.openWithoutEmptyCheck();
   });
 
   test("Create room group from group-tags row and verify it shows the room", async () => {

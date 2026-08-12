@@ -84,6 +84,7 @@ test.describe("Rooms - Change room owner", () => {
     });
 
     await login.loginToPortal();
+    await rooms.openWithoutEmptyCheck();
     await rooms.roomsTable.checkRowExist(ROOM_NAME);
   });
 
