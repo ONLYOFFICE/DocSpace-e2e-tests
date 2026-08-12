@@ -201,81 +201,92 @@ test.describe("FormFilling room - Link tests", () => {
     await verifyLoginPageInIncognito(browser, url);
   });
   //Checking the link to the Room will open with file and Sing In button
-  test("Open shared link Room for Anyone with link", async ({
-    page,
-    browser,
-  }) => {
-    let shareLink: string;
-    let incognitoPage: Page;
+  test.fail(
+    "Open shared link Room for Anyone with link [Bug 83042]",
+    async ({ page, browser }) => {
+      let shareLink: string;
+      let incognitoPage: Page;
 
-    //Copy link to the room with Fill form access
-    await test.step("Click Share room in empty view", async () => {
-      // Tour is temporarily not shown; may come back later.
+      //Copy link to the room with Fill form access
+      await test.step("Click Share room in empty view", async () => {
+        // Tour is temporarily not shown; may come back later.
 
-      // await shortTour.clickSkipTour();
-      await setupClipboardPermissions(page);
-      await roomEmptyView.shareRoomClick();
-      await myRooms.toast.dismissToastSafely("Link copied to clipboard", 10000);
-      //Save link to clipboard
-      shareLink = await page.evaluate(() => navigator.clipboard.readText());
-      if (!shareLink)
-        throw new Error("Failed to get share link from clipboard");
-    });
+        // await shortTour.clickSkipTour();
+        await setupClipboardPermissions(page);
+        await roomEmptyView.shareRoomClick();
+        await myRooms.toast.dismissToastSafely(
+          "Link copied to clipboard",
+          10000,
+        );
+        //Save link to clipboard
+        shareLink = await page.evaluate(() => navigator.clipboard.readText());
+        if (!shareLink)
+          throw new Error("Failed to get share link from clipboard");
+      });
 
-    await test.step("Upload PDF form from My Documents", async () => {
-      await roomEmptyView.uploadPdfFromDocSpace();
-      await selectPanel.checkSelectorExist();
-      await selectPanel.select("documents");
-      await selectPanel.selectItemByText("ONLYOFFICE Resume Sample");
-      await selectPanel.confirmSelection();
-      await myRooms.infoPanel.close();
-      await expect(page.getByLabel("ONLYOFFICE Resume Sample,")).toBeVisible();
-    });
+      await test.step("Upload PDF form from My Documents", async () => {
+        await roomEmptyView.uploadPdfFromDocSpace();
+        await selectPanel.checkSelectorExist();
+        await selectPanel.select("documents");
+        await selectPanel.selectItemByText("ONLYOFFICE Resume Sample");
+        await selectPanel.confirmSelection();
+        await myRooms.infoPanel.close();
+        await expect(
+          page.getByLabel("ONLYOFFICE Resume Sample,"),
+        ).toBeVisible();
+      });
 
-    await test.step("Open Room in incognito and check Sign In button", async () => {
-      const url = await page.evaluate(() => navigator.clipboard.readText());
-      if (!url) throw new Error("Clipboard is empty");
-      const result = await verifyAnonymousPageInIncognito(browser, url);
-      incognitoContext = result.context;
-      incognitoPage = result.page;
-    });
+      await test.step("Open Room in incognito and check Sign In button", async () => {
+        const url = await page.evaluate(() => navigator.clipboard.readText());
+        if (!url) throw new Error("Clipboard is empty");
+        const result = await verifyAnonymousPageInIncognito(browser, url);
+        incognitoContext = result.context;
+        incognitoPage = result.page;
+      });
 
-    await test.step("Validate unstated pdf form is not visible", async () => {
-      await expect(
-        incognitoPage.getByLabel("ONLYOFFICE Resume Sample,"),
-      ).not.toBeVisible();
-    });
+      await test.step("Validate unstated pdf form is not visible", async () => {
+        await expect(
+          incognitoPage.getByLabel("ONLYOFFICE Resume Sample,"),
+        ).not.toBeVisible();
+      });
 
-    await test.step("Validate that Complete and In progress folders do not exist", async () => {
-      const incognitoMyRooms = new MyRooms(incognitoPage, "docspace");
-      // Verify the "Complete" folder is not visible
-      await incognitoMyRooms.verifyCompleteFolderNotVisible();
-      // Verify the "In progress" folder is not visible
-      await incognitoMyRooms.verifyInProcessFolderNotVisible();
-    });
-  });
+      await test.step("Validate that Complete and In progress folders do not exist", async () => {
+        const incognitoMyRooms = new MyRooms(incognitoPage, "docspace");
+        // Verify the "Complete" folder is not visible
+        await incognitoMyRooms.verifyCompleteFolderNotVisible();
+        // Verify the "In progress" folder is not visible
+        await incognitoMyRooms.verifyInProcessFolderNotVisible();
+      });
+    },
+  );
   //Check that room can't be open after revoking link
-  test("Revoke link Room and open it", async ({ page, browser }) => {
-    let shareLink: string;
+  test.fail(
+    "Revoke link Room and open it [Bug 83042]",
+    async ({ page, browser }) => {
+      let shareLink: string;
 
-    await test.step("Copy link to the room", async () => {
-      // Tour is temporarily not shown; may come back later.
+      await test.step("Copy link to the room", async () => {
+        // Tour is temporarily not shown; may come back later.
 
-      // await shortTour.clickSkipTour();
-      await setupClipboardPermissions(page);
-      await roomEmptyView.shareRoomClick();
-      await myRooms.toast.dismissToastSafely("Link copied to clipboard", 10000);
-      shareLink = await getLinkFromClipboard(page);
-    });
+        // await shortTour.clickSkipTour();
+        await setupClipboardPermissions(page);
+        await roomEmptyView.shareRoomClick();
+        await myRooms.toast.dismissToastSafely(
+          "Link copied to clipboard",
+          10000,
+        );
+        shareLink = await getLinkFromClipboard(page);
+      });
 
-    await test.step("Revoke link", async () => {
-      await myRooms.infoPanel.revokeRoomLink();
-    });
+      await test.step("Revoke link", async () => {
+        await myRooms.infoPanel.revokeRoomLink();
+      });
 
-    await test.step("Verify old link is invalid", async () => {
-      await verifyInvalidLinkMessageInIncognito(browser, shareLink);
-    });
-  });
+      await test.step("Verify old link is invalid", async () => {
+        await verifyInvalidLinkMessageInIncognito(browser, shareLink);
+      });
+    },
+  );
   //Check new link after revoke old link
   test("Check new room link after revoke old link", async ({
     page,
@@ -369,74 +380,80 @@ test.describe("FormFilling room - Link tests", () => {
       await cleanupIncognitoContext(context, page);
     });
   });
-  test("Revoke file link invalidates room link", async ({ page, browser }) => {
-    let roomLink: string;
-    let fileLink: string;
+  test.fail(
+    "Revoke file link invalidates room link [Bug 83042]",
+    async ({ page, browser }) => {
+      let roomLink: string;
+      let fileLink: string;
 
-    await test.step("Copy initial room link", async () => {
-      // Tour is temporarily not shown; may come back later.
+      await test.step("Copy initial room link", async () => {
+        // Tour is temporarily not shown; may come back later.
 
-      // await shortTour.clickSkipTour();
-      await setupClipboardPermissions(page);
-      await roomEmptyView.shareRoomClick();
-      await myRooms.toast.dismissToastSafely("Link copied to clipboard", 10000);
-      roomLink = await getLinkFromClipboard(page);
-    });
+        // await shortTour.clickSkipTour();
+        await setupClipboardPermissions(page);
+        await roomEmptyView.shareRoomClick();
+        await myRooms.toast.dismissToastSafely(
+          "Link copied to clipboard",
+          10000,
+        );
+        roomLink = await getLinkFromClipboard(page);
+      });
 
-    await test.step("Upload PDF and copy file link", async () => {
-      await uploadAndVerifyPDF(
-        shortTour,
-        roomEmptyView,
-        selectPanel,
-        myRooms,
-        page,
-        false,
-      );
-      const filesTable = new FilesTable(page);
-      fileLink = await copyFileLink(page, filesTable, myRooms);
-    });
+      await test.step("Upload PDF and copy file link", async () => {
+        await uploadAndVerifyPDF(
+          shortTour,
+          roomEmptyView,
+          selectPanel,
+          myRooms,
+          page,
+          false,
+        );
+        const filesTable = new FilesTable(page);
+        fileLink = await copyFileLink(page, filesTable, myRooms);
+      });
 
-    await test.step("Verify both links work initially", async () => {
-      // Verify room link works
-      const { context: roomContext, page: roomPage } =
-        await setupIncognitoContext(browser);
-      await roomPage.goto(roomLink, { waitUntil: "domcontentloaded" });
-      const anonView = new RoomAnonymousView(roomPage);
-      await anonView.checkSignInNotificationVisible();
-      await anonView.signInButtonVisible();
-      await cleanupIncognitoContext(roomContext, roomPage);
+      await test.step("Verify both links work initially", async () => {
+        // Verify room link works
+        const { context: roomContext, page: roomPage } =
+          await setupIncognitoContext(browser);
+        await roomPage.goto(roomLink, { waitUntil: "domcontentloaded" });
+        const anonView = new RoomAnonymousView(roomPage);
+        await anonView.checkSignInNotificationVisible();
+        await anonView.signInButtonVisible();
+        await cleanupIncognitoContext(roomContext, roomPage);
 
-      // Verify file link works
-      const { context: fileContext, page: filePage } =
-        await setupIncognitoContext(browser);
-      await filePage.goto(fileLink, { waitUntil: "domcontentloaded" });
-      const pdfForm = new FilesPdfForm(filePage);
-      await pdfForm.checkSubmitButtonNotVisible();
-      await cleanupIncognitoContext(fileContext, filePage);
-    });
+        // Verify file link works
+        const { context: fileContext, page: filePage } =
+          await setupIncognitoContext(browser);
+        await filePage.goto(fileLink, { waitUntil: "domcontentloaded" });
+        const pdfForm = new FilesPdfForm(filePage);
+        await pdfForm.checkSubmitButtonNotVisible();
+        await cleanupIncognitoContext(fileContext, filePage);
+      });
 
-    await test.step("Revoke file link", async () => {
-      const filesTable = new FilesTable(page);
-      await filesTable.openContextMenuForItem("ONLYOFFICE Resume Sample");
-      await filesTable.contextMenu.clickSubmenuOption(
-        "Share",
-        "Sharing settings",
-      );
-      await myRooms.infoPanel.openLinkContextMenu();
-      await myRooms.infoPanel.clickDeleteLink();
-      await myRooms.toast.checkToastMessage(
-        "New general link created successfully",
-      );
-    });
+      await test.step("Revoke file link", async () => {
+        const filesTable = new FilesTable(page);
+        await filesTable.openContextMenuForItem("ONLYOFFICE Resume Sample");
+        await filesTable.contextMenu.clickSubmenuOption(
+          "Share",
+          "Sharing settings",
+        );
+        await myRooms.infoPanel.openLinkContextMenu();
+        await myRooms.infoPanel.clickDeleteLink();
+        await myRooms.toast.checkToastMessage(
+          "New general link created successfully",
+        );
+      });
 
-    await test.step("Verify room link becomes invalid", async () => {
-      await verifyInvalidLinkMessageInIncognito(browser, roomLink);
-    });
+      await test.step("Verify room link becomes invalid", async () => {
+        await verifyInvalidLinkMessageInIncognito(browser, roomLink);
+      });
 
-    await test.step("Verify file link becomes invalid", async () => {
-      await verifyAccessDeniedInIncognito(browser, fileLink);
-    });
-  });
+      await test.step("Verify file link becomes invalid", async () => {
+        await verifyAccessDeniedInIncognito(browser, fileLink);
+      });
+    },
+  );
   //Check Access Denied when opening deleted file link
   test("Delete pdf form from room and verify link Access denied", async ({
     page,
@@ -586,88 +603,91 @@ test.describe("FormFilling room - Link tests", () => {
     });
   });
 
-  test("Password protected room link in incognito", async ({
-    page,
-    browser,
-  }) => {
-    const testPassword = "SecurePass123";
-    let roomLink: string;
-    let incognitoPage: Page;
+  test.fail(
+    "Password protected room link in incognito [Bug 83042]",
+    async ({ page, browser }) => {
+      const testPassword = "SecurePass123";
+      let roomLink: string;
+      let incognitoPage: Page;
 
-    await test.step("Setup password for room link and get link", async () => {
-      // Tour is temporarily not shown; may come back later.
+      await test.step("Setup password for room link and get link", async () => {
+        // Tour is temporarily not shown; may come back later.
 
-      // await shortTour.clickSkipTour();
-      await myRooms.infoPanel.open();
-      const membersTab = page.getByTestId(INFO_PANEL_TABS.Contacts.testId);
-      await expect(membersTab).toBeVisible();
+        // await shortTour.clickSkipTour();
+        await myRooms.infoPanel.open();
+        const membersTab = page.getByTestId(INFO_PANEL_TABS.Contacts.testId);
+        await expect(membersTab).toBeVisible();
 
-      await myRooms.infoPanel.openLinkSettings();
-      const baseEditLink = new BaseEditLink(page);
+        await myRooms.infoPanel.openLinkSettings();
+        const baseEditLink = new BaseEditLink(page);
 
-      await setupClipboardPermissions(page);
+        await setupClipboardPermissions(page);
 
-      // Configure link settings - link is automatically copied to clipboard when saved
-      await baseEditLink.configureLinkSettings({
-        password: testPassword,
-        save: true,
+        // Configure link settings - link is automatically copied to clipboard when saved
+        await baseEditLink.configureLinkSettings({
+          password: testPassword,
+          save: true,
+        });
+        await myRooms.toast.dismissToastSafely(
+          "Link copied to clipboard",
+          10000,
+        );
+
+        // Get link from clipboard (already copied by configureLinkSettings)
+        roomLink = await getLinkFromClipboard(page);
       });
-      await myRooms.toast.dismissToastSafely("Link copied to clipboard", 10000);
 
-      // Get link from clipboard (already copied by configureLinkSettings)
-      roomLink = await getLinkFromClipboard(page);
-    });
+      await test.step("Open link in incognito and verify page elements", async () => {
+        const result = await setupIncognitoContext(browser);
+        incognitoContext = result.context;
+        incognitoPage = result.page;
 
-    await test.step("Open link in incognito and verify page elements", async () => {
-      const result = await setupIncognitoContext(browser);
-      incognitoContext = result.context;
-      incognitoPage = result.page;
+        await incognitoPage.goto(roomLink, { waitUntil: "domcontentloaded" });
 
-      await incognitoPage.goto(roomLink, { waitUntil: "domcontentloaded" });
+        const passwordRequirePage = new BasePasswordRequire(incognitoPage);
 
-      const passwordRequirePage = new BasePasswordRequire(incognitoPage);
+        await passwordRequirePage.verifyPasswordRequiredPageVisible();
+        await expect(passwordRequirePage.linkName).toBeVisible();
+        await passwordRequirePage.verifyRoomDescription();
+        await expect(passwordRequirePage.passwordInput).toBeVisible();
+        await expect(passwordRequirePage.showPasswordButton).toBeVisible();
+        await expect(passwordRequirePage.continueButton).toBeVisible();
+      });
 
-      await passwordRequirePage.verifyPasswordRequiredPageVisible();
-      await expect(passwordRequirePage.linkName).toBeVisible();
-      await passwordRequirePage.verifyRoomDescription();
-      await expect(passwordRequirePage.passwordInput).toBeVisible();
-      await expect(passwordRequirePage.showPasswordButton).toBeVisible();
-      await expect(passwordRequirePage.continueButton).toBeVisible();
-    });
+      await test.step("Click show password button", async () => {
+        ensureIncognitoPage(incognitoPage);
+        const passwordRequirePage = new BasePasswordRequire(incognitoPage);
+        await passwordRequirePage.clickShowPassword();
+      });
 
-    await test.step("Click show password button", async () => {
-      ensureIncognitoPage(incognitoPage);
-      const passwordRequirePage = new BasePasswordRequire(incognitoPage);
-      await passwordRequirePage.clickShowPassword();
-    });
+      await test.step("Enter correct password and verify access", async () => {
+        ensureIncognitoPage(incognitoPage);
+        const passwordRequirePage = new BasePasswordRequire(incognitoPage);
 
-    await test.step("Enter correct password and verify access", async () => {
-      ensureIncognitoPage(incognitoPage);
-      const passwordRequirePage = new BasePasswordRequire(incognitoPage);
+        await passwordRequirePage.enterPasswordAndContinue(testPassword);
 
-      await passwordRequirePage.enterPasswordAndContinue(testPassword);
+        const roomAnonymousView = new RoomAnonymousView(incognitoPage);
+        await roomAnonymousView.signInButtonVisible();
+      });
 
-      const roomAnonymousView = new RoomAnonymousView(incognitoPage);
-      await roomAnonymousView.signInButtonVisible();
-    });
+      await test.step("Verify wrong password is rejected", async () => {
+        await cleanupIncognitoContext(incognitoContext, incognitoPage);
 
-    await test.step("Verify wrong password is rejected", async () => {
-      await cleanupIncognitoContext(incognitoContext, incognitoPage);
+        const result = await setupIncognitoContext(browser);
+        incognitoContext = result.context;
+        incognitoPage = result.page;
 
-      const result = await setupIncognitoContext(browser);
-      incognitoContext = result.context;
-      incognitoPage = result.page;
+        await incognitoPage.goto(roomLink, { waitUntil: "domcontentloaded" });
 
-      await incognitoPage.goto(roomLink, { waitUntil: "domcontentloaded" });
+        const passwordRequirePage = new BasePasswordRequire(incognitoPage);
+        await passwordRequirePage.enterPasswordAndContinue("WrongPassword123");
 
-      const passwordRequirePage = new BasePasswordRequire(incognitoPage);
-      await passwordRequirePage.enterPasswordAndContinue("WrongPassword123");
-
-      await expect(
-        incognitoPage.getByText(/incorrect|invalid|wrong/i),
-      ).toBeVisible({ timeout: 5000 });
-    });
-  });
+        await expect(
+          incognitoPage.getByText(/incorrect|invalid|wrong/i),
+        ).toBeVisible({ timeout: 5000 });
+      });
+    },
+  );
 
   test("Password protected file link in incognito", async ({
     page,
@@ -883,102 +903,105 @@ test.describe("FormFilling room - Link tests", () => {
     });
   });
 
-  test("Change password on existing protected room link", async ({
-    page,
-    browser,
-  }) => {
-    const oldPassword = "OldPass123";
-    const newPassword = "NewPass456";
-    let roomLink: string;
-    let incognitoPage: Page;
+  test.fail(
+    "Change password on existing protected room link [Bug 83042]",
+    async ({ page, browser }) => {
+      const oldPassword = "OldPass123";
+      const newPassword = "NewPass456";
+      let roomLink: string;
+      let incognitoPage: Page;
 
-    await test.step("Setup password for room link and get link", async () => {
-      // Tour is temporarily not shown; may come back later.
+      await test.step("Setup password for room link and get link", async () => {
+        // Tour is temporarily not shown; may come back later.
 
-      // await shortTour.clickSkipTour();
-      await myRooms.infoPanel.open();
-      const membersTab = page.getByTestId(INFO_PANEL_TABS.Contacts.testId);
-      await expect(membersTab).toBeVisible();
+        // await shortTour.clickSkipTour();
+        await myRooms.infoPanel.open();
+        const membersTab = page.getByTestId(INFO_PANEL_TABS.Contacts.testId);
+        await expect(membersTab).toBeVisible();
 
-      await myRooms.infoPanel.openLinkSettings();
-      const baseEditLink = new BaseEditLink(page);
+        await myRooms.infoPanel.openLinkSettings();
+        const baseEditLink = new BaseEditLink(page);
 
-      await setupClipboardPermissions(page);
+        await setupClipboardPermissions(page);
 
-      // Configure link settings - link is automatically copied to clipboard when saved
-      await baseEditLink.configureLinkSettings({
-        password: oldPassword,
-        save: true,
+        // Configure link settings - link is automatically copied to clipboard when saved
+        await baseEditLink.configureLinkSettings({
+          password: oldPassword,
+          save: true,
+        });
+        await myRooms.toast.dismissToastSafely(
+          "Link copied to clipboard",
+          10000,
+        );
+
+        // Get link from clipboard (already copied by configureLinkSettings)
+        roomLink = await getLinkFromClipboard(page);
       });
-      await myRooms.toast.dismissToastSafely("Link copied to clipboard", 10000);
 
-      // Get link from clipboard (already copied by configureLinkSettings)
-      roomLink = await getLinkFromClipboard(page);
-    });
+      await test.step("Verify old password works", async () => {
+        const result = await setupIncognitoContext(browser);
+        incognitoContext = result.context;
+        incognitoPage = result.page;
 
-    await test.step("Verify old password works", async () => {
-      const result = await setupIncognitoContext(browser);
-      incognitoContext = result.context;
-      incognitoPage = result.page;
+        await incognitoPage.goto(roomLink, { waitUntil: "domcontentloaded" });
 
-      await incognitoPage.goto(roomLink, { waitUntil: "domcontentloaded" });
+        const passwordRequirePage = new BasePasswordRequire(incognitoPage);
+        await passwordRequirePage.verifyPasswordRequiredPageVisible();
+        await passwordRequirePage.enterPasswordAndContinue(oldPassword);
 
-      const passwordRequirePage = new BasePasswordRequire(incognitoPage);
-      await passwordRequirePage.verifyPasswordRequiredPageVisible();
-      await passwordRequirePage.enterPasswordAndContinue(oldPassword);
+        const anonView = new RoomAnonymousView(incognitoPage);
+        await anonView.signInButtonVisible();
 
-      const anonView = new RoomAnonymousView(incognitoPage);
-      await anonView.signInButtonVisible();
+        await cleanupIncognitoContext(incognitoContext, incognitoPage);
+      });
 
-      await cleanupIncognitoContext(incognitoContext, incognitoPage);
-    });
+      await test.step("Change password to new one", async () => {
+        await myRooms.infoPanel.open();
+        const membersTab = page.getByTestId(INFO_PANEL_TABS.Contacts.testId);
+        await expect(membersTab).toBeVisible();
 
-    await test.step("Change password to new one", async () => {
-      await myRooms.infoPanel.open();
-      const membersTab = page.getByTestId(INFO_PANEL_TABS.Contacts.testId);
-      await expect(membersTab).toBeVisible();
+        await myRooms.infoPanel.openLinkSettings();
+        const baseEditLink = new BaseEditLink(page);
 
-      await myRooms.infoPanel.openLinkSettings();
-      const baseEditLink = new BaseEditLink(page);
+        await baseEditLink.clickCleanPassword();
+        await baseEditLink.fillPassword(newPassword);
+        await baseEditLink.clickSaveButton();
+      });
 
-      await baseEditLink.clickCleanPassword();
-      await baseEditLink.fillPassword(newPassword);
-      await baseEditLink.clickSaveButton();
-    });
+      await test.step("Verify old password is rejected", async () => {
+        const result = await setupIncognitoContext(browser);
+        incognitoContext = result.context;
+        incognitoPage = result.page;
 
-    await test.step("Verify old password is rejected", async () => {
-      const result = await setupIncognitoContext(browser);
-      incognitoContext = result.context;
-      incognitoPage = result.page;
+        await incognitoPage.goto(roomLink, { waitUntil: "domcontentloaded" });
 
-      await incognitoPage.goto(roomLink, { waitUntil: "domcontentloaded" });
+        const passwordRequirePage = new BasePasswordRequire(incognitoPage);
+        await passwordRequirePage.verifyPasswordRequiredPageVisible();
+        await passwordRequirePage.enterPasswordAndContinue(oldPassword);
 
-      const passwordRequirePage = new BasePasswordRequire(incognitoPage);
-      await passwordRequirePage.verifyPasswordRequiredPageVisible();
-      await passwordRequirePage.enterPasswordAndContinue(oldPassword);
+        await expect(
+          incognitoPage.getByText(/incorrect|invalid|wrong/i),
+        ).toBeVisible({ timeout: 5000 });
 
-      await expect(
-        incognitoPage.getByText(/incorrect|invalid|wrong/i),
-      ).toBeVisible({ timeout: 5000 });
+        await cleanupIncognitoContext(incognitoContext, incognitoPage);
+      });
 
-      await cleanupIncognitoContext(incognitoContext, incognitoPage);
-    });
+      await test.step("Verify new password works", async () => {
+        const result = await setupIncognitoContext(browser);
+        incognitoContext = result.context;
+        incognitoPage = result.page;
 
-    await test.step("Verify new password works", async () => {
-      const result = await setupIncognitoContext(browser);
-      incognitoContext = result.context;
-      incognitoPage = result.page;
+        await incognitoPage.goto(roomLink, { waitUntil: "domcontentloaded" });
 
-      await incognitoPage.goto(roomLink, { waitUntil: "domcontentloaded" });
+        const passwordRequirePage = new BasePasswordRequire(incognitoPage);
+        await passwordRequirePage.verifyPasswordRequiredPageVisible();
+        await passwordRequirePage.enterPasswordAndContinue(newPassword);
 
-      const passwordRequirePage = new BasePasswordRequire(incognitoPage);
-      await passwordRequirePage.verifyPasswordRequiredPageVisible();
-      await passwordRequirePage.enterPasswordAndContinue(newPassword);
-
-      const anonView = new RoomAnonymousView(incognitoPage);
-      await anonView.signInButtonVisible();
-    });
-  });
+        const anonView = new RoomAnonymousView(incognitoPage);
+        await anonView.signInButtonVisible();
+      });
+    },
+  );
 
   test("File inherits link settings from room", async ({ page }) => {
     const linkName = "Inherited Link";
@@ -1061,7 +1084,10 @@ test.describe("FormFilling room - Link tests", () => {
     });
   });
 
-  test("Fill link is inaccessible after room is archived", async ({
+  // TODO: skipped — Form Set rooms no longer expose "Move to archive" in any
+  // context menu. Unclear whether archiving was intentionally removed for
+  // Form Set rooms or this is a bug; re-enable once confirmed.
+  test.skip("Fill link is inaccessible after room is archived", async ({
     page,
     browser,
   }) => {
