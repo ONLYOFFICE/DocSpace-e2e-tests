@@ -64,8 +64,12 @@ const certificateType = {
 type TCertificateType = (typeof certificateType)[keyof typeof certificateType];
 
 const paymentsTab = {
-  tariffPlan: "portal-payments_tab",
-  wallet: "wallet_tab",
+  billingOverview: "Billing Overview",
+  wallet: "Wallet",
+  tariffPlan: "Tariff plan",
+  addOns: "Add-ons",
+  paymentMethod: "Payment method",
+  usage: "Usage",
 };
 
 type TPaymentsTab = (typeof paymentsTab)[keyof typeof paymentsTab];

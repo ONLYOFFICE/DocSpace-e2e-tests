@@ -383,22 +383,26 @@ export class Payments extends BasePage {
     await this.openTab(paymentsTab.tariffPlan);
   }
 
+  tabButton(tab: TPaymentsTab) {
+    return this.page.getByRole("button", { name: tab, exact: true });
+  }
+
   async openTab(tab: TPaymentsTab) {
     switch (tab) {
       case paymentsTab.tariffPlan:
-        await this.page.getByTestId(tab).click();
+        await this.tabButton(tab).click();
         await this.checkTariffPlanExist();
         break;
       case paymentsTab.wallet:
         await expect(async () => {
-          await this.page.getByTestId(tab).click();
+          await this.tabButton(tab).click();
           await this.checkWalletExist();
         }).toPass({
           timeout: 30000,
         });
         break;
       default:
-        await this.page.getByTestId(tab).click();
+        await this.tabButton(tab).click();
         break;
     }
   }
