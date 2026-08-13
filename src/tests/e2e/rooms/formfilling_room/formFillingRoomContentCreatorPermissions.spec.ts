@@ -56,19 +56,24 @@ test.describe("FormFilling room - Content creator permissions", () => {
     const roomBody = await roomResponse.json();
     roomId = roomBody.response.id;
 
-    await Promise.all([
-      apiSdk.files.uploadToFolder(
-        "owner",
-        roomId,
-        "data/rooms/PDF from device.pdf",
-      ),
-      apiSdk.files.uploadToFolder("owner", roomId, "data/rooms/PDF block.pdf"),
-      apiSdk.files.uploadToFolder(
-        "owner",
-        roomId,
-        "data/rooms/PDF with a required field.pdf",
-      ),
-    ]);
+    // Sequential, not Promise.all - concurrent uploads into a fresh
+    // FillingFormsRoom appear to race the backend's system folder
+    // creation (Complete/In process get duplicated). See Bug TBD.
+    await apiSdk.files.uploadToFolder(
+      "owner",
+      roomId,
+      "data/rooms/PDF from device.pdf",
+    );
+    await apiSdk.files.uploadToFolder(
+      "owner",
+      roomId,
+      "data/rooms/PDF block.pdf",
+    );
+    await apiSdk.files.uploadToFolder(
+      "owner",
+      roomId,
+      "data/rooms/PDF with a required field.pdf",
+    );
 
     ownerFolderName = "OwnerFolder";
     await apiSdk.files.createFolder("owner", roomId, ownerFolderName);
