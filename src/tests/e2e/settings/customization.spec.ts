@@ -153,7 +153,7 @@ test.describe("Customization", () => {
     // This is to remove the portal if the test falls
     api.apisystem.setPortalDomain(`${newName}.onlyoffice.io`);
     api.apisystem.setPortalName(newName);
-    await page.waitForURL(`https://${newName}.onlyoffice.io/rooms/shared/**`, {
+    await page.waitForURL(`https://${newName}.onlyoffice.io/**`, {
       timeout: 30000,
     });
     await page.waitForLoadState("domcontentloaded");

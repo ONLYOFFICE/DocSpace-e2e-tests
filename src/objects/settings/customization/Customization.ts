@@ -120,9 +120,6 @@ class Customization extends BasePage {
   get configureDeepLinkSaveButton() {
     return this.page.locator('[data-testid="configure_deep_link_save_button"]');
   }
-  get themeContainer() {
-    return this.page.locator(".theme-container").first();
-  }
   get darkThemeOption() {
     return this.page.locator('[data-testid="dark-theme_subtab"]');
   }
@@ -226,7 +223,7 @@ class Customization extends BasePage {
   }
 
   private async checkAppearanceExist() {
-    await expect(this.themeContainer).toBeVisible();
+    await expect(this.darkThemeOption).toBeVisible();
   }
 
   async open() {
