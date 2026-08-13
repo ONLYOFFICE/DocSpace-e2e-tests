@@ -64,23 +64,30 @@ test.describe("FormFilling room - Room manager permissions", () => {
     ownerFolderName = "OwnerFolder";
     ownerFolderToDeleteName = "OwnerFolderToDelete";
 
-    // Run room file/folder setup and user creation in parallel
+    // Room file/folder setup runs sequentially, not Promise.all - concurrent
+    // uploads into a fresh FillingFormsRoom appear to race the backend's
+    // system folder creation (Complete/In process get duplicated). See Bug TBD.
+    // User creation doesn't touch room files, so it stays parallel.
     const [, [rmResult, ffResult, userToDeleteResult, userToInviteResult]] =
       await Promise.all([
-        Promise.all([
-          apiSdk.files.uploadToFolder(
+        (async () => {
+          await apiSdk.files.uploadToFolder(
             "owner",
             roomId,
             "data/rooms/PDF from device.pdf",
-          ),
-          apiSdk.files.uploadToFolder(
+          );
+          await apiSdk.files.uploadToFolder(
             "owner",
             roomId,
             "data/rooms/PDF with a required field.pdf",
-          ),
-          apiSdk.files.createFolder("owner", roomId, ownerFolderName),
-          apiSdk.files.createFolder("owner", roomId, ownerFolderToDeleteName),
-        ]),
+          );
+          await apiSdk.files.createFolder("owner", roomId, ownerFolderName);
+          await apiSdk.files.createFolder(
+            "owner",
+            roomId,
+            ownerFolderToDeleteName,
+          );
+        })(),
         Promise.all([
           apiSdk.profiles.addMember("owner", "RoomAdmin"),
           apiSdk.profiles.addMember("owner", "User"),
