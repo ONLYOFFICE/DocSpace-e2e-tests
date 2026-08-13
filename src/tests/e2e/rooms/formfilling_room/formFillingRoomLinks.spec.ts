@@ -260,33 +260,27 @@ test.describe("FormFilling room - Link tests", () => {
     },
   );
   //Check that room can't be open after revoking link
-  test.fail(
-    "Revoke link Room and open it [Bug 83042]",
-    async ({ page, browser }) => {
-      let shareLink: string;
+  test("Revoke link Room and open it", async ({ page, browser }) => {
+    let shareLink: string;
 
-      await test.step("Copy link to the room", async () => {
-        // Tour is temporarily not shown; may come back later.
+    await test.step("Copy link to the room", async () => {
+      // Tour is temporarily not shown; may come back later.
 
-        // await shortTour.clickSkipTour();
-        await setupClipboardPermissions(page);
-        await roomEmptyView.shareRoomClick();
-        await myRooms.toast.dismissToastSafely(
-          "Link copied to clipboard",
-          10000,
-        );
-        shareLink = await getLinkFromClipboard(page);
-      });
+      // await shortTour.clickSkipTour();
+      await setupClipboardPermissions(page);
+      await roomEmptyView.shareRoomClick();
+      await myRooms.toast.dismissToastSafely("Link copied to clipboard", 10000);
+      shareLink = await getLinkFromClipboard(page);
+    });
 
-      await test.step("Revoke link", async () => {
-        await myRooms.infoPanel.revokeRoomLink();
-      });
+    await test.step("Revoke link", async () => {
+      await myRooms.infoPanel.revokeRoomLink();
+    });
 
-      await test.step("Verify old link is invalid", async () => {
-        await verifyInvalidLinkMessageInIncognito(browser, shareLink);
-      });
-    },
-  );
+    await test.step("Verify old link is invalid", async () => {
+      await verifyInvalidLinkMessageInIncognito(browser, shareLink);
+    });
+  });
   //Check new link after revoke old link
   test("Check new room link after revoke old link", async ({
     page,
