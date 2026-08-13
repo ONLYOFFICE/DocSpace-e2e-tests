@@ -110,11 +110,11 @@ test.describe("VDR Room: index operations", () => {
 
     await test.step("Wait for export completion toast", async () => {
       await myRooms.checkToastMessage(
-        `${VDR_ROOM_NAME}_index.xlsx file exported to My documents`,
+        `${VDR_ROOM_NAME}_index.xlsx file exported to Files`,
       );
     });
 
-    await test.step("Verify exported file is saved to My Documents", async () => {
+    await test.step("Verify exported file is saved to Files", async () => {
       const files = new Files(page, api.portalDomain);
       await files.open();
       await files.filesTable.checkRowExist(`${VDR_ROOM_NAME}_index`);
