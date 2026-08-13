@@ -260,12 +260,35 @@ test.describe("FormFilling room - Link tests", () => {
     },
   );
   //Check that room can't be open after revoking link
-  test.fail(
-    "Revoke link Room and open it [Bug 83042]",
-    async ({ page, browser }) => {
-      let shareLink: string;
+  test("Revoke link Room and open it", async ({ page, browser }) => {
+    let shareLink: string;
 
-      await test.step("Copy link to the room", async () => {
+    await test.step("Copy link to the room", async () => {
+      // Tour is temporarily not shown; may come back later.
+
+      // await shortTour.clickSkipTour();
+      await setupClipboardPermissions(page);
+      await roomEmptyView.shareRoomClick();
+      await myRooms.toast.dismissToastSafely("Link copied to clipboard", 10000);
+      shareLink = await getLinkFromClipboard(page);
+    });
+
+    await test.step("Revoke link", async () => {
+      await myRooms.infoPanel.revokeRoomLink();
+    });
+
+    await test.step("Verify old link is invalid", async () => {
+      await verifyInvalidLinkMessageInIncognito(browser, shareLink);
+    });
+  });
+  //Check new link after revoke old link
+  test.fail(
+    "Check new room link after revoke old link [Bug 83042]",
+    async ({ page, browser }) => {
+      let oldShareLink: string;
+      let newShareLink: string;
+
+      await test.step("Copy initial link", async () => {
         // Tour is temporarily not shown; may come back later.
 
         // await shortTour.clickSkipTour();
@@ -275,59 +298,36 @@ test.describe("FormFilling room - Link tests", () => {
           "Link copied to clipboard",
           10000,
         );
-        shareLink = await getLinkFromClipboard(page);
+        oldShareLink = await getLinkFromClipboard(page);
       });
 
-      await test.step("Revoke link", async () => {
+      await test.step("Revoke and generate new link", async () => {
         await myRooms.infoPanel.revokeRoomLink();
+
+        await setupClipboardPermissions(page);
+        await roomEmptyView.shareRoomClick();
+        await myRooms.toast.dismissToastSafely(
+          "Link copied to clipboard",
+          10000,
+        );
+        newShareLink = await getLinkFromClipboard(page);
+
+        if (oldShareLink === newShareLink) {
+          throw new Error("New link should be different from old link");
+        }
       });
 
-      await test.step("Verify old link is invalid", async () => {
-        await verifyInvalidLinkMessageInIncognito(browser, shareLink);
+      await test.step("Verify new link works", async () => {
+        const { context, page: incognitoPage } =
+          await setupIncognitoContext(browser);
+        await incognitoPage.goto(newShareLink, { waitUntil: "load" });
+        const anonView = new RoomAnonymousView(incognitoPage);
+        await anonView.checkSignInNotificationVisible();
+        await anonView.signInButtonVisible();
+        await cleanupIncognitoContext(context, incognitoPage);
       });
     },
   );
-  //Check new link after revoke old link
-  test("Check new room link after revoke old link", async ({
-    page,
-    browser,
-  }) => {
-    let oldShareLink: string;
-    let newShareLink: string;
-
-    await test.step("Copy initial link", async () => {
-      // Tour is temporarily not shown; may come back later.
-
-      // await shortTour.clickSkipTour();
-      await setupClipboardPermissions(page);
-      await roomEmptyView.shareRoomClick();
-      await myRooms.toast.dismissToastSafely("Link copied to clipboard", 10000);
-      oldShareLink = await getLinkFromClipboard(page);
-    });
-
-    await test.step("Revoke and generate new link", async () => {
-      await myRooms.infoPanel.revokeRoomLink();
-
-      await setupClipboardPermissions(page);
-      await roomEmptyView.shareRoomClick();
-      await myRooms.toast.dismissToastSafely("Link copied to clipboard", 10000);
-      newShareLink = await getLinkFromClipboard(page);
-
-      if (oldShareLink === newShareLink) {
-        throw new Error("New link should be different from old link");
-      }
-    });
-
-    await test.step("Verify new link works", async () => {
-      const { context, page: incognitoPage } =
-        await setupIncognitoContext(browser);
-      await incognitoPage.goto(newShareLink, { waitUntil: "load" });
-      const anonView = new RoomAnonymousView(incognitoPage);
-      await anonView.checkSignInNotificationVisible();
-      await anonView.signInButtonVisible();
-      await cleanupIncognitoContext(context, incognitoPage);
-    });
-  });
   test("Check new file link after revoke old link", async ({
     page,
     browser,

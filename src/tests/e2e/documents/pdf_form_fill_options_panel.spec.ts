@@ -3,8 +3,10 @@ import FillOptionsPanel from "@/src/objects/files/FillOptionsPanel";
 import FilesPdfForm from "@/src/objects/files/FilesPdfForm";
 import BaseSelector from "@/src/objects/common/BaseSelector";
 import FilesTable from "@/src/objects/files/FilesTable";
-import { ShortTour } from "@/src/objects/rooms/ShortTourModal";
+import PdfFormModal from "@/src/objects/rooms/PdfFormModal";
+import AppsSidebar from "@/src/objects/common/AppsSidebar";
 import { pdfFormContextMenuOption } from "@/src/utils/constants/files";
+import { apps } from "@/src/utils/constants/navigation";
 import { test } from "@/src/fixtures";
 import { expect } from "@playwright/test";
 
@@ -63,45 +65,52 @@ test.describe("My Documents: PDF form fill options panel", () => {
     });
   });
 
-  test("Owner can start Form data collection from a PDF form", async ({
-    page,
-  }) => {
-    const selector = new BaseSelector(page);
+  test.fail(
+    "Owner can start Form data collection from a PDF form [Bug 83063]",
+    async ({ page }) => {
+      const selector = new BaseSelector(page);
 
-    await test.step("Open context menu and click Fill", async () => {
-      await files.filesTable.openContextMenuForItem("PDF from device");
-      await files.filesTable.contextMenu.clickOption(
-        pdfFormContextMenuOption.fill,
-      );
-    });
+      await test.step("Open context menu and click Fill", async () => {
+        await files.filesTable.openContextMenuForItem("PDF from device");
+        await files.filesTable.contextMenu.clickOption(
+          pdfFormContextMenuOption.fill,
+        );
+      });
 
-    await test.step("Click Form data collection on the panel", async () => {
-      const fillOptionsPanel = new FillOptionsPanel(page);
-      await fillOptionsPanel.clickDataCollection();
-    });
+      await test.step("Click Form data collection on the panel", async () => {
+        const fillOptionsPanel = new FillOptionsPanel(page);
+        await fillOptionsPanel.clickDataCollection();
+      });
 
-    await test.step("Verify room selector opens and create new room", async () => {
-      await selector.checkSelectorAddButtonExist();
-      await selector.createNewItem();
-      await selector.fillNewItemName("Form Filling Room");
-      await selector.acceptCreate();
-    });
+      await test.step("Verify room selector opens and create new room", async () => {
+        await selector.checkSelectorAddButtonExist();
+        await selector.createNewItem();
+        await selector.fillNewItemName("Form Filling Room");
+        await selector.acceptCreate();
+      });
 
-    await test.step("Select created room from the list and submit", async () => {
-      await selector.selectItemByText("Form Filling Room");
-      await selector.submitSelection();
-    });
+      await test.step("Select created room from the list and submit", async () => {
+        await selector.selectItemByText("Form Filling Room");
+        await selector.submitSelection();
+      });
 
-    await test.step("Close room tour modal", async () => {
-      const shortTour = new ShortTour(page);
-      await shortTour.clickSkipTour();
-    });
+      await test.step("Verify Forms section is active in the sidebar", async () => {
+        const sidebar = new AppsSidebar(page);
+        await sidebar.checkItemActive(apps.forms);
+      });
 
-    await test.step("Verify form is in room with filling icon", async () => {
-      const filesTable = new FilesTable(page);
-      await filesTable.expectFillingIconVisible("PDF from device");
-    });
-  });
+      await test.step("Close public link dialog for the created form", async () => {
+        const pdfFormModal = new PdfFormModal(page);
+        await pdfFormModal.waitForVisible();
+        await pdfFormModal.close();
+      });
+
+      await test.step("Verify form is in room with filling icon", async () => {
+        const filesTable = new FilesTable(page);
+        await filesTable.expectFillingIconVisible("PDF from device");
+      });
+    },
+  );
 
   test("Owner can start Recipient role-based filling from a PDF form", async ({
     page,

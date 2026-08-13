@@ -97,16 +97,24 @@ class BaseSelector {
     await expect(this.newSelectorItem).not.toBeVisible();
   }
 
-  async getItemByName(name: string) {
-    const item = this.selector
+  // allowDuplicates: some default demo files (e.g. "ONLYOFFICE Resume Sample")
+  // are occasionally seeded twice on portal creation - pick the first match
+  // instead of failing strict mode when that happens.
+  async getItemByName(name: string, allowDuplicates = false) {
+    const matches = this.selector
       .locator(`[data-testid^="selector-item-"]`)
       .filter({ hasText: name });
+    const item = allowDuplicates ? matches.first() : matches;
     await expect(item).toBeVisible();
     return item;
   }
 
-  async selectItemByText(text: string, doubleClick = false) {
-    const item = await this.getItemByName(text);
+  async selectItemByText(
+    text: string,
+    doubleClick = false,
+    allowDuplicates = false,
+  ) {
+    const item = await this.getItemByName(text, allowDuplicates);
 
     if (doubleClick) {
       await item.dblclick();

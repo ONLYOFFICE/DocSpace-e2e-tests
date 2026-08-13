@@ -63,7 +63,7 @@ export async function uploadAndVerifyPDF(
   await roomEmptyView.uploadPdfFromDocSpace();
   await selectPanel.checkSelectorExist();
   await selectPanel.select("documents");
-  await selectPanel.selectItemByText(PDF_FILE_NAME);
+  await selectPanel.selectItemByText(PDF_FILE_NAME, false, true);
   await selectPanel.confirmSelection();
   await myRooms.infoPanel.close();
   await expect(page.getByLabel(`${PDF_FILE_NAME},`)).toBeVisible();
