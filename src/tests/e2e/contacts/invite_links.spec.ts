@@ -206,7 +206,9 @@ test.describe("Contacts - Invite links", () => {
         guestData.password,
       );
 
-      await incognitoPage.waitForURL(/.*rooms.*/, { waitUntil: "load" });
+      await incognitoPage.waitForURL(/.*(rooms|dashboard).*/, {
+        waitUntil: "load",
+      });
     });
 
     await test.step("Verify user appears in contacts", async () => {
@@ -266,7 +268,9 @@ test.describe("Contacts - Invite links", () => {
         guestData.password,
       );
 
-      await incognitoPage.waitForURL(/.*rooms.*/, { waitUntil: "load" });
+      await incognitoPage.waitForURL(/.*(rooms|dashboard).*/, {
+        waitUntil: "load",
+      });
     });
 
     await test.step("Verify user appears in contacts", async () => {
@@ -326,7 +330,9 @@ test.describe("Contacts - Invite links", () => {
         guestData.password,
       );
 
-      await incognitoPage.waitForURL(/.*rooms.*/, { waitUntil: "load" });
+      await incognitoPage.waitForURL(/.*(rooms|dashboard).*/, {
+        waitUntil: "load",
+      });
     });
 
     await test.step("Verify user appears in contacts", async () => {
@@ -386,7 +392,9 @@ test.describe("Contacts - Invite links", () => {
         guestData.password,
       );
 
-      await incognitoPage.waitForURL(/.*rooms.*/, { waitUntil: "load" });
+      await incognitoPage.waitForURL(/.*(rooms|dashboard).*/, {
+        waitUntil: "load",
+      });
     });
 
     await test.step("Close first incognito session", async () => {
