@@ -6,7 +6,7 @@ import MyRooms from "@/src/objects/rooms/Rooms";
 import FilesTable from "@/src/objects/files/FilesTable";
 import BaseSelector from "@/src/objects/common/BaseSelector";
 import BaseToast from "@/src/objects/common/BaseToast";
-import { ShortTour } from "@/src/objects/rooms/ShortTourModal";
+import PdfFormModal from "@/src/objects/rooms/PdfFormModal";
 import {
   setupClipboardPermissions,
   getLinkFromClipboard,
@@ -239,9 +239,9 @@ test.describe("My Documents: PDF form start filling via editor", () => {
       await selector.submitSelection();
     });
 
-    await test.step("Close room tour modal", async () => {
-      const shortTour = new ShortTour(editorPage);
-      await shortTour.clickSkipTour();
+    await test.step("Close PDF form ready modal", async () => {
+      const pdfFormModal = new PdfFormModal(editorPage);
+      await pdfFormModal.close();
     });
 
     await test.step("Verify form is in room with filling icon", async () => {
@@ -285,9 +285,9 @@ test.describe("My Documents: PDF form start filling via editor", () => {
       await selector.submitSelection();
     });
 
-    await test.step("Close room tour modal", async () => {
-      const shortTour = new ShortTour(editorPage);
-      await shortTour.clickSkipTour();
+    await test.step("Close PDF form ready modal", async () => {
+      const pdfFormModal = new PdfFormModal(editorPage);
+      await pdfFormModal.close();
     });
 
     await test.step("Verify form is in room with filling icon", async () => {

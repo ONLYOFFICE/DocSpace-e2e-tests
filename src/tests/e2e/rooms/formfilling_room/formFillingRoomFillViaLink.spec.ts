@@ -137,13 +137,13 @@ test.describe("FormFilling room - Fill via link", () => {
       let shareLink: string;
 
       await test.step("Upload PDF Form from My Documents", async () => {
-        // Tour is temporarily not shown; may come back later.
-        // await shortTour.clickSkipTour();
-        await roomEmptyView.uploadPdfFromDocSpace();
-        await selectPanel.checkSelectorExist();
-        await selectPanel.select("documents");
-        await selectPanel.selectItemByText("ONLYOFFICE Resume Sample");
-        await selectPanel.confirmSelection();
+        await uploadAndVerifyPDF(
+          shortTour,
+          roomEmptyView,
+          selectPanel,
+          myRooms,
+          page,
+        );
       });
 
       await test.step("Start filling the form", async () => {
