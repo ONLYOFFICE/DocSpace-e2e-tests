@@ -94,6 +94,8 @@ test.describe("Disk storage service", () => {
     services = new Services(page);
     await login.loginToPortal();
     await services.open();
+    await services.payments.linkPaymentMethod();
+    await services.open();
   });
 
   test("Activate and deactivate disk storage service", async ({ page }) => {

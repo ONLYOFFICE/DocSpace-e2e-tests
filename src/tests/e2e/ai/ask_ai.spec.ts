@@ -1,7 +1,6 @@
 import { test } from "@/src/fixtures";
 import AiAgents from "@/src/objects/ai/AiAgents";
 import AiSettings from "@/src/objects/ai/AiSettings";
-import AiAgentSelector from "@/src/objects/ai/AiAgentSelector";
 import Files from "@/src/objects/files/Files";
 import { PaymentApi } from "@/src/api/payment";
 import { mapInitialDocNames } from "@/src/utils/constants/files";
@@ -9,7 +8,6 @@ import { mapInitialDocNames } from "@/src/utils/constants/files";
 test.describe("Ask AI on files", () => {
   let aiAgents: AiAgents;
   let aiSettings: AiSettings;
-  let agentSelector: AiAgentSelector;
   let files: Files;
   let paymentApi: PaymentApi;
   const AGENT_NAME = "Test AI Agent";
@@ -18,7 +16,6 @@ test.describe("Ask AI on files", () => {
     paymentApi = new PaymentApi(api.apiRequestContext, api.apisystem);
     aiAgents = new AiAgents(page, api.portalDomain);
     aiSettings = new AiSettings(page, api.portalDomain);
-    agentSelector = new AiAgentSelector(page);
     files = new Files(page, api.portalDomain);
     await login.loginToPortal();
 
@@ -41,39 +38,29 @@ test.describe("Ask AI on files", () => {
     await files.open();
   });
 
-  test("Ask AI on a document opens the agent chat", async () => {
+  test("Ask AI on a document opens the AI chat", async () => {
     await test.step("Click Ask AI in the document context menu", async () => {
       await files.clickAskAi(mapInitialDocNames.ONLYOFFICE_SAMPLE_DOCUMENT);
     });
 
-    await test.step("Select the agent in the side panel", async () => {
-      await agentSelector.expectOpened();
-      await agentSelector.selectAgentAndSubmit(AGENT_NAME);
-    });
-
-    await test.step("Verify redirect to the agent chat", async () => {
-      await aiAgents.expectChatUrl();
+    await test.step("Verify the AI chat panel opens", async () => {
       await aiAgents.expectChatOpened();
     });
   });
 
-  test("Ask AI on a PDF form opens the agent chat with form processing hint", async () => {
+  test("Ask AI on a PDF form opens the AI chat with the form attached", async () => {
     await test.step("Click Ask AI in the form context menu", async () => {
       await files.clickAskAi(mapInitialDocNames.ONLYOFFICE_SAMPLE_FORM);
     });
 
-    await test.step("Select the agent in the side panel", async () => {
-      await agentSelector.expectOpened();
-      await agentSelector.selectAgentAndSubmit(AGENT_NAME);
-    });
-
-    await test.step("Verify redirect to the agent chat", async () => {
-      await aiAgents.expectChatUrl();
+    await test.step("Verify the AI chat panel opens", async () => {
       await aiAgents.expectChatOpened();
     });
 
-    await test.step("Verify form processing model hint is shown", async () => {
-      await aiAgents.expectFormProcessingHintVisible();
+    await test.step("Verify the PDF form is attached to the chat", async () => {
+      await aiAgents.expectAttachedFile(
+        mapInitialDocNames.ONLYOFFICE_SAMPLE_FORM,
+      );
     });
   });
 });
