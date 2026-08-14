@@ -30,9 +30,6 @@ export class BackupLocators {
     return this.page.locator(".backup_modules-description");
   }
 
-  get forwardDocSpace() {
-    return this.page.getByTestId("selector").getByText("DocSpace");
-  }
   get forwardDocumentsNextCloud() {
     return this.page.locator('[data-testid^="selector-item-"]', {
       hasText: "Documents",

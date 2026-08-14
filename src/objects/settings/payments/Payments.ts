@@ -579,6 +579,20 @@ export class Payments extends BasePage {
     );
   }
 
+  async linkPaymentMethod() {
+    await this.openTab(paymentsTab.paymentMethod);
+    // "Add payment method" navigates the same tab to the Stripe hosted page.
+    await this.page.getByTestId("go_to_stripe_button").click();
+    await this.fillPaymentDataFromAddPaymentMethodServices(this.page);
+    // Stripe redirects back to the portal (lands on /billing/wallet) once linked.
+    await this.page.waitForURL(/\/billing\//, { timeout: 60000 });
+    await this.page.reload();
+    await this.openTab(paymentsTab.paymentMethod);
+    await expect(this.page.getByTestId("go_to_stripe_button")).toBeHidden({
+      timeout: 30000,
+    });
+  }
+
   async setupPaymentMethodAndTopUp(page: Page, amount = 1000) {
     await this.open();
     await this.openTab(paymentsTab.wallet);

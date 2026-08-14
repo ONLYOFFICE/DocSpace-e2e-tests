@@ -269,7 +269,6 @@ export class Backup extends BasePage {
   async createBackupInRoom() {
     await this.selectBackupMethod(mapBackupMethodsIds.backupRoom);
     await this.openRoomSelector();
-    await this.locators.forwardDocSpace.click();
     await this.locators.forwardDocuments.click();
     await this.locators.selectButton.click();
     await this.locators.createCopyButton.click();
@@ -279,7 +278,6 @@ export class Backup extends BasePage {
   async createBackupToRoom(roomName: string) {
     await this.selectBackupMethod(mapBackupMethodsIds.backupRoom);
     await this.openRoomSelector();
-    await this.locators.forwardDocSpace.click();
     await this.locators.forwardRooms.click();
     await this.selector.selectItemByText(roomName);
     await this.locators.selectButton.click();

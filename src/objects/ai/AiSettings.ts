@@ -191,24 +191,24 @@ class AiSettings extends BasePage {
   // The redesigned Web search tab is informational: a description, a "Learn
   // more" help link and per-engine pricing links.
   get webSearchLearnMoreLink() {
-    return this.page.locator('[class*="WebSearch-module__learnMore"]');
+    return this.page.locator('[class*="WebSearchSaas-module__learnMore"]');
   }
 
   get webSearchPricingLink() {
     return this.page
-      .locator('[class*="WebSearch-module__detailsLink"]')
+      .locator('[class*="WebSearchSaas-module__detailsLink"]')
       .first();
   }
 
   // The redesigned Knowledge base tab is informational too: a description, a
   // "Learn more" help link and a vectorization model pricing link.
   get knowledgeLearnMoreLink() {
-    return this.page.locator('[class*="KnowledgeBase-module__learnMore"]');
+    return this.page.locator('[class*="KnowledgeBaseSaas-module__learnMore"]');
   }
 
   get knowledgePricingLink() {
     return this.page
-      .locator('[class*="KnowledgeBase-module__detailsLink"]')
+      .locator('[class*="KnowledgeBaseSaas-module__detailsLink"]')
       .first();
   }
 
