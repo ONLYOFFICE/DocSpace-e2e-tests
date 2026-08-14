@@ -3,7 +3,7 @@ import FillOptionsPanel from "@/src/objects/files/FillOptionsPanel";
 import FilesPdfForm from "@/src/objects/files/FilesPdfForm";
 import BaseSelector from "@/src/objects/common/BaseSelector";
 import FilesTable from "@/src/objects/files/FilesTable";
-import { ShortTour } from "@/src/objects/rooms/ShortTourModal";
+import PdfFormModal from "@/src/objects/rooms/PdfFormModal";
 import { pdfFormContextMenuOption } from "@/src/utils/constants/files";
 import { test } from "@/src/fixtures";
 import { expect } from "@playwright/test";
@@ -92,9 +92,9 @@ test.describe("My Documents: PDF form fill options panel", () => {
       await selector.submitSelection();
     });
 
-    await test.step("Close room tour modal", async () => {
-      const shortTour = new ShortTour(page);
-      await shortTour.clickSkipTour();
+    await test.step("Close PDF form ready modal", async () => {
+      const pdfFormModal = new PdfFormModal(page);
+      await pdfFormModal.close();
     });
 
     await test.step("Verify form is in room with filling icon", async () => {
