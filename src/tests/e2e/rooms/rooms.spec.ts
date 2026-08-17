@@ -66,7 +66,9 @@ test.describe("Rooms", () => {
     });
   });
 
-  test("Private room requires an encryption key", async () => {
+  // Skipped: Private rooms are hidden from the UI for now and will be brought
+  // back later. Re-enable (remove .skip) once the type returns.
+  test.skip("Private room requires an encryption key", async () => {
     await myRooms.openWithoutEmptyCheck();
     await myRooms.openCreateRoomDialog(roomDialogSource.navigation);
 

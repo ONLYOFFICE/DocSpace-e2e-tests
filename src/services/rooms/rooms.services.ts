@@ -39,7 +39,6 @@ export class RoomsApi {
     const configs = [
       { title: "Autotest Custom", roomType: "CustomRoom" },
       { title: "Autotest Collaboration", roomType: "EditingRoom" },
-      { title: "Autotest FormFilling", roomType: "FillingFormsRoom" },
       { title: "Autotest Public", roomType: "PublicRoom" },
       { title: "Autotest VDR", roomType: "VirtualDataRoom" },
     ];

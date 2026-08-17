@@ -2,7 +2,7 @@ export const contactsActionsMenu = {
   invite: {
     label: "Invite",
     submenu: {
-      docspaceAdmin: "DocSpace admin",
+      docspaceAdmin: "Full admin",
       roomAdmin: "Room admin",
       user: "User",
       inviteAgain: "Invite again",
@@ -48,7 +48,7 @@ export const userEmails = {
 } as const;
 
 export const contactTypes = {
-  docspaceAdmin: "DocSpace admin",
+  docspaceAdmin: "Full admin",
   roomAdmin: "Room admin",
   user: "User",
   guest: "Guest",

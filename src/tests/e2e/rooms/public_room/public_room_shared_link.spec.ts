@@ -120,8 +120,8 @@ test.describe("Public room - Shared link", () => {
     });
   });
 
-  // TODO: fix shared link extraction from API response
-  test.skip("File in public room is visible via shared link", async ({
+  // KNOWN BUG: opening a public room's external "anyone with the link"
+  test("Anonymous visitor opens public room via shared link and sees its file", async ({
     page,
     browser,
   }) => {
@@ -133,7 +133,11 @@ test.describe("Public room - Shared link", () => {
     let sharedLink: string;
 
     await test.step("Get shared link from API", async () => {
+      // Re-open the room so the share request fires after the waiter is armed
+      // (it otherwise fires once on room creation in beforeEach and is missed).
       const linkPromise = waitForRoomShareLinkResponse(page);
+      await myRooms.openWithoutEmptyCheck();
+      await myRooms.roomsTable.openRoomByName(roomCreateTitles.public);
       await roomInfoPanel.open();
       await roomInfoPanel.openTab("Contacts");
       sharedLink = await linkPromise;
@@ -145,7 +149,9 @@ test.describe("Public room - Shared link", () => {
       incognitoPage = result.page;
       await incognitoPage.goto(sharedLink, { waitUntil: "load" });
 
-      await expect(incognitoPage.getByLabel("TestDocument,")).toBeVisible({
+      await expect(
+        incognitoPage.getByRole("link", { name: /TestDocument/ }),
+      ).toBeVisible({
         timeout: 15000,
       });
     });

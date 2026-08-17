@@ -66,7 +66,7 @@ class ContactsNavigation extends BaseNavigation {
     await this.ensureHeaderMenuOpen();
 
     const idByText: Record<string, string> = {
-      "DocSpace admin": headerInviteIds.docspaceAdmin,
+      "Full admin": headerInviteIds.docspaceAdmin,
       "Room admin": headerInviteIds.roomAdmin,
       User: headerInviteIds.user,
     };

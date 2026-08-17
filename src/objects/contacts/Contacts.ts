@@ -63,7 +63,9 @@ class Contacts extends BasePage {
     this.reassignmentDialog = new ContactsReassignmentDialog(page);
     this.groupDialog = new ContactsGroupDialog(page);
     this.changeContactTypeDropdown = new BaseDropdown(page, {
-      menu: this.page.getByText("Docs adminPaidRoom"),
+      menu: this.page
+        .locator('[data-testid="dropdown"]')
+        .filter({ has: this.page.locator('[id^="menu_change-"]') }),
     });
   }
 
