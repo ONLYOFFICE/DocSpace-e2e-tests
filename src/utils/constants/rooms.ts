@@ -92,7 +92,7 @@ export const formFillingRoomDropdownActions = {
   UPLOAD_PDF_FORM: {
     label: "Upload PDF form",
     submenu: {
-      fromDocSpace: "From Docs",
+      fromDocSpace: "From the workspace",
       fromDevice: "From device",
     },
   },

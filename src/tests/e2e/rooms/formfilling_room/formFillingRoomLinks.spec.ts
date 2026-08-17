@@ -583,7 +583,7 @@ test.describe("FormFilling room - Link tests", () => {
       await expect(baseEditLink.linkNameInput).toHaveValue("Test Link");
 
       const combo = baseEditLink.comboLinkAccess;
-      await expect(combo).toContainText("Docs users only");
+      await expect(combo).toContainText("workspace users only");
 
       await expect(baseEditLink.passwordInput).toBeVisible();
       const passwordValue = await baseEditLink.passwordInput.inputValue();
@@ -1068,7 +1068,7 @@ test.describe("FormFilling room - Link tests", () => {
 
       // Verify access level is inherited
       const combo = baseEditLink.comboLinkAccess;
-      await expect(combo).toContainText("Docs users only");
+      await expect(combo).toContainText("workspace users only");
 
       // Verify password is inherited - click show password to verify exact value
       await expect(baseEditLink.passwordInput).toBeVisible();

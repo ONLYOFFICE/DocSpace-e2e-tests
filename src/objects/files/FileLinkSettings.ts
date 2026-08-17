@@ -5,7 +5,7 @@ import BaseEditLink from "@/src/objects/common/BaseLinkSettings";
 export default class FileLinkSettings extends BaseEditLink {
   get comboLinkAccess() {
     return this.page.getByTestId("edit_link_panel_modal").getByRole("button", {
-      name: /Anyone with the link|Docs users only/i,
+      name: /Anyone with the link|workspace users only/i,
     });
   }
 }
