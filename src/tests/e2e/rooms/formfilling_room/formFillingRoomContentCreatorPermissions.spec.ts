@@ -565,7 +565,7 @@ test.describe("FormFilling room - Content creator permissions", () => {
       await myRooms.filesNavigation.openCreateDropdown();
       await myRooms.filesNavigation.contextMenu.clickSubmenuOption(
         "Upload PDF form",
-        "From Docs",
+        "From the workspace",
       );
       const selectPanel = new RoomSelectPanel(page);
       await selectPanel.checkSelectorExist();
@@ -914,7 +914,7 @@ test.describe("FormFilling room - Content creator permissions", () => {
       await myRooms.filesNavigation.openCreateDropdown();
       await myRooms.filesNavigation.contextMenu.clickSubmenuOption(
         "Upload PDF form",
-        "From Docs",
+        "From the workspace",
       );
       const selectPanel = new RoomSelectPanel(page);
       await selectPanel.checkSelectorExist();
