@@ -362,10 +362,10 @@ class InfoPanel {
   async selectLinkAccess(
     option: "anyone with the link" | "docspace users only",
   ) {
-    // UI label for the DocSpace-only access type was renamed to "Docs users only".
+    // UI label for the DocSpace-only access type was renamed to "workspace users only".
     const displayText =
       option === "docspace users only"
-        ? "Docs users only"
+        ? "workspace users only"
         : "Anyone with the link";
     const currentText = await this.linkComboboxAccess.textContent();
     if (currentText?.trim() === displayText) {
