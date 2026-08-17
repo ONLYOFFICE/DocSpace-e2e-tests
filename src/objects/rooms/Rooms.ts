@@ -130,6 +130,11 @@ class MyRooms extends BasePage {
     await this.sidebar.navigate(apps.rooms);
   }
 
+  async openForms() {
+    await this.sidebar.navigate(apps.forms);
+    await expect(this.page.locator(ARTICLE_CONTAINER)).toBeVisible();
+  }
+
   async checkHeadingExist(name: string) {
     await expect(
       this.page.getByRole("heading", { name, level: 1 }),

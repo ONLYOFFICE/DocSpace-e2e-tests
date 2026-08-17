@@ -22,21 +22,42 @@ export const waitForCreateRoomResponse = (page: Page) => {
   });
 };
 
+type RoomShareEntry = { sharedTo?: { shareLink?: string } };
+
+function extractRoomShareLink(body: {
+  response?: RoomShareEntry[] | RoomShareEntry;
+}): string | undefined {
+  const r = body?.response;
+  const entries = Array.isArray(r) ? r : r ? [r] : [];
+  return entries.map((e) => e.sharedTo?.shareLink).find(Boolean);
+}
+
 export async function waitForRoomShareLinkResponse(
   page: Page,
 ): Promise<string> {
+  // The first /share GET can arrive before a link is populated, so wait for the
+  // response that actually carries a shareLink rather than the first one.
   const response = await page.waitForResponse(
-    (resp) =>
-      resp.url().includes("/api/2.0/files/rooms/") &&
-      resp.url().includes("/share") &&
-      resp.request().method() === "GET" &&
-      resp.status() === 200,
+    async (resp) => {
+      const url = resp.url();
+      if (
+        resp.status() !== 200 ||
+        resp.request().method() !== "GET" ||
+        !url.includes("/api/2.0/files/rooms/") ||
+        !(url.includes("/share") || url.includes("/links"))
+      ) {
+        return false;
+      }
+      try {
+        return Boolean(extractRoomShareLink(await resp.json()));
+      } catch {
+        return false;
+      }
+    },
     { timeout: 30000 },
   );
-  const body = await response.json();
-  const linkEntry = body?.response?.find(
-    (entry: { sharedTo: { shareLink?: string } }) => entry.sharedTo?.shareLink,
-  );
-  if (!linkEntry) throw new Error("shareLink not found in room share response");
-  return linkEntry.sharedTo.shareLink;
+
+  const link = extractRoomShareLink(await response.json());
+  if (!link) throw new Error("shareLink not found in room share response");
+  return link;
 }
