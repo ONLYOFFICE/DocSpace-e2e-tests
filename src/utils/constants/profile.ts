@@ -19,8 +19,8 @@ export const notificationsText = {
   roomsActivityDescription:
     "Get instant email notifications about new shared files/folders and activity inside your Rooms and AI agents.",
   dailyFeedDescription:
-    "Read news and events from your Docs in a daily digest.",
-  usefulTipsDescription: "Get useful guides about Docs",
+    "Read news and events from ONLYOFFICE Apps in a daily digest.",
+  usefulTipsDescription: "Get useful guides about ONLYOFFICE Apps",
 } as const;
 
 export const defaultHomepageUrls = {
