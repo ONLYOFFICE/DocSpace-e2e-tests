@@ -6,12 +6,15 @@ import {
   roomGroupContextMenuOption,
   roomToastMessages,
 } from "@/src/utils/constants/rooms";
-import { documentContextMenuOption } from "@/src/utils/constants/files";
+import {
+  documentContextMenuOption,
+  DOC_ACTIONS,
+} from "@/src/utils/constants/files";
 import FolderDeleteModal from "@/src/objects/files/FolderDeleteModal";
 
 const ROOM_NAME = "ChangeRoomOwnerTest";
 const OWNER_SELECTOR_INFO_TEXT =
-  "Only a room admin or a DocSpace admin can become the owner of the room";
+  "Only a room admin or Full admin can become the owner of the room";
 
 test.describe("Rooms - Change room owner", () => {
   let rooms: Rooms;
@@ -235,11 +238,17 @@ test.describe("Rooms - Change room owner", () => {
 
     await test.step("Upload files and create folder inside the room", async () => {
       await rooms.roomsTable.openRoomByName(ROOM_NAME);
-      await rooms.filesNavigation.uploadFiles([FILE_PATH, DOC_FILE_PATH]);
+      // Room is freshly created and still empty, so the header toolbar isn't
+      // rendered yet - the first upload has to go through the welcome panel's
+      // quick action button instead of filesNavigation.uploadFiles.
+      await rooms.roomsEmptyView.uploadFilesFromDevice([
+        FILE_PATH,
+        DOC_FILE_PATH,
+      ]);
       await rooms.filesTable.checkRowExist(FILE_NAME);
       await rooms.filesTable.checkRowExist(DOC_FILE_NAME);
       await rooms.filesNavigation.openCreateDropdown();
-      await rooms.filesNavigation.selectCreateAction("Folder");
+      await rooms.filesNavigation.selectCreateAction(DOC_ACTIONS.CREATE_FOLDER);
       await rooms.filesNavigation.modal.fillCreateTextInput(FOLDER_NAME);
       await rooms.filesNavigation.modal.clickCreateButton();
       await rooms.filesTable.checkRowExist(FOLDER_NAME);
@@ -280,6 +289,7 @@ test.describe("Rooms - Change room owner", () => {
     await test.step("DSA can delete file and open document for editing", async () => {
       await login.logout();
       await login.loginWithCredentials(dsaEmail, dsaPassword);
+      await rooms.openWithoutEmptyCheck();
       await rooms.roomsTable.openRoomByName(ROOM_NAME);
 
       await rooms.filesTable.openContextMenuForItem(FILE_NAME);
