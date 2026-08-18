@@ -78,6 +78,19 @@ export default class BasePage {
     await this.settingsMenuItem.click();
   }
 
+  async dismissWelcomeTour(timeout = 3000) {
+    const maybeLaterButton = this.page.getByRole("button", {
+      name: "Maybe later",
+    });
+    try {
+      await maybeLaterButton.waitFor({ state: "visible", timeout });
+      await maybeLaterButton.click();
+      await maybeLaterButton.waitFor({ state: "hidden", timeout: 5000 });
+    } catch {
+      // Tour not shown - nothing to dismiss
+    }
+  }
+
   /** Top-level rail item: an app in the main rail, a section in settings. */
   async navigateToArticle(title: string) {
     await this.sidebar.navigate(title);

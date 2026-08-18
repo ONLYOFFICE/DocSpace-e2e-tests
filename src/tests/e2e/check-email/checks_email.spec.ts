@@ -69,9 +69,14 @@ test.describe("Email Checks", () => {
       // Update teardown target so fixture cleanup can delete the renamed portal if the test fails.
       api.apisystem.setPortalDomain(newDomain);
       api.apisystem.setPortalName(newName);
-      await page.waitForURL(`${getPortalUrl(newDomain)}/rooms/shared/**`, {
-        timeout: 30000,
-      });
+      const newDomainUrl = getPortalUrl(newDomain).replace(
+        /[.*+?^${}()|[\]\\]/g,
+        "\\$&",
+      );
+      await page.waitForURL(
+        new RegExp(`${newDomainUrl}.*(dashboard|rooms\\/shared\\/filter).*`),
+        { timeout: 30000 },
+      );
       await page.waitForLoadState("domcontentloaded");
 
       const mailChecker = createMailChecker();

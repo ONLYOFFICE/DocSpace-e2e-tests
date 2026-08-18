@@ -379,6 +379,7 @@ class Customization extends BasePage {
 
   async renamePortalBack(originalName: string) {
     await this.page.waitForURL(`https://${originalName}1.onlyoffice.io/**`);
+    await this.dismissWelcomeTour();
     await this.navigateToSettings();
     await this.renamingString.fill(originalName);
     await this.saveRenaming.click();
