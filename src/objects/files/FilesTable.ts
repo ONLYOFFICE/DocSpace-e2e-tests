@@ -69,6 +69,10 @@ class FilesTable extends BaseTable {
     await this.pdfFile.click();
   }
 
+  async expectPdfFileCount(count: number) {
+    await expect(this.pdfFile).toHaveCount(count);
+  }
+
   private get xlsxFile() {
     return this.page.locator(TABLE_LIST_ITEM, {
       has: this.page.locator(XLSX_FILE_LINK),
