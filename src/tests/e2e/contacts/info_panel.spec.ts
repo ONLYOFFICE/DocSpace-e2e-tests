@@ -62,8 +62,8 @@ test.describe("Contacts - Info panel", () => {
       await contacts.infoPanel.checkAccountStatus("Active");
     });
 
-    await test.step("Check Type is Docs admin", async () => {
-      await contacts.infoPanel.checkUserType("Docs admin");
+    await test.step("Check Type is Full admin", async () => {
+      await contacts.infoPanel.checkUserType("Full admin");
     });
 
     await test.step("Check Registration date is visible", async () => {

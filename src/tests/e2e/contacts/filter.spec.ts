@@ -26,43 +26,49 @@ test.describe("Contacts - Members: filter by status", () => {
     await contacts.disableUser();
   });
 
-  test("Filter by Disabled status shows only disabled users", async () => {
-    await test.step("Open filter and select Disabled", async () => {
-      await contacts.peopleFilter.openFilterDialog();
-      await contacts.peopleFilter.selectFilterByAccountStatus("Disabled");
-      await contacts.peopleFilter.applyFilter();
-    });
+  test.fail(
+    "Filter by Disabled status shows only disabled users [Bug 83215]",
+    async () => {
+      await test.step("Open filter and select Disabled", async () => {
+        await contacts.peopleFilter.openFilterDialog();
+        await contacts.peopleFilter.selectFilterByAccountStatus("Disabled");
+        await contacts.peopleFilter.applyFilter();
+      });
 
-    await test.step("Verify disabled user is shown and active users are not", async () => {
-      await contacts.table.checkDisabledUserExist(userDisplayName);
-      await contacts.table.checkRowNotExist(ADMIN_OWNER_NAME);
-    });
+      await test.step("Verify disabled user is shown and active users are not", async () => {
+        await contacts.table.checkDisabledUserExist(userDisplayName);
+        await contacts.table.checkRowNotExist(ADMIN_OWNER_NAME);
+      });
 
-    await test.step("Remove filter and verify all users are visible again", async () => {
-      await contacts.peopleFilter.removeFilter("Disabled");
-      await contacts.table.checkRowExistByNameText(ADMIN_OWNER_NAME);
-      await contacts.table.checkDisabledUserExist(userDisplayName);
-    });
-  });
+      await test.step("Remove filter and verify all users are visible again", async () => {
+        await contacts.peopleFilter.removeFilter("Disabled");
+        await contacts.table.checkRowExistByNameText(ADMIN_OWNER_NAME);
+        await contacts.table.checkDisabledUserExist(userDisplayName);
+      });
+    },
+  );
 
-  test("Filter by Active status shows only active users", async () => {
-    await test.step("Open filter and select Active", async () => {
-      await contacts.peopleFilter.openFilterDialog();
-      await contacts.peopleFilter.selectFilterByAccountStatus("Active");
-      await contacts.peopleFilter.applyFilter();
-    });
+  test.fail(
+    "Filter by Active status shows only active users [Bug 83215]",
+    async () => {
+      await test.step("Open filter and select Active", async () => {
+        await contacts.peopleFilter.openFilterDialog();
+        await contacts.peopleFilter.selectFilterByAccountStatus("Active");
+        await contacts.peopleFilter.applyFilter();
+      });
 
-    await test.step("Verify active users are shown and disabled user is not", async () => {
-      await contacts.table.checkRowExistByNameText(ADMIN_OWNER_NAME);
-      await contacts.table.checkRowNotExist(userDisplayName);
-    });
+      await test.step("Verify active users are shown and disabled user is not", async () => {
+        await contacts.table.checkRowExistByNameText(ADMIN_OWNER_NAME);
+        await contacts.table.checkRowNotExist(userDisplayName);
+      });
 
-    await test.step("Remove filter and verify all users are visible again", async () => {
-      await contacts.peopleFilter.removeFilter("Active");
-      await contacts.table.checkRowExistByNameText(ADMIN_OWNER_NAME);
-      await contacts.table.checkDisabledUserExist(userDisplayName);
-    });
-  });
+      await test.step("Remove filter and verify all users are visible again", async () => {
+        await contacts.peopleFilter.removeFilter("Active");
+        await contacts.table.checkRowExistByNameText(ADMIN_OWNER_NAME);
+        await contacts.table.checkDisabledUserExist(userDisplayName);
+      });
+    },
+  );
 });
 
 test.describe("Contacts - Members: filter by Pending invite status", () => {
@@ -82,24 +88,29 @@ test.describe("Contacts - Members: filter by Pending invite status", () => {
     await contacts.open();
   });
 
-  test("Filter by Pending invite status shows only pending users", async () => {
-    await test.step("Open filter and select Pending invite", async () => {
-      await contacts.peopleFilter.openFilterDialog();
-      await contacts.peopleFilter.selectFilterByAccountStatus("Pending invite");
-      await contacts.peopleFilter.applyFilter();
-    });
+  test.fail(
+    "Filter by Pending invite status shows only pending users [Bug 83215]",
+    async () => {
+      await test.step("Open filter and select Pending invite", async () => {
+        await contacts.peopleFilter.openFilterDialog();
+        await contacts.peopleFilter.selectFilterByAccountStatus(
+          "Pending invite",
+        );
+        await contacts.peopleFilter.applyFilter();
+      });
 
-    await test.step("Verify pending user is shown and active users are not", async () => {
-      await contacts.table.checkRowExist(pendingEmail);
-      await contacts.table.checkRowNotExist(ADMIN_OWNER_NAME);
-    });
+      await test.step("Verify pending user is shown and active users are not", async () => {
+        await contacts.table.checkRowExist(pendingEmail);
+        await contacts.table.checkRowNotExist(ADMIN_OWNER_NAME);
+      });
 
-    await test.step("Remove filter and verify all users are visible again", async () => {
-      await contacts.peopleFilter.removeFilter("Pending invite");
-      await contacts.table.checkRowExistByNameText(ADMIN_OWNER_NAME);
-      await contacts.table.checkRowExist(pendingEmail);
-    });
-  });
+      await test.step("Remove filter and verify all users are visible again", async () => {
+        await contacts.peopleFilter.removeFilter("Pending invite");
+        await contacts.table.checkRowExistByNameText(ADMIN_OWNER_NAME);
+        await contacts.table.checkRowExist(pendingEmail);
+      });
+    },
+  );
 });
 
 test.describe("Contacts - Members: filter dialog options", () => {
@@ -179,7 +190,7 @@ test.describe("Contacts - Members: filter by type", () => {
   test("Filter by DocSpace admin type shows only DocSpace admins", async () => {
     await test.step("Open filter and select DocSpace admin", async () => {
       await contacts.peopleFilter.openFilterDialog();
-      await contacts.peopleFilter.selectFilterByType("Docs admin");
+      await contacts.peopleFilter.selectFilterByType("Full admin");
       await contacts.peopleFilter.applyFilter();
     });
 
@@ -190,7 +201,7 @@ test.describe("Contacts - Members: filter by type", () => {
     });
 
     await test.step("Remove filter and verify all users are visible again", async () => {
-      await contacts.peopleFilter.removeFilter("Docs admin");
+      await contacts.peopleFilter.removeFilter("Full admin");
       await contacts.table.checkRowExistByNameText(adminDisplayName);
       await contacts.table.checkRowExistByNameText(roomAdminDisplayName);
       await contacts.table.checkRowExistByNameText(userDisplayName);

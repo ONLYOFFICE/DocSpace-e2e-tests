@@ -53,7 +53,7 @@ class ContactsFilter extends BaseFilter {
     await expect(this.filterApplyButton).toBeEnabled({ timeout: 10000 });
   }
 
-  async selectFilterByType(type: "Docs admin" | "Room admin" | "User") {
+  async selectFilterByType(type: "Full admin" | "Room admin" | "User") {
     await this.filterDialog.getByText(type, { exact: true }).click();
     await expect(this.filterApplyButton).toBeEnabled({ timeout: 10000 });
   }
