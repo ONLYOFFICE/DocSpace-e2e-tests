@@ -6,7 +6,7 @@ export async function getOwnerConfirmLink(
 ): Promise<string> {
   const mailChecker = createMailChecker();
   const confirmLink = await mailChecker.extractPortalLink({
-    subject: "Welcome to ONLYOFFICE DocSpace!",
+    subject: "Welcome to ONLYOFFICE!",
     portalName,
     timeoutSeconds,
   });
