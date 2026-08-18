@@ -127,7 +127,7 @@ class Customization extends BasePage {
     return this.page.locator('[data-testid="appearance_save_button"]');
   }
   get themeAdd() {
-    return this.page.locator(".theme-add");
+    return this.page.locator('[data-testid="appearance_add_theme"]');
   }
   get accentColorInput() {
     return this.page.locator("#accent");
