@@ -89,6 +89,18 @@ export default class BasePage {
     } catch {
       // Tour not shown - nothing to dismiss
     }
+
+    const welcomeDialog = this.page.locator(
+      '[class*="WelcomeDialog-module__dialog"]',
+    );
+    try {
+      await welcomeDialog.waitFor({ state: "visible", timeout });
+      // Dialog closes on mousedown outside its bounds - no close button testid available
+      await this.page.mouse.click(1, 1);
+      await welcomeDialog.waitFor({ state: "hidden", timeout: 5000 });
+    } catch {
+      // Welcome dialog not shown - nothing to dismiss
+    }
   }
 
   /** Top-level rail item: an app in the main rail, a section in settings. */

@@ -87,7 +87,7 @@ test.describe("Customization", () => {
 
   test("Appearance: create and delete custom theme", async () => {
     await customization.openTab("Appearance");
-    await customization.createCustomTheme("##0EEDE9", "#931073");
+    await customization.createCustomTheme("#0EEDE9", "#931073");
     await customization.removeToast(toastMessages.settingsUpdated);
     await customization.darkThemeOption.click();
     await customization.saveButtonAppearance.click();

@@ -127,7 +127,7 @@ class Customization extends BasePage {
     return this.page.locator('[data-testid="appearance_save_button"]');
   }
   get themeAdd() {
-    return this.page.locator(".theme-add");
+    return this.page.locator('[data-testid="appearance_add_theme"]');
   }
   get accentColorInput() {
     return this.page.locator("#accent");
@@ -379,7 +379,10 @@ class Customization extends BasePage {
 
   async renamePortalBack(originalName: string) {
     await this.page.waitForURL(`https://${originalName}1.onlyoffice.io/**`);
-    await this.dismissWelcomeTour();
+    // The SPA takes longer to mount on the freshly renamed domain than on a
+    // normal login, so the tour can appear after the default dismiss
+    // window - give it more time to show up instead of a fixed sleep.
+    await this.dismissWelcomeTour(10000);
     await this.navigateToSettings();
     await this.renamingString.fill(originalName);
     await this.saveRenaming.click();
