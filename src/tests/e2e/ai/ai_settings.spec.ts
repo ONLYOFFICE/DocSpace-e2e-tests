@@ -167,11 +167,7 @@ test.describe("AI Settings", () => {
     });
 
     await aiSettings.openMcpServersTab();
-    await aiSettings.clickAddMcpServerButton();
-    await aiSettings.fillMcpServerName(mcpName);
-    await aiSettings.fillMcpServerUrl("https://mcp.deepwiki.com/mcp");
-    await aiSettings.fillMcpServerDescription("MCP server added by e2e test");
-    await aiSettings.saveMcpServer();
+    await aiSettings.addMcpServer(mcpName, "https://mcp.deepwiki.com/mcp");
     await aiSettings.expectMcpServerInList(mcpName);
   });
 

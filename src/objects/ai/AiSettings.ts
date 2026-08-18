@@ -22,8 +22,19 @@ class AiSettings extends BasePage {
       .getByTestId("button");
   }
 
-  private get addMcpServerButton() {
-    return this.page.getByTestId("add-mcp-button");
+  private get editMcpConfigButton() {
+    return this.page.getByRole("button", {
+      name: "Edit configuration",
+      exact: true,
+    });
+  }
+
+  private get mcpConfigEditor() {
+    return this.page.locator(".cm-content");
+  }
+
+  private get saveMcpConfigButton() {
+    return this.page.getByRole("button", { name: "Save", exact: true });
   }
 
   private get addProviderButton() {
@@ -98,7 +109,7 @@ class AiSettings extends BasePage {
   }
 
   async expectAddMcpServerVisible() {
-    await expect(this.addMcpServerButton).toBeVisible();
+    await expect(this.editMcpConfigButton).toBeVisible();
   }
 
   async expectWebSearchSelectVisible() {
@@ -275,33 +286,26 @@ class AiSettings extends BasePage {
     await saveButton.click();
   }
 
-  async clickAddMcpServerButton() {
-    await expect(this.addMcpServerButton).toBeEnabled();
-    await this.addMcpServerButton.click();
-    await expect(this.page.getByTestId("add-mcp-form")).toBeVisible();
-  }
+  async addMcpServer(name: string, url: string) {
+    await expect(this.editMcpConfigButton).toBeEnabled();
+    await this.editMcpConfigButton.click();
+    await expect(this.mcpConfigEditor).toBeVisible();
 
-  async fillMcpServerName(name: string) {
-    await this.page.getByTestId("mcp-title-input").fill(name);
-  }
+    const config = JSON.stringify({ mcpServers: { [name]: { url } } }, null, 2);
+    await this.mcpConfigEditor.click();
+    await this.page.keyboard.press(
+      process.platform === "darwin" ? "Meta+A" : "Control+A",
+    );
+    await this.page.keyboard.press("Backspace");
+    await this.page.keyboard.insertText(config);
 
-  async fillMcpServerUrl(url: string) {
-    await this.page.getByTestId("mcp-url-input").fill(url);
-  }
-
-  async fillMcpServerDescription(description: string) {
-    await this.page.getByTestId("mcp-description-textarea").fill(description);
-  }
-
-  async saveMcpServer() {
-    const button = this.page.getByTestId("mcp-save-button");
-    await expect(button).toBeEnabled();
-    await button.click();
+    await expect(this.saveMcpConfigButton).toBeEnabled();
+    await this.saveMcpConfigButton.click();
   }
 
   async expectMcpServerInList(name: string) {
     await expect(
-      this.page.getByTestId("custom-mcp-list").getByRole("heading", { name }),
+      this.page.locator("p.font-bold", { hasText: name }),
     ).toBeVisible();
   }
 
