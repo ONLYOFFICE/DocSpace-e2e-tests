@@ -70,6 +70,7 @@ class Files extends BasePage {
     await this.page.goto(`${getPortalUrl(this.portalDomain)}/rooms/personal`);
     await expect(this.page).toHaveURL(/.*rooms\/personal.*/);
     await this.page.waitForLoadState("load");
+    await this.filesNavigation.checkAddButtonVisible();
   }
 
   async openRecentlyAccessibleTab() {
