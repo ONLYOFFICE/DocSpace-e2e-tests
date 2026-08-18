@@ -2,6 +2,7 @@ import { test } from "@/src/fixtures";
 import { ShortTour } from "@/src/objects/rooms/ShortTourModal";
 import MyRooms from "@/src/objects/rooms/Rooms";
 import fs from "fs";
+import Files from "@/src/objects/files/Files";
 import FilesPdfForm from "@/src/objects/files/FilesPdfForm";
 import RoomPDFCompleted from "@/src/objects/rooms/RoomPDFCompleted";
 import InfoPanel from "@/src/objects/common/InfoPanel";
@@ -161,7 +162,15 @@ test.describe("FormFilling base tests", () => {
       ).toBeVisible();
     });
   });
-  test("Submit Not Filling PDF Form", async ({ page }) => {
+  test("Submit Not Filling PDF Form", async ({ page, api }) => {
+    await test.step("Verify PDF file exists in My Documents, then return to the room", async () => {
+      const files = new Files(page, api.portalDomain);
+      await files.open();
+      await files.filesTable.expectPdfFileCount(1);
+      await myRooms.openForms();
+      await myRooms.openRoom("FormFillingRoom");
+    });
+
     await test.step("Upload PDF form and start filling", async () => {
       await uploadAndStartFillingPDF(
         shortTour,
