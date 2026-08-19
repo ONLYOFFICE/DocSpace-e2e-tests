@@ -312,7 +312,7 @@ test.describe("Shared with me", () => {
 
         await test.step("Verify file is copied and still visible in Shared with me", async () => {
           await sharedWithMe.dismissToastSafely(
-            `${fileName}.docx successfully copied to My documents`,
+            `${fileName}.docx successfully copied to Files`,
           );
           await sharedWithMe.filesTable.checkRowExist(fileName);
         });

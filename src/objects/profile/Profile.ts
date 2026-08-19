@@ -13,6 +13,7 @@ const TFA_PRINT_BACKUP_CODES = "print_backup_codes_link";
 const TFA_REQUEST_NEW_CODES = "request_new_backup_codes_button";
 const TFA_RESET_APP_CONFIRM = "dialog_reset_app_button";
 const TFA_RESET_APP_CANCEL = "dialog_reset_app_cancel_button";
+const AVATAR_EDITOR_DIALOG_TEXT = "Profile photo";
 
 export class Profile extends BasePage {
   constructor(page: Page) {
@@ -150,8 +151,17 @@ export class Profile extends BasePage {
     return this.page.getByTestId("edit_avatar_icon_button");
   }
 
+  private get avatarEditorDialog(): Locator {
+    return this.page
+      .getByRole("dialog")
+      .filter({ hasText: AVATAR_EDITOR_DIALOG_TEXT });
+  }
+
   get avatarSaveButton(): Locator {
-    return this.page.getByTestId("avatar_editor_save_button");
+    return this.avatarEditorDialog.getByRole("button", {
+      name: "Save",
+      exact: true,
+    });
   }
 
   get avatarDeleteButton(): Locator {

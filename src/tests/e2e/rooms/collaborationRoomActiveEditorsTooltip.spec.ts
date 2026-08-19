@@ -135,6 +135,8 @@ test.describe("Collaboration room - active editors tooltip", () => {
           ...userPages.map(async (page) => {
             const userRooms = new MyRooms(page, portalDomain);
             const userShortTour = new ShortTour(page);
+            // Login can land on /dashboard instead of the Rooms list.
+            await userRooms.openWithoutEmptyCheck();
             await userRooms.roomsTable.openRoomByName(roomName);
             const tourVisible = await userShortTour.isTourVisible(6000);
             if (tourVisible) {
@@ -145,6 +147,8 @@ test.describe("Collaboration room - active editors tooltip", () => {
           (async () => {
             const ownerRooms = new MyRooms(ownerPage, portalDomain);
             const ownerShortTour = new ShortTour(ownerPage);
+            // Login can land on /dashboard instead of the Rooms list.
+            await ownerRooms.openWithoutEmptyCheck();
             await ownerRooms.roomsTable.openRoomByName(roomName);
             const tourVisible = await ownerShortTour.isTourVisible(6000);
             if (tourVisible) {
