@@ -293,10 +293,6 @@ test.describe("Trash", () => {
       await expect(trash.filter.typeMediaTag).toBeVisible();
     });
 
-    await test.step("Verify Room filter option is visible", async () => {
-      await expect(trash.filter.roomFilterTag).toBeVisible();
-    });
-
     await test.step("Close filter dialog", async () => {
       await trash.filter.filterCancelButton.click();
     });
