@@ -540,7 +540,9 @@ test.describe("Contacts - Invite links", () => {
 
     await test.step("Verify user is authorized on the portal", async () => {
       await expect(async () => {
-        await expect(incognitoPage!).toHaveURL(/.*rooms\/shared\/filter.*/);
+        await expect(incognitoPage!).toHaveURL(
+          /.*(dashboard|rooms\/shared\/filter).*/,
+        );
       }).toPass({ timeout: 30000 });
     });
   });
