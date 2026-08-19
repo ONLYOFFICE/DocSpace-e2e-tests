@@ -1,4 +1,3 @@
-import { expect } from "@playwright/test";
 import { test } from "@/src/fixtures";
 import Files from "@/src/objects/files/Files";
 import MyRooms from "@/src/objects/rooms/Rooms";
@@ -28,9 +27,6 @@ test.describe("Move file to room", () => {
     await test.step(`Move file to new ${roomType}`, async () => {
       await files.moveFileToNewRoom("Document", roomType, roomName);
       await files.filesSelectPanel.confirmSelection();
-      if (roomType === roomCreateTitles.public) {
-        await files.confirmMoveToPublicRoom();
-      }
       await files.filesTable.checkRowNotExist("Document");
     });
 
@@ -57,20 +53,15 @@ test.describe("Move file to room", () => {
     await moveFileToRoom(roomCreateTitles.custom, "CustomRoom");
   });
 
-  test("Move non-PDF file to Form Filling room shows alert", async ({
-    page,
-  }) => {
+  test("Move non-PDF file to Form Filling room shows alert", async () => {
     await files.createDocumentFile();
     await files.moveFileToNewRoom(
       "Document",
       roomCreateTitles.formFilling,
       "FormFillingRoom",
     );
-    await expect(
-      page.getByText(
-        "The file cannot be moved to this room. Please try to move the ONLYOFFICE PDF form.",
-      ),
-    ).toBeVisible();
+    await files.filesSelectPanel.checkIncompatibleFileAlertVisible();
+    await files.filesSelectPanel.checkConfirmButtonDisabled();
     await files.filesSelectPanel.close();
     await files.filesTable.checkRowExist("Document");
   });

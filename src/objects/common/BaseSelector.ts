@@ -1,8 +1,6 @@
 import { TRoomCreateTitles } from "@/src/utils/constants/rooms";
 import { expect, Page } from "@playwright/test";
 
-const NEW_SELECTOR_ITEM_INPUT_SELECTOR = "input.input-component.not-selectable";
-
 class BaseSelector {
   page: Page;
 
@@ -31,9 +29,7 @@ class BaseSelector {
   }
 
   private get newSelectorItemInput() {
-    return this.selector.locator(
-      `${NEW_SELECTOR_ITEM_INPUT_SELECTOR}:not([placeholder="Search"])`,
-    );
+    return this.selector.getByTestId("selector_input_item");
   }
 
   private get newSelectorItem() {

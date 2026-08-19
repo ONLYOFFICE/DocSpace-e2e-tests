@@ -29,7 +29,10 @@ import {
   listDocActions,
   pdfFormMoreOptionsSubmenu,
 } from "@/src/utils/constants/files";
-import { TRoomCreateTitles } from "@/src/utils/constants/rooms";
+import {
+  roomCreateTitles,
+  TRoomCreateTitles,
+} from "@/src/utils/constants/rooms";
 
 const CONTEXT_MENU_ENTERED =
   ".p-contextmenu.p-component.p-contextmenu-enter-done";
@@ -507,6 +510,8 @@ class Files extends BasePage {
     roomType: TRoomCreateTitles,
     roomName: string,
   ) {
+    const isFormFilling = roomType === roomCreateTitles.formFilling;
+
     await this.filesTable.openContextMenuForItem(fileName);
     await this.filesTable.contextMenu.clickSubmenuOption(
       "Move or copy",
@@ -514,9 +519,13 @@ class Files extends BasePage {
     );
     await this.filesSelectPanel.checkFileSelectPanelExist();
     await this.filesSelectPanel.gotoDocSpaceRoot();
-    await this.filesSelectPanel.select("rooms");
+    await this.filesSelectPanel.select(isFormFilling ? "forms" : "rooms");
     await this.filesSelectPanel.createNewItem();
-    await this.filesSelectPanel.selectRoomTypeFromDropdown(roomType);
+    // The Forms app only creates one room type, so no "Choose room type"
+    // dropdown is shown there - it goes straight to naming the room.
+    if (!isFormFilling) {
+      await this.filesSelectPanel.selectRoomTypeFromDropdown(roomType);
+    }
     await this.filesSelectPanel.fillNewItemName(roomName);
     await this.filesSelectPanel.acceptCreate();
     await this.filesSelectPanel.selectItemByText(roomName);
@@ -560,10 +569,6 @@ class Files extends BasePage {
     });
     expect(download.suggestedFilename().toLowerCase()).toContain(".zip");
     await download.delete();
-  }
-
-  async confirmMoveToPublicRoom() {
-    await this.page.getByTestId("move_to_public_room_button").click();
   }
 
   async uploadFileByDragAndDrop(filePath: string) {
