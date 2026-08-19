@@ -11,7 +11,7 @@ class PluginSDK extends BaseDevTools {
   }
 
   get pluginList(): Locator {
-    return this.page.locator(".plugin-list__item");
+    return this.page.locator('[class*="PluginSDK-module__pluginListItem"]');
   }
 
   get zipArchivesRepoButton(): Locator {

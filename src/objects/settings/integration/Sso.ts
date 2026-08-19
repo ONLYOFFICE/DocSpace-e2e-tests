@@ -32,7 +32,7 @@ export class Sso extends BasePage {
     return this.page.locator("#uploadXmlUrl");
   }
   get xmlUploadButton() {
-    return this.page.locator(".upload-button");
+    return this.page.getByTestId("upload_xml_button");
   }
 
   get xmlSelectFileButton() {

@@ -193,9 +193,7 @@ class StorageManagement extends BasePage {
   }
 
   async expectUserQuotaExceededToast() {
-    await expect(
-      this.page.getByText("User space quota exceeded"),
-    ).toBeVisible();
+    await expect(this.page.getByText("Storage quota exceeded")).toBeVisible();
   }
 
   async expectUserQuotaExceededSnackbar() {
