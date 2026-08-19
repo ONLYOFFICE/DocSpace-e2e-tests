@@ -97,10 +97,8 @@ test.describe("Rooms - DocSpace Admin access", () => {
   // Duplicate is under the "More options" submenu
   test("DocSpace Admin can duplicate owner's room", async () => {
     await myRooms.roomsTable.openContextMenu(OWNER_ROOM);
-    await myRooms.roomsTable.contextMenu.clickOption(
+    await myRooms.roomsTable.contextMenu.clickSubmenuOption(
       roomContextMenuOption.manage,
-    );
-    await myRooms.roomsTable.contextMenu.clickOption(
       roomContextMenuOption.duplicate,
     );
     await myRooms.roomsTable.checkRowExist(OWNER_ROOM + " (1)");
@@ -109,10 +107,8 @@ test.describe("Rooms - DocSpace Admin access", () => {
   // Change Room Owner is under the "More options" submenu
   test("DocSpace Admin can open Change Room Owner dialog for owner's room", async () => {
     await myRooms.roomsTable.openContextMenu(OWNER_ROOM);
-    await myRooms.roomsTable.contextMenu.clickOption(
+    await myRooms.roomsTable.contextMenu.clickSubmenuOption(
       roomContextMenuOption.manage,
-    );
-    await myRooms.roomsTable.contextMenu.clickOption(
       roomContextMenuOption.changeTheRoomOwner,
     );
     await myRooms.roomsChangeOwnerDialog.checkDialogExist();
