@@ -160,6 +160,7 @@ export class AiAgents extends BasePage {
 
   async openAttachmentPanel() {
     await this.page.getByTestId("attachment-button").click();
+    await this.page.getByText("Add files from the workspace").click();
     await expect(this.page.getByTestId("selector")).toBeVisible();
   }
 

@@ -48,7 +48,7 @@ test.describe("AI Agents: attach document", () => {
     });
 
     await test.step("Open My Documents", async () => {
-      await attachmentPanel.openFolder("My documents");
+      await attachmentPanel.openFolder("Files");
     });
 
     await test.step("Search for a non-existent file shows no results", async () => {
