@@ -1,4 +1,4 @@
-import { Page } from "@playwright/test";
+import { expect, Page } from "@playwright/test";
 import BasePage from "@/src/objects/common/BasePage";
 
 class BaseDevTools extends BasePage {
@@ -14,7 +14,9 @@ class BaseDevTools extends BasePage {
 
   async navigateToSection(sectionId: string) {
     const url = new URL(`/developer-tools/${sectionId}`, this.page.url());
-    await this.page.goto(url.toString());
+    await expect(async () => {
+      await this.page.goto(url.toString());
+    }).toPass({ timeout: 30000 });
     await this.page.waitForLoadState("load");
   }
 }
