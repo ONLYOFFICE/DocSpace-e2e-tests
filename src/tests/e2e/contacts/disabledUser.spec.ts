@@ -65,7 +65,7 @@ test.describe("Contacts - Disabled user: login", () => {
     });
 
     await test.step("Verify user is on the portal", async () => {
-      await expect(page).toHaveURL(/rooms\/shared\/filter/);
+      await expect(page).toHaveURL(/\/dashboard/);
     });
   });
 });
@@ -179,12 +179,12 @@ test.describe("Contacts - Disabled user: active session redirect", () => {
         await contacts.disableUser();
       });
 
-      await test.step("Reload user page to trigger session check", async () => {
-        await userPage.bringToFront();
-        await userPage.reload({ waitUntil: "load" });
-      });
-
       await test.step("Verify user is redirected to login page", async () => {
+        // The portal now pushes the disable event to the open session in
+        // real time, so the user's page navigates to /login on its own -
+        // no manual reload needed (and reloading now races that automatic
+        // navigation and can abort it).
+        await userPage.bringToFront();
         const userLogin = new Login(userPage, portalDomain);
         await expect(userLogin.loginButton).toBeVisible({ timeout: 15000 });
         await expect(userPage).toHaveURL(/\/login/);
