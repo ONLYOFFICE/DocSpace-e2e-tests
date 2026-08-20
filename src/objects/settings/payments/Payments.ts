@@ -384,7 +384,7 @@ export class Payments extends BasePage {
   }
 
   tabButton(tab: TPaymentsTab) {
-    return this.page.getByRole("button", { name: tab, exact: true });
+    return this.page.getByRole("link", { name: tab, exact: true });
   }
 
   async openTab(tab: TPaymentsTab) {

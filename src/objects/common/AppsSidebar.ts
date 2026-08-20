@@ -3,10 +3,11 @@ import { expect, Locator, Page } from "@playwright/test";
 const ARTICLE_CONTAINER = "#article-container";
 const NAV = `${ARTICLE_CONTAINER} nav`;
 const ITEM_LIST = 'ul[class*="itemList"]';
-const ITEM_BUTTON = '> [class*="itemWrapper"] > button';
+const ITEM_BUTTON =
+  '> [class*="itemWrapper"] > [class*="NavMenu-module__item--"]';
 const ITEM_TEXT = 'span[class*="NavMenu-module__itemText"]';
 const SUB_ITEM_LIST = '[class*="subItemsInner"] > li';
-const SUB_ITEM_BUTTON = 'button[class*="NavMenu-module__subItem--"]';
+const SUB_ITEM_BUTTON = '[class*="NavMenu-module__subItem--"]';
 const SUB_ITEM_TEXT = 'span[class*="NavMenu-module__subItemText"]';
 const ACTIVE_CLASS = /NavMenu-module__active/;
 const BACK_BUTTON = `${ARTICLE_CONTAINER} [class*="articleHeader"]`;
