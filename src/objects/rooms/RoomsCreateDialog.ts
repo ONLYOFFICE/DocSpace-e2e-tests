@@ -101,13 +101,20 @@ class RoomsCreateDialog extends BaseDialog {
   }
 
   async openRoomType(title: TRoomCreateTitles) {
-    if (title !== roomCreateTitles.fromTemplate) {
-      await this.clickRoomType(title);
-      await expect(this.roomTypeDropdownButton).toBeVisible();
-    } else {
+    if (title === roomCreateTitles.fromTemplate) {
       const promise = waitForGetRoomsResponse(this.page);
       await this.dialog.getByTitle(title).click();
       await promise;
+      return;
+    }
+
+    await this.clickRoomType(title);
+
+    // The Forms app's "Choose space type" dialog only offers "Form space" and
+    // "From template" - no other room types - so its create form has no
+    // type-switcher dropdown like the Rooms app's "Choose room type" dialog does.
+    if (title !== roomCreateTitles.formSet) {
+      await expect(this.roomTypeDropdownButton).toBeVisible();
     }
   }
 
