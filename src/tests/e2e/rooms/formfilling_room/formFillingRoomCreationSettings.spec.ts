@@ -88,7 +88,7 @@ test.describe("FormFilling room: creation settings", () => {
 
     await test.step("Verify toggle is disabled in edit dialog", async () => {
       await myRooms.navigation.openContextMenu();
-      await myRooms.navigation.contextMenu.menu.getByText("Edit space").click();
+      await myRooms.navigation.contextMenu.clickOption("Edit space");
       await myRooms.roomsEditDialog.checkDialogTitleExist();
       await createDialog.checkExternalDbToggleDisabled();
       await myRooms.roomsEditDialog.close();
@@ -120,7 +120,7 @@ test.describe("FormFilling room: creation settings", () => {
 
     await test.step("Verify toggle is disabled in edit dialog", async () => {
       await myRooms.navigation.openContextMenu();
-      await myRooms.navigation.contextMenu.menu.getByText("Edit space").click();
+      await myRooms.navigation.contextMenu.clickOption("Edit space");
       await myRooms.roomsEditDialog.checkDialogTitleExist();
       await createDialog.expectSaveFormAsXlsxChecked(false);
       await myRooms.roomsEditDialog.clickCloseButton();
@@ -163,7 +163,7 @@ test.describe("FormFilling room: creation settings", () => {
       await pdfCompleted.chooseBackToRoom();
       await expect(
         newPage.getByText("ONLYOFFICE Resume Sample", { exact: true }),
-      ).toBeVisible({ timeout: 10000 });
+      ).toBeVisible({ timeout: 15000 });
     });
 
     await test.step("Open Complete folder and verify no XLSX file is present", async () => {

@@ -237,22 +237,22 @@ test.describe("FormFilling room - Content creator permissions", () => {
       // await shortTour.clickSkipTour();
     });
 
-    await test.step("Verify room context menu has no 'Edit room' option", async () => {
+    await test.step("Verify room context menu has no 'Edit space' option", async () => {
       await myRooms.navigation.openContextMenu();
       await expect(
-        myRooms.navigation.contextMenu.menu.getByText("Edit room"),
+        myRooms.navigation.contextMenu.getItemLocator("Edit space"),
       ).not.toBeVisible();
     });
 
     await test.step("Verify room context menu has no 'Delete room' option", async () => {
       await expect(
-        myRooms.navigation.contextMenu.menu.getByText("Delete room"),
+        myRooms.navigation.contextMenu.getItemLocator("Delete room"),
       ).not.toBeVisible();
     });
 
     await test.step("Verify room context menu has no 'Move to archive' option", async () => {
       await expect(
-        myRooms.navigation.contextMenu.menu.getByText("Move to archive"),
+        myRooms.navigation.contextMenu.getItemLocator("Move to archive"),
       ).not.toBeVisible();
       await myRooms.navigation.closeContextMenu();
     });

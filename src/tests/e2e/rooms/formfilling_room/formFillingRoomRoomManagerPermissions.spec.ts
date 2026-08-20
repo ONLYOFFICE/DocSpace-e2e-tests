@@ -174,13 +174,13 @@ test.describe("FormFilling room - Room manager permissions", () => {
     await test.step("Verify room context menu has 'Edit space' option", async () => {
       await myRooms.navigation.openContextMenu();
       await expect(
-        myRooms.navigation.contextMenu.menu.getByText("Edit space"),
+        myRooms.navigation.contextMenu.getItemLocator("Edit space"),
       ).toBeVisible();
     });
 
     await test.step("Verify Room manager CAN edit room name", async () => {
       // Context menu is already open from the previous step
-      await myRooms.navigation.contextMenu.menu.getByText("Edit space").click();
+      await myRooms.navigation.contextMenu.clickOption("Edit space");
       await myRooms.roomsEditDialog.checkDialogTitleExist();
       const editedRoomName = roomName + " (edited)";
       await myRooms.roomsEditDialog.fillRoomName(editedRoomName);
