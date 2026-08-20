@@ -7,7 +7,9 @@ class Deletion extends BasePage {
   }
 
   private get deleteDataArticleItem(): Locator {
-    return this.page.locator("#portal-settings_catalog-delete");
+    return this.page
+      .locator('#article-container nav [class*="NavMenu-module__item--"]')
+      .filter({ hasText: "Workspace deletion" });
   }
 
   private get deactivationTab(): Locator {
