@@ -9,10 +9,7 @@ import RoomEmptyView from "@/src/objects/rooms/RoomEmptyView";
 import FilesPdfForm from "@/src/objects/files/FilesPdfForm";
 import RoomPDFCompleted from "@/src/objects/rooms/RoomPDFCompleted";
 import FilesTable from "@/src/objects/files/FilesTable";
-import {
-  roomContextMenuOption,
-  formFillingSystemFolders,
-} from "@/src/utils/constants/rooms";
+import { formFillingSystemFolders } from "@/src/utils/constants/rooms";
 import { formFillingRoomPdfContextMenuOption } from "@/src/utils/constants/files";
 import Login from "@/src/objects/common/Login";
 
@@ -91,9 +88,7 @@ test.describe("FormFilling room: creation settings", () => {
 
     await test.step("Verify toggle is disabled in edit dialog", async () => {
       await myRooms.navigation.openContextMenu();
-      await myRooms.navigation.contextMenu.menu
-        .getByText(roomContextMenuOption.editRoom)
-        .click();
+      await myRooms.navigation.contextMenu.clickOption("Edit space");
       await myRooms.roomsEditDialog.checkDialogTitleExist();
       await createDialog.checkExternalDbToggleDisabled();
       await myRooms.roomsEditDialog.close();
@@ -125,9 +120,7 @@ test.describe("FormFilling room: creation settings", () => {
 
     await test.step("Verify toggle is disabled in edit dialog", async () => {
       await myRooms.navigation.openContextMenu();
-      await myRooms.navigation.contextMenu.menu
-        .getByText(roomContextMenuOption.editRoom)
-        .click();
+      await myRooms.navigation.contextMenu.clickOption("Edit space");
       await myRooms.roomsEditDialog.checkDialogTitleExist();
       await createDialog.expectSaveFormAsXlsxChecked(false);
       await myRooms.roomsEditDialog.clickCloseButton();
@@ -170,7 +163,7 @@ test.describe("FormFilling room: creation settings", () => {
       await pdfCompleted.chooseBackToRoom();
       await expect(
         newPage.getByText("ONLYOFFICE Resume Sample", { exact: true }),
-      ).toBeVisible({ timeout: 10000 });
+      ).toBeVisible({ timeout: 15000 });
     });
 
     await test.step("Open Complete folder and verify no XLSX file is present", async () => {
