@@ -88,9 +88,7 @@ test.describe("FormFilling room: creation settings", () => {
 
     await test.step("Verify toggle is disabled in edit dialog", async () => {
       await myRooms.navigation.openContextMenu();
-      await myRooms.navigation.contextMenu.menu
-        .getByText("Edit space")
-        .click();
+      await myRooms.navigation.contextMenu.menu.getByText("Edit space").click();
       await myRooms.roomsEditDialog.checkDialogTitleExist();
       await createDialog.checkExternalDbToggleDisabled();
       await myRooms.roomsEditDialog.close();
@@ -122,9 +120,7 @@ test.describe("FormFilling room: creation settings", () => {
 
     await test.step("Verify toggle is disabled in edit dialog", async () => {
       await myRooms.navigation.openContextMenu();
-      await myRooms.navigation.contextMenu.menu
-        .getByText("Edit space")
-        .click();
+      await myRooms.navigation.contextMenu.menu.getByText("Edit space").click();
       await myRooms.roomsEditDialog.checkDialogTitleExist();
       await createDialog.expectSaveFormAsXlsxChecked(false);
       await myRooms.roomsEditDialog.clickCloseButton();

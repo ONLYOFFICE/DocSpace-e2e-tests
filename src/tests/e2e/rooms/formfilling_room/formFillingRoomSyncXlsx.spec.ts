@@ -100,9 +100,7 @@ test.describe("FormFilling room - Sync responses to XLSX", () => {
 
     await test.step("Disable Collect results in XLSX toggle in room settings", async () => {
       await myRooms.navigation.openContextMenu();
-      await myRooms.navigation.contextMenu.menu
-        .getByText("Edit space")
-        .click();
+      await myRooms.navigation.contextMenu.menu.getByText("Edit space").click();
       await myRooms.roomsEditDialog.checkDialogTitleExist();
       await createDialog.toggleSaveFormAsXlsx(false);
       await myRooms.roomsEditDialog.clickSaveButton();
