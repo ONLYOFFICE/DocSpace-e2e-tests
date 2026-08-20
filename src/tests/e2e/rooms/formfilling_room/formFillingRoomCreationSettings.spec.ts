@@ -9,10 +9,7 @@ import RoomEmptyView from "@/src/objects/rooms/RoomEmptyView";
 import FilesPdfForm from "@/src/objects/files/FilesPdfForm";
 import RoomPDFCompleted from "@/src/objects/rooms/RoomPDFCompleted";
 import FilesTable from "@/src/objects/files/FilesTable";
-import {
-  roomContextMenuOption,
-  formFillingSystemFolders,
-} from "@/src/utils/constants/rooms";
+import { formFillingSystemFolders } from "@/src/utils/constants/rooms";
 import { formFillingRoomPdfContextMenuOption } from "@/src/utils/constants/files";
 import Login from "@/src/objects/common/Login";
 
@@ -92,7 +89,7 @@ test.describe("FormFilling room: creation settings", () => {
     await test.step("Verify toggle is disabled in edit dialog", async () => {
       await myRooms.navigation.openContextMenu();
       await myRooms.navigation.contextMenu.menu
-        .getByText(roomContextMenuOption.editRoom)
+        .getByText("Edit space")
         .click();
       await myRooms.roomsEditDialog.checkDialogTitleExist();
       await createDialog.checkExternalDbToggleDisabled();
@@ -126,7 +123,7 @@ test.describe("FormFilling room: creation settings", () => {
     await test.step("Verify toggle is disabled in edit dialog", async () => {
       await myRooms.navigation.openContextMenu();
       await myRooms.navigation.contextMenu.menu
-        .getByText(roomContextMenuOption.editRoom)
+        .getByText("Edit space")
         .click();
       await myRooms.roomsEditDialog.checkDialogTitleExist();
       await createDialog.expectSaveFormAsXlsxChecked(false);

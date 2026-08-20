@@ -15,10 +15,7 @@ import {
   pdfFormContextMenuOption,
   spreadsheetContextMenuOption,
 } from "@/src/utils/constants/files";
-import {
-  roomContextMenuOption,
-  formFillingSystemFolders,
-} from "@/src/utils/constants/rooms";
+import { formFillingSystemFolders } from "@/src/utils/constants/rooms";
 import RoomsCreateDialog from "@/src/objects/rooms/RoomsCreateDialog";
 import FolderDeleteModal from "@/src/objects/files/FolderDeleteModal";
 import BaseToast from "@/src/objects/common/BaseToast";
@@ -104,7 +101,7 @@ test.describe("FormFilling room - Sync responses to XLSX", () => {
     await test.step("Disable Collect results in XLSX toggle in room settings", async () => {
       await myRooms.navigation.openContextMenu();
       await myRooms.navigation.contextMenu.menu
-        .getByText(roomContextMenuOption.editRoom)
+        .getByText("Edit space")
         .click();
       await myRooms.roomsEditDialog.checkDialogTitleExist();
       await createDialog.toggleSaveFormAsXlsx(false);
