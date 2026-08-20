@@ -226,7 +226,7 @@ test.describe("Email Checks", () => {
       await test.step("Verify invitation email is received", async () => {
         const mailChecker = createMailChecker(invitedEmail);
         const email = await mailChecker.checkEmailBySubject({
-          subject: "Join ONLYOFFICE DocSpace",
+          subject: "Join ONLYOFFICE",
           timeoutSeconds: 60,
         });
 
@@ -255,7 +255,7 @@ test.describe("Email Checks", () => {
         await test.step("Extract confirmation link from invitation email", async () => {
           const mailChecker = createMailChecker(invitedEmail);
           const link = await mailChecker.extractPortalLink({
-            subject: "Join ONLYOFFICE DocSpace",
+            subject: "Join ONLYOFFICE",
             portalName: api.portalDomain,
             timeoutSeconds: 120,
           });
