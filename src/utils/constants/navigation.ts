@@ -8,29 +8,29 @@ const apps = {
 
 const filesSubItems = {
   sharedWithMe: "Shared with me",
-  recent: "Recent",
-  favorites: "Favorites",
+  recent: "Recent files",
+  favorites: "Favorite files",
   trash: "Trash",
 } as const;
 
 const roomsSubItems = {
-  recent: "Recent",
-  favorites: "Favorites",
+  recent: "Recent files",
+  favorites: "Favorite files",
   templates: "Templates",
   archive: "Archive",
   trash: "Trash",
 } as const;
 
 const formsSubItems = {
-  recent: "Recent",
-  favorites: "Favorites",
+  recent: "Recent files",
+  favorites: "Favorite files",
   templates: "Templates",
   trash: "Trash",
 } as const;
 
 const aiAgentsSubItems = {
-  recent: "Recent",
-  favorites: "Favorites",
+  recent: "Recent files",
+  favorites: "Favorite files",
   trash: "Trash",
 } as const;
 
