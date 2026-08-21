@@ -28,7 +28,7 @@ const FOLDER_LABELS: Record<FolderType, string> = {
   rooms: "Rooms",
   forms: "Forms",
   recent: "Recent",
-  favorite: "Favorites",
+  favorite: "Favorite files",
 };
 
 class RoomSelectPanel extends BaseSelector {
