@@ -263,7 +263,11 @@ test.describe("Settings - Customization: Default Templates", () => {
     });
 
     await test.step("Create new document in room", async () => {
-      await myRooms.filesNavigation.openCreateDropdown();
+      // Room is empty right after creation, so the toolbar "+" button isn't
+      // functional yet; use the welcome screen's quick action instead.
+      await myRooms.roomsEmptyView.clickCreateNewFile();
+      // Empty-view quick action menu uses plain type names, unlike the
+      // toolbar dropdown's "New document" etc.
       await myRooms.filesNavigation.selectCreateAction("Document");
       await myRooms.filesNavigation.modal.fillCreateTextInput(DOC_NAME);
       const [newPage] = await Promise.all([
