@@ -22,6 +22,13 @@ class RoomsEmptyView {
     return this.page.locator(INVITE_USERS);
   }
 
+  private get createNewFileAction() {
+    return this.page.getByRole("button", {
+      name: "Create a new file",
+      exact: true,
+    });
+  }
+
   async checkNoRoomsExist() {
     await expect(
       this.page.getByText("Please create the first room."),
@@ -40,6 +47,13 @@ class RoomsEmptyView {
 
   async openCreateDialog() {
     await this.createNewRoom.click();
+  }
+
+  // Empty room's welcome screen quick action; opens the same create dropdown
+  // as the toolbar "+" button, which isn't functional while the room is empty.
+  async clickCreateNewFile() {
+    await expect(this.createNewFileAction).toBeVisible();
+    await this.createNewFileAction.click();
   }
 
   async uploadFilesFromDevice(filePaths: string | string[]) {
