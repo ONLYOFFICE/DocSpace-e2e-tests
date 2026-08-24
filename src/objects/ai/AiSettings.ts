@@ -90,7 +90,7 @@ class AiSettings extends BasePage {
   async activate() {
     await this.expectLoaded();
     await this.activateButton.click();
-    await this.page.waitForURL(/\/payments\/services\/ai-services/, {
+    await this.page.waitForURL(/\/billing\/addons\/ai-services/, {
       timeout: 30000,
     });
     await this.page.waitForTimeout(3000);

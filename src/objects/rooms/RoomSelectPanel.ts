@@ -11,10 +11,10 @@ type FolderType =
 
 // Top-level entries in the "Select" panel.
 const FOLDER_SELECTORS: Record<FolderType, string> = {
-  ai: '[data-testid="selector-item-0"]',
-  documents: '[data-testid="selector-item-1"]',
-  rooms: '[data-testid="selector-item-2"]',
-  forms: '[data-testid="selector-item-3"]',
+  documents: '[data-testid="selector-item-0"]',
+  rooms: '[data-testid="selector-item-1"]',
+  forms: '[data-testid="selector-item-2"]',
+  ai: '[data-testid="selector-item-3"]',
   // Recent / Favorites are nested one level under "Files" in this panel.
   recent: '[data-testid="selector-item-0"]',
   favorite: '[data-testid="selector-item-1"]',
@@ -62,10 +62,10 @@ class RoomSelectPanel extends BaseSelector {
     await this.selector.waitFor({ state: "visible" });
 
     const expectedOptions: Array<{ type: FolderType; text: string }> = [
-      { type: "ai", text: "AI agents" },
       { type: "documents", text: "Files" },
       { type: "rooms", text: "Rooms" },
       { type: "forms", text: "Forms" },
+      { type: "ai", text: "AI agents" },
     ];
     for (const option of expectedOptions) {
       const selector = FOLDER_SELECTORS[option.type];

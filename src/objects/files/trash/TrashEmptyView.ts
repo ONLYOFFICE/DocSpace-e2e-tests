@@ -8,7 +8,7 @@ class TrashEmptyView {
   }
 
   async checkNoDocsTextExist() {
-    await expect(this.page.getByText("No docs here yet")).toBeVisible();
+    await expect(this.page.getByText("No items here yet")).toBeVisible();
   }
 }
 
