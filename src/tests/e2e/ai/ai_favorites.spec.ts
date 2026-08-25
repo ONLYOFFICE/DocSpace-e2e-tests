@@ -67,7 +67,7 @@ test.describe("AI agents: Favorites", () => {
 
     await test.step("Mark the generated file as favorite from Result Storage", async () => {
       await aiAgents.openResultStorageTab();
-      await aiAgents.markFileAsFavorite(baseName(fileTitle));
+      await aiAgents.filesTable.markAsFavorite(baseName(fileTitle));
     });
 
     await test.step("Verify the file appears in the Favorites section", async () => {
