@@ -4,7 +4,9 @@ import { BaseContextMenu } from "../common/BaseContextMenu";
 import type { TMenuItem } from "../common/BaseMenu";
 import BaseInviteDialog from "../common/BaseInviteDialog";
 import BaseNavigation from "../common/BaseNavigation";
-import { apps } from "@/src/utils/constants/navigation";
+import FilesTable from "../files/FilesTable";
+import { apps, aiAgentsSubItems } from "@/src/utils/constants/navigation";
+import { aiSectionEmptyView } from "@/src/utils/constants/ai";
 import { expect, Page } from "@playwright/test";
 
 export class AiAgents extends BasePage {
@@ -12,6 +14,7 @@ export class AiAgents extends BasePage {
   contextMenu: BaseContextMenu;
   inviteDialog: BaseInviteDialog;
   navigation: BaseNavigation;
+  filesTable: FilesTable;
 
   constructor(page: Page, portalDomain: string) {
     super(page);
@@ -19,6 +22,7 @@ export class AiAgents extends BasePage {
     this.contextMenu = new BaseContextMenu(page);
     this.inviteDialog = new BaseInviteDialog(page);
     this.navigation = new BaseNavigation(page, {});
+    this.filesTable = new FilesTable(page);
   }
 
   private get emptyProvidersHeading() {
@@ -103,6 +107,125 @@ export class AiAgents extends BasePage {
     await expect(this.page).toHaveURL(/\/ai-agents/);
   }
 
+  private get emptyView() {
+    return this.page.getByTestId("empty-view");
+  }
+
+  async sendChatMessage(text: string) {
+    const composer = this.page.getByTestId("composer-input");
+    await composer.click();
+    await composer.fill(text);
+    await this.page.getByTestId("send-button").click();
+  }
+
+  // Agent tool calls require approval via a "Confirmation" dialog.
+  async approveToolUsageIfPresent(): Promise<boolean> {
+    const allow = this.page
+      .locator("#modal-dialog")
+      .getByRole("button", { name: "Allow", exact: true });
+    if (await allow.isVisible().catch(() => false)) {
+      await allow.click();
+      return true;
+    }
+    return false;
+  }
+
+  async openRecentFromNavigation() {
+    await this.sidebar.openSubItem(apps.aiAgents, aiAgentsSubItems.recent);
+    await expect(this.page).toHaveURL(/\/ai-agents\/recent/);
+  }
+
+  async openFavoritesFromNavigation() {
+    await this.sidebar.openSubItem(apps.aiAgents, aiAgentsSubItems.favorites);
+    await expect(this.page).toHaveURL(/\/ai-agents\/favorites/);
+  }
+
+  async expectRecentSubItemActive() {
+    await this.sidebar.checkSubItemActive(
+      apps.aiAgents,
+      aiAgentsSubItems.recent,
+    );
+  }
+
+  async expectFavoritesSubItemActive() {
+    await this.sidebar.checkSubItemActive(
+      apps.aiAgents,
+      aiAgentsSubItems.favorites,
+    );
+  }
+
+  getAgentFolderIdFromChat(): number {
+    const folder = new URL(this.page.url()).searchParams.get("folder");
+    if (!folder) {
+      throw new Error(`No "folder" param in chat URL: ${this.page.url()}`);
+    }
+    return Number(folder);
+  }
+
+  // Opening a file in the editor is what registers it in the Recent section.
+  async openFileInEditor(fileId: number) {
+    await this.page.goto(
+      `${getPortalUrl(this.portalDomain)}/doceditor?fileId=${fileId}`,
+      { waitUntil: "domcontentloaded" },
+    );
+    await expect(this.page).toHaveURL(/\/doceditor/);
+    await this.page
+      .locator("iframe")
+      .first()
+      .waitFor({ state: "attached", timeout: 60000 });
+    await this.page.waitForTimeout(12000);
+  }
+
+  async expectFileInRecent(fileTitle: string) {
+    await this.openRecentFromNavigation();
+    await this.expectFileVisibleInList(fileTitle);
+  }
+
+  async expectFileInFavorites(fileTitle: string) {
+    await this.openFavoritesFromNavigation();
+    await this.expectFileVisibleInList(fileTitle);
+  }
+
+  private async expectFileVisibleInList(fileTitle: string) {
+    await expect(
+      this.page.getByRole("main").getByText(fileTitle).first(),
+    ).toBeVisible({ timeout: 30000 });
+  }
+
+  // Opens the agent chat's "Result Storage" tab, where generated files live.
+  async openResultStorageTab() {
+    await this.page
+      .locator('[class*="tabText"]', { hasText: "Result Storage" })
+      .click();
+  }
+
+  // Stars a file from a list view via its context menu ("Mark as favorite").
+  async markFileAsFavorite(fileTitle: string) {
+    await this.filesTable.openContextMenuForItem(fileTitle);
+    await this.filesTable.contextMenu.clickOption("Mark as favorite");
+  }
+
+  async expectRecentEmptyView() {
+    await this.expectSectionEmptyView(aiSectionEmptyView.recent);
+  }
+
+  async expectFavoritesEmptyView() {
+    await this.expectSectionEmptyView(aiSectionEmptyView.favorites);
+  }
+
+  private async expectSectionEmptyView(section: {
+    heading: string;
+    title: string;
+    description: string;
+  }) {
+    await expect(
+      this.page.getByRole("heading", { name: section.heading, exact: true }),
+    ).toBeVisible();
+    await expect(this.emptyView).toBeVisible();
+    await expect(this.emptyView.getByText(section.title)).toBeVisible();
+    await expect(this.emptyView.getByText(section.description)).toBeVisible();
+  }
+
   async openCreateAgentDialog() {
     // Right after AI activation the empty view can still render the
     // "Top up & activate" state; reload so the create-agent action shows.
@@ -156,6 +279,44 @@ export class AiAgents extends BasePage {
 
   async expectChatOpened() {
     await expect(this.chatComposerInput).toBeVisible();
+  }
+
+  async createAgent(
+    name: string,
+    opts: { model?: string; instructions?: string } = {},
+  ) {
+    await this.openDirectly();
+    await this.openCreateAgentDialog();
+    await this.fillAgentName(name);
+    if (opts.model) {
+      await this.selectModel(opts.model);
+    }
+    if (opts.instructions) {
+      await this.fillInstructions(opts.instructions);
+    }
+    await this.saveAgent();
+    await this.expectChatOpened();
+  }
+
+  // Asks the agent to generate a document and approves the tool call. The
+  // built-in "resume" tool completes reliably (free-form requests often stall);
+  // pair with the GPT model, as the default DeepSeek often skips the tool call.
+  // `pollFiles` returns the Result Storage contents so this can wait for the
+  // generated file without coupling the page object to the API layer.
+  async generateResumeDocument(
+    pollFiles: () => Promise<Array<{ id: number; title: string }>>,
+  ): Promise<{ fileId: number; fileTitle: string }> {
+    await this.sendChatMessage("Create a new resume doc");
+
+    let file: { id: number; title: string } | undefined;
+    await expect(async () => {
+      await this.approveToolUsageIfPresent();
+      const files = await pollFiles();
+      expect(files.length).toBeGreaterThan(0);
+      file = files[0];
+    }).toPass({ timeout: 120000, intervals: [3000] });
+
+    return { fileId: file!.id, fileTitle: file!.title };
   }
 
   async openAttachmentPanel() {
