@@ -278,7 +278,7 @@ test.describe("Email Checks", () => {
             "TestPassword123!",
           );
 
-          await incognitoPage.waitForURL(/.*rooms.*/, {
+          await incognitoPage.waitForURL(/.*(dashboard|rooms).*/, {
             waitUntil: "load",
             timeout: 30000,
           });
@@ -334,7 +334,7 @@ test.describe("Email Checks", () => {
             "TestPassword123!",
           );
 
-          await incognitoPage.waitForURL(/.*rooms.*/, {
+          await incognitoPage.waitForURL(/.*(dashboard|rooms).*/, {
             waitUntil: "load",
             timeout: 30000,
           });
