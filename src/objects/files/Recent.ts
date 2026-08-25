@@ -39,7 +39,7 @@ class Recent extends BasePage {
 
   async checkNoRecentFilesTextExist() {
     await expect(
-      this.page.getByText("No recent files here yet", { exact: true }),
+      this.page.getByText("No recent files yet", { exact: true }),
     ).toBeVisible();
   }
 }

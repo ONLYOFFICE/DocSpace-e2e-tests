@@ -278,7 +278,7 @@ test.describe("Email Checks", () => {
             "TestPassword123!",
           );
 
-          await incognitoPage.waitForURL(/.*rooms.*/, {
+          await incognitoPage.waitForURL(/.*(dashboard|rooms).*/, {
             waitUntil: "load",
             timeout: 30000,
           });
@@ -334,7 +334,9 @@ test.describe("Email Checks", () => {
             "TestPassword123!",
           );
 
-          await incognitoPage.waitForURL(/.*rooms.*/, {
+          // After registration the user lands on the portal home, which is now
+          // the dashboard (older builds redirected straight to rooms).
+          await incognitoPage.waitForURL(/.*(dashboard|rooms).*/, {
             waitUntil: "load",
             timeout: 30000,
           });
