@@ -274,24 +274,28 @@ class MyRooms extends BasePage {
   }
   async verifyCompleteFolderVisible() {
     await expect(
-      this.page.getByText(formFillingSystemFolders.complete),
+      this.page.getByText(formFillingSystemFolders.complete, { exact: true }),
     ).toBeVisible();
   }
 
   async verifyCompleteFolderNotVisible() {
     await expect(
-      this.page.getByText(formFillingSystemFolders.complete),
+      this.page.getByText(formFillingSystemFolders.complete, { exact: true }),
     ).not.toBeVisible();
   }
   async verifyInProcessFolderVisible() {
     await expect(
-      this.page.getByText(formFillingSystemFolders.inProcess),
+      this.page.getByText(formFillingSystemFolders.inProcess, {
+        exact: true,
+      }),
     ).toBeVisible();
   }
 
   async verifyInProcessFolderNotVisible() {
     await expect(
-      this.page.getByText(formFillingSystemFolders.inProcess),
+      this.page.getByText(formFillingSystemFolders.inProcess, {
+        exact: true,
+      }),
     ).not.toBeVisible();
   }
   async verifyDraftLabelVisible() {
