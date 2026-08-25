@@ -199,12 +199,6 @@ export class AiAgents extends BasePage {
       .click();
   }
 
-  // Stars a file from a list view via its context menu ("Mark as favorite").
-  async markFileAsFavorite(fileTitle: string) {
-    await this.filesTable.openContextMenuForItem(fileTitle);
-    await this.filesTable.contextMenu.clickOption("Mark as favorite");
-  }
-
   async expectRecentEmptyView() {
     await this.expectSectionEmptyView(aiSectionEmptyView.recent);
   }

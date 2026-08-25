@@ -120,11 +120,6 @@ class Files extends BasePage {
     await this.filesTable.checkRowNotExist(oldName);
   }
 
-  async addToFavorites(itemName: string) {
-    await this.filesTable.openContextMenuForItem(itemName);
-    await this.filesTable.contextMenu.clickOption("Mark as favorite");
-  }
-
   // "Ask AI" appears in the file context menu when at least one AI agent exists.
   async clickAskAi(fileName: string) {
     await this.filesTable.openContextMenuForItem(fileName, true);

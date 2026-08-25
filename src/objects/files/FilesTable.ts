@@ -1,7 +1,11 @@
 import { expect, Page } from "@playwright/test";
 import BaseTable from "../common/BaseTable";
 import { BaseContextMenu } from "../common/BaseContextMenu";
-import { initialDocNames } from "@/src/utils/constants/files";
+import DocumentEditor from "./DocumentEditor";
+import {
+  initialDocNames,
+  documentContextMenuOption,
+} from "@/src/utils/constants/files";
 
 const TABLE_LIST_ITEM = ".table-list-item.window-item";
 const EDITORS_ICON = '[data-tooltip-id^="editors-tooltip-"]';
@@ -151,6 +155,23 @@ class FilesTable extends BaseTable {
         : this.page.locator(TABLE_LIST_ITEM, { hasText: name });
     await expect(item).toBeVisible();
     await this.openContextMenuRow(item);
+  }
+
+  // Opens a file in the editor (a new tab) via its context menu.
+  async openInEditor(name: string, exact = true): Promise<DocumentEditor> {
+    await this.openContextMenuForItem(name, exact);
+    const [editorPage] = await Promise.all([
+      this.page.context().waitForEvent("page", { timeout: 30000 }),
+      this.contextMenu.clickOption(documentContextMenuOption.edit),
+    ]);
+    const editor = new DocumentEditor(editorPage);
+    await editor.waitForLoad();
+    return editor;
+  }
+
+  async markAsFavorite(name: string) {
+    await this.openContextMenuForItem(name);
+    await this.contextMenu.clickOption("Mark as favorite");
   }
 
   async checkInitialDocsExist() {

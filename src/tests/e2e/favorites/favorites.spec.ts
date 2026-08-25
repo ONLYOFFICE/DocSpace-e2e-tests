@@ -28,11 +28,11 @@ test.describe("Favorites", () => {
 
   test("Add to favorites", async () => {
     await test.step("Mark all documents as favorites", async () => {
-      await files.addToFavorites(documentName);
-      await files.addToFavorites(spreadsheetName);
-      await files.addToFavorites(presentationName);
-      await files.addToFavorites(pdfFormName);
-      await files.addToFavorites(folderName);
+      await files.filesTable.markAsFavorite(documentName);
+      await files.filesTable.markAsFavorite(spreadsheetName);
+      await files.filesTable.markAsFavorite(presentationName);
+      await files.filesTable.markAsFavorite(pdfFormName);
+      await files.filesTable.markAsFavorite(folderName);
     });
 
     await test.step("Open Favorites", async () => {
@@ -50,11 +50,11 @@ test.describe("Favorites", () => {
 
   test("Remove from favorites", async ({}) => {
     await test.step("Mark all documents as favorites", async () => {
-      await files.addToFavorites(documentName);
-      await files.addToFavorites(spreadsheetName);
-      await files.addToFavorites(presentationName);
-      await files.addToFavorites(pdfFormName);
-      await files.addToFavorites(folderName);
+      await files.filesTable.markAsFavorite(documentName);
+      await files.filesTable.markAsFavorite(spreadsheetName);
+      await files.filesTable.markAsFavorite(presentationName);
+      await files.filesTable.markAsFavorite(pdfFormName);
+      await files.filesTable.markAsFavorite(folderName);
     });
 
     await test.step("Remove from Favorites", async () => {
@@ -73,11 +73,11 @@ test.describe("Favorites", () => {
 
   test("Search in favorites", async () => {
     await test.step("Mark all documents", async () => {
-      await files.addToFavorites(documentName);
-      await files.addToFavorites(spreadsheetName);
-      await files.addToFavorites(presentationName);
-      await files.addToFavorites(pdfFormName);
-      await files.addToFavorites(folderName);
+      await files.filesTable.markAsFavorite(documentName);
+      await files.filesTable.markAsFavorite(spreadsheetName);
+      await files.filesTable.markAsFavorite(presentationName);
+      await files.filesTable.markAsFavorite(pdfFormName);
+      await files.filesTable.markAsFavorite(folderName);
     });
 
     await test.step("Open Favorites", async () => {
@@ -106,15 +106,15 @@ test.describe("Favorites", () => {
     });
 
     await test.step("Mark all documents as favorites", async () => {
-      await files.addToFavorites(documentName);
-      await files.addToFavorites(spreadsheetName);
-      await files.addToFavorites(presentationName);
-      await files.addToFavorites(pdfFormName);
-      await files.addToFavorites(folderName);
-      await files.addToFavorites(pdfDocumentName);
-      await files.addToFavorites(imageName);
-      await files.addToFavorites(archiveName);
-      await files.addToFavorites(diagramName);
+      await files.filesTable.markAsFavorite(documentName);
+      await files.filesTable.markAsFavorite(spreadsheetName);
+      await files.filesTable.markAsFavorite(presentationName);
+      await files.filesTable.markAsFavorite(pdfFormName);
+      await files.filesTable.markAsFavorite(folderName);
+      await files.filesTable.markAsFavorite(pdfDocumentName);
+      await files.filesTable.markAsFavorite(imageName);
+      await files.filesTable.markAsFavorite(archiveName);
+      await files.filesTable.markAsFavorite(diagramName);
     });
 
     await favorites.openFromNavigation();
