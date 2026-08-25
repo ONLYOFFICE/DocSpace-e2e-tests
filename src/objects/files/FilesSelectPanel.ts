@@ -46,14 +46,14 @@ class FilesSelectPanel extends BaseSelector {
   // its item list, and clicking the target index too soon can hit a stale
   // item from the previous (pre-navigation) render. Waiting for the expected
   // label at that index makes the click land on the settled root list.
-  async select(type: "documents" | "rooms" | "forms") {
-    if (type === "forms") {
-      // "Forms" is not at a fixed index in this panel, so match by text instead.
-      await this.selectItemByText("Forms");
-      return;
-    }
-    const index = type === "documents" ? 1 : 2;
-    const label = type === "documents" ? "Files" : "Rooms";
+  async select(type: "documents" | "rooms" | "forms" | "ai") {
+    const index = { documents: 0, rooms: 1, forms: 2, ai: 3 }[type];
+    const label = {
+      documents: "Files",
+      rooms: "Rooms",
+      forms: "Forms",
+      ai: "AI agents",
+    }[type];
     const item = this.selector.getByTestId(`selector-item-${index}`);
     await expect(item).toContainText(label);
     await item.click();
