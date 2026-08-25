@@ -35,6 +35,46 @@ export class FoldersApi {
     });
   }
 
+  async getSubfolderIdByTitle(
+    role: Role,
+    parentId: number,
+    title: string,
+  ): Promise<number> {
+    return test.step(`${role} get subfolder "${title}" in ${parentId}`, async () => {
+      const response = await this.request.get(
+        `${this.portalBaseUrl}/api/2.0/files/${parentId}`,
+        {
+          headers: { Authorization: `Bearer ${this.getToken(role)}` },
+        },
+      );
+      const body = await response.json();
+      const folders: Array<{ id: number; title: string }> =
+        body.response.folders ?? [];
+      const match = folders.find((f) => f.title === title);
+      if (!match) {
+        throw new Error(
+          `Subfolder "${title}" not found in folder ${parentId}. ` +
+            `Available: ${folders.map((f) => f.title).join(", ")}`,
+        );
+      }
+      return match.id;
+    });
+  }
+
+  async listFiles(
+    role: Role,
+    folderId: number,
+  ): Promise<Array<{ id: number; title: string }>> {
+    const response = await this.request.get(
+      `${this.portalBaseUrl}/api/2.0/files/${folderId}`,
+      {
+        headers: { Authorization: `Bearer ${this.getToken(role)}` },
+      },
+    );
+    const body = await response.json().catch(() => null);
+    return body?.response?.files ?? [];
+  }
+
   async setFolderOrder(role: Role, folderId: number, order: number) {
     return test.step(`${role} set order ${order} for folder ${folderId}`, async () => {
       const response = await this.request.put(
