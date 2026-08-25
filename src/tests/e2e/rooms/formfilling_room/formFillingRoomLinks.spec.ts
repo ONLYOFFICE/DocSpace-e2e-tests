@@ -205,61 +205,55 @@ test.describe("FormFilling room - Link tests", () => {
     page,
     browser,
   }) => {
-      let shareLink: string;
-      let incognitoPage: Page;
+    let shareLink: string;
+    let incognitoPage: Page;
 
-      //Copy link to the room with Fill form access
-      await test.step("Click Share room in empty view", async () => {
-        // Tour is temporarily not shown; may come back later.
+    //Copy link to the room with Fill form access
+    await test.step("Click Share room in empty view", async () => {
+      // Tour is temporarily not shown; may come back later.
 
-        // await shortTour.clickSkipTour();
-        await setupClipboardPermissions(page);
-        await roomEmptyView.shareRoomClick();
-        await myRooms.toast.dismissToastSafely(
-          "Link copied to clipboard",
-          10000,
-        );
-        //Save link to clipboard
-        shareLink = await page.evaluate(() => navigator.clipboard.readText());
-        if (!shareLink)
-          throw new Error("Failed to get share link from clipboard");
-      });
+      // await shortTour.clickSkipTour();
+      await setupClipboardPermissions(page);
+      await roomEmptyView.shareRoomClick();
+      await myRooms.toast.dismissToastSafely("Link copied to clipboard", 10000);
+      //Save link to clipboard
+      shareLink = await page.evaluate(() => navigator.clipboard.readText());
+      if (!shareLink)
+        throw new Error("Failed to get share link from clipboard");
+    });
 
-      await test.step("Upload PDF form from My Documents", async () => {
-        await roomEmptyView.uploadPdfFromDocSpace();
-        await selectPanel.checkSelectorExist();
-        await selectPanel.select("documents");
-        await selectPanel.selectItemByText("ONLYOFFICE Resume Sample");
-        await selectPanel.confirmSelection();
-        await myRooms.infoPanel.close();
-        await expect(
-          page.getByLabel("ONLYOFFICE Resume Sample,"),
-        ).toBeVisible();
-      });
+    await test.step("Upload PDF form from My Documents", async () => {
+      await roomEmptyView.uploadPdfFromDocSpace();
+      await selectPanel.checkSelectorExist();
+      await selectPanel.select("documents");
+      await selectPanel.selectItemByText("ONLYOFFICE Resume Sample");
+      await selectPanel.confirmSelection();
+      await myRooms.infoPanel.close();
+      await expect(page.getByLabel("ONLYOFFICE Resume Sample,")).toBeVisible();
+    });
 
-      await test.step("Open Room in incognito and check Sign In button", async () => {
-        const url = await page.evaluate(() => navigator.clipboard.readText());
-        if (!url) throw new Error("Clipboard is empty");
-        const result = await verifyAnonymousPageInIncognito(browser, url);
-        incognitoContext = result.context;
-        incognitoPage = result.page;
-      });
+    await test.step("Open Room in incognito and check Sign In button", async () => {
+      const url = await page.evaluate(() => navigator.clipboard.readText());
+      if (!url) throw new Error("Clipboard is empty");
+      const result = await verifyAnonymousPageInIncognito(browser, url);
+      incognitoContext = result.context;
+      incognitoPage = result.page;
+    });
 
-      await test.step("Validate unstated pdf form is not visible", async () => {
-        await expect(
-          incognitoPage.getByLabel("ONLYOFFICE Resume Sample,"),
-        ).not.toBeVisible();
-      });
+    await test.step("Validate unstated pdf form is not visible", async () => {
+      await expect(
+        incognitoPage.getByLabel("ONLYOFFICE Resume Sample,"),
+      ).not.toBeVisible();
+    });
 
-      await test.step("Validate that Complete and In progress folders do not exist", async () => {
-        const incognitoMyRooms = new MyRooms(incognitoPage, "docspace");
-        // Verify the "Complete" folder is not visible
-        await incognitoMyRooms.verifyCompleteFolderNotVisible();
-        // Verify the "In progress" folder is not visible
-        await incognitoMyRooms.verifyInProcessFolderNotVisible();
-      });
-    },
-  );
+    await test.step("Validate that Complete and In progress folders do not exist", async () => {
+      const incognitoMyRooms = new MyRooms(incognitoPage, "docspace");
+      // Verify the "Complete" folder is not visible
+      await incognitoMyRooms.verifyCompleteFolderNotVisible();
+      // Verify the "In progress" folder is not visible
+      await incognitoMyRooms.verifyInProcessFolderNotVisible();
+    });
+  });
   //Check that room can't be open after revoking link
   test("Revoke link Room and open it", async ({ page, browser }) => {
     let shareLink: string;
