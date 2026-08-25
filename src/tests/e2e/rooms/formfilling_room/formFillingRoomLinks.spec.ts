@@ -201,9 +201,10 @@ test.describe("FormFilling room - Link tests", () => {
     await verifyLoginPageInIncognito(browser, url);
   });
   //Checking the link to the Room will open with file and Sing In button
-  test.fail(
-    "Open shared link Room for Anyone with link [Bug 83319]",
-    async ({ page, browser }) => {
+  test("Open shared link Room for Anyone with link", async ({
+    page,
+    browser,
+  }) => {
       let shareLink: string;
       let incognitoPage: Page;
 
