@@ -12,12 +12,18 @@ test.describe("Webhooks tests", () => {
   });
 
   test("Create and verify webhook", async () => {
-    await webhooks.createWebhook("AutotestWebhook", "https://onlyoffice.com");
+    await webhooks.createWebhook(
+      "AutotestWebhook",
+      "https://www.onlyoffice.com",
+    );
     await webhooks.checkWebhookVisible("AutotestWebhook");
   });
 
   test("Edit webhook name", async () => {
-    await webhooks.createWebhook("AutotestWebhook", "https://onlyoffice.com");
+    await webhooks.createWebhook(
+      "AutotestWebhook",
+      "https://www.onlyoffice.com",
+    );
     await webhooks.checkWebhookVisible("AutotestWebhook");
     await webhooks.editWebhook("AutotestWebhook", "AutotestWebhookRenamed");
     await webhooks.checkWebhookVisible("AutotestWebhookRenamed");
@@ -26,7 +32,7 @@ test.describe("Webhooks tests", () => {
   test("Delete webhook", async () => {
     await webhooks.createWebhook(
       "AutotestWebhookDelete",
-      "https://onlyoffice.com",
+      "https://www.onlyoffice.com",
     );
     await webhooks.checkWebhookVisible("AutotestWebhookDelete");
     await webhooks.deleteWebhook("AutotestWebhookDelete");
