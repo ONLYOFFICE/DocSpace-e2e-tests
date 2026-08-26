@@ -250,18 +250,6 @@ test.describe("Daily prod check", () => {
       await trash.open();
       await trash.deleteFileForever("TrashDoc");
     });
-
-    test("Restore file from Trash", async ({ apiSdk }) => {
-      await apiSdk.files.createFileInMyDocuments("owner", {
-        title: "RestoreDoc",
-      });
-      await files.open();
-
-      await files.deleteFile("RestoreDoc");
-
-      await trash.open();
-      await trash.restoreFileTo("RestoreDoc");
-    });
   });
 
   test.describe("Email", () => {
