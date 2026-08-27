@@ -11,7 +11,7 @@ class Overview extends BaseDevTools {
   }
 
   get learnMoreLink(): Locator {
-    return this.cardLink("Learn more");
+    return this.cardLink("Read API documentation");
   }
 
   get startEmbeddingLink(): Locator {
