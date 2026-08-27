@@ -97,7 +97,7 @@ export class TwoFactorAuthPage {
     const descriptionText = this.page.locator(DESCRIPTION_TEXT);
     await expect(descriptionText.first()).toBeVisible({ timeout: 10000 });
 
-    const strongElement = descriptionText.locator("strong");
+    const strongElement = descriptionText.locator("strong").first();
     const secretKey = await strongElement.textContent();
 
     if (!secretKey) {
