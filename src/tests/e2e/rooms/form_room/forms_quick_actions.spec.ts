@@ -105,10 +105,7 @@ test.describe("Forms: quick actions panel", () => {
     });
   });
 
-  test("AI chat button opens the AI agents section", async ({
-    page,
-    api,
-  }) => {
+  test("AI chat button opens the AI agents section", async ({ page, api }) => {
     await test.step("Click AI chat", async () => {
       await myRooms.formsQuickActions.clickAiChat();
     });
