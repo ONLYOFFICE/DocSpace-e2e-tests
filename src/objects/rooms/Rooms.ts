@@ -17,6 +17,7 @@ import {
   TRoomDialogSource,
 } from "@/src/utils/constants/rooms";
 import QuickActions from "../common/QuickActions";
+import FormsQuickActions from "./FormsQuickActions";
 import { apps, roomsSubItems } from "@/src/utils/constants/navigation";
 import RoomsEditDialog from "./RoomsEditDialog";
 import RoomsEditTemplateDialog from "./RoomsEditTemplateDialog";
@@ -66,6 +67,7 @@ class MyRooms extends BasePage {
   roomsTypeDropdown: RoomsTypesDropdown;
   filesNavigation: FilesNavigation;
   quickActions: QuickActions;
+  formsQuickActions: FormsQuickActions;
   roomsEditDialog: RoomsEditDialog;
   roomsEditTemplateDialog: RoomsEditTemplateDialog;
   roomsAccessSettingsDialog: RoomsAccessSettingsDialog;
@@ -89,6 +91,7 @@ class MyRooms extends BasePage {
     this.roomsTypeDropdown = new RoomsTypesDropdown(page);
     this.filesNavigation = new FilesNavigation(page);
     this.quickActions = new QuickActions(page);
+    this.formsQuickActions = new FormsQuickActions(page);
     this.roomsEditDialog = new RoomsEditDialog(page);
     this.roomsEditTemplateDialog = new RoomsEditTemplateDialog(page);
     this.roomsChangeOwnerDialog = new RoomsChangeOwnerDialog(page);

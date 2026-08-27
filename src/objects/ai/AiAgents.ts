@@ -43,6 +43,24 @@ export class AiAgents extends BasePage {
     return this.page.locator("#top-up-and-activate-ai");
   }
 
+  // The inline AI Chat panel opened from a section's quick actions (Forms,
+  // etc.) shows its own not-active state, distinct from the full AI Agents
+  // page's "AI features aren't active yet".
+  private get quickChatNotActiveHeading() {
+    return this.page.getByRole("heading", {
+      name: /AI Chat isn.t active yet/,
+    });
+  }
+
+  private get quickChatTopUpButton() {
+    return this.page.getByRole("button", { name: "Top up & activate" });
+  }
+
+  async expectQuickChatNotActive() {
+    await expect(this.quickChatNotActiveHeading).toBeVisible();
+    await expect(this.quickChatTopUpButton).toBeVisible();
+  }
+
   private get agentNameInput() {
     return this.page.getByTestId("create_edit_agent_input");
   }
