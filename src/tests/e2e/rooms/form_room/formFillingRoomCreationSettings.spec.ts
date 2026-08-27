@@ -1,0 +1,244 @@
+import { test } from "@/src/fixtures";
+import { expect, Page } from "@playwright/test";
+import MyRooms from "@/src/objects/rooms/Rooms";
+import RoomsCreateDialog from "@/src/objects/rooms/RoomsCreateDialog";
+import { ShortTour } from "@/src/objects/rooms/ShortTourModal";
+import PdfFormModal from "@/src/objects/rooms/PdfFormModal";
+import RoomSelectPanel from "@/src/objects/rooms/RoomSelectPanel";
+import RoomEmptyView from "@/src/objects/rooms/RoomEmptyView";
+import FilesPdfForm from "@/src/objects/files/FilesPdfForm";
+import RoomPDFCompleted from "@/src/objects/rooms/RoomPDFCompleted";
+import FilesTable from "@/src/objects/files/FilesTable";
+import { formFillingSystemFolders } from "@/src/utils/constants/rooms";
+import { formFillingRoomPdfContextMenuOption } from "@/src/utils/constants/files";
+import Login from "@/src/objects/common/Login";
+
+test.describe("FormFilling room: creation settings", () => {
+  let myRooms: MyRooms;
+  let createDialog: RoomsCreateDialog;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- tour is temporarily not shown; kept for when it comes back
+  let shortTour: ShortTour;
+  let selectPanel: RoomSelectPanel;
+  let roomEmptyView: RoomEmptyView;
+
+  test.beforeEach(async ({ page, api, login }) => {
+    myRooms = new MyRooms(page, api.portalDomain);
+    createDialog = new RoomsCreateDialog(page);
+    shortTour = new ShortTour(page);
+    selectPanel = new RoomSelectPanel(page);
+    roomEmptyView = new RoomEmptyView(page);
+    await login.loginToPortal();
+    await myRooms.openFormSetCreateDialog();
+  });
+
+  test("Default state: toggles are in correct positions and Go to Integrations link is visible", async () => {
+    await test.step("Verify Collect results in XLSX is enabled by default", async () => {
+      await createDialog.expectSaveFormAsXlsxChecked(true);
+    });
+
+    await test.step("Verify Send form to external DB is disabled by default", async () => {
+      await createDialog.expectSendFormToExternalDbChecked(false);
+    });
+
+    await test.step("Verify Go to Integrations link is visible", async () => {
+      await expect(createDialog.goToIntegrationsLink).toBeVisible();
+    });
+  });
+
+  test("Go to Integrations link opens Database connection panel", async ({
+    page,
+  }) => {
+    await test.step("Verify Go to Integrations link is visible and has correct href", async () => {
+      await expect(createDialog.goToIntegrationsLink).toBeVisible();
+      await expect(createDialog.goToIntegrationsLink).toHaveAttribute(
+        "href",
+        /\/portal-settings\/integration\/third-party-services\?consumer=externaldb/,
+      );
+    });
+
+    await test.step("Click link and verify Database connection panel opens", async () => {
+      await createDialog.goToIntegrationsLink.click();
+      await page.waitForURL(
+        /\/portal-settings\/integration\/third-party-services\?consumer=externaldb/,
+      );
+      await expect(
+        page.locator("#modal-header-swipe").getByText("Database connection"),
+      ).toBeVisible();
+    });
+  });
+
+  test("Send form to external DB toggle is disabled when no external DB is connected", async () => {
+    const roomName = "FormFillingExternalDb";
+
+    await test.step("Verify toggle is disabled and description is shown in creation dialog", async () => {
+      await createDialog.checkExternalDbToggleDisabled();
+      await createDialog.checkExternalDbDisabledDescription();
+    });
+
+    await test.step("Create the room", async () => {
+      await createDialog.fillRoomName(roomName);
+      await createDialog.clickRoomDialogSubmit();
+    });
+
+    await test.step("Skip short tour", async () => {
+      // Tour is temporarily not shown; may come back later.
+      // await shortTour.clickSkipTour();
+      await myRooms.infoPanel.close();
+    });
+
+    await test.step("Verify toggle is disabled in edit dialog", async () => {
+      await myRooms.navigation.openContextMenu();
+      await myRooms.navigation.contextMenu.clickOption("Edit space");
+      await myRooms.roomsEditDialog.checkDialogTitleExist();
+      await createDialog.checkExternalDbToggleDisabled();
+      await myRooms.roomsEditDialog.close();
+    });
+  });
+
+  test("Disabling Collect results in XLSX: no XLSX file appears in Complete folder after form submission", async ({
+    page,
+  }) => {
+    const roomName = "FormFillingNoXlsx";
+    let newPage: Page;
+
+    await test.step("Disable Collect results in XLSX toggle", async () => {
+      await createDialog.toggleSaveFormAsXlsx(false);
+    });
+
+    await test.step("Create the room", async () => {
+      await createDialog.fillRoomName(roomName);
+      await createDialog.clickRoomDialogSubmit();
+      // Tour tips modal is temporarily not shown; wait for the room heading instead.
+      await myRooms.checkHeadingExist(roomName);
+    });
+
+    await test.step("Skip short tour", async () => {
+      // Tour is temporarily not shown; may come back later.
+      // await shortTour.clickSkipTour();
+      await myRooms.infoPanel.close();
+    });
+
+    await test.step("Verify toggle is disabled in edit dialog", async () => {
+      await myRooms.navigation.openContextMenu();
+      await myRooms.navigation.contextMenu.clickOption("Edit space");
+      await myRooms.roomsEditDialog.checkDialogTitleExist();
+      await createDialog.expectSaveFormAsXlsxChecked(false);
+      await myRooms.roomsEditDialog.clickCloseButton();
+    });
+
+    await test.step("Upload PDF form from DocSpace", async () => {
+      await roomEmptyView.uploadPdfFromDocSpace();
+      await selectPanel.checkSelectorExist();
+      await selectPanel.select("documents");
+      await selectPanel.selectItemByText("ONLYOFFICE Resume Sample");
+      await selectPanel.confirmSelection();
+      await myRooms.infoPanel.close();
+      await expect(
+        page.getByText("ONLYOFFICE Resume Sample", { exact: true }),
+      ).toBeVisible();
+    });
+
+    await test.step("Start filling the form", async () => {
+      const filesTable = new FilesTable(page);
+      await filesTable.openContextMenuForItem("ONLYOFFICE Resume Sample");
+      await filesTable.contextMenu.clickOption(
+        formFillingRoomPdfContextMenuOption.startFilling,
+      );
+      await new PdfFormModal(page).close();
+      await filesTable.expectFillingIconVisible("ONLYOFFICE Resume Sample");
+    });
+
+    await test.step("Fill and submit the form", async () => {
+      const filesTable = new FilesTable(page);
+      const pagePromise = page
+        .context()
+        .waitForEvent("page", { timeout: 30000 });
+      await filesTable.openContextMenuForItem("ONLYOFFICE Resume Sample");
+      await filesTable.contextMenu.clickOption("Fill");
+      newPage = await pagePromise;
+      await newPage.waitForLoadState("load");
+      const pdfForm = new FilesPdfForm(newPage);
+      const pdfCompleted = new RoomPDFCompleted(newPage);
+      await pdfForm.clickSubmitButton();
+      await pdfCompleted.chooseBackToRoom();
+      await expect(
+        newPage.getByText("ONLYOFFICE Resume Sample", { exact: true }),
+      ).toBeVisible({ timeout: 15000 });
+    });
+
+    await test.step("Open Complete folder and verify no XLSX file is present", async () => {
+      const filesTable = new FilesTable(newPage);
+      await filesTable.openContextMenuForItem(
+        formFillingSystemFolders.complete,
+      );
+      await filesTable.contextMenu.clickOption("Open");
+      await expect(
+        newPage.getByRole("heading", {
+          name: formFillingSystemFolders.complete,
+        }),
+      ).toBeVisible();
+      await filesTable.openContextMenuForItem("ONLYOFFICE Resume Sample");
+      await filesTable.contextMenu.clickOption("Open");
+      await expect(
+        newPage.getByLabel("ONLYOFFICE Resume Sample,"),
+      ).not.toBeVisible();
+    });
+  });
+});
+
+test.describe("FormFilling room: creation settings - database connection feature availability by portal role", () => {
+  let roomAdminEmail: string;
+  let roomAdminPassword: string;
+  let docSpaceAdminEmail: string;
+  let docSpaceAdminPassword: string;
+
+  test.beforeEach(async ({ apiSdk }) => {
+    const [rmResult, dsaResult] = await Promise.all([
+      apiSdk.profiles.addMember("owner", "RoomAdmin"),
+      apiSdk.profiles.addMember("owner", "DocSpaceAdmin"),
+    ]);
+    roomAdminEmail = rmResult.userData.email;
+    roomAdminPassword = rmResult.userData.password;
+    docSpaceAdminEmail = dsaResult.userData.email;
+    docSpaceAdminPassword = dsaResult.userData.password;
+  });
+
+  test("Room admin: Collect results in XLSX toggle is enabled, Send form to external DB toggle is disabled", async ({
+    page,
+    api,
+  }) => {
+    const login = new Login(page, api.portalDomain);
+    await login.loginWithCredentials(roomAdminEmail, roomAdminPassword);
+    const myRooms = new MyRooms(page, api.portalDomain);
+    const createDialog = new RoomsCreateDialog(page);
+    await myRooms.openFormSetCreateDialog();
+
+    await test.step("Verify Collect results in XLSX toggle is visible and enabled", async () => {
+      await createDialog.checkXlsxToggleEnabled();
+    });
+
+    await test.step("Verify Send form to external DB toggle is visible but disabled", async () => {
+      await createDialog.checkExternalDbToggleDisabled();
+      await createDialog.checkExternalDbRoomAdminDisabledDescription();
+    });
+  });
+
+  test("DocSpace admin: Collect results in XLSX toggle is enabled, Send form to external DB toggle is disabled", async ({
+    page,
+    api,
+  }) => {
+    const login = new Login(page, api.portalDomain);
+    await login.loginWithCredentials(docSpaceAdminEmail, docSpaceAdminPassword);
+    const myRooms = new MyRooms(page, api.portalDomain);
+    const createDialog = new RoomsCreateDialog(page);
+    await myRooms.openFormSetCreateDialog();
+
+    await test.step("Verify Collect results in XLSX toggle is visible and enabled", async () => {
+      await createDialog.checkXlsxToggleEnabled();
+    });
+
+    await test.step("Verify Send form to external DB toggle is visible but disabled", async () => {
+      await createDialog.checkExternalDbToggleDisabled();
+    });
+  });
+});
