@@ -2,18 +2,12 @@ import { Page } from "@playwright/test";
 import path from "path";
 import fs from "fs";
 
-const DROP_ZONE = ".drag-and-drop";
+// File rows also carry the `drag-and-drop` class now, so scope to the section
+// body drop zone (it also has `section-body`) to avoid matching file items.
+const DROP_ZONE = ".section-body.drag-and-drop";
 
 async function waitForDropZone(page: Page): Promise<void> {
   await page.locator(DROP_ZONE).waitFor({ state: "attached", timeout: 10000 });
-}
-
-async function waitForThirdPartyCapabilities(page: Page): Promise<void> {
-  await page.waitForResponse(
-    (r) =>
-      r.url().includes("/files/thirdparty/capabilities") && r.status() === 200,
-    { timeout: 15000 },
-  );
 }
 
 async function restoreWebkitEntryMock(page: Page): Promise<void> {
@@ -42,8 +36,8 @@ async function restoreWebkitEntryMock(page: Page): Promise<void> {
  * We therefore dispatch all drag events inside page.evaluate so we can use
  * that workaround.
  *
- * waitForThirdPartyCapabilities is registered before any events fire to
- * avoid a race where the response arrives before the listener is set up.
+ * After the drop we wait for the upload `/finalize` response so the file is
+ * fully uploaded before the function returns.
  */
 export async function dropFile(page: Page, filePath: string): Promise<void> {
   const resolvedPath = path.resolve(process.cwd(), filePath);
@@ -55,7 +49,7 @@ export async function dropFile(page: Page, filePath: string): Promise<void> {
   const dispatchDragEvent = (type: string) =>
     page.evaluate(
       ({ buffer, fileName, type }) => {
-        const dz = document.querySelector(".drag-and-drop");
+        const dz = document.querySelector(".section-body.drag-and-drop");
         if (!dz) throw new Error("Drop zone (.drag-and-drop) not found");
         const dt = new DataTransfer();
         dt.items.add(
@@ -70,11 +64,13 @@ export async function dropFile(page: Page, filePath: string): Promise<void> {
       { buffer: [...buffer], fileName, type },
     );
 
-  const capabilitiesReady = waitForThirdPartyCapabilities(page);
+  const finalized = page.waitForResponse((r) => r.url().includes("/finalize"), {
+    timeout: 30000,
+  });
   await dispatchDragEvent("dragenter");
   await dispatchDragEvent("dragover");
-  await capabilitiesReady;
   await dispatchDragEvent("drop");
+  await finalized;
 }
 
 /**
@@ -126,7 +122,7 @@ export async function dropFolder(
   const dispatchDragEvent = (type: string) =>
     page.evaluate(
       ({ folderName, type }) => {
-        const dz = document.querySelector(".drag-and-drop");
+        const dz = document.querySelector(".section-body.drag-and-drop");
         if (!dz) throw new Error("Drop zone (.drag-and-drop) not found");
         const dt = new DataTransfer();
         dt.items.add(new File([], folderName));
@@ -138,10 +134,8 @@ export async function dropFolder(
     );
 
   try {
-    const capabilitiesReady = waitForThirdPartyCapabilities(page);
     await dispatchDragEvent("dragenter");
     await dispatchDragEvent("dragover");
-    await capabilitiesReady;
     await dispatchDragEvent("drop");
   } finally {
     await restoreWebkitEntryMock(page);
@@ -223,7 +217,7 @@ export async function dropFolderWithFiles(
   const dispatchDragEvent = (type: string) =>
     page.evaluate(
       ({ folderName, type }) => {
-        const dz = document.querySelector(".drag-and-drop");
+        const dz = document.querySelector(".section-body.drag-and-drop");
         if (!dz) throw new Error("Drop zone (.drag-and-drop) not found");
         const dt = new DataTransfer();
         dt.items.add(new File([], folderName));
@@ -235,15 +229,12 @@ export async function dropFolderWithFiles(
     );
 
   try {
-    const capabilitiesReady = waitForThirdPartyCapabilities(page);
-    await dispatchDragEvent("dragenter");
-    await dispatchDragEvent("dragover");
-    await capabilitiesReady;
-
     const finalizeResponse = page.waitForResponse(
       (r) => r.url().includes("finalize") && r.status() === 201,
       { timeout: 30000 },
     );
+    await dispatchDragEvent("dragenter");
+    await dispatchDragEvent("dragover");
     await dispatchDragEvent("drop");
     await finalizeResponse;
   } finally {
