@@ -1,11 +1,12 @@
 import { test } from "@/src/fixtures";
-import { Page } from "@playwright/test";
+import { expect, Page } from "@playwright/test";
 import MyRooms from "@/src/objects/rooms/Rooms";
 import FilesPdfForm from "@/src/objects/files/FilesPdfForm";
 import PdfFormModal from "@/src/objects/rooms/PdfFormModal";
 import Login from "@/src/objects/common/Login";
 import { apps, roomsSubItems } from "@/src/utils/constants/navigation";
 import { formFillingRoomPdfContextMenuOption } from "@/src/utils/constants/files";
+import { formsRecentContextMenuOption } from "@/src/utils/constants/forms";
 
 const PDF_FORM_FILE = "data/rooms/PDF from device.pdf";
 const PDF_FORM_NAME = "PDF from device";
@@ -14,6 +15,7 @@ test.describe("FormFilling room: Forms section Recent", () => {
   let myRooms: MyRooms;
   let login: Login;
   let roomName: string;
+  let pdfFormFileId: number;
 
   test.beforeEach(async ({ page, api, apiSdk }) => {
     myRooms = new MyRooms(page, api.portalDomain);
@@ -25,11 +27,12 @@ test.describe("FormFilling room: Forms section Recent", () => {
       roomType: "FillingFormsRoom",
     });
     const roomBody = await roomResponse.json();
-    await apiSdk.files.uploadToFolder(
+    const uploadedFile = await apiSdk.files.uploadToFolder(
       "owner",
       roomBody.response.id,
       PDF_FORM_FILE,
     );
+    pdfFormFileId = uploadedFile.id;
   });
 
   test("Recent is empty by default", async () => {
@@ -87,6 +90,59 @@ test.describe("FormFilling room: Forms section Recent", () => {
     await test.step("Verify the form does not appear in Rooms > Recent", async () => {
       await myRooms.sidebar.openSubItem(apps.rooms, roomsSubItems.recent);
       await myRooms.filesTable.checkRowNotExist(PDF_FORM_NAME);
+    });
+  });
+
+  test("Context menu in Forms > Recent shows the expected options", async ({
+    apiSdk,
+  }) => {
+    await test.step("Add the PDF form to Recent via API", async () => {
+      await apiSdk.files.addToRecent("owner", pdfFormFileId);
+    });
+
+    await test.step("Login as owner and open Forms > Recent", async () => {
+      await login.loginToPortal();
+      await myRooms.openFormsRecent();
+    });
+
+    await test.step("Open context menu and verify menu options", async () => {
+      await myRooms.filesTable.openContextMenuForItem(PDF_FORM_NAME);
+      for (const option of Object.values(formsRecentContextMenuOption)) {
+        await expect(
+          myRooms.filesTable.contextMenu.getItemLocator(option),
+        ).toBeVisible();
+      }
+    });
+  });
+
+  test("Search in Forms > Recent by file name", async ({ apiSdk }) => {
+    await test.step("Add the PDF form to Recent via API", async () => {
+      await apiSdk.files.addToRecent("owner", pdfFormFileId);
+    });
+
+    await test.step("Login as owner and open Forms > Recent", async () => {
+      await login.loginToPortal();
+      await myRooms.openFormsRecent();
+      await myRooms.filesTable.checkRowExist(PDF_FORM_NAME);
+    });
+
+    await test.step("Search by file name", async () => {
+      await myRooms.filesFilter.fillFilesSearchInputAndCheckRequest(
+        PDF_FORM_NAME,
+      );
+      await myRooms.filesTable.checkRowExist(PDF_FORM_NAME);
+    });
+
+    await test.step("Search with no results", async () => {
+      await myRooms.filesFilter.fillFilesSearchInputAndCheckRequest(
+        "nonexistent file",
+      );
+      await myRooms.filesFilter.checkFilesEmptyViewExist();
+    });
+
+    await test.step("Clear search", async () => {
+      await myRooms.filesFilter.clearSearchText();
+      await myRooms.filesTable.checkRowExist(PDF_FORM_NAME);
     });
   });
 });

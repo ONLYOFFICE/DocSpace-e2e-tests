@@ -33,6 +33,7 @@ import BasePage from "../common/BasePage";
 import BaseSelector from "../common/BaseSelector";
 import BaseToast from "../common/BaseToast";
 import FilesTable from "../files/FilesTable";
+import FilesFilter from "../files/FilesFilter";
 import RoomsGroupTags from "./RoomsGroupTags";
 import DocumentEditor from "../files/DocumentEditor";
 import { documentContextMenuOption } from "@/src/utils/constants/files";
@@ -79,6 +80,7 @@ class MyRooms extends BasePage {
   inviteDialog: BaseInviteDialog;
   selector: BaseSelector;
   filesTable: FilesTable;
+  filesFilter: FilesFilter;
   toast: BaseToast;
   roomsGroupTags: RoomsGroupTags;
 
@@ -103,6 +105,7 @@ class MyRooms extends BasePage {
     this.inviteDialog = new BaseInviteDialog(page);
     this.selector = new BaseSelector(page);
     this.filesTable = new FilesTable(page);
+    this.filesFilter = new FilesFilter(page);
     this.toast = new BaseToast(page);
     this.roomsGroupTags = new RoomsGroupTags(page);
   }
