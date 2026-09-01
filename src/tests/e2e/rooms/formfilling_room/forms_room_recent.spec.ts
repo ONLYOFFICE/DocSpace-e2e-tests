@@ -220,9 +220,7 @@ test.describe("FormFilling room: Forms section Recent", () => {
     });
   });
 
-  test("Download with conversion from Forms > Recent", async ({
-    apiSdk,
-  }) => {
+  test("Download with conversion from Forms > Recent", async ({ apiSdk }) => {
     await test.step("Add the PDF form to Recent via API", async () => {
       await apiSdk.files.addToRecent("owner", pdfFormFileId);
     });
