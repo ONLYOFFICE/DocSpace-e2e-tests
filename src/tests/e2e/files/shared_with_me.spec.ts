@@ -245,7 +245,9 @@ test.describe("Shared with me", () => {
         });
       });
 
-      test("Remove file from Shared with me", async ({ page }) => {
+      // Bug 83262: cannot remove a shared file from
+      // "Shared with me" — DELETE /api/2.0/files/share returns 403.
+      test.skip("Remove file from Shared with me", async ({ page }) => {
         await test.step("Remove file via context menu", async () => {
           await sharedWithMe.filesTable.openContextMenuForItem(fileName, true);
           await sharedWithMe.filesTable.contextMenu.clickOption(
@@ -403,7 +405,9 @@ test.describe("Shared with me", () => {
     });
 
     test.describe("Folder operations", () => {
-      test("Remove folder from Shared with me", async ({ page }) => {
+      // Bug 83262: cannot remove a shared folder from
+      // "Shared with me" — DELETE /api/2.0/files/share returns 403.
+      test.skip("Remove folder from Shared with me", async ({ page }) => {
         await test.step("Remove folder via context menu", async () => {
           await sharedWithMe.filesTable.openContextMenuForItem(
             sharedFolderName,
