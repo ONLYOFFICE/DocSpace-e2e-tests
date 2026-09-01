@@ -145,4 +145,109 @@ test.describe("FormFilling room: Forms section Recent", () => {
       await myRooms.filesTable.checkRowExist(PDF_FORM_NAME);
     });
   });
+
+  test("Remove from list removes the form from Forms > Recent", async ({
+    apiSdk,
+  }) => {
+    await test.step("Add the PDF form to Recent via API", async () => {
+      await apiSdk.files.addToRecent("owner", pdfFormFileId);
+    });
+
+    await test.step("Login as owner and open Forms > Recent", async () => {
+      await login.loginToPortal();
+      await myRooms.openFormsRecent();
+      await myRooms.filesTable.checkRowExist(PDF_FORM_NAME);
+    });
+
+    await test.step("Remove the form from the list", async () => {
+      await myRooms.filesTable.openContextMenuForItem(PDF_FORM_NAME);
+      await myRooms.filesTable.contextMenu.clickOption(
+        formsRecentContextMenuOption.removeFromList,
+      );
+      await myRooms.filesTable.checkRowNotExist(PDF_FORM_NAME);
+    });
+  });
+
+  test("Mark as favorite from Forms > Recent adds the form to Forms > Favorites", async ({
+    apiSdk,
+  }) => {
+    await test.step("Add the PDF form to Recent via API", async () => {
+      await apiSdk.files.addToRecent("owner", pdfFormFileId);
+    });
+
+    await test.step("Login as owner and open Forms > Recent", async () => {
+      await login.loginToPortal();
+      await myRooms.openFormsRecent();
+      await myRooms.filesTable.checkRowExist(PDF_FORM_NAME);
+    });
+
+    await test.step("Mark the form as favorite", async () => {
+      await myRooms.filesTable.openContextMenuForItem(PDF_FORM_NAME);
+      await myRooms.filesTable.contextMenu.clickOption(
+        formsRecentContextMenuOption.markAsFavorite,
+      );
+    });
+
+    await test.step("Verify the form appears in Forms > Favorites", async () => {
+      await myRooms.openFormsFavorites();
+      await myRooms.filesTable.checkRowExist(PDF_FORM_NAME);
+    });
+  });
+
+  test("Download in original format from Forms > Recent", async ({
+    apiSdk,
+  }) => {
+    await test.step("Add the PDF form to Recent via API", async () => {
+      await apiSdk.files.addToRecent("owner", pdfFormFileId);
+    });
+
+    await test.step("Login as owner and open Forms > Recent", async () => {
+      await login.loginToPortal();
+      await myRooms.openFormsRecent();
+      await myRooms.filesTable.checkRowExist(PDF_FORM_NAME);
+    });
+
+    await test.step("Download the form in original format", async () => {
+      const download = await myRooms.waitForDownload(async () => {
+        await myRooms.filesTable.openContextMenuForItem(PDF_FORM_NAME);
+        await myRooms.filesTable.contextMenu.clickSubmenuOption(
+          "Download",
+          "Original format",
+        );
+      });
+      expect(download.suggestedFilename().toLowerCase()).toContain(".pdf");
+      await download.delete();
+    });
+  });
+
+  test("Download with conversion from Forms > Recent", async ({
+    apiSdk,
+  }) => {
+    await test.step("Add the PDF form to Recent via API", async () => {
+      await apiSdk.files.addToRecent("owner", pdfFormFileId);
+    });
+
+    await test.step("Login as owner and open Forms > Recent", async () => {
+      await login.loginToPortal();
+      await myRooms.openFormsRecent();
+      await myRooms.filesTable.checkRowExist(PDF_FORM_NAME);
+    });
+
+    await test.step("Download the form with conversion", async () => {
+      await myRooms.filesTable.openContextMenuForItem(PDF_FORM_NAME);
+      await myRooms.filesTable.contextMenu.clickSubmenuOption(
+        "Download",
+        "Download as",
+      );
+      await myRooms.downloadDialog.expectOpen();
+      await myRooms.downloadDialog.selectFormat(".docx");
+
+      const download = await myRooms.waitForDownload(async () => {
+        await myRooms.downloadDialog.submitDownload();
+      });
+      expect(download.suggestedFilename().toLowerCase()).toContain(".docx");
+      await download.delete();
+      await myRooms.downloadDialog.close();
+    });
+  });
 });
