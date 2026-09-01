@@ -7,7 +7,7 @@ class PluginSDK extends BaseDevTools {
   }
 
   get readInstructionsButton(): Locator {
-    return this.page.getByTestId("read_instructions_button");
+    return this.page.getByRole("link", { name: "Read instructions" });
   }
 
   get pluginList(): Locator {

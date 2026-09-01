@@ -18,7 +18,11 @@ import {
 } from "@/src/utils/constants/rooms";
 import QuickActions from "../common/QuickActions";
 import FormsQuickActions from "./FormsQuickActions";
-import { apps, roomsSubItems } from "@/src/utils/constants/navigation";
+import {
+  apps,
+  roomsSubItems,
+  formsSubItems,
+} from "@/src/utils/constants/navigation";
 import RoomsEditDialog from "./RoomsEditDialog";
 import RoomsEditTemplateDialog from "./RoomsEditTemplateDialog";
 import RoomsChangeOwnerDialog from "./RoomsChangeOwnerDialog";
@@ -30,9 +34,12 @@ import BasePage from "../common/BasePage";
 import BaseSelector from "../common/BaseSelector";
 import BaseToast from "../common/BaseToast";
 import FilesTable from "../files/FilesTable";
+import FilesFilter from "../files/FilesFilter";
+import DownloadDialog from "../files/DownloadDialog";
 import RoomsGroupTags from "./RoomsGroupTags";
 import DocumentEditor from "../files/DocumentEditor";
 import { documentContextMenuOption } from "@/src/utils/constants/files";
+import { formsSectionEmptyView } from "@/src/utils/constants/forms";
 
 const navActions = {
   moveToArchive: {
@@ -76,6 +83,8 @@ class MyRooms extends BasePage {
   inviteDialog: BaseInviteDialog;
   selector: BaseSelector;
   filesTable: FilesTable;
+  filesFilter: FilesFilter;
+  downloadDialog: DownloadDialog;
   toast: BaseToast;
   roomsGroupTags: RoomsGroupTags;
 
@@ -101,6 +110,8 @@ class MyRooms extends BasePage {
     this.inviteDialog = new BaseInviteDialog(page);
     this.selector = new BaseSelector(page);
     this.filesTable = new FilesTable(page);
+    this.filesFilter = new FilesFilter(page);
+    this.downloadDialog = new DownloadDialog(page);
     this.toast = new BaseToast(page);
     this.roomsGroupTags = new RoomsGroupTags(page);
   }
@@ -136,6 +147,39 @@ class MyRooms extends BasePage {
   async openForms() {
     await this.sidebar.navigate(apps.forms);
     await expect(this.page.locator(ARTICLE_CONTAINER)).toBeVisible();
+  }
+
+  async openFormsRecent() {
+    await this.sidebar.openSubItem(apps.forms, formsSubItems.recent);
+  }
+
+  async openFormsFavorites() {
+    await this.sidebar.openSubItem(apps.forms, formsSubItems.favorites);
+  }
+
+  private get emptyView() {
+    return this.page.getByTestId("empty-view");
+  }
+
+  private async expectSectionEmptyView(section: {
+    heading: string;
+    title: string;
+    description: string;
+  }) {
+    await expect(
+      this.page.getByRole("heading", { name: section.heading, exact: true }),
+    ).toBeVisible();
+    await expect(this.emptyView).toBeVisible();
+    await expect(this.emptyView.getByText(section.title)).toBeVisible();
+    await expect(this.emptyView.getByText(section.description)).toBeVisible();
+  }
+
+  async expectFormsRecentEmptyView() {
+    await this.expectSectionEmptyView(formsSectionEmptyView.recent);
+  }
+
+  async expectFormsFavoritesEmptyView() {
+    await this.expectSectionEmptyView(formsSectionEmptyView.favorites);
   }
 
   async checkHeadingExist(name: string) {
