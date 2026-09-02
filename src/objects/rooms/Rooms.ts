@@ -157,6 +157,43 @@ class MyRooms extends BasePage {
     await this.sidebar.openSubItem(apps.forms, formsSubItems.favorites);
   }
 
+  async openFormsTrash() {
+    await this.sidebar.openSubItem(apps.forms, formsSubItems.trash);
+  }
+
+  // Header "..." menu on the Trash page - "Empty trash" and "Restore all".
+  async emptyFormsTrash() {
+    await this.navigation.openContextMenu();
+    await this.navigation.performAction({
+      button: "#header_option_empty-trash",
+    });
+    const confirmButton = this.page.getByRole("button", {
+      name: "Delete forever",
+      exact: true,
+    });
+    await expect(confirmButton).toBeVisible();
+    await confirmButton.click();
+  }
+
+  async openFormsTrashRestoreAllSelector() {
+    await this.navigation.openContextMenu();
+    await this.navigation.contextMenu.clickOption({
+      type: "data-testid",
+      value: "restore-all",
+    });
+    await this.selector.checkSelectorExist();
+  }
+
+  // Selector panels (Files Copy/Move, Trash restore-to, Chat attach) always
+  // show 4 sections in this order: Files, Rooms, Forms, AI agents.
+  async checkSelectorHasAllFourSections() {
+    for (let i = 0; i < 4; i += 1) {
+      await expect(
+        this.selector.selector.getByTestId(`selector-item-${i}`),
+      ).toBeVisible();
+    }
+  }
+
   private get emptyView() {
     return this.page.getByTestId("empty-view");
   }
@@ -180,6 +217,10 @@ class MyRooms extends BasePage {
 
   async expectFormsFavoritesEmptyView() {
     await this.expectSectionEmptyView(formsSectionEmptyView.favorites);
+  }
+
+  async expectFormsTrashEmptyView() {
+    await this.expectSectionEmptyView(formsSectionEmptyView.trash);
   }
 
   async checkHeadingExist(name: string) {
