@@ -48,7 +48,7 @@ test.describe("Favorites", () => {
     });
   });
 
-  test("Remove from favorites", async ({}) => {
+  test("Remove from favorites", async () => {
     await test.step("Mark all documents as favorites", async () => {
       await files.filesTable.markAsFavorite(documentName);
       await files.filesTable.markAsFavorite(spreadsheetName);
@@ -82,6 +82,13 @@ test.describe("Favorites", () => {
 
     await test.step("Open Favorites", async () => {
       await favorites.openFromNavigation();
+      // Wait for the list to actually render before interacting with search -
+      // searching too early can silently no-op.
+      await favorites.filesTable.checkRowExist(documentName);
+      await favorites.filesTable.checkRowExist(spreadsheetName);
+      await favorites.filesTable.checkRowExist(presentationName);
+      await favorites.filesTable.checkRowExist(pdfFormName);
+      await favorites.filesTable.checkRowExist(folderName);
     });
 
     await test.step("Search favorites by name", async () => {
