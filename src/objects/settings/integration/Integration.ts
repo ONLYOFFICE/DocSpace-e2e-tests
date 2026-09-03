@@ -451,9 +451,77 @@ export class Integration extends BasePage {
         break;
       }
 
+      case integrationTabs.documentService: {
+        await this.page.getByTestId(tab).click();
+        await expect(this.documentServiceAddressInput).toBeVisible();
+        break;
+      }
+
       default:
         throw new Error("Invalid tab");
     }
+  }
+
+  get documentServiceAddressInput(): Locator {
+    return this.page.locator(
+      'input[placeholder="https://<editors-dns-name>/"]',
+    );
+  }
+
+  get documentServiceSecretInput(): Locator {
+    return this.page.locator('input[name="secret_key"]');
+  }
+
+  get documentServiceSaveButton(): Locator {
+    return this.page.getByTestId("settings_save_button");
+  }
+
+  get documentServiceDefaultButton(): Locator {
+    return this.page.getByTestId("default_settings_button");
+  }
+
+  get documentServiceDisableCertCheckbox(): Locator {
+    return this.page.getByTestId("disable_certificat_checkbox");
+  }
+
+  get documentServiceDisableCertInput(): Locator {
+    return this.documentServiceDisableCertCheckbox.locator(
+      'input[type="checkbox"]',
+    );
+  }
+
+  async openDocumentServiceTab() {
+    await this.openTab(integrationTabs.documentService);
+  }
+
+  async setDocumentServiceAddress(address: string) {
+    await this.documentServiceAddressInput.fill(address);
+  }
+
+  async toggleDocumentServiceDisableCert() {
+    await this.documentServiceDisableCertCheckbox.click();
+  }
+
+  get documentServiceAdvancedLink(): Locator {
+    return this.page.getByTestId("show_hide_advanced_settings_link");
+  }
+
+  // Advanced setting: "The workspace address for internal requests from the
+  // Document Service" (empty by default).
+  get documentServicePortalAddressInput(): Locator {
+    return this.page.locator("#portalAdress");
+  }
+
+  async toggleDocumentServiceAdvancedSettings() {
+    await this.documentServiceAdvancedLink.click();
+  }
+
+  async saveDocumentService() {
+    await this.documentServiceSaveButton.click();
+  }
+
+  async resetDocumentServiceToDefault() {
+    await this.documentServiceDefaultButton.click();
   }
 
   async disableLdap() {

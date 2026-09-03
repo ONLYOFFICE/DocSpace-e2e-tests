@@ -51,6 +51,7 @@ const integrationTabs = {
   plugins: "plugins_tab",
   thirdPartyServices: "third-party-services_tab",
   smtp: "smtp-settings_tab",
+  documentService: "document-service_tab",
 } as const;
 
 type TIntegrationTabs = (typeof integrationTabs)[keyof typeof integrationTabs];
@@ -126,6 +127,11 @@ const toastMessages = {
   planUpdated: "Business plan updated",
   requestSent:
     "Your message was successfully sent. You will be contacted by the Sales Department.",
+
+  // document service
+  documentServiceSaved: "Changes saved successfully",
+  documentServiceConnectionError:
+    "Unable to establish a connection with the Document Server.",
 } as const;
 
 const samplePluginZip = {
