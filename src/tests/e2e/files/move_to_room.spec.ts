@@ -54,15 +54,23 @@ test.describe("Move file to room", () => {
   });
 
   test("Move non-PDF file to Form Filling room shows alert", async () => {
-    await files.createDocumentFile();
-    await files.moveFileToNewRoom(
-      "Document",
-      roomCreateTitles.formFilling,
-      "FormFillingRoom",
-    );
-    await files.filesSelectPanel.checkIncompatibleFileAlertVisible();
-    await files.filesSelectPanel.checkConfirmButtonDisabled();
-    await files.filesSelectPanel.close();
-    await files.filesTable.checkRowExist("Document");
+    await test.step("Create document file", async () => {
+      await files.createDocumentFile();
+    });
+
+    await test.step("Move file to new Form Filling room shows alert", async () => {
+      await files.moveFileToNewRoom(
+        "Document",
+        roomCreateTitles.formFilling,
+        "FormFillingRoom",
+      );
+      await files.filesSelectPanel.checkIncompatibleFileAlertVisible();
+      await files.filesSelectPanel.checkConfirmButtonDisabled();
+      await files.filesSelectPanel.close();
+    });
+
+    await test.step("Verify file was not moved", async () => {
+      await files.filesTable.checkRowExist("Document");
+    });
   });
 });
