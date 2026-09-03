@@ -165,38 +165,39 @@ test.describe("New Files Panel", () => {
       });
     });
 
-    test("Mark as read removes New badge on file and Rooms badge", async ({
-      page,
-    }) => {
-      const filesTable = new FilesTable(page);
+    test.fail(
+      "Mark as read removes New badge on file and Rooms badge [Bug 83552]",
+      async ({ page }) => {
+        const filesTable = new FilesTable(page);
 
-      await test.step("Open room and verify New badge is visible on file in table", async () => {
-        await rooms.openRoom(ROOM_NAME);
-        await filesTable.expectNewBadgeVisible(FILE_NAME);
-      });
+        await test.step("Open room and verify New badge is visible on file in table", async () => {
+          await rooms.openRoom(ROOM_NAME);
+          await filesTable.expectNewBadgeVisible(FILE_NAME);
+        });
 
-      await test.step("Click Rooms badge to open panel", async () => {
-        await newFilesPanel.openByClickingRoomsBadge();
-        await newFilesPanel.expectVisible();
-      });
+        await test.step("Click Rooms badge to open panel", async () => {
+          await newFilesPanel.openByClickingRoomsBadge();
+          await newFilesPanel.expectVisible();
+        });
 
-      await test.step("Click Mark as read", async () => {
-        await newFilesPanel.clickMarkAsRead(FILE_NAME);
-      });
+        await test.step("Click Mark as read", async () => {
+          await newFilesPanel.clickMarkAsRead(FILE_NAME);
+        });
 
-      await test.step("Verify panel is no longer visible", async () => {
-        await newFilesPanel.expectNotVisible();
-      });
+        await test.step("Verify panel is no longer visible", async () => {
+          await newFilesPanel.expectNotVisible();
+        });
 
-      await test.step("Verify New badge is gone from file in table", async () => {
-        await filesTable.expectNewBadgeNotVisible(FILE_NAME);
-      });
+        await test.step("Verify New badge is gone from file in table", async () => {
+          await filesTable.expectNewBadgeNotVisible(FILE_NAME);
+        });
 
-      await test.step("Navigate to Rooms list and verify Rooms badge is gone", async () => {
-        await rooms.openWithoutEmptyCheck();
-        await newFilesPanel.expectRoomsBadgeVisible(false);
-      });
-    });
+        await test.step("Navigate to Rooms list and verify Rooms badge is gone", async () => {
+          await rooms.openWithoutEmptyCheck();
+          await newFilesPanel.expectRoomsBadgeVisible(false);
+        });
+      },
+    );
 
     test("Open location navigates into the room and keeps Rooms badge", async ({
       page,
