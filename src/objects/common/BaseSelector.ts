@@ -128,9 +128,21 @@ class BaseSelector {
   async createNewItem() {
     if (await this.selectorAddButton.isVisible()) {
       await this.selectorAddButton.click();
-    } else {
-      await this.emptyContainerCreateNewItem.click();
+      return;
     }
+
+    // The empty-state "New ..." link can render before its click handler is
+    // wired up, silently swallowing the first click - retry until the
+    // resulting create-new UI (naming input or room-type dropdown) shows up.
+    await expect(async () => {
+      await this.emptyContainerCreateNewItem.click();
+      const opened =
+        (await this.newSelectorItem.isVisible()) ||
+        (await this.selector
+          .locator(".selector-create-new-dropdown")
+          .isVisible());
+      expect(opened).toBe(true);
+    }).toPass({ timeout: 6000 });
   }
 
   async checkCreateNewRoomDropdownExist() {
