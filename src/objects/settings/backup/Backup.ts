@@ -49,7 +49,7 @@ export class Backup extends BasePage {
 
   private async checkDataBackupExist() {
     await expect(this.locators.backupModulesDescription).toHaveText(
-      /Use this option .*/,
+      /Download all the data .*/,
     );
   }
 
