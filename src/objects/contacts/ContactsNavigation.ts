@@ -52,9 +52,7 @@ class ContactsNavigation extends BaseNavigation {
   }
 
   async openCreateGroupDialog() {
-    const title = this.page
-      .getByTestId("aside-header")
-      .getByText("Add group");
+    const title = this.page.getByTestId("aside-header").getByText("Add group");
     await expect(async () => {
       if (await title.isVisible()) return;
       await this.openHeaderMenu();
