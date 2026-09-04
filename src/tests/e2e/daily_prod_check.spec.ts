@@ -1,10 +1,15 @@
 import { test } from "@/src/fixtures";
+import { ApiSDK } from "@/src/services/index";
+import { DOC_ACTIONS } from "@/src/utils/constants/files";
 import { expect } from "@playwright/test";
 import config from "@/config";
 import Files from "@/src/objects/files/Files";
 import MyRooms from "@/src/objects/rooms/Rooms";
 import Trash from "@/src/objects/files/trash/Trash";
 import FileVersionHistory from "@/src/objects/files/FileVersionHistory";
+import DocumentEditor from "@/src/objects/files/DocumentEditor";
+import SpreadsheetEditor from "@/src/objects/files/SpreadsheetEditor";
+import PresentationEditor from "@/src/objects/files/PresentationEditor";
 import VdrRoomSettings from "@/src/objects/rooms/VdrRoomSettings";
 import { Profile } from "@/src/objects/profile/Profile";
 import BaseNavigation from "@/src/objects/common/BaseNavigation";
@@ -146,6 +151,12 @@ test.describe("Daily prod check", () => {
   test.describe("Documents", () => {
     let files: Files;
 
+    const seedDocument = async (apiSdk: ApiSDK, title: string) => {
+      await apiSdk.files.createFileInMyDocuments("owner", { title });
+      await files.open();
+      await files.filesTable.checkRowExist(title);
+    };
+
     test.beforeEach(async ({ page, api, login }) => {
       files = new Files(page, api.portalDomain);
       await login.loginToPortal();
@@ -156,26 +167,48 @@ test.describe("Daily prod check", () => {
       await files.filesTable.checkInitialDocsExist();
     });
 
-    test("Create all document types and verify editors open", async () => {
+    test("Create all document types and verify editors open", async ({
+      page,
+    }) => {
+      // Prod's create dropdown keeps the full DOC_ACTIONS labels, while the
+      // shared page object maps them to dev's short ones — click them directly.
+      const createAndOpenEditor = async (label: string, name: string) => {
+        await files.filesNavigation.openCreateDropdown();
+        await files.filesNavigation.contextMenu.clickOption(label);
+        await files.filesNavigation.modal.fillCreateTextInput(name);
+        const [editorPage] = await Promise.all([
+          page.context().waitForEvent("page", { timeout: 30000 }),
+          files.filesNavigation.modal.clickCreateButton(),
+        ]);
+        await editorPage.waitForLoadState("load");
+        return editorPage;
+      };
+
       await test.step("Create document and open editor", async () => {
-        const docEditor = await files.createDocumentAndOpenEditor("Doc");
+        const docEditor = new DocumentEditor(
+          await createAndOpenEditor(DOC_ACTIONS.CREATE_DOCUMENT, "Doc"),
+        );
         await docEditor.waitForLoad();
         await docEditor.close();
       });
 
       await test.step("Create spreadsheet and open editor", async () => {
-        const sheetEditor = await files.createSpreadsheetAndOpenEditor("Sheet");
+        const sheetEditor = new SpreadsheetEditor(
+          await createAndOpenEditor(DOC_ACTIONS.CREATE_SPREADSHEET, "Sheet"),
+        );
         await sheetEditor.waitForLoad();
         await sheetEditor.close();
       });
 
       await test.step("Create presentation and open editor", async () => {
-        const slideEditor =
-          await files.createPresentationAndOpenEditor("Slides");
+        const slideEditor = new PresentationEditor(
+          await createAndOpenEditor(DOC_ACTIONS.CREATE_PRESENTATION, "Slides"),
+        );
         await slideEditor.waitForLoad();
         await slideEditor.close();
       });
 
+      // The PDF form item is "PDF Form" on both builds, so the page object works.
       await test.step("Create PDF form and open editor", async () => {
         const pdfEditor = await files.createPdfFormAndOpenEditor("PDF");
         await pdfEditor.waitForLoad();
@@ -183,34 +216,36 @@ test.describe("Daily prod check", () => {
       });
     });
 
-    test("Download file in original format", async () => {
-      await files.createDocumentFile("DownloadDoc");
+    test("Download file in original format", async ({ apiSdk }) => {
+      await seedDocument(apiSdk, "DownloadDoc");
       await files.downloadOriginalFile("DownloadDoc", ".docx");
     });
 
-    test("Convert and download file as PDF", async () => {
-      await files.createDocumentFile("ConvertDoc");
+    test("Convert and download file as PDF", async ({ apiSdk }) => {
+      await seedDocument(apiSdk, "ConvertDoc");
       await files.downloadFileAs(".pdf", "ConvertDoc");
     });
 
-    test("Delete file", async () => {
-      await files.createDocumentFile("DeleteDoc");
+    test("Delete file", async ({ apiSdk }) => {
+      await seedDocument(apiSdk, "DeleteDoc");
       await files.deleteFile("DeleteDoc");
     });
 
-    test("Search Documents", async () => {
-      await files.createDocumentFile("FindMe");
+    test("Search Documents", async ({ apiSdk }) => {
+      await seedDocument(apiSdk, "FindMe");
       await files.filesFilter.fillFilesSearchInputAndCheckRequest("FindMe");
       await files.filesTable.checkRowExist("FindMe");
     });
 
     test("Open editor, edit, and verify new version arrives via WebSocket", async ({
       page,
+      apiSdk,
     }) => {
       const versionHistory = new FileVersionHistory(page);
 
       await test.step("Create document, type text and save", async () => {
-        const editor = await files.createDocumentAndOpenEditor("EditorCheck");
+        await seedDocument(apiSdk, "EditorCheck");
+        const editor = await files.filesTable.openInEditor("EditorCheck");
         await editor.editAndClose(
           [
             "Daily production check: editor opens and accepts keyboard input",
