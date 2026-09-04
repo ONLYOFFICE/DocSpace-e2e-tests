@@ -222,13 +222,15 @@ test.describe("FormFilling room - Content creator permissions", () => {
     await test.step("Verify action menu shows 'Create new Folder' option", async () => {
       await myRooms.filesNavigation.openCreateDropdown();
       await expect(
-        myRooms.filesNavigation.contextMenu.menu.getByText("New folder"),
+        myRooms.filesNavigation.contextMenu.menu.getByText("Folder", {
+          exact: true,
+        }),
       ).toBeVisible();
     });
 
     await test.step("Verify action menu shows 'Choose from Templates' option", async () => {
       await expect(
-        myRooms.filesNavigation.contextMenu.menu.getByText("Template Gallery"),
+        myRooms.filesNavigation.contextMenu.menu.getByText("Template gallery"),
       ).toBeVisible();
     });
 
