@@ -1,7 +1,6 @@
 import MyRooms from "@/src/objects/rooms/Rooms";
 import TemplateGallery from "@/src/objects/rooms/TemplateGallery";
 import AiAgents from "@/src/objects/ai/AiAgents";
-import { waitForGetRoomsResponse } from "@/src/objects/rooms/api";
 import { test } from "@/src/fixtures";
 import { expect } from "@playwright/test";
 
@@ -35,13 +34,9 @@ test.describe("Forms: quick actions panel", () => {
     await myRooms.roomsCreateDialog.close();
   });
 
-  test("Space template button opens the from-template picker", async ({
-    page,
-  }) => {
+  test("Space template button opens the from-template picker", async () => {
     await test.step("Click Space template", async () => {
-      const responsePromise = waitForGetRoomsResponse(page);
       await myRooms.formsQuickActions.clickSpaceTemplate();
-      await responsePromise;
     });
 
     await test.step("Verify the template picker opened", async () => {
