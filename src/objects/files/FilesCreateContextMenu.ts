@@ -5,6 +5,16 @@ import { BaseContextMenu } from "../common/BaseContextMenu";
 
 const TEMPLATE_GALLERY = "template-gallery";
 
+// The create dropdown shows short labels ("Document", "Folder", ...) while
+// DOC_ACTIONS keeps the longer "New ..." text used for modal title checks.
+const MENU_ITEM_TEXT: Partial<Record<string, string>> = {
+  [DOC_ACTIONS.CREATE_DOCUMENT]: "Document",
+  [DOC_ACTIONS.CREATE_SPREADSHEET]: "Spreadsheet",
+  [DOC_ACTIONS.CREATE_PRESENTATION]: "Presentation",
+  [DOC_ACTIONS.CREATE_FOLDER]: "Folder",
+  [DOC_ACTIONS.CREATE_PDF_FORM]: "PDF Form",
+};
+
 class FilesCreateContextMenu extends BaseContextMenu {
   modal: FilesCreateModal;
 
@@ -25,7 +35,8 @@ class FilesCreateContextMenu extends BaseContextMenu {
 
       await submenuItem.click({ timeout: 5000 });
     } else {
-      const item = this.menu.getByText(actionText, { exact: true });
+      const menuText = MENU_ITEM_TEXT[actionText] ?? actionText;
+      const item = this.menu.getByText(menuText, { exact: true });
       await expect(async () => {
         await item.click({ timeout: 3000 });
       }).toPass({ timeout: 10000 });

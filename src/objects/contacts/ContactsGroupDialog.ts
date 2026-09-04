@@ -15,7 +15,7 @@ class ContactsGroupDialog extends BaseDialog {
   }
 
   async checkDialogExist() {
-    await this.checkDialogTitleExist("Create group");
+    await this.checkDialogTitleExist("Add group");
   }
 
   async fillGroupName(groupName: string) {

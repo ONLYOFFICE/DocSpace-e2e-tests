@@ -48,7 +48,7 @@ export const roomDialogSource = {
 export const roomContextMenuOption = {
   createRoom: "Create room",
   editRoom: "Edit room",
-  inviteContacts: "Invite contacts",
+  inviteContacts: "Invite people",
   saveAsTemplate: "Save as template",
   changeTheRoomOwner: "Change room owner",
   moveToArchive: "Move to archive",

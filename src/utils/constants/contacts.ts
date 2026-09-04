@@ -8,7 +8,7 @@ export const contactsActionsMenu = {
       inviteAgain: "Invite again",
     },
   },
-  createGroup: "Create group",
+  createGroup: "Add group",
 } as const;
 
 export const headerInviteIds = {
