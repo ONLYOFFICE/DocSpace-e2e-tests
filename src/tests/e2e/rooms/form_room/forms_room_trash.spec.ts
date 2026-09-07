@@ -11,6 +11,10 @@ import {
   formsTrashFileContextMenuOption,
   formsTrashFolderContextMenuOption,
 } from "@/src/utils/constants/forms";
+import {
+  roomCreateTitles,
+  roomTypesCreatableFromRooms,
+} from "@/src/utils/constants/rooms";
 
 const PDF_FORM_FILE = "data/rooms/PDF from device.pdf";
 const PDF_FORM_NAME = "PDF from device";
@@ -301,6 +305,49 @@ test.describe("FormFilling room: Forms section Trash", () => {
 
     await test.step("Verify Trash is empty after restoring", async () => {
       await myRooms.expectFormsTrashEmptyView();
+    });
+  });
+
+  test("Restoring a form to a new room does not offer Form Filling room as a type", async ({
+    page,
+  }) => {
+    await test.step("Login as owner and open the room", async () => {
+      await login.loginToPortal();
+      await myRooms.openForms();
+      await myRooms.roomsTable.openRoomByName(roomName);
+    });
+
+    await test.step("Delete the PDF form to Trash", async () => {
+      await myRooms.filesTable.openContextMenuForItem(PDF_FORM_NAME);
+      await myRooms.filesTable.contextMenu.clickOption(
+        formFillingRoomPdfContextMenuOption.delete,
+      );
+      await new FolderDeleteModal(page).clickDeleteFolder();
+      await myRooms.removeToast("successfully moved to Trash");
+    });
+
+    await test.step("Open Restore selector for the form from Forms > Trash", async () => {
+      await myRooms.openFormsTrash();
+      await myRooms.openFormsTrashRestoreSelector(PDF_FORM_NAME);
+    });
+
+    await test.step("Switch to the Rooms section and open New room", async () => {
+      await myRooms.selector.select("rooms");
+      await myRooms.selector.createNewItem();
+      await myRooms.selector.checkCreateNewRoomDropdownExist();
+    });
+
+    await test.step("Verify Form Filling room is not offered, but other room types are", async () => {
+      await myRooms.selector.checkRoomTypeNotOfferedInCreateDropdown(
+        roomCreateTitles.formFilling,
+      );
+      for (const roomType of roomTypesCreatableFromRooms) {
+        await myRooms.selector.checkRoomTypeOfferedInCreateDropdown(roomType);
+      }
+    });
+
+    await test.step("Close the selector", async () => {
+      await myRooms.selector.close();
     });
   });
 });

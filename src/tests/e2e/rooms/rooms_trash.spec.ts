@@ -1,9 +1,15 @@
+import { expect } from "@playwright/test";
 import Trash from "@/src/objects/files/trash/Trash";
 import Rooms from "@/src/objects/rooms/Rooms";
 import Files from "@/src/objects/files/Files";
 import RoomInfoPanel from "@/src/objects/rooms/RoomInfoPanel";
 import RoomsInviteDialog from "@/src/objects/rooms/RoomsInviteDialog";
 import { DOC_ACTIONS } from "@/src/utils/constants/files";
+import {
+  roomCreateTitles,
+  roomDialogSource,
+} from "@/src/utils/constants/rooms";
+import { apps, roomsSubItems } from "@/src/utils/constants/navigation";
 import { test } from "@/src/fixtures";
 import { getPortalUrl } from "@/config";
 
@@ -180,6 +186,60 @@ test.describe("Rooms trash", () => {
 
     await test.step("Verify the room manager's file appears after filtering by their name", async () => {
       await trash.trashTable.checkRowExist("RoomManagerFile");
+    });
+  });
+
+  test("Clicking Trash in the delete toast opens Rooms trash scoped to the room", async ({
+    page,
+    apiSdk,
+  }) => {
+    const roomName = "ToastTrashRoom";
+    const roomFileName = "ToastTrashRoomFile";
+    const myDocsFileName = "ToastTrashMyDocsFile";
+
+    await test.step("Create and delete an unrelated file in My Documents", async () => {
+      const fileResponse = await apiSdk.files.createFileInMyDocuments("owner", {
+        title: myDocsFileName,
+      });
+      await apiSdk.files.deleteFile(
+        "owner",
+        (await fileResponse.json()).response.id as number,
+      );
+    });
+
+    await test.step("Create a custom room and a document inside it", async () => {
+      await rooms.open();
+      await rooms.openCreateRoomDialog(roomDialogSource.navigation);
+      await rooms.roomsCreateDialog.openRoomType(roomCreateTitles.custom);
+      await rooms.roomsCreateDialog.createRoom(roomName);
+
+      await rooms.filesNavigation.openCreateDropdown();
+      await rooms.filesNavigation.selectCreateAction(
+        DOC_ACTIONS.CREATE_DOCUMENT,
+      );
+      await rooms.filesNavigation.modal.checkModalExist();
+      await rooms.filesNavigation.modal.fillCreateTextInput(roomFileName);
+      const [editorPage] = await Promise.all([
+        page.context().waitForEvent("page", { timeout: 5000 }),
+        rooms.filesNavigation.modal.clickCreateButton(),
+      ]).catch(() => [null]);
+      await editorPage?.close();
+      await rooms.filesTable.checkRowExist(roomFileName);
+    });
+
+    await test.step("Delete the room document and click Trash in the toast", async () => {
+      await rooms.filesTable.openContextMenuForItem(roomFileName);
+      await rooms.filesTable.contextMenu.clickOption("Delete");
+      await files.folderDeleteModal.clickDeleteFolder();
+      await rooms.checkToastMessage("successfully moved to Trash");
+      await rooms.toast.clickLinkInToast("Trash");
+    });
+
+    await test.step("Verify Rooms trash opened, scoped to the room's own item", async () => {
+      await expect(page).not.toHaveURL(/.*files\/trash.*/);
+      await rooms.sidebar.checkSubItemActive(apps.rooms, roomsSubItems.trash);
+      await trash.trashTable.checkRowExist(roomFileName);
+      await trash.trashTable.checkRowNotExist(myDocsFileName);
     });
   });
 });
