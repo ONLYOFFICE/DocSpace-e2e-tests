@@ -7,6 +7,7 @@ export const avatarConstants = {
 } as const;
 
 export const defaultHomepageOptions = {
+  home: "Home",
   aiAgents: "AI agents",
   files: "Files",
   rooms: "Rooms",
@@ -15,12 +16,13 @@ export const defaultHomepageOptions = {
 
 export const notificationsText = {
   fileActivityDescription:
-    "Badges will highlight file activity — uploads, edits, or shares — across the Rooms, Shared with me, Files, and AI agents sections.",
+    "Badges highlight file activities like uploads, edits, and shares across Files, Rooms, Forms, and AI agents apps.",
   roomsActivityDescription:
-    "Get instant email notifications about new shared files/folders and activity inside your Rooms and AI agents.",
+    "Get instant email notifications about new shared files and folders and activity in Files, Rooms, Forms, and AI agents.",
   dailyFeedDescription:
-    "Read news and events from ONLYOFFICE Apps in a daily digest.",
-  usefulTipsDescription: "Get useful guides about ONLYOFFICE Apps",
+    "Receive a daily digest of news and events from ONLYOFFICE Apps.",
+  usefulTipsDescription:
+    "Discover useful tips and guides for using ONLYOFFICE Apps.",
 } as const;
 
 export const defaultHomepageUrls = {
