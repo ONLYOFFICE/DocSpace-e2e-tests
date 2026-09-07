@@ -69,7 +69,7 @@ export class BackupLocators {
   get selectCopies() {
     return this.page
       .getByTestId("drop_down_item_6")
-      .filter({ hasText: "6 - maximum number of backup copies" });
+      .filter({ hasText: /6\s*[-\u2014]\s*maximum number of backup copies/ });
   }
   get selectSchedule() {
     return this.page.getByTestId("auto_backup_period_combobox");

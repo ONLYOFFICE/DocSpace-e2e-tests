@@ -415,7 +415,7 @@ export class AiAgents extends BasePage {
 
   async renameAgent(oldName: string, newName: string) {
     await this.openAgentContextMenu(oldName);
-    await this.contextMenu.clickOption("Edit Agent");
+    await this.contextMenu.clickOption("Edit agent");
     await expect(this.agentNameInput).toBeVisible();
     await this.agentNameInput.fill(newName);
     const saveButton = this.page
