@@ -212,6 +212,36 @@ test.describe("VDRRooms", () => {
     });
   });
 
+  test("VDR default toggle states are consistent across creation entry points", async () => {
+    await test.step("Precondition: quick-action tiles only exist once a room does", async () => {
+      await myRooms.openCreateRoomDialog(roomDialogSource.navigation);
+      await myRooms.roomsCreateDialog.openRoomType(roomCreateTitles.public);
+      await myRooms.roomsCreateDialog.createRoom(roomCreateTitles.public);
+      await myRooms.backToRooms();
+    });
+
+    await test.step("Defaults via Choose room type", async () => {
+      await myRooms.openCreateRoomDialog(roomDialogSource.navigation);
+      await myRooms.roomsCreateDialog.openRoomType(
+        roomCreateTitles.virtualData,
+      );
+      await vdr.expectAutomaticIndexingChecked(true);
+      await vdr.expectRestrictCopyAndDownloadChecked(true);
+      await vdr.expectWatermarksChecked(true);
+      await myRooms.roomsCreateDialog.close();
+    });
+
+    await test.step("Defaults via Quick actions match Choose room type", async () => {
+      await myRooms.openCreateRoomDialog(
+        roomDialogSource.quickActions,
+        roomCreateTitles.virtualData,
+      );
+      await vdr.expectAutomaticIndexingChecked(true);
+      await vdr.expectRestrictCopyAndDownloadChecked(true);
+      await vdr.expectWatermarksChecked(true);
+    });
+  });
+
   test("Create VDR room with tags", async () => {
     await test.step("Create VDR with tags", async () => {
       await myRooms.openCreateRoomDialog(roomDialogSource.navigation);
