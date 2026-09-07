@@ -59,6 +59,6 @@ export const formsSectionEmptyView = {
     heading: "Trash",
     title: "No items here yet",
     description:
-      "All deleted items from Forms are moved here. Restore items deleted by mistake or delete them permanently. Items in 'Trash' are automatically deleted after 30 days. Please note, that the items deleted from the 'Trash' cannot be restored any longer.",
+      "All deleted items from Forms are moved here. You can restore items deleted by mistake or delete them permanently. Items in the Trash are automatically deleted after 30 days. Please note that items deleted from the Trash can't be restored.",
   },
 } as const;

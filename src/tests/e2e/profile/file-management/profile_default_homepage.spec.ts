@@ -87,10 +87,10 @@ test.describe("Profile - Default Homepage", () => {
       await login.loginWithCredentials(userData.email, userData.password);
     });
 
-    await test.step("Verify other user has Rooms as default homepage", async () => {
+    await test.step("Verify other user has Home as default homepage", async () => {
       await profileFileManagement.open();
       await profileFileManagement.expectDefaultHomepageOption(
-        defaultHomepageOptions.rooms,
+        defaultHomepageOptions.home,
       );
     });
   });
