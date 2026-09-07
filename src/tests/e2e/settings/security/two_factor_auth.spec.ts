@@ -172,9 +172,7 @@ test.describe("Two-Factor Authentication tests", () => {
     });
   });
 
-  test.skip("[Bug 82185] Print backup codes opens printable page", async ({
-    page,
-  }) => {
+  test("Print backup codes opens printable page", async ({ page }) => {
     const twoFactorAuthPage = new TwoFactorAuthPage(page);
     const profile = new Profile(page);
 
