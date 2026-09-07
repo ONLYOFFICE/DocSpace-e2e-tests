@@ -155,6 +155,16 @@ class BaseSelector {
     await this.selector.getByText(roomType, { exact: true }).click();
   }
 
+  async checkRoomTypeOfferedInCreateDropdown(roomType: TRoomCreateTitles) {
+    await expect(this.selector.getByText(roomType, { exact: true })).toBeVisible();
+  }
+
+  async checkRoomTypeNotOfferedInCreateDropdown(roomType: TRoomCreateTitles) {
+    await expect(
+      this.selector.getByText(roomType, { exact: true }),
+    ).not.toBeVisible();
+  }
+
   async fillNewItemName(name: string) {
     await expect(this.newSelectorItemInput).toBeVisible();
     await this.newSelectorItemInput.fill(name);

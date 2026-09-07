@@ -39,7 +39,10 @@ import DownloadDialog from "../files/DownloadDialog";
 import RoomsGroupTags from "./RoomsGroupTags";
 import DocumentEditor from "../files/DocumentEditor";
 import { documentContextMenuOption } from "@/src/utils/constants/files";
-import { formsSectionEmptyView } from "@/src/utils/constants/forms";
+import {
+  formsSectionEmptyView,
+  formsTrashFileContextMenuOption,
+} from "@/src/utils/constants/forms";
 
 const navActions = {
   moveToArchive: {
@@ -181,6 +184,15 @@ class MyRooms extends BasePage {
       type: "data-testid",
       value: "restore-all",
     });
+    await this.selector.checkSelectorExist();
+  }
+
+  // "Restore" from a single file's context menu on the Forms > Trash page.
+  async openFormsTrashRestoreSelector(fileName: string) {
+    await this.filesTable.openContextMenuForItem(fileName);
+    await this.filesTable.contextMenu.clickOption(
+      formsTrashFileContextMenuOption.restore,
+    );
     await this.selector.checkSelectorExist();
   }
 
