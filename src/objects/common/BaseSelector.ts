@@ -156,7 +156,9 @@ class BaseSelector {
   }
 
   async checkRoomTypeOfferedInCreateDropdown(roomType: TRoomCreateTitles) {
-    await expect(this.selector.getByText(roomType, { exact: true })).toBeVisible();
+    await expect(
+      this.selector.getByText(roomType, { exact: true }),
+    ).toBeVisible();
   }
 
   async checkRoomTypeNotOfferedInCreateDropdown(roomType: TRoomCreateTitles) {
