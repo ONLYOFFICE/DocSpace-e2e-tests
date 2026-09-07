@@ -408,7 +408,10 @@ class Contacts extends BasePage {
   }
 
   async checkEmptyGroupsExist() {
-    await expect(this.page.getByText("No groups here")).toBeVisible();
+    await expect(this.page.getByText("No groups yet")).toBeVisible();
+    await expect(
+      this.page.getByText("Groups you create will show up here"),
+    ).toBeVisible();
   }
 
   async checkEmptyGuestsExist() {
