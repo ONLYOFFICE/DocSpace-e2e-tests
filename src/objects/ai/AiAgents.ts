@@ -444,7 +444,7 @@ export class AiAgents extends BasePage {
 
   async openInviteDialog(name: string) {
     await this.openAgentContextMenu(name);
-    await this.contextMenu.clickOption("Invite contacts");
+    await this.contextMenu.clickOption("Invite people");
     await this.inviteDialog.checkInviteTitleExist();
   }
 
@@ -496,7 +496,7 @@ export class AiAgents extends BasePage {
 
   async leaveAgent(name: string, newOwnerName: string) {
     await this.openAgentContextMenu(name);
-    await this.contextMenu.clickOption("Leave the agent");
+    await this.contextMenu.clickOption("Leave agent");
     const assignOwner = this.page.getByTestId("leave_room_modal_submit");
     await expect(assignOwner).toBeVisible();
     await assignOwner.click();
