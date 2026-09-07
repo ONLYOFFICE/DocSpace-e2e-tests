@@ -217,9 +217,8 @@ class Customization extends BasePage {
   }
 
   private async checkBrandingExist() {
-    await expect(
-      this.page.locator('.header-container:has-text("Logo settings")'),
-    ).toBeVisible();
+    await expect(this.textInputBrandName.first()).toBeVisible();
+    await expect(this.textInputLogo.first()).toBeVisible();
   }
 
   private async checkAppearanceExist() {

@@ -55,7 +55,7 @@ export class Backup extends BasePage {
 
   private async checkAutoBackupExist() {
     await expect(this.locators.backupModulesDescription).toHaveText(
-      /The Automatic backup .*/,
+      /Automatically back up your data .*/,
     );
   }
 

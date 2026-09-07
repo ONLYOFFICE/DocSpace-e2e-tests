@@ -189,7 +189,9 @@ export class Integration extends BasePage {
   }
 
   get spSettingsHeader() {
-    return this.page.getByRole("heading", { name: "ONLYOFFICE SP Settings" });
+    return this.page.getByRole("heading", {
+      name: "ONLYOFFICE service provider settings",
+    });
   }
 
   get ldapSaveButton() {
