@@ -2,7 +2,6 @@ import Files from "@/src/objects/files/Files";
 import Recent from "@/src/objects/files/Recent";
 import { test } from "@/src/fixtures";
 import { expect } from "@playwright/test";
-import { documentContextMenuOption } from "@/src/utils/constants/files";
 
 const documentName = "Document";
 const spreadsheetName = "Spreadsheet";
@@ -189,7 +188,7 @@ test.describe("My documents: Recent", () => {
     });
   });
 
-  test.skip("Remove file from Recent", async () => {
+  test("Remove file from Recent", async () => {
     await test.step("Create and open file to add it to Recent", async () => {
       const docEditor = await files.createDocumentAndOpenEditor(documentName);
       await docEditor.editAndClose("doc text");
@@ -198,10 +197,7 @@ test.describe("My documents: Recent", () => {
     await test.step("Remove file from Recent", async () => {
       await recent.openFromNavigation();
       await recent.filesTable.checkRowExist(documentName);
-      await recent.filesTable.openContextMenuForItem(documentName, true);
-      await recent.filesTable.contextMenu.clickOption(
-        documentContextMenuOption.removeFromRecent,
-      );
+      await recent.removeFromRecent(documentName);
       await recent.filesTable.checkRowNotExist(documentName);
     });
 
@@ -211,7 +207,7 @@ test.describe("My documents: Recent", () => {
     });
   });
 
-  test.skip("Download file from Recent", async () => {
+  test("Download file from Recent", async () => {
     await test.step("Create and open file to add it to Recent", async () => {
       const docEditor = await files.createDocumentAndOpenEditor(documentName);
       await docEditor.editAndClose("doc text");
@@ -221,13 +217,7 @@ test.describe("My documents: Recent", () => {
       await recent.openFromNavigation();
       await recent.filesTable.checkRowExist(documentName);
 
-      const download = await recent.waitForDownload(async () => {
-        await recent.filesTable.openContextMenuForItem(documentName, true);
-        await recent.filesTable.contextMenu.clickSubmenuOption(
-          documentContextMenuOption.download,
-          "Original format",
-        );
-      });
+      const download = await recent.downloadFromRecent(documentName);
 
       expect(download.suggestedFilename().toLowerCase()).toContain(".docx");
       await download.delete();
@@ -252,9 +242,7 @@ test.describe("My documents: Recent", () => {
     });
   });
 
-  test.skip("Open file location navigates to My Documents", async ({
-    page,
-  }) => {
+  test("Open file location navigates to My Documents", async ({ page }) => {
     await test.step("Create and open file to add it to Recent", async () => {
       const docEditor = await files.createDocumentAndOpenEditor(documentName);
       await docEditor.editAndClose("doc text");
@@ -263,10 +251,7 @@ test.describe("My documents: Recent", () => {
     await test.step("Open file location from Recent context menu", async () => {
       await recent.openFromNavigation();
       await recent.filesTable.checkRowExist(documentName);
-      await recent.filesTable.openContextMenuForItem(documentName, true);
-      await recent.filesTable.contextMenu.clickOption(
-        documentContextMenuOption.openLocation,
-      );
+      await recent.openFileLocation(documentName);
     });
 
     await test.step("Verify we are in My Documents with the file visible", async () => {

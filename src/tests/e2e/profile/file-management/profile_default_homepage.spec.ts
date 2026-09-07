@@ -17,8 +17,7 @@ test.describe("Profile - Default Homepage", () => {
     await profileFileManagement.open();
   });
 
-  // Skip: looks like a bug — logo always opens /dashboard, ignoring Default Homepage.
-  test.skip("AI agents - logo navigates to AI agents URL", async () => {
+  test("AI agents - logo navigates to AI agents URL", async () => {
     await test.step("Select AI agents as default homepage", async () => {
       await profileFileManagement.selectDefaultHomepage(
         defaultHomepageOptions.aiAgents,
@@ -35,7 +34,7 @@ test.describe("Profile - Default Homepage", () => {
     });
   });
 
-  test.skip("Files - logo navigates to My Documents URL", async () => {
+  test("Files - logo navigates to My Documents URL", async () => {
     await test.step("Select Files as default homepage", async () => {
       await profileFileManagement.selectDefaultHomepage(
         defaultHomepageOptions.files,
@@ -52,7 +51,7 @@ test.describe("Profile - Default Homepage", () => {
     });
   });
 
-  test.skip("Forms - logo navigates to Forms URL", async () => {
+  test("Forms - logo navigates to Forms URL", async () => {
     await test.step("Select Forms as default homepage", async () => {
       await profileFileManagement.selectDefaultHomepage(
         defaultHomepageOptions.forms,

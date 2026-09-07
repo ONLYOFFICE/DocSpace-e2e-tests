@@ -6,6 +6,7 @@ import FilesTable from "./FilesTable";
 import FilesFilter from "./FilesFilter";
 import InfoPanel from "../common/InfoPanel";
 import { apps, filesSubItems } from "@/src/utils/constants/navigation";
+import { documentContextMenuOption } from "@/src/utils/constants/files";
 
 class Recent extends BasePage {
   private portalDomain: string;
@@ -35,6 +36,45 @@ class Recent extends BasePage {
   async openFromNavigation() {
     await this.sidebar.openSubItem(apps.files, filesSubItems.recent);
     await this.waitForRecentPage();
+  }
+
+  private async openRowContextMenu(name: string) {
+    const nameCell = this.page
+      .locator("[data-testid^='recent-cell-name']")
+      .filter({ hasText: name })
+      .first();
+    await expect(nameCell).toBeVisible();
+
+    await expect(async () => {
+      await nameCell.click({ button: "right" });
+      await expect(this.filesTable.contextMenu.menu).toBeVisible({
+        timeout: 3000,
+      });
+    }).toPass({ timeout: 15000 });
+  }
+
+  async removeFromRecent(name: string) {
+    await this.openRowContextMenu(name);
+    await this.filesTable.contextMenu.clickOption(
+      documentContextMenuOption.removeFromRecent,
+    );
+  }
+
+  async downloadFromRecent(name: string) {
+    return this.waitForDownload(async () => {
+      await this.openRowContextMenu(name);
+      await this.filesTable.contextMenu.clickSubmenuOption(
+        documentContextMenuOption.download,
+        "Original format",
+      );
+    });
+  }
+
+  async openFileLocation(name: string) {
+    await this.openRowContextMenu(name);
+    await this.filesTable.contextMenu.clickOption(
+      documentContextMenuOption.openLocation,
+    );
   }
 
   async checkNoRecentFilesTextExist() {
