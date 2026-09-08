@@ -20,9 +20,9 @@ test.describe("Customization", () => {
     await customization.open();
   });
 
-  test("Change and save language", async ({ page }) => {
+  test("Change and save language", async () => {
     await customization.changeLanguage("Español (España)");
-    await page.mouse.click(1, 1); // close dropdown
+    await customization.closeSelectorDropdown();
     await expect(customization.languageTimeZoneSaveButton).toBeEnabled({
       timeout: 30000,
     });
@@ -36,7 +36,7 @@ test.describe("Customization", () => {
 
   test("Change and save timezone", async () => {
     await customization.changeTimezone("(UTC+00:00) Troll Time");
-    await customization.settingsTitle.click();
+    await customization.closeSelectorDropdown();
     await expect(customization.languageTimeZoneSaveButton).toBeEnabled();
     await customization.languageTimeZoneSaveButton.click();
     await customization.dismissToastSafely(toastMessages.settingsUpdated);

@@ -210,11 +210,14 @@ export class AiAgents extends BasePage {
     ).toBeVisible({ timeout: 30000 });
   }
 
-  // Opens the agent chat's "Result Storage" tab, where generated files live.
+  private get resultStorageTab() {
+    return this.page.getByTestId("result_tab");
+  }
+
   async openResultStorageTab() {
-    await this.page
-      .locator('[class*="tabText"]', { hasText: "Result Storage" })
-      .click();
+    await expect(this.resultStorageTab).toBeVisible();
+    await this.resultStorageTab.click();
+    await expect(this.filesTable.tableContainer).toBeVisible();
   }
 
   async expectRecentEmptyView() {
@@ -333,7 +336,7 @@ export class AiAgents extends BasePage {
 
   async openAttachmentPanel() {
     await this.page.getByTestId("attachment-button").click();
-    await this.page.getByText("Add files from the workspace").click();
+    await this.page.getByText("Add files from storage").click();
     await expect(this.page.getByTestId("selector")).toBeVisible();
   }
 
