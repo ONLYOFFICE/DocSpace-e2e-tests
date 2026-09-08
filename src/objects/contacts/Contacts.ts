@@ -415,7 +415,10 @@ class Contacts extends BasePage {
   }
 
   async checkEmptyGuestsExist() {
-    await expect(this.page.getByText("No added guests yet")).toBeVisible();
+    await expect(this.page.getByText("No guests yet")).toBeVisible();
+    await expect(
+      this.page.getByText("Guests you invite to your rooms will show up here."),
+    ).toBeVisible();
   }
 }
 

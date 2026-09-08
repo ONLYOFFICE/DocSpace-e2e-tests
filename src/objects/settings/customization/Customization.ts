@@ -30,11 +30,6 @@ class Customization extends BasePage {
   get timezoneSelector() {
     return this.page.getByTestId("language_and_time_zone_combo_box_timezone");
   }
-  get settingsTitle() {
-    return this.page.getByText(
-      "Language and Time Zone SettingsChange Language and Time Zone Settings to adjust",
-    );
-  }
   get saveButton() {
     return this.page.locator('[data-testid="save-button"]');
   }
@@ -274,6 +269,10 @@ class Customization extends BasePage {
   async getCurrentTimezone() {
     await this.waitForComboButtonEnabled(this.timezoneSelector);
     return this.timezoneSelector.innerText();
+  }
+
+  async closeSelectorDropdown() {
+    await this.page.keyboard.press("Escape");
   }
 
   async changeTimezone(timezone: string) {
