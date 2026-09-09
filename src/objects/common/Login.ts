@@ -207,7 +207,7 @@ export class Login extends BasePage {
     }
   }
 
-  async loginToPortal() {
+  async loginToPortal(options?: { dismissTour?: boolean }) {
     await expect(async () => {
       await this.page.goto(`${getPortalUrl(this.portalDomain)}`, {
         waitUntil: "load",
@@ -236,7 +236,10 @@ export class Login extends BasePage {
       waitUntil: "load",
     });
     await this.page.waitForTimeout(3000);
-    await this.dismissWelcomeTour();
+
+    if (options?.dismissTour ?? true) {
+      await this.dismissWelcomeTour();
+    }
   }
 
   async loginWithCredentials(email: string, password: string) {
