@@ -71,7 +71,10 @@ test.describe("Profile: Change password", () => {
     });
 
     await test.step("Log in with the new password", async () => {
-      await login.loginWithCredentials(config.DOCSPACE_OWNER_EMAIL, NEW_PASSWORD);
+      await login.loginWithCredentials(
+        config.DOCSPACE_OWNER_EMAIL,
+        NEW_PASSWORD,
+      );
       await page.waitForURL(/.*(dashboard|rooms\/shared\/filter).*/, {
         waitUntil: "load",
       });
@@ -83,7 +86,9 @@ test.describe("Profile: Change password", () => {
       const restoreLink = await waitForFreshPasswordConfirmLink(confirmLink);
 
       await page.goto(restoreLink, { waitUntil: "load" });
-      await passwordChangeConfirm.setNewPassword(config.DOCSPACE_OWNER_PASSWORD);
+      await passwordChangeConfirm.setNewPassword(
+        config.DOCSPACE_OWNER_PASSWORD,
+      );
       await page.waitForURL(/\/login\?passwordChanged=true/, {
         waitUntil: "load",
       });
