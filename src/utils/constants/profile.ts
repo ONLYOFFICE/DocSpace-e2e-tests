@@ -1,5 +1,6 @@
 export const toastMessages = {
   changesSaved: "Changes saved successfully",
+  passwordChanged: "Password has been successfully changed",
 } as const;
 
 export const avatarConstants = {
