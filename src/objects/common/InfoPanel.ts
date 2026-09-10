@@ -28,6 +28,12 @@ const PROPERTY_SIZE = "#Size";
 const HISTORY_LIST = "#history-list-info-panel";
 const CREATION_TIME_HISTORY = "p.date";
 
+// "Go to date" / "Export history" toolbar - rooms only. Absent from the
+// History tab of files, folders and any non-room context (Files, Forms, ...).
+const HISTORY_TOOLBAR = "info_history_toolbar";
+const HISTORY_GO_TO_DATE_BUTTON = "info_history_calendar";
+const HISTORY_EXPORT_BUTTON = "info_history_export";
+
 const SHARED_LINKS_WRAPPER = "[data-testid='shared-links']";
 const SHARED_LINKS_AVATAR =
   "[data-testid='avatar'] [data-has-username='false']";
@@ -90,8 +96,20 @@ class InfoPanel {
     return this.page.locator(INFO_PANEL_TABS);
   }
 
-  private get historyList() {
+  protected get historyList() {
     return this.page.locator(HISTORY_LIST);
+  }
+
+  protected get historyToolbar() {
+    return this.page.getByTestId(HISTORY_TOOLBAR);
+  }
+
+  protected get goToDateButton() {
+    return this.page.getByTestId(HISTORY_GO_TO_DATE_BUTTON);
+  }
+
+  protected get exportHistoryButton() {
+    return this.page.getByTestId(HISTORY_EXPORT_BUTTON);
   }
 
   private get sharedLinksWrapper() {
@@ -191,6 +209,23 @@ class InfoPanel {
   async checkHistoryExist(title: string) {
     await expect(this.historyList).toBeVisible();
     await expect(this.historyList.getByText(title)).toBeVisible();
+  }
+
+  // The "Go to date" / "Export history" toolbar only exists on a room's own
+  // History tab. Use checkHistoryToolbarHidden to assert it's absent for
+  // files, folders, Forms, etc. Both wait for the History tab's own content to
+  // render first, so the check doesn't race the tab switch triggered by
+  // openTab("History").
+  async checkHistoryToolbarVisible() {
+    await expect(this.historyList).toBeVisible();
+    await expect(this.historyToolbar).toBeVisible();
+    await expect(this.goToDateButton).toBeVisible();
+    await expect(this.exportHistoryButton).toBeVisible();
+  }
+
+  async checkHistoryToolbarHidden() {
+    await expect(this.historyList).toBeVisible();
+    await expect(this.historyToolbar).not.toBeVisible();
   }
 
   async checkDocxFileProperties() {
