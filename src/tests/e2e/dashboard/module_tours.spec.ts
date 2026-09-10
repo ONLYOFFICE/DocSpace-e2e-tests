@@ -14,12 +14,13 @@ const FILES_STEPS: TourStep[] = [
 ];
 
 const ROOMS_STEPS: TourStep[] = [
-  { title: "A room for every task", progress: "1 / 6" },
-  { title: "Reuse what works", progress: "2 / 6" },
-  { title: "Your AI assistant", progress: "3 / 6" },
-  { title: "Work together", progress: "4 / 6" },
-  { title: "Everything in its place", progress: "5 / 6" },
-  { title: "Now make it yours", progress: "6 / 6" },
+  { title: "A room for every task", progress: "1 / 7" },
+  { title: "Reuse what works", progress: "2 / 7" },
+  { title: "Your AI assistant", progress: "3 / 7" },
+  { title: "Group your rooms", progress: "4 / 7" },
+  { title: "Work together", progress: "5 / 7" },
+  { title: "Everything in its place", progress: "6 / 7" },
+  { title: "Now make it yours", progress: "7 / 7" },
 ];
 
 const FORMS_STEPS: TourStep[] = [
@@ -58,9 +59,10 @@ const GUEST_FILES_STEPS: TourStep[] = [
 // drop the creation-related steps and end on "Your list is empty for now"
 // instead of the owner's "Now make it yours".
 const MEMBER_ROOMS_STEPS: TourStep[] = [
-  { title: "Work together", progress: "1 / 3" },
-  { title: "Everything in its place", progress: "2 / 3" },
-  { title: "Your list is empty for now", progress: "3 / 3" },
+  { title: "Group your rooms", progress: "1 / 4" },
+  { title: "Work together", progress: "2 / 4" },
+  { title: "Everything in its place", progress: "3 / 4" },
+  { title: "Your list is empty for now", progress: "4 / 4" },
 ];
 
 const MEMBER_FORMS_STEPS: TourStep[] = [
