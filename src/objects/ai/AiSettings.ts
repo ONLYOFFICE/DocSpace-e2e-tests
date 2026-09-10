@@ -122,27 +122,78 @@ class AiSettings extends BasePage {
     return popup;
   }
 
-  async addMcpServer(name: string, url: string) {
+  private async writeMcpConfig(config: { mcpServers: Record<string, object> }) {
     await expect(this.editMcpConfigButton).toBeEnabled();
     await this.editMcpConfigButton.click();
     await expect(this.mcpConfigEditor).toBeVisible();
 
-    const config = JSON.stringify({ mcpServers: { [name]: { url } } }, null, 2);
     await this.mcpConfigEditor.click();
     await this.page.keyboard.press(
       process.platform === "darwin" ? "Meta+A" : "Control+A",
     );
     await this.page.keyboard.press("Backspace");
-    await this.page.keyboard.insertText(config);
+    await this.page.keyboard.insertText(JSON.stringify(config, null, 2));
 
     await expect(this.saveMcpConfigButton).toBeEnabled();
     await this.saveMcpConfigButton.click();
   }
 
+  async addMcpServer(name: string, url: string) {
+    await this.writeMcpConfig({ mcpServers: { [name]: { url } } });
+  }
+
+  async removeAllMcpServers() {
+    await this.writeMcpConfig({ mcpServers: {} });
+  }
+
+  private get mcpToolsPanel() {
+    return this.page.locator(".available-tools");
+  }
+
+  private mcpServerTitle(name: string) {
+    return this.page.locator("p.font-bold", { hasText: name });
+  }
+
   async expectMcpServerInList(name: string) {
-    await expect(
-      this.page.locator("p.font-bold", { hasText: name }),
-    ).toBeVisible();
+    await expect(this.mcpServerTitle(name)).toBeVisible();
+  }
+
+  async expectMcpServerNotInList(name: string) {
+    await expect(this.mcpServerTitle(name)).toHaveCount(0);
+  }
+
+  async expandMcpServer(name: string) {
+    const title = this.mcpServerTitle(name);
+    await expect(title).toBeVisible();
+
+    const row = title.locator("..");
+    const collapsedChevron = row.locator('[style*="rotate(-90deg)"]');
+
+    await expect(async () => {
+      if ((await collapsedChevron.count()) > 0) {
+        await row.click();
+      }
+      await expect(collapsedChevron).toHaveCount(0, { timeout: 5000 });
+    }).toPass({ timeout: 60000 });
+  }
+
+  async expectMcpServerTools(tools: string[]) {
+    for (const tool of tools) {
+      await expect(
+        this.mcpToolsPanel.getByText(tool, { exact: true }),
+      ).toBeVisible({ timeout: 30000 });
+    }
+  }
+
+  async expectMcpToolEnabled(tool: string) {
+    const row = this.mcpToolsPanel
+      .locator("div")
+      .filter({ has: this.page.getByText(tool, { exact: true }) })
+      .last();
+    await expect(row.getByRole("switch")).toHaveAttribute(
+      "aria-checked",
+      "true",
+    );
   }
 
   private async openTab(tab: Locator) {
