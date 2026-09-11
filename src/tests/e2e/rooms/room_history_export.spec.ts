@@ -237,9 +237,9 @@ test.describe("Rooms: History export toolbar - access by user type", () => {
     await roomInfoPanel.checkHistoryToolbarVisible();
   });
 
-  test("Guest does NOT see the Go to date / Export history toolbar", async () => {
+  test("Guest sees Go to date but NOT Export history", async () => {
     await openHistoryTabAs(guestCreds.email, guestCreds.password);
-    await roomInfoPanel.checkHistoryToolbarHidden();
+    await roomInfoPanel.checkExportHistoryButtonHidden();
   });
 });
 
@@ -247,9 +247,9 @@ test.describe("Rooms: History export toolbar - access by user type", () => {
 // It must NOT leak into the History tab of an individual file or folder,
 // wherever that item lives - My Documents, inside a room, or the Forms app.
 test.describe("History toolbar does not appear outside a room's own History tab", () => {
-  const MY_DOCS_FILE_NAME = "outside-room-file.docx";
+  const MY_DOCS_FILE_NAME = "outside-room-file";
   const MY_DOCS_FOLDER_NAME = "Outside Room Folder";
-  const ROOM_FILE_NAME = "room-inner-file.docx";
+  const ROOM_FILE_NAME = "room-inner-file";
   const PDF_FORM_FILE = "data/rooms/PDF from device.pdf";
   const PDF_FORM_NAME = "PDF from device";
 
@@ -267,6 +267,7 @@ test.describe("History toolbar does not appear outside a room's own History tab"
     await login.loginToPortal();
     await files.open();
     await files.filesTable.selectFolderByName(MY_DOCS_FILE_NAME);
+    await files.infoPanel.open();
     await files.infoPanel.openTab("History");
     await files.infoPanel.checkHistoryToolbarHidden();
   });
@@ -288,6 +289,7 @@ test.describe("History toolbar does not appear outside a room's own History tab"
     await login.loginToPortal();
     await files.open();
     await files.filesTable.selectFolderByName(MY_DOCS_FOLDER_NAME);
+    await files.infoPanel.open();
     await files.infoPanel.openTab("History");
     await files.infoPanel.checkHistoryToolbarHidden();
   });
@@ -311,6 +313,7 @@ test.describe("History toolbar does not appear outside a room's own History tab"
     await myRooms.openWithoutEmptyCheck();
     await myRooms.roomsTable.openRoomByName(roomName);
     await myRooms.filesTable.selectFolderByName(ROOM_FILE_NAME);
+    await myRooms.infoPanel.open();
     await myRooms.infoPanel.openTab("History");
     await myRooms.infoPanel.checkHistoryToolbarHidden();
   });
@@ -337,6 +340,7 @@ test.describe("History toolbar does not appear outside a room's own History tab"
     await login.loginToPortal();
     await myRooms.openFormsRecent();
     await myRooms.filesTable.selectFolderByName(PDF_FORM_NAME);
+    await myRooms.infoPanel.open();
     await myRooms.infoPanel.openTab("History");
     await myRooms.infoPanel.checkHistoryToolbarHidden();
   });

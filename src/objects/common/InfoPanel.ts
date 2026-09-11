@@ -228,6 +228,15 @@ class InfoPanel {
     await expect(this.historyToolbar).not.toBeVisible();
   }
 
+  // Guest room members see "Go to date" but not "Export history" - the
+  // toolbar itself stays visible, only the export button is restricted.
+  async checkExportHistoryButtonHidden() {
+    await expect(this.historyList).toBeVisible();
+    await expect(this.historyToolbar).toBeVisible();
+    await expect(this.goToDateButton).toBeVisible();
+    await expect(this.exportHistoryButton).not.toBeVisible();
+  }
+
   async checkDocxFileProperties() {
     const fileExtension = this.infoPanel.locator(PROPERTY_FILE_EXTENSION);
     await expect(fileExtension).toContainText("DOCX");
