@@ -71,6 +71,10 @@ export default class BasePage {
     await this.toast.removeAllToast();
   }
 
+  async clickToastLink(linkText?: string, timeout?: number) {
+    await this.toast.clickLinkInToast(linkText, timeout);
+  }
+
   async navigateToSettings() {
     await this.optionsButton.waitFor({ state: "visible", timeout: 10000 });
     await this.optionsButton.click();
