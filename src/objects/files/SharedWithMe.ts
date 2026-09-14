@@ -34,7 +34,7 @@ class SharedWithMe extends BasePage {
     await this.waitForSharedWithMePage();
   }
 
-  private async waitForSharedWithMePage() {
+  async waitForSharedWithMePage() {
     await expect(this.page).toHaveURL(SHARED_WITH_ME_URL);
     await this.page.waitForLoadState("domcontentloaded");
   }

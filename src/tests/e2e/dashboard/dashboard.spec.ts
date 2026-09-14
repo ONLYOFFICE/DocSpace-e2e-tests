@@ -2,6 +2,7 @@ import { expect } from "@playwright/test";
 import config from "@/config";
 import { test } from "@/src/fixtures";
 import Dashboard from "@/src/objects/dashboard/Dashboard";
+import SharedWithMe from "@/src/objects/files/SharedWithMe";
 import { defaultHomepageUrls } from "@/src/utils/constants/profile";
 
 const OWNER_NAME = "admin-zero admin-zero";
@@ -72,6 +73,42 @@ test.describe("Dashboard (non-owner roles)", () => {
     await test.step("Verify Rooms Open navigates to Rooms", async () => {
       await dashboard.createRoomButton.click();
       await page.waitForURL(defaultHomepageUrls.rooms, { waitUntil: "load" });
+    });
+  });
+
+  test("Guest: Create or upload file quick actions are blocked", async ({
+    page,
+    api,
+    apiSdk,
+    login,
+  }) => {
+    const dashboard = new Dashboard(page, api.portalDomain);
+    const { userData } = await apiSdk.profiles.addMember("owner", "Guest");
+
+    await login.loginWithCredentials(userData.email, userData.password);
+    await dashboard.open();
+
+    await test.step("Verify quick actions are disabled with a restriction tooltip", async () => {
+      await dashboard.expectCreateAndUploadBlockedForGuest();
+    });
+  });
+
+  test("Guest: Files Open navigates to Shared with me", async ({
+    page,
+    api,
+    apiSdk,
+    login,
+  }) => {
+    const dashboard = new Dashboard(page, api.portalDomain);
+    const sharedWithMe = new SharedWithMe(page, api.portalDomain);
+    const { userData } = await apiSdk.profiles.addMember("owner", "Guest");
+
+    await login.loginWithCredentials(userData.email, userData.password);
+    await dashboard.open();
+
+    await test.step("Verify Files Open navigates to Shared with me", async () => {
+      await dashboard.openFilesButton.click();
+      await sharedWithMe.waitForSharedWithMePage();
     });
   });
 

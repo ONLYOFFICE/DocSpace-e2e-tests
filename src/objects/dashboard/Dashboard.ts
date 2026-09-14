@@ -15,6 +15,15 @@ const ROOMS_TOUR_BUTTON = "dashboard-app-tour-ai-rooms";
 const FORMS_TOUR_BUTTON = "dashboard-app-tour-ai-forms";
 const AGENTS_TOUR_BUTTON = "dashboard-app-tour-ai-agents";
 const WELCOME_HEADING_TEXT = "Welcome to ONLYOFFICE";
+const QUICK_ACTIONS_TRACK = "quick-actions-track";
+const UPLOAD_FILE_LINK_ID = "dashboard-upload-link";
+const RESTRICTION_TOOLTIP_TITLE = "Guests can't create or upload files.";
+const QUICK_ACTION_TILE_NAMES = [
+  "Document",
+  "Spreadsheet",
+  "Presentation",
+  "PDF",
+] as const;
 
 export class Dashboard extends BasePage {
   portalDomain: string;
@@ -90,6 +99,27 @@ export class Dashboard extends BasePage {
     return this.page.getByTestId(AGENTS_TOUR_BUTTON);
   }
 
+  get quickActionsTrack(): Locator {
+    return this.page.getByTestId(QUICK_ACTIONS_TRACK);
+  }
+
+  quickActionTile(name: (typeof QUICK_ACTION_TILE_NAMES)[number]): Locator {
+    return this.quickActionsTrack.getByRole("button", { name });
+  }
+
+  get uploadFileLink(): Locator {
+    return this.page.locator(`#${UPLOAD_FILE_LINK_ID}`);
+  }
+
+  private get restrictionTooltip(): Locator {
+    // react-tooltip keeps the previous tooltip mounted mid-fade-out
+    // (react-tooltip__closing) while the next one opens, so exclude it
+    // to avoid matching two tooltips at once
+    return this.page
+      .locator('[role="tooltip"]:not(.react-tooltip__closing)')
+      .filter({ hasText: RESTRICTION_TOOLTIP_TITLE });
+  }
+
   async expectProfileDetails(
     workspaceName: string,
     ownerName: string,
@@ -123,6 +153,21 @@ export class Dashboard extends BasePage {
     await expect(this.createRoomButton).toHaveText("Open");
     await expect(this.createFormSpaceButton).toHaveText("Open");
     await expect(this.createAiAgentButton).toHaveText("Open");
+  }
+
+  // Guests can't create or upload files, so the quick-action tiles are
+  // disabled and both the tiles and the "upload a file" link show a
+  // restriction tooltip on hover
+  async expectCreateAndUploadBlockedForGuest() {
+    for (const name of QUICK_ACTION_TILE_NAMES) {
+      await expect(this.quickActionTile(name)).toBeDisabled();
+    }
+
+    await this.quickActionTile("Document").hover({ force: true });
+    await expect(this.restrictionTooltip).toBeVisible();
+
+    await this.uploadFileLink.hover({ force: true });
+    await expect(this.restrictionTooltip).toBeVisible();
   }
 }
 
