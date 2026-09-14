@@ -13,6 +13,7 @@ const DISPLAY_FILE_EXTENSION_TOGGLE = "display_file_extension_toggle_button";
 // Note: "cancelletion" is the actual testid spelling in the app
 const CANCELLATION_NOTIFICATION_TOGGLE =
   "cancelletion_notification_toggle_button";
+const SHOW_QUICK_ACTIONS_TOGGLE = "show_quick_actions_toggle_button";
 
 class ProfileFileManagement {
   private page: Page;
@@ -117,6 +118,17 @@ class ProfileFileManagement {
 
   async expectCancellationNotificationEnabled(enabled: boolean) {
     const toggle = this.page.getByTestId(CANCELLATION_NOTIFICATION_TOGGLE);
+    await expect(toggle).toHaveAttribute("aria-checked", String(enabled));
+  }
+
+  async toggleShowQuickActions() {
+    const toggle = this.page.getByTestId(SHOW_QUICK_ACTIONS_TOGGLE);
+    await expect(toggle).toBeEnabled();
+    await toggle.click();
+  }
+
+  async expectShowQuickActionsEnabled(enabled: boolean) {
+    const toggle = this.page.getByTestId(SHOW_QUICK_ACTIONS_TOGGLE);
     await expect(toggle).toHaveAttribute("aria-checked", String(enabled));
   }
 

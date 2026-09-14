@@ -11,6 +11,7 @@ import InfoPanel from "../common/InfoPanel";
 import FilesTable from "./FilesTable";
 import FilesFilter from "./FilesFilter";
 import FilesEmptyView from "./FilesEmptyView";
+import QuickActions from "../common/QuickActions";
 import BasePage from "../common/BasePage";
 import DownloadDialog from "./DownloadDialog";
 import FilesSelectPanel from "./FilesSelectPanel";
@@ -45,6 +46,7 @@ class Files extends BasePage {
   filesTable: FilesTable;
   filesFilter: FilesFilter;
   filesEmptyView: FilesEmptyView;
+  quickActions: QuickActions;
   downloadDialog: DownloadDialog;
   filesSelectPanel: FilesSelectPanel;
   folderDeleteModal: FolderDeleteModal;
@@ -62,6 +64,7 @@ class Files extends BasePage {
     this.filesTable = new FilesTable(page);
     this.filesFilter = new FilesFilter(page);
     this.filesEmptyView = new FilesEmptyView(page);
+    this.quickActions = new QuickActions(page);
     this.downloadDialog = new DownloadDialog(page);
     this.filesSelectPanel = new FilesSelectPanel(page);
     this.folderDeleteModal = new FolderDeleteModal(page);
