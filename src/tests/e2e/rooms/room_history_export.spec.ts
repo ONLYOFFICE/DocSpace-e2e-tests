@@ -6,6 +6,7 @@ import Files from "@/src/objects/files/Files";
 import Login from "@/src/objects/common/Login";
 import SpreadsheetEditor from "@/src/objects/files/SpreadsheetEditor";
 import { PaymentApi } from "@/src/api/payment";
+import { documentContextMenuOption } from "@/src/utils/constants/files";
 
 const ROOM_NAME = "History Export Room";
 const HISTORY_FILE_NAME = "history-source.docx";
@@ -49,33 +50,61 @@ test.describe("Rooms: History tab export toolbar", () => {
     }
   });
 
-  test("Export history: all history report opens in the editor", async ({
-    api,
-  }) => {
-    let reportPage: Page;
+  test("Export history works for all room types", async ({ api, apiSdk }) => {
+    const rooms = await apiSdk.rooms.createAllRoomTypes("owner");
+
+    await test.step("Precondition: create a Form Filling room", async () => {
+      const formRoomResponse = await apiSdk.rooms.createRoom("owner", {
+        title: "Autotest Form Filling",
+        roomType: "FillingFormsRoom",
+      });
+      const formRoomBody = await formRoomResponse.json();
+      rooms.push({
+        id: formRoomBody.response.id,
+        title: formRoomBody.response.title,
+        roomType: formRoomBody.response.roomType,
+      });
+    });
 
     await test.step("Precondition: upgrade the portal to a paid plan", async () => {
-      // Export history is a paid feature - see the free-plan warning test below.
       const paymentApi = new PaymentApi(api.apiRequestContext, api.apisystem);
       await paymentApi.setupPayment();
     });
 
-    await test.step("Export the full activity history", async () => {
-      reportPage = await roomInfoPanel.exportHistory("All history");
-    });
+    for (const room of rooms) {
+      await test.step(`${room.title}: export succeeds and the report opens`, async () => {
+        await myRooms.openWithoutEmptyCheck();
+        await myRooms.roomsTable.openRoomByName(room.title);
+        await roomInfoPanel.open();
+        await roomInfoPanel.openTab("History");
 
-    await test.step("A toast confirms the export", async () => {
-      await roomInfoPanel.checkExportHistoryToastVisible();
-    });
+        const reportPage = await roomInfoPanel.exportHistory("All history");
+        await roomInfoPanel.checkExportHistoryToastVisible();
 
-    await test.step("The report opens automatically in a new tab", async () => {
-      const spreadsheet = new SpreadsheetEditor(reportPage);
-      await spreadsheet.waitForLoad();
-      await expect(reportPage).toHaveTitle(
-        new RegExp(`Audit Trail Report \\(room-${roomId}\\)`),
-      );
-      await reportPage.close();
-    });
+        const spreadsheet = new SpreadsheetEditor(reportPage);
+        await spreadsheet.waitForLoad();
+        await expect(reportPage).toHaveTitle(
+          new RegExp(`Audit Trail Report \\(room-${room.id}\\)`),
+        );
+        await reportPage.close();
+
+        // The editor renders the report in canvas (no readable cell text via
+        // Playwright), so "not empty" is verified the same way sync-to-xlsx
+        // tests do it - via the file's own size in the Properties panel.
+        await myRooms.openWithoutEmptyCheck();
+        await myRooms.roomsTable.openRoomByName(room.title);
+        await myRooms.filesTable.openContextMenuForItem(
+          `Audit Trail Report (room-${room.id})`,
+        );
+        await myRooms.filesTable.contextMenu.clickOption(
+          documentContextMenuOption.select,
+        );
+        await myRooms.infoPanel.open();
+        const size = await myRooms.infoPanel.getSizeInBytes();
+        expect(size).toBeGreaterThan(0);
+        await myRooms.infoPanel.close();
+      });
+    }
   });
 
   test("Export history: custom date range report opens in the editor", async ({
@@ -84,6 +113,7 @@ test.describe("Rooms: History tab export toolbar", () => {
     let reportPage: Page;
 
     await test.step("Precondition: upgrade the portal to a paid plan", async () => {
+      // Export history is a paid feature - see the free-plan warning test below.
       const paymentApi = new PaymentApi(api.apiRequestContext, api.apisystem);
       await paymentApi.setupPayment();
     });
