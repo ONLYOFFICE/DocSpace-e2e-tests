@@ -7,6 +7,7 @@ const navItems = {
   developerTools: "Developer Tools",
   storageManagement: "Storage management",
   aiSettings: "AI settings",
+  dataImport: "Data import",
 } as const;
 
 const mapBackupMethodsIds = {
