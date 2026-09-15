@@ -22,6 +22,13 @@ test.describe("AI Agents", () => {
     await aiAgents.expectAiNotActive();
   });
 
+  // Files/Rooms/Forms show a header "AI Chat" button on their empty views;
+  // it's deliberately absent here, since this whole section is the chat.
+  test("No header AI Chat button", async () => {
+    await aiAgents.open();
+    await aiAgents.checkAiChatButtonNotExist();
+  });
+
   test("Create AI agent", async () => {
     const agentName = "Test AI Agent";
 
