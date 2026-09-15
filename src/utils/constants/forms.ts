@@ -43,6 +43,12 @@ export const formsTrashFolderContextMenuOption = {
   delete: menuText("Delete"),
 } as const;
 
+// Title used when saving a Form space as a template - lands under Forms >
+// Templates, kept separate from room templates (Rooms > Templates).
+export const formTemplateTitles = {
+  formTemplate: "Template of the form space",
+} as const;
+
 export const formsSectionEmptyView = {
   recent: {
     heading: "Recent",
