@@ -6,6 +6,7 @@ import BaseToast from "./BaseToast";
 const TARIFF_BAR_TEXT = "tariff_bar_text";
 const USER_MENU_ACCOUNTS = "user-menu-accounts";
 const USER_MENU_PROFILE = "user-menu-profile";
+const HEADER_AI_CHAT_BUTTON = "#ai-chat-button";
 
 export default class BasePage {
   protected page: Page;
@@ -119,6 +120,20 @@ export default class BasePage {
 
   async checkTryBusinessBarVisible() {
     await expect(this.page.getByTestId(TARIFF_BAR_TEXT)).toBeVisible();
+  }
+
+  // Section header "AI Chat" button (Files/Rooms/Forms). Deliberately absent
+  // on AI Agents, where the chat is the section itself.
+  protected get headerAiChatButton(): Locator {
+    return this.page.locator(HEADER_AI_CHAT_BUTTON);
+  }
+
+  async checkAiChatButtonVisible() {
+    await expect(this.headerAiChatButton).toBeVisible();
+  }
+
+  async checkAiChatButtonNotExist() {
+    await expect(this.headerAiChatButton).toHaveCount(0);
   }
 
   async waitForDownload(action: () => Promise<void>) {
