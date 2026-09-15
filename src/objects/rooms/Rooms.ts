@@ -358,6 +358,15 @@ class MyRooms extends BasePage {
     await download.delete();
   }
 
+  // Where the portal drops them varies between runs (rooms list or dashboard),
+  // so assert only that they are out of the room.
+  async expectDroppedOutOfRoom(roomId: number) {
+    await expect(this.page).not.toHaveURL(new RegExp(`folder=${roomId}`), {
+      timeout: 30000,
+    });
+    await expect(this.page).toHaveURL(/\/rooms\/shared|\/dashboard/);
+  }
+
   async openRoom(roomName: string) {
     await this.roomsTable.openContextMenu(roomName);
     await this.roomsTable.contextMenu.clickOption("Open");

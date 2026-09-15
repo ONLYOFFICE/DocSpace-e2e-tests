@@ -113,6 +113,10 @@ class Contacts extends BasePage {
     expect((await reassignStarted).status()).toBe(200);
   }
 
+  async expectUserEmailInTable(userEmail: string) {
+    await expect(this.table.tableContainer.getByText(userEmail)).toBeVisible();
+  }
+
   async expectUserRemoved(userEmail: TUserEmail) {
     await expect(async () => {
       await this.open();
