@@ -143,6 +143,10 @@ class MyRooms extends BasePage {
     await this.sidebar.openSubItem(apps.rooms, roomsSubItems.templates);
   }
 
+  async openFormsTemplates() {
+    await this.sidebar.openSubItem(apps.forms, formsSubItems.templates);
+  }
+
   async openRooms() {
     await this.sidebar.navigate(apps.rooms);
   }
