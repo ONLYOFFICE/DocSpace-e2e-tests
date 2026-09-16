@@ -56,7 +56,10 @@ class FilesSelectPanel extends BaseSelector {
       .isVisible({ timeout })
       .catch(() => false);
     if (shown) {
-      await dialog.first().getByRole("button", { name: "OK", exact: true }).click();
+      await dialog
+        .first()
+        .getByRole("button", { name: "OK", exact: true })
+        .click();
     }
   }
 
@@ -72,7 +75,9 @@ class FilesSelectPanel extends BaseSelector {
   // Unlike checkFileSelectPanelExist, doesn't assume the panel opened on the
   // DocSpace root tabs - Favorites/Recent open it scoped to their own view.
   async checkSelectPanelOpen() {
-    await expect(this.selector.getByText("Select", { exact: true })).toBeVisible();
+    await expect(
+      this.selector.getByText("Select", { exact: true }),
+    ).toBeVisible();
   }
 
   // Overrides BaseSelector.select: after gotoDocSpaceRoot the panel re-renders

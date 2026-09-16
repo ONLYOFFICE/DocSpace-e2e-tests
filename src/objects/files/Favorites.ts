@@ -69,7 +69,9 @@ class Favorites extends BasePage {
       });
     }).toPass({ timeout: 15000 });
 
-    await this.filesTable.contextMenu.clickOption(documentContextMenuOption.copy);
+    await this.filesTable.contextMenu.clickOption(
+      documentContextMenuOption.copy,
+    );
     const filesSelectPanel = new FilesSelectPanel(this.page);
     await filesSelectPanel.checkSelectPanelOpen();
     await filesSelectPanel.gotoDocSpaceRoot();
