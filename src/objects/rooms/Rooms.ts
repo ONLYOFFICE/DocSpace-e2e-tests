@@ -36,6 +36,7 @@ import BaseToast from "../common/BaseToast";
 import FilesTable from "../files/FilesTable";
 import FilesFilter from "../files/FilesFilter";
 import DownloadDialog from "../files/DownloadDialog";
+import FilesSelectPanel from "../files/FilesSelectPanel";
 import RoomsGroupTags from "./RoomsGroupTags";
 import DocumentEditor from "../files/DocumentEditor";
 import { documentContextMenuOption } from "@/src/utils/constants/files";
@@ -370,6 +371,23 @@ class MyRooms extends BasePage {
   async openRoom(roomName: string) {
     await this.roomsTable.openContextMenu(roomName);
     await this.roomsTable.contextMenu.clickOption("Open");
+  }
+
+  // Opens the "Copy" destination selector on the Forms app root, where existing
+  // Form Filling rooms are listed, for a file inside the currently open room.
+  // Caller selects a room and confirms/checks the incompatible-file alert,
+  // since the outcome differs by test.
+  async openCopyToFormsSelector(fileName: string) {
+    await this.filesTable.openContextMenuForItem(fileName);
+    await this.filesTable.contextMenu.clickSubmenuOption(
+      "Move or copy",
+      "Copy",
+    );
+    const filesSelectPanel = new FilesSelectPanel(this.page);
+    await filesSelectPanel.checkSelectPanelOpen();
+    await filesSelectPanel.gotoDocSpaceRoot();
+    await filesSelectPanel.select("forms");
+    return filesSelectPanel;
   }
 
   async openFileInEditorInSameTab(fileName: string): Promise<DocumentEditor> {

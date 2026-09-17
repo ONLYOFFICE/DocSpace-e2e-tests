@@ -494,6 +494,21 @@ class Files extends BasePage {
     await this.filesTable.checkRowExist(fileName);
   }
 
+  // Opens the "Copy" destination selector on the Forms app root, where existing
+  // Form Filling rooms are listed. Caller selects a room and confirms/checks
+  // the incompatible-file alert, since the outcome differs by test.
+  async openCopyToFormsSelector(fileName: string) {
+    await this.filesTable.openContextMenuForItem(fileName);
+    await this.filesTable.contextMenu.clickSubmenuOption(
+      "Move or copy",
+      "Copy",
+    );
+    await this.filesSelectPanel.checkFileSelectPanelExist();
+    await this.filesSelectPanel.gotoDocSpaceRoot();
+    await this.filesSelectPanel.select("forms");
+    return this.filesSelectPanel;
+  }
+
   async duplicateFile(fileName: string) {
     await this.filesTable.openContextMenuForItem(fileName);
     await this.filesTable.contextMenu.clickSubmenuOption("Move or copy", {

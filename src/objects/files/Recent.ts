@@ -4,6 +4,7 @@ import BasePage from "../common/BasePage";
 import FilesEmptyView from "./FilesEmptyView";
 import FilesTable from "./FilesTable";
 import FilesFilter from "./FilesFilter";
+import FilesSelectPanel from "./FilesSelectPanel";
 import InfoPanel from "../common/InfoPanel";
 import { apps, filesSubItems } from "@/src/utils/constants/navigation";
 import { documentContextMenuOption } from "@/src/utils/constants/files";
@@ -75,6 +76,22 @@ class Recent extends BasePage {
     await this.filesTable.contextMenu.clickOption(
       documentContextMenuOption.openLocation,
     );
+  }
+
+  // Opens the "Copy" destination selector on the Forms app root, where existing
+  // Form Filling rooms are listed. Caller selects a room and confirms/checks
+  // the incompatible-file alert, since the outcome differs by test.
+  async openCopyToFormsSelector(name: string) {
+    await this.openRowContextMenu(name);
+    await this.filesTable.contextMenu.clickSubmenuOption(
+      "Move or copy",
+      "Copy",
+    );
+    const filesSelectPanel = new FilesSelectPanel(this.page);
+    await filesSelectPanel.checkSelectPanelOpen();
+    await filesSelectPanel.gotoDocSpaceRoot();
+    await filesSelectPanel.select("forms");
+    return filesSelectPanel;
   }
 
   async checkNoRecentFilesTextExist() {
