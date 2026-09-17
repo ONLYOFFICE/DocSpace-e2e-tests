@@ -3,7 +3,7 @@ import { expect, Page } from "@playwright/test";
 import AiAgents from "@/src/objects/ai/AiAgents";
 import AiSettings from "@/src/objects/ai/AiSettings";
 import RoomInfoPanel from "@/src/objects/rooms/RoomInfoPanel";
-import InfoPanel from "@/src/objects/common/InfoPanel";
+import Files from "@/src/objects/files/Files";
 import SpreadsheetEditor from "@/src/objects/files/SpreadsheetEditor";
 import { PaymentApi } from "@/src/api/payment";
 import { documentContextMenuOption } from "@/src/utils/constants/files";
@@ -54,7 +54,9 @@ test.describe("AI Agents: History tab export toolbar", () => {
 
   test("Export history: toolbar is visible and the report opens in the editor", async ({
     page,
+    api,
   }) => {
+    const files = new Files(page, api.portalDomain);
     let reportPage: Page;
 
     await test.step("Go to date and Export history are visible", async () => {
@@ -78,22 +80,23 @@ test.describe("AI Agents: History tab export toolbar", () => {
       await reportPage.close();
     });
 
-    // The editor renders the report in canvas (no readable cell text via
-    // Playwright), so "not empty" is verified via the file's own size in the
-    // Properties panel, same as the sync-to-xlsx tests do it.
+    // The report is saved to My Documents, not into the agent's Chat outputs
+    // (per the "exported to Files" toast). The editor renders it in canvas (no
+    // readable cell text via Playwright), so "not empty" is verified via the
+    // file's own size in the Properties panel, same as the sync-to-xlsx tests
+    // do it.
     await test.step("Exported report is saved with actual data", async () => {
-      await aiAgents.openAgent(AGENT_NAME);
-      await aiAgents.openResultStorageTab();
-      await aiAgents.filesTable.openContextMenuForItem(
+      await files.open();
+      await files.filesTable.openContextMenuForItem(
         `Audit Trail Report (room-${agentId})`,
       );
-      await aiAgents.filesTable.contextMenu.clickOption(
+      await files.filesTable.contextMenu.clickOption(
         documentContextMenuOption.select,
       );
-      const infoPanel = new InfoPanel(page);
-      await infoPanel.open();
-      const size = await infoPanel.getSizeInBytes();
+      await files.infoPanel.open();
+      const size = await files.infoPanel.getSizeInBytes();
       expect(size).toBeGreaterThan(0);
+      await files.infoPanel.close();
     });
   });
 });
