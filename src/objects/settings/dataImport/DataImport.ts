@@ -40,14 +40,21 @@ export const importWizards: TImportWizard[] = [
   },
 ];
 
-// A hand-built minimal Takeout export: one root `Takeout` folder, exactly one
-// `.html` in it (the parser reads the email from h1.header_title), Profile.json
-// and one Drive file. Profile.json keys must be PascalCase — the migrator
-// deserializes it case-sensitively and then dereferences `Name` without a null
-// check, so camelCase kills the whole parse.
+// Hand-built minimal Takeout archives, modelled on the only real Workspace
+// export we have: one root `Takeout` folder, exactly one `.html` in it (the
+// parser reads the account email out of h1.header_title and the localized
+// folder names out of the data-english-name nodes) and a Drive file. No
+// Profile/ — real Workspace exports don't carry one.
+//
+// `volumePath` is a continuation volume: a second archive for the same user
+// with no root html at all, which the migrator folds into the user parsed from
+// the first one. The -001/-002 naming matters: archives are processed in file
+// name order, and a continuation volume parsed first has no user to attach to.
 export const googleTakeoutFixture = {
-  path: "data/data-import/google-takeout.zip",
-  userName: "Takeout User",
+  path: "data/data-import/google-takeout-001.zip",
+  volumePath: "data/data-import/google-takeout-002.zip",
+  // Without a profile the migrator names the user after the email.
+  userName: "takeout.user",
   userEmail: "takeout.user@example.com",
   selectedUsers: "Selected: 1/1 users",
 } as const;
@@ -123,7 +130,11 @@ class DataImport extends BasePage {
   }
 
   async chooseBackupFile(filePath: string) {
-    await this.backupFileInput.setInputFiles(filePath);
+    await this.chooseBackupFiles([filePath]);
+  }
+
+  async chooseBackupFiles(filePaths: string[]) {
+    await this.backupFileInput.setInputFiles(filePaths);
   }
 
   async expectWizardMatches(wizard: TImportWizard) {
@@ -138,10 +149,15 @@ class DataImport extends BasePage {
     return this.page.getByTestId("table-container");
   }
 
-  // Picking a file only stages it; the upload and server-side parse start with
+  // Picking files only stages them; the upload and server-side parse start with
   // the step button.
   async uploadBackupFile(filePath: string) {
-    await this.chooseBackupFile(filePath);
+    await this.uploadBackupFiles([filePath]);
+  }
+
+  // The Google wizard takes a set of archives — one per volume of the export.
+  async uploadBackupFiles(filePaths: string[]) {
+    await this.chooseBackupFiles(filePaths);
     await expect(this.nextStepButton).toBeEnabled({ timeout: 30000 });
     await this.nextStepButton.click();
   }

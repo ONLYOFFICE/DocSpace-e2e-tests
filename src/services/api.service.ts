@@ -8,6 +8,7 @@ import {
   SettingsApi,
   PeopleQuotaApi,
   FoldersApi,
+  MigrationApi,
 } from "./index";
 import { TokenStore } from "./token-store";
 import { APIRequestContext } from "@playwright/test";
@@ -22,6 +23,7 @@ export class ApiSDK {
   readonly settings: SettingsApi;
   readonly peopleQuota: PeopleQuotaApi;
   readonly folders: FoldersApi;
+  readonly migration: MigrationApi;
 
   constructor(request: APIRequestContext, tokenStore: TokenStore) {
     this.profiles = new ProfilesApi(request, tokenStore);
@@ -33,5 +35,6 @@ export class ApiSDK {
     this.settings = new SettingsApi(request, tokenStore);
     this.peopleQuota = new PeopleQuotaApi(request, tokenStore);
     this.folders = new FoldersApi(request, tokenStore);
+    this.migration = new MigrationApi(request, tokenStore);
   }
 }
