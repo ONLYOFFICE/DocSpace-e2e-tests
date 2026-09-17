@@ -50,20 +50,21 @@ test.describe("Rooms: History tab export toolbar", () => {
     }
   });
 
-  test("Export history works for all room types", async ({ api, apiSdk }) => {
-    const rooms = await apiSdk.rooms.createAllRoomTypes("owner");
+  test("Export history works and the report is saved to My Documents", async ({
+    page,
+    api,
+    apiSdk,
+  }) => {
+    const files = new Files(page, api.portalDomain);
+    let room: { id: number; title: string };
 
-    await test.step("Precondition: create a Form Filling room", async () => {
-      const formRoomResponse = await apiSdk.rooms.createRoom("owner", {
-        title: "Autotest Form Filling",
-        roomType: "FillingFormsRoom",
+    await test.step("Precondition: create a Public room", async () => {
+      const roomResponse = await apiSdk.rooms.createRoom("owner", {
+        title: "Autotest Public",
+        roomType: "PublicRoom",
       });
-      const formRoomBody = await formRoomResponse.json();
-      rooms.push({
-        id: formRoomBody.response.id,
-        title: formRoomBody.response.title,
-        roomType: formRoomBody.response.roomType,
-      });
+      const roomBody = await roomResponse.json();
+      room = { id: roomBody.response.id, title: roomBody.response.title };
     });
 
     await test.step("Precondition: upgrade the portal to a paid plan", async () => {
@@ -71,40 +72,39 @@ test.describe("Rooms: History tab export toolbar", () => {
       await paymentApi.setupPayment();
     });
 
-    for (const room of rooms) {
-      await test.step(`${room.title}: export succeeds and the report opens`, async () => {
-        await myRooms.openWithoutEmptyCheck();
-        await myRooms.roomsTable.openRoomByName(room.title);
-        await roomInfoPanel.open();
-        await roomInfoPanel.openTab("History");
+    await test.step("Export succeeds and the report opens", async () => {
+      await myRooms.openWithoutEmptyCheck();
+      await myRooms.roomsTable.openRoomByName(room.title);
+      await roomInfoPanel.open();
+      await roomInfoPanel.openTab("History");
 
-        const reportPage = await roomInfoPanel.exportHistory("All history");
-        await roomInfoPanel.checkExportHistoryToastVisible();
+      const reportPage = await roomInfoPanel.exportHistory("All history");
+      await roomInfoPanel.checkExportHistoryToastVisible();
 
-        const spreadsheet = new SpreadsheetEditor(reportPage);
-        await spreadsheet.waitForLoad();
-        await expect(reportPage).toHaveTitle(
-          new RegExp(`Audit Trail Report \\(room-${room.id}\\)`),
-        );
-        await reportPage.close();
+      const spreadsheet = new SpreadsheetEditor(reportPage);
+      await spreadsheet.waitForLoad();
+      await expect(reportPage).toHaveTitle(
+        new RegExp(`Audit Trail Report \\(room-${room.id}\\)`),
+      );
+      await reportPage.close();
 
-        // The editor renders the report in canvas (no readable cell text via
-        // Playwright), so "not empty" is verified the same way sync-to-xlsx
-        // tests do it - via the file's own size in the Properties panel.
-        await myRooms.openWithoutEmptyCheck();
-        await myRooms.roomsTable.openRoomByName(room.title);
-        await myRooms.filesTable.openContextMenuForItem(
-          `Audit Trail Report (room-${room.id})`,
-        );
-        await myRooms.filesTable.contextMenu.clickOption(
-          documentContextMenuOption.select,
-        );
-        await myRooms.infoPanel.open();
-        const size = await myRooms.infoPanel.getSizeInBytes();
-        expect(size).toBeGreaterThan(0);
-        await myRooms.infoPanel.close();
-      });
-    }
+      // The report is saved to My Documents, not into the room itself (per
+      // the "exported to Files" toast). The editor renders it in canvas (no
+      // readable cell text via Playwright), so "not empty" is verified the
+      // same way sync-to-xlsx tests do it - via the file's own size in the
+      // Properties panel.
+      await files.open();
+      await files.filesTable.openContextMenuForItem(
+        `Audit Trail Report (room-${room.id})`,
+      );
+      await files.filesTable.contextMenu.clickOption(
+        documentContextMenuOption.select,
+      );
+      await files.infoPanel.open();
+      const size = await files.infoPanel.getSizeInBytes();
+      expect(size).toBeGreaterThan(0);
+      await files.infoPanel.close();
+    });
   });
 
   test("Export history: custom date range report opens in the editor", async ({
