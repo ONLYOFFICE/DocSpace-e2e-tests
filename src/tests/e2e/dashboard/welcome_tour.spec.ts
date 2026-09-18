@@ -12,6 +12,11 @@ const TOUR_STEPS = [
   { title: "Come back anytime", progress: "6 / 6" },
 ];
 
+async function openWelcomeModal(dashboard: Dashboard, welcomeTour: WelcomeTour) {
+  await dashboard.openWelcomeButton.click();
+  await expect(welcomeTour.takeTourButton).toBeVisible();
+}
+
 async function walkTour(welcomeTour: WelcomeTour, steps: typeof TOUR_STEPS) {
   for (const [index, step] of steps.entries()) {
     await test.step(`Step ${index + 1}: ${step.title}`, async () => {
@@ -35,10 +40,14 @@ test.describe("Dashboard: Welcome tour", () => {
   test.beforeEach(async ({ page, api, login }) => {
     dashboard = new Dashboard(page, api.portalDomain);
     welcomeTour = new WelcomeTour(page);
-    await login.loginToPortal({ dismissTour: false });
+    await login.loginToPortal();
   });
 
   test("Maybe later dismisses the welcome modal without starting the tour", async () => {
+    await test.step("Open the welcome modal", async () => {
+      await openWelcomeModal(dashboard, welcomeTour);
+    });
+
     await test.step("Dismiss the welcome modal", async () => {
       await welcomeTour.dismiss();
     });
@@ -51,6 +60,10 @@ test.describe("Dashboard: Welcome tour", () => {
   test("Take a tour walks through all steps and returns to the dashboard", async ({
     page,
   }) => {
+    await test.step("Open the welcome modal", async () => {
+      await openWelcomeModal(dashboard, welcomeTour);
+    });
+
     await test.step("Start the tour", async () => {
       await welcomeTour.startTour();
     });
@@ -85,17 +98,18 @@ test.describe("Dashboard: Welcome tour", () => {
   });
 
   test("Open Welcome reopens the modal so the tour can be taken again", async () => {
-    await test.step("Dismiss the welcome modal", async () => {
+    await test.step("Open and dismiss the welcome modal", async () => {
+      await openWelcomeModal(dashboard, welcomeTour);
       await welcomeTour.dismiss();
       await welcomeTour.expectClosed();
     });
 
     await test.step("Reopen it via Open Welcome", async () => {
-      await dashboard.openWelcomeButton.click();
       // The dashboard page itself carries the same "Welcome to ONLYOFFICE"
-      // heading behind the modal, so assert on the modal's own actions
-      // (data-testid based, unambiguous) instead of dashboard.welcomeHeading.
-      await expect(welcomeTour.takeTourButton).toBeVisible();
+      // heading behind the modal, so openWelcomeModal asserts on the modal's
+      // own actions (data-testid based, unambiguous) instead of
+      // dashboard.welcomeHeading.
+      await openWelcomeModal(dashboard, welcomeTour);
     });
 
     await test.step("Take the tour again", async () => {
@@ -106,16 +120,17 @@ test.describe("Dashboard: Welcome tour", () => {
 
   test("Open Welcome still reopens the modal after completing the tour once", async () => {
     await test.step("Complete the tour", async () => {
+      await openWelcomeModal(dashboard, welcomeTour);
       await welcomeTour.startTour();
       await walkTour(welcomeTour, TOUR_STEPS);
     });
 
     await test.step("Reopen it via Open Welcome", async () => {
-      await dashboard.openWelcomeButton.click();
       // The dashboard page itself carries the same "Welcome to ONLYOFFICE"
-      // heading behind the modal, so assert on the modal's own actions
-      // (data-testid based, unambiguous) instead of dashboard.welcomeHeading.
-      await expect(welcomeTour.takeTourButton).toBeVisible();
+      // heading behind the modal, so openWelcomeModal asserts on the modal's
+      // own actions (data-testid based, unambiguous) instead of
+      // dashboard.welcomeHeading.
+      await openWelcomeModal(dashboard, welcomeTour);
     });
 
     await test.step("Take the tour again", async () => {
@@ -125,17 +140,18 @@ test.describe("Dashboard: Welcome tour", () => {
   });
 
   test("Open Welcome: the reopened modal can be dismissed again with Maybe later", async () => {
-    await test.step("Dismiss the welcome modal", async () => {
+    await test.step("Open and dismiss the welcome modal", async () => {
+      await openWelcomeModal(dashboard, welcomeTour);
       await welcomeTour.dismiss();
       await welcomeTour.expectClosed();
     });
 
     await test.step("Reopen it via Open Welcome", async () => {
-      await dashboard.openWelcomeButton.click();
       // The dashboard page itself carries the same "Welcome to ONLYOFFICE"
-      // heading behind the modal, so assert on the modal's own actions
-      // (data-testid based, unambiguous) instead of dashboard.welcomeHeading.
-      await expect(welcomeTour.takeTourButton).toBeVisible();
+      // heading behind the modal, so openWelcomeModal asserts on the modal's
+      // own actions (data-testid based, unambiguous) instead of
+      // dashboard.welcomeHeading.
+      await openWelcomeModal(dashboard, welcomeTour);
     });
 
     await test.step("Dismiss it again", async () => {
