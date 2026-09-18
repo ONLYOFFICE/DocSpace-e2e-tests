@@ -12,7 +12,10 @@ const TOUR_STEPS = [
   { title: "Come back anytime", progress: "6 / 6" },
 ];
 
-async function openWelcomeModal(dashboard: Dashboard, welcomeTour: WelcomeTour) {
+async function openWelcomeModal(
+  dashboard: Dashboard,
+  welcomeTour: WelcomeTour,
+) {
   await dashboard.openWelcomeButton.click();
   await expect(welcomeTour.takeTourButton).toBeVisible();
 }
