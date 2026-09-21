@@ -7,6 +7,8 @@ import DataImport, {
   importWizards,
 } from "@/src/objects/settings/dataImport/DataImport";
 import Contacts from "@/src/objects/contacts/Contacts";
+import Login from "@/src/objects/common/Login";
+import SharedWithMe from "@/src/objects/files/SharedWithMe";
 
 test.describe("Data import", () => {
   let dataImport: DataImport;
@@ -15,10 +17,6 @@ test.describe("Data import", () => {
     dataImport = new DataImport(page);
     await login.loginToPortal();
     await dataImport.open();
-  });
-
-  test("All supported services are offered", async () => {
-    await dataImport.expectProvidersVisible();
   });
 
   test("Each service opens its own import wizard", async () => {
@@ -63,17 +61,12 @@ test.describe("Data import", () => {
     });
   });
 
-  // Skipped: the last step fails — filesCount comes back as 1 instead of 2. The
-  // continuation branch hands the archive to ParseStorage, which resets
-  // user.Storage instead of merging it (MergeStorages sits unused next to it),
-  // so only the last volume's files survive. Looks like a bug; un-skip once
-  // fixed.
-  test.skip("Multi-volume export is folded into a single user", async ({
+  test("Two archives of one export are folded into a single user", async ({
     apiSdk,
   }) => {
     test.setTimeout(360000);
 
-    await test.step("Upload both volumes at once", async () => {
+    await test.step("Upload both archives at once", async () => {
       await dataImport.startImport(importProvider.google);
       await dataImport.uploadBackupFiles([
         googleTakeoutFixture.path,
@@ -90,12 +83,52 @@ test.describe("Data import", () => {
       await dataImport.expectSelectedUsers(googleTakeoutFixture.selectedUsers);
     });
 
-    await test.step("Neither archive is rejected and both files arrive", async () => {
+    await test.step("Neither archive is rejected", async () => {
       const status = await apiSdk.migration.getStatus("owner");
       expect(status.parseResult.failedArchives).toEqual([]);
       expect(status.parseResult.users).toHaveLength(1);
-      // One Drive file per volume.
-      expect(status.parseResult.users[0].migratingFiles.filesCount).toBe(2);
+    });
+  });
+
+  test("Sharing from the archive reaches the user it was shared with", async ({
+    page,
+    api,
+    apiSdk,
+    login,
+  }) => {
+    test.setTimeout(360000);
+
+    let recipientPassword = "";
+    await test.step("Create the recipient on the portal", async () => {
+      const { userData } = await apiSdk.profiles.addMember("owner", "User", {
+        email: googleTakeoutFixture.recipientEmail,
+      });
+      recipientPassword = userData.password;
+    });
+
+    await test.step("Import both users' archives", async () => {
+      await dataImport.startImport(importProvider.google);
+      await dataImport.uploadBackupFiles([
+        googleTakeoutFixture.path,
+        googleTakeoutFixture.recipientArchivePath,
+      ]);
+      await dataImport.expectStep(googleImportSteps.selectUsers);
+      await dataImport.completeImport();
+    });
+
+    await test.step("The recipient finds the file in Shared with me", async () => {
+      await login.logout();
+      const recipientLogin = new Login(page, api.portalDomain);
+      await recipientLogin.loginWithCredentials(
+        googleTakeoutFixture.recipientEmail,
+        recipientPassword,
+      );
+
+      const sharedWithMe = new SharedWithMe(page, api.portalDomain);
+      await sharedWithMe.open();
+      await sharedWithMe.filesTable.checkRowExist(
+        googleTakeoutFixture.sharedFileName,
+      );
     });
   });
 

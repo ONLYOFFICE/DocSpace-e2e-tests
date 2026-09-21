@@ -34,12 +34,17 @@ export class ProfilesApi {
     return this.tokenStore.portalBaseUrl;
   }
 
-  async addMember(role: Role, type: UserType) {
+  async addMember(
+    role: Role,
+    type: UserType,
+    overrides?: Partial<{ email: string; firstName: string; lastName: string }>,
+  ) {
     return test.step(`${role} create User`, async () => {
       const fakeUser = this.faker.generateUser();
 
       const userData = {
         ...fakeUser,
+        ...overrides,
         type,
       };
 
