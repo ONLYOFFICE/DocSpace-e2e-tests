@@ -46,10 +46,12 @@ export const importWizards: TImportWizard[] = [
 // folder names out of the data-english-name nodes) and a Drive file. No
 // Profile/ — real Workspace exports don't carry one.
 //
-// `volumePath` is a continuation volume: a second archive for the same user
-// with no root html at all, which the migrator folds into the user parsed from
-// the first one. The -001/-002 naming matters: archives are processed in file
-// name order, and a continuation volume parsed first has no user to attach to.
+// The other two are continuation volumes: archives for the same user with no
+// root html at all, which the migrator folds into the user parsed from the
+// first one. This mirrors a real admin export, where a user's data is split
+// across several archives and only one of them carries the html. The numbering
+// matters: archives are processed in file name order, and a continuation
+// volume parsed first has no user to attach to.
 export const googleTakeoutFixture = {
   path: "data/data-import/google-takeout-001.zip",
   volumePath: "data/data-import/google-takeout-002.zip",
@@ -57,6 +59,12 @@ export const googleTakeoutFixture = {
   userName: "takeout.user",
   userEmail: "takeout.user@example.com",
   selectedUsers: "Selected: 1/1 users",
+  // The Drive file carries an -info.json granting this address write access.
+  // Shares only resolve between users of the same batch, so the recipient is
+  // uploaded too — as an html-only archive, the shape a real admin export uses.
+  recipientArchivePath: "data/data-import/google-takeout-recipient.zip",
+  recipientEmail: "takeout.shared@test.com",
+  sharedFileName: "Takeout Document",
 } as const;
 
 export const googleImportSteps = {
@@ -101,12 +109,6 @@ class DataImport extends BasePage {
     return this.page
       .getByTestId("upload_backup_file_input")
       .locator("input[type=file]");
-  }
-
-  async expectProvidersVisible() {
-    for (const provider of Object.values(importProvider)) {
-      await expect(this.providerCard(provider)).toBeVisible();
-    }
   }
 
   async startImport(provider: TImportProvider) {
