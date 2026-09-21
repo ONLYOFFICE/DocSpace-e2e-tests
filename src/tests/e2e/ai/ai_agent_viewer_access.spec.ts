@@ -27,7 +27,9 @@ test.describe("AI Agents: Viewer access", () => {
       await aiAgents.openDirectly();
       await aiAgents.openCreateAgentDialog();
       await aiAgents.fillAgentName(AGENT_NAME);
-      await aiAgents.fillInstructions("Test agent for viewer access scenarios.");
+      await aiAgents.fillInstructions(
+        "Test agent for viewer access scenarios.",
+      );
       await aiAgents.saveAgent();
       await aiAgents.expectChatOpened();
       await aiAgents.openAndExpectAgentInList(AGENT_NAME);
