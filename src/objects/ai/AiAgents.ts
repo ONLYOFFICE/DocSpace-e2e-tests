@@ -6,7 +6,11 @@ import BaseInviteDialog from "../common/BaseInviteDialog";
 import BaseNavigation from "../common/BaseNavigation";
 import FilesTable from "../files/FilesTable";
 import { apps, aiAgentsSubItems } from "@/src/utils/constants/navigation";
-import { aiSectionEmptyView } from "@/src/utils/constants/ai";
+import {
+  aiSectionEmptyView,
+  aiAgentViewerChatEmptyView,
+  aiAgentViewerModeToastMessage,
+} from "@/src/utils/constants/ai";
 import { expect, Page } from "@playwright/test";
 
 export class AiAgents extends BasePage {
@@ -344,6 +348,81 @@ export class AiAgents extends BasePage {
     await expect(this.page.getByText(name).first()).toBeVisible();
   }
 
+  // Chat toolbar toggle button - it has no aria-expanded attribute, its
+  // pressed/open state is only reflected by a CSS module class containing
+  // "active".
+  private get chatHistoryToggle() {
+    return this.page.locator('[aria-label="Chat history"]');
+  }
+
+  // Past messages render inside a collapsible "Chat history" panel that isn't
+  // expanded by default - expand it (best-effort: a chat with no messages yet
+  // never renders the toggle button at all) before asserting on message content.
+  async openChatHistoryPanel() {
+    const toggle = this.chatHistoryToggle;
+    if (!(await toggle.isVisible().catch(() => false))) {
+      return;
+    }
+    const className = (await toggle.getAttribute("class")) ?? "";
+    if (!className.includes("active")) {
+      await toggle.click();
+      await expect(toggle).toHaveClass(/active/);
+    }
+  }
+
+  // Expanding the "Chat history" toggle reveals a list of past sessions
+  // (grouped by date, e.g. "Today"), not the message content itself - a
+  // session that already has messages keeps rendering in the main pane on
+  // reopen, unless membership was revoked and re-granted, which resets the
+  // main pane to a blank new chat while the old session survives as an
+  // entry in this list. No stable testid on the row, so match on the
+  // Tailwind utility class instead of the hashed CSS-module column class.
+  private get chatHistorySessionItems() {
+    return this.page.locator('[class*="historyColumn"] div.cursor-pointer');
+  }
+
+  async expectMessageInChat(text: string) {
+    await expect(async () => {
+      const alreadyVisible = await this.page
+        .getByText(text)
+        .first()
+        .isVisible()
+        .catch(() => false);
+      if (!alreadyVisible) {
+        await this.openChatHistoryPanel();
+        const previousSession = this.chatHistorySessionItems.first();
+        if (await previousSession.isVisible().catch(() => false)) {
+          await previousSession.click();
+        }
+      }
+      await expect(this.page.getByText(text).first()).toBeVisible({
+        timeout: 5000,
+      });
+    }).toPass({ timeout: 20000 });
+  }
+
+  async expectMessageNotInChat(text: string) {
+    await this.openChatHistoryPanel();
+    await expect(this.page.getByText(text)).toHaveCount(0);
+  }
+
+  // Viewer-access members don't get a chat composer - they only ever see the
+  // results of other members' chat activity, so before anyone else has
+  // chatted the agent renders this placeholder instead.
+  async expectViewerChatEmptyState() {
+    await expect(this.emptyView).toBeVisible();
+    await expect(
+      this.emptyView.getByText(aiAgentViewerChatEmptyView.title),
+    ).toBeVisible();
+    await expect(
+      this.emptyView.getByText(aiAgentViewerChatEmptyView.description),
+    ).toBeVisible();
+  }
+
+  async expectViewerModeToast() {
+    await this.checkToastMessage(aiAgentViewerModeToastMessage);
+  }
+
   async expectChatUrl() {
     await expect(this.page).toHaveURL(/\/ai-agents\/[^/]+\/chat/);
   }
@@ -451,8 +530,16 @@ export class AiAgents extends BasePage {
     await this.inviteDialog.checkInviteTitleExist();
   }
 
-  async inviteUserToAgent(agentName: string, email: string) {
+  // Access defaults to whatever the invite dialog itself defaults to
+  // (Viewer - no chat composer). Pass e.g. "Content creator" to grant a role
+  // that can actually chat with the agent; must be set before the email is
+  // added, as it becomes the default role applied to newly added invitees.
+  async inviteUserToAgent(agentName: string, email: string, access?: string) {
     await this.openInviteDialog(agentName);
+    if (access) {
+      await this.inviteDialog.openAccessOptions();
+      await this.inviteDialog.selectAccessOption(access);
+    }
     await this.inviteDialog.fillSearchInviteInput(email);
     await this.inviteDialog.checkUserExist(email);
     await this.inviteDialog.clickAddUserToInviteList(email);
