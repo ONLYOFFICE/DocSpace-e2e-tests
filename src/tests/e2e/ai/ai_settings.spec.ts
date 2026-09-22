@@ -7,7 +7,7 @@ import { PaymentApi } from "@/src/api/payment";
 // are the ones it advertises over MCP.
 const MCP_SERVER_URL = "https://mcp.deepwiki.com/mcp";
 const MCP_SERVER_TOOLS = [
-  "ask_question",
+  "ask_wiki_question",
   "read_wiki_contents",
   "read_wiki_structure",
 ];
