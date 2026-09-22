@@ -50,6 +50,27 @@ class ProfileNotifications {
     );
   }
 
+  // Notification settings are eventually consistent on the backend: a GET right
+  // after a POST can briefly return the stale value (observed up to ~25s).
+  // Retry reload+check instead of a single reload to ride out that window.
+  private async expectToggleEnabledAfterReload(
+    toggleTestId: string,
+    enabled: boolean,
+  ) {
+    await expect(async () => {
+      await this.page.reload();
+      await expect(this.page.getByTestId(toggleTestId)).toHaveAttribute(
+        "aria-checked",
+        String(enabled),
+        { timeout: 15000 },
+      );
+    }).toPass({ timeout: 60000 });
+  }
+
+  async expectFileActivityEnabledAfterReload(enabled: boolean) {
+    await this.expectToggleEnabledAfterReload(FILE_ACTIVITY_TOGGLE, enabled);
+  }
+
   async expectFileActivityDescriptionVisible() {
     await expect(
       this.page.getByText(notificationsText.fileActivityDescription),
@@ -119,6 +140,10 @@ class ProfileNotifications {
     );
   }
 
+  async expectRoomsActivityEnabledAfterReload(enabled: boolean) {
+    await this.expectToggleEnabledAfterReload(ROOMS_ACTIVITY_TOGGLE, enabled);
+  }
+
   async toggleDailyFeed() {
     await Promise.all([
       this.page.waitForResponse(
@@ -137,6 +162,10 @@ class ProfileNotifications {
     );
   }
 
+  async expectDailyFeedEnabledAfterReload(enabled: boolean) {
+    await this.expectToggleEnabledAfterReload(DAILY_FEED_TOGGLE, enabled);
+  }
+
   async toggleUsefulTips() {
     await Promise.all([
       this.page.waitForResponse(
@@ -153,6 +182,10 @@ class ProfileNotifications {
       "aria-checked",
       String(enabled),
     );
+  }
+
+  async expectUsefulTipsEnabledAfterReload(enabled: boolean) {
+    await this.expectToggleEnabledAfterReload(USEFUL_TIPS_TOGGLE, enabled);
   }
 }
 
