@@ -28,9 +28,7 @@ test.describe("Profile - Notifications", () => {
     });
   });
 
-  test("File activity notifications toggle can be disabled and enabled", async ({
-    page,
-  }) => {
+  test("File activity notifications toggle can be disabled and enabled", async () => {
     await test.step("Verify toggle is on by default", async () => {
       await profileNotifications.expectFileActivityEnabled(true);
     });
@@ -40,8 +38,7 @@ test.describe("Profile - Notifications", () => {
     });
 
     await test.step("Verify toggle is off after reload", async () => {
-      await page.reload();
-      await profileNotifications.expectFileActivityEnabled(false);
+      await profileNotifications.expectFileActivityEnabledAfterReload(false);
     });
 
     await test.step("Enable the toggle", async () => {
@@ -49,14 +46,11 @@ test.describe("Profile - Notifications", () => {
     });
 
     await test.step("Verify toggle is on after reload", async () => {
-      await page.reload();
-      await profileNotifications.expectFileActivityEnabled(true);
+      await profileNotifications.expectFileActivityEnabledAfterReload(true);
     });
   });
 
-  test("Rooms activity toggle can be disabled and enabled", async ({
-    page,
-  }) => {
+  test("Rooms activity toggle can be disabled and enabled", async () => {
     await test.step("Verify toggle is on by default", async () => {
       await profileNotifications.expectRoomsActivityEnabled(true);
     });
@@ -66,8 +60,7 @@ test.describe("Profile - Notifications", () => {
     });
 
     await test.step("Verify toggle is off after reload", async () => {
-      await page.reload();
-      await profileNotifications.expectRoomsActivityEnabled(false);
+      await profileNotifications.expectRoomsActivityEnabledAfterReload(false);
     });
 
     await test.step("Enable the toggle", async () => {
@@ -75,14 +68,11 @@ test.describe("Profile - Notifications", () => {
     });
 
     await test.step("Verify toggle is on after reload", async () => {
-      await page.reload();
-      await profileNotifications.expectRoomsActivityEnabled(true);
+      await profileNotifications.expectRoomsActivityEnabledAfterReload(true);
     });
   });
 
-  test("Daily DocSpace feed toggle can be disabled and enabled", async ({
-    page,
-  }) => {
+  test("Daily DocSpace feed toggle can be disabled and enabled", async () => {
     await test.step("Verify toggle is on by default", async () => {
       await profileNotifications.expectDailyFeedEnabled(true);
     });
@@ -92,8 +82,7 @@ test.describe("Profile - Notifications", () => {
     });
 
     await test.step("Verify toggle is off after reload", async () => {
-      await page.reload();
-      await profileNotifications.expectDailyFeedEnabled(false);
+      await profileNotifications.expectDailyFeedEnabledAfterReload(false);
     });
 
     await test.step("Enable the toggle", async () => {
@@ -101,14 +90,11 @@ test.describe("Profile - Notifications", () => {
     });
 
     await test.step("Verify toggle is on after reload", async () => {
-      await page.reload();
-      await profileNotifications.expectDailyFeedEnabled(true);
+      await profileNotifications.expectDailyFeedEnabledAfterReload(true);
     });
   });
 
-  test("Useful DocSpace tips toggle can be disabled and enabled", async ({
-    page,
-  }) => {
+  test("Useful DocSpace tips toggle can be disabled and enabled", async () => {
     await test.step("Verify toggle is on by default", async () => {
       await profileNotifications.expectUsefulTipsEnabled(true);
     });
@@ -118,8 +104,7 @@ test.describe("Profile - Notifications", () => {
     });
 
     await test.step("Verify toggle is off after reload", async () => {
-      await page.reload();
-      await profileNotifications.expectUsefulTipsEnabled(false);
+      await profileNotifications.expectUsefulTipsEnabledAfterReload(false);
     });
 
     await test.step("Enable the toggle", async () => {
@@ -127,8 +112,7 @@ test.describe("Profile - Notifications", () => {
     });
 
     await test.step("Verify toggle is on after reload", async () => {
-      await page.reload();
-      await profileNotifications.expectUsefulTipsEnabled(true);
+      await profileNotifications.expectUsefulTipsEnabledAfterReload(true);
     });
   });
 });
