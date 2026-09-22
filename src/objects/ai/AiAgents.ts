@@ -348,6 +348,43 @@ export class AiAgents extends BasePage {
     await expect(this.page.getByText(name).first()).toBeVisible();
   }
 
+  // The quick-chat panel (opened from "Ask AI" on a file) defaults to a raw
+  // model. Its model-selector dropdown also offers "Choose AI Agent", whose
+  // submenu lists custom agents so the chat can be bound to one of them instead.
+  private get quickChatModelSelectorButton() {
+    return this.page.getByTestId("model-selector");
+  }
+
+  private get quickChatAgentSubmenu() {
+    return this.page.locator(
+      '[data-radix-menu-content][role="menu"][data-side="left"]',
+    );
+  }
+
+  // The "Choose AI Agent" submenu sometimes opens automatically once the
+  // dropdown gets initial keyboard focus, and sometimes needs an explicit
+  // hover - in that case Radix's own reopened submenu overlaps the trigger
+  // and fails a plain hover's actionability check, so force it.
+  async selectAgentInQuickChat(agentName: string) {
+    await this.quickChatModelSelectorButton.click();
+    const submenu = this.quickChatAgentSubmenu;
+    const alreadyOpen = await submenu
+      .waitFor({ state: "visible", timeout: 3000 })
+      .then(() => true)
+      .catch(() => false);
+    if (!alreadyOpen) {
+      await this.page
+        .getByText("Choose AI Agent", { exact: true })
+        .hover({ force: true });
+      await submenu.waitFor({ state: "visible" });
+    }
+    await submenu.getByText(agentName, { exact: true }).click();
+  }
+
+  async expectQuickChatAgentSelected(agentName: string) {
+    await expect(this.quickChatModelSelectorButton).toHaveText(agentName);
+  }
+
   // Chat toolbar toggle button - it has no aria-expanded attribute, its
   // pressed/open state is only reflected by a CSS module class containing
   // "active".
