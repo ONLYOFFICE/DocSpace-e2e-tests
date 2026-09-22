@@ -243,9 +243,11 @@ export class Login extends BasePage {
   }
 
   async loginWithCredentials(email: string, password: string) {
-    await this.page.goto(`${getPortalUrl(this.portalDomain)}`, {
-      waitUntil: "load",
-    });
+    await expect(async () => {
+      await this.page.goto(`${getPortalUrl(this.portalDomain)}`, {
+        waitUntil: "load",
+      });
+    }).toPass({ timeout: 30000 });
 
     await expect(async () => {
       await this.emailInput.fill(email);
