@@ -85,6 +85,7 @@ test.describe("AI Agents: Viewer sees generated results", () => {
         documentContextMenuOption.moveOrCopy,
         documentContextMenuOption.rename,
         documentContextMenuOption.delete,
+        documentContextMenuOption.askAi,
       ]) {
         await expect(
           aiAgents.filesTable.contextMenu.getItemLocator(option),
