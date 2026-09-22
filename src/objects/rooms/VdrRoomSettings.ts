@@ -185,7 +185,12 @@ class VdrRoomSettings {
   }
 
   async clickApplyIndex() {
-    await this.page.getByTestId(INDEX_SAVE_BUTTON).click();
+    // Index reorder triggers a background DB sync that re-renders the
+    // group menu, detaching the Save button mid-click; retry the click
+    // as a whole until it lands.
+    await expect(async () => {
+      await this.page.getByTestId(INDEX_SAVE_BUTTON).click({ timeout: 5000 });
+    }).toPass({ timeout: 30000 });
   }
 
   async expectIndexValue(rowIndex: number, expectedValue: string) {
