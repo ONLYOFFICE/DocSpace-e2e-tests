@@ -32,11 +32,13 @@ test.describe("My documents: Recent", () => {
     await test.step("Create and open files in editor", async () => {
       const docEditor = await files.createDocumentAndOpenEditor(documentName);
       await docEditor.waitForLoad();
+      await docEditor.waitForEditorReady();
       await docEditor.close();
 
       const sheetEditor =
         await files.createSpreadsheetAndOpenEditor(spreadsheetName);
       await sheetEditor.waitForLoad();
+      await sheetEditor.waitForEditorReady();
       await sheetEditor.close();
     });
 
@@ -147,20 +149,24 @@ test.describe("My documents: Recent", () => {
     await test.step("Create and open files in editor", async () => {
       const docEditor = await files.createDocumentAndOpenEditor(documentName);
       await docEditor.waitForLoad();
+      await docEditor.waitForEditorReady();
       await docEditor.close();
 
       const sheetEditor =
         await files.createSpreadsheetAndOpenEditor(spreadsheetName);
       await sheetEditor.waitForLoad();
+      await sheetEditor.waitForEditorReady();
       await sheetEditor.close();
 
       const presEditor =
         await files.createPresentationAndOpenEditor(presentationName);
       await presEditor.waitForLoad();
+      await presEditor.waitForEditorReady();
       await presEditor.close();
 
       const pdfEditor = await files.createPdfFormAndOpenEditor(pdfFormName);
       await pdfEditor.waitForLoad();
+      await pdfEditor.waitForEditorReady();
       await pdfEditor.close();
     });
 
