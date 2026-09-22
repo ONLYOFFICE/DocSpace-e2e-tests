@@ -12,7 +12,6 @@ import { expect } from "@playwright/test";
 import FilesTable from "@/src/objects/files/FilesTable";
 import RoomEmptyView from "@/src/objects/rooms/RoomEmptyView";
 import {
-  formFillingRoomContextMenuOption,
   formFillingSystemFolders,
   roomToastMessages,
 } from "@/src/utils/constants/rooms";
@@ -67,61 +66,6 @@ test.describe("FormFilling base tests", () => {
     login = new Login(page, api.portalDomain);
     await login.loginToPortal();
     await myRooms.createFormFillingRoom("FormFillingRoom");
-  });
-  test.skip("Take A Tour", async () => {
-    await test.step("TakeATourAfterCreatingFormFillingRoom", async () => {
-      await shortTour.checkStep("welcome");
-      await shortTour.clickStartTour();
-      await shortTour.checkStep("firstStep");
-      await shortTour.clickNextStep();
-      await shortTour.checkStep("secondStep");
-      await shortTour.clickNextStep();
-      await shortTour.checkStep("thirdStep");
-      await shortTour.clickNextStep();
-      await shortTour.checkStep("fourthStep");
-      await shortTour.clickNextStep();
-      await shortTour.checkStep("fifthStep");
-      await shortTour.clickNextStep();
-      await myRooms.infoPanel.close();
-      ////check the tour has closed and a empty page is visible
-      await roomEmptyView.checkEmptyView();
-    });
-    await test.step("CheckSkipButtonTheTourModalWindow", async () => {
-      await myRooms.navigation.openContextMenu();
-      await myRooms.navigation.contextMenu.clickOption(
-        formFillingRoomContextMenuOption.startTour,
-      );
-      await shortTour.checkStep("welcome");
-      await shortTour.clickSkipTour();
-      //check the tour has closed and a empty page is visible
-      await roomEmptyView.checkEmptyView();
-    });
-    await test.step("CheckCloseButtonTheTourModalWindow", async () => {
-      await myRooms.navigation.openContextMenu();
-      await myRooms.navigation.contextMenu.clickOption(
-        formFillingRoomContextMenuOption.startTour,
-      );
-      await shortTour.checkStep("welcome");
-      await shortTour.clickModalCloseButton();
-      //check the tour has closed and a empty page is visible
-      await roomEmptyView.checkEmptyView();
-    });
-    await test.step("CheckTheBackButtonTheTourModalWindow", async () => {
-      await myRooms.navigation.openContextMenu();
-      await myRooms.navigation.contextMenu.clickOption(
-        formFillingRoomContextMenuOption.startTour,
-      );
-      await shortTour.checkStep("welcome");
-      await shortTour.clickStartTour();
-      await shortTour.checkStep("firstStep");
-      await shortTour.clickNextStep();
-      await shortTour.checkStep("secondStep");
-      await shortTour.clickBackStep();
-      await shortTour.checkStep("firstStep");
-      await shortTour.clickModalCloseButton();
-      //check the tour has closed and a empty page is visible
-      await roomEmptyView.checkEmptyView();
-    });
   });
   test("Check All Buttons On Empty Page", async ({ page }) => {
     await test.step("ClickShareRoomOnEmptyRoomScreen", async () => {
