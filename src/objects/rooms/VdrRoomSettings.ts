@@ -187,10 +187,13 @@ class VdrRoomSettings {
   async clickApplyIndex() {
     // Index reorder triggers a background DB sync that re-renders the
     // group menu, detaching the Save button mid-click; retry the click
-    // as a whole until it lands.
+    // as a whole until it lands. Per-attempt timeout is bumped from 5s
+    // to 10s (and the overall budget from 30s to 60s) because on a slow
+    // CI run the sync can re-fire more than once before it settles,
+    // leaving too few 5s attempts to land inside the old 30s window.
     await expect(async () => {
-      await this.page.getByTestId(INDEX_SAVE_BUTTON).click({ timeout: 5000 });
-    }).toPass({ timeout: 30000 });
+      await this.page.getByTestId(INDEX_SAVE_BUTTON).click({ timeout: 10000 });
+    }).toPass({ timeout: 60000 });
   }
 
   async expectIndexValue(rowIndex: number, expectedValue: string) {
