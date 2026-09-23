@@ -117,10 +117,18 @@ class Contacts extends BasePage {
     await expect(this.table.tableContainer.getByText(userEmail)).toBeVisible();
   }
 
-  async expectUserRemoved(userEmail: TUserEmail) {
+  async waitForReassignmentCompleteAndClose() {
+    await this.reassignmentDialog.checkReassignmentTitleExist();
+    await this.reassignmentDialog.checkAllDataTransfered();
+    await this.reassignmentDialog.close();
+  }
+
+  async expectUserRemoved(userTitle: string) {
     await expect(async () => {
+      const peopleResponse = waitForGetPeopleResponse(this.page);
       await this.open();
-      await this.table.checkRowNotExist(userEmail);
+      await peopleResponse;
+      await this.table.checkRowNotExist(userTitle);
     }).toPass({ timeout: 90000 });
   }
 
