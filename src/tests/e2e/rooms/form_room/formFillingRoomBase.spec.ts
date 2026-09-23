@@ -32,7 +32,6 @@ import {
   uploadAndStartFillingPDF,
 } from "@/src/utils/helpers/formFillingRoom";
 import TemplateGallery from "@/src/objects/rooms/TemplateGallery";
-import BaseFloatingProgress from "@/src/objects/common/BaseFloatingProgress";
 import PdfFormModal from "@/src/objects/rooms/PdfFormModal";
 
 test.describe("FormFilling base tests", () => {
@@ -416,8 +415,10 @@ test.describe("FormFilling base tests", () => {
     });
   });
 
-  // Verifies that uploading a simple PDF (not an ONLYOFFICE form) shows a warning message
-  test("Upload simple PDF from device shows warning", async ({ page }) => {
+  // Verifies that uploading a simple PDF (not an ONLYOFFICE form) is now accepted and converted into a fillable form
+  test("Upload simple PDF from device is accepted as a fillable form", async ({
+    page,
+  }) => {
     await test.step("Skip tour and close info panel", async () => {
       // Tour is temporarily not shown; may come back later.
       // await shortTour.clickSkipTour();
@@ -427,24 +428,21 @@ test.describe("FormFilling base tests", () => {
     await test.step("Upload simple PDF from device", async () => {
       const pdfPath = path.resolve(process.cwd(), "data/rooms/PDF simple.pdf");
       await roomEmptyView.uploadPdfForm(pdfPath);
+      await myRooms.infoPanel.close();
     });
 
-    await test.step("Verify warning toast message", async () => {
-      await myRooms.toast.checkToastMessage(
-        "The file cannot be uploaded to this room. Please try to upload the ONLYOFFICE PDF form.",
-      );
+    await test.step("Verify file appears in the room", async () => {
+      await myRooms.filesTable.selectPdfFile();
+      await expect(page.getByLabel("PDF simple,")).toBeVisible();
     });
 
-    await test.step("Verify floating progress button shows error", async () => {
-      const floatingProgress = new BaseFloatingProgress(page);
-      await floatingProgress.waitForButton();
-      await floatingProgress.openErrorPanel();
-      await floatingProgress.verifyFileNameVisible("PDF simple");
-      await floatingProgress.verifyErrorTooltipVisible();
-    });
-
-    await test.step("Verify file is not in the room", async () => {
-      await expect(page.getByLabel("PDF simple,")).not.toBeVisible();
+    await test.step("Verify In Process and Complete folders appear", async () => {
+      await expect(
+        page.getByLabel(formFillingSystemFolders.inProcess),
+      ).toBeVisible();
+      await expect(
+        page.getByLabel(formFillingSystemFolders.complete),
+      ).toBeVisible();
     });
   });
 
