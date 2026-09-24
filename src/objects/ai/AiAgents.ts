@@ -365,7 +365,7 @@ export class AiAgents extends BasePage {
   // dropdown gets initial keyboard focus, and sometimes needs an explicit
   // hover - in that case Radix's own reopened submenu overlaps the trigger
   // and fails a plain hover's actionability check, so force it.
-  async selectAgentInQuickChat(agentName: string) {
+  private async openQuickChatAgentSubmenu() {
     await this.quickChatModelSelectorButton.click();
     const submenu = this.quickChatAgentSubmenu;
     const alreadyOpen = await submenu
@@ -378,11 +378,28 @@ export class AiAgents extends BasePage {
         .hover({ force: true });
       await submenu.waitFor({ state: "visible" });
     }
+    return submenu;
+  }
+
+  async selectAgentInQuickChat(agentName: string) {
+    const submenu = await this.openQuickChatAgentSubmenu();
     await submenu.getByText(agentName, { exact: true }).click();
   }
 
   async expectQuickChatAgentSelected(agentName: string) {
     await expect(this.quickChatModelSelectorButton).toHaveText(agentName);
+  }
+
+  // The submenu scrolls via plain CSS overflow (overflow-y: auto), not the
+  // app's custom Scrollbar component - so a scrollbar affordance isn't the
+  // signal to check. Verify the list is actually scrollable instead, once it
+  // has more agents than fit.
+  async expectQuickChatAgentSubmenuScrollable() {
+    const submenu = await this.openQuickChatAgentSubmenu();
+    const isScrollable = await submenu.evaluate(
+      (el) => el.scrollHeight > el.clientHeight,
+    );
+    expect(isScrollable).toBe(true);
   }
 
   // Chat toolbar toggle button - it has no aria-expanded attribute, its

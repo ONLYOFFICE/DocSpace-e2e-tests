@@ -9,6 +9,7 @@ import {
   PeopleQuotaApi,
   FoldersApi,
   MigrationApi,
+  AiAgentsApi,
 } from "./index";
 import { TokenStore } from "./token-store";
 import { APIRequestContext } from "@playwright/test";
@@ -24,6 +25,7 @@ export class ApiSDK {
   readonly peopleQuota: PeopleQuotaApi;
   readonly folders: FoldersApi;
   readonly migration: MigrationApi;
+  readonly ai: AiAgentsApi;
 
   constructor(request: APIRequestContext, tokenStore: TokenStore) {
     this.profiles = new ProfilesApi(request, tokenStore);
@@ -36,5 +38,6 @@ export class ApiSDK {
     this.peopleQuota = new PeopleQuotaApi(request, tokenStore);
     this.folders = new FoldersApi(request, tokenStore);
     this.migration = new MigrationApi(request, tokenStore);
+    this.ai = new AiAgentsApi(request, tokenStore);
   }
 }
