@@ -31,8 +31,6 @@ test.describe("AI agents: Recent", () => {
 
 test.describe("AI agents: Recent", () => {
   const AGENT_NAME = "Recent File Agent";
-  // GPT reliably calls the document tool; the default DeepSeek model often does not.
-  const GENERATION_MODEL = "GPT 5.6 Luna";
 
   test("Opening a generated file adds it to Recent", async ({
     page,
@@ -54,16 +52,21 @@ test.describe("AI agents: Recent", () => {
 
     let fileId = 0;
     let fileTitle = "";
-    await test.step("Create an agent that generates a document", async () => {
-      await aiAgents.createAgent(AGENT_NAME, { model: GENERATION_MODEL });
+    await test.step("Precondition: seed a file in the agent's Chat outputs folder", async () => {
+      await aiAgents.createAgent(AGENT_NAME);
       const resultStorageId = await apiSdk.folders.getSubfolderIdByTitle(
         "owner",
         aiAgents.getAgentFolderIdFromChat(),
         "Chat outputs",
       );
-      ({ fileId, fileTitle } = await aiAgents.generateResumeDocument(() =>
-        apiSdk.folders.listFiles("owner", resultStorageId),
-      ));
+      const fileResponse = await apiSdk.files.createFile(
+        "owner",
+        resultStorageId,
+        { title: "Resume" },
+      );
+      const file = (await fileResponse.json()).response;
+      fileId = file.id;
+      fileTitle = file.title;
     });
 
     await test.step("Open the generated file in the editor", async () => {

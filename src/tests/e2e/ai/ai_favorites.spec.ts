@@ -31,8 +31,6 @@ test.describe("AI agents: Favorites", () => {
 
 test.describe("AI agents: Favorites", () => {
   const AGENT_NAME = "Favorite File Agent";
-  // GPT reliably calls the document tool; the default DeepSeek model often does not.
-  const GENERATION_MODEL = "GPT 5.6 Luna";
 
   test("Starring a generated file adds it to Favorites", async ({
     page,
@@ -53,16 +51,19 @@ test.describe("AI agents: Favorites", () => {
     });
 
     let fileTitle = "";
-    await test.step("Create an agent that generates a document", async () => {
-      await aiAgents.createAgent(AGENT_NAME, { model: GENERATION_MODEL });
+    await test.step("Precondition: seed a file in the agent's Chat outputs folder", async () => {
+      await aiAgents.createAgent(AGENT_NAME);
       const resultStorageId = await apiSdk.folders.getSubfolderIdByTitle(
         "owner",
         aiAgents.getAgentFolderIdFromChat(),
         "Chat outputs",
       );
-      ({ fileTitle } = await aiAgents.generateResumeDocument(() =>
-        apiSdk.folders.listFiles("owner", resultStorageId),
-      ));
+      const fileResponse = await apiSdk.files.createFile(
+        "owner",
+        resultStorageId,
+        { title: "Resume" },
+      );
+      fileTitle = (await fileResponse.json()).response.title;
     });
 
     await test.step("Mark the generated file as favorite from Result Storage", async () => {
