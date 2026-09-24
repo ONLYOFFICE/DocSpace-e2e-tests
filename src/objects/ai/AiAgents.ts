@@ -137,6 +137,10 @@ export class AiAgents extends BasePage {
     const composer = this.page.getByTestId("composer-input");
     await composer.click();
     await composer.fill(text);
+    await this.sendComposerMessage();
+  }
+
+  async sendComposerMessage() {
     await this.page.getByTestId("send-button").click();
   }
 
@@ -400,6 +404,143 @@ export class AiAgents extends BasePage {
       (el) => el.scrollHeight > el.clientHeight,
     );
     expect(isScrollable).toBe(true);
+  }
+
+  // Suggestion chips shown above the composer on a fresh chat - plain buttons,
+  // no dedicated testid, matched by their visible label.
+  private static readonly CHAT_SUGGESTIONS = [
+    "Show file structure",
+    "Organize files into folders",
+    "Find files by topic",
+    "Find large files",
+    "Find possible duplicates",
+    "Suggest files to clean up",
+  ] as const;
+
+  private chatSuggestionButton(label: string) {
+    return this.page.getByRole("button", { name: label, exact: true });
+  }
+
+  async expectAllChatSuggestionsVisible() {
+    for (const label of AiAgents.CHAT_SUGGESTIONS) {
+      await expect(this.chatSuggestionButton(label)).toBeVisible();
+    }
+  }
+
+  // Only fills the composer with a fuller prompt for that suggestion - it
+  // does not auto-send. Call sendComposerMessage() to actually submit it.
+  async clickChatSuggestion(label: string) {
+    await this.chatSuggestionButton(label).click();
+  }
+
+  async expectComposerFilled() {
+    await expect(this.chatComposerInput).not.toBeEmpty();
+  }
+
+  // The model-selector button's own dropdown lists raw models (its top-level
+  // menu, data-side="top") separately from the "Choose AI Agent" submenu
+  // (nested, data-side="left") reached by hovering that entry.
+  private get quickChatModelMenu() {
+    return this.page.locator(
+      '[data-radix-menu-content][role="menu"][data-side="top"]',
+    );
+  }
+
+  async openQuickChatModelMenu() {
+    await this.quickChatModelSelectorButton.click();
+    await expect(this.quickChatModelMenu).toBeVisible();
+  }
+
+  async selectModelInQuickChat(modelName: string) {
+    await this.openQuickChatModelMenu();
+    await this.quickChatModelMenu.getByText(modelName, { exact: true }).click();
+  }
+
+  async expectQuickChatModelSelected(modelName: string) {
+    await expect(this.quickChatModelSelectorButton).toHaveText(modelName);
+  }
+
+  async expectModelInQuickChatMenu(modelName: string, visible: boolean) {
+    await this.openQuickChatModelMenu();
+    const item = this.quickChatModelMenu.getByText(modelName, {
+      exact: true,
+    });
+    if (visible) {
+      await expect(item).toBeVisible();
+    } else {
+      await expect(item).toHaveCount(0);
+    }
+    await this.page.keyboard.press("Escape");
+  }
+
+  // The "+" attach menu: file-attach entries, a Web search toggle (disabled
+  // unless the Web search add-on is purchased) and an "Effort" submenu.
+  private get attachMenu() {
+    return this.page.locator('[data-radix-menu-content][role="menu"]').last();
+  }
+
+  async openAttachMenu() {
+    // Closes any menu already left open from a previous call - otherwise its
+    // Radix overlay can intercept the click meant for the trigger button.
+    await this.page.keyboard.press("Escape");
+    await this.page.getByTestId("attachment-button").click();
+    await expect(this.attachMenu).toBeVisible();
+  }
+
+  async clickAddFilesFromDevice() {
+    await this.attachMenu
+      .getByText("Add files from device", { exact: true })
+      .click();
+  }
+
+  private get webSearchToggle() {
+    return this.attachMenu.getByRole("switch");
+  }
+
+  async expectWebSearchToggleDisabled() {
+    await expect(this.webSearchToggle).toBeDisabled();
+  }
+
+  // Positioned wherever there's room (unlike the agent submenu, always to the
+  // left), so match on a level only the submenu itself has ("Maximum" is not
+  // in the row's own current-value label) instead of a fixed data-side.
+  private get effortSubmenu() {
+    return this.page
+      .locator('[data-radix-menu-content][role="menu"]')
+      .filter({ hasText: "Maximum" });
+  }
+
+  // The "Effort" row is one menuitem containing both the "Effort" label and
+  // (as a separate trailing sibling span) the currently selected level.
+  private get effortMenuItem() {
+    return this.attachMenu
+      .locator('[role="menuitem"]')
+      .filter({ hasText: "Effort" });
+  }
+
+  // Unlike "Choose AI Agent" (hover anywhere on the row), the Effort row's
+  // submenu trigger is specifically its trailing chevron button - the row
+  // also has an unrelated info-icon button (aria-haspopup="dialog") next to
+  // the label, so target aria-haspopup="menu" precisely.
+  private async openEffortSubmenu() {
+    await this.effortMenuItem
+      .locator('[aria-haspopup="menu"]')
+      .hover({ force: true, timeout: 10000 });
+    await this.effortSubmenu.waitFor({ state: "visible", timeout: 10000 });
+    return this.effortSubmenu;
+  }
+
+  async selectEffortLevel(level: string) {
+    const submenu = await this.openEffortSubmenu();
+    await submenu.getByText(level, { exact: true }).click();
+  }
+
+  // The currently selected level is echoed as secondary text on the "Effort"
+  // row itself, not just inside the submenu (which always lists all levels).
+  async expectEffortLevel(level: string) {
+    await expect(
+      this.effortMenuItem.getByText(level, { exact: true }),
+    ).toBeVisible();
   }
 
   // Chat toolbar toggle button - it has no aria-expanded attribute, its

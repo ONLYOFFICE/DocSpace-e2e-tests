@@ -136,6 +136,10 @@ export default class BasePage {
     await expect(this.headerAiChatButton).toHaveCount(0);
   }
 
+  async openAiChat() {
+    await this.headerAiChatButton.click();
+  }
+
   async waitForDownload(action: () => Promise<void>) {
     const [download] = await Promise.all([
       this.page.waitForEvent("download", { timeout: 30000 }),
