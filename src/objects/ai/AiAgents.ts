@@ -144,18 +144,6 @@ export class AiAgents extends BasePage {
     await this.page.getByTestId("send-button").click();
   }
 
-  // Agent tool calls require approval via a "Confirmation" dialog.
-  async approveToolUsageIfPresent(): Promise<boolean> {
-    const allow = this.page
-      .locator("#modal-dialog")
-      .getByRole("button", { name: "Allow", exact: true });
-    if (await allow.isVisible().catch(() => false)) {
-      await allow.click();
-      return true;
-    }
-    return false;
-  }
-
   async openRecentFromNavigation() {
     await this.sidebar.openSubItem(apps.aiAgents, aiAgentsSubItems.recent);
     await expect(this.page).toHaveURL(/\/ai-agents\/recent/);
@@ -326,22 +314,6 @@ export class AiAgents extends BasePage {
   // pair with the GPT model, as the default DeepSeek often skips the tool call.
   // `pollFiles` returns the Result Storage contents so this can wait for the
   // generated file without coupling the page object to the API layer.
-  async generateResumeDocument(
-    pollFiles: () => Promise<Array<{ id: number; title: string }>>,
-  ): Promise<{ fileId: number; fileTitle: string }> {
-    await this.sendChatMessage("Create a new resume doc");
-
-    let file: { id: number; title: string } | undefined;
-    await expect(async () => {
-      await this.approveToolUsageIfPresent();
-      const files = await pollFiles();
-      expect(files.length).toBeGreaterThan(0);
-      file = files[0];
-    }).toPass({ timeout: 120000, intervals: [3000] });
-
-    return { fileId: file!.id, fileTitle: file!.title };
-  }
-
   async openAttachmentPanel() {
     await this.page.getByTestId("attachment-button").click();
     await this.page.getByText("Add files from storage").click();

@@ -6,8 +6,6 @@ import { PaymentApi } from "@/src/api/payment";
 import { documentContextMenuOption } from "@/src/utils/constants/files";
 
 const AGENT_NAME = "Viewer Result Agent";
-// GPT reliably calls the document tool; the default DeepSeek model often does not.
-const GENERATION_MODEL = "GPT 5.6 Luna";
 
 // File rows display the title without its extension.
 const baseName = (title: string) => title.replace(/\.[^.]+$/, "");
@@ -38,16 +36,19 @@ test.describe("AI Agents: Viewer sees generated results", () => {
   }) => {
     let fileTitle = "";
 
-    await test.step("Owner creates the agent and generates a document", async () => {
-      await aiAgents.createAgent(AGENT_NAME, { model: GENERATION_MODEL });
+    await test.step("Precondition: seed a file in the agent's Chat outputs folder", async () => {
+      await aiAgents.createAgent(AGENT_NAME);
       const resultStorageId = await apiSdk.folders.getSubfolderIdByTitle(
         "owner",
         aiAgents.getAgentFolderIdFromChat(),
         "Chat outputs",
       );
-      ({ fileTitle } = await aiAgents.generateResumeDocument(() =>
-        apiSdk.folders.listFiles("owner", resultStorageId),
-      ));
+      const fileResponse = await apiSdk.files.createFile(
+        "owner",
+        resultStorageId,
+        { title: "Resume" },
+      );
+      fileTitle = (await fileResponse.json()).response.title;
     });
 
     const { userData } = await apiSdk.profiles.addMember("owner", "User");
