@@ -43,7 +43,7 @@ test.describe("AI Agents: Viewer sees generated results", () => {
       const resultStorageId = await apiSdk.folders.getSubfolderIdByTitle(
         "owner",
         aiAgents.getAgentFolderIdFromChat(),
-        "Result Storage",
+        "Chat outputs",
       );
       ({ fileTitle } = await aiAgents.generateResumeDocument(() =>
         apiSdk.folders.listFiles("owner", resultStorageId),
