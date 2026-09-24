@@ -58,7 +58,7 @@ test.describe("AI agents: Favorites", () => {
       const resultStorageId = await apiSdk.folders.getSubfolderIdByTitle(
         "owner",
         aiAgents.getAgentFolderIdFromChat(),
-        "Result Storage",
+        "Chat outputs",
       );
       ({ fileTitle } = await aiAgents.generateResumeDocument(() =>
         apiSdk.folders.listFiles("owner", resultStorageId),
