@@ -610,11 +610,23 @@ export class AiAgents extends BasePage {
     ).toBeVisible();
   }
 
+  // Opening the edit dialog triggers an async GET for the agent's full
+  // details; editing (or reading) a field before that response lands gets
+  // clobbered once it arrives, since it resets the form's local state.
+  private waitForAgentDataLoaded() {
+    return this.page.waitForResponse(
+      (res) =>
+        /\/api\/2\.0\/ai\/agents\/\d+$/.test(res.url()) &&
+        res.request().method() === "GET",
+    );
+  }
+
   async openEditAgentFromChat() {
     const editAgentOption: TMenuItem = {
       type: "data-testid",
       value: "option_edit-agent",
     };
+    const agentDataLoaded = this.waitForAgentDataLoaded();
     await this.page.locator("#header_optional-button").click();
     await this.contextMenu.checkMenuExists();
     const editOption = this.contextMenu.getItemLocator(editAgentOption);
@@ -624,6 +636,8 @@ export class AiAgents extends BasePage {
       await this.contextMenu.clickSubmenuOption("Manage", editAgentOption);
     }
     await expect(this.agentNameInput).toBeVisible();
+    await expect(this.instructionsTextarea).toBeVisible();
+    await agentDataLoaded;
   }
 
   async openAgentContextMenu(name: string) {
@@ -673,17 +687,25 @@ export class AiAgents extends BasePage {
 
   async openEditAgentDialog(name: string) {
     await this.openAgentContextMenu(name);
+    const agentDataLoaded = this.waitForAgentDataLoaded();
     await this.contextMenu.clickOption("Edit agent");
     await expect(this.agentNameInput).toBeVisible();
-    // The instructions textarea's initial value loads asynchronously after
-    // the dialog itself opens - editing too early gets overwritten once it
-    // arrives, so wait for it before touching any field.
     await expect(this.instructionsTextarea).toBeVisible();
+    await agentDataLoaded;
   }
 
   async saveEditedAgent() {
     await expect(this.editAgentSaveButton).toBeEnabled();
+    // The dialog closes as soon as Save is clicked, without waiting for the
+    // server to confirm the write - reopening it right after can then read
+    // back stale data if the PUT hasn't finished processing yet.
+    const saved = this.page.waitForResponse(
+      (res) =>
+        /\/api\/2\.0\/ai\/agents\/\d+$/.test(res.url()) &&
+        res.request().method() === "PUT",
+    );
     await this.editAgentSaveButton.click();
+    await saved;
   }
 
   async renameAgent(oldName: string, newName: string) {
@@ -694,21 +716,32 @@ export class AiAgents extends BasePage {
 
   // The create-agent dialog is reused for editing, so the same model
   // combobox and instructions textarea testids apply here.
-  async editAgent(
-    name: string,
-    opts: { model?: string; instructions?: string },
-  ) {
-    await this.openEditAgentDialog(name);
+  private async fillAndSaveAgentEdit(opts: {
+    model?: string;
+    instructions?: string;
+  }) {
     if (opts.model) {
       await this.selectModel(opts.model);
     }
     if (opts.instructions) {
       await this.instructionsTextarea.fill(opts.instructions);
-      // Blur so the controlled textarea's change commits to state before
-      // Save is clicked - without it the click can race the update.
-      await this.instructionsTextarea.blur();
     }
     await this.saveEditedAgent();
+  }
+
+  async editAgent(
+    name: string,
+    opts: { model?: string; instructions?: string },
+  ) {
+    await this.openEditAgentDialog(name);
+    await this.fillAndSaveAgentEdit(opts);
+  }
+
+  // Same edit, opened from the agent's own chat header menu instead of the
+  // agents list - useful right after creation, when the chat is already open.
+  async editAgentFromChat(opts: { model?: string; instructions?: string }) {
+    await this.openEditAgentFromChat();
+    await this.fillAndSaveAgentEdit(opts);
   }
 
   async expectAgentModel(name: string, modelName: string) {
@@ -718,6 +751,16 @@ export class AiAgents extends BasePage {
 
   async expectAgentInstructions(name: string, instructions: string) {
     await this.openEditAgentDialog(name);
+    await expect(this.instructionsTextarea).toHaveValue(instructions);
+  }
+
+  async expectAgentModelFromChat(modelName: string) {
+    await this.openEditAgentFromChat();
+    await expect(this.modelCombobox).toHaveText(modelName);
+  }
+
+  async expectAgentInstructionsFromChat(instructions: string) {
+    await this.openEditAgentFromChat();
     await expect(this.instructionsTextarea).toHaveValue(instructions);
   }
 
