@@ -137,6 +137,10 @@ export class AiAgents extends BasePage {
     const composer = this.page.getByTestId("composer-input");
     await composer.click();
     await composer.fill(text);
+    await this.sendComposerMessage();
+  }
+
+  async sendComposerMessage() {
     await this.page.getByTestId("send-button").click();
   }
 
@@ -365,7 +369,7 @@ export class AiAgents extends BasePage {
   // dropdown gets initial keyboard focus, and sometimes needs an explicit
   // hover - in that case Radix's own reopened submenu overlaps the trigger
   // and fails a plain hover's actionability check, so force it.
-  async selectAgentInQuickChat(agentName: string) {
+  private async openQuickChatAgentSubmenu() {
     await this.quickChatModelSelectorButton.click();
     const submenu = this.quickChatAgentSubmenu;
     const alreadyOpen = await submenu
@@ -378,11 +382,165 @@ export class AiAgents extends BasePage {
         .hover({ force: true });
       await submenu.waitFor({ state: "visible" });
     }
+    return submenu;
+  }
+
+  async selectAgentInQuickChat(agentName: string) {
+    const submenu = await this.openQuickChatAgentSubmenu();
     await submenu.getByText(agentName, { exact: true }).click();
   }
 
   async expectQuickChatAgentSelected(agentName: string) {
     await expect(this.quickChatModelSelectorButton).toHaveText(agentName);
+  }
+
+  // The submenu scrolls via plain CSS overflow (overflow-y: auto), not the
+  // app's custom Scrollbar component - so a scrollbar affordance isn't the
+  // signal to check. Verify the list is actually scrollable instead, once it
+  // has more agents than fit.
+  async expectQuickChatAgentSubmenuScrollable() {
+    const submenu = await this.openQuickChatAgentSubmenu();
+    const isScrollable = await submenu.evaluate(
+      (el) => el.scrollHeight > el.clientHeight,
+    );
+    expect(isScrollable).toBe(true);
+  }
+
+  // Suggestion chips shown above the composer on a fresh chat - plain buttons,
+  // no dedicated testid, matched by their visible label.
+  private static readonly CHAT_SUGGESTIONS = [
+    "Show file structure",
+    "Organize files into folders",
+    "Find files by topic",
+    "Find large files",
+    "Find possible duplicates",
+    "Suggest files to clean up",
+  ] as const;
+
+  private chatSuggestionButton(label: string) {
+    return this.page.getByRole("button", { name: label, exact: true });
+  }
+
+  async expectAllChatSuggestionsVisible() {
+    for (const label of AiAgents.CHAT_SUGGESTIONS) {
+      await expect(this.chatSuggestionButton(label)).toBeVisible();
+    }
+  }
+
+  // Only fills the composer with a fuller prompt for that suggestion - it
+  // does not auto-send. Call sendComposerMessage() to actually submit it.
+  async clickChatSuggestion(label: string) {
+    await this.chatSuggestionButton(label).click();
+  }
+
+  async expectComposerFilled() {
+    await expect(this.chatComposerInput).not.toBeEmpty();
+  }
+
+  // The model-selector button's own dropdown lists raw models (its top-level
+  // menu, data-side="top") separately from the "Choose AI Agent" submenu
+  // (nested, data-side="left") reached by hovering that entry.
+  private get quickChatModelMenu() {
+    return this.page.locator(
+      '[data-radix-menu-content][role="menu"][data-side="top"]',
+    );
+  }
+
+  async openQuickChatModelMenu() {
+    await this.quickChatModelSelectorButton.click();
+    await expect(this.quickChatModelMenu).toBeVisible();
+  }
+
+  async selectModelInQuickChat(modelName: string) {
+    await this.openQuickChatModelMenu();
+    await this.quickChatModelMenu.getByText(modelName, { exact: true }).click();
+  }
+
+  async expectQuickChatModelSelected(modelName: string) {
+    await expect(this.quickChatModelSelectorButton).toHaveText(modelName);
+  }
+
+  async expectModelInQuickChatMenu(modelName: string, visible: boolean) {
+    await this.openQuickChatModelMenu();
+    const item = this.quickChatModelMenu.getByText(modelName, {
+      exact: true,
+    });
+    if (visible) {
+      await expect(item).toBeVisible();
+    } else {
+      await expect(item).toHaveCount(0);
+    }
+    await this.page.keyboard.press("Escape");
+  }
+
+  // The "+" attach menu: file-attach entries, a Web search toggle (disabled
+  // unless the Web search add-on is purchased) and an "Effort" submenu.
+  private get attachMenu() {
+    return this.page.locator('[data-radix-menu-content][role="menu"]').last();
+  }
+
+  async openAttachMenu() {
+    // Closes any menu already left open from a previous call - otherwise its
+    // Radix overlay can intercept the click meant for the trigger button.
+    await this.page.keyboard.press("Escape");
+    await this.page.getByTestId("attachment-button").click();
+    await expect(this.attachMenu).toBeVisible();
+  }
+
+  async clickAddFilesFromDevice() {
+    await this.attachMenu
+      .getByText("Add files from device", { exact: true })
+      .click();
+  }
+
+  private get webSearchToggle() {
+    return this.attachMenu.getByRole("switch");
+  }
+
+  async expectWebSearchToggleDisabled() {
+    await expect(this.webSearchToggle).toBeDisabled();
+  }
+
+  // Positioned wherever there's room (unlike the agent submenu, always to the
+  // left), so match on a level only the submenu itself has ("Maximum" is not
+  // in the row's own current-value label) instead of a fixed data-side.
+  private get effortSubmenu() {
+    return this.page
+      .locator('[data-radix-menu-content][role="menu"]')
+      .filter({ hasText: "Maximum" });
+  }
+
+  // The "Effort" row is one menuitem containing both the "Effort" label and
+  // (as a separate trailing sibling span) the currently selected level.
+  private get effortMenuItem() {
+    return this.attachMenu
+      .locator('[role="menuitem"]')
+      .filter({ hasText: "Effort" });
+  }
+
+  // Unlike "Choose AI Agent" (hover anywhere on the row), the Effort row's
+  // submenu trigger is specifically its trailing chevron button - the row
+  // also has an unrelated info-icon button (aria-haspopup="dialog") next to
+  // the label, so target aria-haspopup="menu" precisely.
+  private async openEffortSubmenu() {
+    await this.effortMenuItem
+      .locator('[aria-haspopup="menu"]')
+      .hover({ force: true, timeout: 10000 });
+    await this.effortSubmenu.waitFor({ state: "visible", timeout: 10000 });
+    return this.effortSubmenu;
+  }
+
+  async selectEffortLevel(level: string) {
+    const submenu = await this.openEffortSubmenu();
+    await submenu.getByText(level, { exact: true }).click();
+  }
+
+  // The currently selected level is echoed as secondary text on the "Effort"
+  // row itself, not just inside the submenu (which always lists all levels).
+  async expectEffortLevel(level: string) {
+    await expect(
+      this.effortMenuItem.getByText(level, { exact: true }),
+    ).toBeVisible();
   }
 
   // Chat toolbar toggle button - it has no aria-expanded attribute, its
@@ -532,16 +690,63 @@ export class AiAgents extends BasePage {
     await expect(this.agentNameCell(name)).toHaveCount(0);
   }
 
-  async renameAgent(oldName: string, newName: string) {
-    await this.openAgentContextMenu(oldName);
+  // #modal-dialog isn't unique on the page (a hidden "Synchronization with
+  // database" panel shares the id), so scope by role/name too - the hidden
+  // panel has no Save button, which resolves the ambiguity.
+  private get editAgentSaveButton() {
+    return this.page.locator("#modal-dialog").getByRole("button", {
+      name: "Save",
+    });
+  }
+
+  async openEditAgentDialog(name: string) {
+    await this.openAgentContextMenu(name);
     await this.contextMenu.clickOption("Edit agent");
     await expect(this.agentNameInput).toBeVisible();
+    // The instructions textarea's initial value loads asynchronously after
+    // the dialog itself opens - editing too early gets overwritten once it
+    // arrives, so wait for it before touching any field.
+    await expect(this.instructionsTextarea).toBeVisible();
+  }
+
+  async saveEditedAgent() {
+    await expect(this.editAgentSaveButton).toBeEnabled();
+    await this.editAgentSaveButton.click();
+  }
+
+  async renameAgent(oldName: string, newName: string) {
+    await this.openEditAgentDialog(oldName);
     await this.agentNameInput.fill(newName);
-    const saveButton = this.page
-      .locator("#modal-dialog")
-      .getByRole("button", { name: "Save" });
-    await expect(saveButton).toBeEnabled();
-    await saveButton.click();
+    await this.saveEditedAgent();
+  }
+
+  // The create-agent dialog is reused for editing, so the same model
+  // combobox and instructions textarea testids apply here.
+  async editAgent(
+    name: string,
+    opts: { model?: string; instructions?: string },
+  ) {
+    await this.openEditAgentDialog(name);
+    if (opts.model) {
+      await this.selectModel(opts.model);
+    }
+    if (opts.instructions) {
+      await this.instructionsTextarea.fill(opts.instructions);
+      // Blur so the controlled textarea's change commits to state before
+      // Save is clicked - without it the click can race the update.
+      await this.instructionsTextarea.blur();
+    }
+    await this.saveEditedAgent();
+  }
+
+  async expectAgentModel(name: string, modelName: string) {
+    await this.openEditAgentDialog(name);
+    await expect(this.modelCombobox).toHaveText(modelName);
+  }
+
+  async expectAgentInstructions(name: string, instructions: string) {
+    await this.openEditAgentDialog(name);
+    await expect(this.instructionsTextarea).toHaveValue(instructions);
   }
 
   async deleteAgent(name: string) {

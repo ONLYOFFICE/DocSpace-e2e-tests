@@ -32,6 +32,10 @@ class AiSettings extends BasePage {
     return this.page.getByRole("button", { name: "Save", exact: true });
   }
 
+  private get turnOffModelConfirmButton() {
+    return this.page.getByRole("button", { name: "Turn off", exact: true });
+  }
+
   private get modelsTab() {
     return this.page.getByTestId("ai-models_tab");
   }
@@ -73,6 +77,47 @@ class AiSettings extends BasePage {
       timeout: 30000,
     });
     await this.page.waitForTimeout(3000);
+  }
+
+  async openModelsTab() {
+    await this.page.goto(`${this.aiSettingsBaseUrl}/ai-models`);
+    await expect(this.modelsTab).toBeVisible();
+  }
+
+  private modelRow(modelName: string) {
+    return this.page
+      .getByTestId("table-row")
+      .filter({ has: this.page.getByText(modelName, { exact: true }) });
+  }
+
+  private modelToggleContainer(modelName: string) {
+    return this.modelRow(modelName).getByTestId("toggle-button-container");
+  }
+
+  private modelToggleInput(modelName: string) {
+    return this.modelToggleContainer(modelName).getByTestId(
+      "toggle-button-input",
+    );
+  }
+
+  async setModelEnabled(modelName: string, enabled: boolean) {
+    if ((await this.modelToggleInput(modelName).isChecked()) === enabled) {
+      return;
+    }
+    await this.modelToggleContainer(modelName).click();
+    if (!enabled) {
+      // Turning a model off shows a "Turn off {model}?" confirmation dialog;
+      // turning it back on does not.
+      await this.turnOffModelConfirmButton.click();
+    }
+  }
+
+  async expectModelEnabled(modelName: string, enabled: boolean) {
+    if (enabled) {
+      await expect(this.modelToggleInput(modelName)).toBeChecked();
+    } else {
+      await expect(this.modelToggleInput(modelName)).not.toBeChecked();
+    }
   }
 
   async openMcpServersTab() {
