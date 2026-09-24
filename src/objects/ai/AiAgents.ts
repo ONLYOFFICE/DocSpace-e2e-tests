@@ -549,16 +549,63 @@ export class AiAgents extends BasePage {
     await expect(this.agentNameCell(name)).toHaveCount(0);
   }
 
-  async renameAgent(oldName: string, newName: string) {
-    await this.openAgentContextMenu(oldName);
+  // #modal-dialog isn't unique on the page (a hidden "Synchronization with
+  // database" panel shares the id), so scope by role/name too - the hidden
+  // panel has no Save button, which resolves the ambiguity.
+  private get editAgentSaveButton() {
+    return this.page.locator("#modal-dialog").getByRole("button", {
+      name: "Save",
+    });
+  }
+
+  async openEditAgentDialog(name: string) {
+    await this.openAgentContextMenu(name);
     await this.contextMenu.clickOption("Edit agent");
     await expect(this.agentNameInput).toBeVisible();
+    // The instructions textarea's initial value loads asynchronously after
+    // the dialog itself opens - editing too early gets overwritten once it
+    // arrives, so wait for it before touching any field.
+    await expect(this.instructionsTextarea).toBeVisible();
+  }
+
+  async saveEditedAgent() {
+    await expect(this.editAgentSaveButton).toBeEnabled();
+    await this.editAgentSaveButton.click();
+  }
+
+  async renameAgent(oldName: string, newName: string) {
+    await this.openEditAgentDialog(oldName);
     await this.agentNameInput.fill(newName);
-    const saveButton = this.page
-      .locator("#modal-dialog")
-      .getByRole("button", { name: "Save" });
-    await expect(saveButton).toBeEnabled();
-    await saveButton.click();
+    await this.saveEditedAgent();
+  }
+
+  // The create-agent dialog is reused for editing, so the same model
+  // combobox and instructions textarea testids apply here.
+  async editAgent(
+    name: string,
+    opts: { model?: string; instructions?: string },
+  ) {
+    await this.openEditAgentDialog(name);
+    if (opts.model) {
+      await this.selectModel(opts.model);
+    }
+    if (opts.instructions) {
+      await this.instructionsTextarea.fill(opts.instructions);
+      // Blur so the controlled textarea's change commits to state before
+      // Save is clicked - without it the click can race the update.
+      await this.instructionsTextarea.blur();
+    }
+    await this.saveEditedAgent();
+  }
+
+  async expectAgentModel(name: string, modelName: string) {
+    await this.openEditAgentDialog(name);
+    await expect(this.modelCombobox).toHaveText(modelName);
+  }
+
+  async expectAgentInstructions(name: string, instructions: string) {
+    await this.openEditAgentDialog(name);
+    await expect(this.instructionsTextarea).toHaveValue(instructions);
   }
 
   async deleteAgent(name: string) {
