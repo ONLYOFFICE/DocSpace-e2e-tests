@@ -137,32 +137,29 @@ test.describe(() => {
     });
   });
 
-  test.fail(
-    "Reassign data and delete a not-yet-activated user [Bug 83996]",
-    async () => {
-      await contacts.inviteUser(
-        userEmails.user,
-        contactsActionsMenu.invite.submenu.user,
+  test("Reassign data and delete a not-yet-activated user", async () => {
+    await contacts.inviteUser(
+      userEmails.user,
+      contactsActionsMenu.invite.submenu.user,
+    );
+
+    await test.step("Disable user", async () => {
+      await contacts.table.selectRow(userEmails.user);
+      await contacts.disableUser();
+      await contacts.table.checkDisabledUserExist(userEmails.user);
+    });
+
+    await test.step("Delete user via context menu dialog", async () => {
+      await contacts.table.openContextMenu(userEmails.user);
+      await contacts.table.clickContextMenuOption(
+        membersContextMenuOption.delete,
       );
-
-      await test.step("Disable user", async () => {
-        await contacts.table.selectRow(userEmails.user);
-        await contacts.disableUser();
-        await contacts.table.checkDisabledUserExist(userEmails.user);
-      });
-
-      await test.step("Delete user via context menu dialog", async () => {
-        await contacts.table.openContextMenu(userEmails.user);
-        await contacts.table.clickContextMenuOption(
-          membersContextMenuOption.delete,
-        );
-        await contacts.dialog.checkDialogTitleExist("Delete user");
-        await contacts.confirmDeleteFromDialog();
-        await contacts.waitForReassignmentCompleteAndClose();
-        await contacts.expectUserRemoved(userEmails.user);
-      });
-    },
-  );
+      await contacts.dialog.checkDialogTitleExist("Delete user");
+      await contacts.confirmDeleteFromDialog();
+      await contacts.waitForReassignmentCompleteAndClose();
+      await contacts.expectUserRemoved(userEmails.user);
+    });
+  });
 
   test("Groups management", async () => {
     await contacts.inviteUsers();
