@@ -530,7 +530,7 @@ test.describe("Shared with me", () => {
       });
     });
 
-    test.fail("Filter by PDF forms and PDF documents [Bug 81919]", async () => {
+    test("Filter by PDF forms and PDF documents", async () => {
       await test.step("Filter by PDF forms", async () => {
         await sharedWithMe.filesFilter.openFilterDialog();
         await sharedWithMe.filesFilter.selectFilterByPdfForms();
