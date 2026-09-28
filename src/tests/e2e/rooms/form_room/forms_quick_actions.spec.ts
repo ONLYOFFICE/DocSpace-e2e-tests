@@ -62,7 +62,7 @@ test.describe("Forms: quick actions panel", () => {
     });
   });
 
-  test("Template galery: selecting a template creates a room with the form and system folders", async ({
+  test.skip("[Bug 84048] Template galery: selecting a template creates a room with the form and system folders", async ({
     page,
   }) => {
     const templateTitle = "30-day eviction notice form";

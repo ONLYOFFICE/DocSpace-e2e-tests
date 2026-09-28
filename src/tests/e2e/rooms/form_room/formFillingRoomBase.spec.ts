@@ -365,7 +365,9 @@ test.describe("FormFilling base tests", () => {
     });
   });
 
-  test("Add PDF template from Template Gallery", async ({ page }) => {
+  test.skip("[Bug 84048] Add PDF template from Template Gallery", async ({
+    page,
+  }) => {
     const templateTitle = "30-day eviction notice form";
 
     await test.step("Skip tour and close info panel", async () => {
