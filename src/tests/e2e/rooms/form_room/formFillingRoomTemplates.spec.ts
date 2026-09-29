@@ -27,7 +27,7 @@ test.describe("FormFilling Template Gallery tests", () => {
 
   // Verifies that searching for a non-existing template displays the empty screen
   // and that the clear filter button resets the search
-  test.skip("[Bug 84048] Template Gallery search with no results shows empty screen", async ({
+  test("Template Gallery search with no results shows empty screen", async ({
     page,
   }) => {
     await test.step("Skip tour and close info panel", async () => {
@@ -66,7 +66,7 @@ test.describe("FormFilling Template Gallery tests", () => {
 
   // Verifies that the Template Gallery can be closed by clicking outside
   // and by pressing the Escape key
-  test.skip("[Bug 84048] Template Gallery closes on click outside and Escape", async ({
+  test("Template Gallery closes on click outside and Escape", async ({
     page,
   }) => {
     await test.step("Skip tour and close info panel", async () => {
@@ -112,7 +112,7 @@ test.describe("FormFilling Template Gallery tests", () => {
 
   // Verifies that switching the language combobox updates the displayed templates:
   // English template disappears after switching to German, reappears after switching back
-  test.skip("[Bug 84048] Template Gallery language switch updates template list", async ({
+  test("Template Gallery language switch updates template list", async ({
     page,
   }) => {
     const englishTemplate = "30-day eviction notice form";
@@ -162,9 +162,7 @@ test.describe("FormFilling Template Gallery tests", () => {
   });
 
   // Verifies that searching for an existing template by name returns the correct result
-  test.skip("[Bug 84048] Template Gallery search finds template by name", async ({
-    page,
-  }) => {
+  test("Template Gallery search finds template by name", async ({ page }) => {
     await test.step("Skip tour and close info panel", async () => {
       // Tour is temporarily not shown; may come back later.
 
