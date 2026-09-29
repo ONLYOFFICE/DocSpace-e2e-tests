@@ -465,9 +465,7 @@ export class Integration extends BasePage {
   }
 
   get documentServiceAddressInput(): Locator {
-    return this.page.locator(
-      'input[placeholder="https://<editors-dns-name>/"]',
-    );
+    return this.page.locator("#docServiceAdress");
   }
 
   get documentServiceSecretInput(): Locator {
