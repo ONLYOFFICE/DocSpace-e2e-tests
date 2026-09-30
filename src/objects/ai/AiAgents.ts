@@ -10,6 +10,8 @@ import {
   aiSectionEmptyView,
   aiAgentViewerChatEmptyView,
   aiAgentViewerModeToastMessage,
+  aiAgentToastMessages,
+  aiDeletePromptDialog,
 } from "@/src/utils/constants/ai";
 import { expect, Page } from "@playwright/test";
 
@@ -341,20 +343,36 @@ export class AiAgents extends BasePage {
   // dropdown gets initial keyboard focus, and sometimes needs an explicit
   // hover - in that case Radix's own reopened submenu overlaps the trigger
   // and fails a plain hover's actionability check, so force it.
+  // The click can also occasionally fail to open the model-selector dropdown
+  // at all (no "Choose AI Agent" trigger ever appears). actionTimeout is 0
+  // project-wide, so an unbounded hover there would hang until the global
+  // test timeout instead of failing fast - bound each attempt and retry the
+  // click once before giving up with a clear error.
   private async openQuickChatAgentSubmenu() {
-    await this.quickChatModelSelectorButton.click();
     const submenu = this.quickChatAgentSubmenu;
-    const alreadyOpen = await submenu
-      .waitFor({ state: "visible", timeout: 3000 })
-      .then(() => true)
-      .catch(() => false);
-    if (!alreadyOpen) {
-      await this.page
+    for (let attempt = 0; attempt < 2; attempt += 1) {
+      await this.quickChatModelSelectorButton.click();
+      const alreadyOpen = await submenu
+        .waitFor({ state: "visible", timeout: 3000 })
+        .then(() => true)
+        .catch(() => false);
+      if (alreadyOpen) return submenu;
+
+      const triggerHovered = await this.page
         .getByText("Choose AI Agent", { exact: true })
-        .hover({ force: true });
-      await submenu.waitFor({ state: "visible" });
+        .hover({ force: true, timeout: 5000 })
+        .then(() => true)
+        .catch(() => false);
+      if (triggerHovered) {
+        await submenu.waitFor({ state: "visible" });
+        return submenu;
+      }
+
+      await this.page.keyboard.press("Escape").catch(() => {});
     }
-    return submenu;
+    throw new Error(
+      "Quick chat 'Choose AI Agent' submenu did not open after clicking the model selector",
+    );
   }
 
   async selectAgentInQuickChat(agentName: string) {
@@ -566,6 +584,17 @@ export class AiAgents extends BasePage {
         timeout: 5000,
       });
     }).toPass({ timeout: 20000 });
+  }
+
+  // Confirms a message bubble the test just sent has actually rendered,
+  // without expectMessageInChat's chat-history fallback (meant for messages
+  // from an earlier session, not one still in view).
+  async expectUserMessageVisible(text: string) {
+    await expect(
+      this.page.getByText(text, { exact: true }).first(),
+    ).toBeVisible({
+      timeout: 30000,
+    });
   }
 
   async expectMessageNotInChat(text: string) {
@@ -805,6 +834,143 @@ export class AiAgents extends BasePage {
     await expect(assignOwner).toBeVisible();
     await assignOwner.click();
     await this.pickOwnerInChangeOwnerSelector(newOwnerName);
+  }
+
+  // --- Saved AI Prompts library ---
+  // Reachable via the ">_" icon next to the attachment button in the chat
+  // composer. It lists a fixed "built-in-prompts" folder alongside any
+  // prompts the user has saved from their own messages.
+
+  // Icon-only button with no testid or aria-label - it's the second of the
+  // three buttons in the composer's own action row (attachment, this, send).
+  private get promptsLibraryButton() {
+    return this.page.locator('[class*="chat-input-actions"] button').nth(1);
+  }
+
+  // Anchored on the always-present "built-in-prompts" folder entry so this
+  // resolves to the Prompts menu specifically, not some other open dropdown.
+  private get promptsMenu() {
+    return this.page.locator('[data-radix-menu-content][role="menu"]').filter({
+      has: this.page.getByText("built-in-prompts", { exact: true }),
+    });
+  }
+
+  private promptMenuItem(name: string) {
+    return this.promptsMenu
+      .locator('[role="menuitem"]')
+      .filter({ has: this.page.getByText(name, { exact: true }) });
+  }
+
+  async openPromptsLibrary() {
+    // Closes any menu already left open from a previous call, mirroring
+    // openAttachMenu's guard against a stale overlay intercepting the click.
+    await this.page.keyboard.press("Escape");
+    await this.promptsLibraryButton.click();
+    await expect(this.promptsMenu).toBeVisible();
+  }
+
+  async expectPromptInLibrary(name: string) {
+    await this.openPromptsLibrary();
+    await expect(this.promptMenuItem(name)).toBeVisible();
+    await this.page.keyboard.press("Escape");
+  }
+
+  async expectPromptNotInLibrary(name: string) {
+    await this.openPromptsLibrary();
+    await expect(this.promptMenuItem(name)).toHaveCount(0);
+    await this.page.keyboard.press("Escape");
+  }
+
+  // A saved prompt's row only reveals its own "..." trigger on hover (CSS
+  // group-hover opacity), and unlike the built-in-prompts folder's chevron
+  // (hover-opened), this one needs an explicit click to open.
+  private get promptActionsSubmenu() {
+    return this.page.locator(
+      '[data-radix-menu-content][role="menu"][data-side="right"]',
+    );
+  }
+
+  private async openPromptActions(name: string) {
+    const item = this.promptMenuItem(name);
+    await item.hover({ force: true });
+    await item.locator('button[aria-haspopup="menu"]').click({ force: true });
+    await expect(this.promptActionsSubmenu).toBeVisible();
+  }
+
+  // The user message bubble's own "..." action button has no testid either;
+  // it's the second of the two small icon buttons (copy, then this one)
+  // that immediately follow the message bubble in the DOM.
+  private userMessageMoreButton(messageText: string) {
+    return this.page
+      .getByText(messageText, { exact: true })
+      .locator("xpath=(following::button)[2]");
+  }
+
+  private get scrollToBottomButton() {
+    return this.page.getByRole("button", { name: "Scroll to bottom" });
+  }
+
+  // A long AI reply pushes the chat view down, leaving this floating arrow
+  // in place of auto-scroll; the just-sent user message (and its own "..."
+  // action button) then sits outside the scrolled viewport until it's
+  // clicked.
+  private async scrollChatToBottom() {
+    const button = this.scrollToBottomButton;
+    if (await button.isVisible().catch(() => false)) {
+      await button.click();
+    }
+  }
+
+  async saveMessageAsPrompt(messageText: string) {
+    await this.scrollChatToBottom();
+    await this.userMessageMoreButton(messageText).click();
+    await this.page.getByText("Save AI Prompt", { exact: true }).click();
+    await this.checkToastMessage(aiAgentToastMessages.promptSaved);
+  }
+
+  // #modal-dialog isn't unique on the page (a hidden "Synchronization with
+  // database" panel shares the id), so scope by its own header text.
+  private get editPromptDialog() {
+    return this.page
+      .getByTestId("modal-dialog")
+      .filter({ has: this.page.getByText("Edit AI Prompt", { exact: true }) });
+  }
+
+  async editPrompt(
+    currentName: string,
+    opts: { name?: string; text?: string },
+  ) {
+    await this.openPromptsLibrary();
+    await this.openPromptActions(currentName);
+    await this.promptActionsSubmenu
+      .getByText("Edit AI Prompt", { exact: true })
+      .click();
+    await expect(this.editPromptDialog).toBeVisible();
+    if (opts.name) {
+      await this.editPromptDialog.locator("input").first().fill(opts.name);
+    }
+    if (opts.text) {
+      await this.editPromptDialog.locator("textarea").first().fill(opts.text);
+    }
+    await this.editPromptDialog
+      .getByRole("button", { name: "Save", exact: true })
+      .click();
+  }
+
+  async deletePrompt(name: string) {
+    await this.openPromptsLibrary();
+    await this.openPromptActions(name);
+    await this.promptActionsSubmenu
+      .getByText("Delete", { exact: true })
+      .click();
+    const dialog = this.page.getByTestId("modal-dialog").filter({
+      has: this.page.getByText(aiDeletePromptDialog.title, { exact: true }),
+    });
+    await expect(dialog).toBeVisible();
+    await expect(dialog.getByText(aiDeletePromptDialog.message)).toBeVisible();
+    await dialog
+      .getByRole("button", { name: "Delete prompt", exact: true })
+      .click();
   }
 }
 
