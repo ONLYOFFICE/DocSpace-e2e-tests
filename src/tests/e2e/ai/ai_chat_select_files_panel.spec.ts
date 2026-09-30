@@ -1,4 +1,3 @@
-import { expect } from "@playwright/test";
 import { test } from "@/src/fixtures";
 import AiAgents from "@/src/objects/ai/AiAgents";
 import AiSettings from "@/src/objects/ai/AiSettings";
@@ -217,30 +216,26 @@ test.describe("AI Chat attach panel: selecting an agent", () => {
     });
   });
 
-  // The agent's row in the AI agents section of the attach-from-storage
-  // selector renders disabled, so it can't be selected and attached to a chat.
-  test.fail(
-    "Selecting an agent from the AI agents section attaches it to the chat [Bug 84000]",
-    async ({ page }) => {
-      await test.step("Open the AI agents section in the attach selector", async () => {
-        await aiAgents.openAttachmentPanel();
-        await attachmentPanel.openFolder("AI agents");
-      });
+  test("Opening an agent from the AI agents section shows its Knowledge and Chat outputs folders", async () => {
+    await test.step("Open the AI agents section in the attach selector", async () => {
+      await aiAgents.openAttachmentPanel();
+      await attachmentPanel.openFolder("AI agents");
+    });
 
-      await test.step("Select the agent and submit", async () => {
-        await attachmentPanel.selectItemByText(AGENT_NAME);
-        // The agent's row can't actually be selected, so this stays disabled -
-        // check with a short timeout instead of letting add() hang on a click
-        // retry for the whole test timeout.
-        await expect(page.getByTestId("selector_submit_button")).toBeEnabled({
-          timeout: 5000,
-        });
-        await attachmentPanel.add();
-      });
+    await test.step("Open the agent and check its Knowledge folder is empty", async () => {
+      await attachmentPanel.selectItemByText(AGENT_NAME, true);
+      await attachmentPanel.getItemByName("Knowledge");
+      await attachmentPanel.getItemByName("Chat outputs");
 
-      await test.step("Verify the agent is attached to the chat", async () => {
-        await aiAgents.expectAttachedFile(AGENT_NAME);
-      });
-    },
-  );
+      await attachmentPanel.openFolder("Knowledge");
+      await attachmentPanel.expectKnowledgeFolderEmpty();
+      await attachmentPanel.gotoBack("empty");
+    });
+
+    await test.step("Check the agent's Chat outputs folder is empty", async () => {
+      await attachmentPanel.openFolder("Chat outputs");
+      await attachmentPanel.checkEmptyContainerExist();
+      await attachmentPanel.gotoBack("empty");
+    });
+  });
 });

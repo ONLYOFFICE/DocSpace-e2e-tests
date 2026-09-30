@@ -48,6 +48,12 @@ class ChatAttachmentPanel extends BaseSelector {
   async expectItemCount(count: number) {
     await expect(this.realItems).toHaveCount(count);
   }
+
+  // The Knowledge folder only ever holds files, so its empty state reads
+  // "No files here yet", unlike the generic "No files and folders here yet".
+  async expectKnowledgeFolderEmpty() {
+    await expect(this.selector.getByText("No files here yet")).toBeVisible();
+  }
 }
 
 export default ChatAttachmentPanel;
