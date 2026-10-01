@@ -1,4 +1,4 @@
-import { test, APIRequestContext } from "@playwright/test";
+import { test, expect, APIRequestContext } from "@playwright/test";
 import { FAKER } from "@/src/utils/helpers/faker";
 import { TokenStore, Role } from "../token-store";
 
@@ -66,6 +66,13 @@ export class ProfilesApi {
       );
       return { response, userData };
     });
+  }
+
+  async addMemberWithId(role: Role, type: UserType) {
+    const { response, userData } = await this.addMember(role, type);
+    expect(response.ok()).toBeTruthy();
+    const userId: string = (await response.json()).response.id;
+    return { userData, userId };
   }
 
   async addUserForLongFirstAndLastName(data: {

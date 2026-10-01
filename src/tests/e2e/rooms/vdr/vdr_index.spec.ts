@@ -1,0 +1,98 @@
+import { test } from "@/src/fixtures";
+import { expect } from "@playwright/test";
+import MyRooms from "@/src/objects/rooms/Rooms";
+import Files from "@/src/objects/files/Files";
+import VdrRoomSettings from "@/src/objects/rooms/VdrRoomSettings";
+import FolderDeleteModal from "@/src/objects/files/FolderDeleteModal";
+import {
+  roomCreateTitles,
+  roomDialogSource,
+  vdrRoomContextMenuOption,
+} from "@/src/utils/constants/rooms";
+
+test.describe("VDR room: index", () => {
+  let myRooms: MyRooms;
+  let vdr: VdrRoomSettings;
+  const VDR_ROOM_NAME = "VDR Index Test";
+
+  test.beforeEach(async ({ page, api, login }) => {
+    myRooms = new MyRooms(page, api.portalDomain);
+    vdr = new VdrRoomSettings(page);
+    await login.loginToPortal();
+    await myRooms.openWithoutEmptyCheck();
+
+    await myRooms.openCreateRoomDialog(roomDialogSource.navigation);
+    await myRooms.roomsCreateDialog.openRoomType(roomCreateTitles.virtualData);
+    await vdr.toggleAutomaticIndexing(true);
+    await myRooms.roomsCreateDialog.createRoom(VDR_ROOM_NAME);
+  });
+
+  test("Reorder index after deleting a file", async ({ page }) => {
+    const deleteModal = new FolderDeleteModal(page);
+
+    await test.step("Create first document", async () => {
+      await vdr.createDocument(myRooms.filesNavigation, "Doc A");
+    });
+
+    await test.step("Create second document", async () => {
+      await vdr.createDocument(myRooms.filesNavigation, "Doc B");
+    });
+
+    await test.step("Create third document", async () => {
+      await vdr.createDocument(myRooms.filesNavigation, "Doc C");
+    });
+
+    await test.step("Delete the second document to create index gap", async () => {
+      const docBRow = page.locator(".table-list-item", { hasText: "Doc B" });
+      await docBRow.click({ button: "right" });
+      await myRooms.filesTable.contextMenu.clickOption("Delete");
+      await deleteModal.clickDeleteFolder();
+      await expect(docBRow).not.toBeVisible();
+    });
+
+    await test.step("Verify indices have a gap (1, 3)", async () => {
+      await vdr.expectIndexValue(0, "1");
+      await vdr.expectIndexValue(1, "3");
+    });
+
+    await test.step("Open Edit index and click Reorder", async () => {
+      await myRooms.filesNavigation.openContextMenu();
+      await myRooms.filesNavigation.contextMenu.clickOption(
+        vdrRoomContextMenuOption.editIndex,
+      );
+      await vdr.expectIndexToolbarVisible();
+      await vdr.clickReorderIndex();
+    });
+
+    await test.step("Apply reordered index", async () => {
+      await vdr.clickApplyIndex();
+    });
+
+    await test.step("Verify indices are sequential (1, 2)", async () => {
+      await vdr.expectIndexValue(0, "1");
+      await vdr.expectIndexValue(1, "2");
+    });
+  });
+
+  test("Export room index", async ({ page, api }) => {
+    await test.step("Trigger export room index via More options", async () => {
+      await myRooms.filesNavigation.openContextMenu();
+      await myRooms.filesNavigation.contextMenu.clickSubmenuOption(
+        vdrRoomContextMenuOption.moreOptions,
+        vdrRoomContextMenuOption.exportRoomIndex,
+      );
+    });
+
+    await test.step("Wait for export completion toast", async () => {
+      await myRooms.checkToastMessage(
+        `${VDR_ROOM_NAME}_index.xlsx file exported to Files`,
+      );
+    });
+
+    await test.step("Verify exported file is saved to Files", async () => {
+      const files = new Files(page, api.portalDomain);
+      await files.open();
+      await files.filesTable.checkRowExist(`${VDR_ROOM_NAME}_index`);
+    });
+  });
+});

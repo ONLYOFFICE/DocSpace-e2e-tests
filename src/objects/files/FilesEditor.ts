@@ -1,4 +1,4 @@
-import { expect, Page } from "@playwright/test";
+import { BrowserContext, expect, Page } from "@playwright/test";
 
 class FilesEditor {
   protected page: Page;
@@ -118,9 +118,75 @@ class FilesEditor {
     );
   }
 
+  async getEditorConfig(): Promise<TDocEditorConfig> {
+    const read = () =>
+      this.page.evaluate(
+        () =>
+          (globalThis as unknown as Record<string, unknown>)[
+            "__e2eDocEditorConfig"
+          ] ?? null,
+      );
+    await expect
+      .poll(read, {
+        timeout: 60000,
+        message: "DocsAPI.DocEditor was not called with a config",
+      })
+      .not.toBeNull();
+    return (await read()) as TDocEditorConfig;
+  }
+
   async close() {
     await this.page.close();
   }
+}
+
+export type TDocEditorConfig = {
+  document: {
+    title: string;
+    permissions: Record<string, boolean>;
+    options?: {
+      watermark_on_draw?: {
+        paragraphs: { runs: { text: string }[] }[];
+      };
+    };
+  };
+};
+
+// openedit is requested during SSR, so the config is captured from DocsAPI.DocEditor
+function captureDocEditorConfig() {
+  const store = globalThis as unknown as Record<string, unknown>;
+  let docsApi: Record<string, unknown> | undefined;
+
+  Object.defineProperty(globalThis, "DocsAPI", {
+    configurable: true,
+    get: () => docsApi,
+    set: (value: Record<string, unknown> | undefined) => {
+      docsApi = value;
+      if (!value) return;
+
+      let docEditor = value.DocEditor;
+      Object.defineProperty(value, "DocEditor", {
+        configurable: true,
+        get: () => docEditor,
+        set: (fn: unknown) => {
+          docEditor =
+            typeof fn === "function"
+              ? new Proxy(fn, {
+                  apply(target, thisArg, args) {
+                    store["__e2eDocEditorConfig"] = args[1];
+                    return Reflect.apply(target, thisArg, args);
+                  },
+                })
+              : fn;
+        },
+      });
+      if (docEditor) value.DocEditor = docEditor;
+    },
+  });
+}
+
+export async function enableEditorConfigCapture(context: BrowserContext) {
+  await context.addInitScript(captureDocEditorConfig);
 }
 
 export default FilesEditor;
