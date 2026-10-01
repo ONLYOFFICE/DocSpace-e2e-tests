@@ -3,6 +3,14 @@ export const aiAgentToastMessages = {
   notificationsDisabled: "AI agent notifications disabled",
   notificationsEnabled: "AI agent notifications enabled",
   linkCopied: "Link has been copied to the clipboard",
+  promptSaved: "Prompt saved",
+} as const;
+
+// Confirmation dialog shown when deleting a saved AI prompt from the
+// composer's Prompts library.
+export const aiDeletePromptDialog = {
+  title: "Delete saved prompt",
+  message: "This action will permanently delete the selected prompt.",
 } as const;
 
 // Shown instead of the chat composer when a Viewer-access member opens an

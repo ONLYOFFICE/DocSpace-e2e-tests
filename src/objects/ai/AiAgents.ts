@@ -10,8 +10,21 @@ import {
   aiSectionEmptyView,
   aiAgentViewerChatEmptyView,
   aiAgentViewerModeToastMessage,
+  aiAgentToastMessages,
+  aiDeletePromptDialog,
 } from "@/src/utils/constants/ai";
 import { expect, Page } from "@playwright/test";
+
+const PROMPTS_BUTTON = "prompts-button";
+const PROMPTS_MENU = "prompts-menu";
+const PROMPTS_MENU_PROMPT = "prompts-menu-prompt";
+const PROMPTS_MENU_PROMPT_SUBMENU_BUTTON = "prompts-menu-prompt-submenu-button";
+const PROMPT_MENU_EDIT = "prompt-menu-edit";
+const PROMPT_MENU_DELETE = "prompt-menu-delete";
+const EDIT_PROMPT_DIALOG_TITLE = "Edit AI Prompt";
+const USER_MESSAGE_MORE_BUTTON = "user-message-more-button";
+const USER_MESSAGE_MENU = "user-message-menu";
+const USER_MESSAGE_MENU_SAVE_PROMPT = "user-message-menu-save-prompt";
 
 export class AiAgents extends BasePage {
   private portalDomain: string;
@@ -341,20 +354,36 @@ export class AiAgents extends BasePage {
   // dropdown gets initial keyboard focus, and sometimes needs an explicit
   // hover - in that case Radix's own reopened submenu overlaps the trigger
   // and fails a plain hover's actionability check, so force it.
+  // The click can also occasionally fail to open the model-selector dropdown
+  // at all (no "Choose AI Agent" trigger ever appears). actionTimeout is 0
+  // project-wide, so an unbounded hover there would hang until the global
+  // test timeout instead of failing fast - bound each attempt and retry the
+  // click once before giving up with a clear error.
   private async openQuickChatAgentSubmenu() {
-    await this.quickChatModelSelectorButton.click();
     const submenu = this.quickChatAgentSubmenu;
-    const alreadyOpen = await submenu
-      .waitFor({ state: "visible", timeout: 3000 })
-      .then(() => true)
-      .catch(() => false);
-    if (!alreadyOpen) {
-      await this.page
+    for (let attempt = 0; attempt < 2; attempt += 1) {
+      await this.quickChatModelSelectorButton.click();
+      const alreadyOpen = await submenu
+        .waitFor({ state: "visible", timeout: 3000 })
+        .then(() => true)
+        .catch(() => false);
+      if (alreadyOpen) return submenu;
+
+      const triggerHovered = await this.page
         .getByText("Choose AI Agent", { exact: true })
-        .hover({ force: true });
-      await submenu.waitFor({ state: "visible" });
+        .hover({ force: true, timeout: 5000 })
+        .then(() => true)
+        .catch(() => false);
+      if (triggerHovered) {
+        await submenu.waitFor({ state: "visible" });
+        return submenu;
+      }
+
+      await this.page.keyboard.press("Escape").catch(() => {});
     }
-    return submenu;
+    throw new Error(
+      "Quick chat 'Choose AI Agent' submenu did not open after clicking the model selector",
+    );
   }
 
   async selectAgentInQuickChat(agentName: string) {
@@ -566,6 +595,17 @@ export class AiAgents extends BasePage {
         timeout: 5000,
       });
     }).toPass({ timeout: 20000 });
+  }
+
+  // Confirms a message bubble the test just sent has actually rendered,
+  // without expectMessageInChat's chat-history fallback (meant for messages
+  // from an earlier session, not one still in view).
+  async expectUserMessageVisible(text: string) {
+    await expect(
+      this.page.getByText(text, { exact: true }).first(),
+    ).toBeVisible({
+      timeout: 30000,
+    });
   }
 
   async expectMessageNotInChat(text: string) {
@@ -805,6 +845,114 @@ export class AiAgents extends BasePage {
     await expect(assignOwner).toBeVisible();
     await assignOwner.click();
     await this.pickOwnerInChangeOwnerSelector(newOwnerName);
+  }
+
+  // --- Saved AI Prompts library ---
+  // Opened from the composer's ">_" button. Menus and dialogs render in a
+  // portal outside the chat root, so they are queried from the page root.
+
+  private get promptsMenu() {
+    return this.page.getByTestId(PROMPTS_MENU);
+  }
+
+  private promptMenuItem(name: string) {
+    return this.promptsMenu
+      .getByTestId(PROMPTS_MENU_PROMPT)
+      .filter({ has: this.page.getByText(name, { exact: true }) });
+  }
+
+  async openPromptsLibrary() {
+    // Closes a menu left open by a previous step - an open Radix menu's
+    // overlay intercepts every click on the page.
+    await this.page.keyboard.press("Escape");
+    await this.page.getByTestId(PROMPTS_BUTTON).click();
+    await expect(this.promptsMenu).toBeVisible();
+  }
+
+  async expectPromptInLibrary(name: string) {
+    await this.openPromptsLibrary();
+    await expect(this.promptMenuItem(name)).toBeVisible();
+    await this.page.keyboard.press("Escape");
+  }
+
+  async expectPromptNotInLibrary(name: string) {
+    await this.openPromptsLibrary();
+    await expect(this.promptMenuItem(name)).toHaveCount(0);
+    await this.page.keyboard.press("Escape");
+  }
+
+  // The row's submenu trigger is revealed only on hover (group-hover opacity).
+  private async openPromptActions(name: string) {
+    const item = this.promptMenuItem(name);
+    await item.hover({ force: true });
+    await item
+      .getByTestId(PROMPTS_MENU_PROMPT_SUBMENU_BUTTON)
+      .click({ force: true });
+  }
+
+  // Every user message shares the same more-button testid, so take the
+  // first one following this message's text.
+  private userMessageMoreButton(messageText: string) {
+    return this.page
+      .getByText(messageText, { exact: true })
+      .locator(
+        `xpath=following::*[@data-testid="${USER_MESSAGE_MORE_BUTTON}"][1]`,
+      );
+  }
+
+  async saveMessageAsPrompt(messageText: string) {
+    // The chat auto-scrolls to the end of the AI reply, so a long reply
+    // leaves the user message above the viewport; its actions show on hover.
+    const message = this.page.getByText(messageText, { exact: true });
+    await message.scrollIntoViewIfNeeded();
+    await message.hover();
+    await this.userMessageMoreButton(messageText).click();
+    await this.page
+      .getByTestId(USER_MESSAGE_MENU)
+      .getByTestId(USER_MESSAGE_MENU_SAVE_PROMPT)
+      .click();
+    await this.checkToastMessage(aiAgentToastMessages.promptSaved);
+  }
+
+  // The catalog's edit/delete dialog testids are not rendered on these
+  // DocSpace modals, so scope by role + header text. Several hidden dialogs
+  // ("Synchronization with database", "Top up credits") also exist on the page.
+  private promptDialog(title: string) {
+    return this.page.getByRole("dialog").filter({
+      has: this.page.getByText(title, { exact: true }),
+    });
+  }
+
+  async editPrompt(
+    currentName: string,
+    opts: { name?: string; text?: string },
+  ) {
+    await this.openPromptsLibrary();
+    await this.openPromptActions(currentName);
+    await this.page.getByTestId(PROMPT_MENU_EDIT).click();
+    const dialog = this.promptDialog(EDIT_PROMPT_DIALOG_TITLE);
+    await expect(dialog).toBeVisible();
+    if (opts.name) {
+      await dialog.locator("input").first().fill(opts.name);
+    }
+    if (opts.text) {
+      await dialog.locator("textarea").first().fill(opts.text);
+    }
+    await dialog.getByRole("button", { name: "Save", exact: true }).click();
+    await expect(dialog).toBeHidden();
+  }
+
+  async deletePrompt(name: string) {
+    await this.openPromptsLibrary();
+    await this.openPromptActions(name);
+    await this.page.getByTestId(PROMPT_MENU_DELETE).click();
+    const dialog = this.promptDialog(aiDeletePromptDialog.title);
+    await expect(dialog).toBeVisible();
+    await expect(dialog.getByText(aiDeletePromptDialog.message)).toBeVisible();
+    await dialog
+      .getByRole("button", { name: "Delete prompt", exact: true })
+      .click();
+    await expect(dialog).toBeHidden();
   }
 }
 
