@@ -5,26 +5,60 @@ import type { TMenuItem } from "../common/BaseMenu";
 import BaseInviteDialog from "../common/BaseInviteDialog";
 import BaseNavigation from "../common/BaseNavigation";
 import FilesTable from "../files/FilesTable";
-import { apps, aiAgentsSubItems } from "@/src/utils/constants/navigation";
+import BaseSelector from "../common/BaseSelector";
+import { apps, aiAgentsSubItems, TApp } from "@/src/utils/constants/navigation";
 import {
   aiSectionEmptyView,
   aiAgentViewerChatEmptyView,
   aiAgentViewerModeToastMessage,
   aiAgentToastMessages,
   aiDeletePromptDialog,
+  aiDeletePromptFolderDialog,
+  aiSaveAsDocxSections,
+  aiChatNotActiveScreen,
 } from "@/src/utils/constants/ai";
+import { setupClipboardPermissions } from "@/src/utils/helpers/linkTest";
 import { expect, Page } from "@playwright/test";
 
+const RADIX_MENU_CONTENT = "[data-radix-menu-content]";
+const CHAT_AI_BENEFITS = "chat-ai-benefits";
+const EFFORT_MENU_ITEM = "effort-menu-item";
+const EFFORT_MENU_OPTION_PREFIX = "effort-menu-option-";
+const SUGGESTIONS = "suggestions";
+const SUGGESTION_BUTTON = "suggestion-button";
 const PROMPTS_BUTTON = "prompts-button";
 const PROMPTS_MENU = "prompts-menu";
 const PROMPTS_MENU_PROMPT = "prompts-menu-prompt";
 const PROMPTS_MENU_PROMPT_SUBMENU_BUTTON = "prompts-menu-prompt-submenu-button";
 const PROMPT_MENU_EDIT = "prompt-menu-edit";
 const PROMPT_MENU_DELETE = "prompt-menu-delete";
+const PROMPT_MENU_MOVE = "prompt-menu-move";
+const PROMPT_MENU_MOVE_TO_ROOT = "prompt-menu-move-to-root";
+const PROMPT_MENU_MOVE_TO_FOLDER = "prompt-menu-move-to-folder";
+const PROMPTS_MENU_FOLDER = "prompts-menu-folder";
+const PROMPTS_MENU_RENAME_FOLDER = "prompts-menu-rename-folder";
+const PROMPTS_MENU_DELETE_FOLDER = "prompts-menu-delete-folder";
 const EDIT_PROMPT_DIALOG_TITLE = "Edit AI Prompt";
+const USER_MESSAGE_CONTENT = "user-message-content";
 const USER_MESSAGE_MORE_BUTTON = "user-message-more-button";
 const USER_MESSAGE_MENU = "user-message-menu";
 const USER_MESSAGE_MENU_SAVE_PROMPT = "user-message-menu-save-prompt";
+const USER_MESSAGE_MENU_SAVE_TO_FOLDER = "user-message-menu-save-to-folder";
+const USER_MESSAGE_MENU_FOLDER = "user-message-menu-folder";
+const USER_MESSAGE_MENU_NEW_FOLDER = "user-message-menu-new-folder";
+const NEW_PROMPT_FOLDER_DIALOG_TITLE = "New AI Prompt folder";
+const RENAME_PROMPT_FOLDER_DIALOG_TITLE = "Rename folder";
+const USER_MESSAGE_COPY_BUTTON = "user-message-copy-button";
+const USER_MESSAGE_COPIED_INDICATOR = "user-message-copied-indicator";
+const ASSISTANT_MESSAGE = "assistant-message";
+const ASSISTANT_MESSAGE_ACTIONS = "assistant-message-actions";
+const ASSISTANT_MESSAGE_CONTENT = "assistant-message-content";
+const ASSISTANT_MESSAGE_COPY_BUTTON = "assistant-message-copy-button";
+const ASSISTANT_MESSAGE_COPIED_INDICATOR = "assistant-message-copied-indicator";
+const ASSISTANT_MESSAGE_REGENERATE_BUTTON =
+  "assistant-message-regenerate-button";
+const ASSISTANT_MESSAGE_DOWNLOAD_BUTTON = "assistant-message-download-button";
+const SELECTOR_ITEMS = '[data-testid^="selector-item-"]';
 
 export class AiAgents extends BasePage {
   private portalDomain: string;
@@ -32,6 +66,7 @@ export class AiAgents extends BasePage {
   inviteDialog: BaseInviteDialog;
   navigation: BaseNavigation;
   filesTable: FilesTable;
+  saveAsDocxSelector: BaseSelector;
 
   constructor(page: Page, portalDomain: string) {
     super(page);
@@ -40,6 +75,7 @@ export class AiAgents extends BasePage {
     this.inviteDialog = new BaseInviteDialog(page);
     this.navigation = new BaseNavigation(page, {});
     this.filesTable = new FilesTable(page);
+    this.saveAsDocxSelector = new BaseSelector(page);
   }
 
   private get emptyProvidersHeading() {
@@ -76,6 +112,41 @@ export class AiAgents extends BasePage {
   async expectQuickChatNotActive() {
     await expect(this.quickChatNotActiveHeading).toBeVisible();
     await expect(this.quickChatTopUpButton).toBeVisible();
+  }
+
+  // Full not-active screen of the AI Chat panel, and no message composer.
+  // A Full admin gets the OpenRouter pricing benefit and the Top up button;
+  // a regular user only gets a "contact your Full admin" note.
+  async expectQuickChatNotActiveScreen(viewer: "admin" | "user") {
+    const { accessNote, pricingLinkText, pricingUrl } = aiChatNotActiveScreen;
+    const { description, benefits } = aiChatNotActiveScreen[viewer];
+    await expect(this.quickChatNotActiveHeading).toBeVisible();
+    await expect(
+      this.page.getByText(description, { exact: true }),
+    ).toBeVisible();
+    await expect(
+      this.page.getByText(accessNote, { exact: true }),
+    ).toBeVisible();
+
+    const benefitsList = this.page.getByTestId(CHAT_AI_BENEFITS);
+    for (const benefit of benefits) {
+      await expect(benefitsList).toContainText(benefit);
+    }
+    await expect(benefitsList.getByRole("listitem")).toHaveCount(
+      benefits.length,
+    );
+
+    const pricingLink = benefitsList.getByRole("link", {
+      name: pricingLinkText,
+    });
+    if (viewer === "admin") {
+      await expect(this.quickChatTopUpButton).toBeVisible();
+      await expect(pricingLink).toHaveAttribute("href", pricingUrl);
+    } else {
+      await expect(this.quickChatTopUpButton).toHaveCount(0);
+      await expect(pricingLink).toHaveCount(0);
+    }
+    await expect(this.chatComposerInput).toHaveCount(0);
   }
 
   private get agentNameInput() {
@@ -407,31 +478,61 @@ export class AiAgents extends BasePage {
     expect(isScrollable).toBe(true);
   }
 
-  // Suggestion chips shown above the composer on a fresh chat - plain buttons,
-  // no dedicated testid, matched by their visible label.
-  private static readonly CHAT_SUGGESTIONS = [
-    "Show file structure",
-    "Organize files into folders",
-    "Find files by topic",
-    "Find large files",
-    "Find possible duplicates",
-    "Suggest files to clean up",
-  ] as const;
-
-  private chatSuggestionButton(label: string) {
-    return this.page.getByRole("button", { name: label, exact: true });
+  // Suggestion chips shown above the composer on a fresh chat. Each section
+  // and sub-section has its own set (see aiChatSuggestions), matched by label.
+  private get chatSuggestionButtons() {
+    return this.page.getByTestId(SUGGESTIONS).getByTestId(SUGGESTION_BUTTON);
   }
 
-  async expectAllChatSuggestionsVisible() {
-    for (const label of AiAgents.CHAT_SUGGESTIONS) {
+  private chatSuggestionButton(label: string) {
+    return this.chatSuggestionButtons.filter({
+      has: this.page.getByText(label, { exact: true }),
+    });
+  }
+
+  // The chat panel stays open across sidebar navigation, and the header
+  // button toggles it - so only click it while the panel is closed.
+  async openSectionWithChat(app: TApp, subItem?: string) {
+    if (subItem) {
+      await this.sidebar.openSubItem(app, subItem);
+    } else {
+      await this.sidebar.navigate(app);
+    }
+    if (!(await this.chatComposerInput.isVisible())) {
+      await this.openAiChat();
+    }
+    await this.expectChatOpened();
+  }
+
+  // Exactly this set - checks every label and that no other chip is shown.
+  async expectChatSuggestions(labels: readonly string[]) {
+    for (const label of labels) {
       await expect(this.chatSuggestionButton(label)).toBeVisible();
     }
+    await expect(this.chatSuggestionButtons).toHaveCount(labels.length);
+  }
+
+  async expectNoChatSuggestions() {
+    await expect(this.chatSuggestionButtons).toHaveCount(0);
   }
 
   // Only fills the composer with a fuller prompt for that suggestion - it
   // does not auto-send. Call sendComposerMessage() to actually submit it.
   async clickChatSuggestion(label: string) {
     await this.chatSuggestionButton(label).click();
+  }
+
+  // Picking a chip fills the composer; picking another replaces that text.
+  // The composer keeps its text across sections, so compare after each click.
+  async expectSuggestionsFillComposer(first: string, second: string) {
+    const before = await this.chatComposerInput.inputValue();
+    await this.clickChatSuggestion(first);
+    await expect(this.chatComposerInput).not.toHaveValue(before);
+    await expect(this.chatComposerInput).not.toBeEmpty();
+    const firstPrompt = await this.chatComposerInput.inputValue();
+    await this.clickChatSuggestion(second);
+    await expect(this.chatComposerInput).not.toHaveValue(firstPrompt);
+    await expect(this.chatComposerInput).not.toBeEmpty();
   }
 
   async expectComposerFilled() {
@@ -502,38 +603,35 @@ export class AiAgents extends BasePage {
     await expect(this.webSearchToggle).toBeDisabled();
   }
 
-  // Positioned wherever there's room (unlike the agent submenu, always to the
-  // left), so match on a level only the submenu itself has ("Maximum" is not
-  // in the row's own current-value label) instead of a fixed data-side.
-  private get effortSubmenu() {
-    return this.page
-      .locator('[data-radix-menu-content][role="menu"]')
-      .filter({ hasText: "Maximum" });
+  // Effort levels by their visible label -> the option testid suffix.
+  private static readonly EFFORT_OPTION_IDS: Record<string, string> = {
+    "No thinking": "off",
+    Low: "low",
+    Medium: "medium",
+    High: "high",
+    Maximum: "max",
+  };
+
+  private effortOption(level: string) {
+    const id = AiAgents.EFFORT_OPTION_IDS[level];
+    if (!id) throw new Error(`Unknown effort level: ${level}`);
+    return this.page.getByTestId(`${EFFORT_MENU_OPTION_PREFIX}${id}`);
   }
 
-  // The "Effort" row is one menuitem containing both the "Effort" label and
-  // (as a separate trailing sibling span) the currently selected level.
+  // The "Effort" row holds both its label and the currently selected level.
   private get effortMenuItem() {
-    return this.attachMenu
-      .locator('[role="menuitem"]')
-      .filter({ hasText: "Effort" });
+    return this.attachMenu.getByTestId(EFFORT_MENU_ITEM);
   }
 
-  // Unlike "Choose AI Agent" (hover anywhere on the row), the Effort row's
-  // submenu trigger is specifically its trailing chevron button - the row
-  // also has an unrelated info-icon button (aria-haspopup="dialog") next to
-  // the label, so target aria-haspopup="menu" precisely.
+  // Hover-opened submenu; it can open over its own row, so the hover is forced.
   private async openEffortSubmenu() {
-    await this.effortMenuItem
-      .locator('[aria-haspopup="menu"]')
-      .hover({ force: true, timeout: 10000 });
-    await this.effortSubmenu.waitFor({ state: "visible", timeout: 10000 });
-    return this.effortSubmenu;
+    await this.effortMenuItem.hover({ force: true });
+    await expect(this.effortOption("Maximum")).toBeVisible();
   }
 
   async selectEffortLevel(level: string) {
-    const submenu = await this.openEffortSubmenu();
-    await submenu.getByText(level, { exact: true }).click();
+    await this.openEffortSubmenu();
+    await this.effortOption(level).click();
   }
 
   // The currently selected level is echoed as secondary text on the "Effort"
@@ -851,6 +949,27 @@ export class AiAgents extends BasePage {
   // Opened from the composer's ">_" button. Menus and dialogs render in a
   // portal outside the chat root, so they are queried from the page root.
 
+  // An open Radix menu's overlay intercepts every click on the page, and one
+  // Escape closes only the top level (e.g. a hover-opened folder panel), so
+  // repeat until no menu is left. The pointer is moved off first so a hovered
+  // folder does not reopen its panel; an outside click is the fallback when
+  // Escape is ignored. Skipped when nothing is open - Escape in the chat also
+  // stops a reply that is still streaming.
+  private async closeOpenMenus() {
+    const menus = this.page
+      .locator(RADIX_MENU_CONTENT)
+      .filter({ visible: true });
+    await expect(async () => {
+      if ((await menus.count()) === 0) return;
+      await this.page.mouse.move(1, 1);
+      await this.page.keyboard.press("Escape");
+      if ((await menus.count()) > 0) {
+        await this.page.mouse.click(1, 1);
+      }
+      await expect(menus).toHaveCount(0, { timeout: 1000 });
+    }).toPass({ timeout: 10000 });
+  }
+
   private get promptsMenu() {
     return this.page.getByTestId(PROMPTS_MENU);
   }
@@ -862,9 +981,7 @@ export class AiAgents extends BasePage {
   }
 
   async openPromptsLibrary() {
-    // Closes a menu left open by a previous step - an open Radix menu's
-    // overlay intercepts every click on the page.
-    await this.page.keyboard.press("Escape");
+    await this.closeOpenMenus();
     await this.page.getByTestId(PROMPTS_BUTTON).click();
     await expect(this.promptsMenu).toBeVisible();
   }
@@ -872,46 +989,252 @@ export class AiAgents extends BasePage {
   async expectPromptInLibrary(name: string) {
     await this.openPromptsLibrary();
     await expect(this.promptMenuItem(name)).toBeVisible();
-    await this.page.keyboard.press("Escape");
+    await this.closeOpenMenus();
   }
 
   async expectPromptNotInLibrary(name: string) {
     await this.openPromptsLibrary();
     await expect(this.promptMenuItem(name)).toHaveCount(0);
-    await this.page.keyboard.press("Escape");
+    await this.closeOpenMenus();
+  }
+
+  private promptFolderItem(folderName: string) {
+    return this.promptsMenu
+      .getByTestId(PROMPTS_MENU_FOLDER)
+      .filter({ hasText: folderName });
+  }
+
+  // A folder opens on hover into its own portal panel: the prompts inside it
+  // plus "Rename folder" / "Delete folder". Only one folder panel is open at
+  // a time, so its rename/delete items are queried from the page root.
+  private async openPromptFolder(folderName: string) {
+    await this.openPromptsLibrary();
+    await this.promptFolderItem(folderName).hover();
+    await expect(
+      this.page.getByTestId(PROMPTS_MENU_RENAME_FOLDER),
+    ).toBeVisible();
+  }
+
+  // Any prompt row on the page - the library root or an open folder panel.
+  private anyPromptItem(name: string) {
+    return this.page
+      .getByTestId(PROMPTS_MENU_PROMPT)
+      .filter({ has: this.page.getByText(name, { exact: true }) });
+  }
+
+  // The library root stays open next to a folder panel, so a prompt inside
+  // the folder is looked up only in the panel that holds the rename button.
+  private openFolderPromptItem(name: string) {
+    return this.page
+      .locator(RADIX_MENU_CONTENT)
+      .filter({ has: this.page.getByTestId(PROMPTS_MENU_RENAME_FOLDER) })
+      .last()
+      .getByTestId(PROMPTS_MENU_PROMPT)
+      .filter({ has: this.page.getByText(name, { exact: true }) });
+  }
+
+  async expectPromptFolderInLibrary(folderName: string) {
+    await this.openPromptsLibrary();
+    await expect(this.promptFolderItem(folderName)).toBeVisible();
+    await this.closeOpenMenus();
+  }
+
+  async expectPromptFolderNotInLibrary(folderName: string) {
+    await this.openPromptsLibrary();
+    await expect(this.promptFolderItem(folderName)).toHaveCount(0);
+    await this.closeOpenMenus();
+  }
+
+  async expectPromptInFolder(folderName: string, name: string) {
+    await this.openPromptFolder(folderName);
+    await expect(this.openFolderPromptItem(name)).toBeVisible();
+    await this.closeOpenMenus();
+  }
+
+  async expectPromptNotInFolder(folderName: string, name: string) {
+    await this.openPromptFolder(folderName);
+    await expect(this.openFolderPromptItem(name)).toHaveCount(0);
+    await this.closeOpenMenus();
+  }
+
+  async renamePromptFolder(currentName: string, newName: string) {
+    await this.openPromptFolder(currentName);
+    await this.page.getByTestId(PROMPTS_MENU_RENAME_FOLDER).click();
+    const dialog = this.promptDialog(RENAME_PROMPT_FOLDER_DIALOG_TITLE);
+    await expect(dialog).toBeVisible();
+    await dialog.locator("input").first().fill(newName);
+    await dialog.getByRole("button", { name: "Save", exact: true }).click();
+    await expect(dialog).toBeHidden();
+  }
+
+  // Answers the "Warning" confirmation with "Yes" (confirm) or "No".
+  async deletePromptFolder(name: string, opts: { confirm: boolean }) {
+    await this.openPromptFolder(name);
+    await this.page.getByTestId(PROMPTS_MENU_DELETE_FOLDER).click();
+    const dialog = this.page.getByRole("dialog").filter({
+      has: this.page.getByText(aiDeletePromptFolderDialog.message),
+    });
+    await expect(dialog).toBeVisible();
+    await expect(
+      dialog.getByText(aiDeletePromptFolderDialog.title, { exact: true }),
+    ).toBeVisible();
+    await dialog
+      .getByRole("button", { name: opts.confirm ? "Yes" : "No", exact: true })
+      .click();
+    await expect(dialog).toBeHidden();
+  }
+
+  // "Move to folder" is a hover-opened submenu listing every folder, plus the
+  // library root only for a prompt that sits in a folder - so callers wait
+  // for their own target item. Pass fromFolder for a prompt in a folder.
+  private async openMovePromptSubmenu(name: string, fromFolder?: string) {
+    if (fromFolder) {
+      await this.openPromptFolder(fromFolder);
+    } else {
+      await this.openPromptsLibrary();
+    }
+    await this.openPromptActions(name);
+    await this.page.getByTestId(PROMPT_MENU_MOVE).hover({ force: true });
+  }
+
+  async movePromptToFolder(
+    name: string,
+    folderName: string,
+    fromFolder?: string,
+  ) {
+    await this.openMovePromptSubmenu(name, fromFolder);
+    await this.page
+      .getByTestId(PROMPT_MENU_MOVE_TO_FOLDER)
+      .filter({ hasText: folderName })
+      .click();
+  }
+
+  async movePromptToRoot(name: string, fromFolder: string) {
+    await this.openMovePromptSubmenu(name, fromFolder);
+    await this.page.getByTestId(PROMPT_MENU_MOVE_TO_ROOT).click();
   }
 
   // The row's submenu trigger is revealed only on hover (group-hover opacity).
+  // Queried from the page root so it also finds prompts inside a folder panel.
   private async openPromptActions(name: string) {
-    const item = this.promptMenuItem(name);
+    const item = this.anyPromptItem(name);
     await item.hover({ force: true });
     await item
       .getByTestId(PROMPTS_MENU_PROMPT_SUBMENU_BUTTON)
       .click({ force: true });
   }
 
+  // Scoped to the message bubble - the composer can hold the same text
+  // (e.g. when a reply is stopped, the message is put back into it).
+  private userMessage(messageText: string) {
+    return this.page
+      .getByTestId(USER_MESSAGE_CONTENT)
+      .getByText(messageText, { exact: true });
+  }
+
   // Every user message shares the same more-button testid, so take the
   // first one following this message's text.
   private userMessageMoreButton(messageText: string) {
-    return this.page
-      .getByText(messageText, { exact: true })
-      .locator(
-        `xpath=following::*[@data-testid="${USER_MESSAGE_MORE_BUTTON}"][1]`,
-      );
+    return this.userMessage(messageText).locator(
+      `xpath=following::*[@data-testid="${USER_MESSAGE_MORE_BUTTON}"][1]`,
+    );
   }
 
-  async saveMessageAsPrompt(messageText: string) {
+  private get userMessageMenu() {
+    return this.page.getByTestId(USER_MESSAGE_MENU);
+  }
+
+  private async openUserMessageMenu(messageText: string) {
     // The chat auto-scrolls to the end of the AI reply, so a long reply
     // leaves the user message above the viewport; its actions show on hover.
-    const message = this.page.getByText(messageText, { exact: true });
+    // No Escape here: while a reply is streaming it stops the generation.
+    const message = this.userMessage(messageText);
     await message.scrollIntoViewIfNeeded();
     await message.hover();
     await this.userMessageMoreButton(messageText).click();
-    await this.page
-      .getByTestId(USER_MESSAGE_MENU)
+    await expect(this.userMessageMenu).toBeVisible();
+  }
+
+  async saveMessageAsPrompt(messageText: string) {
+    await this.openUserMessageMenu(messageText);
+    await this.userMessageMenu
       .getByTestId(USER_MESSAGE_MENU_SAVE_PROMPT)
       .click();
     await this.checkToastMessage(aiAgentToastMessages.promptSaved);
+  }
+
+  // Submenus near the chat panel's right edge flip to the left and cover
+  // their own trigger, so the trigger hover is forced past that overlap.
+  // "Save AI prompt to folder" is a hover-opened submenu: "New folder" plus
+  // every folder created so far. It renders in its own portal, so its items
+  // are queried from the page root.
+  private async openSaveToFolderSubmenu(messageText: string) {
+    await this.openUserMessageMenu(messageText);
+    await this.userMessageMenu
+      .getByTestId(USER_MESSAGE_MENU_SAVE_TO_FOLDER)
+      .hover({ force: true });
+    await expect(
+      this.page.getByTestId(USER_MESSAGE_MENU_NEW_FOLDER),
+    ).toBeVisible();
+  }
+
+  private saveToFolderMenuItem(folderName: string) {
+    return this.page
+      .getByTestId(USER_MESSAGE_MENU_FOLDER)
+      .filter({ hasText: folderName });
+  }
+
+  async saveMessageToNewFolder(messageText: string, folderName: string) {
+    await this.openSaveToFolderSubmenu(messageText);
+    await this.page.getByTestId(USER_MESSAGE_MENU_NEW_FOLDER).click();
+    const dialog = this.promptDialog(NEW_PROMPT_FOLDER_DIALOG_TITLE);
+    await expect(dialog).toBeVisible();
+    await dialog.locator("input").first().fill(folderName);
+    await dialog.getByRole("button", { name: "Save", exact: true }).click();
+    await expect(dialog).toBeHidden();
+    await this.checkToastMessage(
+      aiAgentToastMessages.promptSavedToFolder(folderName),
+    );
+  }
+
+  // The folder list sits in a scroll container inside the submenu; walk up
+  // from a folder item to the menu root looking for overflowing content.
+  async expectSaveToFolderListScrollable(
+    messageText: string,
+    scrollable: boolean,
+  ) {
+    await this.openSaveToFolderSubmenu(messageText);
+    const firstFolder = this.page.getByTestId(USER_MESSAGE_MENU_FOLDER).first();
+    await expect(firstFolder).toBeVisible();
+    await expect
+      .poll(() =>
+        firstFolder.evaluate((item) => {
+          let el: HTMLElement | null = item.parentElement;
+          while (el) {
+            const { overflowY } = getComputedStyle(el);
+            if (
+              (overflowY === "auto" || overflowY === "scroll") &&
+              el.scrollHeight > el.clientHeight
+            ) {
+              return true;
+            }
+            if (el.getAttribute("role") === "menu") return false;
+            el = el.parentElement;
+          }
+          return false;
+        }),
+      )
+      .toBe(scrollable);
+    await this.closeOpenMenus();
+  }
+
+  async expectFolderInSaveToFolderMenu(
+    messageText: string,
+    folderName: string,
+  ) {
+    await this.openSaveToFolderSubmenu(messageText);
+    await expect(this.saveToFolderMenuItem(folderName)).toBeVisible();
+    await this.closeOpenMenus();
   }
 
   // The catalog's edit/delete dialog testids are not rendered on these
@@ -953,6 +1276,128 @@ export class AiAgents extends BasePage {
       .getByRole("button", { name: "Delete prompt", exact: true })
       .click();
     await expect(dialog).toBeHidden();
+  }
+
+  // --- Chat message actions ---
+
+  private readClipboard() {
+    return this.page.evaluate(() => navigator.clipboard.readText());
+  }
+
+  // Same per-message lookup as userMessageMoreButton - every user message
+  // shares the copy button testid.
+  async copyUserMessage(messageText: string) {
+    await setupClipboardPermissions(this.page);
+    const message = this.userMessage(messageText);
+    await message.scrollIntoViewIfNeeded();
+    await message.hover();
+    await message
+      .locator(
+        `xpath=following::*[@data-testid="${USER_MESSAGE_COPY_BUTTON}"][1]`,
+      )
+      .click();
+  }
+
+  async expectUserMessageCopied(messageText: string) {
+    await expect(
+      this.page.getByTestId(USER_MESSAGE_COPIED_INDICATOR),
+    ).toBeVisible();
+    await expect.poll(() => this.readClipboard()).toBe(messageText);
+  }
+
+  private get lastAssistantMessage() {
+    return this.page.getByTestId(ASSISTANT_MESSAGE).last();
+  }
+
+  // The action row is rendered once the reply has finished streaming.
+  async waitForAssistantReply() {
+    await expect(
+      this.lastAssistantMessage.getByTestId(ASSISTANT_MESSAGE_ACTIONS),
+    ).toBeAttached({ timeout: 60000 });
+  }
+
+  async expectAssistantReplyActionsVisible() {
+    const reply = this.lastAssistantMessage;
+    await reply.hover();
+    await expect(
+      reply.getByTestId(ASSISTANT_MESSAGE_COPY_BUTTON),
+    ).toBeVisible();
+    await expect(
+      reply.getByTestId(ASSISTANT_MESSAGE_REGENERATE_BUTTON),
+    ).toBeVisible();
+    await expect(
+      reply.getByTestId(ASSISTANT_MESSAGE_DOWNLOAD_BUTTON),
+    ).toBeVisible();
+  }
+
+  async copyAssistantReply() {
+    await setupClipboardPermissions(this.page);
+    const reply = this.lastAssistantMessage;
+    await reply.hover();
+    await reply.getByTestId(ASSISTANT_MESSAGE_COPY_BUTTON).click();
+  }
+
+  // The clipboard holds the reply's raw markdown, not its rendered text, so
+  // only check that something was copied.
+  async expectAssistantReplyCopied() {
+    await expect(
+      this.lastAssistantMessage.getByTestId(ASSISTANT_MESSAGE_COPIED_INDICATOR),
+    ).toBeVisible();
+    await expect
+      .poll(async () => (await this.readClipboard()).trim().length)
+      .toBeGreaterThan(0);
+  }
+
+  async openSaveReplyAsDocx() {
+    const reply = this.lastAssistantMessage;
+    await reply.hover();
+    await reply.getByTestId(ASSISTANT_MESSAGE_DOWNLOAD_BUTTON).click();
+    await this.saveAsDocxSelector.checkSelectorExist();
+  }
+
+  // Unlike the other selector panels, this one has no Forms section.
+  async expectSaveAsDocxSections() {
+    const items = this.saveAsDocxSelector.selector.locator(SELECTOR_ITEMS);
+    const { files, rooms, aiAgents, forms } = aiSaveAsDocxSections;
+    await expect(items.nth(0)).toHaveText(files);
+    await expect(items.nth(1)).toHaveText(rooms);
+    await expect(items.nth(2)).toHaveText(aiAgents);
+    await expect(items.filter({ hasText: forms })).toHaveCount(0);
+  }
+
+  // The file name is generated from the chat, so it is read back from the
+  // "Message exported to file: <name>.docx" toast and returned.
+  async saveReplyAsDocxToFiles() {
+    await this.saveAsDocxSelector.select("documents");
+    await this.saveAsDocxSelector.submitSelection();
+    await expect(this.saveAsDocxSelector.selector).toBeHidden();
+    const toast = this.toast.toast
+      .filter({ hasText: aiAgentToastMessages.messageExported })
+      .first();
+    await expect(toast).toBeVisible();
+    await expect(toast).toContainText(".docx");
+    const text = await toast.innerText();
+    return text
+      .slice(
+        text.indexOf(aiAgentToastMessages.messageExported) +
+          aiAgentToastMessages.messageExported.length,
+      )
+      .trim();
+  }
+
+  // Regenerate re-streams the reply in place: wait until the content differs
+  // from the previous reply and the action row is back.
+  async regenerateAssistantReply() {
+    const reply = this.lastAssistantMessage;
+    const content = reply.getByTestId(ASSISTANT_MESSAGE_CONTENT);
+    const previousText = (await content.innerText()).trim();
+    await reply.hover();
+    await reply.getByTestId(ASSISTANT_MESSAGE_REGENERATE_BUTTON).click();
+    await expect
+      .poll(async () => (await content.innerText()).trim(), { timeout: 60000 })
+      .not.toBe(previousText);
+    await this.waitForAssistantReply();
+    await expect(content).not.toBeEmpty();
   }
 }
 

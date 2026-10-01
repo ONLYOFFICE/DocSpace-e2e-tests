@@ -36,17 +36,6 @@ test.describe("AI Chat panel: buttons on Files", () => {
     await aiAgents.expectChatOpened();
   });
 
-  test("All suggestion buttons are visible, and one fills the composer", async () => {
-    await test.step("Verify all suggestion buttons are visible", async () => {
-      await aiAgents.expectAllChatSuggestionsVisible();
-    });
-
-    await test.step("Click a suggestion and verify it fills the composer", async () => {
-      await aiAgents.clickChatSuggestion("Show file structure");
-      await aiAgents.expectComposerFilled();
-    });
-  });
-
   test("Model selector lists raw models and switches the active one", async () => {
     await test.step("Verify the model list includes raw models and Choose AI Agent", async () => {
       await aiAgents.expectModelInQuickChatMenu("GPT 5.6 Luna", true);
