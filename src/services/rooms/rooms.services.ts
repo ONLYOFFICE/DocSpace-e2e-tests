@@ -1,6 +1,39 @@
 import { test, expect, APIRequestContext } from "@playwright/test";
 import { TokenStore, Role } from "../token-store";
 
+export type TRoomUpdateData = {
+  title?: string;
+  quota?: number;
+  indexing?: boolean;
+  denyDownload?: boolean;
+  lifetime?: {
+    deletePermanently?: boolean;
+    period?: number;
+    value?: number;
+    enabled?: boolean;
+  };
+  watermark?: {
+    enabled?: boolean;
+    additions?: number;
+    text?: string;
+    rotate?: number;
+    imageScale?: number;
+    imageUrl?: string;
+    imageHeight?: number;
+    imageWidth?: number;
+  };
+  logo?: {
+    tmpFile?: string;
+    x?: number;
+    y?: number;
+    width?: number;
+    height?: number;
+  };
+  tags?: string[];
+  color?: string;
+  cover?: string;
+};
+
 export class RoomsApi {
   private request: APIRequestContext;
   private tokenStore: TokenStore;
@@ -146,42 +179,7 @@ export class RoomsApi {
     return result;
   }
 
-  async updateRoom(
-    role: Role,
-    roomId: number,
-    data: {
-      title?: string;
-      quota?: number;
-      indexing?: boolean;
-      denyDownload?: boolean;
-      lifetime?: {
-        deletePermanently?: boolean;
-        period?: number;
-        value?: number;
-        enabled?: boolean;
-      };
-      watermark?: {
-        enabled?: boolean;
-        additions?: number;
-        text?: string;
-        rotate?: number;
-        imageScale?: number;
-        imageUrl?: string;
-        imageHeight?: number;
-        imageWidth?: number;
-      };
-      logo?: {
-        tmpFile?: string;
-        x?: number;
-        y?: number;
-        width?: number;
-        height?: number;
-      };
-      tags?: string[];
-      color?: string;
-      cover?: string;
-    },
-  ) {
+  async updateRoom(role: Role, roomId: number, data: TRoomUpdateData) {
     return test.step(`${role} update room ${roomId}`, async () => {
       const response = await this.request.put(
         `${this.portalBaseUrl}/api/2.0/files/rooms/${roomId}`,
@@ -192,6 +190,35 @@ export class RoomsApi {
       );
       return response;
     });
+  }
+
+  async createRoomWithSettings(
+    role: Role,
+    data: { title: string; roomType: string },
+    settings: TRoomUpdateData,
+  ): Promise<number> {
+    return test.step(`${role} create room ${data.title} with settings`, async () => {
+      const createResponse = await this.createRoom(role, data);
+      expect(createResponse.ok()).toBeTruthy();
+      const roomId: number = (await createResponse.json()).response.id;
+
+      const updateResponse = await this.updateRoom(role, roomId, settings);
+      expect(updateResponse.ok()).toBeTruthy();
+      return roomId;
+    });
+  }
+
+  async inviteToRoom(
+    role: Role,
+    roomId: number,
+    userId: string,
+    access: string,
+  ) {
+    const response = await this.setRoomAccessRights(role, roomId, {
+      invitations: [{ id: userId, access }],
+      notify: false,
+    });
+    expect(response.ok()).toBeTruthy();
   }
 
   async updateRoomWithoutAuthorization(

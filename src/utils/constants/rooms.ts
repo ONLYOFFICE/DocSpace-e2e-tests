@@ -154,3 +154,19 @@ export const formFillingSystemFolders = {
   complete: "Complete",
   inProcess: "In process",
 } as const;
+
+// Server enum WatermarkAdditions (bit flags)
+export const vdrWatermarkAdditions = {
+  userName: 1,
+  userEmail: 2,
+  userIpAddress: 4,
+  currentDate: 8,
+  roomName: 16,
+} as const;
+
+// Server enum RoomDataLifetimePeriod
+export const vdrLifetimePeriod = {
+  day: 0,
+  month: 1,
+  year: 2,
+} as const;

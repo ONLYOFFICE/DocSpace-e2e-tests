@@ -390,6 +390,43 @@ class MyRooms extends BasePage {
     return filesSelectPanel;
   }
 
+  async openFileViaPreview(fileName: string): Promise<Page> {
+    await this.filesTable.openContextMenuForItem(fileName, true);
+    const [editorPage] = await Promise.all([
+      this.page.context().waitForEvent("page", { timeout: 30000 }),
+      this.filesTable.contextMenu.clickOption(
+        documentContextMenuOption.preview,
+      ),
+    ]);
+    await editorPage.bringToFront();
+    await editorPage.waitForLoadState("load");
+    return editorPage;
+  }
+
+  async downloadFile(fileName: string) {
+    return this.waitForDownload(async () => {
+      await this.filesTable.openContextMenuForItem(fileName, true);
+      await this.filesTable.contextMenu.hoverOption(
+        documentContextMenuOption.download,
+      );
+      const originalFormat = this.filesTable.contextMenu.submenu.getByText(
+        "Original format",
+        { exact: true },
+      );
+      const hasSubmenu = await originalFormat
+        .waitFor({ state: "visible", timeout: 3000 })
+        .then(() => true)
+        .catch(() => false);
+      if (hasSubmenu) {
+        await originalFormat.click();
+      } else {
+        await this.filesTable.contextMenu.clickOption(
+          documentContextMenuOption.download,
+        );
+      }
+    });
+  }
+
   async openFileInEditorInSameTab(fileName: string): Promise<DocumentEditor> {
     await this.filesTable.openContextMenuForItem(fileName, true);
     await this.filesTable.contextMenu.clickOption(

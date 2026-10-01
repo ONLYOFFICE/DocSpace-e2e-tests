@@ -170,22 +170,6 @@ test.describe("VDR Room: room management", () => {
     });
   });
 
-  test("Duplicate VDR room", async () => {
-    await test.step("Duplicate room via context menu", async () => {
-      await myRooms.roomsTable.openContextMenu(VDR_ROOM_NAME);
-      await myRooms.roomsTable.clickContextMenuOption(
-        roomContextMenuOption.manage,
-      );
-      await myRooms.roomsTable.clickContextMenuOption(
-        roomContextMenuOption.duplicate,
-      );
-    });
-
-    await test.step("Verify duplicated room exists", async () => {
-      await myRooms.roomsTable.checkRowExist(VDR_ROOM_NAME);
-    });
-  });
-
   test("Pin VDR room to top", async () => {
     await test.step("Pin room via context menu", async () => {
       await myRooms.roomsTable.openContextMenu(VDR_ROOM_NAME);

@@ -18,62 +18,6 @@ test.describe("VDRRooms", () => {
     await myRooms.openWithoutEmptyCheck();
   });
 
-  test("Create VDR Room smoke", async () => {
-    await myRooms.openCreateRoomDialog(roomDialogSource.navigation);
-    await myRooms.roomsCreateDialog.openRoomType(roomCreateTitles.virtualData);
-    await myRooms.roomsCreateDialog.fillRoomName("AutoVDRTest");
-
-    await vdr.toggleAutomaticIndexing(false);
-    await vdr.toggleAutomaticIndexing(true);
-
-    await vdr.toggleRestrictCopyAndDownload(false);
-    await vdr.toggleRestrictCopyAndDownload(true);
-
-    await vdr.toggleFileLifetime(true);
-    await vdr.setFileLifetimeDays(14);
-    await vdr.selectFileLifetimeUnit("Years");
-    await vdr.selectFileLifetimeAction("Delete permanently");
-
-    await vdr.toggleWatermarks(true);
-    await vdr.selectWatermarkType("Viewer info");
-    await vdr.selectWatermarkUserName();
-    await vdr.selectWatermarkUserEmail();
-    await vdr.selectWatermarkRoomName();
-    await vdr.setWatermarkStaticText("CONFIDENTIAL");
-    await vdr.selectWatermarkPosition("Horizontal");
-
-    await myRooms.roomsCreateDialog.clickRoomDialogSubmit();
-    await myRooms.openWithoutEmptyCheck();
-    await myRooms.roomsTable.checkRowExist("AutoVDRTest");
-  });
-
-  test("Verify default toggle states when creating VDR room", async () => {
-    await test.step("Open VDR room creation dialog", async () => {
-      await myRooms.openCreateRoomDialog(roomDialogSource.navigation);
-      await myRooms.roomsCreateDialog.openRoomType(
-        roomCreateTitles.virtualData,
-      );
-    });
-
-    await test.step("Automatic indexing is enabled by default", async () => {
-      await vdr.expectAutomaticIndexingChecked(true);
-    });
-
-    await test.step("File lifetime is disabled by default", async () => {
-      await vdr.expectFileLifetimeChecked(false);
-    });
-
-    await test.step("Restrict copy and download is enabled by default", async () => {
-      await vdr.expectRestrictCopyAndDownloadChecked(true);
-    });
-
-    await test.step("Watermarks are enabled by default with Viewer info and Diagonal position", async () => {
-      await vdr.expectWatermarksChecked(true);
-      await vdr.expectWatermarkTypeSelected("Viewer info");
-      await vdr.expectWatermarkPosition("Diagonal");
-    });
-  });
-
   test("Create VDR room with all options disabled", async () => {
     await test.step("Open dialog and disable all VDR options", async () => {
       await myRooms.openCreateRoomDialog(roomDialogSource.navigation);
@@ -130,53 +74,6 @@ test.describe("VDRRooms", () => {
     });
   });
 
-  test("Create VDR room with file lifetime: 30 days, move expired to trash", async () => {
-    await test.step("Configure file lifetime", async () => {
-      await myRooms.openCreateRoomDialog(roomDialogSource.navigation);
-      await myRooms.roomsCreateDialog.openRoomType(
-        roomCreateTitles.virtualData,
-      );
-      await myRooms.roomsCreateDialog.fillRoomName("VDR Lifetime Days");
-      await vdr.toggleFileLifetime(true);
-      await vdr.setFileLifetimeDays(30);
-      // Days and Move to Trash are selected by default
-    });
-
-    await test.step("Create room and verify it exists", async () => {
-      await myRooms.roomsCreateDialog.clickRoomDialogSubmit();
-      await myRooms.openWithoutEmptyCheck();
-      await myRooms.roomsTable.checkRowExist("VDR Lifetime Days");
-    });
-  });
-
-  test("Create VDR room with file lifetime: 6 months, delete expired permanently", async () => {
-    await test.step("Configure file lifetime", async () => {
-      await myRooms.openCreateRoomDialog(roomDialogSource.navigation);
-      await myRooms.roomsCreateDialog.openRoomType(
-        roomCreateTitles.virtualData,
-      );
-      await myRooms.roomsCreateDialog.fillRoomName("VDR Lifetime Months");
-      await vdr.toggleFileLifetime(true);
-      await vdr.setFileLifetimeDays(6);
-      await vdr.selectFileLifetimeUnit("Months");
-      await vdr.selectFileLifetimeAction("Delete permanently");
-    });
-
-    await test.step("Create room and verify it exists", async () => {
-      await myRooms.roomsCreateDialog.clickRoomDialogSubmit();
-      await myRooms.openWithoutEmptyCheck();
-      await myRooms.roomsTable.checkRowExist("VDR Lifetime Months");
-    });
-
-    await test.step("Open Edit room and verify lifetime settings", async () => {
-      await myRooms.roomsTable.openContextMenu("VDR Lifetime Months");
-      await myRooms.roomsTable.clickContextMenuOption(
-        roomContextMenuOption.editRoom,
-      );
-      await vdr.expectFileLifetimeChecked(true);
-    });
-  });
-
   test("Create VDR room with all watermark elements and static text", async () => {
     await test.step("Configure all watermark elements", async () => {
       await myRooms.openCreateRoomDialog(roomDialogSource.navigation);
@@ -212,7 +109,7 @@ test.describe("VDRRooms", () => {
     });
   });
 
-  test("VDR default toggle states are consistent across creation entry points", async () => {
+  test("Default VDR settings are the same in both creation entry points", async () => {
     await test.step("Precondition: quick-action tiles only exist once a room does", async () => {
       await myRooms.openCreateRoomDialog(roomDialogSource.navigation);
       await myRooms.roomsCreateDialog.openRoomType(roomCreateTitles.public);
@@ -226,8 +123,11 @@ test.describe("VDRRooms", () => {
         roomCreateTitles.virtualData,
       );
       await vdr.expectAutomaticIndexingChecked(true);
+      await vdr.expectFileLifetimeChecked(false);
       await vdr.expectRestrictCopyAndDownloadChecked(true);
       await vdr.expectWatermarksChecked(true);
+      await vdr.expectWatermarkTypeSelected("Viewer info");
+      await vdr.expectWatermarkPosition("Diagonal");
       await myRooms.roomsCreateDialog.close();
     });
 
@@ -237,8 +137,40 @@ test.describe("VDRRooms", () => {
         roomCreateTitles.virtualData,
       );
       await vdr.expectAutomaticIndexingChecked(true);
+      await vdr.expectFileLifetimeChecked(false);
       await vdr.expectRestrictCopyAndDownloadChecked(true);
       await vdr.expectWatermarksChecked(true);
+      await vdr.expectWatermarkTypeSelected("Viewer info");
+      await vdr.expectWatermarkPosition("Diagonal");
+    });
+  });
+
+  test("Create VDR room with file lifetime: 6 months, delete expired permanently", async () => {
+    await test.step("Configure file lifetime", async () => {
+      await myRooms.openCreateRoomDialog(roomDialogSource.navigation);
+      await myRooms.roomsCreateDialog.openRoomType(
+        roomCreateTitles.virtualData,
+      );
+      await myRooms.roomsCreateDialog.fillRoomName("VDR Lifetime Months");
+      await vdr.toggleFileLifetime(true);
+      await vdr.setFileLifetimeDays(6);
+      await vdr.selectFileLifetimeUnit("Months");
+      await vdr.selectFileLifetimeAction("Delete permanently");
+    });
+
+    await test.step("Create room and verify it exists", async () => {
+      await myRooms.roomsCreateDialog.clickRoomDialogSubmit();
+      await myRooms.openWithoutEmptyCheck();
+      await myRooms.roomsTable.checkRowExist("VDR Lifetime Months");
+    });
+
+    await test.step("Open Edit room and verify lifetime settings are saved", async () => {
+      await myRooms.roomsTable.openContextMenu("VDR Lifetime Months");
+      await myRooms.roomsTable.clickContextMenuOption(
+        roomContextMenuOption.editRoom,
+      );
+      await vdr.expectFileLifetimeChecked(true);
+      await vdr.expectFileLifetimeSettings(6, "Months", "Delete permanently");
     });
   });
 

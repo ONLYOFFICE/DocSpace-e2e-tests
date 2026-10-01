@@ -50,6 +50,14 @@ class VdrRoomSettings {
     await this.toggleBlock(VDR_FILE_LIFETIME, enable);
   }
 
+  // No state assertion: for a room with files the toggle waits for LifetimeDialog
+  async clickFileLifetimeToggle() {
+    await this.page
+      .getByTestId(VDR_FILE_LIFETIME)
+      .getByTestId(TOGGLE_LABEL)
+      .click();
+  }
+
   async toggleWatermarks(enable: boolean) {
     await this.toggleBlock(VDR_ADD_WATERMARKS, enable);
   }
@@ -136,6 +144,22 @@ class VdrRoomSettings {
 
   async expectFileLifetimeChecked(checked: boolean) {
     await this.expectBlockChecked(VDR_FILE_LIFETIME, checked);
+  }
+
+  async expectFileLifetimeSettings(
+    value: number,
+    unit: "Days" | "Months" | "Years",
+    action: "Move to Trash" | "Delete permanently",
+  ) {
+    await expect(this.page.getByTestId(VDR_FILE_LIFETIME_INPUT)).toHaveValue(
+      value.toString(),
+    );
+    await expect(this.page.getByTestId(VDR_FILE_LIFETIME_PERIOD)).toContainText(
+      unit,
+    );
+    await expect(this.page.getByTestId(VDR_FILE_LIFETIME_DELETE)).toContainText(
+      action,
+    );
   }
 
   async expectRestrictCopyAndDownloadChecked(checked: boolean) {

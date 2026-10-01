@@ -13,6 +13,8 @@ const FILLING_ICON = '[data-iconname*="form.fill.rect.svg"]';
 const LOCK_ICON = '[data-src*="lock.react.svg"]';
 const CUSTOM_FILTER_ICON = ".is-custom-filter";
 const LOCK_TOOLTIP = "#info-tooltip";
+const LIFETIME_ICON = ".badge.file-lifetime";
+const INFO_TOOLTIP_ANCHOR = '[data-tooltip-id="info-tooltip"]';
 const DRAFT_BADGE = '[data-testid="badge-text"]';
 const YOUR_TURN_BADGE = "Your turn ";
 const IN_PROGRESS_BADGE = "In progress ";
@@ -311,6 +313,26 @@ class FilesTable extends BaseTable {
       .filter({ has: this.page.getByText(fileName, { exact: true }) });
     await fileRow.locator(LOCK_ICON).click();
     await expect(this.page.locator(LOCK_TOOLTIP)).toContainText(text);
+  }
+
+  async expectLifetimeIconVisible(fileName: string) {
+    const fileRow = this.page
+      .locator(TABLE_LIST_ITEM)
+      .filter({ has: this.page.getByText(fileName, { exact: true }) });
+    await expect(fileRow.locator(LIFETIME_ICON)).toBeVisible();
+  }
+
+  async expectLifetimeTooltipContains(fileName: string, text: string) {
+    const fileRow = this.page
+      .locator(TABLE_LIST_ITEM)
+      .filter({ has: this.page.getByText(fileName, { exact: true }) });
+    const tooltipAnchor = fileRow.locator(INFO_TOOLTIP_ANCHOR, {
+      has: this.page.locator(LIFETIME_ICON),
+    });
+    await expect(tooltipAnchor).toHaveAttribute(
+      "data-tooltip-content",
+      new RegExp(`^${text}`),
+    );
   }
 
   async expectFillingIconNotVisible(fileName: string) {
