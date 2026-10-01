@@ -7,7 +7,7 @@ import {
   roomContextMenuOption,
 } from "@/src/utils/constants/rooms";
 
-test.describe("VDRRooms", () => {
+test.describe("VDR room: settings", () => {
   let myRooms: MyRooms;
   let vdr: VdrRoomSettings;
 
@@ -18,6 +18,19 @@ test.describe("VDRRooms", () => {
     await myRooms.openWithoutEmptyCheck();
   });
 
+  test("Create VDR Room and navigate into it", async () => {
+    await myRooms.roomsEmptyView.checkNoRoomsExist();
+
+    await myRooms.openCreateRoomDialog(roomDialogSource.navigation);
+    await myRooms.roomsCreateDialog.openRoomType(roomCreateTitles.virtualData);
+    await myRooms.roomsCreateDialog.fillRoomName("AutoIndexRoom");
+    await myRooms.roomsCreateDialog.clickRoomDialogSubmit();
+
+    await myRooms.backToRooms();
+    await myRooms.roomsTable.checkRowExist("AutoIndexRoom");
+
+    await myRooms.roomsTable.openRoomByName("AutoIndexRoom");
+  });
   test("Create VDR room with all options disabled", async () => {
     await test.step("Open dialog and disable all VDR options", async () => {
       await myRooms.openCreateRoomDialog(roomDialogSource.navigation);
@@ -189,6 +202,68 @@ test.describe("VDRRooms", () => {
       await myRooms.roomsCreateDialog.clickRoomDialogSubmit();
       await myRooms.openWithoutEmptyCheck();
       await myRooms.roomsTable.checkRowExist("VDR Tagged Room");
+    });
+  });
+});
+
+test.describe("VDR room: management", () => {
+  let myRooms: MyRooms;
+  const VDR_ROOM_NAME = "VDR Management";
+
+  test.beforeEach(async ({ page, api, login }) => {
+    myRooms = new MyRooms(page, api.portalDomain);
+    await login.loginToPortal();
+    await myRooms.openWithoutEmptyCheck();
+
+    await myRooms.openCreateRoomDialog(roomDialogSource.navigation);
+    await myRooms.roomsCreateDialog.openRoomType(roomCreateTitles.virtualData);
+    await myRooms.roomsCreateDialog.createRoom(VDR_ROOM_NAME);
+    await myRooms.openWithoutEmptyCheck();
+  });
+
+  test("Edit VDR room name via context menu", async () => {
+    await test.step("Open edit room dialog", async () => {
+      await myRooms.roomsTable.openContextMenu(VDR_ROOM_NAME);
+      await myRooms.roomsTable.clickContextMenuOption(
+        roomContextMenuOption.editRoom,
+      );
+    });
+
+    await test.step("Rename the room", async () => {
+      await myRooms.roomsEditDialog.checkDialogTitleExist();
+      await myRooms.roomsEditDialog.fillRoomName("VDR Renamed Room");
+      await myRooms.roomsEditDialog.clickSaveButton();
+    });
+
+    await test.step("Verify room is renamed", async () => {
+      await myRooms.roomsTable.checkRowExist("VDR Renamed Room");
+    });
+  });
+
+  test("Archive VDR room", async () => {
+    await test.step("Archive room via context menu", async () => {
+      await myRooms.roomsTable.openContextMenu(VDR_ROOM_NAME);
+      await myRooms.roomsTable.clickContextMenuOption(
+        roomContextMenuOption.moveToArchive,
+      );
+      await myRooms.moveToArchive();
+    });
+
+    await test.step("Verify room is no longer in active rooms", async () => {
+      await myRooms.roomsTable.checkRowNotExist(VDR_ROOM_NAME);
+    });
+  });
+
+  test("Pin VDR room to top", async () => {
+    await test.step("Pin room via context menu", async () => {
+      await myRooms.roomsTable.openContextMenu(VDR_ROOM_NAME);
+      await myRooms.roomsTable.clickContextMenuOption(
+        roomContextMenuOption.pinToTop,
+      );
+    });
+
+    await test.step("Verify room is pinned", async () => {
+      await myRooms.roomsTable.checkRoomPinnedToTopExist();
     });
   });
 });

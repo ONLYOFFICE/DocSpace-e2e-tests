@@ -122,7 +122,7 @@ class FilesEditor {
     const read = () =>
       this.page.evaluate(
         () =>
-          (window as unknown as Record<string, unknown>)[
+          (globalThis as unknown as Record<string, unknown>)[
             "__e2eDocEditorConfig"
           ] ?? null,
       );
@@ -154,10 +154,10 @@ export type TDocEditorConfig = {
 
 // openedit is requested during SSR, so the config is captured from DocsAPI.DocEditor
 function captureDocEditorConfig() {
-  const store = window as unknown as Record<string, unknown>;
+  const store = globalThis as unknown as Record<string, unknown>;
   let docsApi: Record<string, unknown> | undefined;
 
-  Object.defineProperty(window, "DocsAPI", {
+  Object.defineProperty(globalThis, "DocsAPI", {
     configurable: true,
     get: () => docsApi,
     set: (value: Record<string, unknown> | undefined) => {
