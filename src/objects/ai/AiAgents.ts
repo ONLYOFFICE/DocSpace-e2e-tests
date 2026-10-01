@@ -1210,8 +1210,9 @@ export class AiAgents extends BasePage {
       .poll(() =>
         firstFolder.evaluate((item) => {
           let el: HTMLElement | null = item.parentElement;
-          while (el) {
-            const { overflowY } = getComputedStyle(el);
+          const view = item.ownerDocument.defaultView;
+          while (el && view) {
+            const { overflowY } = view.getComputedStyle(el);
             if (
               (overflowY === "auto" || overflowY === "scroll") &&
               el.scrollHeight > el.clientHeight
