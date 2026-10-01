@@ -15,6 +15,17 @@ import {
 } from "@/src/utils/constants/ai";
 import { expect, Page } from "@playwright/test";
 
+const PROMPTS_BUTTON = "prompts-button";
+const PROMPTS_MENU = "prompts-menu";
+const PROMPTS_MENU_PROMPT = "prompts-menu-prompt";
+const PROMPTS_MENU_PROMPT_SUBMENU_BUTTON = "prompts-menu-prompt-submenu-button";
+const PROMPT_MENU_EDIT = "prompt-menu-edit";
+const PROMPT_MENU_DELETE = "prompt-menu-delete";
+const EDIT_PROMPT_DIALOG_TITLE = "Edit AI Prompt";
+const USER_MESSAGE_MORE_BUTTON = "user-message-more-button";
+const USER_MESSAGE_MENU = "user-message-menu";
+const USER_MESSAGE_MENU_SAVE_PROMPT = "user-message-menu-save-prompt";
+
 export class AiAgents extends BasePage {
   private portalDomain: string;
   contextMenu: BaseContextMenu;
@@ -837,35 +848,24 @@ export class AiAgents extends BasePage {
   }
 
   // --- Saved AI Prompts library ---
-  // Reachable via the ">_" icon next to the attachment button in the chat
-  // composer. It lists a fixed "built-in-prompts" folder alongside any
-  // prompts the user has saved from their own messages.
+  // Opened from the composer's ">_" button. Menus and dialogs render in a
+  // portal outside the chat root, so they are queried from the page root.
 
-  // Icon-only button with no testid or aria-label - it's the second of the
-  // three buttons in the composer's own action row (attachment, this, send).
-  private get promptsLibraryButton() {
-    return this.page.locator('[class*="chat-input-actions"] button').nth(1);
-  }
-
-  // Anchored on the always-present "built-in-prompts" folder entry so this
-  // resolves to the Prompts menu specifically, not some other open dropdown.
   private get promptsMenu() {
-    return this.page.locator('[data-radix-menu-content][role="menu"]').filter({
-      has: this.page.getByText("built-in-prompts", { exact: true }),
-    });
+    return this.page.getByTestId(PROMPTS_MENU);
   }
 
   private promptMenuItem(name: string) {
     return this.promptsMenu
-      .locator('[role="menuitem"]')
+      .getByTestId(PROMPTS_MENU_PROMPT)
       .filter({ has: this.page.getByText(name, { exact: true }) });
   }
 
   async openPromptsLibrary() {
-    // Closes any menu already left open from a previous call, mirroring
-    // openAttachMenu's guard against a stale overlay intercepting the click.
+    // Closes a menu left open by a previous step - an open Radix menu's
+    // overlay intercepts every click on the page.
     await this.page.keyboard.press("Escape");
-    await this.promptsLibraryButton.click();
+    await this.page.getByTestId(PROMPTS_BUTTON).click();
     await expect(this.promptsMenu).toBeVisible();
   }
 
@@ -881,59 +881,46 @@ export class AiAgents extends BasePage {
     await this.page.keyboard.press("Escape");
   }
 
-  // A saved prompt's row only reveals its own "..." trigger on hover (CSS
-  // group-hover opacity), and unlike the built-in-prompts folder's chevron
-  // (hover-opened), this one needs an explicit click to open.
-  private get promptActionsSubmenu() {
-    return this.page.locator(
-      '[data-radix-menu-content][role="menu"][data-side="right"]',
-    );
-  }
-
+  // The row's submenu trigger is revealed only on hover (group-hover opacity).
   private async openPromptActions(name: string) {
     const item = this.promptMenuItem(name);
     await item.hover({ force: true });
-    await item.locator('button[aria-haspopup="menu"]').click({ force: true });
-    await expect(this.promptActionsSubmenu).toBeVisible();
+    await item
+      .getByTestId(PROMPTS_MENU_PROMPT_SUBMENU_BUTTON)
+      .click({ force: true });
   }
 
-  // The user message bubble's own "..." action button has no testid either;
-  // it's the second of the two small icon buttons (copy, then this one)
-  // that immediately follow the message bubble in the DOM.
+  // Every user message shares the same more-button testid, so take the
+  // first one following this message's text.
   private userMessageMoreButton(messageText: string) {
     return this.page
       .getByText(messageText, { exact: true })
-      .locator("xpath=(following::button)[2]");
-  }
-
-  private get scrollToBottomButton() {
-    return this.page.getByRole("button", { name: "Scroll to bottom" });
-  }
-
-  // A long AI reply pushes the chat view down, leaving this floating arrow
-  // in place of auto-scroll; the just-sent user message (and its own "..."
-  // action button) then sits outside the scrolled viewport until it's
-  // clicked.
-  private async scrollChatToBottom() {
-    const button = this.scrollToBottomButton;
-    if (await button.isVisible().catch(() => false)) {
-      await button.click();
-    }
+      .locator(
+        `xpath=following::*[@data-testid="${USER_MESSAGE_MORE_BUTTON}"][1]`,
+      );
   }
 
   async saveMessageAsPrompt(messageText: string) {
-    await this.scrollChatToBottom();
+    // The chat auto-scrolls to the end of the AI reply, so a long reply
+    // leaves the user message above the viewport; its actions show on hover.
+    const message = this.page.getByText(messageText, { exact: true });
+    await message.scrollIntoViewIfNeeded();
+    await message.hover();
     await this.userMessageMoreButton(messageText).click();
-    await this.page.getByText("Save AI Prompt", { exact: true }).click();
+    await this.page
+      .getByTestId(USER_MESSAGE_MENU)
+      .getByTestId(USER_MESSAGE_MENU_SAVE_PROMPT)
+      .click();
     await this.checkToastMessage(aiAgentToastMessages.promptSaved);
   }
 
-  // #modal-dialog isn't unique on the page (a hidden "Synchronization with
-  // database" panel shares the id), so scope by its own header text.
-  private get editPromptDialog() {
-    return this.page
-      .getByTestId("modal-dialog")
-      .filter({ has: this.page.getByText("Edit AI Prompt", { exact: true }) });
+  // The catalog's edit/delete dialog testids are not rendered on these
+  // DocSpace modals, so scope by role + header text. Several hidden dialogs
+  // ("Synchronization with database", "Top up credits") also exist on the page.
+  private promptDialog(title: string) {
+    return this.page.getByRole("dialog").filter({
+      has: this.page.getByText(title, { exact: true }),
+    });
   }
 
   async editPrompt(
@@ -942,35 +929,30 @@ export class AiAgents extends BasePage {
   ) {
     await this.openPromptsLibrary();
     await this.openPromptActions(currentName);
-    await this.promptActionsSubmenu
-      .getByText("Edit AI Prompt", { exact: true })
-      .click();
-    await expect(this.editPromptDialog).toBeVisible();
+    await this.page.getByTestId(PROMPT_MENU_EDIT).click();
+    const dialog = this.promptDialog(EDIT_PROMPT_DIALOG_TITLE);
+    await expect(dialog).toBeVisible();
     if (opts.name) {
-      await this.editPromptDialog.locator("input").first().fill(opts.name);
+      await dialog.locator("input").first().fill(opts.name);
     }
     if (opts.text) {
-      await this.editPromptDialog.locator("textarea").first().fill(opts.text);
+      await dialog.locator("textarea").first().fill(opts.text);
     }
-    await this.editPromptDialog
-      .getByRole("button", { name: "Save", exact: true })
-      .click();
+    await dialog.getByRole("button", { name: "Save", exact: true }).click();
+    await expect(dialog).toBeHidden();
   }
 
   async deletePrompt(name: string) {
     await this.openPromptsLibrary();
     await this.openPromptActions(name);
-    await this.promptActionsSubmenu
-      .getByText("Delete", { exact: true })
-      .click();
-    const dialog = this.page.getByTestId("modal-dialog").filter({
-      has: this.page.getByText(aiDeletePromptDialog.title, { exact: true }),
-    });
+    await this.page.getByTestId(PROMPT_MENU_DELETE).click();
+    const dialog = this.promptDialog(aiDeletePromptDialog.title);
     await expect(dialog).toBeVisible();
     await expect(dialog.getByText(aiDeletePromptDialog.message)).toBeVisible();
     await dialog
       .getByRole("button", { name: "Delete prompt", exact: true })
       .click();
+    await expect(dialog).toBeHidden();
   }
 }
 
