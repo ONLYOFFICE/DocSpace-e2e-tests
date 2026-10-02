@@ -24,6 +24,15 @@ export const aiDeletePromptFolderDialog = {
   message: "Are you sure you want to delete this folder and all its prompts?",
 } as const;
 
+// Placeholder title a chat has until the AI generates one after the first reply.
+export const aiDefaultChatTitle = "New chat";
+
+// Confirmation shown on "Delete" in the AI Chat history list.
+export const aiDeleteChatDialog = {
+  title: "Warning",
+  message: "Are you sure you want to delete this chat?",
+} as const;
+
 // Suggestion chips shown above the AI Chat composer on a fresh chat. Every
 // section and sub-section has its own set (keys match navigation.ts
 // sub-items; "root" is the app's main page). AI agents has none.
@@ -170,6 +179,15 @@ export const aiSaveAsDocxSections = {
   aiAgents: "AI agents",
   forms: "Forms",
 } as const;
+
+// "Export to..." submenu of a chat in the AI Chat history list.
+export const aiChatExportFormats = [
+  { label: ".pdf document", extension: ".pdf" },
+  { label: ".docx document", extension: ".docx" },
+  { label: ".md file", extension: ".md" },
+] as const;
+
+export type TAiChatExportFormat = (typeof aiChatExportFormats)[number];
 
 // Shown instead of the chat composer when a Viewer-access member opens an
 // agent that has no chat activity from other members yet.

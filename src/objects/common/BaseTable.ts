@@ -144,6 +144,13 @@ class BaseTable {
     await expect(row).toBeVisible();
   }
 
+  // The list hides extensions, so files that differ only by extension share
+  // a title - check how many rows carry it.
+  async checkRowsCountByTitle(title: string, count: number) {
+    const rows = await this.getRowByTitle(title);
+    await expect(rows).toHaveCount(count);
+  }
+
   async checkRowNotExist(title: string) {
     const row = await this.getRowByTitle(title);
     await expect(row).not.toBeVisible();

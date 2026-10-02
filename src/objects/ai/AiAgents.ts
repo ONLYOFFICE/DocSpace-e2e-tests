@@ -14,8 +14,12 @@ import {
   aiAgentToastMessages,
   aiDeletePromptDialog,
   aiDeletePromptFolderDialog,
+  aiDeleteChatDialog,
+  aiDefaultChatTitle,
   aiSaveAsDocxSections,
   aiChatNotActiveScreen,
+  aiChatExportFormats,
+  TAiChatExportFormat,
 } from "@/src/utils/constants/ai";
 import { setupClipboardPermissions } from "@/src/utils/helpers/linkTest";
 import { expect, Page } from "@playwright/test";
@@ -59,6 +63,24 @@ const ASSISTANT_MESSAGE_REGENERATE_BUTTON =
   "assistant-message-regenerate-button";
 const ASSISTANT_MESSAGE_DOWNLOAD_BUTTON = "assistant-message-download-button";
 const SELECTOR_ITEMS = '[data-testid^="selector-item-"]';
+const NEW_CHAT_BUTTON = "new-chat-button";
+const NEW_CHAT_BUTTON_LABEL = '[aria-label="New chat"]';
+const CHAT_LIST = "chat-list";
+const CHAT_LIST_COLUMN = '[class*="historyColumn"]';
+const CHAT_LIST_EMPTY = "chat-list-empty";
+const CHAT_LIST_SEARCH_INPUT = "chat-list-search-input";
+const CHAT_ITEM = "chat-item";
+const CHAT_ITEM_FALLBACK = "div.cursor-pointer";
+const CHAT_ITEM_TITLE = "chat-item-title";
+const CHAT_ITEM_RENAME_INPUT = "chat-item-rename-input";
+const CHAT_ITEM_MENU_BUTTON = "chat-item-menu-button";
+const CHAT_ITEM_MENU = "chat-item-menu";
+const CHAT_ITEM_MENU_OPEN = "chat-item-menu-open";
+const CHAT_ITEM_MENU_EXPORT = "chat-item-menu-export";
+const CHAT_ITEM_MENU_EXPORT_FORMATS =
+  '[role="menuitem"][data-testid^="chat-item-menu-export-"]';
+const CHAT_ITEM_MENU_RENAME = "chat-item-menu-rename";
+const CHAT_ITEM_MENU_DELETE = "chat-item-menu-delete";
 
 export class AiAgents extends BasePage {
   private portalDomain: string;
@@ -1377,18 +1399,7 @@ export class AiAgents extends BasePage {
     await this.saveAsDocxSelector.select("documents");
     await this.saveAsDocxSelector.submitSelection();
     await expect(this.saveAsDocxSelector.selector).toBeHidden();
-    const toast = this.toast.toast
-      .filter({ hasText: aiAgentToastMessages.messageExported })
-      .first();
-    await expect(toast).toBeVisible();
-    await expect(toast).toContainText(".docx");
-    const text = await toast.innerText();
-    return text
-      .slice(
-        text.indexOf(aiAgentToastMessages.messageExported) +
-          aiAgentToastMessages.messageExported.length,
-      )
-      .trim();
+    return this.readExportedFileName(".docx");
   }
 
   // Regenerate re-streams the reply in place: wait until the content differs
@@ -1404,6 +1415,214 @@ export class AiAgents extends BasePage {
       .not.toBe(previousText);
     await this.waitForAssistantReply();
     await expect(content).not.toBeEmpty();
+  }
+
+  // --- Chat history list ---
+  // The "Chat history" panel lists past chats grouped by date. Every row
+  // shares the chat-item testid, so a row is picked by its title; without a
+  // title the first (newest) row is used. Row menus render in a portal.
+
+  // The panel header buttons (history, new chat) belong to DocSpace, not the
+  // chat widget, so they have no catalog testids - fall back to aria-label /
+  // the history column class wherever a testid may be missing.
+  private get chatList() {
+    return this.page
+      .getByTestId(CHAT_LIST)
+      .or(this.page.locator(CHAT_LIST_COLUMN))
+      .first();
+  }
+
+  private chatHistoryItem(title?: string) {
+    const items = this.chatList
+      .getByTestId(CHAT_ITEM)
+      .or(this.chatList.locator(CHAT_ITEM_FALLBACK));
+    if (!title) return items.first();
+    return items.filter({
+      has: this.page.getByText(title, { exact: true }),
+    });
+  }
+
+  private get chatItemMenu() {
+    return this.page.getByTestId(CHAT_ITEM_MENU);
+  }
+
+  async startNewChat() {
+    await this.page
+      .getByTestId(NEW_CHAT_BUTTON)
+      .or(this.page.locator(NEW_CHAT_BUTTON_LABEL))
+      .first()
+      .click();
+    await this.expectChatOpened();
+  }
+
+  // The header button toggles the panel, so only click it while it is closed.
+  async openChatList() {
+    if (!(await this.chatList.isVisible())) {
+      await this.chatHistoryToggle.click();
+    }
+    await expect(this.chatList).toBeVisible();
+  }
+
+  // A new chat is listed as "New chat" and gets its AI-generated title a few
+  // seconds after the first reply - wait for it, or a lookup by the stale
+  // placeholder title fails once the row is renamed.
+  async getChatHistoryItemTitle(title?: string) {
+    const item = this.chatHistoryItem(title);
+    await expect(item).toBeVisible();
+    const titleLocator = item.getByTestId(CHAT_ITEM_TITLE);
+    const source = (await titleLocator.count()) > 0 ? titleLocator : item;
+    const readTitle = async () => (await source.innerText()).trim();
+    await expect
+      .poll(readTitle, { timeout: 60000 })
+      .not.toBe(aiDefaultChatTitle);
+    return readTitle();
+  }
+
+  async expectChatInHistory(title: string) {
+    await expect(this.chatHistoryItem(title)).toBeVisible();
+  }
+
+  async expectChatNotInHistory(title: string) {
+    await expect(this.chatHistoryItem(title)).toHaveCount(0);
+  }
+
+  async expectChatHistoryEmpty() {
+    await expect(this.page.getByTestId(CHAT_LIST_EMPTY)).toBeVisible();
+  }
+
+  private get chatListSearchInput() {
+    return this.chatList
+      .getByTestId(CHAT_LIST_SEARCH_INPUT)
+      .or(this.chatList.getByRole("searchbox"))
+      .first();
+  }
+
+  // An empty query resets the list to all chats.
+  async searchChatHistory(query: string) {
+    await this.chatListSearchInput.fill(query);
+  }
+
+  // The "nothing found" message has no verified text, so check no row is left.
+  async expectChatHistorySearchEmpty() {
+    await expect(
+      this.chatList
+        .getByTestId(CHAT_ITEM)
+        .or(this.chatList.locator(CHAT_ITEM_FALLBACK)),
+    ).toHaveCount(0);
+  }
+
+  async expectChatActive(title: string) {
+    await expect(this.chatHistoryItem(title)).toHaveAttribute(
+      "data-active",
+      "true",
+    );
+  }
+
+  // The "..." button may be revealed only on row hover.
+  async openChatHistoryItemMenu(title?: string) {
+    await this.closeOpenMenus();
+    const item = this.chatHistoryItem(title);
+    await item.hover();
+    await item.getByTestId(CHAT_ITEM_MENU_BUTTON).click();
+    await expect(this.chatItemMenu).toBeVisible();
+  }
+
+  async expectChatHistoryItemMenuOptions() {
+    for (const testId of [
+      CHAT_ITEM_MENU_OPEN,
+      CHAT_ITEM_MENU_EXPORT,
+      CHAT_ITEM_MENU_RENAME,
+      CHAT_ITEM_MENU_DELETE,
+    ]) {
+      await expect(this.chatItemMenu.getByTestId(testId)).toBeVisible();
+    }
+  }
+
+  // "Export to..." is a hover-opened submenu with one item per format; it can
+  // flip over its own trigger near the panel edge, so the hover is forced.
+  // Exactly this set - checks every format and that no other one is shown.
+  async expectChatExportFormats() {
+    await this.chatItemMenu
+      .getByTestId(CHAT_ITEM_MENU_EXPORT)
+      .hover({ force: true });
+    const formats = this.page.locator(CHAT_ITEM_MENU_EXPORT_FORMATS);
+    for (const { label } of aiChatExportFormats) {
+      await expect(formats.filter({ hasText: label })).toBeVisible();
+    }
+    await expect(formats).toHaveCount(aiChatExportFormats.length);
+    await this.closeOpenMenus();
+  }
+
+  // Reads "<name><extension>" back from the "Message exported to file: ..."
+  // toast - shared by the reply's Save as docx and the chat history export.
+  private async readExportedFileName(extension: string) {
+    const { messageExported } = aiAgentToastMessages;
+    const toast = this.toast.toast
+      .filter({ hasText: messageExported })
+      .filter({ hasText: extension })
+      .first();
+    await expect(toast).toBeVisible({ timeout: 60000 });
+    const text = await toast.innerText();
+    const fileName = text
+      .slice(text.indexOf(messageExported) + messageExported.length)
+      .trim();
+    await this.dismissToastSafely(fileName);
+    return fileName;
+  }
+
+  // Exports the whole chat to My Documents and returns the file name from the
+  // toast. If a folder selector opens (as for Save as docx), My Documents is
+  // picked there; otherwise the file is saved without one.
+  async exportChatFromHistory(format: TAiChatExportFormat, title?: string) {
+    await this.openChatHistoryItemMenu(title);
+    await this.chatItemMenu
+      .getByTestId(CHAT_ITEM_MENU_EXPORT)
+      .hover({ force: true });
+    await this.page
+      .locator(CHAT_ITEM_MENU_EXPORT_FORMATS)
+      .filter({ hasText: format.label })
+      .click();
+    const selectorOpened = await this.saveAsDocxSelector.selector
+      .waitFor({ state: "visible", timeout: 5000 })
+      .then(() => true)
+      .catch(() => false);
+    if (selectorOpened) {
+      await this.saveAsDocxSelector.select("documents");
+      await this.saveAsDocxSelector.submitSelection();
+      await expect(this.saveAsDocxSelector.selector).toBeHidden();
+    }
+    return this.readExportedFileName(format.extension);
+  }
+
+  async openChatFromHistory(title?: string) {
+    await this.openChatHistoryItemMenu(title);
+    await this.chatItemMenu.getByTestId(CHAT_ITEM_MENU_OPEN).click();
+  }
+
+  async renameChatInHistory(newTitle: string, title?: string) {
+    await this.openChatHistoryItemMenu(title);
+    await this.chatItemMenu.getByTestId(CHAT_ITEM_MENU_RENAME).click();
+    const input = this.chatList.getByTestId(CHAT_ITEM_RENAME_INPUT);
+    await expect(input).toBeVisible();
+    await input.fill(newTitle);
+    await input.press("Enter");
+    await expect(input).toBeHidden();
+  }
+
+  // The "Warning" confirmation is a plain DocSpace modal without its catalog
+  // testid (like delete-prompt-dialog), so scope it by its message.
+  async deleteChatFromHistory(title?: string) {
+    await this.openChatHistoryItemMenu(title);
+    await this.chatItemMenu.getByTestId(CHAT_ITEM_MENU_DELETE).click();
+    const dialog = this.page.getByRole("dialog").filter({
+      has: this.page.getByText(aiDeleteChatDialog.message),
+    });
+    await expect(dialog).toBeVisible();
+    await expect(
+      dialog.getByText(aiDeleteChatDialog.title, { exact: true }),
+    ).toBeVisible();
+    await dialog.getByRole("button", { name: "Yes", exact: true }).click();
+    await expect(dialog).toBeHidden();
   }
 }
 
