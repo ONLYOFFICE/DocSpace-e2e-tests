@@ -243,7 +243,12 @@ test.describe("Rooms: History export toolbar - access by user type", () => {
 
   async function openHistoryTabAs(email: string, password: string) {
     await login.loginWithCredentials(email, password);
-    await myRooms.openWithoutEmptyCheck();
+    // The first rooms list right after login can come back empty (seen in
+    // Firefox) - reopen the page until the API-created room shows up.
+    await expect(async () => {
+      await myRooms.openWithoutEmptyCheck();
+      await myRooms.roomsTable.checkRowExist(ROOM_NAME);
+    }).toPass({ timeout: 60000 });
     await myRooms.roomsTable.openRoomByName(ROOM_NAME);
     await roomInfoPanel.open();
     await roomInfoPanel.openTab("History");
