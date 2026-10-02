@@ -48,17 +48,19 @@ test.describe("AI Chat panel: buttons on Files", () => {
     });
   });
 
-  test("Attach menu exposes device upload, Web search and Effort levels", async () => {
+  test("Attach menu exposes Web search toggle", async () => {
     await test.step("Web search toggle is present but disabled (add-on not purchased)", async () => {
       await aiAgents.openAttachMenu();
       await aiAgents.expectWebSearchToggleDisabled();
     });
+  });
 
-    await test.step("Effort submenu lists all levels and can be changed", async () => {
-      await aiAgents.openAttachMenu();
+  test("Model selector exposes Effort levels", async () => {
+    await test.step("Effort submenu in the model menu can be changed", async () => {
+      await aiAgents.openQuickChatModelMenu();
       await aiAgents.expectEffortLevel("No thinking");
       await aiAgents.selectEffortLevel("High");
-      await aiAgents.openAttachMenu();
+      await aiAgents.openQuickChatModelMenu();
       await aiAgents.expectEffortLevel("High");
     });
   });
