@@ -549,6 +549,9 @@ export class AiAgents extends BasePage {
   }
 
   async openQuickChatModelMenu() {
+    // Closes any menu already left open - a second click on the trigger would
+    // toggle an open dropdown closed instead of reopening it.
+    await this.page.keyboard.press("Escape");
     await this.quickChatModelSelectorButton.click();
     await expect(this.quickChatModelMenu).toBeVisible();
   }
@@ -575,8 +578,8 @@ export class AiAgents extends BasePage {
     await this.page.keyboard.press("Escape");
   }
 
-  // The "+" attach menu: file-attach entries, a Web search toggle (disabled
-  // unless the Web search add-on is purchased) and an "Effort" submenu.
+  // The "+" attach menu: file-attach entries and a Web search toggle (disabled
+  // unless the Web search add-on is purchased).
   private get attachMenu() {
     return this.page.locator('[data-radix-menu-content][role="menu"]').last();
   }
@@ -618,19 +621,21 @@ export class AiAgents extends BasePage {
     return this.page.getByTestId(`${EFFORT_MENU_OPTION_PREFIX}${id}`);
   }
 
-  // The "Effort" row holds both its label and the currently selected level.
+  // The "Effort" row lives in the model-selector dropdown and holds both its
+  // label and the currently selected level.
   private get effortMenuItem() {
-    return this.attachMenu.getByTestId(EFFORT_MENU_ITEM);
+    return this.quickChatModelMenu.getByTestId(EFFORT_MENU_ITEM);
   }
 
   // Hover-opened submenu; it can open over its own row, so the hover is forced.
-  private async openEffortSubmenu() {
+  // Available levels depend on the selected model, so wait for the target one.
+  private async openEffortSubmenu(level: string) {
     await this.effortMenuItem.hover({ force: true });
-    await expect(this.effortOption("Maximum")).toBeVisible();
+    await expect(this.effortOption(level)).toBeVisible();
   }
 
   async selectEffortLevel(level: string) {
-    await this.openEffortSubmenu();
+    await this.openEffortSubmenu(level);
     await this.effortOption(level).click();
   }
 
