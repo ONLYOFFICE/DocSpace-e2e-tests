@@ -306,12 +306,22 @@ class Security extends BasePage {
     );
   }
 
+  // Report is generated async and opened in a new editor tab once ready -
+  // wait for that tab, otherwise navigating away races the file creation
+  private async downloadReport(button: Locator) {
+    const editorPromise = this.page.waitForEvent("popup", { timeout: 30000 });
+    await button.click();
+    const editor = await editorPromise;
+    await editor.waitForURL("https://*.onlyoffice.io/doceditor?*");
+    await editor.close();
+  }
+
   async clickLoginHistoryDownloadReport() {
-    await this.loginHistoryDownloadReportButton.click();
+    await this.downloadReport(this.loginHistoryDownloadReportButton);
   }
 
   async clickAuditTrailDownloadReport() {
-    await this.auditTrailDownloadReportButton.click();
+    await this.downloadReport(this.auditTrailDownloadReportButton);
   }
 
   get inviteContactsCheckbox() {
