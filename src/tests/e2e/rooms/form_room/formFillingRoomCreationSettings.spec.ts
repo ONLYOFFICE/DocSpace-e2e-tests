@@ -179,9 +179,7 @@ test.describe("FormFilling room: creation settings", () => {
       ).toBeVisible();
       await filesTable.openContextMenuForItem("ONLYOFFICE Resume Sample");
       await filesTable.contextMenu.clickOption("Open");
-      await expect(
-        newPage.getByLabel("ONLYOFFICE Resume Sample,"),
-      ).not.toBeVisible();
+      await filesTable.checkRowNotExist("ONLYOFFICE Resume Sample");
     });
   });
 });

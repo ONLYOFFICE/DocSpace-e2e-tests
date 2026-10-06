@@ -1,6 +1,7 @@
 import { expect, Locator, Page } from "@playwright/test";
 
-const SEARCH_INPUT_PLACEHOLDER = "Search";
+const SEARCH_INPUT = "search-input";
+const TEXT_INPUT = "text-input";
 const EMPTY_SCREEN_CONTAINER = "empty-screen-container";
 const CLEAR_FILTER = "Clear filter";
 const SUBMIT_TO_TEMPLATE_GALLERY = "Submit to Template Gallery";
@@ -24,7 +25,9 @@ class TemplateGallery {
   // ==================== Template Selection ====================
 
   get searchInput() {
-    return this.page.getByPlaceholder(SEARCH_INPUT_PLACEHOLDER);
+    // Scoped to the gallery search - the page filter search (filter_search_input)
+    // stays in DOM when the gallery is opened from the Forms quick actions panel
+    return this.page.getByTestId(SEARCH_INPUT).getByTestId(TEXT_INPUT);
   }
 
   get emptyScreenContainer() {

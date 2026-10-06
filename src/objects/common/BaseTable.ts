@@ -116,7 +116,7 @@ class BaseTable {
     }
   }
 
-  async getRowByTitle(title: string) {
+  async getRowByTitle(title: string | RegExp) {
     return this.tableRows.filter({
       has: this.page.locator(".table-container_cell").first().getByText(title, {
         exact: true,
@@ -139,7 +139,7 @@ class BaseTable {
     await row.click();
   }
 
-  async checkRowExist(title: string) {
+  async checkRowExist(title: string | RegExp) {
     const row = await this.getRowByTitle(title);
     await expect(row).toBeVisible();
   }
@@ -151,7 +151,7 @@ class BaseTable {
     await expect(rows).toHaveCount(count);
   }
 
-  async checkRowNotExist(title: string) {
+  async checkRowNotExist(title: string | RegExp) {
     const row = await this.getRowByTitle(title);
     await expect(row).not.toBeVisible();
   }

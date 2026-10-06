@@ -1,5 +1,4 @@
 import { Page } from "@playwright/test";
-import { expect } from "@playwright/test";
 import FilesTable from "@/src/objects/files/FilesTable";
 import MyRooms from "@/src/objects/rooms/Rooms";
 import { ShortTour } from "@/src/objects/rooms/ShortTourModal";
@@ -66,5 +65,5 @@ export async function uploadAndVerifyPDF(
   await selectPanel.selectItemByText(PDF_FILE_NAME);
   await selectPanel.confirmSelection();
   await myRooms.infoPanel.close();
-  await expect(page.getByLabel(`${PDF_FILE_NAME},`)).toBeVisible();
+  await myRooms.filesTable.checkRowExist(PDF_FILE_NAME);
 }

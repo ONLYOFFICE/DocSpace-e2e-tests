@@ -51,7 +51,7 @@ export const roomContextMenuOption = {
   inviteContacts: "Invite people",
   saveAsTemplate: "Save as template",
   changeTheRoomOwner: "Change room owner",
-  moveToArchive: "Move to archive",
+  moveToArchive: "Move to Archive",
   duplicate: "Duplicate",
   pinToTop: "Pin to top",
   disableNotifications: "Disable notifications",
