@@ -75,7 +75,7 @@ test.describe("FormFilling room - Link tests", () => {
       await new PdfFormModal(page).close().catch(() => {});
       await myRooms.infoPanel.close();
       //Check file added to room
-      await expect(page.getByLabel("ONLYOFFICE Resume Sample,")).toBeVisible();
+      await filesTable.checkRowExist("ONLYOFFICE Resume Sample");
     });
     await test.step("Change link to file", async () => {
       await filesTable.openContextMenuForItem("ONLYOFFICE Resume Sample");
@@ -229,7 +229,7 @@ test.describe("FormFilling room - Link tests", () => {
       await selectPanel.selectItemByText("ONLYOFFICE Resume Sample");
       await selectPanel.confirmSelection();
       await myRooms.infoPanel.close();
-      await expect(page.getByLabel("ONLYOFFICE Resume Sample,")).toBeVisible();
+      await filesTable.checkRowExist("ONLYOFFICE Resume Sample");
     });
 
     await test.step("Open Room in incognito and check Sign In button", async () => {
@@ -241,9 +241,9 @@ test.describe("FormFilling room - Link tests", () => {
     });
 
     await test.step("Validate unstated pdf form is not visible", async () => {
-      await expect(
-        incognitoPage.getByLabel("ONLYOFFICE Resume Sample,"),
-      ).not.toBeVisible();
+      await new FilesTable(incognitoPage).checkRowNotExist(
+        "ONLYOFFICE Resume Sample",
+      );
     });
 
     await test.step("Validate that Complete and In progress folders do not exist", async () => {

@@ -130,9 +130,9 @@ test.describe("FormFillingRoomRoleBasedFormVisibility", () => {
     // Fill and submit the PDF form (opens in a new tab, then closes it)
     async function fillForm(userPage: Page) {
       ensureIncognitoPage(userPage);
-      await expect(userPage.getByLabel("PDF from device,")).toBeVisible();
-
       const filesTable = new FilesTable(userPage);
+      await filesTable.checkRowExist("PDF from device");
+
       const pagePromise = userPage
         .context()
         .waitForEvent("page", { timeout: 30000 });
@@ -152,7 +152,7 @@ test.describe("FormFillingRoomRoleBasedFormVisibility", () => {
       await pdfPage.close();
 
       // Ensure original page still shows the room
-      await expect(userPage.getByLabel("PDF from device,")).toBeVisible();
+      await filesTable.checkRowExist("PDF from device");
     }
 
     // Navigate into Complete > PDF from device subfolder
@@ -166,9 +166,9 @@ test.describe("FormFillingRoomRoleBasedFormVisibility", () => {
         await userRooms.roomsTable.openRoomByName("FormFillingRoom");
       }
 
-      await expect(userPage.getByLabel("PDF from device,")).toBeVisible();
-
       const filesTable = new FilesTable(userPage);
+      await filesTable.checkRowExist("PDF from device");
+
       await filesTable.openContextMenuForItem(
         formFillingSystemFolders.complete,
       );
@@ -230,15 +230,15 @@ test.describe("FormFillingRoomRoleBasedFormVisibility", () => {
     await test.step("FormFiller sees only own form in Complete folder", async () => {
       await openCompleteFolder(ffPage);
 
-      await expect(ffPage.getByLabel(new RegExp(ffName))).toBeVisible();
-      await expect(ffPage.getByLabel(new RegExp(ccName))).not.toBeVisible();
+      await new FilesTable(ffPage).checkRowExist(new RegExp(ffName));
+      await new FilesTable(ffPage).checkRowNotExist(new RegExp(ccName));
     });
 
     await test.step("ContentCreator sees all forms in Complete folder", async () => {
       await openCompleteFolder(ccPage);
 
-      await expect(ccPage.getByLabel(new RegExp(ffName))).toBeVisible();
-      await expect(ccPage.getByLabel(new RegExp(ccName))).toBeVisible();
+      await new FilesTable(ccPage).checkRowExist(new RegExp(ffName));
+      await new FilesTable(ccPage).checkRowExist(new RegExp(ccName));
     });
 
     // Cleanup browser contexts

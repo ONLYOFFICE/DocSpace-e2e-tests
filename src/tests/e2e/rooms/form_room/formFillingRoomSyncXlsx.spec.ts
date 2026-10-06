@@ -86,9 +86,7 @@ test.describe("FormFilling room - Sync responses to XLSX", () => {
     await pdfForm.clickSubmitButton();
     const pdfCompleted = new RoomPDFCompleted(fillPage);
     await pdfCompleted.chooseBackToRoom();
-    await expect(fillPage.getByLabel(`${FORM_NAME},`)).toBeVisible({
-      timeout: 10000,
-    });
+    await new FilesTable(fillPage).checkRowExist(FORM_NAME);
     return fillPage;
   };
 
@@ -294,9 +292,7 @@ test.describe("FormFilling room - Sync responses to XLSX", () => {
       // Go back to room after 2nd submission
       const pdfCompleted2 = new RoomPDFCompleted(fillPage);
       await pdfCompleted2.chooseBackToRoom();
-      await expect(fillPage.getByLabel(`${FORM_NAME},`)).toBeVisible({
-        timeout: 10000,
-      });
+      await new FilesTable(fillPage).checkRowExist(FORM_NAME);
       newPage = fillPage;
     });
 

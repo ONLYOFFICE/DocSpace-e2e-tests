@@ -340,9 +340,7 @@ test.describe("FormFilling room - In process and Complete folders", () => {
     await pdfForm.clickSubmitButton();
     const pdfCompleted = new RoomPDFCompleted(fillPage);
     await pdfCompleted.chooseBackToRoom();
-    await expect(fillPage.getByLabel(`${FORM_NAME},`)).toBeVisible({
-      timeout: 10000,
-    });
+    await new FilesTable(fillPage).checkRowExist(FORM_NAME);
     return fillPage;
   };
 

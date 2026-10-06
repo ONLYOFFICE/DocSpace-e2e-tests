@@ -8,6 +8,7 @@ import RoomsInviteDialog from "@/src/objects/rooms/RoomsInviteDialog";
 import Login from "@/src/objects/common/Login";
 import RoomGuestRegistration from "@/src/objects/rooms/RoomGuestRegistration";
 import RoomInviteLogin from "@/src/objects/rooms/RoomInviteLogin";
+import FilesTable from "@/src/objects/files/FilesTable";
 import { BrowserContext, Page } from "@playwright/test";
 import {
   setupClipboardPermissions,
@@ -284,9 +285,7 @@ test.describe("FormFilling room - Invite via link tests", () => {
     await test.step("Verify unstarted PDF form is not visible to Form Filler", async () => {
       ensureIncognitoPage(incognitoPage);
 
-      await expect(
-        incognitoPage.getByLabel("PDF from device,"),
-      ).not.toBeVisible();
+      await new FilesTable(incognitoPage).checkRowNotExist("PDF from device");
     });
 
     await test.step("Verify user appears in room contacts on owner page", async () => {
@@ -370,7 +369,7 @@ test.describe("FormFilling room - Invite via link tests", () => {
     await test.step("Verify started PDF form is visible to Form Filler", async () => {
       ensureIncognitoPage(incognitoPage);
 
-      await expect(incognitoPage.getByLabel("PDF from device,")).toBeVisible();
+      await new FilesTable(incognitoPage).checkRowExist("PDF from device");
     });
   });
 
@@ -438,7 +437,7 @@ test.describe("FormFilling room - Invite via link tests", () => {
     await test.step("Verify unstarted PDF form is visible to Content Creator", async () => {
       ensureIncognitoPage(incognitoPage);
 
-      await expect(incognitoPage.getByLabel("PDF from device,")).toBeVisible();
+      await new FilesTable(incognitoPage).checkRowExist("PDF from device");
     });
 
     await test.step("Verify user appears in room contacts on owner page", async () => {
@@ -520,9 +519,7 @@ test.describe("FormFilling room - Invite via link tests", () => {
     await test.step("Verify unstarted PDF form is not visible to guest", async () => {
       ensureIncognitoPage(incognitoPage);
 
-      await expect(
-        incognitoPage.getByLabel("PDF from device,"),
-      ).not.toBeVisible();
+      await new FilesTable(incognitoPage).checkRowNotExist("PDF from device");
     });
 
     await test.step("Verify guest appears in room contacts on owner page", async () => {
@@ -612,7 +609,7 @@ test.describe("FormFilling room - Invite via link tests", () => {
     await test.step("Verify started PDF form is visible to Guest", async () => {
       ensureIncognitoPage(incognitoPage);
 
-      await expect(incognitoPage.getByLabel("PDF from device,")).toBeVisible();
+      await new FilesTable(incognitoPage).checkRowExist("PDF from device");
     });
   });
 });

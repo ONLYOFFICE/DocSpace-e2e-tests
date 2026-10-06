@@ -94,9 +94,7 @@ test.describe("Forms: quick actions panel", () => {
     await test.step("Verify the room already has the form and system folders", async () => {
       await myRooms.verifyCompleteFolderVisible();
       await myRooms.verifyInProcessFolderVisible();
-      await expect(
-        page.getByLabel(templateTitle, { exact: false }),
-      ).toBeVisible();
+      await myRooms.filesTable.checkRowExist(templateTitle);
     });
   });
 

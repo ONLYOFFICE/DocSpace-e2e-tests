@@ -272,9 +272,7 @@ test.describe("FormFilling room - Fill via link", () => {
 
       await test.step("Reload owner page to see updated room state", async () => {
         await page.reload({ waitUntil: "load" });
-        await expect(page.getByLabel("ONLYOFFICE Resume Sample,")).toBeVisible({
-          timeout: 10000,
-        });
+        await filesTable.checkRowExist("ONLYOFFICE Resume Sample");
       });
 
       await test.step("Verify Complete folder appeared in room", async () => {

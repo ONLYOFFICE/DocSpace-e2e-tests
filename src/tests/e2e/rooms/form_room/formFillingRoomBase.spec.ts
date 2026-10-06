@@ -66,7 +66,7 @@ test.describe("FormFilling base tests", () => {
     await login.loginToPortal();
     await myRooms.createFormFillingRoom("FormFillingRoom");
   });
-  test("Check All Buttons On Empty Page", async ({ page }) => {
+  test("Check All Buttons On Empty Page", async () => {
     await test.step("ClickShareRoomOnEmptyRoomScreen", async () => {
       await roomEmptyView.shareRoomClick();
       await myRooms.toast.checkToastMessage(
@@ -84,7 +84,7 @@ test.describe("FormFilling base tests", () => {
       await selectPanel.selectItemByText("ONLYOFFICE Resume Sample");
       await selectPanel.confirmSelection();
       await myRooms.infoPanel.close();
-      await expect(page.getByLabel("ONLYOFFICE Resume Sample,")).toBeVisible();
+      await myRooms.filesTable.checkRowExist("ONLYOFFICE Resume Sample");
     });
     await test.step("ClickUploadFormFromDevice", async () => {
       const pdfPath = path.resolve(
@@ -96,13 +96,11 @@ test.describe("FormFilling base tests", () => {
       await roomEmptyView.uploadPdfForm(pdfPath);
       await myRooms.infoPanel.close();
       await myRooms.filesTable.selectPdfFile();
-      await expect(page.getByLabel("PDF from device,")).toBeVisible();
-      await expect(
-        page.getByLabel(formFillingSystemFolders.inProcess),
-      ).toBeVisible();
-      await expect(
-        page.getByLabel(formFillingSystemFolders.complete),
-      ).toBeVisible();
+      await myRooms.filesTable.checkRowExist("PDF from device");
+      await myRooms.filesTable.checkRowExist(
+        formFillingSystemFolders.inProcess,
+      );
+      await myRooms.filesTable.checkRowExist(formFillingSystemFolders.complete);
     });
   });
   test("Submit Not Filling PDF Form", async ({ page, api }) => {
@@ -141,9 +139,7 @@ test.describe("FormFilling base tests", () => {
       const pdfCompleted = new RoomPDFCompleted(newPage);
       await pdfForm.clickSubmitButton();
       await pdfCompleted.chooseBackToRoom();
-      await expect(newPage.getByLabel("ONLYOFFICE Resume Sample,")).toBeVisible(
-        { timeout: 10000 },
-      );
+      await new FilesTable(newPage).checkRowExist("ONLYOFFICE Resume Sample");
     });
     await test.step("CheckPDFFormAndXlsxInCompleteFolder", async () => {
       const filesTable = new FilesTable(newPage);
@@ -158,21 +154,17 @@ test.describe("FormFilling base tests", () => {
       ).toBeVisible();
       await filesTable.openContextMenuForItem("ONLYOFFICE Resume Sample");
       await filesTable.contextMenu.clickOption("Open");
-      await expect(
-        newPage.getByLabel(
-          /1 - admin-zero admin-zero - ONLYOFFICE Resume Sample/,
-        ),
-      ).toBeVisible();
-      await expect(
-        newPage.getByLabel("ONLYOFFICE Resume Sample,"),
-      ).toBeVisible();
+      await filesTable.checkRowExist(
+        /1 - admin-zero admin-zero - ONLYOFFICE Resume Sample/,
+      );
+      await filesTable.checkRowExist("ONLYOFFICE Resume Sample");
     });
 
     // Check File Size
     await test.step("CheckSizeOfXlsxFileNotEqualZero", async () => {
-      const item = newPage.locator('[aria-label="ONLYOFFICE Resume Sample,"]');
-      await expect(item).toBeVisible();
       const filesTable = new FilesTable(newPage);
+      const item = await filesTable.getRowByTitle("ONLYOFFICE Resume Sample");
+      await expect(item).toBeVisible();
       await filesTable.openContextMenuRow(item);
       await filesTable.contextMenu.clickOption("Select");
       const infoPanel = new InfoPanel(newPage);
@@ -183,8 +175,8 @@ test.describe("FormFilling base tests", () => {
 
     // Open XLSX File
     await test.step("OpenResultXlsxFile", async () => {
-      const item = newPage.locator('[aria-label="ONLYOFFICE Resume Sample,"]');
       const filesTable = new FilesTable(newPage);
+      const item = await filesTable.getRowByTitle("ONLYOFFICE Resume Sample");
       await filesTable.openContextMenuRow(item);
       await filesTable.contextMenu.clickOption("Preview");
       const xlsxPage = await newPage.waitForEvent("popup", { timeout: 30000 });
@@ -228,9 +220,9 @@ test.describe("FormFilling base tests", () => {
       // Dont fill the form, just close it
       await pdfForm.clickCloseButton();
       //Verify file visible in the room
-      await expect(
-        newPage.getByLabel(/admin-zero admin-zero - ONLYOFFICE Resume Sample/),
-      ).toBeVisible();
+      await new FilesTable(newPage).checkRowExist(
+        /admin-zero admin-zero - ONLYOFFICE Resume Sample/,
+      );
     });
     await test.step("Check PDF Form in Progress folder", async () => {
       await newPage
@@ -241,9 +233,7 @@ test.describe("FormFilling base tests", () => {
         .getByText(formFillingSystemFolders.inProcess, { exact: true })
         .click();
       //Verify file visible in In process folder
-      await expect(
-        newPage.getByLabel("ONLYOFFICE Resume Sample,"),
-      ).toBeVisible();
+      await new FilesTable(newPage).checkRowExist("ONLYOFFICE Resume Sample");
     });
     await test.step("Check mark file label Draft", async () => {
       // Switch focus back to the main page
@@ -402,23 +392,17 @@ test.describe("FormFilling base tests", () => {
     });
 
     await test.step("Verify room contains folders and PDF file with filling icon", async () => {
-      await expect(
-        page.getByLabel(formFillingSystemFolders.complete),
-      ).toBeVisible();
-      await expect(
-        page.getByLabel(formFillingSystemFolders.inProcess),
-      ).toBeVisible();
-      await expect(
-        page.getByLabel(templateTitle, { exact: false }),
-      ).toBeVisible();
+      await myRooms.filesTable.checkRowExist(formFillingSystemFolders.complete);
+      await myRooms.filesTable.checkRowExist(
+        formFillingSystemFolders.inProcess,
+      );
+      await myRooms.filesTable.checkRowExist(templateTitle);
       await myRooms.filesTable.expectFillingIconVisible(templateTitle);
     });
   });
 
   // Verifies that uploading a simple PDF (not an ONLYOFFICE form) is now accepted and converted into a fillable form
-  test("Upload simple PDF from device is accepted as a fillable form", async ({
-    page,
-  }) => {
+  test("Upload simple PDF from device is accepted as a fillable form", async () => {
     await test.step("Skip tour and close info panel", async () => {
       // Tour is temporarily not shown; may come back later.
       // await shortTour.clickSkipTour();
@@ -433,16 +417,14 @@ test.describe("FormFilling base tests", () => {
 
     await test.step("Verify file appears in the room", async () => {
       await myRooms.filesTable.selectPdfFile();
-      await expect(page.getByLabel("PDF simple,")).toBeVisible();
+      await myRooms.filesTable.checkRowExist("PDF simple");
     });
 
     await test.step("Verify In Process and Complete folders appear", async () => {
-      await expect(
-        page.getByLabel(formFillingSystemFolders.inProcess),
-      ).toBeVisible();
-      await expect(
-        page.getByLabel(formFillingSystemFolders.complete),
-      ).toBeVisible();
+      await myRooms.filesTable.checkRowExist(
+        formFillingSystemFolders.inProcess,
+      );
+      await myRooms.filesTable.checkRowExist(formFillingSystemFolders.complete);
     });
   });
 
@@ -590,7 +572,7 @@ test.describe("FormFilling base tests", () => {
       await localTable.openContextMenuForItem("ONLYOFFICE Resume Sample");
       await localTable.contextMenu.clickOption("Open");
       await localTable.openContextMenuRow(
-        fillPage.locator('[aria-label="ONLYOFFICE Resume Sample,"]'),
+        await localTable.getRowByTitle("ONLYOFFICE Resume Sample"),
       );
       await localTable.contextMenu.clickSubmenuOption(
         spreadsheetContextMenuOption.moreOptions,
