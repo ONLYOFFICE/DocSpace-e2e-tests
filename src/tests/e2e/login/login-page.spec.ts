@@ -237,38 +237,37 @@ test.describe("Login page", () => {
     });
   });
 
-  test(
-    "Login page displays validation and auth errors in selected language",
-    async ({ page }) => {
-      await test.step("Select Deutsch on login page", async () => {
-        await login.clickLanguageCombobox();
-        await login.selectLanguage("de");
-        await page.reload({ waitUntil: "load" });
-        await login.checkLanguageComboboxText("Deutsch (Deutschland)");
-      });
+  test("Login page displays validation and auth errors in selected language", async ({
+    page,
+  }) => {
+    await test.step("Select Deutsch on login page", async () => {
+      await login.clickLanguageCombobox();
+      await login.selectLanguage("de");
+      await page.reload({ waitUntil: "load" });
+      await login.checkLanguageComboboxText("Deutsch (Deutschland)");
+    });
 
-      await test.step("Enter invalid email format and submit", async () => {
-        await login.emailInput.fill("invalidemail");
-        await login.loginButton.click();
-      });
+    await test.step("Enter invalid email format and submit", async () => {
+      await login.emailInput.fill("invalidemail");
+      await login.loginButton.click();
+    });
 
-      await test.step("Verify email format and password required errors are shown in German", async () => {
-        await expect(login.emailFormatErrorDe).toBeVisible();
-        await expect(login.passwordFieldErrorDe).toBeVisible();
-      });
+    await test.step("Verify email format and password required errors are shown in German", async () => {
+      await expect(login.emailFormatErrorDe).toBeVisible();
+      await expect(login.passwordFieldErrorDe).toBeVisible();
+    });
 
-      await test.step("Enter correct email and wrong password", async () => {
-        await login.emailInput.fill(config.DOCSPACE_OWNER_EMAIL);
-        await login.passwordInput.fill("wrongpassword123");
-        await login.loginButton.click();
-      });
+    await test.step("Enter correct email and wrong password", async () => {
+      await login.emailInput.fill(config.DOCSPACE_OWNER_EMAIL);
+      await login.passwordInput.fill("wrongpassword123");
+      await login.loginButton.click();
+    });
 
-      await test.step("Verify auth error is shown in German", async () => {
-        await expect(page).toHaveURL(/\/login/);
-        await expect(login.authFailedErrorDe).toBeVisible();
-      });
-    },
-  );
+    await test.step("Verify auth error is shown in German", async () => {
+      await expect(page).toHaveURL(/\/login/);
+      await expect(login.authFailedErrorDe).toBeVisible();
+    });
+  });
 
   test("Language selection persists after page reload", async ({ page }) => {
     await test.step("Select Deutsch on login page", async () => {
