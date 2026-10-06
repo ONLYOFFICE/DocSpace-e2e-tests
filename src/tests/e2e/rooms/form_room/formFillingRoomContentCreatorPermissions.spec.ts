@@ -22,7 +22,10 @@ import {
   pdfFormMoreOptionsSubmenu,
   pdfFormMoveOrCopySubmenu,
 } from "@/src/utils/constants/files";
-import { formFillingSystemFolders } from "@/src/utils/constants/rooms";
+import {
+  formFillingSystemFolders,
+  roomContextMenuOption,
+} from "@/src/utils/constants/rooms";
 import { apps } from "@/src/utils/constants/navigation";
 
 test.describe("FormFilling room - Content creator permissions", () => {
@@ -214,7 +217,9 @@ test.describe("FormFilling room - Content creator permissions", () => {
 
     await test.step("Verify room context menu has no 'Move to archive' option", async () => {
       await expect(
-        myRooms.navigation.contextMenu.getItemLocator("Move to archive"),
+        myRooms.navigation.contextMenu.getItemLocator(
+          roomContextMenuOption.moveToArchive,
+        ),
       ).not.toBeVisible();
       await myRooms.navigation.closeContextMenu();
     });
