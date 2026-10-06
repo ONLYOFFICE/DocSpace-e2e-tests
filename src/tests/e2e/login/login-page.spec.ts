@@ -237,8 +237,8 @@ test.describe("Login page", () => {
     });
   });
 
-  test.fail(
-    "Login page displays validation and auth errors in selected language [Bug 81951]",
+  test(
+    "Login page displays validation and auth errors in selected language",
     async ({ page }) => {
       await test.step("Select Deutsch on login page", async () => {
         await login.clickLanguageCombobox();
