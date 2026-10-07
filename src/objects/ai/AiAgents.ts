@@ -28,6 +28,13 @@ const RADIX_MENU_CONTENT = "[data-radix-menu-content]";
 const CHAT_AI_BENEFITS = "chat-ai-benefits";
 const EFFORT_MENU_ITEM = "effort-menu-item";
 const EFFORT_MENU_OPTION_PREFIX = "effort-menu-option-";
+const PERMISSIONS_MENU_ITEM = "permissions-menu-item";
+const PERMISSIONS_OPTIONS = [
+  "Ask every time",
+  "Auto approve",
+  "Allow without asking",
+] as const;
+export type TPermissionsMode = (typeof PERMISSIONS_OPTIONS)[number];
 const SUGGESTIONS = "suggestions";
 const SUGGESTION_BUTTON = "suggestion-button";
 const PROMPTS_BUTTON = "prompts-button";
@@ -667,6 +674,49 @@ export class AiAgents extends BasePage {
     await expect(
       this.effortMenuItem.getByText(level, { exact: true }),
     ).toBeVisible();
+  }
+
+  // The "Permissions" row sits under "Effort" in the model-selector dropdown
+  // and echoes the current mode as secondary text.
+  private get permissionsMenuItem() {
+    return this.quickChatModelMenu.getByTestId(PERMISSIONS_MENU_ITEM);
+  }
+
+  // Its submenu is portaled separately and its options have no testids. The
+  // parent row only shows one mode at a time, so a menu holding two mode
+  // labels at once is the submenu.
+  private get permissionsSubmenu() {
+    return this.page
+      .locator(RADIX_MENU_CONTENT)
+      .filter({ hasText: PERMISSIONS_OPTIONS[0] })
+      .filter({ hasText: PERMISSIONS_OPTIONS[2] });
+  }
+
+  private permissionsOption(mode: TPermissionsMode) {
+    return this.permissionsSubmenu.getByText(mode, { exact: true });
+  }
+
+  // Hover-opened submenu; it can open over its own row, so the hover is forced.
+  async openPermissionsSubmenu() {
+    await this.permissionsMenuItem.hover({ force: true });
+    await expect(this.permissionsSubmenu).toBeVisible();
+  }
+
+  async selectPermissionsMode(mode: TPermissionsMode) {
+    await this.openPermissionsSubmenu();
+    await this.permissionsOption(mode).click();
+  }
+
+  async expectPermissionsMode(mode: TPermissionsMode) {
+    await expect(
+      this.permissionsMenuItem.getByText(mode, { exact: true }),
+    ).toBeVisible();
+  }
+
+  async expectPermissionsOptions() {
+    for (const mode of PERMISSIONS_OPTIONS) {
+      await expect(this.permissionsOption(mode)).toBeVisible();
+    }
   }
 
   // Chat toolbar toggle button - it has no aria-expanded attribute, its

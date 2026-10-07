@@ -64,4 +64,27 @@ test.describe("AI Chat panel: buttons on Files", () => {
       await aiAgents.expectEffortLevel("High");
     });
   });
+
+  test("Model selector exposes Permissions modes with Auto approve by default", async () => {
+    await test.step("Permissions row shows Auto approve by default", async () => {
+      await aiAgents.openQuickChatModelMenu();
+      await aiAgents.expectPermissionsMode("Auto approve");
+    });
+
+    await test.step("Permissions submenu lists all three modes", async () => {
+      await aiAgents.openPermissionsSubmenu();
+      await aiAgents.expectPermissionsOptions();
+    });
+  });
+
+  test("Permissions mode can be switched", async () => {
+    for (const mode of ["Ask every time", "Allow without asking"] as const) {
+      await test.step(`Select ${mode} and verify it's reflected`, async () => {
+        await aiAgents.openQuickChatModelMenu();
+        await aiAgents.selectPermissionsMode(mode);
+        await aiAgents.openQuickChatModelMenu();
+        await aiAgents.expectPermissionsMode(mode);
+      });
+    }
+  });
 });
