@@ -9,7 +9,6 @@ test.describe("AI Chat panel: buttons on Files", () => {
   let aiSettings: AiSettings;
   let files: Files;
   let paymentApi: PaymentApi;
-  const AGENT_NAME = "Chat Buttons Agent";
 
   test.beforeEach(async ({ page, api, login }) => {
     paymentApi = new PaymentApi(api.apiRequestContext, api.apisystem);
@@ -25,26 +24,45 @@ test.describe("AI Chat panel: buttons on Files", () => {
       await aiSettings.activate();
     });
 
-    await test.step("Precondition: create an agent so the chat panel is usable", async () => {
-      await aiAgents.createAgent(AGENT_NAME, {
-        instructions: "Agent for AI Chat panel button tests.",
-      });
-    });
-
     await files.open();
     await files.openAiChat();
     await aiAgents.expectChatOpened();
   });
 
   test("Model selector lists raw models and switches the active one", async () => {
-    await test.step("Verify the model list includes raw models and Choose AI Agent", async () => {
+    await test.step("Verify the model list includes raw models", async () => {
       await aiAgents.expectModelInQuickChatMenu("GPT 5.6 Luna", true);
-      await aiAgents.expectModelInQuickChatMenu("Choose AI Agent", true);
     });
 
     await test.step("Select a different model and verify it's reflected", async () => {
       await aiAgents.selectModelInQuickChat("GPT 5.6 Luna");
       await aiAgents.expectQuickChatModelSelected("GPT 5.6 Luna");
+    });
+  });
+
+  test("Choose AI Agent appears in the model menu only once an agent exists", async ({
+    apiSdk,
+  }) => {
+    await test.step("No agents - Choose AI Agent is not in the model menu", async () => {
+      await aiAgents.expectModelInQuickChatMenu("Choose AI Agent", false);
+    });
+
+    await test.step("Create an agent via API", async () => {
+      await apiSdk.ai.createAgent("owner", {
+        title: "Chat Buttons Agent",
+        prompt: "Agent for AI Chat panel button tests.",
+      });
+    });
+
+    // Reload so the chat picks up the new agent
+    await test.step("Reopen the chat on Files", async () => {
+      await files.open();
+      await files.openAiChat();
+      await aiAgents.expectChatOpened();
+    });
+
+    await test.step("Choose AI Agent is now in the model menu", async () => {
+      await aiAgents.expectModelInQuickChatMenu("Choose AI Agent", true);
     });
   });
 
