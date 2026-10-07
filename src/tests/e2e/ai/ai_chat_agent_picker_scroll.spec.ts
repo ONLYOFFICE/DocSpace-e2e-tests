@@ -10,8 +10,9 @@ test.describe("Ask AI on files: agent picker with many agents", () => {
   let aiSettings: AiSettings;
   let files: Files;
   let paymentApi: PaymentApi;
+  // Submenu starts scrolling from the 10th agent - keep a margin above that
   const AGENT_NAMES = Array.from(
-    { length: 8 },
+    { length: 12 },
     (_, i) => `Test Agent ${i + 1}`,
   );
 

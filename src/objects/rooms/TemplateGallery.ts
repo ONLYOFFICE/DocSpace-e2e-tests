@@ -10,8 +10,9 @@ const SUBMIT_MODAL_TEXT = "Submit to Template";
 const SUBMIT_SELECT_TEMPLATE_BUTTON = "submit_to_gallery_select_form_button";
 const SUBMIT_CANCEL_BUTTON = "submit_to_gallery_cancel_button";
 const SUBMIT_APPLY_BUTTON = "submit_to_gallery_apply_button";
-const LANGUAGE_COMBOBOX = "language-combobox";
-const COMBO_BUTTON = "combo-button";
+const FILTER_BUTTON = "template_gallery_filter_button";
+const FILTER_PANEL = "template_gallery_filter_panel";
+const LANGUAGE_COMBOBOX = "template_gallery_language_combobox";
 const NEW_PDF_FORM_CREATE_BUTTON = "new_pdf_form_save_button";
 const NEW_PDF_FORM_CANCEL_BUTTON = "new_pdf_form_cancel_button";
 
@@ -42,17 +43,35 @@ class TemplateGallery {
     return this.page.getByLabel(SUBMIT_TO_TEMPLATE_GALLERY);
   }
 
-  get languageCombobox() {
-    return this.page
-      .getByTestId(LANGUAGE_COMBOBOX)
-      .locator(`[data-test-id="${COMBO_BUTTON}"]`);
+  get filterButton() {
+    return this.page.getByTestId(FILTER_BUTTON);
   }
 
+  get filterPanel() {
+    return this.page.getByTestId(FILTER_PANEL);
+  }
+
+  get languageCombobox() {
+    return this.filterPanel.getByTestId(LANGUAGE_COMBOBOX);
+  }
+
+  async openFilterPanel() {
+    if (await this.filterPanel.isVisible()) return;
+    await this.filterButton.click();
+    await expect(this.filterPanel).toBeVisible();
+  }
+
+  // Language selector lives in the gallery filter panel
   async selectLanguage(
     lang: "de" | "fr" | "it" | "zh-cn" | "en-us" | "ja-jp" | "es" | "pt-br",
   ) {
+    await this.openFilterPanel();
+    await expect(this.languageCombobox).toBeVisible();
     await this.languageCombobox.click();
-    await this.page.getByTestId(`drop_down_item_${lang}`).click();
+    await this.page
+      .getByRole("listbox")
+      .getByTestId(`drop_down_item_${lang}`)
+      .click();
   }
 
   async search(text: string) {

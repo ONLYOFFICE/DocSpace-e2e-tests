@@ -132,7 +132,8 @@ test.describe("AI Chat: saved prompts library", () => {
     });
   });
 
-  test("The save-to-folder list scrolls once six folders exist", async () => {
+  test("The save-to-folder list scrolls once many folders exist", async () => {
+    // The list starts scrolling from the 10th folder - keep a margin above that
     const FOLDER_NAMES = [
       "Sales prompts",
       "Marketing prompts",
@@ -140,9 +141,15 @@ test.describe("AI Chat: saved prompts library", () => {
       "HR prompts",
       "Legal prompts",
       "Finance prompts",
+      "Design prompts",
+      "Research prompts",
+      "Product prompts",
+      "Compliance prompts",
+      "Operations prompts",
+      "Training prompts",
     ];
 
-    await test.step("Save the message to six new folders", async () => {
+    await test.step("Save the message to new folders", async () => {
       for (const folderName of FOLDER_NAMES) {
         await aiAgents.saveMessageToNewFolder(MESSAGE, folderName);
       }
