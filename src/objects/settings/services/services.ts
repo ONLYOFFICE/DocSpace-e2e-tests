@@ -230,7 +230,9 @@ class Services extends BasePage {
   }
 
   async checkCurrentSubscriptionVisible() {
-    await expect(this.page.getByText("Current subscription")).toBeVisible();
+    await expect(
+      this.page.getByText("Current subscription", { exact: true }),
+    ).toBeVisible();
   }
 
   async checkDiskStorageSubscriptionSize(gb: string) {

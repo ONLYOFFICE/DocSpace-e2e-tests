@@ -584,10 +584,19 @@ export class Payments extends BasePage {
     // "Add payment method" navigates the same tab to the Stripe hosted page.
     await this.page.getByTestId("go_to_stripe_button").click();
     await this.fillPaymentDataFromAddPaymentMethodServices(this.page);
-    // Stripe redirects back to the portal (lands on /billing/wallet) once linked.
-    await this.page.waitForURL(/\/billing\//, { timeout: 60000 });
+    // Stripe redirects back to the portal and ends on /billing/wallet once linked.
+    // Wait for the final page - reloading an intermediate billing URL reopens
+    // the top-up dialog.
+    await this.page.waitForURL(/\/billing\/wallet/, { timeout: 60000 });
     await this.page.reload();
-    await this.openTab(paymentsTab.paymentMethod);
+    // After Stripe redirect the Wallet page opens "Top up credits" dialog by design -
+    // its overlay intercepts clicks on the nav menu, so close it first.
+    await expect(async () => {
+      if (await this.cancelButton.isVisible()) {
+        await this.cancelButton.click();
+      }
+      await this.tabButton(paymentsTab.paymentMethod).click({ timeout: 3000 });
+    }).toPass({ timeout: 30000 });
     await expect(this.page.getByTestId("go_to_stripe_button")).toBeHidden({
       timeout: 30000,
     });

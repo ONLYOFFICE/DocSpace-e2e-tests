@@ -113,7 +113,7 @@ test.describe("Rooms: History tab export toolbar", () => {
     let reportPage: Page;
 
     await test.step("Precondition: upgrade the portal to a paid plan", async () => {
-      // Export history is a paid feature - see the free-plan warning test below.
+      // Covers the paid plan - the free plan is covered by a separate test below.
       const paymentApi = new PaymentApi(api.apiRequestContext, api.apisystem);
       await paymentApi.setupPayment();
     });
@@ -141,31 +141,26 @@ test.describe("Rooms: History tab export toolbar", () => {
     await roomInfoPanel.cancelExportHistoryMenu();
   });
 
-  // Export history should be available on the free plan too, but a pricing
-  // plan warning blocks it instead - see Bug 83796.
-  test.fail(
-    "Export history: works on the free plan too [Bug 83796]",
-    async () => {
-      let reportPage: Page;
+  test("Export history: works on the free plan too", async () => {
+    let reportPage: Page;
 
-      await test.step("Export the full activity history", async () => {
-        reportPage = await roomInfoPanel.exportHistory("All history");
-      });
+    await test.step("Export the full activity history", async () => {
+      reportPage = await roomInfoPanel.exportHistory("All history");
+    });
 
-      await test.step("A toast confirms the export", async () => {
-        await roomInfoPanel.checkExportHistoryToastVisible();
-      });
+    await test.step("A toast confirms the export", async () => {
+      await roomInfoPanel.checkExportHistoryToastVisible();
+    });
 
-      await test.step("The report opens automatically in a new tab", async () => {
-        const spreadsheet = new SpreadsheetEditor(reportPage);
-        await spreadsheet.waitForLoad();
-        await expect(reportPage).toHaveTitle(
-          new RegExp(`Audit Trail Report \\(room-${roomId}\\)`),
-        );
-        await reportPage.close();
-      });
-    },
-  );
+    await test.step("The report opens automatically in a new tab", async () => {
+      const spreadsheet = new SpreadsheetEditor(reportPage);
+      await spreadsheet.waitForLoad();
+      await expect(reportPage).toHaveTitle(
+        new RegExp(`Audit Trail Report \\(room-${roomId}\\)`),
+      );
+      await reportPage.close();
+    });
+  });
 
   test("Go to date: only the day with activity is selectable", async () => {
     const today = new Date();
