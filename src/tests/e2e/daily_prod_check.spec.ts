@@ -20,7 +20,6 @@ import { getOwnerConfirmLink } from "@/src/utils/helpers/email/getOwnerConfirmLi
 import {
   roomCreateTitles,
   roomDialogSource,
-  roomContextMenuOption,
 } from "@/src/utils/constants/rooms";
 
 test.describe("Daily prod check", () => {
@@ -140,9 +139,9 @@ test.describe("Daily prod check", () => {
       await myRooms.backToRooms();
 
       await myRooms.roomsTable.openContextMenu("ArchiveTest");
-      await myRooms.roomsTable.clickContextMenuOption(
-        roomContextMenuOption.moveToArchive,
-      );
+      // Prod still uses the old "Move to archive" label, while the shared
+      // constant was updated to dev's "Move to Archive".
+      await myRooms.roomsTable.contextMenu.clickOption("Move to archive");
       await myRooms.moveToArchive();
       await myRooms.roomsTable.checkRowNotExist("ArchiveTest");
     });
