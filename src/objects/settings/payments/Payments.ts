@@ -209,6 +209,15 @@ export class Payments extends BasePage {
     return this.page.getByTestId("cancel_top_up_button");
   }
 
+  // Hidden "Top up credits" / "Synchronization with database" dialogs are
+  // always mounted, so scope by role + title to hit the visible one.
+  get topUpDialog() {
+    return this.page
+      .getByRole("dialog")
+      .filter({ has: this.page.getByText("Top up credits", { exact: true }) })
+      .filter({ visible: true });
+  }
+
   get upgradePlanCancelButton() {
     return this.page.getByTestId("cancel_payment_button");
   }
@@ -585,15 +594,17 @@ export class Payments extends BasePage {
     await this.page.getByTestId("go_to_stripe_button").click();
     await this.fillPaymentDataFromAddPaymentMethodServices(this.page);
     // Stripe redirects back to the portal and ends on /billing/wallet once linked.
-    // Wait for the final page - reloading an intermediate billing URL reopens
-    // the top-up dialog.
     await this.page.waitForURL(/\/billing\/wallet/, { timeout: 60000 });
     await this.page.reload();
-    // After Stripe redirect the Wallet page opens "Top up credits" dialog by design -
-    // its overlay intercepts clicks on the nav menu, so close it first.
+    // After Stripe redirect the Wallet page opens "Top up credits" dialog by design
+    // (it can show up again after reload) - its overlay intercepts clicks on
+    // the nav menu, so close it first.
     await expect(async () => {
-      if (await this.cancelButton.isVisible()) {
-        await this.cancelButton.click();
+      if (await this.topUpDialog.isVisible()) {
+        await this.topUpDialog
+          .getByRole("button", { name: "Cancel", exact: true })
+          .click({ timeout: 3000 });
+        await expect(this.topUpDialog).toBeHidden({ timeout: 3000 });
       }
       await this.tabButton(paymentsTab.paymentMethod).click({ timeout: 3000 });
     }).toPass({ timeout: 30000 });
