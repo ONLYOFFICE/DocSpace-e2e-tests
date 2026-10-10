@@ -25,6 +25,8 @@ import { setupClipboardPermissions } from "@/src/utils/helpers/linkTest";
 import { expect, Page } from "@playwright/test";
 
 const RADIX_MENU_CONTENT = "[data-radix-menu-content]";
+const CHOOSE_AI_AGENT_MENU_ITEM = "Choose AI Agent";
+const ARIA_CONTROLS = "[aria-controls]";
 const CHAT_AI_BENEFITS = "chat-ai-benefits";
 const EFFORT_MENU_ITEM = "effort-menu-item";
 const EFFORT_MENU_OPTION_PREFIX = "effort-menu-option-";
@@ -437,41 +439,53 @@ export class AiAgents extends BasePage {
     return this.page.getByTestId("model-selector");
   }
 
-  private get quickChatAgentSubmenu() {
-    return this.page.locator(
-      '[data-radix-menu-content][role="menu"][data-side="left"]',
-    );
+  private get quickChatAgentSubmenuTrigger() {
+    return this.page.getByRole("menuitem", {
+      name: CHOOSE_AI_AGENT_MENU_ITEM,
+      exact: true,
+    });
   }
 
-  // The "Choose AI Agent" submenu sometimes opens automatically once the
-  // dropdown gets initial keyboard focus, and sometimes needs an explicit
-  // hover - in that case Radix's own reopened submenu overlaps the trigger
-  // and fails a plain hover's actionability check, so force it.
+  // Other submenus of the same dropdown ("Permissions", "Effort") also open
+  // to the left, so data-side alone is ambiguous. Radix links the sub-trigger
+  // to its content via aria-controls - resolve the submenu through that id.
+  // The attribute sits on the nested expand button, not on the menuitem itself.
+  private async quickChatAgentSubmenu() {
+    const contentId = await this.quickChatAgentSubmenuTrigger
+      .locator(ARIA_CONTROLS)
+      .first()
+      .getAttribute("aria-controls", { timeout: 3000 });
+    return this.page.locator(`${RADIX_MENU_CONTENT}[id="${contentId}"]`);
+  }
+
+  // The dropdown opens upward over the selector button, so the pointer left
+  // there can auto-open whichever submenu sits under it (e.g. "Permissions").
+  // Hover "Choose AI Agent" explicitly - force it, as another open submenu
+  // may overlap the trigger and fail a plain hover's actionability check.
   // The click can also occasionally fail to open the model-selector dropdown
   // at all (no "Choose AI Agent" trigger ever appears). actionTimeout is 0
   // project-wide, so an unbounded hover there would hang until the global
   // test timeout instead of failing fast - bound each attempt and retry the
   // click once before giving up with a clear error.
   private async openQuickChatAgentSubmenu() {
-    const submenu = this.quickChatAgentSubmenu;
     for (let attempt = 0; attempt < 2; attempt += 1) {
       await this.quickChatModelSelectorButton.click();
-      const alreadyOpen = await submenu
-        .waitFor({ state: "visible", timeout: 3000 })
-        .then(() => true)
-        .catch(() => false);
-      if (alreadyOpen) return submenu;
-
-      const triggerHovered = await this.page
-        .getByText("Choose AI Agent", { exact: true })
+      const triggerHovered = await this.quickChatAgentSubmenuTrigger
         .hover({ force: true, timeout: 5000 })
         .then(() => true)
         .catch(() => false);
       if (triggerHovered) {
-        await submenu.waitFor({ state: "visible" });
-        return submenu;
+        const submenu = await this.quickChatAgentSubmenu();
+        const opened = await submenu
+          .waitFor({ state: "visible", timeout: 5000 })
+          .then(() => true)
+          .catch(() => false);
+        if (opened) return submenu;
       }
 
+      // First Escape may only close an open submenu - second one closes
+      // the dropdown, so the next click reopens it instead of toggling it off.
+      await this.page.keyboard.press("Escape").catch(() => {});
       await this.page.keyboard.press("Escape").catch(() => {});
     }
     throw new Error(
