@@ -19,11 +19,6 @@ class BaseNavigation {
   protected page: Page;
   protected actions: TActions;
 
-  // Selector for the create/"New" button. Defaults to the new UI. Prod still
-  // runs the old UI, so the prod daily check overrides this with the legacy
-  // "#header_add-button"
-  static mainButtonSelector: string = MAIN_BUTTON;
-
   constructor(page: Page, actions: TActions) {
     this.page = page;
     this.actions = actions;
@@ -31,7 +26,7 @@ class BaseNavigation {
   }
 
   private get mainButton() {
-    return this.page.locator(BaseNavigation.mainButtonSelector).first();
+    return this.page.locator(MAIN_BUTTON).first();
   }
 
   private get backArrowIcon() {

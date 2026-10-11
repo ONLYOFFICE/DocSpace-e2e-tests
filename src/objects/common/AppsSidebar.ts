@@ -17,31 +17,11 @@ const BADGE = "badge";
 const exactText = (value: string) =>
   new RegExp(`^${value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`);
 
-/** Key for `AppsSidebar.legacySelectors`: "Files" or "Files/Trash". */
-const legacyKey = (name: string, subItem?: string) =>
-  subItem ? `${name}/${subItem}` : name;
-
 class AppsSidebar {
   protected page: Page;
 
-  // Pre-redesign rail items had stable ids (#document_catalog-*). Prod still
-  // runs the old UI, so the prod daily check fills this map and the same page
-  // objects drive both UIs. Empty (default) = new UI.
-  static legacySelectors: Record<string, string> = {};
-
   constructor(page: Page) {
     this.page = page;
-  }
-
-  private legacyItem(name: string, subItem?: string): Locator | null {
-    const selector = AppsSidebar.legacySelectors[legacyKey(name, subItem)];
-    return selector ? this.page.locator(selector) : null;
-  }
-
-  private async clickLegacyItem(item: Locator) {
-    await expect(item).toBeVisible();
-    await item.click();
-    await this.page.waitForLoadState("load");
   }
 
   get container(): Locator {
@@ -103,12 +83,6 @@ class AppsSidebar {
    * portal-settings rail.
    */
   async navigate(name: string) {
-    const legacy = this.legacyItem(name);
-    if (legacy) {
-      await this.clickLegacyItem(legacy);
-      return;
-    }
-
     const button = this.itemButton(name);
     await expect(button).toBeVisible();
     await button.click();
@@ -133,12 +107,6 @@ class AppsSidebar {
    * Trash exist under Files, Rooms, Forms and AI agents at the same time.
    */
   async openSubItem(app: string, item: string) {
-    const legacy = this.legacyItem(app, item);
-    if (legacy) {
-      await this.clickLegacyItem(legacy);
-      return;
-    }
-
     await this.expandApp(app);
     const button = this.subItemButton(app, item);
     await expect(button).toBeVisible();

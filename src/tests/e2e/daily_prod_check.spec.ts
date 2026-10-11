@@ -1,23 +1,17 @@
 import { test } from "@/src/fixtures";
 import { ApiSDK } from "@/src/services/index";
-import { DOC_ACTIONS } from "@/src/utils/constants/files";
 import { expect } from "@playwright/test";
 import config from "@/config";
 import Files from "@/src/objects/files/Files";
 import MyRooms from "@/src/objects/rooms/Rooms";
 import Trash from "@/src/objects/files/trash/Trash";
 import FileVersionHistory from "@/src/objects/files/FileVersionHistory";
-import DocumentEditor from "@/src/objects/files/DocumentEditor";
-import SpreadsheetEditor from "@/src/objects/files/SpreadsheetEditor";
-import PresentationEditor from "@/src/objects/files/PresentationEditor";
 import VdrRoomSettings from "@/src/objects/rooms/VdrRoomSettings";
 import { Profile } from "@/src/objects/profile/Profile";
-import BaseNavigation from "@/src/objects/common/BaseNavigation";
-import AppsSidebar from "@/src/objects/common/AppsSidebar";
-import { apps, filesSubItems } from "@/src/utils/constants/navigation";
 import { createMailChecker } from "@/src/utils/helpers/email/createMailChecker";
 import { getOwnerConfirmLink } from "@/src/utils/helpers/email/getOwnerConfirmLink";
 import {
+  roomContextMenuOption,
   roomCreateTitles,
   roomDialogSource,
 } from "@/src/utils/constants/rooms";
@@ -27,30 +21,6 @@ test.describe("Daily prod check", () => {
     !process.env.RUN_PROD_CHECK,
     "Runs only in Prod Daily Check workflow",
   );
-
-  // Prod still runs the pre-redesign UI: the create button lives in the header
-  // and the left rail items still carry their #document_catalog-* ids.
-  const newUiMainButton = BaseNavigation.mainButtonSelector;
-  const newUiLegacySelectors = AppsSidebar.legacySelectors;
-
-  test.beforeAll(() => {
-    BaseNavigation.mainButtonSelector = "#header_add-button";
-    AppsSidebar.legacySelectors = {
-      [apps.files]: "#document_catalog-personal",
-      [apps.rooms]: "#document_catalog-shared",
-      [`${apps.files}/${filesSubItems.trash}`]: "#document_catalog-trash",
-      [`${apps.files}/${filesSubItems.recent}`]: "#document_catalog-recent",
-      [`${apps.files}/${filesSubItems.favorites}`]:
-        "#document_catalog-favorites",
-      [`${apps.files}/${filesSubItems.sharedWithMe}`]:
-        "#document_catalog-share",
-    };
-  });
-
-  test.afterAll(() => {
-    BaseNavigation.mainButtonSelector = newUiMainButton;
-    AppsSidebar.legacySelectors = newUiLegacySelectors;
-  });
 
   test.describe("Rooms", () => {
     let myRooms: MyRooms;
@@ -90,17 +60,16 @@ test.describe("Daily prod check", () => {
         await myRooms.roomsTable.checkRowExist("Custom");
       });
 
-      await test.step("Create Form Filling room", async () => {
-        await myRooms.openCreateRoomDialog(roomDialogSource.navigation);
-        await myRooms.roomsCreateDialog.openRoomType(
-          roomCreateTitles.formFilling,
-        );
+      // Form Filling rooms are created from the Forms app as "Form space".
+      // On prod an empty Forms app opens "Choose space type" straight from the
+      // add button, without the dropdown createFormFillingRoom expects.
+      await test.step("Create Form space", async () => {
+        await myRooms.openForms();
+        await myRooms.navigation.clickAddButton();
+        await myRooms.roomsCreateDialog.openRoomType(roomCreateTitles.formSet);
         await myRooms.roomsCreateDialog.createRoom("FormFilling");
-        const tipsModal = page.getByText("Welcome to the Form Filling Room!");
-        await expect(tipsModal).toBeVisible({ timeout: 10000 });
-        await page.mouse.click(1, 1);
-        await myRooms.backToRooms();
-        await myRooms.roomsTable.checkRowExist("FormFilling");
+        await myRooms.checkHeadingExist("FormFilling");
+        await myRooms.openWithoutEmptyCheck();
       });
 
       await test.step("Create VDR room", async () => {
@@ -139,9 +108,9 @@ test.describe("Daily prod check", () => {
       await myRooms.backToRooms();
 
       await myRooms.roomsTable.openContextMenu("ArchiveTest");
-      // Prod still uses the old "Move to archive" label, while the shared
-      // constant was updated to dev's "Move to Archive".
-      await myRooms.roomsTable.contextMenu.clickOption("Move to archive");
+      await myRooms.roomsTable.contextMenu.clickOption(
+        roomContextMenuOption.moveToArchive,
+      );
       await myRooms.moveToArchive();
       await myRooms.roomsTable.checkRowNotExist("ArchiveTest");
     });
@@ -166,48 +135,26 @@ test.describe("Daily prod check", () => {
       await files.filesTable.checkInitialDocsExist();
     });
 
-    test("Create all document types and verify editors open", async ({
-      page,
-    }) => {
-      // Prod's create dropdown keeps the full DOC_ACTIONS labels, while the
-      // shared page object maps them to dev's short ones — click them directly.
-      const createAndOpenEditor = async (label: string, name: string) => {
-        await files.filesNavigation.openCreateDropdown();
-        await files.filesNavigation.contextMenu.clickOption(label);
-        await files.filesNavigation.modal.fillCreateTextInput(name);
-        const [editorPage] = await Promise.all([
-          page.context().waitForEvent("page", { timeout: 30000 }),
-          files.filesNavigation.modal.clickCreateButton(),
-        ]);
-        await editorPage.waitForLoadState("load");
-        return editorPage;
-      };
-
+    test("Create all document types and verify editors open", async () => {
       await test.step("Create document and open editor", async () => {
-        const docEditor = new DocumentEditor(
-          await createAndOpenEditor(DOC_ACTIONS.CREATE_DOCUMENT, "Doc"),
-        );
+        const docEditor = await files.createDocumentAndOpenEditor("Doc");
         await docEditor.waitForLoad();
         await docEditor.close();
       });
 
       await test.step("Create spreadsheet and open editor", async () => {
-        const sheetEditor = new SpreadsheetEditor(
-          await createAndOpenEditor(DOC_ACTIONS.CREATE_SPREADSHEET, "Sheet"),
-        );
+        const sheetEditor = await files.createSpreadsheetAndOpenEditor("Sheet");
         await sheetEditor.waitForLoad();
         await sheetEditor.close();
       });
 
       await test.step("Create presentation and open editor", async () => {
-        const slideEditor = new PresentationEditor(
-          await createAndOpenEditor(DOC_ACTIONS.CREATE_PRESENTATION, "Slides"),
-        );
+        const slideEditor =
+          await files.createPresentationAndOpenEditor("Slides");
         await slideEditor.waitForLoad();
         await slideEditor.close();
       });
 
-      // The PDF form item is "PDF Form" on both builds, so the page object works.
       await test.step("Create PDF form and open editor", async () => {
         const pdfEditor = await files.createPdfFormAndOpenEditor("PDF");
         await pdfEditor.waitForLoad();
