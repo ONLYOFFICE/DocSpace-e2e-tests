@@ -1,8 +1,7 @@
 // Room types offered by the "Choose room type" dialog, keyed by the label shown
 // in the UI. `formFilling` is no longer creatable from the Rooms app - the type
 // moved to the Forms app's own "Choose space type" dialog and was renamed to
-// "Form space" - but the constant stays because prod still runs the legacy UI
-// (see daily_prod_check.spec.ts).
+// "Form space" - but the constant is still used to identify the room type.
 export const roomCreateTitles = {
   public: "Public room",
   formFilling: "Form Filling room",
