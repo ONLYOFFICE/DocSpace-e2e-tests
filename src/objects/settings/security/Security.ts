@@ -295,15 +295,11 @@ class Security extends BasePage {
   }
 
   get loginHistoryDownloadReportButton() {
-    return this.page.locator(
-      '[datatestid="login_history_download_report_button"]',
-    );
+    return this.page.getByTestId("login_history_download_report_button");
   }
 
   get auditTrailDownloadReportButton() {
-    return this.page.locator(
-      '[datatestid="audit_trail_download_report_button"]',
-    );
+    return this.page.getByTestId("audit_trail_download_report_button");
   }
 
   // Report is generated async and opened in a new editor tab once ready -

@@ -112,7 +112,7 @@ export class AiAgents extends BasePage {
 
   private get aiNotActiveHeading() {
     return this.page.getByRole("heading", {
-      name: /AI features aren.t active yet/,
+      name: /AI agents & tools aren.t active yet/,
     });
   }
 
@@ -122,7 +122,7 @@ export class AiAgents extends BasePage {
 
   // The inline AI Chat panel opened from a section's quick actions (Forms,
   // etc.) shows its own not-active state, distinct from the full AI Agents
-  // page's "AI features aren't active yet".
+  // page's "AI agents & tools aren't active yet".
   private get quickChatNotActiveHeading() {
     return this.page.getByRole("heading", {
       name: /AI Chat isn.t active yet/,
@@ -227,7 +227,7 @@ export class AiAgents extends BasePage {
   }
 
   // When AI features are not activated, the agents page shows a
-  // "AI features aren't active yet" empty view with a "Top up & activate" CTA.
+  // "AI agents & tools aren't active yet" empty view with a "Top up & activate" CTA.
   async expectAiNotActive() {
     await expect(this.aiNotActiveHeading).toBeVisible();
     await expect(this.topUpAndActivateButton).toBeVisible();
