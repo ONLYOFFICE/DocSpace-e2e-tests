@@ -221,6 +221,46 @@ export class RoomsApi {
     expect(response.ok()).toBeTruthy();
   }
 
+  async getRoomLinks(role: Role, roomId: number) {
+    return test.step(`${role} get room links ${roomId}`, async () => {
+      const response = await this.request.get(
+        `${this.portalBaseUrl}/api/2.0/files/rooms/${roomId}/links`,
+        { headers: { Authorization: `Bearer ${this.getToken(role)}` } },
+      );
+      expect(response.ok()).toBeTruthy();
+      const links: {
+        sharedTo: { id: string; title: string; shareLink: string };
+      }[] = (await response.json()).response;
+      return links;
+    });
+  }
+
+  // Updates the room's first external link and returns its URL
+  async updatePrimaryRoomLink(
+    role: Role,
+    roomId: number,
+    settings: { password?: string; denyDownload?: boolean },
+  ): Promise<string> {
+    return test.step(`${role} update primary link of room ${roomId}`, async () => {
+      const [link] = await this.getRoomLinks(role, roomId);
+      const response = await this.request.put(
+        `${this.portalBaseUrl}/api/2.0/files/rooms/${roomId}/links`,
+        {
+          headers: { Authorization: `Bearer ${this.getToken(role)}` },
+          data: {
+            linkId: link.sharedTo.id,
+            title: link.sharedTo.title,
+            access: "Read",
+            linkType: 1, // LinkType.External, the API accepts only the number
+            ...settings,
+          },
+        },
+      );
+      expect(response.ok(), await response.text()).toBeTruthy();
+      return link.sharedTo.shareLink;
+    });
+  }
+
   async updateRoomWithoutAuthorization(
     roomId: number,
     data: { title?: string },
