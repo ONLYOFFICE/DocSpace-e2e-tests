@@ -195,7 +195,7 @@ class MailChecker {
       } catch (error) {
         lastError = error;
         console.log(
-          `withMailboxLock attempt ${attempt}/${maxRetries} failed:`,
+          `withMailboxLock: mailbox error on attempt ${attempt} of ${maxRetries}:`,
           error instanceof Error ? error.message : error,
         );
         await this.disconnect();

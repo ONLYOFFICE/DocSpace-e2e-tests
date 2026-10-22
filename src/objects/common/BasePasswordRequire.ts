@@ -149,6 +149,10 @@ export default class BasePasswordRequire {
     await this.clickContinue();
   }
 
+  async expectIncorrectPasswordError() {
+    await expect(this.page.getByText("Incorrect password")).toBeVisible();
+  }
+
   // ==================== Private Helper Methods ====================
 
   /**
