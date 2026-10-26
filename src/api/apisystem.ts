@@ -89,19 +89,41 @@ class Apisystem {
 
     const deleteUrl = `${this.portalBaseUrl}/api/2.0/portal/deleteportalimmediately`;
 
-    console.log(`[deletePortal] sending DELETE for ${this.portalDomain}`);
+    const maxRetries = 3;
+    let lastError: unknown;
+    let response;
 
-    const response = await this.apiContext.delete(deleteUrl, {
-      headers: {
-        Authorization: `Bearer ${this.auth.authTokenOwner}`,
-        Origin: `http://${this.portalName}`,
-      },
-      data: { reference: `${this.portalName}.onlyoffice.io` },
-      timeout: 90000,
-    });
-    console.log(
-      `[deletePortal] got response ${response.status()} for ${this.portalDomain}`,
-    );
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      console.log(
+        `[deletePortal] sending DELETE for ${this.portalDomain} (attempt ${attempt} of ${maxRetries})`,
+      );
+      try {
+        response = await this.apiContext.delete(deleteUrl, {
+          headers: {
+            Authorization: `Bearer ${this.auth.authTokenOwner}`,
+            Origin: `http://${this.portalName}`,
+          },
+          data: { reference: `${this.portalName}.onlyoffice.io` },
+          timeout: 90000,
+        });
+        console.log(
+          `[deletePortal] got response ${response.status()} for ${this.portalDomain}`,
+        );
+        if (response.ok()) break;
+        lastError = new Error(`HTTP ${response.status()}`);
+      } catch (e) {
+        lastError = e;
+        response = undefined;
+        console.log(
+          `[deletePortal] request error for ${this.portalDomain}: ${e instanceof Error ? e.message : e}`,
+        );
+      }
+      if (attempt < maxRetries) {
+        await new Promise((r) => setTimeout(r, 2000 * attempt));
+      }
+    }
+
+    if (!response) throw lastError;
 
     if (!response.ok()) {
       throw new Error(

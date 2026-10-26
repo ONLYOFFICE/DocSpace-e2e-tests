@@ -1,4 +1,5 @@
 import { Page } from "@playwright/test";
+import fs from "fs";
 import { DOC_ACTIONS, listDocActions } from "../../utils/constants/files";
 import FilesCreateModal from "./FilesCreateModal";
 import BaseNavigation from "../common/BaseNavigation";
@@ -84,6 +85,26 @@ class FilesNavigation extends BaseNavigation {
       }),
     ]);
     await fileChooser.setFiles(paths);
+  }
+
+  // Uploads the content of one file under several names, as separate files
+  async uploadFileAs(filePath: string, fileNames: string[]) {
+    const buffer = fs.readFileSync(filePath);
+    await this.openCreateDropdown();
+    const [fileChooser] = await Promise.all([
+      this.page.waitForEvent("filechooser"),
+      this.contextMenu.clickOption({
+        type: "data-testid",
+        value: "upload-files",
+      }),
+    ]);
+    await fileChooser.setFiles(
+      fileNames.map((name) => ({
+        name,
+        mimeType: "application/octet-stream",
+        buffer,
+      })),
+    );
   }
 
   async uploadFolder(folderPath: string) {
