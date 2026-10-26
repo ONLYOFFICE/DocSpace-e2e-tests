@@ -24,6 +24,7 @@ const PROPERTY_TYPE = "#Type";
 const PROPERTY_DATE_MODIFIED = "#Date\\ modified";
 const PROPERTY_CREATION_DATE = "#Creation\\ date";
 const PROPERTY_SIZE = "#Size";
+const PROPERTY_CONTENT = "#Content";
 
 const HISTORY_LIST = "#history-list-info-panel";
 const CREATION_TIME_HISTORY = "p.date";
@@ -276,6 +277,13 @@ class InfoPanel {
   async checkFolderProperties() {
     const folderType = this.infoPanel.locator(PROPERTY_TYPE);
     await expect(folderType).toContainText("Folder");
+  }
+
+  // Counts are recursive: files and folders in subfolders are included
+  async checkContentProperty(folders: number, files: number) {
+    await expect(
+      this.infoPanel.locator(`${PROPERTY_CONTENT} .property-content`),
+    ).toHaveText(`Folders: ${folders} | Files: ${files}`);
   }
 
   async checkRoomProperties(roomType: TRoomCreateTitles) {

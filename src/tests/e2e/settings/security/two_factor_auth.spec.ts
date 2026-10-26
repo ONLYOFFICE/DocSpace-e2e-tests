@@ -15,11 +15,20 @@ import {
 
 test.describe("Two-Factor Authentication tests", () => {
   let security: Security;
+  // The owner's TFA secret from the latest activation: the only way to log the
+  // owner in again if a test ends with TFA on and the session lost
+  let ownerTfaSecret: string | undefined;
 
   test.beforeEach(async ({ page, login }) => {
+    ownerTfaSecret = undefined;
     security = new Security(page);
     await login.loginToPortal();
     await security.open();
+  });
+
+  // The fixture deletes the portal after a password login, which TFA blocks
+  test.afterEach(async ({ api }) => {
+    await api.auth.disableOwnerTfa(ownerTfaSecret);
   });
 
   test("Enable Two-Factor Authentication via authenticator app", async ({
@@ -32,7 +41,7 @@ test.describe("Two-Factor Authentication tests", () => {
     });
 
     await test.step("Activate Two-Factor Authentication with TOTP code", async () => {
-      await twoFactorAuthPage.activateWithTotpCode();
+      ownerTfaSecret = await twoFactorAuthPage.activateWithTotpCode();
     });
 
     await test.step("Verify backup codes dialog is shown", async () => {
@@ -53,7 +62,8 @@ test.describe("Two-Factor Authentication tests", () => {
 
     await test.step("Enable and activate Two-Factor Authentication", async () => {
       await security.enableTfa();
-      secretKey = await twoFactorAuthPage.activateWithTotpCode();
+      secretKey = ownerTfaSecret =
+        await twoFactorAuthPage.activateWithTotpCode();
 
       await expect(twoFactorAuthPage.backupCodesContainer).toBeVisible({
         timeout: 15000,
@@ -83,7 +93,8 @@ test.describe("Two-Factor Authentication tests", () => {
 
     await test.step("Enable and activate Two-Factor Authentication", async () => {
       await security.enableTfa();
-      secretKey = await twoFactorAuthPage.activateWithTotpCode();
+      secretKey = ownerTfaSecret =
+        await twoFactorAuthPage.activateWithTotpCode();
       await expect(twoFactorAuthPage.backupCodesContainer).toBeVisible({
         timeout: 30000,
       });
@@ -115,7 +126,8 @@ test.describe("Two-Factor Authentication tests", () => {
 
     await test.step("Enable and activate Two-Factor Authentication", async () => {
       await security.enableTfa();
-      oldSecretKey = await twoFactorAuthPage.activateWithTotpCode();
+      oldSecretKey = ownerTfaSecret =
+        await twoFactorAuthPage.activateWithTotpCode();
       await expect(twoFactorAuthPage.backupCodesContainer).toBeVisible({
         timeout: 30000,
       });
@@ -137,7 +149,7 @@ test.describe("Two-Factor Authentication tests", () => {
     });
 
     await test.step("Activate with new TOTP code", async () => {
-      await twoFactorAuthPage.activateWithTotpCode();
+      ownerTfaSecret = await twoFactorAuthPage.activateWithTotpCode();
       await expect(twoFactorAuthPage.backupCodesContainer).toBeVisible({
         timeout: 30000,
       });
@@ -151,7 +163,7 @@ test.describe("Two-Factor Authentication tests", () => {
 
     await test.step("Enable and activate Two-Factor Authentication", async () => {
       await security.enableTfa();
-      await twoFactorAuthPage.activateWithTotpCode();
+      ownerTfaSecret = await twoFactorAuthPage.activateWithTotpCode();
       await expect(twoFactorAuthPage.backupCodesContainer).toBeVisible({
         timeout: 30000,
       });
@@ -178,7 +190,7 @@ test.describe("Two-Factor Authentication tests", () => {
 
     await test.step("Enable and activate Two-Factor Authentication", async () => {
       await security.enableTfa();
-      await twoFactorAuthPage.activateWithTotpCode();
+      ownerTfaSecret = await twoFactorAuthPage.activateWithTotpCode();
       await expect(twoFactorAuthPage.backupCodesContainer).toBeVisible({
         timeout: 30000,
       });
@@ -209,7 +221,7 @@ test.describe("Two-Factor Authentication tests", () => {
 
     await test.step("Enable and activate Two-Factor Authentication", async () => {
       await security.enableTfa();
-      await twoFactorAuthPage.activateWithTotpCode();
+      ownerTfaSecret = await twoFactorAuthPage.activateWithTotpCode();
       await expect(twoFactorAuthPage.backupCodesContainer).toBeVisible({
         timeout: 30000,
       });
@@ -235,7 +247,7 @@ test.describe("Two-Factor Authentication tests", () => {
 
     await test.step("Enable and activate Two-Factor Authentication", async () => {
       await security.enableTfa();
-      await twoFactorAuthPage.activateWithTotpCode();
+      ownerTfaSecret = await twoFactorAuthPage.activateWithTotpCode();
       await expect(twoFactorAuthPage.backupCodesContainer).toBeVisible({
         timeout: 30000,
       });
@@ -264,7 +276,7 @@ test.describe("Two-Factor Authentication tests", () => {
 
     await test.step("Enable and activate TFA, save a backup code", async () => {
       await security.enableTfa();
-      await twoFactorAuthPage.activateWithTotpCode();
+      ownerTfaSecret = await twoFactorAuthPage.activateWithTotpCode();
       await expect(twoFactorAuthPage.backupCodesContainer).toBeVisible({
         timeout: 30000,
       });
@@ -290,7 +302,7 @@ test.describe("Two-Factor Authentication tests", () => {
 
     await test.step("Enable and activate TFA, save a backup code", async () => {
       await security.enableTfa();
-      await twoFactorAuthPage.activateWithTotpCode();
+      ownerTfaSecret = await twoFactorAuthPage.activateWithTotpCode();
       await expect(twoFactorAuthPage.backupCodesContainer).toBeVisible({
         timeout: 30000,
       });
@@ -335,7 +347,7 @@ test.describe("Two-Factor Authentication tests", () => {
 
     await test.step("Enable Two-Factor Authentication", async () => {
       await security.enableTfa();
-      await twoFactorAuthPage.activateWithTotpCode();
+      ownerTfaSecret = await twoFactorAuthPage.activateWithTotpCode();
       await expect(twoFactorAuthPage.backupCodesContainer).toBeVisible({
         timeout: 30000,
       });
@@ -364,7 +376,7 @@ test.describe("Two-Factor Authentication tests", () => {
 
     await test.step("Enable and activate Two-Factor Authentication", async () => {
       await security.enableTfa();
-      await twoFactorAuthPage.activateWithTotpCode();
+      ownerTfaSecret = await twoFactorAuthPage.activateWithTotpCode();
       await expect(twoFactorAuthPage.backupCodesContainer).toBeVisible({
         timeout: 30000,
       });
@@ -398,7 +410,7 @@ test.describe("Two-Factor Authentication tests", () => {
 
     await test.step("Enable and activate Two-Factor Authentication", async () => {
       await security.enableTfa();
-      await twoFactorAuthPage.activateWithTotpCode();
+      ownerTfaSecret = await twoFactorAuthPage.activateWithTotpCode();
       await expect(twoFactorAuthPage.backupCodesContainer).toBeVisible({
         timeout: 30000,
       });
