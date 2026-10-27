@@ -1,6 +1,8 @@
 import { test } from "@/src/fixtures";
 import { Payments } from "@/src/objects/settings/payments/Payments";
 import { PaymentApi } from "@/src/api/payment";
+import Services from "@/src/objects/settings/services/services";
+import Files from "@/src/objects/files/Files";
 import {
   paymentsTab,
   toastMessages,
@@ -8,52 +10,13 @@ import {
 } from "@/src/utils/constants/settings";
 import { expect } from "@playwright/test";
 
-test.describe("Payments", () => {
+test.describe("Billing: Wallet", () => {
   let payments: Payments;
-  let paymentApi: PaymentApi;
 
-  test.beforeEach(async ({ page, api, login }) => {
-    paymentApi = new PaymentApi(api.apiRequestContext, api.apisystem);
+  test.beforeEach(async ({ page, login }) => {
     await login.loginToPortal();
     payments = new Payments(page);
     await payments.open();
-  });
-
-  test("Upgrade and downgrade tariff plan", async ({ page }) => {
-    await test.step("Upgrade plan", async () => {
-      const stripePage = await payments.upgradePlan(10);
-      await payments.fillPaymentData(stripePage);
-      await page.reload();
-    });
-
-    await test.step("Downgrade plan", async () => {
-      await payments.openTab(paymentsTab.tariffPlan);
-      await payments.downgradePlan();
-    });
-  });
-
-  test("Send sales request", async ({ page }) => {
-    await test.step("Prepare tariff plan for sales request", async () => {
-      // Sales request button appears only after moving the tariff calculator to a custom sales flow.
-      await payments.openTab(paymentsTab.tariffPlan);
-      await payments.numberOfAdminsInput.fill("99999");
-    });
-
-    await test.step("Open sales request dialog and send", async () => {
-      await payments.openSendRequestDialog();
-      await payments.sendRequest();
-      await payments.fillRequestData();
-      const [response] = await Promise.all([
-        page.waitForResponse(
-          (resp) =>
-            resp.request().method() === "POST" &&
-            resp.url().includes("/api/2.0/portal/payment/request"),
-        ),
-        payments.sendRequest(),
-      ]);
-      expect(response.status()).toBe(200);
-      await payments.dismissToastSafely(toastMessages.requestSent);
-    });
   });
 
   test("Top up wallet via Stripe", async ({ page }) => {
@@ -115,12 +78,30 @@ test.describe("Payments", () => {
       await payments.removeToast(toastMessages.walletToppedUp);
     });
   });
+});
+
+const TOP_UP = "Balance top-up";
+const DISK_STORAGE = "Additional disk storage";
+
+test.describe("Billing: Wallet with transactions", () => {
+  let services: Services;
+  let payments: Payments;
+
+  // Wallet history gets a credit (top-up) and a debit (Disk storage charge)
+  test.beforeEach(async ({ page, api, login }) => {
+    const paymentApi = new PaymentApi(api.apiRequestContext, api.apisystem);
+    await paymentApi.setupPayment();
+    await paymentApi.makeWalletTopUp();
+
+    services = new Services(page);
+    payments = services.payments;
+    await login.loginToPortal();
+    await services.linkCardAndSubscribeToDiskStorage();
+  });
 
   test("Filter transaction history", async ({ page }) => {
-    await test.step("Top up wallet via API", async () => {
-      await paymentApi.setupPayment();
-      await paymentApi.makeWalletTopUp();
-      await page.reload();
+    await test.step("Open Wallet", async () => {
+      await payments.open();
       await payments.openTab(paymentsTab.wallet);
     });
 
@@ -128,89 +109,53 @@ test.describe("Payments", () => {
       await payments.checkCalendar();
     });
 
-    await test.step("Filter by credit transactions", async () => {
+    await test.step("Credit filter shows only the top-up", async () => {
       await payments.openTransactionHistoryFilter();
       await payments.selectTransactionHistoryFilter(
         transactionHistoryFilter.credit,
       );
+      await payments.expectTransactionVisible(TOP_UP);
+      await payments.expectTransactionHidden(DISK_STORAGE);
     });
 
-    await test.step("Filter by debit transactions", async () => {
+    await test.step("Debit filter shows only the Disk storage charge", async () => {
       await payments.openTransactionHistoryFilter();
       await payments.selectTransactionHistoryFilter(
         transactionHistoryFilter.debit,
       );
+      await payments.expectTransactionVisible(DISK_STORAGE);
+      await payments.expectTransactionHidden(TOP_UP);
     });
 
-    await test.step("Verify debit filter persists after reload", async () => {
+    await test.step("After reload the filter is reset to All transactions", async () => {
       await page.reload();
       await payments.openTab(paymentsTab.wallet);
-      await payments.openTransactionHistoryFilter();
-      await payments.selectTransactionHistoryFilter(
-        transactionHistoryFilter.debit,
+      await expect(payments.transactionHistorySelectorButton).toHaveText(
+        "All transactions",
       );
-      await expect(payments.emptyViewText).toBeVisible();
-    });
-
-    await test.step("Show all transactions", async () => {
-      await payments.openTransactionHistoryFilter();
-      await payments.selectTransactionHistoryFilter(
-        transactionHistoryFilter.allTransactions,
-      );
+      await payments.expectTransactionVisible(TOP_UP);
+      await payments.expectTransactionVisible(DISK_STORAGE);
     });
   });
 
-  test("Download transaction history report", async ({ page }) => {
-    await test.step("Top up wallet via API", async () => {
-      await paymentApi.setupPayment();
-      await paymentApi.makeWalletTopUp();
-      await page.reload();
+  test("Download transaction history report", async ({ page, api }) => {
+    await test.step("Open the report from Wallet", async () => {
+      await payments.open();
       await payments.openTab(paymentsTab.wallet);
-    });
-
-    await test.step("Download transaction history report", async () => {
       await payments.downloadReport();
     });
+
+    await test.step("Report is saved to My documents", async () => {
+      const files = new Files(page, api.portalDomain);
+      await files.open();
+      await files.filesTable.expectItemVisible(/report/i);
+    });
   });
 
-  // TODO: Stripe customer portal link removed from UI
-  // test("Stripe customer portal link", async ({ page }) => {
-  //   const page1Promise = page.waitForEvent("popup", { timeout: 30000 });
-  //   await payments.stripeCustomerPortalLink.click({ force: true });
-  //   const page1 = await page1Promise;
-  //   await expect(page1).toHaveURL(
-  //     /https:\/\/billing\.stripe\.com\/p\/session\//,
-  //     {
-  //       timeout: 30000,
-  //     },
-  //   );
-  //   await page1.close();
-
-  //   await payments.openTab(paymentsTab.wallet);
-  //   const page2Promise = page.waitForEvent("popup", { timeout: 30000 });
-  //   await payments.stripeCustomerPortalLink.click({ force: true });
-  //   const page2 = await page2Promise;
-  //   await expect(page2).toHaveURL(
-  //     /https:\/\/billing\.stripe\.com\/p\/session\//,
-  //     {
-  //       timeout: 30000,
-  //     },
-  //   );
-  //   await page2.close();
-  // });
-
-  // TODO: Configure DocSpace settings link removed from UI
-  // test("Configure DocSpace settings link", async ({ page }) => {
-  //   const helpcenterPagePromise = page
-  //     .context()
-  //     .waitForEvent("page", { timeout: 30000 });
-  //   await payments.configureDocSpaceLink.click({
-  //     modifiers: ["ControlOrMeta"],
-  //   });
-  //   const helpcenterPage = await helpcenterPagePromise;
-  //   await helpcenterPage.waitForURL(
-  //     /https:\/\/helpcenter\.onlyoffice\.com\/docspace\/configuration\/.*\.aspx/,
-  //   );
-  //   await helpcenterPage.close();
-  // });
+  test("Upcoming payments list the Disk storage renewal", async ({ page }) => {
+    await payments.openOverview();
+    await payments.overviewUpcomingDetailsLink.click();
+    await expect(page).toHaveURL(/\/billing\/wallet\?tab=upcoming-payments/);
+    await expect(page.getByText(/disk storage/i).first()).toBeVisible();
+  });
 });

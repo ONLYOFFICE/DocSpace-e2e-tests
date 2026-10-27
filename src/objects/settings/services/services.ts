@@ -4,6 +4,12 @@ import BaseTable, { TBaseTableLocators } from "../../common/BaseTable";
 import { Payments } from "@/src/objects/settings/payments/Payments";
 import BaseDialog from "../../common/BaseDialog";
 
+// AI search id in servicestate requests
+const AI_SEARCH_SERVICE = -18;
+
+// Add-on ids as used in storage_service_<id> test ids
+type TAddonId = "aitools" | "aisearch" | "backup" | "total_size" | "docscloud";
+
 class Services extends BasePage {
   table: BaseTable;
   dialog: BaseDialog;
@@ -133,22 +139,6 @@ class Services extends BasePage {
     return this.page.getByTestId("storage_summary_cancel_change_link");
   }
 
-  get aiToggle() {
-    return this.page.getByTestId("storage_service_aitools_toggle");
-  }
-
-  get aiAmountInput() {
-    return this.page.getByTestId("top_up_amount_input");
-  }
-
-  get aiTopUpButton() {
-    return this.page.getByTestId("top_up_button");
-  }
-
-  get aiCancelButton() {
-    return this.page.getByTestId("cancel_top_up_button");
-  }
-
   get infoButton() {
     return this.page.getByTestId("payer_info_help_button");
   }
@@ -179,15 +169,6 @@ class Services extends BasePage {
     });
     await this.payments.fillAmountTopUpForServices();
     await this.payments.topUpButton.click();
-  }
-
-  async openAiCreditsModal() {
-    await this.aiToggle.click();
-    await this.dialog.checkDialogTitleExist("Add credits to ONLYOFFICE AI");
-  }
-
-  async selectAiAmountTab(amount: string) {
-    await this.page.getByTestId(`tab_item_${amount}`).click();
   }
 
   async openTopUpWalletModal() {
@@ -229,6 +210,90 @@ class Services extends BasePage {
     await this.page.waitForURL(/.*disk-storage.*/, { waitUntil: "load" });
   }
 
+  addonToggle(id: TAddonId) {
+    return this.page.getByTestId(`storage_service_${id}_toggle`);
+  }
+
+  // Clicks an add-on toggle and waits for the service state request
+  async switchAddon(id: TAddonId, enabled: boolean) {
+    const [response] = await Promise.all([
+      this.page.waitForResponse(
+        (resp) =>
+          resp.request().method() === "POST" &&
+          resp.url().includes("/api/2.0/portal/payment/servicestate") &&
+          resp.request().postDataJSON()?.enabled === enabled,
+      ),
+      this.addonToggle(id).click(),
+    ]);
+    expect(response.status()).toBe(200);
+  }
+
+  async expectAddonEnabled(id: TAddonId, enabled: boolean) {
+    await expect(this.addonToggle(id)).toHaveAttribute(
+      "aria-checked",
+      String(enabled),
+    );
+  }
+
+  // "AI Search requires AI agents & tools" dialog
+  // Activate turns on AI features and then AI search (two requests)
+  async activateAiFeaturesForAiSearch() {
+    await expect(
+      this.page.getByText("AI Search requires AI agents & tools."),
+    ).toBeVisible();
+    const [response] = await Promise.all([
+      this.page.waitForResponse(
+        (resp) =>
+          resp.request().method() === "POST" &&
+          resp.url().includes("/api/2.0/portal/payment/servicestate") &&
+          resp.request().postDataJSON()?.service === AI_SEARCH_SERVICE,
+      ),
+      this.page
+        .getByTestId("service-confirmation-dialog-continue-button")
+        .click(),
+    ]);
+    expect(response.status()).toBe(200);
+  }
+
+  async startDocsConnectTrial() {
+    await this.addonToggle("docscloud").click();
+    await this.page
+      .getByRole("button", { name: "Start free 30-day trial" })
+      .click();
+    await this.page.waitForURL(/\/developer-tools\/docs-connect/);
+  }
+
+  async expectDocsConnectTrialActive(daysLeft: number) {
+    const card = this.page.getByTestId("storage_service_docscloud");
+    await this.expectAddonEnabled("docscloud", true);
+    await expect(card.locator('[data-disabled="true"]')).toBeVisible();
+    await expect(card).toContainText(`${daysLeft} Free days left`);
+  }
+
+  // Billing with data: a linked card and a Disk storage subscription
+  // (the wallet must already be topped up)
+  async linkCardAndSubscribeToDiskStorage() {
+    await this.open();
+    await this.payments.linkPaymentMethod();
+    await this.open();
+    await this.subscribeToDiskStorage("200");
+  }
+
+  // Buys the Disk storage add-on from the Add-ons page (charges the wallet)
+  async subscribeToDiskStorage(amount: string) {
+    await this.selectDiskStorage(amount);
+    const [response] = await Promise.all([
+      this.page.waitForResponse(
+        (resp) =>
+          resp.request().method() === "PUT" &&
+          resp.url().includes("/api/2.0/portal/payment/updatewallet"),
+      ),
+      this.buyButton.click(),
+    ]);
+    expect(response.status()).toBe(200);
+    await this.waitForDiskStoragePage();
+  }
+
   async checkCurrentSubscriptionVisible() {
     await expect(
       this.page.getByText("Current subscription", { exact: true }),
@@ -239,14 +304,6 @@ class Services extends BasePage {
     await expect(
       this.page.getByText(`${gb} GB`, { exact: true }),
     ).toBeVisible();
-  }
-
-  async waitForAiServicesPage() {
-    await this.page.waitForURL(/.*ai-services.*/, { waitUntil: "load" });
-  }
-
-  async checkAiCreditsVisible() {
-    await expect(this.page.getByText("Available credits")).toBeVisible();
   }
 
   async activateBackupService() {

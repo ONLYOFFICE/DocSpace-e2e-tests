@@ -55,7 +55,7 @@ src/
 | AI Agents           | `AiAgents`        | `src/objects/ai/AiAgents.ts` |
 | Settings > Security | `Security`        | `src/objects/settings/security/Security.ts` |
 | Settings > Backup   | `Backup`          | `src/objects/settings/backup/Backup.ts` |
-| Settings > Payments | `Payments`        | `src/objects/settings/payments/Payments.ts` |
+| Settings > Billing  | `Payments`        | `src/objects/settings/payments/Payments.ts` |
 
 ## Architecture
 
