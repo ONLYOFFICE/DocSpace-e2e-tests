@@ -5,7 +5,7 @@ import { PaymentApi } from "@/src/api/payment";
 import Files from "@/src/objects/files/Files";
 import { Backup } from "@/src/objects/settings/backup/Backup";
 
-test.describe("Backup service", () => {
+test.describe("Billing: Add-ons - Backup", () => {
   let services: Services;
   let paymentApi: PaymentApi;
 
@@ -82,7 +82,7 @@ test.describe("Backup service", () => {
   });
 });
 
-test.describe("Disk storage service", () => {
+test.describe("Billing: Add-ons - Disk storage", () => {
   let services: Services;
   let paymentApi: PaymentApi;
 
@@ -100,17 +100,7 @@ test.describe("Disk storage service", () => {
 
   test("Activate and deactivate disk storage service", async ({ page }) => {
     await test.step("Activate disk storage service", async () => {
-      await services.selectDiskStorage("200");
-      const [response] = await Promise.all([
-        page.waitForResponse(
-          (resp) =>
-            resp.request().method() === "PUT" &&
-            resp.url().includes("/api/2.0/portal/payment/updatewallet"),
-        ),
-        services.buyButton.click(),
-      ]);
-      expect(response.status()).toBe(200);
-      await services.waitForDiskStoragePage();
+      await services.subscribeToDiskStorage("200");
       await services.checkCurrentSubscriptionVisible();
     });
 
@@ -132,17 +122,7 @@ test.describe("Disk storage service", () => {
 
   test("Edit disk storage subscription", async ({ page }) => {
     await test.step("Activate disk storage service", async () => {
-      await services.selectDiskStorage("200");
-      const [response] = await Promise.all([
-        page.waitForResponse(
-          (resp) =>
-            resp.request().method() === "PUT" &&
-            resp.url().includes("/api/2.0/portal/payment/updatewallet"),
-        ),
-        services.buyButton.click(),
-      ]);
-      expect(response.status()).toBe(200);
-      await services.waitForDiskStoragePage();
+      await services.subscribeToDiskStorage("200");
     });
 
     await test.step("Edit subscription", async () => {
@@ -164,17 +144,7 @@ test.describe("Disk storage service", () => {
 
   test("Download disk storage report", async ({ page, api }) => {
     await test.step("Activate disk storage service", async () => {
-      await services.selectDiskStorage("200");
-      const [response] = await Promise.all([
-        page.waitForResponse(
-          (resp) =>
-            resp.request().method() === "PUT" &&
-            resp.url().includes("/api/2.0/portal/payment/updatewallet"),
-        ),
-        services.buyButton.click(),
-      ]);
-      expect(response.status()).toBe(200);
-      await services.waitForDiskStoragePage();
+      await services.subscribeToDiskStorage("200");
     });
 
     await test.step("Verify report appears in My Documents", async () => {
@@ -186,12 +156,11 @@ test.describe("Disk storage service", () => {
   });
 });
 
-test.describe("AI services", () => {
+test.describe("Billing: Add-ons - AI features, AI search, Docs Connect", () => {
   let services: Services;
-  let paymentApi: PaymentApi;
 
   test.beforeEach(async ({ page, api, login }) => {
-    paymentApi = new PaymentApi(api.apiRequestContext, api.apisystem);
+    const paymentApi = new PaymentApi(api.apiRequestContext, api.apisystem);
     await paymentApi.setupPayment();
     await paymentApi.makeWalletTopUp();
 
@@ -200,24 +169,45 @@ test.describe("AI services", () => {
     await services.open();
   });
 
-  // Onlyoffice AI Service is disabled
-  test.skip("AI credits top up", async ({ page }) => {
-    await services.openAiCreditsModal();
+  test("Enable and disable AI features", async () => {
+    await test.step("Enable AI features", async () => {
+      await services.switchAddon("aitools", true);
+      await services.expectAddonEnabled("aitools", true);
+    });
 
-    await services.aiAmountInput.fill("100");
-    await expect(services.aiAmountInput).toHaveValue("100");
+    await test.step("Disable AI features", async () => {
+      await services.switchAddon("aitools", false);
+      await services.expectAddonEnabled("aitools", false);
+    });
+  });
 
-    const [response] = await Promise.all([
-      page.waitForResponse(
-        (resp) =>
-          resp.url().includes("/api/2.0/portal/payment/walletservice") &&
-          resp.url().includes("aitools"),
-      ),
-      services.aiTopUpButton.click(),
-    ]);
-    expect(response.status()).toBe(200);
-    await services.removeToast("ONLYOFFICE AI service successfully enabled.");
-    await services.waitForAiServicesPage();
-    await services.checkAiCreditsVisible();
+  test("AI search activates AI features and can be disabled", async () => {
+    await test.step("Enabling AI search asks to activate AI features first", async () => {
+      await services.addonToggle("aisearch").click();
+      await services.activateAiFeaturesForAiSearch();
+    });
+
+    await test.step("Both AI features and AI search are enabled", async () => {
+      await services.open();
+      await services.expectAddonEnabled("aitools", true);
+      await services.expectAddonEnabled("aisearch", true);
+    });
+
+    await test.step("Disable AI search", async () => {
+      await services.switchAddon("aisearch", false);
+      await services.expectAddonEnabled("aisearch", false);
+      await services.expectAddonEnabled("aitools", true);
+    });
+  });
+
+  test("Docs Connect free trial starts and cannot be turned off", async () => {
+    await test.step("Start the free 30-day trial", async () => {
+      await services.startDocsConnectTrial();
+    });
+
+    await test.step("Add-ons show the trial as active and locked", async () => {
+      await services.open();
+      await services.expectDocsConnectTrialActive(31);
+    });
   });
 });

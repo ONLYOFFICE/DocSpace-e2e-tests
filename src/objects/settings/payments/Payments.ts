@@ -1,4 +1,4 @@
-import { expect, Page } from "@playwright/test";
+import { expect, Locator, Page } from "@playwright/test";
 import BasePage from "../../common/BasePage";
 import {
   navItems,
@@ -10,6 +10,9 @@ import {
 import BaseDialog from "../../common/BaseDialog";
 import BaseTable from "../../common/BaseTable";
 // import { number } from "@inquirer/prompts";
+// An amount like "28.00" or "1,000.00"
+const AMOUNT = /\d[\d,]*\.\d{2}/;
+
 export class Payments extends BasePage {
   portalUrl: string;
   dialog: BaseDialog;
@@ -390,6 +393,139 @@ export class Payments extends BasePage {
     await this.navigateToSettings();
     await this.navigateToArticle(navItems.billing);
     await this.openTab(paymentsTab.tariffPlan);
+  }
+
+  // Billing opens on Overview by default
+  async openOverview() {
+    await this.navigateToSettings();
+    await this.navigateToArticle(navItems.billing);
+    await this.page.waitForURL(/\/billing\/overview/);
+    await expect(this.overviewEditPlanButton).toBeVisible();
+  }
+
+  get overviewEditPlanButton() {
+    return this.page.getByTestId("overview_edit_plan_button");
+  }
+
+  get overviewViewUsageLink() {
+    return this.page.getByTestId("overview_view_usage_link");
+  }
+
+  get overviewManageAddonsLink() {
+    return this.page.getByTestId("overview_manage_addons_link");
+  }
+
+  get overviewManagePaymentMethodLink() {
+    return this.page.getByTestId("overview_manage_payment_method_link");
+  }
+
+  get overviewUpcomingDetailsLink() {
+    return this.page.getByTestId("overview_upcoming_details_link");
+  }
+
+  async expectPaymentMethodLinked() {
+    await expect(
+      this.page.locator("#sectionScroll").getByText("Linked", { exact: true }),
+    ).toBeVisible();
+    await expect(this.page.getByText("No payment method linked")).toBeHidden();
+  }
+
+  async expectTransactionVisible(text: string | RegExp) {
+    await expect(
+      this.page
+        .locator(".table-container_row")
+        .filter({ hasText: text })
+        .first(),
+    ).toBeVisible();
+  }
+
+  async expectTransactionHidden(text: string | RegExp) {
+    await expect(
+      this.page.locator(".table-container_row").filter({ hasText: text }),
+    ).toHaveCount(0);
+  }
+
+  async selectUsagePeriod(period: string) {
+    await this.page.getByTestId("usage_period_combobox").click();
+    await this.page.getByTestId(`usage_period_${period}`).click();
+  }
+
+  async expectUsageServiceVisible(serviceName: string) {
+    await expect(
+      this.page
+        .locator("#sectionScroll")
+        .getByText(serviceName, { exact: true })
+        .first(),
+    ).toBeVisible();
+  }
+
+  async expectUsageEmpty() {
+    await expect(
+      this.page.getByText(/^No spending activity for/),
+    ).toBeVisible();
+  }
+
+  async switchUsageView(view: "By services" | "By month") {
+    await this.page
+      .locator("#sectionScroll")
+      .getByText(view, { exact: true })
+      .click();
+  }
+
+  // Usage row: a service ("By services") or a month ("By month"); the
+  // innermost block holding the title and the row download button
+  private usageRow(title: string) {
+    return this.page
+      .locator("div")
+      .filter({ has: this.page.getByText(title, { exact: true }) })
+      .filter({ has: this.page.getByTestId("usage_row_download") })
+      .last();
+  }
+
+  // Amounts have no test ids, so the "28.00" part is taken from the text
+  private async amountIn(text: string | null) {
+    const match = (text ?? "").match(AMOUNT);
+    expect(match, `no amount in "${text}"`).not.toBeNull();
+    return match![0];
+  }
+
+  async getUsageTotal() {
+    const totalCard = this.page
+      .locator("div")
+      .filter({ has: this.page.getByText("Total spend", { exact: true }) })
+      .last();
+    // The amount replaces a skeleton once usage is loaded
+    await expect(totalCard).toHaveText(AMOUNT);
+    return this.amountIn(await totalCard.textContent());
+  }
+
+  async getUsageRowAmount(title: string) {
+    const row = this.usageRow(title);
+    await expect(row).toHaveText(AMOUNT);
+    return this.amountIn(await row.textContent());
+  }
+
+  async downloadUsageReport() {
+    await this.openReportInEditor(
+      this.page.getByTestId("usage_download_report"),
+    );
+  }
+
+  async downloadUsageRowReport(title: string) {
+    await this.openReportInEditor(
+      this.usageRow(title).getByTestId("usage_row_download"),
+    );
+  }
+
+  // The report is generated first (status polled every second), then opened
+  private async openReportInEditor(button: Locator) {
+    const reportPagePromise = this.page.waitForEvent("popup", {
+      timeout: 90000,
+    });
+    await button.click();
+    const reportPage = await reportPagePromise;
+    await reportPage.waitForURL(/\/doceditor\?/);
+    await reportPage.close();
   }
 
   tabButton(tab: TPaymentsTab) {

@@ -280,6 +280,12 @@ class FilesTable extends BaseTable {
     );
   }
 
+  async expectItemCount(name: string | RegExp, count: number) {
+    await expect(
+      this.page.locator(TABLE_LIST_ITEM, { hasText: name }),
+    ).toHaveCount(count);
+  }
+
   async expectItemNotVisible(name: string | RegExp) {
     await expect(
       this.page.locator(TABLE_LIST_ITEM, { hasText: name }),

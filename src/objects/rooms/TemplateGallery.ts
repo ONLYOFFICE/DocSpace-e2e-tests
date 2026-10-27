@@ -1,5 +1,6 @@
 import { expect, Locator, Page } from "@playwright/test";
 
+const TEMPLATE_CATALOG_API = "/dashboard/v2/api/";
 const SEARCH_INPUT = "search-input";
 const TEXT_INPUT = "text-input";
 const EMPTY_SCREEN_CONTAINER = "empty-screen-container";
@@ -21,6 +22,19 @@ class TemplateGallery {
 
   constructor(page: Page) {
     this.page = page;
+  }
+
+  static logTemplateCatalogResponses(page: Page) {
+    page.on("response", (response) => {
+      if (!response.url().includes(TEMPLATE_CATALOG_API)) return;
+      console.log(`[template catalog] ${response.status()} ${response.url()}`);
+    });
+    page.on("requestfailed", (request) => {
+      if (!request.url().includes(TEMPLATE_CATALOG_API)) return;
+      console.log(
+        `[template catalog] ${request.failure()?.errorText} ${request.url()}`,
+      );
+    });
   }
 
   // ==================== Template Selection ====================

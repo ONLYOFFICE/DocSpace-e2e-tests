@@ -17,6 +17,7 @@ test.describe("FormFilling Template Gallery tests", () => {
 
   test.beforeEach(async ({ page, api }) => {
     myRooms = new MyRooms(page, api.portalDomain);
+    TemplateGallery.logTemplateCatalogResponses(page);
     shortTour = new ShortTour(page);
     roomEmptyView = new RoomEmptyView(page);
     selectPanel = new RoomSelectPanel(page);
