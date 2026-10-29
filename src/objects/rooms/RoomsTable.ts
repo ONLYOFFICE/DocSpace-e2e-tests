@@ -24,7 +24,7 @@ const TABLE_HEADER_TYPE = "[data-testid='column-Type']";
 const TABLE_HEADER_TAGS = "[data-testid='column-Tags']";
 const TABLE_HEADER_OWNER = "[data-testid='column-Owner']";
 const TABLE_HEADER_ACTIVITY = "[data-testid='column-Activity']";
-const TAG_ITEM_BUTTON = "[data-testid='tag_item_']";
+const TAG_ITEM_BUTTON = "[data-testid='tag_item_create']";
 const CONTEXT_MENU_SELECT = "select";
 const ADD_TAG_INPUT = "add_tag_input";
 

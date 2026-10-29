@@ -5,7 +5,7 @@ import { TRoomCreateTitles } from "@/src/utils/constants/rooms";
 import { BaseDropdown } from "./BaseDropdown";
 import BaseToast from "./BaseToast";
 
-const TAG_ADD_BUTTON = "[data-testid='tag_item_']";
+const TAG_ADD_BUTTON = "[data-testid='tag_item_create']";
 const SHARE_ADD_USER_BUTTON = "info_panel_share_add_share_user_button";
 const SHARE_SELECTOR_SEARCH_INPUT = "selector_search_input";
 const SHARE_SELECTOR_SEARCH_TEXT_INPUT = "text-input";
