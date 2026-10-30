@@ -38,13 +38,13 @@ test.describe("AI Chat panel: buttons on Files", () => {
 
   test("Model selector lists raw models and switches the active one", async () => {
     await test.step("Verify the model list includes raw models and Choose AI Agent", async () => {
-      await aiAgents.expectModelInQuickChatMenu("GPT 5.6 Luna", true);
+      await aiAgents.expectModelInQuickChatMenu("GPT 6 Luna", true);
       await aiAgents.expectModelInQuickChatMenu("Choose AI Agent", true);
     });
 
     await test.step("Select a different model and verify it's reflected", async () => {
-      await aiAgents.selectModelInQuickChat("GPT 5.6 Luna");
-      await aiAgents.expectQuickChatModelSelected("GPT 5.6 Luna");
+      await aiAgents.selectModelInQuickChat("GPT 6 Luna");
+      await aiAgents.expectQuickChatModelSelected("GPT 6 Luna");
     });
   });
 

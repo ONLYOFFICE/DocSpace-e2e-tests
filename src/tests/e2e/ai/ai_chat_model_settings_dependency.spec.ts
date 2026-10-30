@@ -10,7 +10,7 @@ test.describe("AI Chat panel: model list follows AI Settings", () => {
   let files: Files;
   let paymentApi: PaymentApi;
   const AGENT_NAME = "Model Settings Dependency Agent";
-  const MODEL_NAME = "Gemini 3.7 Flash";
+  const MODEL_NAME = "Gemini 3.8 Flash";
 
   test.beforeEach(async ({ page, api, login }) => {
     paymentApi = new PaymentApi(api.apiRequestContext, api.apisystem);

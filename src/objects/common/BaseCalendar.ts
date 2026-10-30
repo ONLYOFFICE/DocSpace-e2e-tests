@@ -3,6 +3,13 @@ import { expect, Locator, Page } from "@playwright/test";
 const DATE_PICKER = "date-picker";
 const DATE_SELECTOR = "date-selector";
 
+export const calendarDayLabel = (date: Date) =>
+  date.toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+
 // Base Page Object for calendar / date picker component
 export default class BaseCalendar {
   protected page: Page;
@@ -30,21 +37,11 @@ export default class BaseCalendar {
 
   async selectTomorrow() {
     await this.openDateSelector();
-    const today = new Date();
     const tomorrow = new Date();
-    tomorrow.setDate(today.getDate() + 1);
-    const day = tomorrow.getDate().toString();
-
-    // If tomorrow is in the next month, it appears as a secondary date in the
-    // current month's calendar - skip the isSecondary filter in that case
-    const crossesMonth = tomorrow.getMonth() !== today.getMonth();
-    const filter = crossesMonth
-      ? "button:not([disabled])"
-      : "button:not([disabled]):not([class*='isSecondary'])";
+    tomorrow.setDate(tomorrow.getDate() + 1);
 
     await this.page
-      .getByRole("button", { name: day, exact: true })
-      .and(this.page.locator(filter))
+      .getByRole("button", { name: calendarDayLabel(tomorrow), exact: true })
       .click();
   }
 

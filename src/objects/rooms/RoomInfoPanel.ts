@@ -1,5 +1,6 @@
 import { expect, Page } from "@playwright/test";
 import InfoPanel from "../common/InfoPanel";
+import { calendarDayLabel } from "../common/BaseCalendar";
 
 const SHARE_ROOM_BUTTON = "#share-room";
 const SEARCH_BUTTON = "#info_search";
@@ -210,35 +211,28 @@ class RoomInfoPanel extends InfoPanel {
     await this.goToDateButton.click();
   }
 
-  // A day cell in the currently displayed month of the "Go to date" calendar.
-  // Days outside the current month ("isSecondary") are excluded by default since
-  // the same day number can otherwise match a cell from the previous/next month.
-  // Pass `crossesMonth: true` for a target date that falls in the adjacent month
-  // (e.g. "yesterday" when today is the 1st) - there it's the only matching cell.
-  private historyCalendarDay(day: number, crossesMonth = false) {
-    const filter = crossesMonth
-      ? "button"
-      : "button:not([class*='isSecondary'])";
-    return this.infoPanel
-      .getByRole("button", { name: day.toString(), exact: true })
-      .and(this.page.locator(filter));
+  private historyCalendarDay(date: Date) {
+    return this.infoPanel.getByRole("button", {
+      name: calendarDayLabel(date),
+      exact: true,
+    });
   }
 
   // Days with no activity are disabled - the calendar only lets you jump to a
   // date that actually has history entries.
-  async checkHistoryDayDisabled(day: number, crossesMonth = false) {
-    await expect(this.historyCalendarDay(day, crossesMonth)).toBeDisabled();
+  async checkHistoryDayDisabled(date: Date) {
+    await expect(this.historyCalendarDay(date)).toBeDisabled();
   }
 
-  async selectHistoryDay(day: number, crossesMonth = false) {
-    const dayButton = this.historyCalendarDay(day, crossesMonth);
+  async selectHistoryDay(date: Date) {
+    const dayButton = this.historyCalendarDay(date);
     await expect(dayButton).toBeEnabled();
     await dayButton.click();
   }
 
   // Picks today's date in the "Go to date" calendar that opens under the toolbar.
   async selectHistoryToday() {
-    await this.selectHistoryDay(new Date().getDate());
+    await this.selectHistoryDay(new Date());
   }
 }
 export default RoomInfoPanel;

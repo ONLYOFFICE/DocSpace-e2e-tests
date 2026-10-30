@@ -586,8 +586,19 @@ export class AiAgents extends BasePage {
 
   async openQuickChatModelMenu() {
     // Closes any menu already left open - a second click on the trigger would
-    // toggle an open dropdown closed instead of reopening it.
-    await this.page.keyboard.press("Escape");
+    // toggle an open dropdown closed instead of reopening it. A submenu
+    // (Effort, Permissions) left under the cursor reopens on hover and swallows
+    // Escape, so move the pointer off the menu first and repeat until the
+    // trigger reports the menu closed.
+    await expect(async () => {
+      await this.page.mouse.move(0, 0);
+      await this.page.keyboard.press("Escape");
+      await expect(this.quickChatModelSelectorButton).not.toHaveAttribute(
+        "aria-expanded",
+        "true",
+        { timeout: 1000 },
+      );
+    }).toPass({ timeout: 10000 });
     await this.quickChatModelSelectorButton.click();
     await expect(this.quickChatModelMenu).toBeVisible();
   }
