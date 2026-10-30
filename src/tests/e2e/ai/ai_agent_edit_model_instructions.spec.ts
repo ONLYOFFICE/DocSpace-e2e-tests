@@ -8,7 +8,7 @@ test.describe("AI Agents: edit an existing agent's model", () => {
   let aiSettings: AiSettings;
   let paymentApi: PaymentApi;
   const AGENT_NAME = "Edit Model Instructions Agent";
-  const ORIGINAL_MODEL = "Claude Sonnet 5";
+  const ORIGINAL_MODEL = "Claude Sonnet 5.5";
   const UPDATED_MODEL = "DeepSeek V4 Pro";
 
   test.beforeEach(async ({ page, api, login }) => {

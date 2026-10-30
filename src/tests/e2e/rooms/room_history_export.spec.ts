@@ -166,7 +166,6 @@ test.describe("Rooms: History tab export toolbar", () => {
     const today = new Date();
     const yesterday = new Date(today);
     yesterday.setDate(today.getDate() - 1);
-    const yesterdayCrossesMonth = yesterday.getMonth() !== today.getMonth();
 
     await test.step("Open the calendar", async () => {
       await roomInfoPanel.checkHistoryExist(HISTORY_FILE_NAME);
@@ -177,14 +176,11 @@ test.describe("Rooms: History tab export toolbar", () => {
       // The room (and all its history) was just created today, so yesterday
       // has no activity to jump to - it's still shown in the grid (as a
       // leading/trailing cell of the adjacent month when today is the 1st).
-      await roomInfoPanel.checkHistoryDayDisabled(
-        yesterday.getDate(),
-        yesterdayCrossesMonth,
-      );
+      await roomInfoPanel.checkHistoryDayDisabled(yesterday);
     });
 
     await test.step("Today is selectable and keeps the activity feed", async () => {
-      await roomInfoPanel.selectHistoryDay(today.getDate());
+      await roomInfoPanel.selectHistoryDay(today);
       await roomInfoPanel.checkHistoryExist(HISTORY_FILE_NAME);
     });
   });
