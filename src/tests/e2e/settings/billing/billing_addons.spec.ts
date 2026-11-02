@@ -207,7 +207,7 @@ test.describe("Billing: Add-ons - AI features, AI search, Docs Connect", () => {
 
     await test.step("Add-ons show the trial as active and locked", async () => {
       await services.open();
-      await services.expectDocsConnectTrialActive(31);
+      await services.expectDocsConnectTrialActive(30);
     });
   });
 });

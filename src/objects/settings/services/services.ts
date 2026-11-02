@@ -261,6 +261,9 @@ class Services extends BasePage {
       .getByRole("button", { name: "Start free 30-day trial" })
       .click();
     await this.page.waitForURL(/\/developer-tools\/docs-connect/);
+    await expect(
+      this.page.getByTestId("docs_connect_trial_banner"),
+    ).toBeVisible();
   }
 
   async expectDocsConnectTrialActive(daysLeft: number) {
