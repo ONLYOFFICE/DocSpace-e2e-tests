@@ -120,7 +120,10 @@ class RoomsEmptyView {
 
   async checkEmptyRoomExist(roomName: string) {
     await expect(
-      this.page.getByRole("button", { name: `Welcome to the ${roomName}` }),
+      this.page.getByRole("heading", {
+        level: 3,
+        name: `Welcome to the ${roomName}`,
+      }),
     ).toBeVisible({ timeout: 10000 });
   }
 
