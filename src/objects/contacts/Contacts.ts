@@ -29,6 +29,7 @@ import { BaseDropdown } from "../common/BaseDropdown";
 import BasePage from "../common/BasePage";
 import BaseSelector from "../common/BaseSelector";
 import ContactsFilter from "./ContactsFilter";
+import ContactsAiLimit from "./ContactsAiLimit";
 
 class Contacts extends BasePage {
   private portalDomain: string;
@@ -46,6 +47,7 @@ class Contacts extends BasePage {
   reassignmentDialog: ContactsReassignmentDialog;
   groupDialog: ContactsGroupDialog;
   changeContactTypeDropdown: BaseDropdown;
+  aiLimit: ContactsAiLimit;
 
   constructor(page: Page, portalDomain: string) {
     super(page);
@@ -62,6 +64,7 @@ class Contacts extends BasePage {
     this.inviteDialog = new ContactsInviteDialog(page);
     this.reassignmentDialog = new ContactsReassignmentDialog(page);
     this.groupDialog = new ContactsGroupDialog(page);
+    this.aiLimit = new ContactsAiLimit(page, this.table);
     this.changeContactTypeDropdown = new BaseDropdown(page, {
       menu: this.page
         .locator('[data-testid="dropdown"]')

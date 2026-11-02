@@ -133,6 +133,9 @@ const toastMessages = {
   documentServiceSaved: "Changes saved successfully",
   documentServiceConnectionError:
     "Unable to establish a connection with the Document Server.",
+
+  // ai settings
+  aiLimitSaved: "Changes saved successfully",
 } as const;
 
 const samplePluginZip = {

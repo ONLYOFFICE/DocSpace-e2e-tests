@@ -216,3 +216,54 @@ export const aiSectionEmptyView = {
       "Star files generated in AI agent chats to keep them close at hand.",
   },
 } as const;
+
+// Banner shown in AI Chat when the portal, per-user or individual AI spending
+// limit is reached. The description ends with a locale-formatted date, so only
+// its fixed parts are asserted. Admins get a "Change AI limit" button, regular
+// users are told to contact the admin and get no button.
+export const aiLimitReachedBanner = {
+  title: "AI spending limit reached",
+  descriptionStart: "AI requests are paused until",
+  descriptionEnd: {
+    admin: "Raise the limit in the AI settings to continue now.",
+    user: "Contact the Full admin to raise the limit.",
+  },
+  changeLimitButton: "Change AI limit",
+} as const;
+
+// Period values of AI spending limits: combobox label in the UI, value in the
+// servicelimit API and the dropdown option testid (same ids in the AI limits
+// tab and in the Contacts "Change AI limit" dialog).
+export const aiLimitPeriods = {
+  day: { label: "per day", api: "Day", option: "limit_period_day_option" },
+  week: { label: "per week", api: "Week", option: "limit_period_week_option" },
+  month: {
+    label: "per month",
+    api: "Month",
+    option: "limit_period_month_option",
+  },
+  lifetime: {
+    label: "lifetime",
+    api: "Lifetime",
+    option: "limit_period_lifetime_option",
+  },
+} as const;
+
+export type TAiLimitPeriod = keyof typeof aiLimitPeriods;
+
+export const aiLimitsTab = {
+  minAmountError: "min US$1",
+  unsavedChanges: "You have unsaved changes",
+  contactsLink: "Contacts",
+} as const;
+
+// Contacts > AI spending > "Change AI limit" dialog.
+export const changeAiLimitDialog = {
+  title: "Change AI limit",
+  description: "Set the most the AI services may cost this user per period.",
+  // Hints are known only for these periods so far.
+  periodHint: {
+    day: "Counted from the start of the day.",
+    lifetime: "Counted from the moment the limit is set, never resets.",
+  },
+} as const;
