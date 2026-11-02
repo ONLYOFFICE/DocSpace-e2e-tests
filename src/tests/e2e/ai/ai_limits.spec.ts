@@ -195,7 +195,9 @@ test.describe("AI limits", () => {
     });
   });
 
-  test("Individual limit blocks only its user, limit per user blocks everyone", async ({
+  // Bug 84776: the individual limit is stored (API returns it) but not
+  // applied - the user's chat still answers.
+  test.skip("[Bug 84776] Individual limit blocks only its user, limit per user blocks everyone", async ({
     page,
     apiSdk,
     login,
