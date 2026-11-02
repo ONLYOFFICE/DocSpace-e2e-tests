@@ -19,6 +19,7 @@ import {
   aiSaveAsDocxSections,
   aiChatNotActiveScreen,
   aiChatExportFormats,
+  aiLimitReachedBanner,
   TAiChatExportFormat,
 } from "@/src/utils/constants/ai";
 import { setupClipboardPermissions } from "@/src/utils/helpers/linkTest";
@@ -83,6 +84,9 @@ const CHAT_ITEM_MENU_EXPORT_FORMATS =
   '[role="menuitem"][data-testid^="chat-item-menu-export-"]';
 const CHAT_ITEM_MENU_RENAME = "chat-item-menu-rename";
 const CHAT_ITEM_MENU_DELETE = "chat-item-menu-delete";
+const CHAT_ERROR = "chat-error";
+const CHAT_ERROR_TITLE = "chat-error-title";
+const CHAT_ERROR_DESCRIPTION = "chat-error-description";
 
 export class AiAgents extends BasePage {
   private portalDomain: string;
@@ -1367,6 +1371,45 @@ export class AiAgents extends BasePage {
     await expect(
       this.lastAssistantMessage.getByTestId(ASSISTANT_MESSAGE_ACTIONS),
     ).toBeAttached({ timeout: 60000 });
+  }
+
+  private get chatError() {
+    return this.page.getByTestId(CHAT_ERROR);
+  }
+
+  private get changeAiLimitButton() {
+    return this.chatError.getByRole("button", {
+      name: aiLimitReachedBanner.changeLimitButton,
+    });
+  }
+
+  // The banner reuses the generic chat-error alert (data-error-code is "auth"
+  // for it, so the code is not asserted).
+  async expectAiLimitReachedBanner(viewer: "admin" | "user") {
+    await expect(this.chatError).toBeVisible({ timeout: 60000 });
+    await expect(this.chatError.getByTestId(CHAT_ERROR_TITLE)).toHaveText(
+      aiLimitReachedBanner.title,
+    );
+    const description = this.chatError.getByTestId(CHAT_ERROR_DESCRIPTION);
+    await expect(description).toContainText(
+      aiLimitReachedBanner.descriptionStart,
+    );
+    await expect(description).toContainText(
+      aiLimitReachedBanner.descriptionEnd[viewer],
+    );
+    if (viewer === "admin") {
+      await expect(this.changeAiLimitButton).toBeVisible();
+    } else {
+      await expect(this.changeAiLimitButton).toHaveCount(0);
+    }
+  }
+
+  async clickChangeAiLimit() {
+    await this.changeAiLimitButton.click();
+  }
+
+  async expectNoChatError() {
+    await expect(this.chatError).toHaveCount(0);
   }
 
   async expectAssistantReplyActionsVisible() {

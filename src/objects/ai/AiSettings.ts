@@ -1,7 +1,24 @@
 import { getPortalUrl } from "../../../config";
 import BasePage from "../common/BasePage";
 import { expect, Locator, Page } from "@playwright/test";
-import { navItems } from "@/src/utils/constants/settings";
+import { navItems, toastMessages } from "@/src/utils/constants/settings";
+import {
+  aiLimitPeriods,
+  aiLimitsTab,
+  TAiLimitPeriod,
+} from "@/src/utils/constants/ai";
+
+const LIMITS_TAB = "limits_tab";
+const SERVICE_LIMITS = "service_limits";
+const TOGGLE_BUTTON_CONTAINER = "toggle-button-container";
+const COMBO_BUTTON = '[data-test-id="combo-button"]';
+const SELECTED_TAB_CLASS = /Tabs-module__selected/;
+const LIMIT_RESETS_TEXT = "Resets";
+
+// AI limits tab has two identical forms: "portal_limit_*" and "user_limit_*".
+export type TAiLimitForm = "portal" | "user";
+const limitTestId = (form: TAiLimitForm, part: string) =>
+  `${form}_limit_${part}`;
 
 class AiSettings extends BasePage {
   private portalDomain: string;
@@ -245,7 +262,205 @@ class AiSettings extends BasePage {
     await this.page.goto(`${this.aiSettingsBaseUrl}/ai-models`);
     await expect(this.modelsTab).toBeVisible();
     await tab.click();
-    await expect(tab).toHaveClass(/Tabs-module__selected/);
+    await expect(tab).toHaveClass(SELECTED_TAB_CLASS);
+  }
+
+  private get limitsTab() {
+    return this.page.getByTestId(LIMITS_TAB);
+  }
+
+  private get serviceLimits() {
+    return this.page.getByTestId(SERVICE_LIMITS);
+  }
+
+  private limitElement(form: TAiLimitForm, part: string) {
+    return this.serviceLimits.getByTestId(limitTestId(form, part));
+  }
+
+  async openLimitsTab() {
+    await this.page.goto(`${this.aiSettingsBaseUrl}/limits`);
+    await this.expectLimitsTabOpened();
+  }
+
+  async expectLimitsTabOpened() {
+    await expect(this.page).toHaveURL(/\/portal-settings\/ai-settings\/limits/);
+    await expect(this.limitsTab).toHaveClass(SELECTED_TAB_CLASS);
+    await expect(this.serviceLimits).toBeVisible();
+  }
+
+  // The toggle state lives in aria-checked on the container; the inner
+  // input's checked attribute is unreliable.
+  async expectLimitEnabled(form: TAiLimitForm, enabled: boolean) {
+    await expect(this.limitElement(form, "toggle")).toHaveAttribute(
+      "aria-checked",
+      String(enabled),
+    );
+  }
+
+  async setLimitEnabled(form: TAiLimitForm, enabled: boolean) {
+    const toggle = this.limitElement(form, "toggle");
+    if ((await toggle.getAttribute("aria-checked")) === String(enabled)) {
+      return;
+    }
+    await toggle.getByTestId(TOGGLE_BUTTON_CONTAINER).click();
+    await this.expectLimitEnabled(form, enabled);
+  }
+
+  // Turning a limit off saves it right away - the form with Save/Cancel
+  // disappears, so there is nothing to save.
+  async disableLimit(form: TAiLimitForm) {
+    await this.setLimitEnabled(form, false);
+    await expect(this.limitElement(form, "save_button")).toHaveCount(0);
+  }
+
+  async fillLimitAmount(form: TAiLimitForm, amount: number) {
+    await this.limitElement(form, "amount_input").fill(String(amount));
+  }
+
+  async saveLimit(form: TAiLimitForm) {
+    const saveButton = this.limitElement(form, "save_button");
+    await expect(saveButton).not.toHaveAttribute("aria-disabled", "true");
+    await saveButton.click();
+    await this.dismissToastSafely(toastMessages.aiLimitSaved);
+    await expect(saveButton).toHaveAttribute("aria-disabled", "true");
+  }
+
+  // Only the portal limit status shows the spending: "Spent US$0.00 of
+  // US$1.00. Resets Nov 3, 02:59:59." The limit per user is spent by each user
+  // separately, so its status is just "Resets ...". The reset date is
+  // locale-formatted, so only the limit amount is asserted.
+  async expectPortalLimitStatus(amount: number) {
+    await expect(this.limitElement("portal", "status")).toContainText(
+      `of US$${amount.toFixed(2)}`,
+    );
+  }
+
+  // A lifetime limit never resets, so there is no "Resets ..." text (the
+  // per-user status line may be missing altogether).
+  async expectLimitResets(form: TAiLimitForm, resets: boolean) {
+    const status = this.limitElement(form, "status");
+    if (resets) {
+      await expect(status).toContainText(LIMIT_RESETS_TEXT);
+    } else {
+      await expect(status.filter({ hasText: LIMIT_RESETS_TEXT })).toHaveCount(
+        0,
+      );
+    }
+  }
+
+  private limitAmountInput(form: TAiLimitForm) {
+    return this.limitElement(form, "amount_input");
+  }
+
+  // The input may render the value as "5" or "5.00".
+  async expectLimitAmount(form: TAiLimitForm, amount: number) {
+    await expect(this.limitAmountInput(form)).toHaveValue(
+      new RegExp(`^${amount}(\\.0+)?$`),
+    );
+  }
+
+  // The "min US$1" hint has no testid - it is the element the input points to
+  // via aria-describedby.
+  async expectLimitAmountInvalid(form: TAiLimitForm) {
+    const input = this.limitAmountInput(form);
+    await expect(input).toHaveAttribute("aria-invalid", "true");
+    const hintId = await input.getAttribute("aria-describedby");
+    expect(hintId).toBeTruthy();
+    await expect(this.page.locator(`[id="${hintId}"]`)).toHaveText(
+      aiLimitsTab.minAmountError,
+    );
+    await this.expectSaveDisabled(form);
+  }
+
+  async expectLimitAmountValid(form: TAiLimitForm) {
+    await expect(this.limitAmountInput(form)).not.toHaveAttribute(
+      "aria-invalid",
+      "true",
+    );
+  }
+
+  async expectSaveDisabled(form: TAiLimitForm) {
+    await expect(this.limitElement(form, "save_button")).toHaveAttribute(
+      "aria-disabled",
+      "true",
+    );
+  }
+
+  // The period dropdown is portaled to the page root, outside service_limits.
+  private get periodDropdown() {
+    return this.page.getByRole("listbox");
+  }
+
+  async selectLimitPeriod(form: TAiLimitForm, period: TAiLimitPeriod) {
+    await this.limitElement(form, "period_combobox")
+      .locator(COMBO_BUTTON)
+      .click();
+    const dropdown = this.periodDropdown;
+    await expect(dropdown).toBeVisible();
+    await dropdown.getByTestId(aiLimitPeriods[period].option).click();
+    await expect(dropdown).toBeHidden();
+    await this.expectLimitPeriod(form, period);
+  }
+
+  async expectLimitPeriod(form: TAiLimitForm, period: TAiLimitPeriod) {
+    await expect(this.limitElement(form, "period_combobox")).toContainText(
+      aiLimitPeriods[period].label,
+    );
+  }
+
+  // Opens the period dropdown, checks all four options and that the current
+  // period is the selected (and disabled) one, then closes it.
+  async expectLimitPeriodOptions(form: TAiLimitForm, selected: TAiLimitPeriod) {
+    await this.limitElement(form, "period_combobox")
+      .locator(COMBO_BUTTON)
+      .click();
+    const dropdown = this.periodDropdown;
+    await expect(dropdown).toBeVisible();
+    for (const [period, { label, option }] of Object.entries(aiLimitPeriods)) {
+      const item = dropdown.getByTestId(option);
+      await expect(item).toHaveText(label);
+      if (period === selected) {
+        await expect(item).toHaveAttribute("aria-selected", "true");
+        await expect(item).toHaveAttribute("aria-disabled", "true");
+      } else {
+        await expect(item).not.toHaveAttribute("aria-selected", "true");
+      }
+    }
+    await this.page.keyboard.press("Escape");
+    await expect(dropdown).toBeHidden();
+  }
+
+  async expectUnsavedChanges(form: TAiLimitForm, visible: boolean) {
+    const reminder = this.limitElement(form, "reminder");
+    if (visible) {
+      await expect(reminder).toHaveText(aiLimitsTab.unsavedChanges);
+    } else {
+      await expect(reminder).toBeHidden();
+    }
+  }
+
+  async cancelLimitChanges(form: TAiLimitForm) {
+    const cancelButton = this.limitElement(form, "cancel_button");
+    await expect(cancelButton).not.toHaveAttribute("aria-disabled", "true");
+    await cancelButton.click();
+    await this.expectUnsavedChanges(form, false);
+    await this.expectSaveDisabled(form);
+  }
+
+  async openContactsFromUserLimit() {
+    const link = this.limitElement("user", "contacts_link");
+    await expect(link).toHaveText(aiLimitsTab.contactsLink);
+    await link.click();
+    await expect(this.page).toHaveURL(/\/accounts\/people/);
+  }
+
+  async expectContactsLinkVisible(visible: boolean) {
+    const link = this.limitElement("user", "contacts_link");
+    if (visible) {
+      await expect(link).toBeVisible();
+    } else {
+      await expect(link).toHaveCount(0);
+    }
   }
 }
 
