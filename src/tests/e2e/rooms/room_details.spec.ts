@@ -96,10 +96,7 @@ test.describe("Room Details: Content counter", () => {
     });
   });
 
-  // BUG: after uploading a file from the device the Content counter shows
-  // Files: 2 instead of 1 until the page is reloaded - the upload finish
-  // handler and the "file created" socket event both increment it
-  test.skip("Content is updated right after uploading a file from the device", async () => {
+  test("Content is updated right after uploading a file from the device", async () => {
     await test.step("Open the room and its Details", async () => {
       await myRooms.openWithoutEmptyCheck();
       await myRooms.roomsTable.openRoomByName(ROOM_NAME);

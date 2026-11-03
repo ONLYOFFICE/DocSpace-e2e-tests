@@ -10,7 +10,9 @@ const AGENT_NAME = "Viewer Result Agent";
 // File rows display the title without its extension.
 const baseName = (title: string) => title.replace(/\.[^.]+$/, "");
 
-test.describe("AI Agents: Viewer sees generated results", () => {
+// Skipped: AI agents were replaced by AI rooms (Instructions rooms, Knowledge
+// rooms and AI projects). To be rewritten for the new model.
+test.describe.skip("AI Agents: Viewer sees generated results", () => {
   let aiAgents: AiAgents;
   let aiSettings: AiSettings;
   let paymentApi: PaymentApi;
