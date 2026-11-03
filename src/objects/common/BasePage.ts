@@ -122,8 +122,7 @@ export default class BasePage {
     await expect(this.page.getByTestId(TARIFF_BAR_TEXT)).toBeVisible();
   }
 
-  // Section header "AI Chat" button (Files/Rooms/Forms). Deliberately absent
-  // on AI Agents, where the chat is the section itself.
+  // Section header "AI Chat" button (Files/Rooms/Forms/AI rooms).
   protected get headerAiChatButton(): Locator {
     return this.page.locator(HEADER_AI_CHAT_BUTTON);
   }

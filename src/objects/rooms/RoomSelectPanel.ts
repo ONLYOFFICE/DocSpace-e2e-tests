@@ -23,7 +23,7 @@ const FOLDER_SELECTORS: Record<FolderType, string> = {
 // Used to confirm the panel re-rendered after navigation before clicking the
 // next item at the same testid (the ids are reused per nesting level).
 const FOLDER_LABELS: Record<FolderType, string> = {
-  ai: "AI agents",
+  ai: "AI rooms",
   documents: "Files",
   rooms: "Rooms",
   forms: "Forms",
@@ -65,7 +65,7 @@ class RoomSelectPanel extends BaseSelector {
       { type: "documents", text: "Files" },
       { type: "rooms", text: "Rooms" },
       { type: "forms", text: "Forms" },
-      { type: "ai", text: "AI agents" },
+      { type: "ai", text: "AI rooms" },
     ];
     for (const option of expectedOptions) {
       const selector = FOLDER_SELECTORS[option.type];

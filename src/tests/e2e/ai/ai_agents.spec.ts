@@ -22,11 +22,10 @@ test.describe("AI Agents", () => {
     await aiAgents.expectAiNotActive();
   });
 
-  // Files/Rooms/Forms show a header "AI Chat" button on their empty views;
-  // it's deliberately absent here, since this whole section is the chat.
-  test("No header AI Chat button", async () => {
+  // Like Files/Rooms/Forms, the AI rooms section has a header "AI Chat" button.
+  test("Header AI Chat button is shown", async () => {
     await aiAgents.open();
-    await aiAgents.checkAiChatButtonNotExist();
+    await aiAgents.checkAiChatButtonVisible();
   });
 
   test("Create AI agent", async () => {
@@ -43,9 +42,6 @@ test.describe("AI Agents", () => {
       await aiAgents.openDirectly();
       await aiAgents.openCreateAgentDialog();
       await aiAgents.fillAgentName(agentName);
-      await aiAgents.fillInstructions(
-        "You are a helpful assistant for DocSpace e2e tests.",
-      );
       await aiAgents.saveAgent();
     });
 
@@ -82,7 +78,6 @@ test.describe("AI Agents: management", () => {
       await aiAgents.openDirectly();
       await aiAgents.openCreateAgentDialog();
       await aiAgents.fillAgentName(AGENT_NAME);
-      await aiAgents.fillInstructions("Test agent for management scenarios.");
       await aiAgents.saveAgent();
       await aiAgents.openAndExpectAgentInList(AGENT_NAME);
     });

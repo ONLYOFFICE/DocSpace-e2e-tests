@@ -31,7 +31,6 @@ test.describe("AI Agents: attach document", () => {
       await aiAgents.openDirectly();
       await aiAgents.openCreateAgentDialog();
       await aiAgents.fillAgentName(AGENT_NAME);
-      await aiAgents.fillInstructions("Test agent for attachment scenarios.");
       await aiAgents.saveAgent();
     });
   });

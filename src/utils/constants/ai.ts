@@ -1,7 +1,7 @@
 export const aiAgentToastMessages = {
-  pinned: "AI agent pinned",
-  notificationsDisabled: "AI agent notifications disabled",
-  notificationsEnabled: "AI agent notifications enabled",
+  pinned: "Room pinned",
+  notificationsDisabled: "Room notifications disabled",
+  notificationsEnabled: "Room notifications enabled",
   linkCopied: "Link has been copied to the clipboard",
   promptSaved: "Prompt saved",
   promptSavedToFolder: (folderName: string) =>
@@ -35,7 +35,7 @@ export const aiDeleteChatDialog = {
 
 // Suggestion chips shown above the AI Chat composer on a fresh chat. Every
 // section and sub-section has its own set (keys match navigation.ts
-// sub-items; "root" is the app's main page). AI agents has none.
+// sub-items; "root" is the app's main page). AI rooms has none.
 export const aiChatSuggestions = {
   files: {
     root: [
@@ -176,7 +176,7 @@ export const aiChatNotActiveScreen = {
 export const aiSaveAsDocxSections = {
   files: "Files",
   rooms: "Rooms",
-  aiAgents: "AI agents",
+  aiAgents: "AI rooms",
   forms: "Forms",
 } as const;
 
@@ -207,13 +207,12 @@ export const aiSectionEmptyView = {
     heading: "Recent",
     title: "No recent files yet",
     description:
-      "Files recently generated in AI agent chats show up here and stick around for 90 days.",
+      "Files you've recently opened show up here and stick around for 90 days.",
   },
   favorites: {
     heading: "Favorites",
     title: "No favorite files yet",
-    description:
-      "Star files generated in AI agent chats to keep them close at hand.",
+    description: "Star files and folders to keep them close at hand.",
   },
 } as const;
 

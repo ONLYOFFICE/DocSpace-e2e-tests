@@ -33,7 +33,6 @@ test.describe("AI Agents: chat is private per member", () => {
       await aiAgents.openDirectly();
       await aiAgents.openCreateAgentDialog();
       await aiAgents.fillAgentName(AGENT_NAME);
-      await aiAgents.fillInstructions("Test agent for chat privacy scenarios.");
       await aiAgents.saveAgent();
       await aiAgents.expectChatOpened();
       await aiAgents.openAndExpectAgentInList(AGENT_NAME);
@@ -67,11 +66,7 @@ test.describe("AI Agents: chat is private per member", () => {
         await aiAgents.openAndExpectAgentInList(AGENT_NAME);
         // Default invite access is Viewer (no chat composer) - grant Content
         // creator so the invited user can send messages in the agent chat.
-        await aiAgents.inviteUserToAgent(
-          AGENT_NAME,
-          userData.email,
-          "Content creator",
-        );
+        await aiAgents.inviteUserToAgent(AGENT_NAME, userData.email, "Member");
       });
 
       await test.step("Invited user opens the agent and does not see the owner's message", async () => {

@@ -26,9 +26,7 @@ test.describe("AI Chat panel: buttons on Files", () => {
     });
 
     await test.step("Precondition: create an agent so the chat panel is usable", async () => {
-      await aiAgents.createAgent(AGENT_NAME, {
-        instructions: "Agent for AI Chat panel button tests.",
-      });
+      await aiAgents.createAgent(AGENT_NAME);
     });
 
     await files.open();

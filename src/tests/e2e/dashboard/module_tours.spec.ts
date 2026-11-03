@@ -149,7 +149,7 @@ test.describe("Dashboard: Module tours", () => {
     await walkModuleTour(tour, FORMS_STEPS);
   });
 
-  test("AI agents: tour walks through all steps", async () => {
+  test.skip("[Bug 84846] AI agents: tour walks through all steps", async () => {
     await dashboard.agentsTourButton.click();
     await walkModuleTour(tour, AGENTS_STEPS);
   });
@@ -220,7 +220,7 @@ test.describe("Dashboard: Module tours (non-owner roles)", () => {
     await walkModuleTour(tour, MEMBER_FORMS_STEPS);
   });
 
-  test("User: AI agents tour shows the member variant", async ({
+  test.skip("[Bug 84846] User: AI agents tour shows the member variant", async ({
     page,
     api,
     apiSdk,

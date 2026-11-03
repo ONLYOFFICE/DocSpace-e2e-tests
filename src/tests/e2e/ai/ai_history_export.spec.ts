@@ -37,9 +37,6 @@ test.describe("AI Agents: History tab export toolbar", () => {
       await aiAgents.openDirectly();
       await aiAgents.openCreateAgentDialog();
       await aiAgents.fillAgentName(AGENT_NAME);
-      await aiAgents.fillInstructions(
-        "Test agent for history export scenarios.",
-      );
       await aiAgents.saveAgent();
       await aiAgents.expectChatOpened();
       agentId = aiAgents.getAgentFolderIdFromChat();

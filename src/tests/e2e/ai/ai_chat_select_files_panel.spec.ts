@@ -113,7 +113,7 @@ test.describe("AI Chat attach panel: Recent/Favorites are scoped per section", (
   test("Favorites and Recent don't leak items across AI agents/Forms/Rooms/Files", async () => {
     await test.step("AI agents > Favorite files has no leftovers from Files", async () => {
       await aiAgents.openAttachmentPanel();
-      await attachmentPanel.openFolder("AI agents");
+      await attachmentPanel.openFolder("AI rooms");
       await attachmentPanel.openFolder("Favorite files");
       await attachmentPanel.expectFileNotVisible(FILES_FAVORITE);
       await attachmentPanel.close();
@@ -121,7 +121,7 @@ test.describe("AI Chat attach panel: Recent/Favorites are scoped per section", (
 
     await test.step("AI agents > Recent files has no leftovers from Files", async () => {
       await aiAgents.openAttachmentPanel();
-      await attachmentPanel.openFolder("AI agents");
+      await attachmentPanel.openFolder("AI rooms");
       await attachmentPanel.openFolder("Recent files");
       await attachmentPanel.expectFileNotVisible(FILES_FAVORITE);
       await attachmentPanel.close();
@@ -219,7 +219,7 @@ test.describe("AI Chat attach panel: selecting an agent", () => {
   test("Opening an agent from the AI agents section shows its Knowledge and Chat outputs folders", async () => {
     await test.step("Open the AI agents section in the attach selector", async () => {
       await aiAgents.openAttachmentPanel();
-      await attachmentPanel.openFolder("AI agents");
+      await attachmentPanel.openFolder("AI rooms");
     });
 
     await test.step("Open the agent and check its Knowledge folder is empty", async () => {

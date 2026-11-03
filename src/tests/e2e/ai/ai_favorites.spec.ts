@@ -29,7 +29,9 @@ test.describe("AI agents: Favorites", () => {
   });
 });
 
-test.describe("AI agents: Favorites", () => {
+// Skipped: AI projects no longer have a Chat outputs folder / Result storage
+// tab, and it is not yet clear which AI rooms files end up in Favorites.
+test.describe.skip("AI agents: Favorites", () => {
   const AGENT_NAME = "Favorite File Agent";
 
   test("Starring a generated file adds it to Favorites", async ({

@@ -10,7 +10,9 @@ const AGENT_NAME = "Viewer Result Agent";
 // File rows display the title without its extension.
 const baseName = (title: string) => title.replace(/\.[^.]+$/, "");
 
-test.describe("AI Agents: Viewer sees generated results", () => {
+// Skipped: the Viewer role is gone - AI projects only have "Project manager"
+// and "Member". To be reworked for the new AI rooms access model.
+test.describe.skip("AI Agents: Viewer sees generated results", () => {
   let aiAgents: AiAgents;
   let aiSettings: AiSettings;
   let paymentApi: PaymentApi;

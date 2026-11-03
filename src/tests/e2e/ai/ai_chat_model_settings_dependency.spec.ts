@@ -27,9 +27,7 @@ test.describe("AI Chat panel: model list follows AI Settings", () => {
     });
 
     await test.step("Precondition: create an agent so the chat panel is usable", async () => {
-      await aiAgents.createAgent(AGENT_NAME, {
-        instructions: "Agent for AI Chat model-settings dependency tests.",
-      });
+      await aiAgents.createAgent(AGENT_NAME);
     });
   });
 

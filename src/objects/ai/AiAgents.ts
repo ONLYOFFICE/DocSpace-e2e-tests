@@ -87,6 +87,23 @@ const CHAT_ITEM_MENU_DELETE = "chat-item-menu-delete";
 const CHAT_ERROR = "chat-error";
 const CHAT_ERROR_TITLE = "chat-error-title";
 const CHAT_ERROR_DESCRIPTION = "chat-error-description";
+const ROOM_TYPE_LIST_ITEM = "room-type-list-item";
+const AI_PROJECT_ROOM_TYPE = "AI project";
+const AI_PROJECT_TITLE_INPUT = "ai-project-title";
+const AI_PROJECT_MODEL_COMBOBOX = "ai-project-profile-combobox";
+const AI_PROJECT_SUBMIT = "ai-project-submit";
+const OPTION_EDIT_ROOM = "option_edit-room";
+const OPTION_DELETE_ROOM = "option_delete";
+const OPTION_INVITE = "option_invite-users-to-room";
+const OPTION_LEAVE_ROOM = "option_leave-room";
+const OPTION_ROOM_INFO = "option_room-info";
+const OPTION_DOWNLOAD = "option_download";
+const OPTION_CHANGE_ROOM_OWNER = "option_change-room-owner";
+
+const contextMenuItem = (value: string): TMenuItem => ({
+  type: "data-testid",
+  value,
+});
 
 export class AiAgents extends BasePage {
   private portalDomain: string;
@@ -116,17 +133,20 @@ export class AiAgents extends BasePage {
 
   private get aiNotActiveHeading() {
     return this.page.getByRole("heading", {
-      name: /AI agents & tools aren.t active yet/,
+      name: /AI isn.t active yet/,
     });
   }
 
   private get topUpAndActivateButton() {
-    return this.page.locator("#top-up-and-activate-ai");
+    return this.page.getByRole("button", {
+      name: "Top up & activate",
+      exact: true,
+    });
   }
 
   // The inline AI Chat panel opened from a section's quick actions (Forms,
-  // etc.) shows its own not-active state, distinct from the full AI Agents
-  // page's "AI agents & tools aren't active yet".
+  // etc.) shows its own not-active state, distinct from the full AI rooms
+  // page's "AI isn't active yet".
   private get quickChatNotActiveHeading() {
     return this.page.getByRole("heading", {
       name: /AI Chat isn.t active yet/,
@@ -177,20 +197,18 @@ export class AiAgents extends BasePage {
     await expect(this.chatComposerInput).toHaveCount(0);
   }
 
+  // The former "AI agent" is now an "AI project" AI room. Its create and edit
+  // dialogs share the same fields; instructions moved to Instructions rooms.
   private get agentNameInput() {
-    return this.page.getByTestId("create_edit_agent_input");
+    return this.page.getByTestId(AI_PROJECT_TITLE_INPUT);
   }
 
   private get modelCombobox() {
-    return this.page.getByTestId("create_agent_profile_combobox");
-  }
-
-  private get instructionsTextarea() {
-    return this.page.getByTestId("create_agent_instructions_textarea");
+    return this.page.getByTestId(AI_PROJECT_MODEL_COMBOBOX);
   }
 
   private get createAgentButton() {
-    return this.page.getByTestId("create_agent_dialog_save");
+    return this.page.getByTestId(AI_PROJECT_SUBMIT);
   }
 
   private agentNameCell(name: string) {
@@ -206,7 +224,7 @@ export class AiAgents extends BasePage {
   }
 
   async openDirectly() {
-    await this.page.goto(`${getPortalUrl(this.portalDomain)}/ai-agents/filter`);
+    await this.page.goto(`${getPortalUrl(this.portalDomain)}/ai-rooms/filter`);
     await this.waitForAiAgentsPage();
   }
 
@@ -215,9 +233,9 @@ export class AiAgents extends BasePage {
     await this.waitForAiAgentsPage();
   }
 
-  // Checks the sidebar item, not links to agents: an `a[href*="/ai-agents"]`
-  // locator matches the agent rows in the list, so it used to pass for the wrong
-  // reason whenever the user simply had no agents.
+  // Checks the sidebar item, not links to rooms: an `a[href*="/ai-rooms"]`
+  // locator matches the room rows in the list, so it used to pass for the wrong
+  // reason whenever the user simply had no rooms.
   async checkNotAvailable() {
     await this.sidebar.checkItemNotExist(apps.aiAgents);
   }
@@ -230,15 +248,15 @@ export class AiAgents extends BasePage {
     await this.goToSettingsButton.click();
   }
 
-  // When AI features are not activated, the agents page shows a
-  // "AI agents & tools aren't active yet" empty view with a "Top up & activate" CTA.
+  // When AI features are not activated, the AI rooms page shows an
+  // "AI isn't active yet" empty view with a "Top up & activate" CTA.
   async expectAiNotActive() {
     await expect(this.aiNotActiveHeading).toBeVisible();
     await expect(this.topUpAndActivateButton).toBeVisible();
   }
 
   private async waitForAiAgentsPage() {
-    await expect(this.page).toHaveURL(/\/ai-agents/);
+    await expect(this.page).toHaveURL(/\/ai-rooms/);
   }
 
   private get emptyView() {
@@ -258,12 +276,12 @@ export class AiAgents extends BasePage {
 
   async openRecentFromNavigation() {
     await this.sidebar.openSubItem(apps.aiAgents, aiAgentsSubItems.recent);
-    await expect(this.page).toHaveURL(/\/ai-agents\/recent/);
+    await expect(this.page).toHaveURL(/\/ai-rooms\/recent/);
   }
 
   async openFavoritesFromNavigation() {
     await this.sidebar.openSubItem(apps.aiAgents, aiAgentsSubItems.favorites);
-    await expect(this.page).toHaveURL(/\/ai-agents\/favorites/);
+    await expect(this.page).toHaveURL(/\/ai-rooms\/favorites/);
   }
 
   async expectRecentSubItemActive() {
@@ -354,9 +372,16 @@ export class AiAgents extends BasePage {
     // "Top up & activate" state; reload so the create-agent action shows.
     await this.page.reload();
     await this.waitForAiAgentsPage();
-    // Goes through the state-aware create button ("New agent" in the toolbar when
-    // agents exist, "+" in the header when the list is empty).
+    // Goes through the state-aware create button ("New room" in the toolbar when
+    // rooms exist, "+" in the header when the list is empty), then picks the
+    // "AI project" type in the room type dialog.
     await this.navigation.clickAddButton();
+    await this.page
+      .getByTestId(ROOM_TYPE_LIST_ITEM)
+      .filter({
+        has: this.page.getByText(AI_PROJECT_ROOM_TYPE, { exact: true }),
+      })
+      .click();
     await expect(this.agentNameInput).toBeVisible();
   }
 
@@ -374,10 +399,6 @@ export class AiAgents extends BasePage {
       .filter({ hasText: modelName })
       .getByText(modelName, { exact: true })
       .click();
-  }
-
-  async fillInstructions(text: string) {
-    await this.instructionsTextarea.fill(text);
   }
 
   async saveAgent() {
@@ -404,18 +425,12 @@ export class AiAgents extends BasePage {
     await expect(this.chatComposerInput).toBeVisible();
   }
 
-  async createAgent(
-    name: string,
-    opts: { model?: string; instructions?: string } = {},
-  ) {
+  async createAgent(name: string, opts: { model?: string } = {}) {
     await this.openDirectly();
     await this.openCreateAgentDialog();
     await this.fillAgentName(name);
     if (opts.model) {
       await this.selectModel(opts.model);
-    }
-    if (opts.instructions) {
-      await this.fillInstructions(opts.instructions);
     }
     await this.saveAgent();
     await this.expectChatOpened();
@@ -784,10 +799,6 @@ export class AiAgents extends BasePage {
     await this.checkToastMessage(aiAgentViewerModeToastMessage);
   }
 
-  async expectChatUrl() {
-    await expect(this.page).toHaveURL(/\/ai-agents\/[^/]+\/chat/);
-  }
-
   // "Tested model for form processing is not available" hint container,
   // shown in the chat and in the agent settings dialog
   private get recommendedModelHint() {
@@ -805,18 +816,9 @@ export class AiAgents extends BasePage {
   }
 
   async openEditAgentFromChat() {
-    const editAgentOption: TMenuItem = {
-      type: "data-testid",
-      value: "option_edit-agent",
-    };
     await this.page.locator("#header_optional-button").click();
     await this.contextMenu.checkMenuExists();
-    const editOption = this.contextMenu.getItemLocator(editAgentOption);
-    if (await editOption.isVisible()) {
-      await editOption.click();
-    } else {
-      await this.contextMenu.clickSubmenuOption("Manage", editAgentOption);
-    }
+    await this.contextMenu.clickOption(contextMenuItem(OPTION_EDIT_ROOM));
     await expect(this.agentNameInput).toBeVisible();
   }
 
@@ -856,28 +858,17 @@ export class AiAgents extends BasePage {
     await expect(this.agentNameCell(name)).toHaveCount(0);
   }
 
-  // #modal-dialog isn't unique on the page (a hidden "Synchronization with
-  // database" panel shares the id), so scope by role/name too - the hidden
-  // panel has no Save button, which resolves the ambiguity.
-  private get editAgentSaveButton() {
-    return this.page.locator("#modal-dialog").getByRole("button", {
-      name: "Save",
-    });
-  }
-
   async openEditAgentDialog(name: string) {
     await this.openAgentContextMenu(name);
-    await this.contextMenu.clickOption("Edit agent");
-    await expect(this.agentNameInput).toBeVisible();
-    // The instructions textarea's initial value loads asynchronously after
-    // the dialog itself opens - editing too early gets overwritten once it
-    // arrives, so wait for it before touching any field.
-    await expect(this.instructionsTextarea).toBeVisible();
+    await this.contextMenu.clickOption(contextMenuItem(OPTION_EDIT_ROOM));
+    await expect(this.agentNameInput).toHaveValue(name);
+    await expect(this.modelCombobox).toBeVisible();
   }
 
+  // The edit dialog reuses the create dialog's submit button ("Save").
   async saveEditedAgent() {
-    await expect(this.editAgentSaveButton).toBeEnabled();
-    await this.editAgentSaveButton.click();
+    await expect(this.createAgentButton).toBeEnabled();
+    await this.createAgentButton.click();
   }
 
   async renameAgent(oldName: string, newName: string) {
@@ -886,21 +877,12 @@ export class AiAgents extends BasePage {
     await this.saveEditedAgent();
   }
 
-  // The create-agent dialog is reused for editing, so the same model
-  // combobox and instructions textarea testids apply here.
-  async editAgent(
-    name: string,
-    opts: { model?: string; instructions?: string },
-  ) {
+  // The create dialog is reused for editing, so the same model combobox
+  // testid applies here.
+  async editAgent(name: string, opts: { model?: string }) {
     await this.openEditAgentDialog(name);
     if (opts.model) {
       await this.selectModel(opts.model);
-    }
-    if (opts.instructions) {
-      await this.instructionsTextarea.fill(opts.instructions);
-      // Blur so the controlled textarea's change commits to state before
-      // Save is clicked - without it the click can race the update.
-      await this.instructionsTextarea.blur();
     }
     await this.saveEditedAgent();
   }
@@ -910,14 +892,9 @@ export class AiAgents extends BasePage {
     await expect(this.modelCombobox).toHaveText(modelName);
   }
 
-  async expectAgentInstructions(name: string, instructions: string) {
-    await this.openEditAgentDialog(name);
-    await expect(this.instructionsTextarea).toHaveValue(instructions);
-  }
-
   async deleteAgent(name: string) {
     await this.openAgentContextMenu(name);
-    await this.contextMenu.clickOption("Delete agent");
+    await this.contextMenu.clickOption(contextMenuItem(OPTION_DELETE_ROOM));
     const dialog = this.page
       .getByTestId("delete-dialog")
       .getByTestId("modal-dialog");
@@ -934,14 +911,14 @@ export class AiAgents extends BasePage {
 
   async openInviteDialog(name: string) {
     await this.openAgentContextMenu(name);
-    await this.contextMenu.clickOption("Invite people");
+    await this.contextMenu.clickOption(contextMenuItem(OPTION_INVITE));
     await this.inviteDialog.checkInviteTitleExist();
   }
 
   // Access defaults to whatever the invite dialog itself defaults to
-  // (Viewer - no chat composer). Pass e.g. "Content creator" to grant a role
-  // that can actually chat with the agent; must be set before the email is
-  // added, as it becomes the default role applied to newly added invitees.
+  // ("Project manager"). Pass "Member" to grant the chat-only role; must be
+  // set before the email is added, as it becomes the default role applied to
+  // newly added invitees.
   async inviteUserToAgent(agentName: string, email: string, access?: string) {
     await this.openInviteDialog(agentName);
     if (access) {
@@ -956,7 +933,7 @@ export class AiAgents extends BasePage {
 
   async openAgentInfo(name: string) {
     await this.openAgentContextMenu(name);
-    await this.contextMenu.clickSubmenuOption("More options", "Agent info");
+    await this.contextMenu.clickOption(contextMenuItem(OPTION_ROOM_INFO));
   }
 
   async expectMemberInAgentContacts(email: string) {
@@ -970,7 +947,7 @@ export class AiAgents extends BasePage {
   async downloadAgent(name: string) {
     return this.waitForDownload(async () => {
       await this.openAgentContextMenu(name);
-      await this.contextMenu.clickSubmenuOption("More options", "Download");
+      await this.contextMenu.clickOption(contextMenuItem(OPTION_DOWNLOAD));
     });
   }
 
@@ -988,13 +965,15 @@ export class AiAgents extends BasePage {
 
   async changeAgentOwner(agentName: string, newOwnerName: string) {
     await this.openAgentContextMenu(agentName);
-    await this.contextMenu.clickSubmenuOption("More options", "Change owner");
+    await this.contextMenu.clickOption(
+      contextMenuItem(OPTION_CHANGE_ROOM_OWNER),
+    );
     await this.pickOwnerInChangeOwnerSelector(newOwnerName);
   }
 
   async leaveAgent(name: string, newOwnerName: string) {
     await this.openAgentContextMenu(name);
-    await this.contextMenu.clickOption("Leave agent");
+    await this.contextMenu.clickOption(contextMenuItem(OPTION_LEAVE_ROOM));
     const assignOwner = this.page.getByTestId("leave_room_modal_submit");
     await expect(assignOwner).toBeVisible();
     await assignOwner.click();

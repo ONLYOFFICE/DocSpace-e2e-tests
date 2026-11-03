@@ -65,10 +65,11 @@ class ProfileFileManagement {
 
   async selectDefaultHomepage(option: string) {
     await this.page.getByTestId(DEFAULT_HOMEPAGE_COMBO).click();
-    await this.page
+    const item = this.page
       .locator(DEFAULT_HOMEPAGE_DROPDOWN)
-      .getByText(option, { exact: true })
-      .click();
+      .getByText(option, { exact: true });
+    await expect(item).toBeVisible();
+    await item.click();
   }
 
   async expectDefaultHomepageOption(option: string) {

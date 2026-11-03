@@ -30,7 +30,6 @@ test.describe("Ask AI on files", () => {
       await aiAgents.openDirectly();
       await aiAgents.openCreateAgentDialog();
       await aiAgents.fillAgentName(AGENT_NAME);
-      await aiAgents.fillInstructions("Test agent for Ask AI scenarios.");
       await aiAgents.saveAgent();
       await aiAgents.expectChatOpened();
     });

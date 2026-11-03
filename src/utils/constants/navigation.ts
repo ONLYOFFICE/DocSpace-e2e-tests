@@ -3,7 +3,7 @@ const apps = {
   files: "Files",
   rooms: "Rooms",
   forms: "Forms",
-  aiAgents: "AI agents",
+  aiAgents: "AI rooms",
 } as const;
 
 const filesSubItems = {

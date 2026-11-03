@@ -37,9 +37,6 @@ test.describe("AI Agents: member rejoin keeps chat history", () => {
       await aiAgents.openDirectly();
       await aiAgents.openCreateAgentDialog();
       await aiAgents.fillAgentName(AGENT_NAME);
-      await aiAgents.fillInstructions(
-        "Test agent for member rejoin scenarios.",
-      );
       await aiAgents.saveAgent();
       await aiAgents.expectChatOpened();
       await aiAgents.openAndExpectAgentInList(AGENT_NAME);
@@ -68,11 +65,7 @@ test.describe("AI Agents: member rejoin keeps chat history", () => {
         // actually send messages in the agent chat. (Escalating access
         // afterwards through the rooms/share API doesn't stick for AI agent
         // rooms - it returns 200 but the role silently stays Viewer.)
-        await aiAgents.inviteUserToAgent(
-          AGENT_NAME,
-          userData.email,
-          "Content creator",
-        );
+        await aiAgents.inviteUserToAgent(AGENT_NAME, userData.email, "Member");
       });
 
       await test.step("User sends a message in the agent chat", async () => {
@@ -92,11 +85,7 @@ test.describe("AI Agents: member rejoin keeps chat history", () => {
       });
 
       await test.step("Owner re-invites the user to the agent", async () => {
-        await aiAgents.inviteUserToAgent(
-          AGENT_NAME,
-          userData.email,
-          "Content creator",
-        );
+        await aiAgents.inviteUserToAgent(AGENT_NAME, userData.email, "Member");
       });
 
       await test.step("User still sees their previous message in the chat", async () => {

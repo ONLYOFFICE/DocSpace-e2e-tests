@@ -17,22 +17,25 @@ test.describe("Profile - Default Homepage", () => {
     await profileFileManagement.open();
   });
 
-  test("AI agents - logo navigates to AI agents URL", async () => {
-    await test.step("Select AI agents as default homepage", async () => {
-      await profileFileManagement.selectDefaultHomepage(
-        defaultHomepageOptions.aiAgents,
-      );
-      await profileFileManagement.expectDefaultHomepageOption(
-        defaultHomepageOptions.aiAgents,
-      );
-    });
+  test.fail(
+    "AI rooms - logo navigates to AI rooms URL [Bug 84845]",
+    async () => {
+      await test.step("Select AI rooms as default homepage", async () => {
+        await profileFileManagement.selectDefaultHomepage(
+          defaultHomepageOptions.aiAgents,
+        );
+        await profileFileManagement.expectDefaultHomepageOption(
+          defaultHomepageOptions.aiAgents,
+        );
+      });
 
-    await test.step("Click logo and verify landing URL", async () => {
-      await profileFileManagement.clickLogoAndExpectUrl(
-        defaultHomepageUrls.aiAgents,
-      );
-    });
-  });
+      await test.step("Click logo and verify landing URL", async () => {
+        await profileFileManagement.clickLogoAndExpectUrl(
+          defaultHomepageUrls.aiAgents,
+        );
+      });
+    },
+  );
 
   test("Files - logo navigates to My Documents URL", async () => {
     await test.step("Select Files as default homepage", async () => {

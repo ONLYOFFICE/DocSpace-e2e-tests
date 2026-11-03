@@ -27,7 +27,6 @@ test.describe("AI Agents: edit an existing agent's model", () => {
     await test.step("Precondition: create agent with a known model", async () => {
       await aiAgents.createAgent(AGENT_NAME, {
         model: ORIGINAL_MODEL,
-        instructions: "Instructions for the model-edit test agent.",
       });
       await aiAgents.openAndExpectAgentInList(AGENT_NAME);
     });

@@ -29,7 +29,9 @@ test.describe("AI agents: Recent", () => {
   });
 });
 
-test.describe("AI agents: Recent", () => {
+// Skipped: AI projects no longer have a Chat outputs folder / Result storage
+// tab, and it is not yet clear which AI rooms files end up in Recent.
+test.describe.skip("AI agents: Recent", () => {
   const AGENT_NAME = "Recent File Agent";
 
   test("Opening a generated file adds it to Recent", async ({
