@@ -6,6 +6,15 @@ import BaseToast from "./BaseToast";
 const TARIFF_BAR_TEXT = "tariff_bar_text";
 const USER_MENU_ACCOUNTS = "user-menu-accounts";
 const USER_MENU_PROFILE = "user-menu-profile";
+const USER_MENU_LIVE_CHAT = "user-menu-live-chat";
+const TOGGLE_BUTTON = "toggle-button";
+const TOGGLE_BUTTON_CONTAINER = "toggle-button-container";
+// Third-party chat widget launcher (bottom-right corner), no data-testid.
+const LIVE_CHAT_LAUNCHER = "iframe#launcher";
+const LIVE_CHAT_WINDOW_FRAME = 'iframe[title="Messaging window"]';
+const LIVE_CHAT_WINDOW_NAME = "Messaging window";
+const LIVE_CHAT_NAME_LABEL = "Name";
+const LIVE_CHAT_SEND_BUTTON = "Send";
 const HEADER_AI_CHAT_BUTTON = "#ai-chat-button";
 
 export default class BasePage {
@@ -54,6 +63,94 @@ export default class BasePage {
     await expect(this.profileMenuItem).toBeVisible();
     await expect(this.accountsMenuItem).not.toBeVisible();
     await this.page.keyboard.press("Escape");
+  }
+
+  protected get liveChatMenuItem(): Locator {
+    return this.page.getByTestId(USER_MENU_LIVE_CHAT);
+  }
+
+  // The toggle state lives in aria-checked on the container; the inner
+  // input is hidden.
+  protected get liveChatToggle(): Locator {
+    return this.liveChatMenuItem.getByTestId(TOGGLE_BUTTON);
+  }
+
+  async openUserMenu() {
+    if (await this.liveChatMenuItem.isVisible()) {
+      return;
+    }
+    await this.optionsButton.waitFor({ state: "visible", timeout: 10000 });
+    await this.optionsButton.click();
+    await expect(this.profileMenuItem).toBeVisible();
+  }
+
+  async closeUserMenu() {
+    await this.page.keyboard.press("Escape");
+    await expect(this.profileMenuItem).not.toBeVisible();
+  }
+
+  async expectLiveChatEnabled(enabled: boolean) {
+    await this.openUserMenu();
+    await expect(this.liveChatMenuItem).toBeVisible();
+    await expect(this.liveChatToggle).toHaveAttribute(
+      "aria-checked",
+      String(enabled),
+    );
+  }
+
+  async setLiveChatEnabled(enabled: boolean) {
+    await this.openUserMenu();
+    await this.liveChatToggle.getByTestId(TOGGLE_BUTTON_CONTAINER).click();
+    await this.expectLiveChatEnabled(enabled);
+  }
+
+  async expectLiveChatWidgetVisible(visible: boolean) {
+    const launcher = this.page.locator(LIVE_CHAT_LAUNCHER);
+    if (visible) {
+      // Widget script loads from a third-party CDN - give it extra time.
+      await expect(launcher).toBeVisible({ timeout: 30000 });
+    } else {
+      await expect(launcher).not.toBeVisible();
+    }
+  }
+
+  // The launcher iframe wraps a single button - clicking the frame center hits it.
+  async openLiveChatWindow() {
+    await this.page.locator(LIVE_CHAT_LAUNCHER).click();
+  }
+
+  protected get liveChatWindow(): Locator {
+    return this.page
+      .frameLocator(LIVE_CHAT_WINDOW_FRAME)
+      .getByRole("dialog", { name: LIVE_CHAT_WINDOW_NAME });
+  }
+
+  async expectLiveChatWindowOpened(title: string) {
+    await expect(this.liveChatWindow).toBeVisible({ timeout: 15000 });
+    await expect(
+      this.liveChatWindow.getByRole("heading", { name: title }),
+    ).toBeVisible();
+  }
+
+  // Greeting comes from the live Zendesk backend, so it proves the chat is
+  // connected, not just rendered.
+  async expectLiveChatGreeting(greeting: string) {
+    await expect(
+      this.liveChatWindow.getByRole("log").getByText(greeting),
+    ).toBeVisible({ timeout: 15000 });
+  }
+
+  // Fills the name form but does not submit it - submitting would open a
+  // real conversation in the support queue.
+  async fillLiveChatName(name: string) {
+    const nameInput = this.liveChatWindow.getByRole("textbox", {
+      name: LIVE_CHAT_NAME_LABEL,
+    });
+    await nameInput.fill(name);
+    await expect(nameInput).toHaveValue(name);
+    await expect(
+      this.liveChatWindow.getByRole("button", { name: LIVE_CHAT_SEND_BUTTON }),
+    ).toBeEnabled();
   }
 
   async removeToast(message?: string, timeout?: number) {

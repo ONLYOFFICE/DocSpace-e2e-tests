@@ -1,6 +1,14 @@
 export const toastMessages = {
   changesSaved: "Changes saved successfully",
   passwordChanged: "Password has been successfully changed",
+  liveChatConnected: "Live chat was successfully connected",
+  liveChatDisconnected: "Live chat was successfully disconnected",
+} as const;
+
+export const liveChatWindow = {
+  title: "Live Support",
+  greeting:
+    "Hi there! 👋 How can we help you today? Please enter your name to start a chat with a live agent.",
 } as const;
 
 export const avatarConstants = {
