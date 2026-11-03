@@ -122,7 +122,9 @@ export default class BasePage {
       .frameLocator(LIVE_CHAT_WINDOW_FRAME)
       .getByRole("dialog", { name: LIVE_CHAT_WINDOW_NAME });
     await expect(chatWindow).toBeVisible({ timeout: 15000 });
-    await expect(chatWindow.getByRole("heading", { name: title })).toBeVisible();
+    await expect(
+      chatWindow.getByRole("heading", { name: title }),
+    ).toBeVisible();
   }
 
   async removeToast(message?: string, timeout?: number) {
