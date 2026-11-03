@@ -1,7 +1,11 @@
 export const toastMessages = {
   changesSaved: "Changes saved successfully",
   passwordChanged: "Password has been successfully changed",
+  liveChatConnected: "Live chat was successfully connected",
+  liveChatDisconnected: "Live chat was successfully disconnected",
 } as const;
+
+export const liveChatWindowTitle = "Live Support";
 
 export const avatarConstants = {
   storagePathPattern: /storage\/userPhotos/,
