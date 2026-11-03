@@ -13,6 +13,8 @@ const TOGGLE_BUTTON_CONTAINER = "toggle-button-container";
 const LIVE_CHAT_LAUNCHER = "iframe#launcher";
 const LIVE_CHAT_WINDOW_FRAME = 'iframe[title="Messaging window"]';
 const LIVE_CHAT_WINDOW_NAME = "Messaging window";
+const LIVE_CHAT_NAME_LABEL = "Name";
+const LIVE_CHAT_SEND_BUTTON = "Send";
 const HEADER_AI_CHAT_BUTTON = "#ai-chat-button";
 
 export default class BasePage {
@@ -117,14 +119,38 @@ export default class BasePage {
     await this.page.locator(LIVE_CHAT_LAUNCHER).click();
   }
 
-  async expectLiveChatWindowOpened(title: string) {
-    const chatWindow = this.page
+  protected get liveChatWindow(): Locator {
+    return this.page
       .frameLocator(LIVE_CHAT_WINDOW_FRAME)
       .getByRole("dialog", { name: LIVE_CHAT_WINDOW_NAME });
-    await expect(chatWindow).toBeVisible({ timeout: 15000 });
+  }
+
+  async expectLiveChatWindowOpened(title: string) {
+    await expect(this.liveChatWindow).toBeVisible({ timeout: 15000 });
     await expect(
-      chatWindow.getByRole("heading", { name: title }),
+      this.liveChatWindow.getByRole("heading", { name: title }),
     ).toBeVisible();
+  }
+
+  // Greeting comes from the live Zendesk backend, so it proves the chat is
+  // connected, not just rendered.
+  async expectLiveChatGreeting(greeting: string) {
+    await expect(
+      this.liveChatWindow.getByRole("log").getByText(greeting),
+    ).toBeVisible({ timeout: 15000 });
+  }
+
+  // Fills the name form but does not submit it - submitting would open a
+  // real conversation in the support queue.
+  async fillLiveChatName(name: string) {
+    const nameInput = this.liveChatWindow.getByRole("textbox", {
+      name: LIVE_CHAT_NAME_LABEL,
+    });
+    await nameInput.fill(name);
+    await expect(nameInput).toHaveValue(name);
+    await expect(
+      this.liveChatWindow.getByRole("button", { name: LIVE_CHAT_SEND_BUTTON }),
+    ).toBeEnabled();
   }
 
   async removeToast(message?: string, timeout?: number) {

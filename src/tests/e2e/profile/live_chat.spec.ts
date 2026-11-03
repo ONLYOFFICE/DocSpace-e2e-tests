@@ -1,9 +1,8 @@
 import { test } from "@/src/fixtures";
 import Files from "@/src/objects/files/Files";
-import {
-  liveChatWindowTitle,
-  toastMessages,
-} from "@/src/utils/constants/profile";
+import { liveChatWindow, toastMessages } from "@/src/utils/constants/profile";
+
+const VISITOR_NAME = "Autotest";
 
 test.describe("User menu - Live chat", () => {
   let files: Files;
@@ -28,7 +27,12 @@ test.describe("User menu - Live chat", () => {
 
     await test.step("Open Live chat messaging window", async () => {
       await files.openLiveChatWindow();
-      await files.expectLiveChatWindowOpened(liveChatWindowTitle);
+      await files.expectLiveChatWindowOpened(liveChatWindow.title);
+    });
+
+    await test.step("Chat is connected and accepts input", async () => {
+      await files.expectLiveChatGreeting(liveChatWindow.greeting);
+      await files.fillLiveChatName(VISITOR_NAME);
     });
 
     await test.step("Disable Live chat", async () => {

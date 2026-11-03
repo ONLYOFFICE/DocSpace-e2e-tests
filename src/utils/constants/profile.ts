@@ -5,7 +5,11 @@ export const toastMessages = {
   liveChatDisconnected: "Live chat was successfully disconnected",
 } as const;
 
-export const liveChatWindowTitle = "Live Support";
+export const liveChatWindow = {
+  title: "Live Support",
+  greeting:
+    "Hi there! 👋 How can we help you today? Please enter your name to start a chat with a live agent.",
+} as const;
 
 export const avatarConstants = {
   storagePathPattern: /storage\/userPhotos/,
