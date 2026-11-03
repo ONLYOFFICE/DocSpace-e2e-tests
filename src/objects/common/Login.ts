@@ -357,7 +357,7 @@ export class Login extends BasePage {
     const targetUrl = `${getPortalUrl(this.portalDomain)}${path}`;
     const [newPage] = await Promise.all([
       this.page.context().waitForEvent("page"),
-      this.page.evaluate((url) => window.open(url, "_blank"), targetUrl),
+      this.page.evaluate((url) => globalThis.open(url, "_blank"), targetUrl),
     ]);
     await newPage.waitForLoadState("load");
     await expect(newPage).toHaveURL(new RegExp(path), { timeout: 15000 });
