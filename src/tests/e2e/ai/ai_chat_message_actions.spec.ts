@@ -66,7 +66,9 @@ test.describe("AI Chat: message actions", () => {
     });
   });
 
-  test("Save as docx saves the AI reply to Files", async () => {
+  // Skipped: AI agents were replaced by AI rooms (Instructions rooms,
+  // Knowledge rooms and AI projects). To be rewritten for the new model.
+  test.skip("Save as docx saves the AI reply to Files", async () => {
     await test.step("Open the Save as docx panel", async () => {
       await aiAgents.openSaveReplyAsDocx();
     });

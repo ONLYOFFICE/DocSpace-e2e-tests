@@ -9,7 +9,9 @@ const AGENT_NAME = "Chat Privacy Agent";
 const OWNER_MESSAGE = "Owner's private message";
 const USER_MESSAGE = "Invited user's private message";
 
-test.describe("AI Agents: chat is private per member", () => {
+// Skipped: AI agents were replaced by AI rooms (Instructions rooms, Knowledge
+// rooms and AI projects). To be rewritten for the new model.
+test.describe.skip("AI Agents: chat is private per member", () => {
   let aiAgents: AiAgents;
   let aiSettings: AiSettings;
   let paymentApi: PaymentApi;

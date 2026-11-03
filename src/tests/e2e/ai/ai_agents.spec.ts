@@ -5,7 +5,9 @@ import AiSettings from "@/src/objects/ai/AiSettings";
 import { PaymentApi } from "@/src/api/payment";
 import { aiAgentToastMessages } from "@/src/utils/constants/ai";
 
-test.describe("AI Agents", () => {
+// Skipped: AI agents were replaced by AI rooms (Instructions rooms, Knowledge
+// rooms and AI projects). To be rewritten for the new model.
+test.describe.skip("AI Agents", () => {
   let aiAgents: AiAgents;
   let aiSettings: AiSettings;
   let paymentApi: PaymentApi;
@@ -59,7 +61,9 @@ test.describe("AI Agents", () => {
   });
 });
 
-test.describe("AI Agents: management", () => {
+// Skipped: AI agents were replaced by AI rooms (Instructions rooms, Knowledge
+// rooms and AI projects). To be rewritten for the new model.
+test.describe.skip("AI Agents: management", () => {
   let aiAgents: AiAgents;
   let aiSettings: AiSettings;
   let paymentApi: PaymentApi;

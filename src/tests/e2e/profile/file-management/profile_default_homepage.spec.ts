@@ -17,7 +17,9 @@ test.describe("Profile - Default Homepage", () => {
     await profileFileManagement.open();
   });
 
-  test("AI agents - logo navigates to AI agents URL", async () => {
+  // Skipped: AI agents were replaced by AI rooms (Instructions rooms,
+  // Knowledge rooms and AI projects). To be rewritten for the new model.
+  test.skip("AI agents - logo navigates to AI agents URL", async () => {
     await test.step("Select AI agents as default homepage", async () => {
       await profileFileManagement.selectDefaultHomepage(
         defaultHomepageOptions.aiAgents,
