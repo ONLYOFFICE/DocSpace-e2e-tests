@@ -18,6 +18,7 @@ const INFO_OPTIONS_ICON = "#info-options";
 const TOGGLE_INFO_PANEL = "#info-panel-toggle--open";
 const INFO_PANEL = "#InfoPanelWrapper";
 const INFO_PANEL_TABS = ".tabs";
+const INFO_PANEL_RESIZER = "info-panel-resizer";
 
 const PROPERTY_FILE_EXTENSION = "#File\\ extension";
 const PROPERTY_TYPE = "#Type";
@@ -194,6 +195,40 @@ class InfoPanel {
       await this.toggle.click();
       await this.checkInfoPanelExist();
     }
+  }
+
+  private get resizer() {
+    return this.page.getByTestId(INFO_PANEL_RESIZER);
+  }
+
+  async getBounds() {
+    const box = await this.infoPanel.boundingBox();
+    if (!box) throw new Error("Info panel is not visible");
+    return box;
+  }
+
+  // Drags the resizer on the panel's left edge: negative deltaX widens the
+  // panel, positive narrows it. The target point is kept inside the viewport,
+  // so a large delta drags to the window edge instead of off-screen.
+  async resizeBy(deltaX: number) {
+    await expect(this.resizer).toBeVisible();
+    const box = await this.resizer.boundingBox();
+    if (!box) throw new Error("Info panel resizer is not visible");
+    const x = box.x + box.width / 2;
+    const y = box.y + box.height / 2;
+    const viewportWidth = this.page.viewportSize()?.width ?? x + deltaX + 1;
+    const targetX = Math.min(Math.max(x + deltaX, 1), viewportWidth - 1);
+    await this.page.mouse.move(x, y);
+    await this.page.mouse.down();
+    await this.page.mouse.move(targetX, y, { steps: 10 });
+    await this.page.mouse.up();
+  }
+
+  // Width is restored from saved state, allow 1px for sub-pixel rounding.
+  async expectWidth(expected: number) {
+    await expect
+      .poll(async () => Math.abs((await this.getBounds()).width - expected))
+      .toBeLessThanOrEqual(1);
   }
 
   async openInlineTagsPanel() {
