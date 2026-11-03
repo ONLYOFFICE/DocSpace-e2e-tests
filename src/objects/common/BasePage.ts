@@ -16,6 +16,11 @@ const LIVE_CHAT_WINDOW_NAME = "Messaging window";
 const LIVE_CHAT_NAME_LABEL = "Name";
 const LIVE_CHAT_SEND_BUTTON = "Send";
 const HEADER_AI_CHAT_BUTTON = "#ai-chat-button";
+// Promo banner above the portal; its theme is passed in the iframe src (?theme=dark).
+const TOP_BANNER_IFRAME = "snackbar-iframe";
+const SNACKBAR_HEADER = "snackbar-header";
+const SNACKBAR_CLOSE = "snackbar-close";
+const EMAIL_ACTIVATION_SNACKBAR_TEXT = "Please activate your email";
 
 export default class BasePage {
   protected page: Page;
@@ -151,6 +156,48 @@ export default class BasePage {
     await expect(
       this.liveChatWindow.getByRole("button", { name: LIVE_CHAT_SEND_BUTTON }),
     ).toBeEnabled();
+  }
+
+  // The fixture sets localStorage.integrationUITests, which hides UI like the
+  // top banner. Init script order is not guaranteed, so remove the key and
+  // also block the fixture from setting it, then reload to apply.
+  async disableIntegrationUITestsMode() {
+    await this.page.addInitScript(() => {
+      const key = "integrationUITests";
+      globalThis.localStorage?.removeItem(key);
+      const originalSetItem = Storage.prototype.setItem;
+      Storage.prototype.setItem = function (
+        this: Storage,
+        name: string,
+        value: string,
+      ) {
+        if (name === key) return;
+        originalSetItem.call(this, name, value);
+      };
+    });
+    await this.page.reload();
+  }
+
+  // The top bar shows one snackbar at a time - for a fresh portal owner the
+  // email activation snackbar comes first and hides the promo banner.
+  async closeEmailActivationSnackbar() {
+    const header = this.page
+      .getByTestId(SNACKBAR_HEADER)
+      .filter({ hasText: EMAIL_ACTIVATION_SNACKBAR_TEXT });
+    await expect(header).toBeVisible({ timeout: 15000 });
+    await this.page.getByTestId(SNACKBAR_CLOSE).click();
+    await expect(header).not.toBeVisible();
+  }
+
+  // Banner content is cross-origin, so the theme is checked via the src query
+  // param instead of computed colors.
+  async expectTopBannerTheme(theme: "Light" | "Dark") {
+    const banner = this.page.getByTestId(TOP_BANNER_IFRAME);
+    await expect(banner).toBeVisible({ timeout: 15000 });
+    await expect(banner).toHaveAttribute(
+      "src",
+      new RegExp(`[?&]theme=${theme.toLowerCase()}(&|$)`),
+    );
   }
 
   async removeToast(message?: string, timeout?: number) {
