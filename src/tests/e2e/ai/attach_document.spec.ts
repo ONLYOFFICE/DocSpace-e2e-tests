@@ -5,7 +5,9 @@ import ChatAttachmentPanel from "@/src/objects/ai/ChatAttachmentPanel";
 import { PaymentApi } from "@/src/api/payment";
 import { mapInitialDocNames } from "@/src/utils/constants/files";
 
-test.describe("AI Agents: attach document", () => {
+// Skipped: AI agents were replaced by AI rooms (Instructions rooms, Knowledge
+// rooms and AI projects). To be rewritten for the new model.
+test.describe.skip("AI Agents: attach document", () => {
   let aiAgents: AiAgents;
   let aiSettings: AiSettings;
   let attachmentPanel: ChatAttachmentPanel;

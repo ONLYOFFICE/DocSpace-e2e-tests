@@ -9,7 +9,9 @@ import { PaymentApi } from "@/src/api/payment";
 const AGENT_NAME = "Rejoin History Agent";
 const USER_MESSAGE = "Message from the invited user before removal";
 
-test.describe("AI Agents: member rejoin keeps chat history", () => {
+// Skipped: AI agents were replaced by AI rooms (Instructions rooms, Knowledge
+// rooms and AI projects). To be rewritten for the new model.
+test.describe.skip("AI Agents: member rejoin keeps chat history", () => {
   let aiAgents: AiAgents;
   let aiSettings: AiSettings;
   let paymentApi: PaymentApi;

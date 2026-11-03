@@ -47,14 +47,18 @@ test.describe("Dashboard", () => {
     await dashboard.expectCreateRoomFormVisible();
   });
 
-  test("Discover Apps: Create AI agent prompts to activate AI when it is not configured", async () => {
+  // Skipped: AI agents were replaced by AI rooms (Instructions rooms,
+  // Knowledge rooms and AI projects). To be rewritten for the new model.
+  test.skip("Discover Apps: Create AI agent prompts to activate AI when it is not configured", async () => {
     await dashboard.createAiAgentButton.click();
     await dashboard.expectActivateAiDialogVisible();
   });
 });
 
 test.describe("Dashboard (non-owner roles)", () => {
-  test("Guest: Discover Apps show Open instead of create actions", async ({
+  // Skipped: AI agents were replaced by AI rooms (Instructions rooms,
+  // Knowledge rooms and AI projects). To be rewritten for the new model.
+  test.skip("Guest: Discover Apps show Open instead of create actions", async ({
     page,
     api,
     apiSdk,
@@ -112,7 +116,9 @@ test.describe("Dashboard (non-owner roles)", () => {
     });
   });
 
-  test("User: Discover Apps show Open instead of create actions", async ({
+  // Skipped: AI agents were replaced by AI rooms (Instructions rooms,
+  // Knowledge rooms and AI projects). To be rewritten for the new model.
+  test.skip("User: Discover Apps show Open instead of create actions", async ({
     page,
     api,
     apiSdk,

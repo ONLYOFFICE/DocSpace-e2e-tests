@@ -10,7 +10,9 @@ import { documentContextMenuOption } from "@/src/utils/constants/files";
 
 const AGENT_NAME = "History Export Agent";
 
-test.describe("AI Agents: History tab export toolbar", () => {
+// Skipped: AI agents were replaced by AI rooms (Instructions rooms, Knowledge
+// rooms and AI projects). To be rewritten for the new model.
+test.describe.skip("AI Agents: History tab export toolbar", () => {
   let aiAgents: AiAgents;
   let aiSettings: AiSettings;
   let paymentApi: PaymentApi;

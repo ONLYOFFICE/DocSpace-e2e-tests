@@ -9,7 +9,10 @@ const PDF_FORM_FILE = "data/rooms/PDF from device.pdf";
 // File rows display the title without its extension.
 const baseName = (title: string) => title.replace(/\.[^.]+$/, "");
 
-test.describe("AI Chat attach panel: Recent/Favorites are scoped per section", () => {
+// Skipped: AI agents were replaced by AI rooms (Instructions rooms, Knowledge
+// rooms and AI projects). To be rewritten for the new model.
+test.describe
+  .skip("AI Chat attach panel: Recent/Favorites are scoped per section", () => {
   const AGENT_NAME = "Attach Panel Agent";
   const FILES_FAVORITE = mapInitialDocNames.ONLYOFFICE_SAMPLE_DOCUMENT;
   const FILES_RECENT = mapInitialDocNames.ONLYOFFICE_SAMPLE_SPREADSHEETS;
@@ -189,7 +192,9 @@ test.describe("AI Chat attach panel: Recent/Favorites are scoped per section", (
   });
 });
 
-test.describe("AI Chat attach panel: selecting an agent", () => {
+// Skipped: AI agents were replaced by AI rooms (Instructions rooms, Knowledge
+// rooms and AI projects). To be rewritten for the new model.
+test.describe.skip("AI Chat attach panel: selecting an agent", () => {
   const AGENT_NAME = "Attach Panel Agent";
 
   let aiAgents: AiAgents;

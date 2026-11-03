@@ -5,7 +5,9 @@ import { PaymentApi } from "@/src/api/payment";
 
 const AGENT_NAME = "Viewer Access Agent";
 
-test.describe("AI Agents: Viewer access", () => {
+// Skipped: AI agents were replaced by AI rooms (Instructions rooms, Knowledge
+// rooms and AI projects). To be rewritten for the new model.
+test.describe.skip("AI Agents: Viewer access", () => {
   let aiAgents: AiAgents;
   let aiSettings: AiSettings;
   let paymentApi: PaymentApi;
