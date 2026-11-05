@@ -235,9 +235,11 @@ export class Login extends BasePage {
       ]);
     }).toPass();
 
-    await this.page.waitForURL(/.*(dashboard|rooms\/shared\/filter).*/, {
-      waitUntil: "load",
-    });
+    // Re-login after logout from My Documents lands back on rooms/personal.
+    await this.page.waitForURL(
+      /.*(dashboard|rooms\/shared\/filter|rooms\/personal).*/,
+      { waitUntil: "load" },
+    );
     await this.page.waitForTimeout(3000);
 
     if (options?.dismissTour ?? true) {

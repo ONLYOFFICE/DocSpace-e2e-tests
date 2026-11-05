@@ -16,6 +16,7 @@ const LIVE_CHAT_WINDOW_NAME = "Messaging window";
 const LIVE_CHAT_NAME_LABEL = "Name";
 const LIVE_CHAT_SEND_BUTTON = "Send";
 const HEADER_AI_CHAT_BUTTON = "#ai-chat-button";
+const CHAT_PANEL_RESIZER = "chat-panel-resizer";
 // Promo banner above the portal; its theme is passed in the iframe src (?theme=dark).
 const TOP_BANNER_IFRAME = "snackbar-iframe";
 const SNACKBAR_HEADER = "snackbar-header";
@@ -117,6 +118,18 @@ export default class BasePage {
     } else {
       await expect(launcher).not.toBeVisible();
     }
+  }
+
+  // The app shifts the launcher so it never overlaps a side panel - its right
+  // edge must stay left of the given x (e.g. the info panel's left edge).
+  async expectLiveChatLauncherLeftOf(x: number) {
+    const launcher = this.page.locator(LIVE_CHAT_LAUNCHER);
+    await expect
+      .poll(async () => {
+        const box = await launcher.boundingBox();
+        return box ? box.x + box.width : Number.POSITIVE_INFINITY;
+      })
+      .toBeLessThanOrEqual(x);
   }
 
   // The launcher iframe wraps a single button - clicking the frame center hits it.
@@ -282,6 +295,53 @@ export default class BasePage {
 
   async openAiChat() {
     await this.headerAiChatButton.click();
+  }
+
+  // The resizer sits on the chat panel's left edge, so its x is the panel's
+  // left edge - no need for a separate panel container locator.
+  protected get chatPanelResizer(): Locator {
+    return this.page.getByTestId(CHAT_PANEL_RESIZER);
+  }
+
+  // The header button toggles the panel, so click only if it is closed.
+  async ensureAiChatPanelOpened() {
+    if (!(await this.chatPanelResizer.isVisible())) {
+      await this.openAiChat();
+    }
+    await expect(this.chatPanelResizer).toBeVisible();
+  }
+
+  async checkAiChatPanelClosed() {
+    await expect(this.chatPanelResizer).not.toBeVisible();
+  }
+
+  async getAiChatPanelLeftEdge(): Promise<number> {
+    await expect(this.chatPanelResizer).toBeVisible();
+    const box = await this.chatPanelResizer.boundingBox();
+    if (!box) throw new Error("AI chat panel resizer is not visible");
+    return box.x;
+  }
+
+  // Negative deltaX widens the chat panel, positive narrows it.
+  async resizeAiChatPanelBy(deltaX: number) {
+    await expect(this.chatPanelResizer).toBeVisible();
+    const box = await this.chatPanelResizer.boundingBox();
+    if (!box) throw new Error("AI chat panel resizer is not visible");
+    const x = box.x + box.width / 2;
+    const y = box.y + box.height / 2;
+    await this.page.mouse.move(x, y);
+    await this.page.mouse.down();
+    await this.page.mouse.move(x + deltaX, y, { steps: 10 });
+    await this.page.mouse.up();
+  }
+
+  // Width is restored from saved state, allow 1px for sub-pixel rounding.
+  async expectAiChatPanelLeftEdge(expected: number) {
+    await expect
+      .poll(async () =>
+        Math.abs((await this.getAiChatPanelLeftEdge()) - expected),
+      )
+      .toBeLessThanOrEqual(1);
   }
 
   async waitForDownload(action: () => Promise<void>) {
