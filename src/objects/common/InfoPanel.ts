@@ -4,6 +4,7 @@ import { getTabInfo, TInfoPanelTabs } from "../../utils/types/common";
 import { TRoomCreateTitles } from "@/src/utils/constants/rooms";
 import { BaseDropdown } from "./BaseDropdown";
 import BaseToast from "./BaseToast";
+import InfoPanelMetadata from "./InfoPanelMetadata";
 
 const TAG_ADD_BUTTON = "[data-testid='tag_item_create']";
 const SHARE_ADD_USER_BUTTON = "info_panel_share_add_share_user_button";
@@ -70,12 +71,14 @@ class InfoPanel {
   protected contextMenu: BaseContextMenu;
   protected dropdown: BaseDropdown;
   protected toast: BaseToast;
+  metadata: InfoPanelMetadata;
 
   constructor(page: Page) {
     this.page = page;
     this.contextMenu = new BaseContextMenu(page);
     this.dropdown = new BaseDropdown(page);
     this.toast = new BaseToast(page);
+    this.metadata = new InfoPanelMetadata(page);
   }
 
   private get noItemText() {
