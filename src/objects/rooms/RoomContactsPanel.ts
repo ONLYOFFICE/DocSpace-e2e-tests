@@ -4,9 +4,8 @@ import { type RoleAccessType } from "../common/BaseRoleAccess";
 const MEMBERS_TAB = "0_tab";
 const GROUPS_TAB = "1_tab";
 const GUESTS_TAB = "2_tab";
-const PEOPLE_SELECTOR = "people-selector";
 const SEARCH_INPUT = "selector_search_input";
-const ACCESS_COMBO_BUTTON = '[data-test-id="combo-button"]';
+const ACCESS_COMBO_BUTTON = '.selector-footer [data-test-id="combo-button"]';
 const SELECT_BUTTON = "selector_submit_button";
 
 class RoomContactsPanel {
@@ -37,7 +36,7 @@ class RoomContactsPanel {
   }
 
   private get accessComboBox() {
-    return this.page.getByTestId(PEOPLE_SELECTOR).locator(ACCESS_COMBO_BUTTON);
+    return this.page.locator(ACCESS_COMBO_BUTTON);
   }
 
   async switchToMembersTab() {
