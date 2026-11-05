@@ -79,6 +79,13 @@ class Files extends BasePage {
     await this.filesNavigation.checkAddButtonVisible();
   }
 
+  // Selects an item in the current list and opens its Metadata tab
+  async openItemMetadata(name: string) {
+    await this.filesTable.selectRow(name);
+    await this.infoPanel.open();
+    await this.infoPanel.openTab("Metadata");
+  }
+
   async openRecentlyAccessibleTab() {
     await this.page.getByText("Recently accessible via link").click();
   }

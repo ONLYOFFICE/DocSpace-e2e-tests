@@ -2,21 +2,19 @@ import { test } from "@/src/fixtures";
 import { expect } from "@playwright/test";
 import Files from "@/src/objects/files/Files";
 import Customization from "@/src/objects/settings/customization/Customization";
-import { ApiSDK } from "@/src/services";
-import {
-  MetadataFieldType,
-  TMetadataTemplate,
-} from "@/src/services/files/metadata.services";
+import { MetadataFieldType } from "@/src/services/files/metadata.services";
 import { toastMessages } from "@/src/utils/constants/settings";
+import { CONTRACT_TEMPLATE } from "@/src/utils/constants/metadata";
+import {
+  createContractTemplate,
+  createDocxInMyDocuments,
+  createFileWithMetadata,
+  createMetadataTemplate,
+  getTemplateField,
+} from "@/src/utils/helpers/metadata";
 
-const TEMPLATE_NAME = "Contract details";
-const FIELDS = {
-  comment: "Comment",
-  due: "Due",
-  amount: "Amount",
-  status: "Status",
-  labels: "Labels",
-} as const;
+const TEMPLATE_NAME = CONTRACT_TEMPLATE.name;
+const FIELDS = CONTRACT_TEMPLATE.fields;
 
 // 15th of the current month - always visible in the default calendar view
 const now = new Date();
@@ -26,51 +24,6 @@ const DUE_DATE_DISPLAY = DUE_DATE.toLocaleDateString("en-GB", {
   month: "short",
   year: "numeric",
 });
-
-const seedTemplate = (apiSdk: ApiSDK, name = TEMPLATE_NAME) =>
-  apiSdk.metadata.createTemplate("owner", {
-    name,
-    fields: [
-      { name: FIELDS.comment, type: MetadataFieldType.Text },
-      { name: FIELDS.due, type: MetadataFieldType.Date },
-      { name: FIELDS.amount, type: MetadataFieldType.Number },
-      {
-        name: FIELDS.status,
-        type: MetadataFieldType.SingleSelect,
-        options: ["Open", "Closed"],
-      },
-      {
-        name: FIELDS.labels,
-        type: MetadataFieldType.MultiSelect,
-        options: ["Urgent", "Internal"],
-      },
-    ],
-  });
-
-const getField = (template: TMetadataTemplate, name: string) => {
-  const field = template.fields.find((f) => f.name === name);
-  if (!field) throw new Error(`Field "${name}" not found in template`);
-  return field;
-};
-
-const getOptionId = (
-  template: TMetadataTemplate,
-  field: string,
-  value: string,
-) => {
-  const option = getField(template, field).options?.find(
-    (o) => o.value === value,
-  );
-  if (!option) throw new Error(`Option "${value}" not found in "${field}"`);
-  return option.id;
-};
-
-const seedFile = async (apiSdk: ApiSDK, title: string): Promise<number> => {
-  const response = await apiSdk.files.createFileInMyDocuments("owner", {
-    title: `${title}.docx`,
-  });
-  return (await response.json()).response.id;
-};
 
 test.describe("Metadata: values on files", () => {
   let files: Files;
@@ -84,9 +37,7 @@ test.describe("Metadata: values on files", () => {
 
   const openFileMetadata = async (fileName: string) => {
     await files.open();
-    await files.filesTable.selectRow(fileName);
-    await files.infoPanel.open();
-    await files.infoPanel.openTab("Metadata");
+    await files.openItemMetadata(fileName);
   };
 
   const openTemplatesSettings = async () => {
@@ -101,12 +52,11 @@ test.describe("Metadata: values on files", () => {
     const otherTemplate = "Short note";
 
     await test.step("Seed two templates and a file via API", async () => {
-      await seedTemplate(apiSdk);
-      await apiSdk.metadata.createTemplate("owner", {
-        name: otherTemplate,
-        fields: [{ name: "Note", type: MetadataFieldType.Text }],
-      });
-      await seedFile(apiSdk, fileName);
+      await createContractTemplate(apiSdk);
+      await createMetadataTemplate(apiSdk, otherTemplate, [
+        { name: "Note", type: MetadataFieldType.Text },
+      ]);
+      await createDocxInMyDocuments(apiSdk, fileName);
     });
 
     await test.step("Find the template with picker search", async () => {
@@ -157,8 +107,8 @@ test.describe("Metadata: values on files", () => {
     const wholeNumberError = "Enter a whole number";
 
     await test.step("Seed template and file via API", async () => {
-      await seedTemplate(apiSdk);
-      await seedFile(apiSdk, fileName);
+      await createContractTemplate(apiSdk);
+      await createDocxInMyDocuments(apiSdk, fileName);
     });
 
     await test.step("Open template fill form", async () => {
@@ -201,14 +151,12 @@ test.describe("Metadata: values on files", () => {
     const fileName = "Report";
 
     await test.step("Seed template, file and values via API", async () => {
-      const template = await seedTemplate(apiSdk);
-      const fileId = await seedFile(apiSdk, fileName);
-      await apiSdk.metadata.assignTemplatesToFile("owner", fileId, [
-        template.id,
-      ]);
-      await apiSdk.metadata.setFileValues("owner", fileId, [
-        { fieldId: getField(template, FIELDS.comment).id, stringValue: "Q3" },
-      ]);
+      const template = await createContractTemplate(apiSdk);
+      await createFileWithMetadata(apiSdk, {
+        title: fileName,
+        template,
+        values: { [FIELDS.comment]: "Q3" },
+      });
     });
 
     await test.step("Hide the template in settings", async () => {
@@ -249,17 +197,12 @@ test.describe("Metadata: values on files", () => {
     let fileId: number;
 
     await test.step("Seed template, file and values via API", async () => {
-      const template = await seedTemplate(apiSdk);
-      fileId = await seedFile(apiSdk, fileName);
-      await apiSdk.metadata.assignTemplatesToFile("owner", fileId, [
-        template.id,
-      ]);
-      await apiSdk.metadata.setFileValues("owner", fileId, [
-        {
-          fieldId: getField(template, FIELDS.comment).id,
-          stringValue: "Signed",
-        },
-      ]);
+      const template = await createContractTemplate(apiSdk);
+      fileId = await createFileWithMetadata(apiSdk, {
+        title: fileName,
+        template,
+        values: { [FIELDS.comment]: "Signed" },
+      });
     });
 
     await test.step("File shows the metadata card", async () => {
@@ -292,25 +235,16 @@ test.describe("Metadata: values on files", () => {
     const metadataTemplates = () => customization.metadataTemplates;
 
     await test.step("Seed template, file and values via API", async () => {
-      const template = await seedTemplate(apiSdk);
-      const fileId = await seedFile(apiSdk, fileName);
-      await apiSdk.metadata.assignTemplatesToFile("owner", fileId, [
-        template.id,
-      ]);
-      await apiSdk.metadata.setFileValues("owner", fileId, [
-        {
-          fieldId: getField(template, FIELDS.comment).id,
-          stringValue: "Draft",
+      const template = await createContractTemplate(apiSdk);
+      await createFileWithMetadata(apiSdk, {
+        title: fileName,
+        template,
+        values: {
+          [FIELDS.comment]: "Draft",
+          [FIELDS.status]: "Closed",
+          [FIELDS.labels]: ["Urgent"],
         },
-        {
-          fieldId: getField(template, FIELDS.status).id,
-          optionIds: [getOptionId(template, FIELDS.status, "Closed")],
-        },
-        {
-          fieldId: getField(template, FIELDS.labels).id,
-          optionIds: [getOptionId(template, FIELDS.labels, "Urgent")],
-        },
-      ]);
+      });
     });
 
     await test.step("Rename a field and a used option", async () => {
@@ -351,18 +285,12 @@ test.describe("Metadata: values on files", () => {
     const fileName = "Estimate";
 
     await test.step("Seed template, file and values via API", async () => {
-      const template = await seedTemplate(apiSdk);
-      const fileId = await seedFile(apiSdk, fileName);
-      await apiSdk.metadata.assignTemplatesToFile("owner", fileId, [
-        template.id,
-      ]);
-      await apiSdk.metadata.setFileValues("owner", fileId, [
-        {
-          fieldId: getField(template, FIELDS.comment).id,
-          stringValue: "Initial",
-        },
-        { fieldId: getField(template, FIELDS.amount).id, numberValue: 10 },
-      ]);
+      const template = await createContractTemplate(apiSdk);
+      await createFileWithMetadata(apiSdk, {
+        title: fileName,
+        template,
+        values: { [FIELDS.comment]: "Initial", [FIELDS.amount]: 10 },
+      });
     });
 
     await test.step("Open the card in edit mode - Save is disabled until a change", async () => {
@@ -389,17 +317,12 @@ test.describe("Metadata: values on files", () => {
     let fileId: number;
 
     await test.step("Seed template, file and values via API", async () => {
-      const template = await seedTemplate(apiSdk);
-      fileId = await seedFile(apiSdk, fileName);
-      await apiSdk.metadata.assignTemplatesToFile("owner", fileId, [
-        template.id,
-      ]);
-      await apiSdk.metadata.setFileValues("owner", fileId, [
-        {
-          fieldId: getField(template, FIELDS.comment).id,
-          stringValue: "To remove",
-        },
-      ]);
+      const template = await createContractTemplate(apiSdk);
+      fileId = await createFileWithMetadata(apiSdk, {
+        title: fileName,
+        template,
+        values: { [FIELDS.comment]: "To remove" },
+      });
     });
 
     await test.step("Remove metadata via the card menu", async () => {
@@ -423,20 +346,18 @@ test.describe("Metadata: values on files", () => {
     let amountFieldId: number;
 
     await test.step("Seed template and two files with different amounts", async () => {
-      const template = await seedTemplate(apiSdk);
-      amountFieldId = getField(template, FIELDS.amount).id;
-      for (const [title, amount] of [
-        [bigFile, 15000],
-        [smallFile, 500],
-      ] as const) {
-        const fileId = await seedFile(apiSdk, title);
-        await apiSdk.metadata.assignTemplatesToFile("owner", fileId, [
-          template.id,
-        ]);
-        await apiSdk.metadata.setFileValues("owner", fileId, [
-          { fieldId: amountFieldId, numberValue: amount },
-        ]);
-      }
+      const template = await createContractTemplate(apiSdk);
+      amountFieldId = getTemplateField(template, FIELDS.amount).id;
+      await createFileWithMetadata(apiSdk, {
+        title: bigFile,
+        template,
+        values: { [FIELDS.amount]: 15000 },
+      });
+      await createFileWithMetadata(apiSdk, {
+        title: smallFile,
+        template,
+        values: { [FIELDS.amount]: 500 },
+      });
     });
 
     await test.step("Add metadata condition Amount > 1000", async () => {
