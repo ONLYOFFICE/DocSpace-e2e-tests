@@ -31,20 +31,12 @@ class StorageManagement extends BasePage {
     return this.page.getByTestId("quota_user_button");
   }
 
-  get onOffQuotaAiAgent() {
-    return this.page.getByTestId("quota_ai_agent_button");
-  }
-
   get comboboxRoom() {
     return this.page.getByTestId("quota_room_form_size_combo_box");
   }
 
   get comboboxUser() {
     return this.page.getByTestId("quota_user_form_size_combo_box");
-  }
-
-  get comboboxAiAgent() {
-    return this.page.getByTestId("quota_ai_agent_form_size_combo_box");
   }
 
   get selectByte() {
@@ -75,20 +67,12 @@ class StorageManagement extends BasePage {
     return this.page.getByTestId("quota_user_form_cancel_button");
   }
 
-  get cancelButtonAiAgent() {
-    return this.page.getByTestId("quota_ai_agent_form_cancel_button");
-  }
-
   get saveButtonRoom() {
     return this.page.getByTestId("quota_room_form_save_button");
   }
 
   get saveButtonUser() {
     return this.page.getByTestId("quota_user_form_save_button");
-  }
-
-  get saveButtonAiAgent() {
-    return this.page.getByTestId("quota_ai_agent_form_save_button");
   }
 
   get textInputRoom() {
@@ -99,13 +83,17 @@ class StorageManagement extends BasePage {
     return this.page.getByTestId("quota_user_form_input");
   }
 
-  get textInputAiAgent() {
-    return this.page.getByTestId("quota_ai_agent_form_input");
-  }
-
   async open() {
     await this.navigateToSettings();
+    await expect(
+      this.page.getByTestId("language_and_time_zone_combo_box_language"),
+    ).toBeVisible();
     await this.navigateToArticle(navItems.storageManagement);
+    await expect(this.diskSpaceUsed).toBeVisible();
+  }
+
+  private get diskSpaceUsed() {
+    return this.page.getByText("Disk space used");
   }
 
   get recalculateButton() {
@@ -121,7 +109,7 @@ class StorageManagement extends BasePage {
   }
 
   async checkStorageManagementRender() {
-    await expect(this.page.getByText("Disk space used")).toBeVisible();
+    await expect(this.diskSpaceUsed).toBeVisible();
   }
 
   async clickRecalculate() {
@@ -235,20 +223,6 @@ class StorageManagement extends BasePage {
     await this.onOffQuotaUser.click();
     await this.textInputUser.fill("500");
     await this.saveButtonUser.click();
-  }
-
-  async QuotaAiAgentActivate() {
-    await this.onOffQuotaAiAgent.click();
-    await this.comboboxAiAgent.click();
-    await this.selectKB.last().click();
-    await this.comboboxAiAgent.click();
-    await this.selectGB.last().click();
-    await this.comboboxAiAgent.click();
-    await this.selectTB.last().click();
-    await this.cancelButtonAiAgent.click();
-    await this.onOffQuotaAiAgent.click();
-    await this.textInputAiAgent.fill("5");
-    await this.saveButtonAiAgent.click();
   }
 }
 

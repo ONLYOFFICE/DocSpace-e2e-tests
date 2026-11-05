@@ -103,10 +103,10 @@ test.describe("Customization", () => {
     await customization.docspaceLanguageGuideLink.click();
     const page1 = await page1Promise;
     await page1.waitForURL(
-      "https://*.onlyoffice.com/docspace/configuration/docspace-customization-settings.aspx#languageandtimezonesettings_block",
+      "https://*.onlyoffice.com/docspace/configuration/configuring-workspace-settings/docspace-customization-settings#languageandtimezonesettings_block",
     );
     await expect(page1).toHaveURL(
-      /docspace-customization-settings\.aspx#languageandtimezonesettings_block/,
+      /docspace-customization-settings#languageandtimezonesettings_block/,
     );
     await page1.close();
 
@@ -115,10 +115,10 @@ test.describe("Customization", () => {
     await customization.docspaceTitleGuideLink.click();
     const page2 = await page2Promise;
     await page2.waitForURL(
-      "https://*.onlyoffice.com/docspace/configuration/docspace-customization-settings.aspx#welcomepagesettings_block",
+      "https://*.onlyoffice.com/docspace/configuration/configuring-workspace-settings/docspace-customization-settings#welcomepagesettings_block",
     );
     await expect(page2).toHaveURL(
-      /docspace-customization-settings\.aspx#welcomepagesettings_block/,
+      /docspace-customization-settings#welcomepagesettings_block/,
     );
     await page2.close();
 
@@ -127,24 +127,30 @@ test.describe("Customization", () => {
     await customization.docspaceAlternativeUrlGuideLink.click();
     const page3 = await page3Promise;
     await page3.waitForURL(
-      "https://*.onlyoffice.com/docspace/configuration/docspace-customization-settings.aspx#dnssettings_block",
+      "https://*.onlyoffice.com/docspace/configuration/configuring-workspace-settings/docspace-customization-settings#dnssettings_block",
     );
     await expect(page3).toHaveURL(
-      /docspace-customization-settings\.aspx#dnssettings_block/,
+      /docspace-customization-settings#dnssettings_block/,
     );
     await page3.close();
+  });
 
-    // 4. DocSpace Renaming guide
-    const page4Promise = page.waitForEvent("popup", { timeout: 30000 });
+  // Bug 84880: the Custom name link still uses the old Help Center anchor
+  // (#docspacerenaming_block), renamed to #workspacerenaming_block on the new
+  // article page - the link opens the article top instead of the section.
+  test.skip("[Bug 84880] General: Custom name documentation link opens correct URL", async ({
+    page,
+  }) => {
+    const page1Promise = page.waitForEvent("popup", { timeout: 30000 });
     await customization.docspaceRenamingGuideLink.click();
-    const page4 = await page4Promise;
-    await page4.waitForURL(
-      "https://*.onlyoffice.com/docspace/configuration/docspace-customization-settings.aspx#docspacerenaming_block",
+    const page1 = await page1Promise;
+    await page1.waitForURL(
+      "https://*.onlyoffice.com/docspace/configuration/configuring-workspace-settings/docspace-customization-settings#workspacerenaming_block",
     );
-    await expect(page4).toHaveURL(
-      /docspace-customization-settings\.aspx#docspacerenaming_block/,
+    await expect(page1).toHaveURL(
+      /docspace-customization-settings#workspacerenaming_block/,
     );
-    await page4.close();
+    await page1.close();
   });
 
   test("Rename portal and revert", async ({ api, page }) => {

@@ -466,12 +466,20 @@ class MyRooms extends BasePage {
       }),
     ).not.toBeVisible();
   }
+  // Scoped to file name cells: the sidebar has its own "BETA" badge
+  // (Private rooms) with the same testid.
+  private get draftLabel() {
+    return this.page
+      .locator('[data-testid^="files-cell-name"]')
+      .getByTestId(DRAFT_LABEL);
+  }
+
   async verifyDraftLabelVisible() {
-    await expect(this.page.getByTestId(DRAFT_LABEL)).toBeVisible();
+    await expect(this.draftLabel).toBeVisible();
   }
 
   async verifyDraftLabelNotVisible() {
-    await expect(this.page.getByTestId(DRAFT_LABEL)).not.toBeVisible();
+    await expect(this.draftLabel).not.toBeVisible();
   }
 
   async expectRoomStorageLimitExceeded() {
