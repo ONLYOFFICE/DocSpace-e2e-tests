@@ -5,6 +5,7 @@ import MetadataTemplates, {
 } from "@/src/objects/settings/customization/MetadataTemplates";
 import Files from "@/src/objects/files/Files";
 import { toastMessages } from "@/src/utils/constants/settings";
+import { createDocxInMyDocuments } from "@/src/utils/helpers/metadata";
 
 const ALL_TYPES_FIELDS: TMetadataField[] = [
   { name: "Description", type: "Text" },
@@ -28,8 +29,15 @@ test.describe("Settings - Customization: Metadata templates", () => {
     await customization.openTab("Metadata templates");
   });
 
-  test("Create template with all field types", async ({ apiSdk }) => {
+  test("Create template with all field types", async ({
+    page,
+    api,
+    apiSdk,
+  }) => {
     const templateName = "Contract details";
+    const fileName = "Template check";
+    const fieldNames = ALL_TYPES_FIELDS.map((f) => f.name);
+    const files = new Files(page, api.portalDomain);
     let ownerName: string;
 
     await test.step("Get owner display name", async () => {
@@ -67,6 +75,42 @@ test.describe("Settings - Customization: Metadata templates", () => {
       for (const field of ALL_TYPES_FIELDS) {
         await metadataTemplates.checkFieldInPanel(field);
       }
+    });
+
+    await test.step("Picker on a file shows the template with the same field count", async () => {
+      await createDocxInMyDocuments(apiSdk, fileName);
+      await files.open();
+      await files.openItemMetadata(fileName);
+      await files.infoPanel.metadata.openTemplatePicker();
+      await files.infoPanel.metadata.checkPickerFieldsCount(
+        templateName,
+        ALL_TYPES_FIELDS.length,
+      );
+    });
+
+    await test.step("Fill form shows the same fields, order and controls", async () => {
+      await files.infoPanel.metadata.selectTemplateInPicker(templateName);
+      await files.infoPanel.metadata.checkFormFields(ALL_TYPES_FIELDS);
+    });
+
+    await test.step("Card shows the same fields after save", async () => {
+      await files.infoPanel.metadata.fillTextValue(
+        ALL_TYPES_FIELDS[0].name,
+        "Check",
+      );
+      await files.infoPanel.metadata.saveValues();
+      await files.infoPanel.metadata.checkCardFields(templateName, fieldNames);
+    });
+
+    await test.step("Card keeps the same fields after reopening the file", async () => {
+      await files.open();
+      await files.openItemMetadata(fileName);
+      await files.infoPanel.metadata.checkCardFields(templateName, fieldNames);
+      await files.infoPanel.metadata.checkCardValue(
+        templateName,
+        ALL_TYPES_FIELDS[0].name,
+        "Check",
+      );
     });
   });
 
@@ -191,11 +235,13 @@ test.describe("Settings - Customization: Metadata templates", () => {
     });
 
     await test.step("Verify updated row", async () => {
-      await metadataTemplates.checkTemplateNotInTable(templateName);
+      // Wait for the renamed row first - the absence check alone could pass
+      // before the table refreshes
       await metadataTemplates.checkTemplateRow(renamedTemplate, {
         fieldsCount: 2,
         author: ownerName,
       });
+      await metadataTemplates.checkTemplateNotInTable(templateName);
     });
 
     await test.step("Delete template", async () => {

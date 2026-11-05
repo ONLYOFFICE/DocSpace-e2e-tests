@@ -70,7 +70,7 @@ test.describe("Metadata: values on files", () => {
       await metadata.saveValues();
     });
 
-    await test.step("Verify values on the metadata card", async () => {
+    const checkCard = async () => {
       const metadata = files.infoPanel.metadata;
       await metadata.checkCardVisible(TEMPLATE_NAME);
       await metadata.checkCardValue(
@@ -89,6 +89,15 @@ test.describe("Metadata: values on files", () => {
         "Urgent",
         "Internal",
       ]);
+    };
+
+    await test.step("Verify values on the metadata card", async () => {
+      await checkCard();
+    });
+
+    await test.step("Values are kept after reopening the file", async () => {
+      await openFileMetadata(fileName);
+      await checkCard();
     });
   });
 
@@ -122,11 +131,21 @@ test.describe("Metadata: values on files", () => {
         FIELDS.amount,
         wholeNumberError,
       );
+      await files.infoPanel.metadata.checkSaveEnabled();
     });
 
     await test.step("Large value is saved with a thousands separator", async () => {
       await files.infoPanel.metadata.fillNumberValue(FIELDS.amount, "15000");
       await files.infoPanel.metadata.saveValues();
+      await files.infoPanel.metadata.checkCardValue(
+        TEMPLATE_NAME,
+        FIELDS.amount,
+        "15,000",
+      );
+    });
+
+    await test.step("Value is kept after reopening the file", async () => {
+      await openFileMetadata(fileName);
       await files.infoPanel.metadata.checkCardValue(
         TEMPLATE_NAME,
         FIELDS.amount,
@@ -159,10 +178,19 @@ test.describe("Metadata: values on files", () => {
       await files.infoPanel.metadata.saveValues();
     });
 
-    await test.step("Verify updated values on the card", async () => {
+    const checkCard = async () => {
       const metadata = files.infoPanel.metadata;
       await metadata.checkCardValue(TEMPLATE_NAME, FIELDS.amount, "20");
       await metadata.checkCardValue(TEMPLATE_NAME, FIELDS.comment, "—");
+    };
+
+    await test.step("Verify updated values on the card", async () => {
+      await checkCard();
+    });
+
+    await test.step("Values are kept after reopening the file", async () => {
+      await openFileMetadata(fileName);
+      await checkCard();
     });
   });
 

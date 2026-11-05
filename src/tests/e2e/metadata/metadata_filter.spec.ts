@@ -38,8 +38,13 @@ test.describe("Metadata: files filter", () => {
       });
     });
 
-    await test.step("Add metadata condition Amount > 1000", async () => {
+    await test.step("Both files are listed before filtering", async () => {
       await files.open();
+      await files.filesTable.expectItemVisible(bigFile);
+      await files.filesTable.expectItemVisible(smallFile);
+    });
+
+    await test.step("Add metadata condition Amount > 1000", async () => {
       await files.filesFilter.openFilterDialog();
       await files.filesFilter.addMetadataCondition({
         template: TEMPLATE_NAME,

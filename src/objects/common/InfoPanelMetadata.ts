@@ -1,5 +1,8 @@
 import { expect, Page } from "@playwright/test";
 import { calendarDayLabel } from "./BaseCalendar";
+import type { TMetadataFieldType } from "@/src/objects/settings/customization/MetadataTemplates";
+
+const DIALOG = "modal-dialog";
 
 // Empty state
 const METADATA_EMPTY = "info_panel_metadata_empty";
@@ -24,10 +27,23 @@ const MULTI_CHOICE_BUTTON = "metadata_multi_choice_button";
 const MULTI_CHOICE_DROPDOWN = "metadata_multi_choice_dropdown";
 const FORM_SAVE_BUTTON = "metadata_template_save_button";
 
+// Control rendered for each field type in the fill form
+const FORM_CONTROL: Record<TMetadataFieldType, string> = {
+  Text: VALUE_INPUT,
+  Number: VALUE_INPUT,
+  Date: DATE_SELECTOR,
+  "Single select": SINGLE_CHOICE_INPUT,
+  "Multi select": MULTI_CHOICE_BUTTON,
+};
+
 // Card
 const CARD = "info_panel_metadata_card";
 const CARD_TEXT = "text";
 const TAG_ITEM = "tag_item";
+// Card rows: title row first, then one row per field (label <p> + value)
+const CARD_FIELD_VALUE = ':scope > [data-testid="text"]:nth-child(2)';
+const CARD_FIELD_LABEL =
+  ':scope > div:not(:first-child) > [data-testid="text"]:first-child';
 const CARD_MENU = "info_panel_metadata_card_menu";
 const CARD_MENU_EDIT = "metadata-card_edit_item";
 const CARD_MENU_DELETE = "metadata-card_delete_item";
@@ -84,6 +100,11 @@ class InfoPanelMetadata {
     await expect(this.getPickerItem(name)).toBeVisible();
   }
 
+  // Picker item shows "Fields: N"
+  async checkPickerFieldsCount(name: string, count: number) {
+    await expect(this.getPickerItem(name)).toContainText(`Fields: ${count}`);
+  }
+
   // Assert a visible template first so the list is known to be loaded
   async checkTemplateNotInPicker(name: string) {
     await expect(this.getPickerItem(name)).toHaveCount(0);
@@ -102,6 +123,30 @@ class InfoPanelMetadata {
   }
 
   // ---------- Fill form ----------
+
+  // Innermost dialog holding the form Save button
+  private get form() {
+    return this.page
+      .getByTestId(DIALOG)
+      .filter({ has: this.page.getByTestId(FORM_SAVE_BUTTON) })
+      .last();
+  }
+
+  /**
+   * Form lists exactly these fields, in this order, each with the control
+   * of its type. Text and Number render the same input - Number rules are
+   * covered by a separate behavior check.
+   */
+  async checkFormFields(fields: { name: string; type: TMetadataFieldType }[]) {
+    await expect(this.form.getByTestId(FIELD_LABEL)).toHaveText(
+      fields.map((f) => f.name),
+    );
+    for (const field of fields) {
+      await expect(
+        this.getFormField(field.name).getByTestId(FORM_CONTROL[field.type]),
+      ).toBeVisible();
+    }
+  }
 
   private getFormField(label: string) {
     return this.page.getByTestId(FIELD_CONTAINER).filter({
@@ -166,6 +211,10 @@ class InfoPanelMetadata {
     await expect(this.page.getByTestId(FORM_SAVE_BUTTON)).toBeDisabled();
   }
 
+  async checkSaveEnabled() {
+    await expect(this.page.getByTestId(FORM_SAVE_BUTTON)).toBeEnabled();
+  }
+
   // Save has no toast - wait for the card instead
   async saveValues() {
     await this.page.getByTestId(FORM_SAVE_BUTTON).click();
@@ -194,8 +243,20 @@ class InfoPanelMetadata {
     await expect(this.getCard(templateName)).toBeVisible();
   }
 
+  // Exact match on the value <p> (second child of the field row), so "20"
+  // does not pass for "120"
   async checkCardValue(templateName: string, label: string, value: string) {
-    await expect(this.getCardField(templateName, label)).toContainText(value);
+    await expect(
+      this.getCardField(templateName, label).locator(CARD_FIELD_VALUE),
+    ).toHaveText(value);
+  }
+
+  // Card lists exactly these field labels, in this order (empty values
+  // are shown as "—"). The first child row of the card is its title.
+  async checkCardFields(templateName: string, labels: string[]) {
+    await expect(
+      this.getCard(templateName).locator(CARD_FIELD_LABEL),
+    ).toHaveText(labels);
   }
 
   async checkCardTags(templateName: string, label: string, tags: string[]) {
