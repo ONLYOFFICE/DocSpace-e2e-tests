@@ -49,6 +49,9 @@ const FIELD_TYPE_COMBOBOX = "metadata_field_type_combobox";
 const FIELD_OPTION_INPUT_PLACEHOLDER = "Option value";
 const ADD_OPTION_BUTTON = "metadata_add_option_button";
 const FIELD_SUBMIT_BUTTON = "metadata_field_submit_button";
+const OPTION_DELETE_ICON = "icon-button";
+// Shared by the template panel and the field panel - always scope it
+const PANEL_CANCEL_BUTTON = "metadata_cancel_button";
 
 // Dropdown items are keyed by the backend field type enum
 const FIELD_TYPE_ITEM: Record<TMetadataFieldType, string> = {
@@ -231,6 +234,16 @@ class MetadataTemplates {
     await expect(this.templateNameInput).toBeHidden();
   }
 
+  // Click Save when the backend is expected to reject it - the panel stays open
+  async clickSaveTemplate() {
+    await this.templateSaveButton.click();
+  }
+
+  async cancelTemplatePanel() {
+    await this.templatePanel.getByTestId(PANEL_CANCEL_BUTTON).click();
+    await expect(this.templateNameInput).toBeHidden();
+  }
+
   async createTemplate(
     name: string,
     fields: TMetadataField[],
@@ -285,6 +298,29 @@ class MetadataTemplates {
       }
       await this.optionInputs.nth(index).fill(value);
     }
+  }
+
+  private async getOptionInput(value: string) {
+    const count = await this.optionInputs.count();
+    for (let i = 0; i < count; i++) {
+      if ((await this.optionInputs.nth(i).inputValue()) === value) {
+        return this.optionInputs.nth(i);
+      }
+    }
+    throw new Error(`Option "${value}" not found in the field panel`);
+  }
+
+  async renameOption(oldValue: string, newValue: string) {
+    const input = await this.getOptionInput(oldValue);
+    await input.fill(newValue);
+  }
+
+  // The trash icon sits next to the option input
+  async deleteOption(value: string) {
+    const input = await this.getOptionInput(value);
+    const countBefore = await this.optionInputs.count();
+    await input.locator("xpath=..").getByTestId(OPTION_DELETE_ICON).click();
+    await expect(this.optionInputs).toHaveCount(countBefore - 1);
   }
 
   async checkFieldSubmitDisabled() {

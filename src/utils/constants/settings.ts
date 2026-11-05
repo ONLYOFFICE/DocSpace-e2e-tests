@@ -140,6 +140,7 @@ const toastMessages = {
   // metadata templates
   metadataTemplateSaved: "Changes saved successfully",
   metadataTemplateDeleted: "Template deleted",
+  metadataOptionInUse: "An option in use cannot be removed",
 } as const;
 
 const samplePluginZip = {
