@@ -51,7 +51,6 @@ test.describe("Plugins: Markdown", () => {
     await test.step("New > More > Markdown creates a markdown file", async () => {
       await filesPlugins.createFromMoreMenu(pluginCreateItems.markdown);
       await filesPlugins.fillCreateDialog("Create markdown", NEW_FILE);
-      await files.open();
       await filesPlugins.expectFileInList(NEW_FILE);
     });
   });

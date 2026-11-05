@@ -98,7 +98,6 @@ const toastMessages = {
   // storage management
   roomQuotaEnabled: "Room quota has been successfully enabled",
   userQuotaEnabled: "User quota has been successfully enabled",
-  aiQuotaEnabled: "AI agent quota has been successfully enabled",
 
   // plugins
   pluginEnabled: "Plugin enabled",

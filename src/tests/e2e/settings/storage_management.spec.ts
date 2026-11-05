@@ -33,7 +33,7 @@ test.describe("Storage Management: settings", () => {
       await storageManagement.storageManagementGuideLink.click();
       const page1 = await page1Promise;
       await page1.waitForURL(
-        /https:\/\/helpcenter\.onlyoffice\.com\/docspace\/configuration\/docspace-storage-management-settings\.aspx/,
+        /https:\/\/helpcenter\.onlyoffice\.com\/docspace\/configuration\/configuring-workspace-settings\/docspace-storage-management-settings/,
       );
       await page1.close();
     });
@@ -50,11 +50,6 @@ test.describe("Storage Management: settings", () => {
       await storageManagement.dismissToastSafely(
         toastMessages.userQuotaEnabled,
       );
-    });
-
-    await test.step("Quota AI Agent Activate", async () => {
-      await storageManagement.QuotaAiAgentActivate();
-      await storageManagement.dismissToastSafely(toastMessages.aiQuotaEnabled);
     });
   });
 

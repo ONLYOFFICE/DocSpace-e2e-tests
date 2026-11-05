@@ -181,6 +181,10 @@ class FilesPlugins {
     await this.clickDialogButton("Create new URL", "Create");
   }
 
+  // The plugin uploads the new file in the background after the dialog
+  // closes; navigating away aborts that upload (upload/create_session gets
+  // cancelled), so wait for the row in the current list - it is added via
+  // the socket once the upload finishes.
   async expectFileInList(fileTitle: string) {
     await expect(async () => {
       await this.files.filesTable.checkRowExist(fileTitle);

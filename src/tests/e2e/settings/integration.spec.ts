@@ -60,7 +60,7 @@ test.describe("Integration tests", () => {
       await integration.ldapLink.click();
       const page1 = await page1Promise;
       await page1.waitForURL(
-        /https:\/\/.*onlyoffice\.com\/docspace\/configuration\/docspace-integration-settings\.aspx#ldapsettings_block/,
+        /https:\/\/.*onlyoffice\.com\/docspace\/configuration\/configuring-workspace-settings\/docspace-integration-settings#ldapsettings_block/,
       );
       await page1.close();
     });
@@ -71,7 +71,7 @@ test.describe("Integration tests", () => {
       await integration.thirdPartyLink.click();
       const page1 = await page1Promise;
       await page1.waitForURL(
-        /https:\/\/helpcenter\.onlyoffice\.com\/docspace\/configuration\/docspace-integration-settings\.aspx#thirdpartyserviceintegration_block/,
+        /https:\/\/helpcenter\.onlyoffice\.com\/docspace\/configuration\/configuring-workspace-settings\/docspace-integration-settings#thirdpartyserviceintegration_block/,
       );
       await page1.close();
     });

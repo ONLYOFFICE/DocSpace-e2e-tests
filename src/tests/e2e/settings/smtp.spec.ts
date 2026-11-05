@@ -41,7 +41,7 @@ test.describe("Integration tests - SMTP", () => {
       await integration.smtpLink.click();
       const popup = await popupPromise;
       await popup.waitForURL(
-        /https:\/\/helpcenter\.onlyoffice\.com\/docspace\/configuration\/docspace-integration-settings\.aspx#smtpsettings_block/,
+        /https:\/\/helpcenter\.onlyoffice\.com\/docspace\/configuration\/configuring-workspace-settings\/docspace-integration-settings#smtpsettings_block/,
       );
       await popup.close();
     });

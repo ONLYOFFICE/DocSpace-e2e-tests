@@ -55,7 +55,6 @@ test.describe("Plugins: CodeMirror", () => {
       await files.open();
       await filesPlugins.createFromMoreMenu(pluginCreateItems.textFile);
       await filesPlugins.fillCreateDialog("Create text file", NEW_FILE_NAME);
-      await files.open();
       await filesPlugins.expectFileInList(NEW_FILE);
     });
   });
