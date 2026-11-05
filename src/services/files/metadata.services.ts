@@ -26,6 +26,8 @@ export type TMetadataTemplate = {
     type: number;
     order: number;
     options?: { id: string; value: string }[];
+    // Present only in item metadata responses, when a value is set
+    value?: Omit<TMetadataValue, "fieldId">;
   }[];
 };
 

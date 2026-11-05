@@ -28,6 +28,20 @@ const FORM_SAVE_BUTTON = "metadata_template_save_button";
 const CARD = "info_panel_metadata_card";
 const CARD_TEXT = "text";
 const TAG_ITEM = "tag_item";
+const CARD_MENU = "info_panel_metadata_card_menu";
+const CARD_MENU_EDIT = "metadata-card_edit_item";
+const CARD_MENU_DELETE = "metadata-card_delete_item";
+const CONFIRM_DELETE_BUTTON = "confirm_delete_button";
+
+// Folder cascade
+const CASCADE_TOGGLE = "info_panel_metadata_cascade_toggle";
+const TOGGLE_INPUT = "toggle-button-input";
+const TOGGLE_LABEL = "toggle-button-container";
+const APPLY_CONFLICT_OPTION = {
+  skip: "metadata_apply_conflict_0",
+  overwrite: "metadata_apply_conflict_1",
+} as const;
+const APPLY_BUTTON = "metadata_apply_button";
 
 // Metadata tab of the info panel. Open the tab first via
 // infoPanel.openTab("Metadata").
@@ -187,6 +201,63 @@ class InfoPanelMetadata {
   async checkCardTags(templateName: string, label: string, tags: string[]) {
     const field = this.getCardField(templateName, label);
     await expect(field.getByTestId(TAG_ITEM)).toHaveText(tags);
+  }
+
+  async checkCardNotVisible(templateName: string) {
+    await expect(this.getCard(templateName)).toHaveCount(0);
+  }
+
+  // Opens the fill form prefilled with the saved values; Save stays
+  // disabled until something changes
+  async openCardEdit(templateName: string) {
+    await this.getCard(templateName).getByTestId(CARD_MENU).click();
+    await this.page.getByTestId(CARD_MENU_EDIT).click();
+    await expect(this.page.getByTestId(FORM_SAVE_BUTTON)).toBeVisible();
+  }
+
+  // Removes the template and its values from this item only; no toast
+  async removeCard(templateName: string) {
+    await this.getCard(templateName).getByTestId(CARD_MENU).click();
+    await this.page.getByTestId(CARD_MENU_DELETE).click();
+    await this.page.getByTestId(CONFIRM_DELETE_BUTTON).click();
+    await this.checkCardNotVisible(templateName);
+  }
+
+  // ---------- Folder cascade ----------
+
+  private get cascadeToggle() {
+    return this.page.getByTestId(CASCADE_TOGGLE);
+  }
+
+  // Shown on a folder only after a template has been saved on it
+  async checkCascadeToggleVisible() {
+    await expect(this.cascadeToggle).toBeVisible();
+  }
+
+  async checkCascadeToggleHidden() {
+    await expect(this.cascadeToggle).toBeHidden();
+  }
+
+  async checkCascadeEnabled(enabled: boolean) {
+    const input = this.cascadeToggle.getByTestId(TOGGLE_INPUT);
+    if (enabled) await expect(input).toBeChecked();
+    else await expect(input).not.toBeChecked();
+  }
+
+  // Turning cascade on opens the "Apply metadata" dialog; the caller checks
+  // the completion toast
+  async enableCascade(conflict: "skip" | "overwrite") {
+    await this.cascadeToggle.getByTestId(TOGGLE_LABEL).click();
+    await this.page.getByTestId(APPLY_CONFLICT_OPTION[conflict]).click();
+    await this.page.getByTestId(APPLY_BUTTON).click();
+    await expect(this.page.getByTestId(APPLY_BUTTON)).toBeHidden();
+    await this.checkCascadeEnabled(true);
+  }
+
+  // Turning cascade off has no dialog and no toast
+  async disableCascade() {
+    await this.cascadeToggle.getByTestId(TOGGLE_LABEL).click();
+    await this.checkCascadeEnabled(false);
   }
 }
 

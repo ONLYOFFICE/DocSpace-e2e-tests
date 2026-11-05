@@ -347,6 +347,76 @@ test.describe("Metadata: values on files", () => {
     });
   });
 
+  test("Edit file values from the metadata card", async ({ apiSdk }) => {
+    const fileName = "Estimate";
+
+    await test.step("Seed template, file and values via API", async () => {
+      const template = await seedTemplate(apiSdk);
+      const fileId = await seedFile(apiSdk, fileName);
+      await apiSdk.metadata.assignTemplatesToFile("owner", fileId, [
+        template.id,
+      ]);
+      await apiSdk.metadata.setFileValues("owner", fileId, [
+        {
+          fieldId: getField(template, FIELDS.comment).id,
+          stringValue: "Initial",
+        },
+        { fieldId: getField(template, FIELDS.amount).id, numberValue: 10 },
+      ]);
+    });
+
+    await test.step("Open the card in edit mode - Save is disabled until a change", async () => {
+      await openFileMetadata(fileName);
+      await files.infoPanel.metadata.openCardEdit(TEMPLATE_NAME);
+      await files.infoPanel.metadata.checkSaveDisabled();
+    });
+
+    await test.step("Change one value, clear another and save", async () => {
+      await files.infoPanel.metadata.fillNumberValue(FIELDS.amount, "20");
+      await files.infoPanel.metadata.fillTextValue(FIELDS.comment, "");
+      await files.infoPanel.metadata.saveValues();
+    });
+
+    await test.step("Verify updated values on the card", async () => {
+      const metadata = files.infoPanel.metadata;
+      await metadata.checkCardValue(TEMPLATE_NAME, FIELDS.amount, "20");
+      await metadata.checkCardValue(TEMPLATE_NAME, FIELDS.comment, "—");
+    });
+  });
+
+  test("Remove metadata from a file keeps the template", async ({ apiSdk }) => {
+    const fileName = "Memo";
+    let fileId: number;
+
+    await test.step("Seed template, file and values via API", async () => {
+      const template = await seedTemplate(apiSdk);
+      fileId = await seedFile(apiSdk, fileName);
+      await apiSdk.metadata.assignTemplatesToFile("owner", fileId, [
+        template.id,
+      ]);
+      await apiSdk.metadata.setFileValues("owner", fileId, [
+        {
+          fieldId: getField(template, FIELDS.comment).id,
+          stringValue: "To remove",
+        },
+      ]);
+    });
+
+    await test.step("Remove metadata via the card menu", async () => {
+      await openFileMetadata(fileName);
+      await files.infoPanel.metadata.removeCard(TEMPLATE_NAME);
+      await files.infoPanel.metadata.checkEmptyState();
+      const metadata = await apiSdk.metadata.getFileMetadata("owner", fileId);
+      expect(metadata.templates).toHaveLength(0);
+    });
+
+    await test.step("Template is still offered in the picker", async () => {
+      await files.infoPanel.metadata.openTemplatePicker();
+      await files.infoPanel.metadata.checkTemplateInPicker(TEMPLATE_NAME);
+      await files.infoPanel.metadata.closeTemplatePicker();
+    });
+  });
+
   test("Filter files by a Number field condition", async ({ apiSdk }) => {
     const bigFile = "Big deal";
     const smallFile = "Small deal";
