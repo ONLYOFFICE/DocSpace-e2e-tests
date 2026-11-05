@@ -29,6 +29,20 @@ export function waitForFileRecentResponse(
   });
 }
 
+// Info panel Metadata tab loads item metadata on tab open, or on selection
+// when the tab is already active
+export const waitForGetItemMetadataResponse = (page: Page) => {
+  return page.waitForResponse((response) => {
+    return (
+      /api\/2\.0\/files\/metadata\/(file|folder)\/\d+$/.test(
+        response.url().split("?")[0],
+      ) &&
+      response.request().method() === "GET" &&
+      response.status() === 200
+    );
+  });
+};
+
 export const waitForGetFilesResponse = (page: Page) => {
   return page.waitForResponse((response) => {
     return (

@@ -135,6 +135,11 @@ const toastMessages = {
 
   // ai settings
   aiLimitSaved: "Changes saved successfully",
+
+  // metadata templates
+  metadataTemplateSaved: "Changes saved successfully",
+  metadataTemplateDeleted: "Template deleted",
+  metadataOptionInUse: "An option in use cannot be removed",
 } as const;
 
 const samplePluginZip = {

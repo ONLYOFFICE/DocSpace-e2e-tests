@@ -5,10 +5,12 @@ import { BaseDropdown } from "@/src/objects/common/BaseDropdown";
 import path from "path";
 import fs from "fs";
 import DefaultTemplates from "./DefaultTemplates";
+import MetadataTemplates from "./MetadataTemplates";
 
 class Customization extends BasePage {
   protected dropdown: BaseDropdown;
   defaultTemplates: DefaultTemplates;
+  metadataTemplates: MetadataTemplates;
 
   constructor(page: Page) {
     super(page);
@@ -16,6 +18,7 @@ class Customization extends BasePage {
       menu: this.page.getByRole("listbox"),
     });
     this.defaultTemplates = new DefaultTemplates(page);
+    this.metadataTemplates = new MetadataTemplates(page);
   }
 
   get languageSelector() {
@@ -227,13 +230,19 @@ class Customization extends BasePage {
   }
 
   async openTab(
-    tab: "General" | "Branding" | "Appearance" | "Default Templates",
+    tab:
+      | "General"
+      | "Branding"
+      | "Appearance"
+      | "Default Templates"
+      | "Metadata templates",
   ) {
     const tabTestIds: Record<typeof tab, string> = {
       General: "general_tab",
       Branding: "branding_tab",
       Appearance: "appearance_tab",
       "Default Templates": "default-templates_tab",
+      "Metadata templates": "metadata-templates_tab",
     };
     await this.page.getByTestId(tabTestIds[tab]).click();
 
@@ -249,6 +258,9 @@ class Customization extends BasePage {
         break;
       case "Default Templates":
         await this.defaultTemplates.checkAllRowsVisible();
+        break;
+      case "Metadata templates":
+        await this.metadataTemplates.checkTabOpened();
         break;
       default:
         throw new Error("Invalid tab");

@@ -18,6 +18,7 @@ import FilesSelectPanel from "./FilesSelectPanel";
 import FolderDeleteModal from "./FolderDeleteModal";
 import ConflictResolveDialog from "./ConflictResolveDialog";
 import ConvertDialog from "./ConvertDialog";
+import { waitForGetItemMetadataResponse } from "./api";
 import DocumentEditor from "./DocumentEditor";
 import SpreadsheetEditor from "./SpreadsheetEditor";
 import PresentationEditor from "./PresentationEditor";
@@ -77,6 +78,17 @@ class Files extends BasePage {
     await expect(this.page).toHaveURL(/.*rooms\/personal.*/);
     await this.page.waitForLoadState("load");
     await this.filesNavigation.checkAddButtonVisible();
+  }
+
+  // Selects an item in the current list and opens its Metadata tab. Waits
+  // for the metadata request so empty state / card checks see loaded data.
+  // The item must not be selected yet - otherwise no request is sent.
+  async openItemMetadata(name: string) {
+    const metadataLoaded = waitForGetItemMetadataResponse(this.page);
+    await this.filesTable.selectRow(name);
+    await this.infoPanel.open();
+    await this.infoPanel.openTab("Metadata");
+    await metadataLoaded;
   }
 
   async openRecentlyAccessibleTab() {
