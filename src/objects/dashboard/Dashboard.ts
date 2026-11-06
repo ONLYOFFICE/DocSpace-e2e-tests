@@ -10,6 +10,7 @@ const OPEN_FILES_BUTTON = "dashboard-app-open-ai-files";
 const CREATE_ROOM_BUTTON = "dashboard-app-open-ai-rooms";
 const CREATE_FORM_SPACE_BUTTON = "dashboard-app-open-ai-forms";
 const CREATE_AI_AGENT_BUTTON = "dashboard-app-open-ai-agents";
+const OPEN_AI_ROOMS_BUTTON = "dashboard-app-open-ai-hub";
 const FILES_TOUR_BUTTON = "dashboard-app-tour-ai-files";
 const ROOMS_TOUR_BUTTON = "dashboard-app-tour-ai-rooms";
 const FORMS_TOUR_BUTTON = "dashboard-app-tour-ai-forms";
@@ -83,6 +84,11 @@ export class Dashboard extends BasePage {
     return this.page.getByTestId(CREATE_AI_AGENT_BUTTON);
   }
 
+  // AI rooms card - the button reads "Open" for every role
+  get openAiRoomsButton(): Locator {
+    return this.page.getByTestId(OPEN_AI_ROOMS_BUTTON);
+  }
+
   get filesTourButton(): Locator {
     return this.page.getByTestId(FILES_TOUR_BUTTON);
   }
@@ -146,13 +152,13 @@ export class Dashboard extends BasePage {
     ).toBeVisible();
   }
 
-  // Non-owner roles can't create rooms/form spaces/AI agents, so their
-  // Discover Apps cards all read "Open" instead of the owner's create actions
+  // Non-owner roles can't create rooms/form spaces, so their Discover Apps
+  // cards all read "Open" instead of the owner's create actions
   async expectDiscoverAppsShowOpen() {
     await expect(this.openFilesButton).toHaveText("Open");
     await expect(this.createRoomButton).toHaveText("Open");
     await expect(this.createFormSpaceButton).toHaveText("Open");
-    await expect(this.createAiAgentButton).toHaveText("Open");
+    await expect(this.openAiRoomsButton).toHaveText("Open");
   }
 
   // Guests can't create or upload files, so the quick-action tiles are

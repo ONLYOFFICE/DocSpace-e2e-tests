@@ -17,21 +17,19 @@ test.describe("Profile - Default Homepage", () => {
     await profileFileManagement.open();
   });
 
-  // Skipped: AI agents were replaced by AI rooms (Instructions rooms,
-  // Knowledge rooms and AI projects). To be rewritten for the new model.
-  test.skip("AI agents - logo navigates to AI agents URL", async () => {
-    await test.step("Select AI agents as default homepage", async () => {
+  test("AI rooms - logo navigates to AI rooms URL", async () => {
+    await test.step("Select AI rooms as default homepage", async () => {
       await profileFileManagement.selectDefaultHomepage(
-        defaultHomepageOptions.aiAgents,
+        defaultHomepageOptions.aiRooms,
       );
       await profileFileManagement.expectDefaultHomepageOption(
-        defaultHomepageOptions.aiAgents,
+        defaultHomepageOptions.aiRooms,
       );
     });
 
     await test.step("Click logo and verify landing URL", async () => {
       await profileFileManagement.clickLogoAndExpectUrl(
-        defaultHomepageUrls.aiAgents,
+        defaultHomepageUrls.aiRooms,
       );
     });
   });

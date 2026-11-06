@@ -17,7 +17,7 @@ export const avatarConstants = {
 
 export const defaultHomepageOptions = {
   home: "Home",
-  aiAgents: "AI agents",
+  aiRooms: "AI rooms",
   files: "Files",
   rooms: "Rooms",
   forms: "Forms",
@@ -35,7 +35,7 @@ export const notificationsText = {
 } as const;
 
 export const defaultHomepageUrls = {
-  aiAgents: /ai-agents\/filter/,
+  aiRooms: /ai-rooms\/filter/,
   files: /rooms\/personal/,
   rooms: /rooms\/shared\/filter/,
   forms: /forms/,
