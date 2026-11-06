@@ -34,6 +34,7 @@ import BasePage from "../common/BasePage";
 import BaseSelector from "../common/BaseSelector";
 import BaseToast from "../common/BaseToast";
 import FilesTable from "../files/FilesTable";
+import { waitForGetItemMetadataResponse } from "../files/api";
 import FilesFilter from "../files/FilesFilter";
 import DownloadDialog from "../files/DownloadDialog";
 import FilesSelectPanel from "../files/FilesSelectPanel";
@@ -366,6 +367,16 @@ class MyRooms extends BasePage {
       timeout: 30000,
     });
     await expect(this.page).toHaveURL(/\/rooms\/shared|\/dashboard/);
+  }
+
+  // Selects an item inside the open room and opens its Metadata tab, waiting
+  // for the metadata request. The item must not be selected yet.
+  async openItemMetadata(name: string) {
+    const metadataLoaded = waitForGetItemMetadataResponse(this.page);
+    await this.filesTable.selectRow(name);
+    await this.infoPanel.open();
+    await this.infoPanel.openTab("Metadata");
+    await metadataLoaded;
   }
 
   async openRoom(roomName: string) {

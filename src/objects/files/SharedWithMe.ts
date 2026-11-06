@@ -5,6 +5,7 @@ import FilesTable from "./FilesTable";
 import FilesFilter from "./FilesFilter";
 import InfoPanel from "../common/InfoPanel";
 import { apps, filesSubItems } from "@/src/utils/constants/navigation";
+import { waitForGetItemMetadataResponse } from "./api";
 
 const SHARED_WITH_ME_URL = /shared-with-me/;
 
@@ -37,6 +38,16 @@ class SharedWithMe extends BasePage {
   async waitForSharedWithMePage() {
     await expect(this.page).toHaveURL(SHARED_WITH_ME_URL);
     await this.page.waitForLoadState("domcontentloaded");
+  }
+
+  // Selects an item and opens its Metadata tab, waiting for the metadata
+  // request. The item must not be selected yet - otherwise no request is sent.
+  async openItemMetadata(name: string) {
+    const metadataLoaded = waitForGetItemMetadataResponse(this.page);
+    await this.filesTable.selectRow(name);
+    await this.infoPanel.open();
+    await this.infoPanel.openTab("Metadata");
+    await metadataLoaded;
   }
 
   async checkEmptyViewVisible() {

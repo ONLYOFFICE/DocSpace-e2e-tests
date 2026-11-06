@@ -1,4 +1,5 @@
 import { expect, Page } from "@playwright/test";
+import { getPortalUrl } from "@/config";
 
 export type TMetadataFieldType =
   | "Text"
@@ -15,7 +16,12 @@ export type TMetadataField = {
 };
 
 // Tab root
+const METADATA_TEMPLATES_PATH =
+  "/portal-settings/customization/metadata-templates";
 const CREATE_TEMPLATE_BUTTON = "metadata_create_template_button";
+// Users without access are redirected to the error page
+const ACCESS_DENIED_URL = /\/error\/401/;
+const ACCESS_DENIED_TEXT = "Sorry, the resource is not currently accessible.";
 
 // Templates table
 const TABLE_CONTAINER = "table-container";
@@ -72,6 +78,19 @@ class MetadataTemplates {
   }
 
   // ---------- Tab / table ----------
+
+  // Direct link - used to check access for users without the Settings menu
+  async openByUrl(portalDomain: string) {
+    await this.page.goto(
+      `${getPortalUrl(portalDomain)}${METADATA_TEMPLATES_PATH}`,
+    );
+  }
+
+  async checkAccessDenied() {
+    await expect(this.page).toHaveURL(ACCESS_DENIED_URL);
+    await expect(this.page.getByText(ACCESS_DENIED_TEXT)).toBeVisible();
+    await expect(this.createTemplateButton).toHaveCount(0);
+  }
 
   get createTemplateButton() {
     return this.page.getByTestId(CREATE_TEMPLATE_BUTTON);

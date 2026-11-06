@@ -48,6 +48,10 @@ const CARD_MENU = "info_panel_metadata_card_menu";
 const CARD_MENU_EDIT = "metadata-card_edit_item";
 const CARD_MENU_DELETE = "metadata-card_delete_item";
 const CONFIRM_DELETE_BUTTON = "confirm_delete_button";
+// Header "Add metadata" button above the cards - rendered only when the item
+// is editable. The AI button next to it is not checked: it also depends on
+// the portal AI setup and is absent on a fresh test portal.
+const HEADER_ADD_BUTTON = "info_panel_metadata_add_button";
 
 // Folder cascade
 const CASCADE_TOGGLE = "info_panel_metadata_cascade_toggle";
@@ -266,6 +270,32 @@ class InfoPanelMetadata {
 
   async checkCardNotVisible(templateName: string) {
     await expect(this.getCard(templateName)).toHaveCount(0);
+  }
+
+  // ---------- Access ----------
+
+  // Item the user can edit: card menu and the header add button
+  async checkCardEditable(templateName: string) {
+    await expect(
+      this.getCard(templateName).getByTestId(CARD_MENU),
+    ).toBeVisible();
+    await expect(this.page.getByTestId(HEADER_ADD_BUTTON)).toBeVisible();
+  }
+
+  // Item without edit rights (Read / Comment / room Viewer): values are
+  // shown, but there is no card menu and no header add button
+  async checkCardReadOnly(templateName: string) {
+    await this.checkCardVisible(templateName);
+    await expect(this.getCard(templateName).getByTestId(CARD_MENU)).toHaveCount(
+      0,
+    );
+    await expect(this.page.getByTestId(HEADER_ADD_BUTTON)).toHaveCount(0);
+  }
+
+  // Empty state without the "Add metadata" link
+  async checkEmptyStateReadOnly() {
+    await this.checkEmptyState();
+    await expect(this.page.getByTestId(ADD_METADATA_BUTTON)).toHaveCount(0);
   }
 
   // Opens the fill form prefilled with the saved values; Save stays

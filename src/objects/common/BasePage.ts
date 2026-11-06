@@ -71,6 +71,15 @@ export default class BasePage {
     await this.page.keyboard.press("Escape");
   }
 
+  // Users without admin rights have no Settings item in the user menu
+  async checkSettingsMenuItemNotVisible() {
+    await this.optionsButton.waitFor({ state: "visible", timeout: 10000 });
+    await this.optionsButton.click();
+    await expect(this.profileMenuItem).toBeVisible();
+    await expect(this.settingsMenuItem).not.toBeVisible();
+    await this.page.keyboard.press("Escape");
+  }
+
   protected get liveChatMenuItem(): Locator {
     return this.page.getByTestId(USER_MENU_LIVE_CHAT);
   }
