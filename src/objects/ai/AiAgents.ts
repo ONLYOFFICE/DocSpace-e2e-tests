@@ -86,7 +86,9 @@ const CHAT_ITEM_MENU_RENAME = "chat-item-menu-rename";
 const CHAT_ITEM_MENU_DELETE = "chat-item-menu-delete";
 const CHAT_ERROR = "chat-error";
 const CHAT_ERROR_TITLE = "chat-error-title";
-const CHAT_ERROR_DESCRIPTION = "chat-error-description";
+const COMPOSER_NOTICE = "composer-notice";
+const COMPOSER_NOTICE_TITLE = "composer-notice-title";
+const COMPOSER_NOTICE_DESCRIPTION = "composer-notice-description";
 
 export class AiAgents extends BasePage {
   private portalDomain: string;
@@ -1377,20 +1379,30 @@ export class AiAgents extends BasePage {
     return this.page.getByTestId(CHAT_ERROR);
   }
 
+  private get composerNotice() {
+    return this.page.getByTestId(COMPOSER_NOTICE);
+  }
+
   private get changeAiLimitButton() {
-    return this.chatError.getByRole("button", {
+    return this.composerNotice.getByRole("button", {
       name: aiLimitReachedBanner.changeLimitButton,
     });
   }
 
-  // The banner reuses the generic chat-error alert (data-error-code is "auth"
-  // for it, so the code is not asserted).
+  // A blocked message gets an inline chat-error in the thread, and the limit
+  // banner itself is a notice above the message input.
   async expectAiLimitReachedBanner(viewer: "admin" | "user") {
     await expect(this.chatError).toBeVisible({ timeout: 60000 });
     await expect(this.chatError.getByTestId(CHAT_ERROR_TITLE)).toHaveText(
-      aiLimitReachedBanner.title,
+      aiLimitReachedBanner.interruptedMessage,
     );
-    const description = this.chatError.getByTestId(CHAT_ERROR_DESCRIPTION);
+    await expect(this.composerNotice).toBeVisible();
+    await expect(
+      this.composerNotice.getByTestId(COMPOSER_NOTICE_TITLE),
+    ).toHaveText(aiLimitReachedBanner.title);
+    const description = this.composerNotice.getByTestId(
+      COMPOSER_NOTICE_DESCRIPTION,
+    );
     await expect(description).toContainText(
       aiLimitReachedBanner.descriptionStart,
     );
