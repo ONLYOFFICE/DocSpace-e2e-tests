@@ -13,6 +13,7 @@ import {
   createContractTemplate,
   createDocxInMyDocuments,
   createFileWithMetadata,
+  createFolderInMyDocuments,
   createMetadataTemplate,
   getFileFieldValue,
 } from "@/src/utils/helpers/metadata";
@@ -448,6 +449,208 @@ test.describe("Metadata: access rights", () => {
       const metadata = sharedWithMe.infoPanel.metadata;
       await metadata.checkCardReadOnly(TEMPLATE_NAME);
       await metadata.checkCardValue(TEMPLATE_NAME, FIELDS.comment, "User note");
+    });
+  });
+
+  test("Guest edits metadata only on a file shared with Editing access", async ({
+    page,
+    api,
+    apiSdk,
+    login,
+  }) => {
+    const readFile = "Guest read contract";
+    const editFile = "Guest edit contract";
+    const sharedWithMe = new SharedWithMe(page, api.portalDomain);
+    let editFileId: number;
+
+    await test.step("Seed files with metadata and share them with a guest", async () => {
+      const template = await createContractTemplate(apiSdk);
+      const { userData, userId } = await apiSdk.profiles.addMemberWithId(
+        "owner",
+        "Guest",
+      );
+      const values = { [FIELDS.comment]: "Owner note" };
+      const readFileId = await createFileWithMetadata(apiSdk, {
+        title: readFile,
+        template,
+        values,
+      });
+      editFileId = await createFileWithMetadata(apiSdk, {
+        title: editFile,
+        template,
+        values,
+      });
+      for (const [fileId, access] of [
+        [readFileId, FILE_ACCESS.read],
+        [editFileId, FILE_ACCESS.editing],
+      ]) {
+        const response = await apiSdk.files.shareFile("owner", fileId, {
+          share: [{ shareTo: userId, access }],
+          notify: false,
+        });
+        expect(response.ok()).toBeTruthy();
+      }
+      await login.loginWithCredentials(userData.email, userData.password);
+    });
+
+    await test.step("Read access: values are shown without edit controls", async () => {
+      await sharedWithMe.open();
+      await sharedWithMe.openItemMetadata(readFile);
+      const metadata = sharedWithMe.infoPanel.metadata;
+      await metadata.checkCardReadOnly(TEMPLATE_NAME);
+      await metadata.checkCardValue(
+        TEMPLATE_NAME,
+        FIELDS.comment,
+        "Owner note",
+      );
+    });
+
+    await test.step("Editing access: guest changes a value", async () => {
+      await sharedWithMe.open();
+      await sharedWithMe.openItemMetadata(editFile);
+      const metadata = sharedWithMe.infoPanel.metadata;
+      await metadata.checkCardEditable(TEMPLATE_NAME);
+      await metadata.openCardEdit(TEMPLATE_NAME);
+      await metadata.fillTextValue(FIELDS.comment, "Edited by guest");
+      await metadata.saveValues();
+      await metadata.checkCardValue(
+        TEMPLATE_NAME,
+        FIELDS.comment,
+        "Edited by guest",
+      );
+    });
+
+    await test.step("Owner sees the value changed by the guest", async () => {
+      const value = await getFileFieldValue(
+        apiSdk,
+        editFileId,
+        TEMPLATE_NAME,
+        FIELDS.comment,
+      );
+      expect(value?.stringValue).toBe("Edited by guest");
+    });
+  });
+
+  // The owner sees the cascade toggle on a folder with a template - see
+  // metadata_folder_cascade.spec.ts. With Read access it is not shown.
+  test("Folder shared with Read access: folder and its files are read-only", async ({
+    page,
+    api,
+    apiSdk,
+    login,
+  }) => {
+    const folderName = "Shared read folder";
+    const fileName = "Folder contract";
+    const sharedWithMe = new SharedWithMe(page, api.portalDomain);
+
+    await test.step("Seed folder and file with metadata, share the folder", async () => {
+      const template = await createContractTemplate(apiSdk);
+      const { userData, userId } = await apiSdk.profiles.addMemberWithId(
+        "owner",
+        "User",
+      );
+      const folderId = await createFolderInMyDocuments(apiSdk, folderName);
+      await apiSdk.metadata.assignTemplatesToFolder("owner", folderId, [
+        template.id,
+      ]);
+      await createFileWithMetadata(apiSdk, {
+        title: fileName,
+        template,
+        folderId,
+        values: { [FIELDS.comment]: "Owner note" },
+      });
+      const response = await apiSdk.files.shareFolder("owner", folderId, {
+        share: [{ shareTo: userId, access: FILE_ACCESS.read }],
+        notify: false,
+      });
+      expect(response.ok()).toBeTruthy();
+      await login.loginWithCredentials(userData.email, userData.password);
+    });
+
+    await test.step("Folder card is read-only and has no cascade toggle", async () => {
+      await sharedWithMe.open();
+      await sharedWithMe.openItemMetadata(folderName);
+      const metadata = sharedWithMe.infoPanel.metadata;
+      await metadata.checkCardReadOnly(TEMPLATE_NAME);
+      await metadata.checkCascadeToggleHidden();
+    });
+
+    await test.step("File inside the folder is read-only", async () => {
+      await sharedWithMe.filesTable.openItem(folderName);
+      await sharedWithMe.openItemMetadata(fileName);
+      const metadata = sharedWithMe.infoPanel.metadata;
+      await metadata.checkCardReadOnly(TEMPLATE_NAME);
+      await metadata.checkCardValue(
+        TEMPLATE_NAME,
+        FIELDS.comment,
+        "Owner note",
+      );
+    });
+  });
+
+  // Public room has no Viewer / Editor roles - Content creator is the
+  // lowest member role there
+  test("Public room Content creator edits metadata", async ({
+    page,
+    api,
+    apiSdk,
+    login,
+  }) => {
+    const roomName = "Public metadata room";
+    const fileName = "Public contract";
+    const myRooms = new MyRooms(page, api.portalDomain);
+    let fileId: number;
+
+    await test.step("Seed public room and file, invite a content creator", async () => {
+      const template = await createContractTemplate(apiSdk);
+      const response = await apiSdk.rooms.createRoom("owner", {
+        title: roomName,
+        roomType: "PublicRoom",
+      });
+      const roomId = (await response.json()).response.id;
+      fileId = await createFileWithMetadata(apiSdk, {
+        title: fileName,
+        template,
+        folderId: roomId,
+        values: { [FIELDS.comment]: "Owner note" },
+      });
+      const { userData, userId } = await apiSdk.profiles.addMemberWithId(
+        "owner",
+        "User",
+      );
+      await apiSdk.rooms.inviteToRoom(
+        "owner",
+        roomId,
+        userId,
+        "ContentCreator",
+      );
+      await login.loginWithCredentials(userData.email, userData.password);
+    });
+
+    await test.step("Content creator changes a value from the card", async () => {
+      await myRooms.openWithoutEmptyCheck();
+      await myRooms.roomsTable.openRoomByName(roomName);
+      await myRooms.openItemMetadata(fileName);
+      const metadata = myRooms.infoPanel.metadata;
+      await metadata.checkCardEditable(TEMPLATE_NAME);
+      await metadata.openCardEdit(TEMPLATE_NAME);
+      await metadata.fillTextValue(FIELDS.comment, "Edited in public room");
+      await metadata.saveValues();
+      await metadata.checkCardValue(
+        TEMPLATE_NAME,
+        FIELDS.comment,
+        "Edited in public room",
+      );
+    });
+
+    await test.step("Owner sees the new value", async () => {
+      const value = await getFileFieldValue(
+        apiSdk,
+        fileId,
+        TEMPLATE_NAME,
+        FIELDS.comment,
+      );
+      expect(value?.stringValue).toBe("Edited in public room");
     });
   });
 
