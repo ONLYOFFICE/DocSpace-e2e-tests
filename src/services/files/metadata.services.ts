@@ -97,6 +97,20 @@ export class MetadataApi {
     });
   }
 
+  async assignTemplatesToFolder(
+    role: Role,
+    folderId: number,
+    templateIds: number[],
+  ) {
+    return test.step(`${role} assign metadata templates to folder ${folderId}`, async () => {
+      const response = await this.request.put(
+        `${this.baseUrl}/folder/${folderId}/templates`,
+        { headers: this.headers(role), data: { templateIds } },
+      );
+      expect(response.ok()).toBeTruthy();
+    });
+  }
+
   async setFileValues(role: Role, fileId: number, values: TMetadataValue[]) {
     return test.step(`${role} set metadata values of file ${fileId}`, async () => {
       const response = await this.request.put(
