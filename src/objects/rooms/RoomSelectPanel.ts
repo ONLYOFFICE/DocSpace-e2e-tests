@@ -42,8 +42,7 @@ class RoomSelectPanel extends BaseSelector {
   }
 
   async confirmSelection() {
-    await expect(this.page.getByLabel("Select")).toBeVisible();
-    await this.page.getByLabel("Select").click();
+    await this.submitSelection();
   }
 
   async select(type: FolderType) {
