@@ -12,6 +12,9 @@ export const CONTRACT_TEMPLATE = {
   labelsOptions: ["Urgent", "Internal"],
 } as const;
 
+// Backend share access levels for PUT files/file|folder/{id}/share
+export const FILE_SHARE_ACCESS = { read: 2, comment: 6, editing: 10 } as const;
+
 export const metadataToastMessages = {
   appliedToFolder: (template: string, folder: string) =>
     `${template} metadata has been applied to all items in ${folder}`,
