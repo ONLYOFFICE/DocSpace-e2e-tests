@@ -133,9 +133,7 @@ test.describe("AI limits", () => {
     });
   };
 
-  // Bug 84900: an exceeded limit shows "Invalid API key" / "auth" with Retry
-  // instead of the "AI spending limit reached" banner.
-  test.skip("[Bug 84900] Portal limit set in AI settings blocks every user until it is raised", async ({
+  test("Portal limit set in AI settings blocks every user until it is raised", async ({
     page,
     apiSdk,
     login,
@@ -197,10 +195,7 @@ test.describe("AI limits", () => {
     });
   });
 
-  // Bug 84776: the individual limit is stored (API returns it) but not
-  // applied - the user's chat still answers.
-  // Bug 84900: the limit banner itself is wrong (see the portal limit test).
-  test.skip("[Bug 84776] [Bug 84900] Individual limit blocks only its user, limit per user blocks everyone", async ({
+  test("Individual limit blocks only its user, limit per user blocks everyone", async ({
     page,
     apiSdk,
     login,
