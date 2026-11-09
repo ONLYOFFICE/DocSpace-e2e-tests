@@ -4,14 +4,12 @@ import AiSettings from "@/src/objects/ai/AiSettings";
 import Files from "@/src/objects/files/Files";
 import { PaymentApi } from "@/src/api/payment";
 
-// Skipped: AI agents were replaced by AI rooms (Instructions rooms, Knowledge
-// rooms and AI projects). To be rewritten for the new model.
-test.describe.skip("AI Chat panel: buttons on Files", () => {
+test.describe("AI Chat panel: buttons on Files", () => {
   let aiAgents: AiAgents;
   let aiSettings: AiSettings;
   let files: Files;
   let paymentApi: PaymentApi;
-  const AGENT_NAME = "Chat Buttons Agent";
+  const PROJECT_NAME = "Chat Buttons Project";
 
   test.beforeEach(async ({ page, api, login }) => {
     paymentApi = new PaymentApi(api.apiRequestContext, api.apisystem);
@@ -27,8 +25,8 @@ test.describe.skip("AI Chat panel: buttons on Files", () => {
       await aiSettings.activate();
     });
 
-    await test.step("Precondition: create an agent so the chat panel is usable", async () => {
-      await aiAgents.createAgent(AGENT_NAME);
+    await test.step("Precondition: create a project so the chat panel is usable", async () => {
+      await aiAgents.createAgent(PROJECT_NAME);
     });
 
     await files.open();
@@ -37,9 +35,9 @@ test.describe.skip("AI Chat panel: buttons on Files", () => {
   });
 
   test("Model selector lists raw models and switches the active one", async () => {
-    await test.step("Verify the model list includes raw models and Choose AI Agent", async () => {
+    await test.step("Verify the model list includes raw models and Choose AI Project", async () => {
       await aiAgents.expectModelInQuickChatMenu("GPT 6 Luna", true);
-      await aiAgents.expectModelInQuickChatMenu("Choose AI Agent", true);
+      await aiAgents.expectModelInQuickChatMenu("Choose AI Project", true);
     });
 
     await test.step("Select a different model and verify it's reflected", async () => {
@@ -58,7 +56,7 @@ test.describe.skip("AI Chat panel: buttons on Files", () => {
   test("Model selector exposes Effort levels", async () => {
     await test.step("Effort submenu in the model menu can be changed", async () => {
       await aiAgents.openQuickChatModelMenu();
-      await aiAgents.expectEffortLevel("No thinking");
+      await aiAgents.expectEffortLevel("Medium");
       await aiAgents.selectEffortLevel("High");
       await aiAgents.openQuickChatModelMenu();
       await aiAgents.expectEffortLevel("High");
