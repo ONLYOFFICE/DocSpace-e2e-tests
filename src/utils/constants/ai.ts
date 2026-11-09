@@ -254,7 +254,6 @@ export const aiLimitPeriods = {
 export type TAiLimitPeriod = keyof typeof aiLimitPeriods;
 
 export const aiLimitsTab = {
-  minAmountError: "min US$1",
   unsavedChanges: "You have unsaved changes",
   contactsLink: "Contacts",
 } as const;
