@@ -5,8 +5,8 @@ import { PaymentApi } from "@/src/api/payment";
 
 const AGENT_NAME = "Viewer Access Agent";
 
-// Skipped: AI agents were replaced by AI rooms (Instructions rooms, Knowledge
-// rooms and AI projects). To be rewritten for the new model.
+// Skipped: the Viewer role is gone - AI projects only have "Project manager"
+// and "Member". To be reworked for the new AI rooms access model.
 test.describe.skip("AI Agents: Viewer access", () => {
   let aiAgents: AiAgents;
   let aiSettings: AiSettings;
@@ -29,9 +29,6 @@ test.describe.skip("AI Agents: Viewer access", () => {
       await aiAgents.openDirectly();
       await aiAgents.openCreateAgentDialog();
       await aiAgents.fillAgentName(AGENT_NAME);
-      await aiAgents.fillInstructions(
-        "Test agent for viewer access scenarios.",
-      );
       await aiAgents.saveAgent();
       await aiAgents.expectChatOpened();
       await aiAgents.openAndExpectAgentInList(AGENT_NAME);

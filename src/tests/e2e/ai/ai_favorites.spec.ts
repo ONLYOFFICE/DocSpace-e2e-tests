@@ -31,8 +31,8 @@ test.describe.skip("AI agents: Favorites", () => {
   });
 });
 
-// Skipped: AI agents were replaced by AI rooms (Instructions rooms, Knowledge
-// rooms and AI projects). To be rewritten for the new model.
+// Skipped: AI projects no longer have a Chat outputs folder / Result storage
+// tab, and it is not yet clear which AI rooms files end up in Favorites.
 test.describe.skip("AI agents: Favorites", () => {
   const AGENT_NAME = "Favorite File Agent";
 

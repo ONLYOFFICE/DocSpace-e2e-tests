@@ -5,14 +5,12 @@ import ChatAttachmentPanel from "@/src/objects/ai/ChatAttachmentPanel";
 import { PaymentApi } from "@/src/api/payment";
 import { mapInitialDocNames } from "@/src/utils/constants/files";
 
-// Skipped: AI agents were replaced by AI rooms (Instructions rooms, Knowledge
-// rooms and AI projects). To be rewritten for the new model.
-test.describe.skip("AI Agents: attach document", () => {
+test.describe("AI projects: attach document", () => {
   let aiAgents: AiAgents;
   let aiSettings: AiSettings;
   let attachmentPanel: ChatAttachmentPanel;
   let paymentApi: PaymentApi;
-  const AGENT_NAME = "Test AI Agent";
+  const PROJECT_NAME = "Test AI Project";
   const DOCUMENT = mapInitialDocNames.ONLYOFFICE_SAMPLE_DOCUMENT;
 
   test.beforeEach(async ({ page, api, login }) => {
@@ -29,19 +27,18 @@ test.describe.skip("AI Agents: attach document", () => {
       await aiSettings.activate();
     });
 
-    await test.step("Precondition: create AI agent", async () => {
+    await test.step("Precondition: create AI project", async () => {
       await aiAgents.openDirectly();
       await aiAgents.openCreateAgentDialog();
-      await aiAgents.fillAgentName(AGENT_NAME);
-      await aiAgents.fillInstructions("Test agent for attachment scenarios.");
+      await aiAgents.fillAgentName(PROJECT_NAME);
       await aiAgents.saveAgent();
     });
   });
 
-  test("Attach a document from My Documents to the agent chat", async () => {
-    await test.step("Open the agent chat", async () => {
-      await aiAgents.openAndExpectAgentInList(AGENT_NAME);
-      await aiAgents.openAgent(AGENT_NAME);
+  test("Attach a document from My Documents to the project chat", async () => {
+    await test.step("Open the project chat", async () => {
+      await aiAgents.openAndExpectAgentInList(PROJECT_NAME);
+      await aiAgents.openAgent(PROJECT_NAME);
       await aiAgents.expectChatOpened();
     });
 

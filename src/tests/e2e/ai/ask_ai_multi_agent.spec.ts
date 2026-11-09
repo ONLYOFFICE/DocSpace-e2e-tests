@@ -30,12 +30,8 @@ test.describe.skip("Ask AI on files: choosing a custom agent", () => {
     });
 
     await test.step("Precondition: create two AI agents", async () => {
-      await aiAgents.createAgent(AGENT_A_NAME, {
-        instructions: "First test agent for Ask AI selector scenarios.",
-      });
-      await aiAgents.createAgent(AGENT_B_NAME, {
-        instructions: "Second test agent for Ask AI selector scenarios.",
-      });
+      await aiAgents.createAgent(AGENT_A_NAME);
+      await aiAgents.createAgent(AGENT_B_NAME);
     });
 
     await files.open();

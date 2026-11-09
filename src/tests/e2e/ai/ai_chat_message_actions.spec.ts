@@ -66,15 +66,20 @@ test.describe("AI Chat: message actions", () => {
     });
   });
 
-  // Skipped: AI agents were replaced by AI rooms (Instructions rooms,
-  // Knowledge rooms and AI projects). To be rewritten for the new model.
-  test.skip("Save as docx saves the AI reply to Files", async () => {
+  // The panel shows only Files and Rooms - the AI rooms section is missing.
+  test.skip("[Bug 84995] Save as docx panel lists Files, Rooms and AI rooms without Forms", async () => {
     await test.step("Open the Save as docx panel", async () => {
       await aiAgents.openSaveReplyAsDocx();
     });
 
-    await test.step("The panel lists Files, Rooms and AI agents without Forms", async () => {
+    await test.step("The panel lists Files, Rooms and AI rooms without Forms", async () => {
       await aiAgents.expectSaveAsDocxSections();
+    });
+  });
+
+  test("Save as docx saves the AI reply to Files", async () => {
+    await test.step("Open the Save as docx panel", async () => {
+      await aiAgents.openSaveReplyAsDocx();
     });
 
     let fileName = "";
