@@ -8,23 +8,21 @@ import SpreadsheetEditor from "@/src/objects/files/SpreadsheetEditor";
 import { PaymentApi } from "@/src/api/payment";
 import { documentContextMenuOption } from "@/src/utils/constants/files";
 
-const AGENT_NAME = "History Export Agent";
+const PROJECT_NAME = "History Export Project";
 
-// Skipped: AI agents were replaced by AI rooms (Instructions rooms, Knowledge
-// rooms and AI projects). To be rewritten for the new model.
-test.describe.skip("AI Agents: History tab export toolbar", () => {
+test.describe("AI projects: History tab export toolbar", () => {
   let aiAgents: AiAgents;
   let aiSettings: AiSettings;
   let paymentApi: PaymentApi;
   let roomInfoPanel: RoomInfoPanel;
-  let agentId: number;
+  let projectId: number;
 
   test.beforeEach(async ({ page, api, login }) => {
     paymentApi = new PaymentApi(api.apiRequestContext, api.apisystem);
     aiAgents = new AiAgents(page, api.portalDomain);
     aiSettings = new AiSettings(page, api.portalDomain);
-    // AI agents are backed by the same room infrastructure as Rooms - the
-    // agent's info panel reuses the shared InfoPanel/History tab component.
+    // AI projects are rooms - the project's info panel reuses the shared
+    // InfoPanel/History tab component.
     roomInfoPanel = new RoomInfoPanel(page);
     await login.loginToPortal();
 
@@ -35,18 +33,18 @@ test.describe.skip("AI Agents: History tab export toolbar", () => {
       await aiSettings.activate();
     });
 
-    await test.step("Precondition: create AI agent", async () => {
+    await test.step("Precondition: create AI project", async () => {
       await aiAgents.openDirectly();
       await aiAgents.openCreateAgentDialog();
-      await aiAgents.fillAgentName(AGENT_NAME);
+      await aiAgents.fillAgentName(PROJECT_NAME);
       await aiAgents.saveAgent();
       await aiAgents.expectChatOpened();
-      agentId = aiAgents.getAgentFolderIdFromChat();
-      await aiAgents.openAndExpectAgentInList(AGENT_NAME);
+      projectId = aiAgents.getAgentFolderIdFromChat();
+      await aiAgents.openAndExpectAgentInList(PROJECT_NAME);
     });
 
-    await test.step("Open the agent's History tab", async () => {
-      await aiAgents.openAgentInfo(AGENT_NAME);
+    await test.step("Open the project's History tab", async () => {
+      await aiAgents.openAgentInfo(PROJECT_NAME);
       await roomInfoPanel.openTab("History");
     });
   });
@@ -74,20 +72,20 @@ test.describe.skip("AI Agents: History tab export toolbar", () => {
       const spreadsheet = new SpreadsheetEditor(reportPage);
       await spreadsheet.waitForLoad();
       await expect(reportPage).toHaveTitle(
-        new RegExp(`Audit Trail Report \\(room-${agentId}\\)`),
+        new RegExp(`Audit Trail Report \\(room-${projectId}\\)`),
       );
       await reportPage.close();
     });
 
-    // The report is saved to My Documents, not into the agent's Chat outputs
-    // (per the "exported to Files" toast). The editor renders it in canvas (no
+    // The report is saved to My Documents (per the "exported to Files"
+    // toast). The editor renders it in canvas (no
     // readable cell text via Playwright), so "not empty" is verified via the
     // file's own size in the Properties panel, same as the sync-to-xlsx tests
     // do it.
     await test.step("Exported report is saved with actual data", async () => {
       await files.open();
       await files.filesTable.openContextMenuForItem(
-        `Audit Trail Report (room-${agentId})`,
+        `Audit Trail Report (room-${projectId})`,
       );
       await files.filesTable.contextMenu.clickOption(
         documentContextMenuOption.select,
