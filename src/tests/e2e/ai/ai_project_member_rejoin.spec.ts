@@ -60,7 +60,11 @@ test.describe("AI Projects: member rejoin keeps chat history", () => {
       const userAiAgents = new AiAgents(userPage, portalDomain);
 
       await test.step("Owner invites the user to the project as Member", async () => {
-        await aiAgents.inviteUserToAgent(PROJECT_NAME, userData.email, "Member");
+        await aiAgents.inviteUserToAgent(
+          PROJECT_NAME,
+          userData.email,
+          "Member",
+        );
       });
 
       await test.step("Member sends a message in the project chat", async () => {
@@ -80,7 +84,11 @@ test.describe("AI Projects: member rejoin keeps chat history", () => {
       });
 
       await test.step("Owner re-invites the user to the project as Member", async () => {
-        await aiAgents.inviteUserToAgent(PROJECT_NAME, userData.email, "Member");
+        await aiAgents.inviteUserToAgent(
+          PROJECT_NAME,
+          userData.email,
+          "Member",
+        );
       });
 
       await test.step("Member still sees their previous message in the chat", async () => {

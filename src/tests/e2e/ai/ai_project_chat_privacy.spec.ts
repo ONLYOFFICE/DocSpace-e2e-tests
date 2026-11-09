@@ -67,7 +67,11 @@ test.describe("AI Projects: chat is private per member", () => {
         // invite flow needs the list view for its context menu.
         await aiAgents.openAndExpectAgentInList(PROJECT_NAME);
         // Member is the lowest project role and can still chat.
-        await aiAgents.inviteUserToAgent(PROJECT_NAME, userData.email, "Member");
+        await aiAgents.inviteUserToAgent(
+          PROJECT_NAME,
+          userData.email,
+          "Member",
+        );
       });
 
       await test.step("Member opens the project and does not see the owner's message", async () => {
