@@ -3,13 +3,11 @@ import AiAgents from "@/src/objects/ai/AiAgents";
 import AiSettings from "@/src/objects/ai/AiSettings";
 import { PaymentApi } from "@/src/api/payment";
 
-// Skipped: AI agents were replaced by AI rooms (Instructions rooms, Knowledge
-// rooms and AI projects). To be rewritten for the new model.
-test.describe.skip("AI Agents: edit an existing agent's model", () => {
+test.describe("AI Projects: edit an existing project's model", () => {
   let aiAgents: AiAgents;
   let aiSettings: AiSettings;
   let paymentApi: PaymentApi;
-  const AGENT_NAME = "Edit Model Instructions Agent";
+  const PROJECT_NAME = "Edit Model Project";
   const ORIGINAL_MODEL = "Claude Sonnet 5.5";
   const UPDATED_MODEL = "DeepSeek V4 Pro";
 
@@ -26,21 +24,21 @@ test.describe.skip("AI Agents: edit an existing agent's model", () => {
       await aiSettings.activate();
     });
 
-    await test.step("Precondition: create agent with a known model", async () => {
-      await aiAgents.createAgent(AGENT_NAME, {
+    await test.step("Precondition: create project with a known model", async () => {
+      await aiAgents.createAgent(PROJECT_NAME, {
         model: ORIGINAL_MODEL,
       });
-      await aiAgents.openAndExpectAgentInList(AGENT_NAME);
+      await aiAgents.openAndExpectAgentInList(PROJECT_NAME);
     });
   });
 
-  test("Editing an agent's model persists after saving", async () => {
-    await test.step("Change the agent's model", async () => {
-      await aiAgents.editAgent(AGENT_NAME, { model: UPDATED_MODEL });
+  test("Editing a project's model persists after saving", async () => {
+    await test.step("Change the project's model", async () => {
+      await aiAgents.editAgent(PROJECT_NAME, { model: UPDATED_MODEL });
     });
 
     await test.step("Verify the new model is shown when reopening the edit dialog", async () => {
-      await aiAgents.expectAgentModel(AGENT_NAME, UPDATED_MODEL);
+      await aiAgents.expectAgentModel(PROJECT_NAME, UPDATED_MODEL);
     });
   });
 });
