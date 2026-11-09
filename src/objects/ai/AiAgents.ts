@@ -286,6 +286,25 @@ export class AiAgents extends BasePage {
     await expect(this.page).toHaveURL(/\/ai-rooms\/favorites/);
   }
 
+  async openTrashFromNavigation() {
+    await this.sidebar.openSubItem(apps.aiAgents, aiAgentsSubItems.trash);
+    await expect(
+      this.page.getByRole("heading", {
+        name: aiSectionEmptyView.trash.heading,
+        exact: true,
+      }),
+    ).toBeVisible();
+  }
+
+  // AI rooms have no archive and deletion is permanent, so a deleted project
+  // must not land in the section's Trash - it stays empty.
+  async expectTrashEmpty() {
+    await expect(this.emptyView).toBeVisible();
+    await expect(
+      this.emptyView.getByText(aiSectionEmptyView.trash.title, { exact: true }),
+    ).toBeVisible();
+  }
+
   async expectRecentSubItemActive() {
     await this.sidebar.checkSubItemActive(
       apps.aiAgents,
@@ -346,6 +365,10 @@ export class AiAgents extends BasePage {
     await expect(this.resultStorageTab).toBeVisible();
     await this.resultStorageTab.click();
     await expect(this.filesTable.tableContainer).toBeVisible();
+  }
+
+  async expectRoomsEmptyView() {
+    await this.expectSectionEmptyView(aiSectionEmptyView.rooms);
   }
 
   async expectRecentEmptyView() {

@@ -203,6 +203,12 @@ export const aiAgentViewerModeToastMessage =
   "You’re in view-only mode for this AI agent. You can see the results of AI Chat activity from other users.";
 
 export const aiSectionEmptyView = {
+  rooms: {
+    heading: "AI rooms",
+    title: "No AI rooms yet",
+    description:
+      "Instructions rooms hold skills, Knowledge rooms hold the files the chat searches, and AI projects bring them together with a model and share that setup with the people you invite.",
+  },
   recent: {
     heading: "Recent",
     title: "No recent files yet",
@@ -213,6 +219,13 @@ export const aiSectionEmptyView = {
     heading: "Favorites",
     title: "No favorite files yet",
     description: "Star files and folders to keep them close at hand.",
+  },
+  // The description is not asserted yet: it currently says "All deleted items
+  // from Files are moved here" with a "Go to Files" button (Forms Trash names
+  // Forms), waiting for product confirmation.
+  trash: {
+    heading: "Trash",
+    title: "No items here yet",
   },
 } as const;
 

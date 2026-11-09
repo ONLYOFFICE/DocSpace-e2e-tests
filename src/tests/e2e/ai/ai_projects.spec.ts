@@ -2,12 +2,11 @@ import { test } from "@/src/fixtures";
 import { expect } from "@playwright/test";
 import AiAgents from "@/src/objects/ai/AiAgents";
 import AiSettings from "@/src/objects/ai/AiSettings";
+import Rooms from "@/src/objects/rooms/Rooms";
 import { PaymentApi } from "@/src/api/payment";
 import { aiAgentToastMessages } from "@/src/utils/constants/ai";
 
-// Skipped: AI agents were replaced by AI rooms (Instructions rooms, Knowledge
-// rooms and AI projects). To be rewritten for the new model.
-test.describe.skip("AI Agents", () => {
+test.describe("AI Projects", () => {
   let aiAgents: AiAgents;
   let aiSettings: AiSettings;
   let paymentApi: PaymentApi;
@@ -30,8 +29,9 @@ test.describe.skip("AI Agents", () => {
     await aiAgents.checkAiChatButtonVisible();
   });
 
-  test("Create AI agent", async () => {
-    const agentName = "Test AI Agent";
+  test("Create AI project", async ({ page, api }) => {
+    const projectName = "Test AI Project";
+    const rooms = new Rooms(page, api.portalDomain);
 
     await test.step("Precondition: top up wallet and activate AI features", async () => {
       await paymentApi.setupPayment();
@@ -40,30 +40,34 @@ test.describe.skip("AI Agents", () => {
       await aiSettings.activate();
     });
 
-    await test.step("Create AI agent", async () => {
+    await test.step("Create AI project", async () => {
       await aiAgents.openDirectly();
       await aiAgents.openCreateAgentDialog();
-      await aiAgents.fillAgentName(agentName);
+      await aiAgents.fillAgentName(projectName);
       await aiAgents.saveAgent();
     });
 
-    await test.step("Verify chat with the agent is opened", async () => {
+    await test.step("Verify chat with the project is opened", async () => {
       await aiAgents.expectChatOpened();
     });
 
-    await test.step("Verify agent appears in the list", async () => {
-      await aiAgents.openAndExpectAgentInList(agentName);
+    await test.step("Verify project appears in the list", async () => {
+      await aiAgents.openAndExpectAgentInList(projectName);
+    });
+
+    // AI rooms live only in their own section: Rooms of a fresh portal stay empty.
+    await test.step("Verify project is not shown in Rooms", async () => {
+      await rooms.openRooms();
+      await rooms.roomsEmptyView.checkNoRoomsExist();
     });
   });
 });
 
-// Skipped: AI agents were replaced by AI rooms (Instructions rooms, Knowledge
-// rooms and AI projects). To be rewritten for the new model.
-test.describe.skip("AI Agents: management", () => {
+test.describe("AI Projects: management", () => {
   let aiAgents: AiAgents;
   let aiSettings: AiSettings;
   let paymentApi: PaymentApi;
-  const AGENT_NAME = "Test AI Agent";
+  const PROJECT_NAME = "Test AI Project";
 
   test.beforeEach(async ({ page, api, login }) => {
     paymentApi = new PaymentApi(api.apiRequestContext, api.apisystem);
@@ -78,31 +82,31 @@ test.describe.skip("AI Agents: management", () => {
       await aiSettings.activate();
     });
 
-    await test.step("Precondition: create AI agent", async () => {
+    await test.step("Precondition: create AI project", async () => {
       await aiAgents.openDirectly();
       await aiAgents.openCreateAgentDialog();
-      await aiAgents.fillAgentName(AGENT_NAME);
+      await aiAgents.fillAgentName(PROJECT_NAME);
       await aiAgents.saveAgent();
-      await aiAgents.openAndExpectAgentInList(AGENT_NAME);
+      await aiAgents.openAndExpectAgentInList(PROJECT_NAME);
     });
   });
 
-  test("Rename agent", async () => {
-    const renamed = "Updated Agent Title";
-    await aiAgents.renameAgent(AGENT_NAME, renamed);
+  test("Rename project", async () => {
+    const renamed = "Updated Project Title";
+    await aiAgents.renameAgent(PROJECT_NAME, renamed);
 
-    await test.step("Verify agent renamed", async () => {
+    await test.step("Verify project renamed", async () => {
       await aiAgents.openDirectly();
       await aiAgents.expectAgentInList(renamed);
-      await aiAgents.expectAgentNotInList(AGENT_NAME);
+      await aiAgents.expectAgentNotInList(PROJECT_NAME);
     });
   });
 
-  test("Invite user to agent", async ({ apiSdk }) => {
+  test("Invite user to project", async ({ apiSdk }) => {
     const { userData } = await apiSdk.profiles.addMember("owner", "User");
 
     await test.step("Open invite dialog", async () => {
-      await aiAgents.openInviteDialog(AGENT_NAME);
+      await aiAgents.openInviteDialog(PROJECT_NAME);
     });
 
     await test.step("Search and add user to invite list", async () => {
@@ -115,73 +119,83 @@ test.describe.skip("AI Agents: management", () => {
       await aiAgents.inviteDialog.submitInviteDialog();
     });
 
-    await test.step("Verify user appears in agent contacts", async () => {
-      await aiAgents.openAgentInfo(AGENT_NAME);
+    await test.step("Verify user appears in project members", async () => {
+      await aiAgents.openAgentInfo(PROJECT_NAME);
       await aiAgents.expectMemberInAgentContacts(userData.email);
     });
   });
 
-  test("Delete agent", async () => {
-    await aiAgents.deleteAgent(AGENT_NAME);
-    await aiAgents.expectAgentNotInList(AGENT_NAME);
+  test("Delete project", async () => {
+    await test.step("Delete project", async () => {
+      await aiAgents.deleteAgent(PROJECT_NAME);
+      await aiAgents.expectAgentNotInList(PROJECT_NAME);
+      // The project was the only AI room, so the section shows its empty view.
+      await aiAgents.expectRoomsEmptyView();
+    });
+
+    await test.step("Verify project is deleted permanently, not moved to Trash", async () => {
+      await aiAgents.openTrashFromNavigation();
+      await aiAgents.expectTrashEmpty();
+      await aiAgents.expectAgentNotInList(PROJECT_NAME);
+    });
   });
 
-  test("Open agent and verify chat loads", async () => {
-    await aiAgents.openAgent(AGENT_NAME);
+  test("Open project and verify chat loads", async () => {
+    await aiAgents.openAgent(PROJECT_NAME);
     await aiAgents.expectChatOpened();
   });
 
-  test("Download agent", async () => {
-    const download = await aiAgents.downloadAgent(AGENT_NAME);
+  test("Download project", async () => {
+    const download = await aiAgents.downloadAgent(PROJECT_NAME);
     expect(download.suggestedFilename()).toBeTruthy();
     await download.delete();
   });
 
-  test("Change agent owner", async ({ apiSdk }) => {
+  test("Change project owner", async ({ apiSdk }) => {
     const { userData } = await apiSdk.profiles.addMember("owner", "RoomAdmin");
     const userName = `${userData.firstName} ${userData.lastName}`;
 
-    await test.step("Invite Room admin to agent", async () => {
-      await aiAgents.inviteUserToAgent(AGENT_NAME, userData.email);
+    await test.step("Invite Room admin to project", async () => {
+      await aiAgents.inviteUserToAgent(PROJECT_NAME, userData.email);
     });
 
     await test.step("Change owner via context menu", async () => {
-      await aiAgents.changeAgentOwner(AGENT_NAME, userName);
+      await aiAgents.changeAgentOwner(PROJECT_NAME, userName);
     });
   });
 
-  test("Leave the agent", async ({ apiSdk }) => {
+  test("Leave the project", async ({ apiSdk }) => {
     const { userData } = await apiSdk.profiles.addMember("owner", "RoomAdmin");
     const userName = `${userData.firstName} ${userData.lastName}`;
 
-    await test.step("Invite Room admin to agent", async () => {
-      await aiAgents.inviteUserToAgent(AGENT_NAME, userData.email);
+    await test.step("Invite Room admin to project", async () => {
+      await aiAgents.inviteUserToAgent(PROJECT_NAME, userData.email);
     });
 
-    await test.step("Leave the agent and assign new owner", async () => {
-      await aiAgents.leaveAgent(AGENT_NAME, userName);
+    await test.step("Leave the project and assign new owner", async () => {
+      await aiAgents.leaveAgent(PROJECT_NAME, userName);
     });
   });
 
-  test("Pin agent to top", async () => {
-    await aiAgents.pinAgent(AGENT_NAME);
+  test("Pin project to top", async () => {
+    await aiAgents.pinAgent(PROJECT_NAME);
     await aiAgents.removeToast(aiAgentToastMessages.pinned);
   });
 
-  test("Toggle agent notifications", async () => {
+  test("Toggle project notifications", async () => {
     await test.step("Disable notifications", async () => {
-      await aiAgents.disableAgentNotifications(AGENT_NAME);
+      await aiAgents.disableAgentNotifications(PROJECT_NAME);
       await aiAgents.removeToast(aiAgentToastMessages.notificationsDisabled);
     });
 
     await test.step("Enable notifications back", async () => {
-      await aiAgents.enableAgentNotifications(AGENT_NAME);
+      await aiAgents.enableAgentNotifications(PROJECT_NAME);
       await aiAgents.removeToast(aiAgentToastMessages.notificationsEnabled);
     });
   });
 
-  test("Copy agent link", async () => {
-    await aiAgents.copyAgentLink(AGENT_NAME);
+  test("Copy project link", async () => {
+    await aiAgents.copyAgentLink(PROJECT_NAME);
     await aiAgents.removeToast(aiAgentToastMessages.linkCopied);
   });
 });
