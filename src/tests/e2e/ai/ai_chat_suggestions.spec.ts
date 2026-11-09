@@ -95,9 +95,7 @@ const FORMS_SECTIONS: TSection[] = [
   },
 ];
 
-// Skipped: AI agents were replaced by AI rooms (Instructions rooms, Knowledge
-// rooms and AI projects). To be rewritten for the new model.
-test.describe.skip("AI Chat: suggestions per section", () => {
+test.describe("AI Chat: suggestions per section", () => {
   let aiAgents: AiAgents;
   let aiSettings: AiSettings;
   let files: Files;
@@ -139,13 +137,15 @@ test.describe.skip("AI Chat: suggestions per section", () => {
     }
   }
 
-  test("Every section shows its own suggestions that fill the composer, AI agents shows none", async () => {
+  test("Every section shows its own suggestions that fill the composer, AI rooms shows none", async () => {
     await checkSections(apps.files, FILES_SECTIONS);
     await checkSections(apps.rooms, ROOMS_SECTIONS);
     await checkSections(apps.forms, FORMS_SECTIONS);
 
-    await test.step("AI agents: no suggestions are shown", async () => {
-      await aiAgents.open();
+    // AI rooms has the AI Chat header button too, so open the chat first -
+    // otherwise a zero chip count would pass with no chat on screen.
+    await test.step("AI rooms: the chat shows no suggestions", async () => {
+      await aiAgents.openSectionWithChat(apps.aiAgents);
       await aiAgents.expectNoChatSuggestions();
     });
   });
