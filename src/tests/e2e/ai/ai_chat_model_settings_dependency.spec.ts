@@ -4,14 +4,11 @@ import AiSettings from "@/src/objects/ai/AiSettings";
 import Files from "@/src/objects/files/Files";
 import { PaymentApi } from "@/src/api/payment";
 
-// Skipped: AI agents were replaced by AI rooms (Instructions rooms, Knowledge
-// rooms and AI projects). To be rewritten for the new model.
-test.describe.skip("AI Chat panel: model list follows AI Settings", () => {
+test.describe("AI Chat panel: model list follows AI Settings", () => {
   let aiAgents: AiAgents;
   let aiSettings: AiSettings;
   let files: Files;
   let paymentApi: PaymentApi;
-  const AGENT_NAME = "Model Settings Dependency Agent";
   const MODEL_NAME = "Gemini 3.8 Flash";
 
   test.beforeEach(async ({ page, api, login }) => {
@@ -26,10 +23,6 @@ test.describe.skip("AI Chat panel: model list follows AI Settings", () => {
       await paymentApi.makeWalletTopUp();
       await aiSettings.open();
       await aiSettings.activate();
-    });
-
-    await test.step("Precondition: create an agent so the chat panel is usable", async () => {
-      await aiAgents.createAgent(AGENT_NAME);
     });
   });
 
