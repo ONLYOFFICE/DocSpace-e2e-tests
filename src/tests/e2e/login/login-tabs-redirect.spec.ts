@@ -81,7 +81,7 @@ test.describe("Login: tabs return to portal after re-login", () => {
 
   // After an expired session another user logs in and is sent to the previous
   // user's page (Settings), getting "Sorry, the resource is not currently accessible"
-  test.skip("[Bug 84856] Another user logging in after expired session does not get previous user's page", async ({
+  test("Another user logging in after expired session does not get previous user's page", async ({
     page,
     apiSdk,
     login,
@@ -116,7 +116,7 @@ test.describe("Login: tabs return to portal after re-login", () => {
 
   // After login the portal follows a foreign referenceUrl
   // (https://example.com/, //example.com) - open redirect
-  test.skip("[Bug 84860] Foreign referenceUrl is ignored after login", async ({
+  test("Foreign referenceUrl is ignored after login", async ({
     page,
     api,
     login,
