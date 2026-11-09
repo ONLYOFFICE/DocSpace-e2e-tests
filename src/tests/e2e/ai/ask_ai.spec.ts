@@ -5,14 +5,11 @@ import Files from "@/src/objects/files/Files";
 import { PaymentApi } from "@/src/api/payment";
 import { mapInitialDocNames } from "@/src/utils/constants/files";
 
-// Skipped: AI agents were replaced by AI rooms (Instructions rooms, Knowledge
-// rooms and AI projects). To be rewritten for the new model.
-test.describe.skip("Ask AI on files", () => {
+test.describe("Ask AI on files", () => {
   let aiAgents: AiAgents;
   let aiSettings: AiSettings;
   let files: Files;
   let paymentApi: PaymentApi;
-  const AGENT_NAME = "Test AI Agent";
 
   test.beforeEach(async ({ page, api, login }) => {
     paymentApi = new PaymentApi(api.apiRequestContext, api.apisystem);
@@ -26,14 +23,6 @@ test.describe.skip("Ask AI on files", () => {
       await paymentApi.makeWalletTopUp();
       await aiSettings.open();
       await aiSettings.activate();
-    });
-
-    await test.step("Precondition: create AI agent", async () => {
-      await aiAgents.openDirectly();
-      await aiAgents.openCreateAgentDialog();
-      await aiAgents.fillAgentName(AGENT_NAME);
-      await aiAgents.saveAgent();
-      await aiAgents.expectChatOpened();
     });
 
     await files.open();

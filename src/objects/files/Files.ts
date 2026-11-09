@@ -135,10 +135,11 @@ class Files extends BasePage {
     await this.filesTable.checkRowNotExist(oldName);
   }
 
-  // "Ask AI" appears in the file context menu when at least one AI agent exists.
+  // "Ask AI" lives in the "AI tools" submenu of the file context menu.
   async clickAskAi(fileName: string) {
     await this.filesTable.openContextMenuForItem(fileName, true);
-    await this.filesTable.contextMenu.clickOption(
+    await this.filesTable.contextMenu.clickSubmenuOption(
+      documentContextMenuOption.aiTools,
       documentContextMenuOption.askAi,
     );
   }
