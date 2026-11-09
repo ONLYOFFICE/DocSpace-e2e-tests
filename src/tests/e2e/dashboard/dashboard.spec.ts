@@ -47,32 +47,40 @@ test.describe("Dashboard", () => {
     await dashboard.expectCreateRoomFormVisible();
   });
 
-  test.skip("[Bug 84846] Discover Apps: Create AI agent prompts to activate AI when it is not configured", async () => {
+  test("Discover Apps: AI rooms card shows Open", async () => {
+    await expect(dashboard.openAiRoomsButton).toHaveText("Open");
+  });
+
+  // Skipped: AI agents were replaced by AI rooms (Instructions rooms,
+  // Knowledge rooms and AI projects). To be rewritten for the new model.
+  test.skip("Discover Apps: Create AI agent prompts to activate AI when it is not configured", async () => {
     await dashboard.createAiAgentButton.click();
     await dashboard.expectActivateAiDialogVisible();
   });
 });
 
 test.describe("Dashboard (non-owner roles)", () => {
-  test.fail(
-    "Guest: Discover Apps show Open instead of create actions [Bug 84846]",
-    async ({ page, api, apiSdk, login }) => {
-      const dashboard = new Dashboard(page, api.portalDomain);
-      const { userData } = await apiSdk.profiles.addMember("owner", "Guest");
+  test("Guest: Discover Apps show Open instead of create actions", async ({
+    page,
+    api,
+    apiSdk,
+    login,
+  }) => {
+    const dashboard = new Dashboard(page, api.portalDomain);
+    const { userData } = await apiSdk.profiles.addMember("owner", "Guest");
 
-      await login.loginWithCredentials(userData.email, userData.password);
-      await dashboard.open();
+    await login.loginWithCredentials(userData.email, userData.password);
+    await dashboard.open();
 
-      await test.step("Verify all Discover Apps buttons say Open", async () => {
-        await dashboard.expectDiscoverAppsShowOpen();
-      });
+    await test.step("Verify all Discover Apps buttons say Open", async () => {
+      await dashboard.expectDiscoverAppsShowOpen();
+    });
 
-      await test.step("Verify Rooms Open navigates to Rooms", async () => {
-        await dashboard.createRoomButton.click();
-        await page.waitForURL(defaultHomepageUrls.rooms, { waitUntil: "load" });
-      });
-    },
-  );
+    await test.step("Verify Rooms Open navigates to Rooms", async () => {
+      await dashboard.createRoomButton.click();
+      await page.waitForURL(defaultHomepageUrls.rooms, { waitUntil: "load" });
+    });
+  });
 
   test("Guest: Create or upload file quick actions are blocked", async ({
     page,
@@ -110,23 +118,25 @@ test.describe("Dashboard (non-owner roles)", () => {
     });
   });
 
-  test.fail(
-    "User: Discover Apps show Open instead of create actions [Bug 84846]",
-    async ({ page, api, apiSdk, login }) => {
-      const dashboard = new Dashboard(page, api.portalDomain);
-      const { userData } = await apiSdk.profiles.addMember("owner", "User");
+  test("User: Discover Apps show Open instead of create actions", async ({
+    page,
+    api,
+    apiSdk,
+    login,
+  }) => {
+    const dashboard = new Dashboard(page, api.portalDomain);
+    const { userData } = await apiSdk.profiles.addMember("owner", "User");
 
-      await login.loginWithCredentials(userData.email, userData.password);
-      await dashboard.open();
+    await login.loginWithCredentials(userData.email, userData.password);
+    await dashboard.open();
 
-      await test.step("Verify all Discover Apps buttons say Open", async () => {
-        await dashboard.expectDiscoverAppsShowOpen();
-      });
+    await test.step("Verify all Discover Apps buttons say Open", async () => {
+      await dashboard.expectDiscoverAppsShowOpen();
+    });
 
-      await test.step("Verify Forms Open navigates to Forms", async () => {
-        await dashboard.createFormSpaceButton.click();
-        await page.waitForURL(defaultHomepageUrls.forms, { waitUntil: "load" });
-      });
-    },
-  );
+    await test.step("Verify Forms Open navigates to Forms", async () => {
+      await dashboard.createFormSpaceButton.click();
+      await page.waitForURL(defaultHomepageUrls.forms, { waitUntil: "load" });
+    });
+  });
 });

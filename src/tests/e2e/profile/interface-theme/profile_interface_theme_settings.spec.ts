@@ -70,6 +70,33 @@ test.describe("Profile - Interface theme settings", () => {
     });
   });
 
+  test("Top banner follows selected interface theme", async () => {
+    await test.step("Turn off integration UI tests mode to show banner", async () => {
+      await profile.disableIntegrationUITestsMode();
+      await profile.selectInterfaceThemeTabs();
+    });
+
+    await test.step("Close email activation snackbar", async () => {
+      await profile.closeEmailActivationSnackbar();
+    });
+
+    await test.step("Verify banner uses Light theme by default", async () => {
+      await profile.expectTopBannerTheme("Light");
+    });
+
+    await test.step("Select Dark theme and verify banner switches", async () => {
+      await profile.selectTheme("Dark");
+      await profile.expectThemeApplied("Dark");
+      await profile.expectTopBannerTheme("Dark");
+    });
+
+    await test.step("Select Light theme and verify banner switches back", async () => {
+      await profile.selectTheme("Light");
+      await profile.expectThemeApplied("Light");
+      await profile.expectTopBannerTheme("Light");
+    });
+  });
+
   test("Theme setting is personal and does not affect other users", async ({
     apiSdk,
   }) => {

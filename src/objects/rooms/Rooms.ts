@@ -34,6 +34,7 @@ import BasePage from "../common/BasePage";
 import BaseSelector from "../common/BaseSelector";
 import BaseToast from "../common/BaseToast";
 import FilesTable from "../files/FilesTable";
+import { waitForGetItemMetadataResponse } from "../files/api";
 import FilesFilter from "../files/FilesFilter";
 import DownloadDialog from "../files/DownloadDialog";
 import FilesSelectPanel from "../files/FilesSelectPanel";
@@ -368,6 +369,16 @@ class MyRooms extends BasePage {
     await expect(this.page).toHaveURL(/\/rooms\/shared|\/dashboard/);
   }
 
+  // Selects an item inside the open room and opens its Metadata tab, waiting
+  // for the metadata request. The item must not be selected yet.
+  async openItemMetadata(name: string) {
+    const metadataLoaded = waitForGetItemMetadataResponse(this.page);
+    await this.filesTable.selectRow(name);
+    await this.infoPanel.open();
+    await this.infoPanel.openTab("Metadata");
+    await metadataLoaded;
+  }
+
   async openRoom(roomName: string) {
     await this.roomsTable.openContextMenu(roomName);
     await this.roomsTable.contextMenu.clickOption("Open");
@@ -466,12 +477,20 @@ class MyRooms extends BasePage {
       }),
     ).not.toBeVisible();
   }
+  // Scoped to file name cells: the sidebar has its own "BETA" badge
+  // (Private rooms) with the same testid.
+  private get draftLabel() {
+    return this.page
+      .locator('[data-testid^="files-cell-name"]')
+      .getByTestId(DRAFT_LABEL);
+  }
+
   async verifyDraftLabelVisible() {
-    await expect(this.page.getByTestId(DRAFT_LABEL)).toBeVisible();
+    await expect(this.draftLabel).toBeVisible();
   }
 
   async verifyDraftLabelNotVisible() {
-    await expect(this.page.getByTestId(DRAFT_LABEL)).not.toBeVisible();
+    await expect(this.draftLabel).not.toBeVisible();
   }
 
   async expectRoomStorageLimitExceeded() {

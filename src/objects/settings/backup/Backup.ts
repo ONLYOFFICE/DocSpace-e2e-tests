@@ -87,7 +87,7 @@ export class Backup extends BasePage {
     const page1 = await page1Promise;
     await expect(page1).toHaveURL(
       new RegExp(
-        `https://helpcenter\\.onlyoffice\\.com/docspace/configuration/docspace-backup-restore-settings\\.aspx#creatingbackup_block`,
+        `https://helpcenter\\.onlyoffice\\.com/docspace/configuration/configuring-workspace-settings/docspace-backup-restore-settings#creatingbackup_block`,
       ),
     );
     await page1.close();
@@ -99,7 +99,7 @@ export class Backup extends BasePage {
     const page1 = await page1Promise;
     await expect(page1).toHaveURL(
       new RegExp(
-        `https://helpcenter\\.onlyoffice\\.com/docspace/configuration/docspace-backup-restore-settings\\.aspx#automaticbackup_block`,
+        `https://helpcenter\\.onlyoffice\\.com/docspace/configuration/configuring-workspace-settings/docspace-backup-restore-settings#automaticbackup_block`,
       ),
     );
     await page1.close();

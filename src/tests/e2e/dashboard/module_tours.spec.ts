@@ -149,7 +149,9 @@ test.describe("Dashboard: Module tours", () => {
     await walkModuleTour(tour, FORMS_STEPS);
   });
 
-  test.skip("[Bug 84846] AI agents: tour walks through all steps", async () => {
+  // Skipped: AI agents were replaced by AI rooms (Instructions rooms,
+  // Knowledge rooms and AI projects). To be rewritten for the new model.
+  test.skip("AI agents: tour walks through all steps", async () => {
     await dashboard.agentsTourButton.click();
     await walkModuleTour(tour, AGENTS_STEPS);
   });
@@ -220,7 +222,9 @@ test.describe("Dashboard: Module tours (non-owner roles)", () => {
     await walkModuleTour(tour, MEMBER_FORMS_STEPS);
   });
 
-  test.skip("[Bug 84846] User: AI agents tour shows the member variant", async ({
+  // Skipped: AI agents were replaced by AI rooms (Instructions rooms,
+  // Knowledge rooms and AI projects). To be rewritten for the new model.
+  test.skip("User: AI agents tour shows the member variant", async ({
     page,
     api,
     apiSdk,

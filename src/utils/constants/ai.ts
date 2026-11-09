@@ -216,13 +216,15 @@ export const aiSectionEmptyView = {
   },
 } as const;
 
-// Banner shown in AI Chat when the portal, per-user or individual AI spending
-// limit is reached. The description ends with a locale-formatted date, so only
-// its fixed parts are asserted. Admins get a "Change AI limit" button, regular
-// users are told to contact the admin and get no button.
+// Shown in AI Chat when the portal, per-user or individual AI spending limit
+// is reached: an inline error in the thread plus a notice above the message
+// input. The notice description may contain a locale-formatted reset date
+// ("paused until <date>."), so only its fixed parts are asserted. Admins get
+// a "Change AI limit" button, regular users are told to contact the admin.
 export const aiLimitReachedBanner = {
+  interruptedMessage: "Response interrupted: the AI spending limit was reached",
   title: "AI spending limit reached",
-  descriptionStart: "AI requests are paused until",
+  descriptionStart: "AI requests are paused",
   descriptionEnd: {
     admin: "Raise the limit in the AI settings to continue now.",
     user: "Contact the Full admin to raise the limit.",
@@ -251,7 +253,6 @@ export const aiLimitPeriods = {
 export type TAiLimitPeriod = keyof typeof aiLimitPeriods;
 
 export const aiLimitsTab = {
-  minAmountError: "min US$1",
   unsavedChanges: "You have unsaved changes",
   contactsLink: "Contacts",
 } as const;

@@ -359,26 +359,6 @@ class AiSettings extends BasePage {
     );
   }
 
-  // The "min US$1" hint has no testid - it is the element the input points to
-  // via aria-describedby.
-  async expectLimitAmountInvalid(form: TAiLimitForm) {
-    const input = this.limitAmountInput(form);
-    await expect(input).toHaveAttribute("aria-invalid", "true");
-    const hintId = await input.getAttribute("aria-describedby");
-    expect(hintId).toBeTruthy();
-    await expect(this.page.locator(`[id="${hintId}"]`)).toHaveText(
-      aiLimitsTab.minAmountError,
-    );
-    await this.expectSaveDisabled(form);
-  }
-
-  async expectLimitAmountValid(form: TAiLimitForm) {
-    await expect(this.limitAmountInput(form)).not.toHaveAttribute(
-      "aria-invalid",
-      "true",
-    );
-  }
-
   async expectSaveDisabled(form: TAiLimitForm) {
     await expect(this.limitElement(form, "save_button")).toHaveAttribute(
       "aria-disabled",

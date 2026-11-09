@@ -2,6 +2,7 @@ import { expect, Page, Locator } from "@playwright/test";
 import BasePage from "../../common/BasePage";
 import config from "@/config";
 import { toastMessages } from "@/src/utils/constants/settings";
+import { TSystemPlugin } from "@/src/utils/constants/plugins";
 
 const DROPZONE_MAIN_TEXT = "dropzone-main-text";
 const CACHE_WARNING_OK_BUTTON = "plugin_cache_warning_ok_button";
@@ -141,6 +142,19 @@ export class Plugins extends BasePage {
 
   async closePluginSettings() {
     await this.page.mouse.click(1, 1);
+  }
+
+  private pluginArea(name: TSystemPlugin): Locator {
+    return this.page.getByTestId(`plugin_${name}`);
+  }
+
+  async enablePlugin(name: TSystemPlugin) {
+    const toggle = this.pluginArea(name).getByTestId(
+      "enable_plugin_toggle_button",
+    );
+    await expect(toggle).toBeVisible();
+    await toggle.click();
+    await this.dismissToastSafely(toastMessages.pluginEnabled);
   }
 
   async enableMarkdown() {

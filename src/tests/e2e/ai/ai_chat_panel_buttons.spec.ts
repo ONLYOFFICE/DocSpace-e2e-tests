@@ -4,7 +4,9 @@ import AiSettings from "@/src/objects/ai/AiSettings";
 import Files from "@/src/objects/files/Files";
 import { PaymentApi } from "@/src/api/payment";
 
-test.describe("AI Chat panel: buttons on Files", () => {
+// Skipped: AI agents were replaced by AI rooms (Instructions rooms, Knowledge
+// rooms and AI projects). To be rewritten for the new model.
+test.describe.skip("AI Chat panel: buttons on Files", () => {
   let aiAgents: AiAgents;
   let aiSettings: AiSettings;
   let files: Files;

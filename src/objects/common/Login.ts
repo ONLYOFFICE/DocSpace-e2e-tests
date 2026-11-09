@@ -35,6 +35,9 @@ const LOGO_LIGHT_ALT = "greeting-logo";
 const REGISTER_LINK = "#login_register";
 const REGISTRATION_EMAIL_INPUT = "#registration-modal_email";
 const REGISTRATION_SEND_BUTTON = "#registration-modal_send";
+const AUTH_REQUEST_URL = "api/2.0/authentication";
+const LOGIN_URL_PATTERN = /\/login/;
+const ARTICLE_CONTAINER = "#article-container";
 
 export class Login extends BasePage {
   portalDomain: string;
@@ -232,9 +235,11 @@ export class Login extends BasePage {
       ]);
     }).toPass();
 
-    await this.page.waitForURL(/.*(dashboard|rooms\/shared\/filter).*/, {
-      waitUntil: "load",
-    });
+    // Re-login after logout from My Documents lands back on rooms/personal.
+    await this.page.waitForURL(
+      /.*(dashboard|rooms\/shared\/filter|rooms\/personal).*/,
+      { waitUntil: "load" },
+    );
     await this.page.waitForTimeout(3000);
 
     if (options?.dismissTour ?? true) {
@@ -294,6 +299,87 @@ export class Login extends BasePage {
 
   async loginButtonVisible() {
     await expect(this.loginButton).toBeVisible();
+  }
+
+  // Submits the login form on the current page without navigating first,
+  // so the redirect target (referenceUrl, other-tab state) is preserved
+  async submitCredentials(
+    email = config.DOCSPACE_OWNER_EMAIL,
+    password = config.DOCSPACE_OWNER_PASSWORD,
+  ) {
+    await expect(this.emailInput).toBeVisible();
+    await expect(async () => {
+      await this.emailInput.fill(email);
+      await this.passwordInput.fill(password);
+
+      await Promise.all([
+        this.page.waitForRequest(
+          (request) =>
+            request.url().includes(AUTH_REQUEST_URL) &&
+            request.method() === "POST",
+          { timeout: 4000 },
+        ),
+        this.loginButton.click(),
+      ]);
+    }).toPass();
+    await expect(this.page).not.toHaveURL(LOGIN_URL_PATTERN, {
+      timeout: 15000,
+    });
+  }
+
+  async expectLoginPageShown() {
+    await expect(this.page).toHaveURL(LOGIN_URL_PATTERN, { timeout: 15000 });
+    await expect(this.emailInput).toBeVisible();
+  }
+
+  async expectPortalOpened() {
+    await expect(this.page).not.toHaveURL(LOGIN_URL_PATTERN, {
+      timeout: 15000,
+    });
+    await expect(this.page.locator(ARTICLE_CONTAINER)).toBeVisible({
+      timeout: 15000,
+    });
+  }
+
+  // Makes the tab active. Headless browsers keep every tab "visible", so
+  // bringToFront alone does not notify the app - fire visibilitychange
+  // manually. Only one event: firing focus as well starts the redirect twice
+  async focusTab() {
+    await this.page.bringToFront();
+    await this.page.evaluate(() => {
+      document.dispatchEvent(new Event("visibilitychange"));
+    });
+  }
+
+  // The fixture page comes from browser.newPage(), whose context forbids
+  // context().newPage(), so the tab is opened from the page itself. The target
+  // path is opened directly: a goto right after window.open races with the
+  // app's own start-page redirect and fails with NS_BINDING_ABORTED
+  async openPortalInNewTab(path: string): Promise<Page> {
+    const targetUrl = `${getPortalUrl(this.portalDomain)}${path}`;
+    const [newPage] = await Promise.all([
+      this.page.context().waitForEvent("page"),
+      this.page.evaluate((url) => globalThis.open(url, "_blank"), targetUrl),
+    ]);
+    await newPage.waitForLoadState("load");
+    await expect(newPage).toHaveURL(new RegExp(path), { timeout: 15000 });
+    await expect(newPage.locator(ARTICLE_CONTAINER)).toBeVisible({
+      timeout: 15000,
+    });
+    return newPage;
+  }
+
+  // Simulates an expired session: auth cookies are gone, the page stays open
+  async expireSession() {
+    await this.page.context().clearCookies();
+  }
+
+  async openLoginPageWithReferenceUrl(referenceUrl: string) {
+    await this.page.goto(
+      `${getPortalUrl(this.portalDomain)}/login?referenceUrl=${encodeURIComponent(referenceUrl)}`,
+      { waitUntil: "load" },
+    );
+    await expect(this.emailInput).toBeVisible();
   }
 
   async logout() {

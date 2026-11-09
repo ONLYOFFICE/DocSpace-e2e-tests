@@ -1,6 +1,14 @@
 export const toastMessages = {
   changesSaved: "Changes saved successfully",
   passwordChanged: "Password has been successfully changed",
+  liveChatConnected: "Live chat was successfully connected",
+  liveChatDisconnected: "Live chat was successfully disconnected",
+} as const;
+
+export const liveChatWindow = {
+  title: "Live Support",
+  greeting:
+    "Hi there! 👋 How can we help you today? Please enter your name to start a chat with a live agent.",
 } as const;
 
 export const avatarConstants = {
@@ -9,7 +17,7 @@ export const avatarConstants = {
 
 export const defaultHomepageOptions = {
   home: "Home",
-  aiAgents: "AI rooms",
+  aiRooms: "AI rooms",
   files: "Files",
   rooms: "Rooms",
   forms: "Forms",
@@ -27,7 +35,7 @@ export const notificationsText = {
 } as const;
 
 export const defaultHomepageUrls = {
-  aiAgents: /ai-rooms\/filter/,
+  aiRooms: /ai-rooms\/filter/,
   files: /rooms\/personal/,
   rooms: /rooms\/shared\/filter/,
   forms: /forms/,

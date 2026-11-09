@@ -98,7 +98,6 @@ const toastMessages = {
   // storage management
   roomQuotaEnabled: "Room quota has been successfully enabled",
   userQuotaEnabled: "User quota has been successfully enabled",
-  aiQuotaEnabled: "AI agent quota has been successfully enabled",
 
   // plugins
   pluginEnabled: "Plugin enabled",
@@ -136,6 +135,11 @@ const toastMessages = {
 
   // ai settings
   aiLimitSaved: "Changes saved successfully",
+
+  // metadata templates
+  metadataTemplateSaved: "Changes saved successfully",
+  metadataTemplateDeleted: "Template deleted",
+  metadataOptionInUse: "An option in use cannot be removed",
 } as const;
 
 const samplePluginZip = {

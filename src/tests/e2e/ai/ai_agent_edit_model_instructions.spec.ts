@@ -3,7 +3,9 @@ import AiAgents from "@/src/objects/ai/AiAgents";
 import AiSettings from "@/src/objects/ai/AiSettings";
 import { PaymentApi } from "@/src/api/payment";
 
-test.describe("AI Agents: edit an existing agent's model", () => {
+// Skipped: AI agents were replaced by AI rooms (Instructions rooms, Knowledge
+// rooms and AI projects). To be rewritten for the new model.
+test.describe.skip("AI Agents: edit an existing agent's model", () => {
   let aiAgents: AiAgents;
   let aiSettings: AiSettings;
   let paymentApi: PaymentApi;

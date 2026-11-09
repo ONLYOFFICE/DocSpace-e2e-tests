@@ -9,6 +9,7 @@ export const INFO_PANEL_TABS = {
   Details: { name: "Details", testId: "info_details_tab" },
   Accesses: { name: "Accesses", testId: "info_access_tab" },
   Contacts: { name: "Contacts", testId: "info_members_tab" },
+  Metadata: { name: "Metadata", testId: "info_metadata_tab" },
 } as const;
 
 export type TInfoPanelTabs = keyof typeof INFO_PANEL_TABS;

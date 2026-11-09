@@ -95,7 +95,9 @@ const FORMS_SECTIONS: TSection[] = [
   },
 ];
 
-test.describe("AI Chat: suggestions per section", () => {
+// Skipped: AI agents were replaced by AI rooms (Instructions rooms, Knowledge
+// rooms and AI projects). To be rewritten for the new model.
+test.describe.skip("AI Chat: suggestions per section", () => {
   let aiAgents: AiAgents;
   let aiSettings: AiSettings;
   let files: Files;

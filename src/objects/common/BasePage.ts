@@ -6,7 +6,22 @@ import BaseToast from "./BaseToast";
 const TARIFF_BAR_TEXT = "tariff_bar_text";
 const USER_MENU_ACCOUNTS = "user-menu-accounts";
 const USER_MENU_PROFILE = "user-menu-profile";
+const USER_MENU_LIVE_CHAT = "user-menu-live-chat";
+const TOGGLE_BUTTON = "toggle-button";
+const TOGGLE_BUTTON_CONTAINER = "toggle-button-container";
+// Third-party chat widget launcher (bottom-right corner), no data-testid.
+const LIVE_CHAT_LAUNCHER = "iframe#launcher";
+const LIVE_CHAT_WINDOW_FRAME = 'iframe[title="Messaging window"]';
+const LIVE_CHAT_WINDOW_NAME = "Messaging window";
+const LIVE_CHAT_NAME_LABEL = "Name";
+const LIVE_CHAT_SEND_BUTTON = "Send";
 const HEADER_AI_CHAT_BUTTON = "#ai-chat-button";
+const CHAT_PANEL_RESIZER = "chat-panel-resizer";
+// Promo banner above the portal; its theme is passed in the iframe src (?theme=dark).
+const TOP_BANNER_IFRAME = "snackbar-iframe";
+const SNACKBAR_HEADER = "snackbar-header";
+const SNACKBAR_CLOSE = "snackbar-close";
+const EMAIL_ACTIVATION_SNACKBAR_TEXT = "Please activate your email";
 
 export default class BasePage {
   protected page: Page;
@@ -54,6 +69,157 @@ export default class BasePage {
     await expect(this.profileMenuItem).toBeVisible();
     await expect(this.accountsMenuItem).not.toBeVisible();
     await this.page.keyboard.press("Escape");
+  }
+
+  // Users without admin rights have no Settings item in the user menu
+  async checkSettingsMenuItemNotVisible() {
+    await this.optionsButton.waitFor({ state: "visible", timeout: 10000 });
+    await this.optionsButton.click();
+    await expect(this.profileMenuItem).toBeVisible();
+    await expect(this.settingsMenuItem).not.toBeVisible();
+    await this.page.keyboard.press("Escape");
+  }
+
+  protected get liveChatMenuItem(): Locator {
+    return this.page.getByTestId(USER_MENU_LIVE_CHAT);
+  }
+
+  // The toggle state lives in aria-checked on the container; the inner
+  // input is hidden.
+  protected get liveChatToggle(): Locator {
+    return this.liveChatMenuItem.getByTestId(TOGGLE_BUTTON);
+  }
+
+  async openUserMenu() {
+    if (await this.liveChatMenuItem.isVisible()) {
+      return;
+    }
+    await this.optionsButton.waitFor({ state: "visible", timeout: 10000 });
+    await this.optionsButton.click();
+    await expect(this.profileMenuItem).toBeVisible();
+  }
+
+  async closeUserMenu() {
+    await this.page.keyboard.press("Escape");
+    await expect(this.profileMenuItem).not.toBeVisible();
+  }
+
+  async expectLiveChatEnabled(enabled: boolean) {
+    await this.openUserMenu();
+    await expect(this.liveChatMenuItem).toBeVisible();
+    await expect(this.liveChatToggle).toHaveAttribute(
+      "aria-checked",
+      String(enabled),
+    );
+  }
+
+  async setLiveChatEnabled(enabled: boolean) {
+    await this.openUserMenu();
+    await this.liveChatToggle.getByTestId(TOGGLE_BUTTON_CONTAINER).click();
+    await this.expectLiveChatEnabled(enabled);
+  }
+
+  async expectLiveChatWidgetVisible(visible: boolean) {
+    const launcher = this.page.locator(LIVE_CHAT_LAUNCHER);
+    if (visible) {
+      // Widget script loads from a third-party CDN - give it extra time.
+      await expect(launcher).toBeVisible({ timeout: 30000 });
+    } else {
+      await expect(launcher).not.toBeVisible();
+    }
+  }
+
+  // The app shifts the launcher so it never overlaps a side panel - its right
+  // edge must stay left of the given x (e.g. the info panel's left edge).
+  async expectLiveChatLauncherLeftOf(x: number) {
+    const launcher = this.page.locator(LIVE_CHAT_LAUNCHER);
+    await expect
+      .poll(async () => {
+        const box = await launcher.boundingBox();
+        return box ? box.x + box.width : Number.POSITIVE_INFINITY;
+      })
+      .toBeLessThanOrEqual(x);
+  }
+
+  // The launcher iframe wraps a single button - clicking the frame center hits it.
+  async openLiveChatWindow() {
+    await this.page.locator(LIVE_CHAT_LAUNCHER).click();
+  }
+
+  protected get liveChatWindow(): Locator {
+    return this.page
+      .frameLocator(LIVE_CHAT_WINDOW_FRAME)
+      .getByRole("dialog", { name: LIVE_CHAT_WINDOW_NAME });
+  }
+
+  async expectLiveChatWindowOpened(title: string) {
+    await expect(this.liveChatWindow).toBeVisible({ timeout: 15000 });
+    await expect(
+      this.liveChatWindow.getByRole("heading", { name: title }),
+    ).toBeVisible();
+  }
+
+  // Greeting comes from the live Zendesk backend, so it proves the chat is
+  // connected, not just rendered.
+  async expectLiveChatGreeting(greeting: string) {
+    await expect(
+      this.liveChatWindow.getByRole("log").getByText(greeting),
+    ).toBeVisible({ timeout: 15000 });
+  }
+
+  // Fills the name form but does not submit it - submitting would open a
+  // real conversation in the support queue.
+  async fillLiveChatName(name: string) {
+    const nameInput = this.liveChatWindow.getByRole("textbox", {
+      name: LIVE_CHAT_NAME_LABEL,
+    });
+    await nameInput.fill(name);
+    await expect(nameInput).toHaveValue(name);
+    await expect(
+      this.liveChatWindow.getByRole("button", { name: LIVE_CHAT_SEND_BUTTON }),
+    ).toBeEnabled();
+  }
+
+  // The fixture sets localStorage.integrationUITests, which hides UI like the
+  // top banner. Init script order is not guaranteed, so remove the key and
+  // also block the fixture from setting it, then reload to apply.
+  async disableIntegrationUITestsMode() {
+    await this.page.addInitScript(() => {
+      const key = "integrationUITests";
+      globalThis.localStorage?.removeItem(key);
+      const originalSetItem = Storage.prototype.setItem;
+      Storage.prototype.setItem = function (
+        this: Storage,
+        name: string,
+        value: string,
+      ) {
+        if (name === key) return;
+        originalSetItem.call(this, name, value);
+      };
+    });
+    await this.page.reload();
+  }
+
+  // The top bar shows one snackbar at a time - for a fresh portal owner the
+  // email activation snackbar comes first and hides the promo banner.
+  async closeEmailActivationSnackbar() {
+    const header = this.page
+      .getByTestId(SNACKBAR_HEADER)
+      .filter({ hasText: EMAIL_ACTIVATION_SNACKBAR_TEXT });
+    await expect(header).toBeVisible({ timeout: 15000 });
+    await this.page.getByTestId(SNACKBAR_CLOSE).click();
+    await expect(header).not.toBeVisible();
+  }
+
+  // Banner content is cross-origin, so the theme is checked via the src query
+  // param instead of computed colors.
+  async expectTopBannerTheme(theme: "Light" | "Dark") {
+    const banner = this.page.getByTestId(TOP_BANNER_IFRAME);
+    await expect(banner).toBeVisible({ timeout: 15000 });
+    await expect(banner).toHaveAttribute(
+      "src",
+      new RegExp(`[?&]theme=${theme.toLowerCase()}(&|$)`),
+    );
   }
 
   async removeToast(message?: string, timeout?: number) {
@@ -137,6 +303,53 @@ export default class BasePage {
 
   async openAiChat() {
     await this.headerAiChatButton.click();
+  }
+
+  // The resizer sits on the chat panel's left edge, so its x is the panel's
+  // left edge - no need for a separate panel container locator.
+  protected get chatPanelResizer(): Locator {
+    return this.page.getByTestId(CHAT_PANEL_RESIZER);
+  }
+
+  // The header button toggles the panel, so click only if it is closed.
+  async ensureAiChatPanelOpened() {
+    if (!(await this.chatPanelResizer.isVisible())) {
+      await this.openAiChat();
+    }
+    await expect(this.chatPanelResizer).toBeVisible();
+  }
+
+  async checkAiChatPanelClosed() {
+    await expect(this.chatPanelResizer).not.toBeVisible();
+  }
+
+  async getAiChatPanelLeftEdge(): Promise<number> {
+    await expect(this.chatPanelResizer).toBeVisible();
+    const box = await this.chatPanelResizer.boundingBox();
+    if (!box) throw new Error("AI chat panel resizer is not visible");
+    return box.x;
+  }
+
+  // Negative deltaX widens the chat panel, positive narrows it.
+  async resizeAiChatPanelBy(deltaX: number) {
+    await expect(this.chatPanelResizer).toBeVisible();
+    const box = await this.chatPanelResizer.boundingBox();
+    if (!box) throw new Error("AI chat panel resizer is not visible");
+    const x = box.x + box.width / 2;
+    const y = box.y + box.height / 2;
+    await this.page.mouse.move(x, y);
+    await this.page.mouse.down();
+    await this.page.mouse.move(x + deltaX, y, { steps: 10 });
+    await this.page.mouse.up();
+  }
+
+  // Width is restored from saved state, allow 1px for sub-pixel rounding.
+  async expectAiChatPanelLeftEdge(expected: number) {
+    await expect
+      .poll(async () =>
+        Math.abs((await this.getAiChatPanelLeftEdge()) - expected),
+      )
+      .toBeLessThanOrEqual(1);
   }
 
   async waitForDownload(action: () => Promise<void>) {

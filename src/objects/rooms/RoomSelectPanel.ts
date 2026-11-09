@@ -42,8 +42,7 @@ class RoomSelectPanel extends BaseSelector {
   }
 
   async confirmSelection() {
-    await expect(this.page.getByLabel("Select")).toBeVisible();
-    await this.page.getByLabel("Select").click();
+    await this.submitSelection();
   }
 
   async select(type: FolderType) {
@@ -61,17 +60,11 @@ class RoomSelectPanel extends BaseSelector {
   async verifyAllFolderOptions() {
     await this.selector.waitFor({ state: "visible" });
 
-    const expectedOptions: Array<{ type: FolderType; text: string }> = [
-      { type: "documents", text: "Files" },
-      { type: "rooms", text: "Rooms" },
-      { type: "forms", text: "Forms" },
-      { type: "ai", text: "AI rooms" },
-    ];
-    for (const option of expectedOptions) {
-      const selector = FOLDER_SELECTORS[option.type];
-      const optionElement = this.selector.locator(selector);
+    const topLevel: FolderType[] = ["documents", "rooms", "forms", "ai"];
+    for (const type of topLevel) {
+      const optionElement = this.selector.locator(FOLDER_SELECTORS[type]);
       await expect(optionElement).toBeVisible();
-      await expect(optionElement).toContainText(option.text);
+      await expect(optionElement).toContainText(FOLDER_LABELS[type]);
     }
   }
 }

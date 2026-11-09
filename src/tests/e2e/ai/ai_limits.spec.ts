@@ -8,23 +8,21 @@ import { PaymentApi } from "@/src/api/payment";
 import { AiLimit, AiLimitsApi } from "@/src/api/aiLimits";
 import { aiLimitPeriods, TAiLimitPeriod } from "@/src/utils/constants/ai";
 
-// The first test sets the limit the way an admin does - in the AI limits tab.
-// The UI minimum is US$1, which does not block a chat message, so the amount
-// is then lowered to a sub-dollar value via API (PUT by id accepts it). The
-// other tests set the limits they need straight via API and check only the UI
-// they are about. The server checks the estimated request cost against the
-// remaining limit, so a US$0.01 limit blocks the very first message. The
-// wallet is topped up, so the block is caused by the limit, not by a lack of
-// credits.
-const UI_MIN_LIMIT = 1;
+// The first test sets the limit the way an admin does - in the AI limits tab
+// (the amount has no minimum, any value from 0 is accepted). The other tests
+// set the limits they need straight via API and check only the UI they are
+// about. The server checks the estimated request cost against the remaining
+// limit, so a US$0.01 limit blocks the very first message. The wallet is
+// topped up, so the block is caused by the limit, not by a lack of credits.
 const BLOCKING_LIMIT = 0.01;
 const RAISED_LIMIT = 10;
 const COMMON_LIMIT = 10;
 const CHANGED_COMMON_LIMIT = 20;
 const INDIVIDUAL_LIMIT = 5;
 const PERIOD_TEST_LIMIT = 5;
-const INVALID_AMOUNT = 0;
 const DISCARDED_AMOUNT = 7;
+const ZERO_LIMIT = 0;
+const INDIVIDUAL_LIMIT_ABOVE_ZERO = 1;
 const MESSAGE = "Write a short greeting for a new colleague";
 const PERIODS_TO_SWITCH: TAiLimitPeriod[] = [
   "week",
@@ -104,18 +102,14 @@ test.describe("AI limits", () => {
       .toMatchObject(expected);
   };
 
-  // Turns the limit on in the AI limits tab, checks the min-amount validation
-  // and the Cancel of an unsaved change, saves the amount.
+  // Turns the limit on in the AI limits tab, saves the amount and checks the
+  // Cancel of an unsaved change.
   const setLimitInUi = async (form: TAiLimitForm, amount: number) => {
     await aiSettings.openLimitsTab();
     await aiSettings.expectLimitEnabled(form, false);
     await aiSettings.setLimitEnabled(form, true);
 
-    await aiSettings.fillLimitAmount(form, INVALID_AMOUNT);
-    await aiSettings.expectLimitAmountInvalid(form);
-
     await aiSettings.fillLimitAmount(form, amount);
-    await aiSettings.expectLimitAmountValid(form);
     await aiSettings.expectUnsavedChanges(form, true);
     await aiSettings.saveLimit(form);
     await aiSettings.expectUnsavedChanges(form, false);
@@ -141,12 +135,8 @@ test.describe("AI limits", () => {
     const { userData } = await apiSdk.profiles.addMemberWithId("owner", "User");
 
     await test.step("Owner sets the portal limit in AI limits tab", async () => {
-      await setLimitInUi("portal", UI_MIN_LIMIT);
-      await aiSettings.expectPortalLimitStatus(UI_MIN_LIMIT);
-    });
-
-    await test.step("Lower the portal limit below the UI minimum via API", async () => {
-      await aiLimitsApi.setPortalLimit(BLOCKING_LIMIT);
+      await setLimitInUi("portal", BLOCKING_LIMIT);
+      await aiSettings.expectPortalLimitStatus(BLOCKING_LIMIT);
     });
 
     await test.step("Regular user is blocked and has no Change AI limit button", async () => {
@@ -195,9 +185,132 @@ test.describe("AI limits", () => {
     });
   });
 
-  // Bug 84776: the individual limit is stored (API returns it) but not
-  // applied - the user's chat still answers.
-  test.skip("[Bug 84776] Individual limit blocks only its user, limit per user blocks everyone", async ({
+  // The portal limit is one shared budget for everyone, so an individual limit
+  // must not let a user past a portal limit that is already used up.
+  test("Portal limit of 0 blocks a user even with an individual limit", async ({
+    page,
+    apiSdk,
+    login,
+  }) => {
+    const { userData, userId } = await apiSdk.profiles.addMemberWithId(
+      "owner",
+      "User",
+    );
+    const userName = `${userData.firstName} ${userData.lastName}`;
+
+    for (const form of ["portal", "user"] as const) {
+      await test.step(`Owner sets the ${form} limit to 0 in AI limits tab`, async () => {
+        await aiSettings.openLimitsTab();
+        await aiSettings.setLimitEnabled(form, true);
+        await aiSettings.fillLimitAmount(form, ZERO_LIMIT);
+        await aiSettings.saveLimit(form);
+        await expectApiScopeLimit(form, {
+          amountValue: ZERO_LIMIT,
+          enabled: true,
+        });
+      });
+    }
+
+    await test.step("Owner gives the user an individual limit in Contacts", async () => {
+      await contacts.open();
+      await contacts.aiLimit.showColumn();
+      await contacts.aiLimit.openChangeLimitDialog(userName);
+      await contacts.aiLimit.fillDialogAmount(INDIVIDUAL_LIMIT_ABOVE_ZERO);
+      await contacts.aiLimit.submitDialog();
+      await contacts.aiLimit.expectLimit(userName, {
+        spent: 0,
+        amount: INDIVIDUAL_LIMIT_ABOVE_ZERO,
+        period: "day",
+      });
+      await expectApiUserLimit(userId, {
+        scope: "Custom",
+        amountValue: INDIVIDUAL_LIMIT_ABOVE_ZERO,
+      });
+    });
+
+    await test.step("The user is still blocked by the portal limit", async () => {
+      await page.context().clearCookies();
+      await login.loginWithCredentials(userData.email, userData.password);
+      await expectChatBlocked("user");
+    });
+  });
+
+  // Limit per user 0 denies AI to everyone by default; an individual limit
+  // lets one user in.
+  test("Limit per user of 0 blocks everyone except a user with an individual limit", async ({
+    page,
+    apiSdk,
+    login,
+  }) => {
+    const { userData, userId } = await apiSdk.profiles.addMemberWithId(
+      "owner",
+      "User",
+    );
+    const userName = `${userData.firstName} ${userData.lastName}`;
+
+    await test.step("Owner sets the limit per user to 0 in AI limits tab", async () => {
+      await aiSettings.openLimitsTab();
+      await aiSettings.expectLimitEnabled("portal", false);
+      await aiSettings.setLimitEnabled("user", true);
+      await aiSettings.fillLimitAmount("user", ZERO_LIMIT);
+      await aiSettings.saveLimit("user");
+      await expectApiScopeLimit("user", {
+        amountValue: ZERO_LIMIT,
+        enabled: true,
+      });
+    });
+
+    await test.step("Owner gives the user an individual limit in Contacts", async () => {
+      await contacts.open();
+      await contacts.aiLimit.showColumn();
+      await contacts.aiLimit.openChangeLimitDialog(userName);
+      await contacts.aiLimit.fillDialogAmount(INDIVIDUAL_LIMIT_ABOVE_ZERO);
+      await contacts.aiLimit.submitDialog();
+      await contacts.aiLimit.expectLimit(userName, {
+        spent: 0,
+        amount: INDIVIDUAL_LIMIT_ABOVE_ZERO,
+        period: "day",
+      });
+      await expectApiUserLimit(userId, {
+        scope: "Custom",
+        amountValue: INDIVIDUAL_LIMIT_ABOVE_ZERO,
+      });
+    });
+
+    await test.step("Owner without an individual limit is blocked", async () => {
+      await expectChatBlocked("admin");
+    });
+
+    await test.step("The user with the individual limit gets an answer", async () => {
+      await page.context().clearCookies();
+      await login.loginWithCredentials(userData.email, userData.password);
+      await expectChatWorks();
+    });
+
+    await test.step("Owner resets the individual limit with Set to default", async () => {
+      await page.context().clearCookies();
+      await login.loginToPortal();
+      await contacts.open();
+      await contacts.aiLimit.setToDefault(userName);
+      await contacts.aiLimit.expectLimit(userName, {
+        spent: 0,
+        amount: ZERO_LIMIT,
+        period: "day",
+      });
+      await expectApiUserLimit(userId, {
+        scope: "Global",
+        amountValue: ZERO_LIMIT,
+      });
+    });
+
+    await test.step("The user is blocked by the limit per user again", async () => {
+      await page.context().clearCookies();
+      await login.loginWithCredentials(userData.email, userData.password);
+      await expectChatBlocked("user");
+    });
+  });
+
+  test("Individual limit blocks only its user, limit per user blocks everyone", async ({
     page,
     apiSdk,
     login,

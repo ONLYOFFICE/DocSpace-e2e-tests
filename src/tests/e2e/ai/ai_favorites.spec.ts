@@ -5,7 +5,9 @@ import { test } from "@/src/fixtures";
 
 const baseName = (title: string) => title.replace(/\.[^.]+$/, "");
 
-test.describe("AI agents: Favorites", () => {
+// Skipped: AI agents were replaced by AI rooms (Instructions rooms, Knowledge
+// rooms and AI projects). To be rewritten for the new model.
+test.describe.skip("AI agents: Favorites", () => {
   let aiAgents: AiAgents;
 
   test.beforeEach(async ({ page, api, login }) => {
