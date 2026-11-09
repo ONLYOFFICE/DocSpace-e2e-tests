@@ -6,18 +6,16 @@ import RoomInfoPanel from "@/src/objects/rooms/RoomInfoPanel";
 import Login from "@/src/objects/common/Login";
 import { PaymentApi } from "@/src/api/payment";
 
-const AGENT_NAME = "Rejoin History Agent";
-const USER_MESSAGE = "Message from the invited user before removal";
+const PROJECT_NAME = "Rejoin History Project";
+const USER_MESSAGE = "Message from the member before removal";
 
-// Skipped: AI agents were replaced by AI rooms (Instructions rooms, Knowledge
-// rooms and AI projects). To be rewritten for the new model.
-test.describe.skip("AI Agents: member rejoin keeps chat history", () => {
+test.describe("AI Projects: member rejoin keeps chat history", () => {
   let aiAgents: AiAgents;
   let aiSettings: AiSettings;
   let paymentApi: PaymentApi;
   let portalDomain: string;
-  // AI agents are backed by the same room infrastructure as Rooms - the
-  // agent's info panel reuses the shared InfoPanel/Contacts tab component.
+  // AI projects are AI rooms - their info panel reuses the shared
+  // InfoPanel/Contacts tab component of Rooms.
   let roomInfoPanel: RoomInfoPanel;
 
   test.beforeEach(async ({ page, api, login }) => {
@@ -35,17 +33,17 @@ test.describe.skip("AI Agents: member rejoin keeps chat history", () => {
       await aiSettings.activate();
     });
 
-    await test.step("Precondition: create AI agent", async () => {
+    await test.step("Precondition: create AI project", async () => {
       await aiAgents.openDirectly();
       await aiAgents.openCreateAgentDialog();
-      await aiAgents.fillAgentName(AGENT_NAME);
+      await aiAgents.fillAgentName(PROJECT_NAME);
       await aiAgents.saveAgent();
       await aiAgents.expectChatOpened();
-      await aiAgents.openAndExpectAgentInList(AGENT_NAME);
+      await aiAgents.openAndExpectAgentInList(PROJECT_NAME);
     });
   });
 
-  test("User keeps own chat history after being removed and re-invited to the agent", async ({
+  test("Member keeps own chat history after being removed and re-invited to the project", async ({
     apiSdk,
     browser,
   }) => {
@@ -61,38 +59,33 @@ test.describe.skip("AI Agents: member rejoin keeps chat history", () => {
       const userLogin = new Login(userPage, portalDomain);
       const userAiAgents = new AiAgents(userPage, portalDomain);
 
-      await test.step("Owner invites the user to the agent", async () => {
-        // Default invite access is Viewer (no chat composer) - grant Content
-        // creator via the invite dialog's role selector so the user can
-        // actually send messages in the agent chat. (Escalating access
-        // afterwards through the rooms/share API doesn't stick for AI agent
-        // rooms - it returns 200 but the role silently stays Viewer.)
-        await aiAgents.inviteUserToAgent(AGENT_NAME, userData.email, "Member");
+      await test.step("Owner invites the user to the project as Member", async () => {
+        await aiAgents.inviteUserToAgent(PROJECT_NAME, userData.email, "Member");
       });
 
-      await test.step("User sends a message in the agent chat", async () => {
+      await test.step("Member sends a message in the project chat", async () => {
         await userLogin.loginWithCredentials(userData.email, userData.password);
         await userAiAgents.openDirectly();
-        await userAiAgents.openAgent(AGENT_NAME);
+        await userAiAgents.openAgent(PROJECT_NAME);
         await userAiAgents.expectChatOpened();
         await userAiAgents.sendChatMessage(USER_MESSAGE);
         await userAiAgents.expectMessageInChat(USER_MESSAGE);
       });
 
-      await test.step("Owner removes the user from the agent", async () => {
-        await aiAgents.openAndExpectAgentInList(AGENT_NAME);
-        await aiAgents.openAgentInfo(AGENT_NAME);
+      await test.step("Owner removes the member from the project", async () => {
+        await aiAgents.openAndExpectAgentInList(PROJECT_NAME);
+        await aiAgents.openAgentInfo(PROJECT_NAME);
         await roomInfoPanel.openTab("Contacts");
         await roomInfoPanel.removeMemberByName(userName);
       });
 
-      await test.step("Owner re-invites the user to the agent", async () => {
-        await aiAgents.inviteUserToAgent(AGENT_NAME, userData.email, "Member");
+      await test.step("Owner re-invites the user to the project as Member", async () => {
+        await aiAgents.inviteUserToAgent(PROJECT_NAME, userData.email, "Member");
       });
 
-      await test.step("User still sees their previous message in the chat", async () => {
+      await test.step("Member still sees their previous message in the chat", async () => {
         await userAiAgents.openDirectly();
-        await userAiAgents.openAgent(AGENT_NAME);
+        await userAiAgents.openAgent(PROJECT_NAME);
         await userAiAgents.expectChatOpened();
         await userAiAgents.expectMessageInChat(USER_MESSAGE);
       });
