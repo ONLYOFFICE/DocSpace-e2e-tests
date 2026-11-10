@@ -59,6 +59,13 @@ class BaseToast {
       throw error;
     }
   }
+  // A series of failed requests must collapse into one toast.
+  async checkSingleToastMessage(text: string, timeout?: number) {
+    const toasts = this.toast.filter({ hasText: text });
+    await toasts.first().waitFor({ state: "visible", timeout });
+    await expect(toasts).toHaveCount(1);
+  }
+
   async checkToastMessage(text: string, timeout?: number) {
     const toast = this.toast.filter({ hasText: text }).first();
     await toast.waitFor({ state: "visible", timeout });
