@@ -11,6 +11,17 @@ const USER_TYPE_TO_ROLE: Record<UserType, Role> = {
   Guest: "guest",
 };
 
+// Profile flag that marks each user type in GET people/{id}.
+const USER_TYPE_FLAG: Record<
+  UserType,
+  (user: Record<string, unknown>) => boolean
+> = {
+  DocSpaceAdmin: (user) => user.isAdmin === true,
+  RoomAdmin: (user) => user.isRoomAdmin === true,
+  User: (user) => user.isCollaborator === true,
+  Guest: (user) => user.isVisitor === true,
+};
+
 export class ProfilesApi {
   private request: APIRequestContext;
   private faker: FAKER;
@@ -287,6 +298,36 @@ export class ProfilesApi {
         },
       );
       return response;
+    });
+  }
+
+  // Async type change (same endpoint the Contacts UI uses). Unlike
+  // PUT people/type/{type}, it also allows downgrades (e.g. RoomAdmin -> User),
+  // so poll the profile until the new type is applied.
+  async changeUserType(role: Role, userId: string, type: UserType) {
+    return test.step(`${role} change type of user ${userId} to ${type}`, async () => {
+      const response = await this.request.post(
+        `${this.portalBaseUrl}/api/2.0/people/type`,
+        {
+          headers: { Authorization: `Bearer ${this.getToken(role)}` },
+          data: { userId, type },
+        },
+      );
+      expect(response.ok()).toBeTruthy();
+
+      await expect
+        .poll(
+          async () => {
+            const profile = await this.returnUserDetailedInformation(
+              role,
+              userId,
+            );
+            const user = (await profile.json()).response;
+            return USER_TYPE_FLAG[type](user);
+          },
+          { timeout: 30000 },
+        )
+        .toBe(true);
     });
   }
 

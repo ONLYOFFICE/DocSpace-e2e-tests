@@ -40,7 +40,10 @@ import DownloadDialog from "../files/DownloadDialog";
 import FilesSelectPanel from "../files/FilesSelectPanel";
 import RoomsGroupTags from "./RoomsGroupTags";
 import DocumentEditor from "../files/DocumentEditor";
-import { documentContextMenuOption } from "@/src/utils/constants/files";
+import {
+  DOC_ACTIONS,
+  documentContextMenuOption,
+} from "@/src/utils/constants/files";
 import {
   formsSectionEmptyView,
   formsTrashFileContextMenuOption,
@@ -66,6 +69,10 @@ const DRAFT_LABEL = "badge-text";
 const ARTICLE_CONTAINER = "#article-container";
 const ROOM_STORAGE_WARNING = ".warning-text";
 const CREATE_FORM_SET_OPTION = "create-form-set";
+const NO_ROOM_ACCESS_TITLE = "Sorry, you don't have access to this room.";
+const NO_ROOM_ACCESS_REDIRECT_TEXT =
+  "You will be redirected to the Rooms section automatically";
+const NO_ROOM_ACCESS_GO_TO_ROOMS = "#empty-view-goto-rooms";
 
 class MyRooms extends BasePage {
   private portalDomain: string;
@@ -367,6 +374,30 @@ class MyRooms extends BasePage {
       timeout: 30000,
     });
     await expect(this.page).toHaveURL(/\/rooms\/shared|\/dashboard/);
+  }
+
+  // Rights changes must not reset the tab to the section root - the open
+  // room (or folder inside it) stays in the URL.
+  async expectStayedInFolder(folderId: number) {
+    await expect(this.page).toHaveURL(new RegExp(`folder=${folderId}(&|$)`));
+    await this.filesTable.checkTableExist();
+  }
+
+  // Shown in place of the folder content when the user lost access to the
+  // room; it redirects to the rooms list on its own after 5 seconds.
+  async expectNoRoomAccessPage() {
+    await expect(this.emptyView.getByText(NO_ROOM_ACCESS_TITLE)).toBeVisible();
+    await expect(
+      this.emptyView.getByText(NO_ROOM_ACCESS_REDIRECT_TEXT),
+    ).toBeVisible();
+    await expect(this.page.locator(NO_ROOM_ACCESS_GO_TO_ROOMS)).toBeVisible();
+  }
+
+  async createFolderFromAddButton(folderName: string) {
+    await this.filesNavigation.openCreateDropdown();
+    await this.filesNavigation.selectCreateAction(DOC_ACTIONS.CREATE_FOLDER);
+    await this.filesNavigation.modal.fillCreateTextInput(folderName);
+    await this.filesNavigation.modal.clickCreateButton();
   }
 
   // Selects an item inside the open room and opens its Metadata tab, waiting

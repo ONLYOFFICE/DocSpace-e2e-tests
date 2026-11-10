@@ -21,7 +21,14 @@ const CHAT_PANEL_RESIZER = "chat-panel-resizer";
 const TOP_BANNER_IFRAME = "snackbar-iframe";
 const SNACKBAR_HEADER = "snackbar-header";
 const SNACKBAR_CLOSE = "snackbar-close";
+const SNACKBAR_MESSAGE = "snackbar-message";
 const EMAIL_ACTIVATION_SNACKBAR_TEXT = "Please activate your email";
+const USER_TYPE_CHANGED_SNACKBAR_TEXT = "Your user type has been changed";
+const USER_TYPE_CHANGED_SNACKBAR_MESSAGE =
+  "Some actions on this page may no longer be available to you.";
+const RELOAD_PAGE_LINK = "Reload page";
+const MAX_TOP_BAR_SNACKBARS = 5;
+const NEXT_SNACKBAR_TIMEOUT = 2000;
 
 export default class BasePage {
   protected page: Page;
@@ -209,6 +216,54 @@ export default class BasePage {
     await expect(header).toBeVisible({ timeout: 15000 });
     await this.page.getByTestId(SNACKBAR_CLOSE).click();
     await expect(header).not.toBeVisible();
+  }
+
+  // The top bar shows one snackbar at a time, so pending ones (email
+  // activation, admin limit, ...) would hide a snackbar that comes later.
+  // Closes them one by one until none shows up.
+  async closeTopBarSnackbars(timeout = 5000) {
+    const header = this.page.getByTestId(SNACKBAR_HEADER).first();
+    for (let i = 0; i < MAX_TOP_BAR_SNACKBARS; i += 1) {
+      try {
+        await header.waitFor({
+          state: "visible",
+          timeout: i === 0 ? timeout : NEXT_SNACKBAR_TIMEOUT,
+        });
+      } catch {
+        return;
+      }
+      const text = (await header.textContent()) ?? "";
+      await this.page.getByTestId(SNACKBAR_CLOSE).first().click();
+      await expect(
+        this.page.getByTestId(SNACKBAR_HEADER).filter({ hasText: text }),
+      ).not.toBeVisible();
+    }
+  }
+
+  private get userTypeChangedSnackbarHeader(): Locator {
+    return this.page
+      .getByTestId(SNACKBAR_HEADER)
+      .filter({ hasText: USER_TYPE_CHANGED_SNACKBAR_TEXT });
+  }
+
+  // Shown over the open page when an admin lowers the current user's type.
+  async checkUserTypeChangedSnackbarVisible() {
+    await expect(this.userTypeChangedSnackbarHeader).toBeVisible({
+      timeout: 15000,
+    });
+    await expect(this.page.getByTestId(SNACKBAR_MESSAGE)).toContainText(
+      USER_TYPE_CHANGED_SNACKBAR_MESSAGE,
+    );
+  }
+
+  async reloadFromUserTypeChangedSnackbar() {
+    const reloaded = this.page.waitForEvent("load");
+    await this.page
+      .getByTestId(SNACKBAR_MESSAGE)
+      .getByRole("link", { name: RELOAD_PAGE_LINK })
+      .click();
+    await reloaded;
+    await expect(this.userTypeChangedSnackbarHeader).not.toBeVisible();
   }
 
   // Banner content is cross-origin, so the theme is checked via the src query

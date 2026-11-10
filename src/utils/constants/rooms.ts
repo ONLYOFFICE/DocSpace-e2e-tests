@@ -131,6 +131,8 @@ export const roomToastMessages = {
   roomGroupingEnabled: "Room grouping is enabled",
   roomGroupingDisabled: "Room grouping is disabled",
   leftRoom: "You have left the room",
+  uploadingError: "Uploading error",
+  noPermissionToCreate: "You don't have enough permission to create",
   appointedNewOwner: "You have appointed a new owner.",
   tagRemoved: (tagName: string) => `${tagName} tag removed`,
 };

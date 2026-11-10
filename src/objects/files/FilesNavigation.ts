@@ -107,6 +107,27 @@ class FilesNavigation extends BaseNavigation {
     );
   }
 
+  // Uploads in-memory files of the given size - for uploads that must still
+  // be running when the next step starts (no large files in data/).
+  async uploadGeneratedFiles(fileNames: string[], sizeInBytes: number) {
+    const buffer = Buffer.alloc(sizeInBytes, "a");
+    await this.openCreateDropdown();
+    const [fileChooser] = await Promise.all([
+      this.page.waitForEvent("filechooser"),
+      this.contextMenu.clickOption({
+        type: "data-testid",
+        value: "upload-files",
+      }),
+    ]);
+    await fileChooser.setFiles(
+      fileNames.map((name) => ({
+        name,
+        mimeType: "text/plain",
+        buffer,
+      })),
+    );
+  }
+
   async uploadFolder(folderPath: string) {
     await this.openCreateDropdown();
     const [fileChooser] = await Promise.all([
