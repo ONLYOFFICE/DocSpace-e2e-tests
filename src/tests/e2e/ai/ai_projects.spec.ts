@@ -109,6 +109,14 @@ test.describe("AI Projects: management", () => {
       await aiAgents.openInviteDialog(PROJECT_NAME);
     });
 
+    await test.step("Select Member access", async () => {
+      // The dialog defaults to "Project manager", which a User-type account
+      // cannot get: the role stays empty and "Send invitation" is disabled.
+      // The access must be set before the user is added.
+      await aiAgents.inviteDialog.openAccessOptions();
+      await aiAgents.inviteDialog.selectAccessOption("Member");
+    });
+
     await test.step("Search and add user to invite list", async () => {
       await aiAgents.inviteDialog.fillSearchInviteInput(userData.email);
       await aiAgents.inviteDialog.checkUserExist(userData.email);
