@@ -13,6 +13,14 @@ import BaseTable from "../../common/BaseTable";
 // An amount like "28.00" or "1,000.00"
 const AMOUNT = /\d[\d,]*\.\d{2}/;
 
+const TABLE_ROW = ".table-container_row";
+const INVOICE_LINK = "invoice_link";
+// "View invoice" opens the Stripe hosted invoice in a new tab
+const STRIPE_INVOICE_URL = /stripe\.com/;
+const STRIPE_INVOICE_PAID = "Invoice paid";
+// Amount under "Invoice paid" - the same amount repeats in invoice details
+const STRIPE_INVOICE_AMOUNT = "invoice-amount-post-payment";
+
 export class Payments extends BasePage {
   portalUrl: string;
   dialog: BaseDialog;
@@ -528,6 +536,44 @@ export class Payments extends BasePage {
     await reportPage.close();
   }
 
+  // Invoice history: one row per completed wallet top-up, newest first
+  get invoiceRows() {
+    return this.page
+      .locator(TABLE_ROW)
+      .filter({ has: this.page.getByTestId(INVOICE_LINK) });
+  }
+
+  async expectInvoiceCount(count: number) {
+    await expect(this.invoiceRows).toHaveCount(count);
+  }
+
+  async expectInvoiceAmount(index: number, amount: string) {
+    await expect(this.invoiceRows.nth(index)).toContainText(amount);
+  }
+
+  // Date cell is like "10/11/2026 08:30" - only the date part is checked
+  async expectInvoiceDate(index: number, date: string) {
+    await expect(this.invoiceRows.nth(index)).toContainText(date);
+  }
+
+  // Stripe hosted invoice page follows the browser locale (en-US in tests):
+  // "Invoice paid" + amount like "$10.00"
+  async openInvoice(index: number, amount: string) {
+    const invoicePagePromise = this.page.waitForEvent("popup", {
+      timeout: 30000,
+    });
+    await this.invoiceRows.nth(index).getByTestId(INVOICE_LINK).click();
+    const invoicePage = await invoicePagePromise;
+    await invoicePage.waitForURL(STRIPE_INVOICE_URL);
+    await expect(
+      invoicePage.getByText(STRIPE_INVOICE_PAID, { exact: true }),
+    ).toBeVisible({ timeout: 30000 });
+    await expect(invoicePage.getByTestId(STRIPE_INVOICE_AMOUNT)).toHaveText(
+      amount,
+    );
+    await invoicePage.close();
+  }
+
   tabButton(tab: TPaymentsTab) {
     return this.page.getByRole("link", { name: tab, exact: true });
   }
@@ -545,6 +591,10 @@ export class Payments extends BasePage {
         }).toPass({
           timeout: 30000,
         });
+        break;
+      case paymentsTab.invoiceHistory:
+        await this.tabButton(tab).click();
+        await this.page.waitForURL(/\/billing\/invoice-history/);
         break;
       default:
         await this.tabButton(tab).click();
