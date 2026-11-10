@@ -2,6 +2,7 @@ const navItems = {
   customization: "Customization",
   security: "Security",
   backup: "Backup",
+  restore: "Restore",
   integration: "Integration",
   billing: "Billing",
   developerTools: "Developer Tools",
