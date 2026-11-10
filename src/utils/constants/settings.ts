@@ -71,6 +71,7 @@ const paymentsTab = {
   tariffPlan: "Tariff plan",
   addOns: "Add-ons",
   paymentMethod: "Payment method",
+  invoiceHistory: "Invoice history",
   usage: "Usage",
 };
 
