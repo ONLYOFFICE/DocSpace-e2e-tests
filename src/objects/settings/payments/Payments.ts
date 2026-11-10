@@ -536,11 +536,11 @@ export class Payments extends BasePage {
     await reportPage.close();
   }
 
-  // Invoice history: one row per completed wallet top-up, newest first
+  // Invoice history: one row per completed wallet top-up, newest first.
+  // Top-ups made via API have no Stripe invoice - their rows have no
+  // "View invoice" link, so rows are not filtered by it
   get invoiceRows() {
-    return this.page
-      .locator(TABLE_ROW)
-      .filter({ has: this.page.getByTestId(INVOICE_LINK) });
+    return this.page.locator(TABLE_ROW);
   }
 
   async expectInvoiceCount(count: number) {
@@ -554,6 +554,28 @@ export class Payments extends BasePage {
   // Date cell is like "10/11/2026 08:30" - only the date part is checked
   async expectInvoiceDate(index: number, date: string) {
     await expect(this.invoiceRows.nth(index)).toContainText(date);
+  }
+
+  // Newest and oldest invoices have unique amounts: at first only the newest
+  // is on screen, the oldest is reached by scrolling with the mouse wheel
+  // (like a user). The row box itself has no size in the grid layout
+  // (viewport ratio is always 0), so the viewport check is done on the
+  // amount text. After scrolling the newest row only slides under the page
+  // header (still "in viewport"), so it is not checked
+  async expectInvoiceListScrolls(newestAmount: string, oldestAmount: string) {
+    const newest = this.invoiceRows.getByText(newestAmount, { exact: true });
+    const oldest = this.invoiceRows.getByText(oldestAmount, { exact: true });
+    await expect(newest).toHaveCount(1);
+    await expect(oldest).toHaveCount(1);
+
+    await expect(newest).toBeInViewport();
+    await expect(oldest).not.toBeInViewport();
+
+    await newest.hover();
+    await expect(async () => {
+      await this.page.mouse.wheel(0, 500);
+      await expect(oldest).toBeInViewport({ timeout: 1000 });
+    }).toPass({ timeout: 15000 });
   }
 
   // Stripe hosted invoice page follows the browser locale (en-US in tests):
