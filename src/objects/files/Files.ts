@@ -483,6 +483,24 @@ class Files extends BasePage {
     await this.filesTable.checkRowNotExist(fileName);
   }
 
+  async openDeleteDialog(name: string) {
+    await this.filesTable.openContextMenuForItem(name);
+    await this.filesTable.contextMenu.clickOption("Delete");
+  }
+
+  async openBulkDeleteDialog(names: string[]) {
+    await this.filesTable.selectMultipleRows(names);
+    await this.filesNavigation.openDeleteDialog();
+  }
+
+  // For "Don't ask again" already checked - the item goes straight to Trash
+  async deleteWithoutConfirmation(name: string) {
+    await this.openDeleteDialog(name);
+    await this.removeToast("successfully moved to Trash");
+    await this.folderDeleteModal.checkDialogNotVisible();
+    await this.filesTable.checkRowNotExist(name);
+  }
+
   async moveFileTo(fileName: string, folderName: string) {
     await this.filesTable.openContextMenuForItem(fileName);
     await this.filesTable.contextMenu.clickSubmenuOption(

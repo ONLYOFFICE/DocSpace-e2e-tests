@@ -1,6 +1,6 @@
 import Files from "@/src/objects/files/Files";
 import Trash from "@/src/objects/files/trash/Trash";
-import { DOC_ACTIONS } from "@/src/utils/constants/files";
+import { DOC_ACTIONS, deleteDialogTexts } from "@/src/utils/constants/files";
 import { test } from "@/src/fixtures";
 
 test.describe("My Documents: Bulk actions", () => {
@@ -44,8 +44,18 @@ test.describe("My Documents: Bulk actions", () => {
       await files.createDocumentFile("File3");
     });
 
-    await test.step("Bulk delete File1 and File2", async () => {
-      await files.bulkDeleteFiles(["File1", "File2"]);
+    await test.step("Delete dialog shows the number of selected files", async () => {
+      await files.openBulkDeleteDialog(["File1", "File2"]);
+      await files.folderDeleteModal.checkDialogOpened(
+        deleteDialogTexts.multipleFilesMessage(2),
+      );
+    });
+
+    await test.step("Move File1 and File2 to Trash", async () => {
+      await files.folderDeleteModal.clickDeleteFolder();
+      await files.removeToast("successfully moved to Trash");
+      await files.filesTable.checkRowNotExist("File1");
+      await files.filesTable.checkRowNotExist("File2");
     });
 
     await test.step("Verify deleted files are in trash, File3 remains", async () => {

@@ -62,6 +62,11 @@ class FilesNavigation extends BaseNavigation {
     await this.performAction(navActions.delete);
   }
 
+  // Only clicks Delete in the group menu - the dialog stays open
+  async openDeleteDialog() {
+    await this.performAction({ button: navActions.delete.button });
+  }
+
   async bulkMoveTo() {
     await this.performAction(navActions.bulkMoveTo);
   }
