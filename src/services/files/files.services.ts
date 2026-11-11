@@ -263,6 +263,26 @@ export class FilesApi {
     });
   }
 
+  // Restore from Trash = move the file back to its folder; the file keeps its id.
+  // The move is an async file operation - the response only starts it.
+  async restoreFileFromTrash(role: Role, fileId: number, destFolderId: number) {
+    return test.step(`${role} restore file ${fileId} from trash to folder ${destFolderId}`, async () => {
+      const response = await this.request.put(
+        `${this.portalBaseUrl}/api/2.0/files/fileops/move`,
+        {
+          headers: { Authorization: `Bearer ${this.getToken(role)}` },
+          data: {
+            fileIds: [fileId],
+            folderIds: [],
+            destFolderId,
+            deleteAfter: false,
+          },
+        },
+      );
+      return response;
+    });
+  }
+
   async shareFile(
     role: Role,
     fileId: number,
