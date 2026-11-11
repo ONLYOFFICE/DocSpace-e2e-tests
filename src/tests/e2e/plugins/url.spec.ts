@@ -28,8 +28,9 @@ test.describe("Plugins: URL", () => {
       await filesPlugins.createUrlFile(LINK_URL, LINK_TITLE);
     });
 
+    // No reload here: the plugin uploads the file after the dialog closes and
+    // leaving the page aborts that upload
     await test.step("The link file is in My Documents", async () => {
-      await files.open();
       await filesPlugins.expectFileInList(LINK_TITLE);
     });
   });
