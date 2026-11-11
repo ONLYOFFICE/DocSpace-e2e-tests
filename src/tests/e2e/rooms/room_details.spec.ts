@@ -122,4 +122,33 @@ test.describe("Room Details: Content counter", () => {
       await myRooms.infoPanel.checkContentProperty(0, 1);
     });
   });
+
+  test("Uploaded file is counted once when the socket event comes before the upload finishes", async () => {
+    await test.step("Open the room and its Details", async () => {
+      await myRooms.openWithoutEmptyCheck();
+      await myRooms.roomsTable.openRoomByName(ROOM_NAME);
+      await myRooms.infoPanel.open();
+      await myRooms.infoPanel.openTab("Details");
+      await myRooms.infoPanel.checkContentProperty(0, 0);
+    });
+
+    await test.step("Upload a file, holding back the upload response until the socket event arrives", async () => {
+      await myRooms.filesNavigation.uploadFileAsWithSocketFirst(DOCX, [
+        "Doc 1.docx",
+      ]);
+      await myRooms.filesTable.expectItemVisible("Doc 1");
+    });
+
+    await test.step("Counter shows 1 file, not 2", async () => {
+      await myRooms.infoPanel.checkContentProperty(0, 1);
+    });
+
+    await test.step("Counter still shows 1 file after reloading the page", async () => {
+      await myRooms.openWithoutEmptyCheck();
+      await myRooms.roomsTable.openRoomByName(ROOM_NAME);
+      await myRooms.infoPanel.open();
+      await myRooms.infoPanel.openTab("Details");
+      await myRooms.infoPanel.checkContentProperty(0, 1);
+    });
+  });
 });

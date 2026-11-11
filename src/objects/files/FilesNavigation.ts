@@ -1,9 +1,13 @@
-import { Page } from "@playwright/test";
+import { Page, Request, Route } from "@playwright/test";
 import fs from "fs";
 import { DOC_ACTIONS, listDocActions } from "../../utils/constants/files";
 import FilesCreateModal from "./FilesCreateModal";
 import BaseNavigation from "../common/BaseNavigation";
 import FilesCreateContextMenu from "./FilesCreateContextMenu";
+
+// Chunk upload: POST api/2.0/files/{folderId}/session/{sessionId}/upload?chunkNumber=N
+const CHUNK_UPLOAD_URL = /\/api\/2\.0\/files\/\d+\/session\/[^/]+\/upload/;
+const UPLOAD_FINISHED_TIMEOUT = 30000;
 
 const navActions = {
   moveToArchive: {
@@ -105,6 +109,44 @@ class FilesNavigation extends BaseNavigation {
         buffer,
       })),
     );
+  }
+
+  // Same as uploadFileAs, but the chunk upload response is held back: the
+  // server has already saved the file and sent the socket event, so the
+  // client gets the event before its upload request finishes.
+  // Resolves once the held chunk response has been delivered to the client.
+  async uploadFileAsWithSocketFirst(
+    filePath: string,
+    fileNames: string[],
+    delayMs = 3000,
+  ) {
+    const isChunkUpload = (request: Request) =>
+      request.method() === "POST" && CHUNK_UPLOAD_URL.test(request.url());
+
+    const holdResponse = async (route: Route) => {
+      if (!isChunkUpload(route.request())) {
+        await route.fallback();
+        return;
+      }
+      const response = await route.fetch();
+      await new Promise((resolve) => setTimeout(resolve, delayMs));
+      await route.fulfill({ response });
+    };
+
+    // Page-level route: it is registered after the fixture's page route, so it
+    // runs first (a context route would never be reached)
+    await this.page.route(CHUNK_UPLOAD_URL, holdResponse);
+    try {
+      const uploadFinished = this.page.waitForEvent("response", {
+        predicate: (response) => isChunkUpload(response.request()),
+        timeout: UPLOAD_FINISHED_TIMEOUT,
+      });
+      await this.uploadFileAs(filePath, fileNames);
+      await uploadFinished;
+    } finally {
+      // Ignore errors: the page may already be closed on test timeout
+      await this.page.unroute(CHUNK_UPLOAD_URL, holdResponse).catch(() => {});
+    }
   }
 
   // Uploads in-memory files of the given size - for uploads that must still
