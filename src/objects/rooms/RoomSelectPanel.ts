@@ -23,7 +23,7 @@ const FOLDER_SELECTORS: Record<FolderType, string> = {
 // Used to confirm the panel re-rendered after navigation before clicking the
 // next item at the same testid (the ids are reused per nesting level).
 const FOLDER_LABELS: Record<FolderType, string> = {
-  ai: "AI rooms",
+  ai: "AI Workspace",
   documents: "Files",
   rooms: "Rooms",
   forms: "Forms",

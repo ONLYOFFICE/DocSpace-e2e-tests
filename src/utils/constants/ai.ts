@@ -176,7 +176,7 @@ export const aiChatNotActiveScreen = {
 export const aiSaveAsDocxSections = {
   files: "Files",
   rooms: "Rooms",
-  aiAgents: "AI rooms",
+  aiAgents: "AI Workspace",
   forms: "Forms",
 } as const;
 
@@ -204,7 +204,7 @@ export const aiAgentViewerModeToastMessage =
 
 export const aiSectionEmptyView = {
   rooms: {
-    heading: "AI rooms",
+    heading: "AI Workspace",
     title: "No AI rooms yet",
     description:
       "Instructions rooms hold skills, Knowledge rooms hold the files the chat searches, and AI projects bring them together with a model and share that setup with the people you invite.",

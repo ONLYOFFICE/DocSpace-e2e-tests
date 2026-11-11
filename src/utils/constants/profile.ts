@@ -17,7 +17,7 @@ export const avatarConstants = {
 
 export const defaultHomepageOptions = {
   home: "Home",
-  aiRooms: "AI rooms",
+  aiRooms: "AI Workspace",
   files: "Files",
   rooms: "Rooms",
   forms: "Forms",
