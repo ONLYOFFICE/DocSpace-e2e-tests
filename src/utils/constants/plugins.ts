@@ -18,9 +18,14 @@ export type TSystemPlugin = (typeof systemPlugins)[keyof typeof systemPlugins];
 // Items the plugins add to New > More
 export const pluginCreateItems = {
   drawIo: "draw.io",
-  markdown: "Markdown",
   textFile: "Text file",
   url: "New URL",
+} as const;
+
+// Items the plugins add to the top level of New. They open the standard
+// create-file dialog of DocSpace, titled "New <item>".
+export const pluginNewMenuItems = {
+  markdown: "Markdown file",
 } as const;
 
 // Items the plugins add to a file's context menu > More options

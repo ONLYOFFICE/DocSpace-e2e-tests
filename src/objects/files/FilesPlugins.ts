@@ -5,8 +5,8 @@ const MORE_OPTIONS = "More options";
 const MORE = "More";
 const MODAL_DIALOG = "modal-dialog";
 
-// What enabled plugins add to My Documents: items under New > More, items under
-// a file's More options, and the modal dialogs they open.
+// What enabled plugins add to My Documents: items under New (top level or
+// More), items under a file's More options, and the modal dialogs they open.
 class FilesPlugins {
   private page: Page;
   private files: Files;
@@ -44,6 +44,17 @@ class FilesPlugins {
   async createFromMoreMenu(item: string) {
     await this.files.filesNavigation.openCreateDropdown();
     await this.files.filesNavigation.contextMenu.clickSubmenuOption(MORE, item);
+  }
+
+  // Top-level New item of a plugin: it opens the standard create-file dialog
+  // ("New <item>") with a name field and a Create button.
+  async createFromNewMenu(item: string, name: string) {
+    const navigation = this.files.filesNavigation;
+    await navigation.openCreateDropdown();
+    await navigation.contextMenu.clickOption(item);
+    await navigation.modal.checkModalTitleExist(`New ${item}`);
+    await navigation.modal.fillCreateTextInput(name);
+    await navigation.modal.clickCreateButton();
   }
 
   // Click on the file name - plugins that register a file type open it in
