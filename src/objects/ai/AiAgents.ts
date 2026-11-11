@@ -89,8 +89,6 @@ const CHAT_ERROR_TITLE = "chat-error-title";
 const COMPOSER_NOTICE = "composer-notice";
 const COMPOSER_NOTICE_TITLE = "composer-notice-title";
 const COMPOSER_NOTICE_DESCRIPTION = "composer-notice-description";
-const ROOM_TYPE_LIST_ITEM = "room-type-list-item";
-const AI_PROJECT_ROOM_TYPE = "AI project";
 const AI_PROJECT_TITLE_INPUT = "ai-project-title";
 const AI_PROJECT_MODEL_COMBOBOX = "ai-project-profile-combobox";
 const AI_PROJECT_SUBMIT = "ai-project-submit";
@@ -397,16 +395,9 @@ export class AiAgents extends BasePage {
     // "Top up & activate" state; reload so the create-agent action shows.
     await this.page.reload();
     await this.waitForAiAgentsPage();
-    // Goes through the state-aware create button ("New room" in the toolbar when
-    // rooms exist, "+" in the header when the list is empty), then picks the
-    // "AI project" type in the room type dialog.
+    // "+" in the AI Workspace header opens the "Create AI project" dialog
+    // directly - there is no room type step anymore.
     await this.navigation.clickAddButton();
-    await this.page
-      .getByTestId(ROOM_TYPE_LIST_ITEM)
-      .filter({
-        has: this.page.getByText(AI_PROJECT_ROOM_TYPE, { exact: true }),
-      })
-      .click();
     await expect(this.agentNameInput).toBeVisible();
   }
 

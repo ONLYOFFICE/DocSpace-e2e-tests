@@ -20,6 +20,9 @@ const STRIPE_INVOICE_URL = /stripe\.com/;
 const STRIPE_INVOICE_PAID = "Invoice paid";
 // Amount under "Invoice paid" - the same amount repeats in invoice details
 const STRIPE_INVOICE_AMOUNT = "invoice-amount-post-payment";
+// Google address suggestions under Stripe "Address line 1" - the list can
+// cover the payment method accordion, it is closed with its own "x" button
+const STRIPE_ADDRESS_SUGGESTIONS = "shipping autocomplete address results";
 
 export class Payments extends BasePage {
   portalUrl: string;
@@ -648,6 +651,17 @@ export class Payments extends BasePage {
     }
   }
 
+  // The suggestions list opens a moment after "Address line 1" is filled and
+  // page-level Escape does not close it once focus has moved to other fields
+  private async closeStripeAddressSuggestions(stripePage: Page) {
+    const closeButton = stripePage
+      .getByRole("list", { name: STRIPE_ADDRESS_SUGGESTIONS })
+      .getByRole("button");
+    if (await closeButton.isVisible()) {
+      await closeButton.click();
+    }
+  }
+
   async fillPaymentData(stripePage: Page) {
     // Remove link verification block if present
     await expect(stripePage.locator("#payment-form")).toBeVisible();
@@ -667,7 +681,7 @@ export class Payments extends BasePage {
 
     if (await cardAccordionItem.isVisible()) {
       await expect(async () => {
-        await stripePage.keyboard.press("Escape");
+        await this.closeStripeAddressSuggestions(stripePage);
         await cardAccordionItem.click({ timeout: 3000 });
       }).toPass({ timeout: 20000 });
     }
@@ -748,7 +762,7 @@ export class Payments extends BasePage {
 
     if (await cardAccordionItem.isVisible()) {
       await expect(async () => {
-        await stripePage.keyboard.press("Escape");
+        await this.closeStripeAddressSuggestions(stripePage);
         await cardAccordionItem.click({ timeout: 3000 });
       }).toPass({ timeout: 20000 });
     }
