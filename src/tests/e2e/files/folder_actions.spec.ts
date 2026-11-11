@@ -1,7 +1,7 @@
 import Folder from "@/src/objects/files/Folder";
 import Rooms from "@/src/objects/rooms/Rooms";
 import { roomCreateTitles } from "@/src/utils/constants/rooms";
-import { DOC_ACTIONS } from "@/src/utils/constants/files";
+import { DOC_ACTIONS, deleteDialogTexts } from "@/src/utils/constants/files";
 import { test } from "@/src/fixtures";
 
 test.describe("Folder", () => {
@@ -114,12 +114,29 @@ test.describe("Folder", () => {
       await folder.createNew(baseFolder);
     });
 
-    await folder.filesTable.openContextMenuForItem(baseFolder);
-    await folder.filesTable.contextMenu.clickOption("Delete");
-    await folder.folderDeleteModal.clickDeleteFolder();
-    await folder.removeToast(
-      `The folder ${baseFolder} successfully moved to Trash`,
-    );
-    await folder.expectFolderNotVisible(baseFolder);
+    await test.step("Delete dialog shows the message and the Don't ask again hint", async () => {
+      await folder.filesTable.openContextMenuForItem(baseFolder);
+      await folder.filesTable.contextMenu.clickOption("Delete");
+      await folder.folderDeleteModal.checkDialogOpened(
+        deleteDialogTexts.singleItemMessage(baseFolder),
+      );
+      await folder.folderDeleteModal.checkDontAskAgainHint();
+    });
+
+    await test.step("Cancel keeps the folder", async () => {
+      await folder.folderDeleteModal.clickCancelDeleteFolder();
+      await folder.folderDeleteModal.checkDialogNotVisible();
+      await folder.filesTable.checkRowExist(baseFolder);
+    });
+
+    await test.step("Move the folder to Trash", async () => {
+      await folder.filesTable.openContextMenuForItem(baseFolder);
+      await folder.filesTable.contextMenu.clickOption("Delete");
+      await folder.folderDeleteModal.clickDeleteFolder();
+      await folder.removeToast(
+        `The folder ${baseFolder} successfully moved to Trash`,
+      );
+      await folder.expectFolderNotVisible(baseFolder);
+    });
   });
 });

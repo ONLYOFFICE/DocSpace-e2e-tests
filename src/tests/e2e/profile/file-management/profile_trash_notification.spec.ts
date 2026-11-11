@@ -1,11 +1,17 @@
-import { expect } from "@playwright/test";
 import { test } from "@/src/fixtures";
 import ProfileFileManagement from "@/src/objects/profile/ProfileFileManagement";
 import Files from "@/src/objects/files/Files";
+import { deleteDialogTexts } from "@/src/utils/constants/files";
 
 const FILE_NAME = "TestFileForDeletion";
+const SECOND_FILE_NAME = "SecondFileForDeletion";
+const THIRD_FILE_NAME = "ThirdFileForDeletion";
+// The list hides the extension, the delete dialog shows the full name
+const FILE_EXTENSION = ".docx";
 
-test.describe("Profile - Display notification when moving items to Trash", () => {
+// The "Show a notification when moving items to Trash" toggle controls the
+// "Move to Trash?" confirmation dialog, not the toast
+test.describe("Profile - Confirmation when moving items to Trash", () => {
   let profileFileManagement: ProfileFileManagement;
   let files: Files;
 
@@ -14,38 +20,59 @@ test.describe("Profile - Display notification when moving items to Trash", () =>
     files = new Files(page, api.portalDomain);
     await login.loginToPortal();
     await apiSdk.files.createFileInMyDocuments("owner", { title: FILE_NAME });
-    await profileFileManagement.open();
+    for (const title of [SECOND_FILE_NAME, THIRD_FILE_NAME]) {
+      await apiSdk.files.createFileInMyDocuments("owner", { title });
+    }
   });
 
-  test("Trash notification appears when deleting a file with toggle enabled", async () => {
-    await test.step("Delete file and verify toast notification appears", async () => {
-      await files.open();
-      await files.filesTable.openContextMenuForItem(FILE_NAME);
-      await files.filesTable.contextMenu.clickOption("Delete");
-      await files.folderDeleteModal.clickDeleteFolder();
-      await files.checkToastMessage("successfully moved to Trash");
-    });
-  });
-
-  test("Disabling toggle suppresses trash notification", async ({ page }) => {
-    await test.step("Disable display notification toggle", async () => {
+  test("Disabling toggle deletes without the confirmation dialog", async () => {
+    await test.step("Disable the toggle", async () => {
+      await profileFileManagement.open();
       await profileFileManagement.toggleDisplayTrashNotification();
+      await profileFileManagement.expectDisplayTrashNotificationEnabled(false);
     });
 
-    await test.step("Delete file", async () => {
+    await test.step("File goes to Trash without the dialog", async () => {
       await files.open();
-      await files.filesTable.openContextMenuForItem(FILE_NAME);
-      await files.filesTable.contextMenu.clickOption("Delete");
+      await files.deleteWithoutConfirmation(FILE_NAME);
+    });
+  });
+
+  test("Don't ask again in the dialog turns the toggle off, turning it on brings the dialog back", async () => {
+    await test.step("Check Don't ask again and move the file to Trash", async () => {
+      await files.open();
+      await files.openDeleteDialog(FILE_NAME);
+      await files.folderDeleteModal.checkDialogOpened(
+        deleteDialogTexts.singleItemMessage(`${FILE_NAME}${FILE_EXTENSION}`),
+      );
+      await files.folderDeleteModal.checkDontAskAgain();
+      await files.folderDeleteModal.clickDeleteFolder();
+      await files.removeToast("successfully moved to Trash");
+      await files.filesTable.checkRowNotExist(FILE_NAME);
     });
 
-    await test.step("Verify file is deleted and no toast appears", async () => {
-      await files.filesTable.checkRowNotExist(FILE_NAME);
-      await expect(
-        page
-          .locator("#toast-container")
-          .getByRole("alert")
-          .filter({ hasText: "successfully moved to Trash" }),
-      ).not.toBeVisible();
+    await test.step("Next file goes to Trash without the dialog", async () => {
+      await files.deleteWithoutConfirmation(SECOND_FILE_NAME);
+    });
+
+    await test.step("Toggle in Profile is off, turn it back on", async () => {
+      await profileFileManagement.open();
+      await profileFileManagement.expectDisplayTrashNotificationEnabled(false);
+      await profileFileManagement.toggleDisplayTrashNotification();
+      await profileFileManagement.expectDisplayTrashNotificationEnabled(true);
+    });
+
+    await test.step("Delete dialog is shown again", async () => {
+      await files.open();
+      await files.openDeleteDialog(THIRD_FILE_NAME);
+      await files.folderDeleteModal.checkDialogOpened(
+        deleteDialogTexts.singleItemMessage(
+          `${THIRD_FILE_NAME}${FILE_EXTENSION}`,
+        ),
+      );
+      await files.folderDeleteModal.clickDeleteFolder();
+      await files.removeToast("successfully moved to Trash");
+      await files.filesTable.checkRowNotExist(THIRD_FILE_NAME);
     });
   });
 });
