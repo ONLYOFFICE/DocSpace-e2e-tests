@@ -2,8 +2,8 @@ import { test } from "@/src/fixtures";
 import Files from "@/src/objects/files/Files";
 import FilesPlugins from "@/src/objects/files/FilesPlugins";
 import {
-  pluginCreateItems,
   pluginFileActions,
+  pluginNewMenuItems,
   pluginTestFiles,
   systemPlugins,
 } from "@/src/utils/constants/plugins";
@@ -32,7 +32,7 @@ test.describe("Plugins: Markdown", () => {
     await files.open();
   });
 
-  test("Markdown file opens in the plugin editor, preview renders it and New > More creates a new one", async () => {
+  test("Markdown file opens in the plugin editor, preview renders it and New > Markdown file creates a new one", async () => {
     await test.step("Clicking a .md file opens it in the plugin editor", async () => {
       await filesPlugins.openFileInPlugin(MD_FILE.title, DIALOG_TITLE);
       await filesPlugins.expectDialogText(DIALOG_TITLE, "**markdown**");
@@ -48,9 +48,11 @@ test.describe("Plugins: Markdown", () => {
       await filesPlugins.closeDialog(DIALOG_TITLE);
     });
 
-    await test.step("New > More > Markdown creates a markdown file", async () => {
-      await filesPlugins.createFromMoreMenu(pluginCreateItems.markdown);
-      await filesPlugins.fillCreateDialog("Create markdown", NEW_FILE);
+    await test.step("New > Markdown file creates a markdown file", async () => {
+      await filesPlugins.createFromNewMenu(
+        pluginNewMenuItems.markdown,
+        NEW_FILE,
+      );
       await filesPlugins.expectFileInList(NEW_FILE);
     });
   });
