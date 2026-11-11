@@ -211,6 +211,20 @@ export const filesToastMessages = {
   customFilterEnabled: "Custom filter for the selected file enabled",
 } as const;
 
+// "Move to Trash?" confirmation dialog for files and folders
+export const deleteDialogTexts = {
+  title: "Move to Trash?",
+  singleItemMessage: (name: string) =>
+    `${name} will be moved to Trash, where you can restore it for 30 days. After that, it's permanently deleted.`,
+  multipleFilesMessage: (count: number) =>
+    `Files (${count}) will be moved to Trash, where you can restore them for 30 days. After that, they're permanently deleted.`,
+  dontAskAgain: "Don't ask again",
+  submitButton: "Move",
+  cancelButton: "Cancel",
+  dontAskAgainHint:
+    "You can turn this confirmation back on in My profile → File management.",
+} as const;
+
 export const sampleCsvFile = {
   name: "sample.csv",
   path: "data/documents/sample.csv",
