@@ -14,7 +14,6 @@ const LIVE_CHAT_LAUNCHER = "iframe#launcher";
 const LIVE_CHAT_WINDOW_FRAME = 'iframe[title="Messaging window"]';
 const LIVE_CHAT_WINDOW_NAME = "Messaging window";
 const LIVE_CHAT_NAME_LABEL = "Name";
-const LIVE_CHAT_SEND_BUTTON = "Send";
 const HEADER_AI_CHAT_BUTTON = "#ai-chat-button";
 const CHAT_PANEL_RESIZER = "chat-panel-resizer";
 // Promo banner above the portal; its theme is passed in the iframe src (?theme=dark).
@@ -166,25 +165,26 @@ export default class BasePage {
     ).toBeVisible();
   }
 
-  // Greeting comes from the live Zendesk backend, so it proves the chat is
-  // connected, not just rendered.
-  async expectLiveChatGreeting(greeting: string) {
+  // The bot message comes from the live Zendesk backend, so it proves the chat
+  // is connected, not just rendered. Its text and the form after it depend on
+  // the Zendesk flow (online vs off-hours), so only the sender is checked.
+  async expectLiveChatBotMessage(senderName: string) {
     await expect(
-      this.liveChatWindow.getByRole("log").getByText(greeting),
+      this.liveChatWindow
+        .getByRole("log")
+        .getByText(senderName, { exact: true })
+        .first(),
     ).toBeVisible({ timeout: 15000 });
   }
 
-  // Fills the name form but does not submit it - submitting would open a
-  // real conversation in the support queue.
+  // Fills the name field but does not submit the form - submitting would open
+  // a real conversation in the support queue.
   async fillLiveChatName(name: string) {
     const nameInput = this.liveChatWindow.getByRole("textbox", {
       name: LIVE_CHAT_NAME_LABEL,
     });
     await nameInput.fill(name);
     await expect(nameInput).toHaveValue(name);
-    await expect(
-      this.liveChatWindow.getByRole("button", { name: LIVE_CHAT_SEND_BUTTON }),
-    ).toBeEnabled();
   }
 
   // The fixture sets localStorage.integrationUITests, which hides UI like the

@@ -31,7 +31,7 @@ test.describe("User menu - Live chat", () => {
     });
 
     await test.step("Chat is connected and accepts input", async () => {
-      await files.expectLiveChatGreeting(liveChatWindow.greeting);
+      await files.expectLiveChatBotMessage(liveChatWindow.botName);
       await files.fillLiveChatName(VISITOR_NAME);
     });
 
