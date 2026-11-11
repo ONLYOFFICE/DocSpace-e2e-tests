@@ -7,8 +7,8 @@ export const toastMessages = {
 
 export const liveChatWindow = {
   title: "Live Support",
-  greeting:
-    "Hi there! 👋 How can we help you today? Please enter your name to start a chat with a live agent.",
+  // Sender shown above Zendesk bot messages in the chat log
+  botName: "ONLYOFFICE",
 } as const;
 
 export const avatarConstants = {
