@@ -138,6 +138,8 @@ test.describe("Storage Management: room quota enforcement", () => {
     await test.step("Navigate to room, upload a file and verify toast", async () => {
       await myRooms.openWithoutEmptyCheck();
       await myRooms.roomsTable.openRoomByName("Upload Quota Room");
+      // Wait for the room to render - otherwise "New" still acts as the Rooms list button
+      await myRooms.expectRoomStorageLimitExceeded();
       await myRooms.filesNavigation.uploadFiles("data/avatars/AvatarPNG.png");
       await storageManagement.expectQuotaExceededToast();
     });
@@ -338,7 +340,7 @@ test.describe("Storage Management: room quota banners", () => {
     });
   });
 
-  test.skip("[Bug 81579] Quota exceeded room - creating new document shows banner in editor", async ({
+  test("Quota exceeded room - creating new document shows banner in editor", async ({
     page,
   }) => {
     await test.step("Create a room and add a document to fill space", async () => {
@@ -389,6 +391,8 @@ test.describe("Storage Management: room quota banners", () => {
     await test.step("Upload file and verify quota exceeded toast", async () => {
       await myRooms.openWithoutEmptyCheck();
       await myRooms.roomsTable.openRoomByName("Upload Quota Room");
+      // Wait for the room to render - otherwise "New" still acts as the Rooms list button
+      await myRooms.expectRoomStorageLimitExceeded();
       await myRooms.filesNavigation.uploadFiles("data/avatars/AvatarPNG.png");
       await storageManagement.expectQuotaExceededToast();
     });
