@@ -138,6 +138,8 @@ test.describe("Storage Management: room quota enforcement", () => {
     await test.step("Navigate to room, upload a file and verify toast", async () => {
       await myRooms.openWithoutEmptyCheck();
       await myRooms.roomsTable.openRoomByName("Upload Quota Room");
+      // Wait for the room to render - otherwise "New" still acts as the Rooms list button
+      await myRooms.expectRoomStorageLimitExceeded();
       await myRooms.filesNavigation.uploadFiles("data/avatars/AvatarPNG.png");
       await storageManagement.expectQuotaExceededToast();
     });
@@ -189,10 +191,7 @@ test.describe("Storage Management: user quota enforcement", () => {
     await login.loginToPortal();
   });
 
-  // TODO: integrationUITests=true suppresses snackbar, cannot override from test
-  test.skip("User quota exceeded shows snackbar in My Documents", async ({
-    page,
-  }) => {
+  test("User quota exceeded shows snackbar in My Documents", async () => {
     await test.step("Create a document to have data in My Documents", async () => {
       await files.open();
       await files.createDocumentFile("Fill Space");
@@ -208,7 +207,10 @@ test.describe("Storage Management: user quota enforcement", () => {
 
     await test.step("Navigate to My Documents and verify snackbar", async () => {
       await files.open();
-      await page.reload({ waitUntil: "load" });
+      // integrationUITests mode hides top bar snackbars - turn it off (reloads the page)
+      await files.disableIntegrationUITestsMode();
+      // Top bar shows one snackbar at a time - email activation comes first
+      await files.closeEmailActivationSnackbar();
       await storageManagement.expectUserQuotaExceededSnackbar();
     });
   });
@@ -338,7 +340,7 @@ test.describe("Storage Management: room quota banners", () => {
     });
   });
 
-  test.skip("[Bug 81579] Quota exceeded room - creating new document shows banner in editor", async ({
+  test("Quota exceeded room - creating new document shows banner in editor", async ({
     page,
   }) => {
     await test.step("Create a room and add a document to fill space", async () => {
@@ -389,6 +391,8 @@ test.describe("Storage Management: room quota banners", () => {
     await test.step("Upload file and verify quota exceeded toast", async () => {
       await myRooms.openWithoutEmptyCheck();
       await myRooms.roomsTable.openRoomByName("Upload Quota Room");
+      // Wait for the room to render - otherwise "New" still acts as the Rooms list button
+      await myRooms.expectRoomStorageLimitExceeded();
       await myRooms.filesNavigation.uploadFiles("data/avatars/AvatarPNG.png");
       await storageManagement.expectQuotaExceededToast();
     });

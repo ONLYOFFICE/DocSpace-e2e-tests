@@ -314,8 +314,8 @@ class Customization extends BasePage {
     await expect(this.textInputLogo).toHaveValue("");
   }
 
-  async brandName() {
-    await this.textInputBrandName.first().fill("AutoTesting");
+  async brandName(name = "AutoTesting") {
+    await this.textInputBrandName.first().fill(name);
     await expect(this.brandNameSaveButton).toBeVisible();
     await this.brandNameSaveButton.click();
   }

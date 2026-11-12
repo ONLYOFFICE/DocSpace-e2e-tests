@@ -97,29 +97,38 @@ test.describe("Email Checks", () => {
       });
     });
 
-    test.skip("Brand name email notification", async ({ api, page, login }) => {
-      const confirmLink = await getOwnerConfirmLink(api.portalDomain);
+    test("Brand name email notification", async ({ api, page, login }) => {
+      const brandName = "autoTest";
       const profile = new Profile(page);
 
-      await page.goto(confirmLink, { waitUntil: "load" });
-      await login.loginToPortal();
-      await customization.open();
-
-      await customization.openTab("Branding");
-      await customization.textInputBrandName.first().fill("autoTest");
-      await customization.brandNameSaveButton.click();
-      await customization.removeToast(toastMessages.settingsUpdated);
-
-      await profile.open();
-      await profile.changePassword();
-
-      const mailChecker = createMailChecker();
-      const email = await mailChecker.checkEmailBySenderAndSubject({
-        subject: "Confirm changing your password",
-        sender: "autoTest",
+      await test.step("Confirm owner email and open Customization", async () => {
+        const confirmLink = await getOwnerConfirmLink(api.portalDomain);
+        await page.goto(confirmLink, { waitUntil: "load" });
+        await login.loginToPortal();
+        await customization.open();
       });
 
-      expect(email).toBeTruthy();
+      await test.step("Set brand name", async () => {
+        await customization.openTab("Branding");
+        await customization.brandName(brandName);
+        await customization.removeToast(toastMessages.settingsUpdated);
+      });
+
+      await test.step("Request password change from profile", async () => {
+        await profile.open();
+        await profile.changePassword();
+      });
+
+      await test.step("Verify email is sent with brand name as sender", async () => {
+        const mailChecker = createMailChecker();
+        const email = await mailChecker.checkEmailBySenderAndSubject({
+          subject: "Confirm changing your password",
+          sender: brandName,
+          timeoutSeconds: 60,
+        });
+
+        expect(email).toBeTruthy();
+      });
     });
   });
 
@@ -293,7 +302,7 @@ test.describe("Email Checks", () => {
       }
     });
 
-    test.skip("Invite user via link and complete registration", async ({
+    test("Invite user via link and complete registration", async ({
       browser,
     }) => {
       let incognitoContext: BrowserContext | null = null;

@@ -135,10 +135,7 @@ test.describe("Customization", () => {
     await page3.close();
   });
 
-  // Bug 84880: the Custom name link still uses the old Help Center anchor
-  // (#docspacerenaming_block), renamed to #workspacerenaming_block on the new
-  // article page - the link opens the article top instead of the section.
-  test.skip("[Bug 84880] General: Custom name documentation link opens correct URL", async ({
+  test("General: Custom name documentation link opens correct URL", async ({
     page,
   }) => {
     const page1Promise = page.waitForEvent("popup", { timeout: 30000 });

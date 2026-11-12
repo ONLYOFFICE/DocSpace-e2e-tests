@@ -205,10 +205,7 @@ test.describe("Security tests", () => {
     });
   });
 
-  // Bug: the product links still use the old Help Center anchors, which
-  // were renamed on the new article pages - the link opens the article
-  // top instead of the section. Unskip once the links are updated.
-  test.skip("[Bug] Security guide links with renamed Help Center anchors", async ({
+  test("Security guide links with renamed Help Center anchors", async ({
     page,
   }) => {
     await test.step("Password strength guide link", async () => {
