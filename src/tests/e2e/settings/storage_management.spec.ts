@@ -191,10 +191,7 @@ test.describe("Storage Management: user quota enforcement", () => {
     await login.loginToPortal();
   });
 
-  // TODO: integrationUITests=true suppresses snackbar, cannot override from test
-  test.skip("User quota exceeded shows snackbar in My Documents", async ({
-    page,
-  }) => {
+  test("User quota exceeded shows snackbar in My Documents", async () => {
     await test.step("Create a document to have data in My Documents", async () => {
       await files.open();
       await files.createDocumentFile("Fill Space");
@@ -210,7 +207,10 @@ test.describe("Storage Management: user quota enforcement", () => {
 
     await test.step("Navigate to My Documents and verify snackbar", async () => {
       await files.open();
-      await page.reload({ waitUntil: "load" });
+      // integrationUITests mode hides top bar snackbars - turn it off (reloads the page)
+      await files.disableIntegrationUITestsMode();
+      // Top bar shows one snackbar at a time - email activation comes first
+      await files.closeEmailActivationSnackbar();
       await storageManagement.expectUserQuotaExceededSnackbar();
     });
   });
