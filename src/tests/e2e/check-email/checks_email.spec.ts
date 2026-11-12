@@ -302,7 +302,7 @@ test.describe("Email Checks", () => {
       }
     });
 
-    test.skip("Invite user via link and complete registration", async ({
+    test("Invite user via link and complete registration", async ({
       browser,
     }) => {
       let incognitoContext: BrowserContext | null = null;
