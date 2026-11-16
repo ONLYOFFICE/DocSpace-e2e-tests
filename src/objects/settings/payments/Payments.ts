@@ -1,4 +1,4 @@
-import { expect, Locator, Page } from "@playwright/test";
+import { expect, Frame, Locator, Page } from "@playwright/test";
 import BasePage from "../../common/BasePage";
 import {
   navItems,
@@ -22,7 +22,10 @@ const STRIPE_INVOICE_PAID = "Invoice paid";
 const STRIPE_INVOICE_AMOUNT = "invoice-amount-post-payment";
 // Google address suggestions under Stripe "Address line 1" - the list can
 // cover the payment method accordion, it is closed with its own "x" button
-const STRIPE_ADDRESS_SUGGESTIONS = "shipping autocomplete address results";
+// Stripe Checkout renders the whole payment form inside one Stripe Elements
+// iframe; these mark it (the Link sign-in step or the form itself).
+const STRIPE_FORM_FRAME_MARKER =
+  '[data-testid="code-controlling-input"], #shippingAddress-nameInput';
 
 export class Payments extends BasePage {
   portalUrl: string;
@@ -256,7 +259,7 @@ export class Payments extends BasePage {
     await expect(this.addPaymentsMethodButton).toBeVisible();
     await expect(async () => {
       await this.addPaymentsMethodButton.click();
-      await expect(stripePage.locator("#payment-form")).toBeVisible();
+      await this.stripeFormFrame(stripePage);
     }).toPass();
   }
 
@@ -638,80 +641,77 @@ export class Payments extends BasePage {
     return page1;
   }
 
-  async removeLinkVerification(stripePage: Page) {
-    const isVerificationBlockVisible = await stripePage
-      .locator(".LinkVerificationBody")
-      .isVisible();
-    if (isVerificationBlockVisible) {
-      await stripePage
-        .getByRole("button", {
-          name: "Pay without Link",
-        })
-        .click();
-    }
+  private async stripeFormFrame(stripePage: Page): Promise<Frame> {
+    let formFrame: Frame | undefined;
+    await expect
+      .poll(
+        async () => {
+          for (const frame of stripePage.frames()) {
+            const marker = frame.locator(STRIPE_FORM_FRAME_MARKER);
+            if (await marker.count().catch(() => 0)) {
+              formFrame = frame;
+              return true;
+            }
+          }
+          return false;
+        },
+        { timeout: 60000 },
+      )
+      .toBe(true);
+    return formFrame!;
   }
 
-  // The suggestions list opens a moment after "Address line 1" is filled and
-  // page-level Escape does not close it once focus has moved to other fields
-  private async closeStripeAddressSuggestions(stripePage: Page) {
-    const closeButton = stripePage
-      .getByRole("list", { name: STRIPE_ADDRESS_SUGGESTIONS })
-      .getByRole("button");
-    if (await closeButton.isVisible()) {
-      await closeButton.click();
+  // The test owner's email is known to Stripe Link: Checkout either opens
+  // with a Link sign-in step ("Pay without Link") or shows a Link block above
+  // the form - skip both and fill the card in.
+  private async fillStripeCheckout(stripePage: Page) {
+    const form = await this.stripeFormFrame(stripePage);
+    const nameInput = form.locator("#shippingAddress-nameInput");
+    const payWithoutLink = form.getByRole("button", {
+      name: "Pay without Link",
+    });
+    const closeLinkBlock = form.getByRole("button", {
+      name: /^Close .*saved information/,
+    });
+    await expect(async () => {
+      if (await payWithoutLink.isVisible()) {
+        await payWithoutLink.click();
+      }
+      await expect(nameInput).toBeVisible({ timeout: 3000 });
+    }).toPass({ timeout: 30000 });
+    if (await closeLinkBlock.isVisible()) {
+      await closeLinkBlock.click();
     }
+
+    await nameInput.fill("Admin-zero");
+    await form.locator("#shippingAddress-countryInput").selectOption("US");
+    await form
+      .locator("#shippingAddress-addressLine1Input")
+      .fill("1 World Way");
+    // Address autocomplete opens over the next fields
+    await stripePage.keyboard.press("Escape");
+    await form
+      .locator("#shippingAddress-addressLine2Input")
+      .fill("1 World Way");
+    await form.locator("#shippingAddress-localityInput").fill("Los Angeles");
+    await form.locator("#shippingAddress-postalCodeInput").fill("90045");
+    await form
+      .locator("#shippingAddress-administrativeAreaInput")
+      .selectOption("CA");
+
+    const cardNumberInput = form.locator("#payment-numberInput");
+    if (!(await cardNumberInput.isVisible())) {
+      await form.getByRole("button", { name: "Card", exact: true }).click();
+    }
+    await cardNumberInput.fill("4242 4242 4242 4242");
+    await form.locator("#payment-expiryInput").fill("01 / 30");
+    await form.locator("#payment-cvcInput").fill("123");
+
+    await form.getByTestId("payment-form-submit-button").click();
   }
 
   async fillPaymentData(stripePage: Page) {
-    // Remove link verification block if present
-    await expect(stripePage.locator("#payment-form")).toBeVisible();
-
-    await this.removeLinkVerification(stripePage);
-
-    await stripePage.locator("#shippingName").fill("Admin-zero");
-    await stripePage.locator("#shippingCountry").selectOption("US");
-    await stripePage.locator("#shippingAddressLine1").fill("1 World Way");
-    await stripePage.locator("#shippingAddressLine2").fill("1 World Way");
-    await stripePage.locator("#shippingLocality").fill("Los Angeles");
-    await stripePage.locator("#shippingPostalCode").fill("90045");
-    await stripePage.locator("#shippingAdministrativeArea").selectOption("CA");
-    // await stripePage.locator("#phoneNumber").fill("(800) 555-4545");
-
-    const cardAccordionItem = stripePage.getByTestId("card-accordion-item");
-
-    if (await cardAccordionItem.isVisible()) {
-      await expect(async () => {
-        await this.closeStripeAddressSuggestions(stripePage);
-        await cardAccordionItem.click({ timeout: 3000 });
-      }).toPass({ timeout: 20000 });
-    }
-
-    await expect(async () => {
-      const cardNumberInput = stripePage.locator("#cardNumber");
-      const cardNumberValue = "4242 4242 4242 4242";
-      await cardNumberInput.fill(cardNumberValue);
-      await expect(cardNumberInput).toHaveValue(cardNumberValue, {
-        timeout: 500,
-      });
-
-      const cardExpiryInput = stripePage.locator("#cardExpiry");
-      const cardExpiryValue = "01 / 30";
-      await cardExpiryInput.fill(cardExpiryValue);
-      await expect(cardExpiryInput).toHaveValue(cardExpiryValue, {
-        timeout: 500,
-      });
-
-      const cardCvcInput = stripePage.locator("#cardCvc");
-      const cardCvcValue = "123";
-      await cardCvcInput.fill(cardCvcValue);
-      await expect(cardCvcInput).toHaveValue(cardCvcValue, {
-        timeout: 500,
-      });
-
-      await stripePage.getByTestId("hosted-payment-submit-button").click();
-    }).toPass({
-      timeout: 15000,
-    });
+    await this.fillStripeCheckout(stripePage);
 
     const goToTariffPlanButton = this.goToTariffPlanButton(stripePage);
     await expect(goToTariffPlanButton).toBeVisible({ timeout: 60000 });
@@ -742,57 +742,7 @@ export class Payments extends BasePage {
   }
 
   async fillPaymentDataFromAddPaymentMethodServices(stripePage: Page) {
-    // Remove link verification block if present
-    await expect(stripePage.locator("#payment-form")).toBeVisible();
-
-    await this.removeLinkVerification(stripePage);
-
-    await stripePage.locator("#shippingName").fill("Admin-zero");
-    await stripePage.locator("#shippingCountry").selectOption("US");
-    await stripePage.locator("#shippingAddressLine1").fill("1 World Way");
-    await stripePage.keyboard.press("Escape");
-    await stripePage.locator("#shippingAddressLine2").fill("1 World Way");
-    await stripePage.locator("#shippingLocality").fill("Los Angeles");
-    await stripePage.locator("#shippingPostalCode").fill("90045");
-    await stripePage.locator("#shippingAdministrativeArea").selectOption("CA");
-    // Phone field temporarily not required by Stripe
-    // await stripePage.locator("#phoneNumber").fill("(800) 555-4545");
-
-    const cardAccordionItem = stripePage.getByTestId("card-accordion-item");
-
-    if (await cardAccordionItem.isVisible()) {
-      await expect(async () => {
-        await this.closeStripeAddressSuggestions(stripePage);
-        await cardAccordionItem.click({ timeout: 3000 });
-      }).toPass({ timeout: 20000 });
-    }
-
-    await expect(async () => {
-      const cardNumberInput = stripePage.locator("#cardNumber");
-      const cardNumberValue = "4242 4242 4242 4242";
-      await cardNumberInput.fill(cardNumberValue);
-      await expect(cardNumberInput).toHaveValue(cardNumberValue, {
-        timeout: 500,
-      });
-
-      const cardExpiryInput = stripePage.locator("#cardExpiry");
-      const cardExpiryValue = "01 / 30";
-      await cardExpiryInput.fill(cardExpiryValue);
-      await expect(cardExpiryInput).toHaveValue(cardExpiryValue, {
-        timeout: 500,
-      });
-
-      const cardCvcInput = stripePage.locator("#cardCvc");
-      const cardCvcValue = "123";
-      await cardCvcInput.fill(cardCvcValue);
-      await expect(cardCvcInput).toHaveValue(cardCvcValue, {
-        timeout: 500,
-      });
-
-      await stripePage.getByTestId("hosted-payment-submit-button").click();
-    }).toPass({
-      timeout: 15000,
-    });
+    await this.fillStripeCheckout(stripePage);
   }
 
   async fillAmountTopUpForServices() {

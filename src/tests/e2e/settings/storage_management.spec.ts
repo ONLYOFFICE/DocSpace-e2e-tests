@@ -209,8 +209,6 @@ test.describe("Storage Management: user quota enforcement", () => {
       await files.open();
       // integrationUITests mode hides top bar snackbars - turn it off (reloads the page)
       await files.disableIntegrationUITestsMode();
-      // Top bar shows one snackbar at a time - email activation comes first
-      await files.closeEmailActivationSnackbar();
       await storageManagement.expectUserQuotaExceededSnackbar();
     });
   });

@@ -55,9 +55,7 @@ test.describe("Settings: Paid badges lead to Tariff plan", () => {
     });
   });
 
-  // Branding badges sit inside `.settings_unavailable` (pointer-events: none),
-  // so the click never reaches them
-  test.fail("Customization: Branding badges [Bug 85021]", async () => {
+  test("Customization: Branding badges", async () => {
     await test.step("Brand name and Logo badges open Tariff plan", async () => {
       await paidBadges.checkAllBadgesLeadToTariffPlan(
         "customizationBranding",

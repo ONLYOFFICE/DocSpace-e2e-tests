@@ -17,6 +17,7 @@ const LIFETIME_ICON = ".badge.file-lifetime";
 const INFO_TOOLTIP_ANCHOR = '[data-tooltip-id="info-tooltip"]';
 const DRAFT_BADGE = '[data-testid="badge-text"]';
 const YOUR_TURN_BADGE = "Your turn ";
+const FAVORITE_ICON = '[data-testid="icon-button"][data-iconname*="favorite"]';
 const IN_PROGRESS_BADGE = "In progress ";
 const STOPPED_BADGE = "Stopped ";
 const COMPLETE_BADGE = "Complete ";
@@ -171,9 +172,13 @@ class FilesTable extends BaseTable {
     return editor;
   }
 
+  // Waits for the star on the row: marking re-renders the list, and a context
+  // menu opened for the next row before that is closed by the re-render.
   async markAsFavorite(name: string) {
     await this.openContextMenuForItem(name);
     await this.contextMenu.clickOption("Mark as favorite");
+    const row = await this.getRowByTitle(name);
+    await expect(row.locator(FAVORITE_ICON)).toBeVisible();
   }
 
   async checkInitialDocsExist() {
