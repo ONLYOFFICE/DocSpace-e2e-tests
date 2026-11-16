@@ -306,6 +306,14 @@ class MyRooms extends BasePage {
     await this.roomsCreateDialog.openRoomType(roomCreateTitles.formSet);
   }
 
+  getCurrentRoomId(): number {
+    const folder = new URL(this.page.url()).searchParams.get("folder");
+    if (!folder) {
+      throw new Error(`No "folder" param in room URL: ${this.page.url()}`);
+    }
+    return Number(folder);
+  }
+
   async createFormFillingRoom(roomName: string, tags?: string[]) {
     await this.openFormSetCreateDialog();
     await this.roomsCreateDialog.fillRoomName(roomName);

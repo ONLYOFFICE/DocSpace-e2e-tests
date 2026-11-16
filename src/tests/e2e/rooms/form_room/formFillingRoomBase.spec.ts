@@ -17,7 +17,6 @@ import {
 } from "@/src/utils/constants/rooms";
 import {
   formFillingRoomPdfContextMenuOption,
-  spreadsheetContextMenuOption,
   pdfFormMoreOptionsSubmenu,
 } from "@/src/utils/constants/files";
 import FileVersionHistory from "@/src/objects/files/FileVersionHistory";
@@ -30,6 +29,7 @@ import Login from "@/src/objects/common/Login";
 import {
   uploadAndVerifyPDF,
   uploadAndStartFillingPDF,
+  getFormResultsSheets,
 } from "@/src/utils/helpers/formFillingRoom";
 import TemplateGallery from "@/src/objects/rooms/TemplateGallery";
 import PdfFormModal from "@/src/objects/rooms/PdfFormModal";
@@ -476,10 +476,14 @@ test.describe("FormFilling base tests", () => {
     });
   });
 
-  test("Re-submitting after editing a filling form creates a new version of the results table", async ({
+  // A form version with the same fields keeps writing to the sheet of the
+  // previous one - the results table gets neither a new version nor a sheet.
+  test("Re-submitting after editing a form without field changes keeps answers on one sheet of the results table", async ({
     page,
+    apiSdk,
   }) => {
     let fillPage: Page;
+    let roomId = 0;
 
     await test.step("Upload PDF form and start filling", async () => {
       await uploadAndStartFillingPDF(
@@ -491,6 +495,7 @@ test.describe("FormFilling base tests", () => {
         filesTable,
       );
       await filesTable.expectFillingIconVisible("ONLYOFFICE Resume Sample");
+      roomId = myRooms.getCurrentRoomId();
     });
 
     await test.step("Submit the form (first submission)", async () => {
@@ -558,31 +563,87 @@ test.describe("FormFilling base tests", () => {
       await completed.chooseBackToRoom();
     });
 
-    await test.step("Verify new version of results table was created in Complete folder", async () => {
-      const localTable = new FilesTable(fillPage);
-      await localTable.openContextMenuForItem(
-        formFillingSystemFolders.complete,
-      );
-      await localTable.contextMenu.clickOption("Open");
-      await expect(
-        fillPage.getByRole("heading", {
-          name: formFillingSystemFolders.complete,
-        }),
-      ).toBeVisible();
-      await localTable.openContextMenuForItem("ONLYOFFICE Resume Sample");
-      await localTable.contextMenu.clickOption("Open");
-      await localTable.openContextMenuRow(
-        await localTable.getRowByTitle("ONLYOFFICE Resume Sample"),
-      );
-      await localTable.contextMenu.clickSubmenuOption(
-        spreadsheetContextMenuOption.moreOptions,
-        pdfFormMoreOptionsSubmenu.showVersionHistory,
-      );
-      const versionHistory = new FileVersionHistory(fillPage);
-      await versionHistory.checkVersionsVisible();
-      const versionCount = await versionHistory.getVersionCount();
+    await test.step("Both answers are on the one sheet of the results table", async () => {
+      await expect
+        .poll(
+          () =>
+            getFormResultsSheets(
+              apiSdk,
+              page,
+              roomId,
+              "ONLYOFFICE Resume Sample",
+            ),
+          { timeout: 60000 },
+        )
+        .toEqual([{ name: "ONLYOFFICE Resume Sample", answers: 2 }]);
+    });
+  });
 
-      expect(versionCount).toBeGreaterThanOrEqual(2);
+  test("A form version with other fields gets its own sheet in the results table", async ({
+    page,
+    apiSdk,
+  }) => {
+    const formName = "ONLYOFFICE Resume Sample";
+    let roomId = 0;
+
+    const submitForm = async () => {
+      const pagePromise = page
+        .context()
+        .waitForEvent("page", { timeout: 30000 });
+      await filesTable.openContextMenuForItem(formName);
+      await filesTable.contextMenu.clickOption("Fill");
+      const fillPage = await pagePromise;
+      await fillPage.waitForLoadState("load");
+      await fillPage.reload({ waitUntil: "load" }); // Bug 81446
+      const completed = await new FilesPdfForm(fillPage).clickSubmitButton();
+      await completed.chooseBackToRoom();
+      await fillPage.close();
+      await page.bringToFront();
+    };
+
+    await test.step("Upload PDF form and start filling", async () => {
+      await uploadAndStartFillingPDF(
+        shortTour,
+        roomEmptyView,
+        selectPanel,
+        myRooms,
+        page,
+        filesTable,
+      );
+      roomId = myRooms.getCurrentRoomId();
+    });
+
+    await test.step("First submission goes to a single sheet", async () => {
+      await submitForm();
+      await expect
+        .poll(() => getFormResultsSheets(apiSdk, page, roomId, formName), {
+          timeout: 60000,
+        })
+        .toEqual([{ name: formName, answers: 1 }]);
+    });
+
+    await test.step("Upload a form version with other fields", async () => {
+      const formId = await apiSdk.folders
+        .listFiles("owner", roomId)
+        .then((files) => files.find((f) => f.title === `${formName}.pdf`)!.id);
+      await apiSdk.files.createNewVersion(
+        "owner",
+        formId,
+        "data/rooms/PDF block.pdf",
+      );
+      await page.reload({ waitUntil: "load" });
+    });
+
+    await test.step("Submission of the new version gets a sheet of its own", async () => {
+      await submitForm();
+      await expect
+        .poll(() => getFormResultsSheets(apiSdk, page, roomId, formName), {
+          timeout: 60000,
+        })
+        .toEqual([
+          { name: "v2", answers: 1 },
+          { name: "v1", answers: 1 },
+        ]);
     });
   });
 

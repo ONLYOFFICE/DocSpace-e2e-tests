@@ -29,7 +29,7 @@ export const importWizards: TImportWizard[] = [
     provider: importProvider.nextcloud,
     heading: "Import from Nextcloud",
     firstStep: "1/7. Select file",
-    acceptedExtensions: ".zip",
+    acceptedExtensions: ".zip,.tgz,.tar.gz,.gz",
   },
   {
     provider: importProvider.google,
