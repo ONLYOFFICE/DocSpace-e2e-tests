@@ -245,6 +245,11 @@ class InfoPanel {
     await tab.click();
   }
 
+  async checkTabNotVisible(tabName: TInfoPanelTabs) {
+    const tabInfo = getTabInfo(tabName);
+    await expect(this.page.getByTestId(tabInfo.testId)).toHaveCount(0);
+  }
+
   async checkHistoryExist(title: string) {
     await expect(this.historyList).toBeVisible();
     await expect(this.historyList.getByText(title)).toBeVisible();

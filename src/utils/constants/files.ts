@@ -95,6 +95,8 @@ export const documentContextMenuOption = {
   blockVersion: testId("block-unblock-version"), // rooms only
   aiTools: testId("option_ai-tools"), // submenu: Ask AI, Generate metadata
   askAi: testId("option_ask-ai"), // inside the AI tools submenu, shown when AI is active
+  fillMetadataAi: testId("option_fill-metadata-ai"), // inside the AI tools submenu
+  generateMetadataAi: testId("option_suggest-metadata-ai"), // inside the AI tools submenu
   moreOptions: testId("option_info"),
   openLocation: testId("option_open-location"), // recent / search results only
   removeFromRecent: testId("option_remove-from-recent"), // recent only
