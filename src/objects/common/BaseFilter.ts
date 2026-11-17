@@ -26,6 +26,17 @@ export const EMPTY_VIEW = {
   CONTAINER: "[data-testid='empty-view']",
 } as const;
 
+// Metadata filter: Search options -> "Add condition" -> condition form
+const METADATA_ADD_CONDITION = "metadata_filter_add_condition";
+const METADATA_FILTER_PANEL = "metadata_filter_panel";
+const METADATA_FILTER_TEMPLATE = "metadata_filter_template";
+const METADATA_FILTER_CONDITION = "metadata_filter_condition";
+const METADATA_FILTER_OPERATOR = "metadata_filter_operator";
+const METADATA_VALUE_INPUT = "metadata_value_input";
+const METADATA_FILTER_APPLY = "metadata_filter_apply";
+const METADATA_DIALOG_CHIP = "metadata_filter_chip_metadata-";
+const METADATA_SELECTED_CHIP = "filter_selected_item_metadata-";
+
 class BaseFilter {
   page: Page;
   private lastSelectedFilterTag?: string;
@@ -190,6 +201,45 @@ class BaseFilter {
 
   async checkEmptyView(expectedText: string) {
     await expect(this.emptyViewContainer.getByText(expectedText)).toBeVisible();
+  }
+
+  // Fills one condition and returns to Search options; the filter itself is
+  // applied with applyFilter(). Operator is the dropdown label, e.g.
+  // "greater than".
+  async addMetadataCondition(condition: {
+    template: string;
+    field: string;
+    operator: string;
+    value: string;
+  }) {
+    await this.page.getByTestId(METADATA_ADD_CONDITION).click();
+    const panel = this.page.getByTestId(METADATA_FILTER_PANEL);
+    await panel.getByTestId(METADATA_FILTER_TEMPLATE).click();
+    await this.page
+      .getByRole("option", { name: condition.template, exact: true })
+      .click();
+    const row = panel
+      .getByTestId(METADATA_FILTER_CONDITION)
+      .filter({ hasText: condition.field });
+    await row.getByTestId(METADATA_FILTER_OPERATOR).click();
+    await this.page
+      .getByRole("option", { name: condition.operator, exact: true })
+      .click();
+    await row.getByTestId(METADATA_VALUE_INPUT).fill(condition.value);
+    await panel.getByTestId(METADATA_FILTER_APPLY).click();
+    await expect(panel).toBeHidden();
+  }
+
+  async checkMetadataConditionChip(fieldId: number, text: string) {
+    await expect(
+      this.page.getByTestId(`${METADATA_DIALOG_CHIP}${fieldId}`),
+    ).toContainText(text);
+  }
+
+  async checkMetadataSelectedFilter(fieldId: number, text: string) {
+    await expect(
+      this.page.getByTestId(`${METADATA_SELECTED_CHIP}${fieldId}`),
+    ).toContainText(text);
   }
 }
 

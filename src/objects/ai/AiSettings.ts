@@ -1,5 +1,6 @@
 import { getPortalUrl } from "../../../config";
 import BasePage from "../common/BasePage";
+import AiSettingsByok from "./AiSettingsByok";
 import { expect, Locator, Page } from "@playwright/test";
 import { navItems, toastMessages } from "@/src/utils/constants/settings";
 import {
@@ -22,10 +23,12 @@ const limitTestId = (form: TAiLimitForm, part: string) =>
 
 class AiSettings extends BasePage {
   private portalDomain: string;
+  byok: AiSettingsByok;
 
   constructor(page: Page, portalDomain: string) {
     super(page);
     this.portalDomain = portalDomain;
+    this.byok = new AiSettingsByok(page);
   }
 
   private get activateButton() {
@@ -127,6 +130,18 @@ class AiSettings extends BasePage {
       // turning it back on does not.
       await this.turnOffModelConfirmButton.click();
     }
+  }
+
+  async openByokTab() {
+    await this.byok.open(getPortalUrl(this.portalDomain));
+  }
+
+  // Models running on the portal's own provider key carry a BYOK badge
+  async expectModelByokBadge(modelName: string, visible: boolean) {
+    const badge = this.modelRow(modelName).getByText("BYOK", { exact: true });
+    await expect(this.modelRow(modelName)).toBeVisible();
+    if (visible) await expect(badge).toBeVisible();
+    else await expect(badge).toHaveCount(0);
   }
 
   async expectModelEnabled(modelName: string, enabled: boolean) {

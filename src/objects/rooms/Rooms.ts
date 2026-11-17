@@ -418,6 +418,16 @@ class MyRooms extends BasePage {
     await metadataLoaded;
   }
 
+  // Selects a room in the rooms list and opens its Metadata tab, waiting for
+  // the metadata request. The room must not be selected yet.
+  async openRoomMetadata(roomName: string) {
+    const metadataLoaded = waitForGetItemMetadataResponse(this.page);
+    await this.roomsTable.selectRow(roomName);
+    await this.infoPanel.open();
+    await this.infoPanel.openTab("Metadata");
+    await metadataLoaded;
+  }
+
   async openRoom(roomName: string) {
     await this.roomsTable.openContextMenu(roomName);
     await this.roomsTable.contextMenu.clickOption("Open");

@@ -175,3 +175,25 @@ export async function getFileFieldValue(
     .find((t) => t.name === templateName)
     ?.fields.find((f) => f.name === fieldName)?.value;
 }
+
+// Assigns the template to a folder or a room and sets its values
+export async function setFolderMetadata(
+  apiSdk: ApiSDK,
+  data: {
+    folderId: number;
+    template: TMetadataTemplate;
+    values: Record<string, TMetadataFieldValue>;
+  },
+  role: Role = "owner",
+) {
+  await apiSdk.metadata.assignTemplatesToFolder(role, data.folderId, [
+    data.template.id,
+  ]);
+  await apiSdk.metadata.setFolderValues(
+    role,
+    data.folderId,
+    Object.entries(data.values).map(([name, value]) =>
+      toMetadataValue(data.template, name, value),
+    ),
+  );
+}

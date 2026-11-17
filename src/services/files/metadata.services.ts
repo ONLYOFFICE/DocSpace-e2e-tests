@@ -111,6 +111,21 @@ export class MetadataApi {
     });
   }
 
+  // Rooms are folders for the metadata API
+  async setFolderValues(
+    role: Role,
+    folderId: number,
+    values: TMetadataValue[],
+  ) {
+    return test.step(`${role} set metadata values of folder ${folderId}`, async () => {
+      const response = await this.request.put(
+        `${this.baseUrl}/folder/${folderId}/values`,
+        { headers: this.headers(role), data: { values } },
+      );
+      expect(response.ok()).toBeTruthy();
+    });
+  }
+
   async setFileValues(role: Role, fileId: number, values: TMetadataValue[]) {
     return test.step(`${role} set metadata values of file ${fileId}`, async () => {
       const response = await this.request.put(
@@ -132,6 +147,7 @@ export class MetadataApi {
       expect(response.ok()).toBeTruthy();
       return (await response.json()).response as {
         templates: TMetadataTemplate[];
+        customFields: { name: string; value: string }[];
         hasMetadataFields: boolean;
       };
     });

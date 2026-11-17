@@ -18,6 +18,8 @@ import FilesSelectPanel from "./FilesSelectPanel";
 import FolderDeleteModal from "./FolderDeleteModal";
 import ConflictResolveDialog from "./ConflictResolveDialog";
 import ConvertDialog from "./ConvertDialog";
+import MediaViewer from "./MediaViewer";
+import MetadataAiPanel from "./MetadataAiPanel";
 import { waitForGetItemMetadataResponse } from "./api";
 import DocumentEditor from "./DocumentEditor";
 import SpreadsheetEditor from "./SpreadsheetEditor";
@@ -53,6 +55,8 @@ class Files extends BasePage {
   folderDeleteModal: FolderDeleteModal;
   conflictResolveDialog: ConflictResolveDialog;
   convertDialog: ConvertDialog;
+  mediaViewer: MediaViewer;
+  metadataAiPanel: MetadataAiPanel;
 
   infoPanel: InfoPanel;
 
@@ -71,6 +75,8 @@ class Files extends BasePage {
     this.folderDeleteModal = new FolderDeleteModal(page);
     this.conflictResolveDialog = new ConflictResolveDialog(page);
     this.convertDialog = new ConvertDialog(page);
+    this.mediaViewer = new MediaViewer(page);
+    this.metadataAiPanel = new MetadataAiPanel(page);
   }
 
   async open() {
@@ -142,6 +148,24 @@ class Files extends BasePage {
       documentContextMenuOption.aiTools,
       documentContextMenuOption.askAi,
     );
+  }
+
+  async openFillMetadataAi(fileName: string) {
+    await this.filesTable.openContextMenuForItem(fileName, true);
+    await this.filesTable.contextMenu.clickSubmenuOption(
+      documentContextMenuOption.aiTools,
+      documentContextMenuOption.fillMetadataAi,
+    );
+    await this.metadataAiPanel.expectOpened("Fill metadata");
+  }
+
+  async openGenerateMetadataAi(fileName: string) {
+    await this.filesTable.openContextMenuForItem(fileName, true);
+    await this.filesTable.contextMenu.clickSubmenuOption(
+      documentContextMenuOption.aiTools,
+      documentContextMenuOption.generateMetadataAi,
+    );
+    await this.metadataAiPanel.expectOpened("Generate metadata");
   }
 
   async downloadOriginalFile(fileName: string, expectedExtension: string) {

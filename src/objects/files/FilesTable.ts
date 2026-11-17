@@ -24,6 +24,9 @@ const COMPLETE_BADGE = "Complete ";
 const EDITORS_TOOLTIP_HEADING = "File is currently edited by:";
 
 const EMPTY_FOLDER_TEXT = "No files in this folder yet";
+const TILE_ITEM = (title: string) =>
+  `.files-item[data-document-title="${title}"]`;
+const TILE_THUMBNAIL = "[data-testid='file-thumbnail']";
 const FILES_CELL_NAME = "[data-testid^='files-cell-name']";
 
 const DOCX_FILE_LINK = ".files-item [data-document-title$='.docx']";
@@ -141,6 +144,19 @@ class FilesTable extends BaseTable {
       await row.locator("[data-testid='table-cell']").first().click();
       await this.expectRowIsChecked(row);
     }
+  }
+
+  // Thumbnail view; title is the full file name with the extension
+  async expectTileThumbnailLoaded(title: string) {
+    const thumbnail = this.page
+      .locator(TILE_ITEM(title))
+      .locator(TILE_THUMBNAIL);
+    await expect(thumbnail).toBeVisible();
+    await expect
+      .poll(() =>
+        thumbnail.evaluate((img: HTMLImageElement) => img.naturalWidth),
+      )
+      .toBeGreaterThan(0);
   }
 
   async openItem(name: string) {
