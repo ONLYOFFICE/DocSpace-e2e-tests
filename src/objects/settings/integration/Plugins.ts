@@ -283,6 +283,54 @@ export class Plugins extends BasePage {
     await fileChooser.setFiles(filePath);
   }
 
+  private get pluginSettingsDialog(): Locator {
+    return this.page
+      .getByTestId("settings-plugin-dialog")
+      .getByTestId("modal-dialog");
+  }
+
+  async uploadPluginAndWait(filePath: string) {
+    await this.uploadPlugin(filePath);
+    await this.dismissToastSafely(toastMessages.pluginLoaded);
+  }
+
+  async openUploadedPluginSettings(name: string) {
+    await this.page
+      .getByTestId(`plugin_${name}`)
+      .getByTestId("open_settings_icon_button")
+      .click();
+    await expect(this.pluginSettingsDialog).toBeVisible();
+  }
+
+  // The workspace-app sample's own settings: "Restrict access" with lists of
+  // groups and people picked in the standard selector
+  async restrictPluginAccess(access: { groups: string[]; people: string[] }) {
+    const dialog = this.pluginSettingsDialog;
+    await dialog.getByTestId("toggle-button-container").first().click();
+    await expect(dialog.getByText("No one is listed")).toBeVisible();
+
+    const pick = async (addLabel: string, names: string[]) => {
+      if (!names.length) return;
+      await dialog.getByRole("button", { name: addLabel }).click();
+      for (const name of names) {
+        await this.page
+          .locator(`.selector-item_label[aria-label="${name}"]`)
+          .click();
+      }
+      await this.page
+        .getByRole("button", { name: `Add (${names.length})`, exact: true })
+        .click();
+      for (const name of names) {
+        await expect(dialog.getByText(name, { exact: true })).toBeVisible();
+      }
+    };
+    await pick("Add groups", access.groups);
+    await pick("Add people", access.people);
+
+    await dialog.getByRole("button", { name: "Save" }).click();
+    await expect(dialog.getByRole("button", { name: "Save" })).toBeDisabled();
+  }
+
   async confirmCacheWarning() {
     await expect(this.cacheWarningOkButton).toBeVisible();
     await this.cacheWarningOkButton.click();

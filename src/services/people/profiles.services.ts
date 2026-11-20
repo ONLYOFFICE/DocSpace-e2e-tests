@@ -79,8 +79,12 @@ export class ProfilesApi {
     });
   }
 
-  async addMemberWithId(role: Role, type: UserType) {
-    const { response, userData } = await this.addMember(role, type);
+  async addMemberWithId(
+    role: Role,
+    type: UserType,
+    overrides?: Partial<{ email: string; firstName: string; lastName: string }>,
+  ) {
+    const { response, userData } = await this.addMember(role, type, overrides);
     expect(response.ok()).toBeTruthy();
     const userId: string = (await response.json()).response.id;
     return { userData, userId };

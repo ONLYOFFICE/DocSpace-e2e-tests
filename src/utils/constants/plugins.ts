@@ -66,3 +66,29 @@ export const pluginTestFiles = {
   // "Hello world. This is a speech to text test." (macOS `say`)
   speech: { path: "data/plugins/files/speech.wav", title: "speech" },
 } as const;
+
+// The developers' workspace-app sample (client/__tests__/plugins/test-plugins,
+// Apache-2.0): a Deals sidebar entry with a Home page card and a Pipeline
+// widget. Its settings dialog restricts all three to chosen people and groups.
+// The settings copy is the same plugin with the entry in Settings only
+// (appears: ["Settings"]) and the widget for the owner and admins
+// (usersTypes: ["Owner", "FullAdmin"]).
+export const workspaceAppPlugins = {
+  sample: {
+    path: "data/plugins/test-plugins/workspace-app.zip",
+    name: "workspace-app-sample",
+    entry: "workspace-app-sample-deals",
+    widget: "workspace-app-sample-pipeline",
+    pagePath: "/p/workspace-app-sample-deals",
+  },
+  settingsOnly: {
+    path: "data/plugins/test-plugins/workspace-app-settings.zip",
+    name: "workspace-app-settings",
+    entry: "workspace-app-settings-deals",
+    widget: "workspace-app-settings-pipeline",
+    pagePath: "/portal-settings/p/workspace-app-settings-deals",
+  },
+} as const;
+
+export type TWorkspaceAppPlugin =
+  (typeof workspaceAppPlugins)[keyof typeof workspaceAppPlugins];
