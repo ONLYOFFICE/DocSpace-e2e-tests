@@ -5,6 +5,8 @@ import DataImport, {
   googleTakeoutFixture,
   importProvider,
   importWizards,
+  nextcloudBackupFixture,
+  nextcloudImportSteps,
 } from "@/src/objects/settings/dataImport/DataImport";
 import Contacts from "@/src/objects/contacts/Contacts";
 import Login from "@/src/objects/common/Login";
@@ -145,6 +147,47 @@ test.describe("Data import", () => {
         "1/6. Select file",
       );
       await dataImport.expectNextStepDisabled();
+    });
+  });
+
+  // The same backup with every INSERT joined into one line parses fine, so it
+  // is the dump format that breaks the parse, not the data
+  test.skip("[Bug 85259] Nextcloud backup with a MariaDB 10.11 dump is parsed into its users and group", async ({
+    apiSdk,
+  }) => {
+    test.setTimeout(360000);
+
+    // With the bug the parse ends with "No users found. Try again or upload
+    // other backup files." and Next step stays disabled
+    await test.step("Upload the Nextcloud backup", async () => {
+      await dataImport.startImport(importProvider.nextcloud);
+      await dataImport.uploadBackupFile(nextcloudBackupFixture.path);
+    });
+
+    await test.step("Parsing advances the wizard to user selection", async () => {
+      await dataImport.expectStep(nextcloudImportSteps.selectUsers);
+      await dataImport.expectSelectedUsers(
+        nextcloudBackupFixture.selectedUsers,
+      );
+    });
+
+    await test.step("The users from the dump are listed", async () => {
+      for (const user of nextcloudBackupFixture.users) {
+        await dataImport.expectParsedUser(user.name, user.email);
+      }
+    });
+
+    await test.step("The group and its members are parsed", async () => {
+      const status = await apiSdk.migration.getStatus("owner");
+      expect(status.parseResult.users).toHaveLength(
+        nextcloudBackupFixture.users.length,
+      );
+      const group = status.parseResult.groups?.find(
+        (g) => g.groupName === nextcloudBackupFixture.group,
+      );
+      expect(group?.userUidList).toHaveLength(
+        nextcloudBackupFixture.users.length,
+      );
     });
   });
 });

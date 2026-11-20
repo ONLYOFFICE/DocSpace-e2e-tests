@@ -21,6 +21,7 @@ export type TMigrationStatus = {
     failedArchives: string[];
     users: TMigrationUser[];
     files: string[];
+    groups?: { groupName: string; userUidList: string[] }[];
   };
 };
 
