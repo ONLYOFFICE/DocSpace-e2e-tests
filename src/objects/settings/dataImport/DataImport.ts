@@ -67,6 +67,25 @@ export const googleTakeoutFixture = {
   sharedFileName: "Takeout Document",
 } as const;
 
+// A real Nextcloud 31 backup (built in Docker, kept tiny): a root folder with
+// the database dump and data/ with the users' files, as in the Nextcloud backup
+// guide. The dump is made by mariadb-dump of MariaDB 10.11 as it is
+export const nextcloudBackupFixture = {
+  path: "data/data-import/nextcloud-backup-mariadb-10.11.tgz",
+  users: [
+    { name: "Emily Carter", email: "emily.carter@example.com" },
+    { name: "James Walker", email: "james.walker@example.com" },
+    { name: "Olivia Bennett", email: "olivia.bennett@example.com" },
+  ],
+  selectedUsers: "Selected: 3/3 users",
+  group: "Marketing Team",
+} as const;
+
+export const nextcloudImportSteps = {
+  selectFile: "1/7. Select file",
+  selectUsers: "2/7. Select users with e-mail",
+} as const;
+
 export const googleImportSteps = {
   selectFile: "1/6. Select files",
   selectUsers: "2/6. Select users",
