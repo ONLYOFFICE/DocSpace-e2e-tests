@@ -9,6 +9,7 @@ export * from "./files/metadata.services";
 export * from "./people/password.services";
 export * from "./settings/quota.services";
 export * from "./people/peopleQuota.services";
+export * from "./people/groups.services";
 export * from "./folders/folders.services";
 export * from "./migration/migration.services";
 export * from "./ai/ai.services";

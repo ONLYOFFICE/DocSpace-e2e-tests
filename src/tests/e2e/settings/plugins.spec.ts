@@ -4,6 +4,8 @@ import { expect } from "@playwright/test";
 import { test } from "@/src/fixtures";
 import { Plugins } from "@/src/objects/settings/integration/Plugins";
 import Files from "@/src/objects/files/Files";
+import { WorkspaceApp } from "@/src/objects/plugins/WorkspaceApp";
+import { workspaceAppPlugins } from "@/src/utils/constants/plugins";
 import {
   integrationTabs,
   samplePluginZip,
@@ -12,6 +14,7 @@ import {
 
 const PLUGIN_REPO =
   "https://github.com/ONLYOFFICE/docspace-plugins/tree/master";
+const PLUGIN_GROUP = "Sales";
 
 test.describe("Integration tests - Plugins", () => {
   let paymentApi: PaymentApi;
@@ -136,6 +139,102 @@ test.describe("Integration tests - Plugins", () => {
 
     await test.step("Verify cache warning dialog appears and dismiss it", async () => {
       await plugins.confirmCacheWarning();
+    });
+  });
+
+  test("Restricted access shows Deals only to the listed people and group members", async ({
+    page,
+    api,
+    apiSdk,
+    login,
+  }) => {
+    test.setTimeout(300000);
+    const workspaceApp = new WorkspaceApp(page, api.portalDomain);
+    const plugin = workspaceAppPlugins.sample;
+
+    const groupMember = await apiSdk.profiles.addMemberWithId("owner", "User");
+    // A plain name: the plugin shows names as the API returns them, HTML-encoded
+    const listedUser = await apiSdk.profiles.addMemberWithId("owner", "User", {
+      firstName: "Listed",
+      lastName: "Person",
+    });
+    const outsider = await apiSdk.profiles.addMemberWithId("owner", "User");
+    await apiSdk.groups.create("owner", PLUGIN_GROUP, [groupMember.userId]);
+    const listedName = `${listedUser.userData.firstName} ${listedUser.userData.lastName}`;
+
+    await test.step("Restrict Deals to the group and one person", async () => {
+      await plugins.uploadPluginAndWait(plugin.path);
+      await plugins.openUploadedPluginSettings(plugin.name);
+      await plugins.restrictPluginAccess({
+        groups: [PLUGIN_GROUP],
+        people: [listedName],
+      });
+    });
+
+    await test.step("The owner is not listed and loses the card and widget", async () => {
+      await workspaceApp.expectOnHome(plugin, { card: false, widget: false });
+    });
+
+    await test.step("A group member sees the entry, card and widget", async () => {
+      await login.logout();
+      await login.loginWithCredentials(
+        groupMember.userData.email,
+        groupMember.userData.password,
+      );
+      await workspaceApp.expectEntryInFiles(plugin, true);
+      await workspaceApp.expectOnHome(plugin, { card: true, widget: true });
+    });
+
+    await test.step("The listed person sees the card and widget", async () => {
+      await login.logout();
+      await login.loginWithCredentials(
+        listedUser.userData.email,
+        listedUser.userData.password,
+      );
+      await workspaceApp.expectOnHome(plugin, { card: true, widget: true });
+    });
+
+    await test.step("Anyone else sees neither and the direct link leads Home", async () => {
+      await login.logout();
+      await login.loginWithCredentials(
+        outsider.userData.email,
+        outsider.userData.password,
+      );
+      await workspaceApp.expectOnHome(plugin, { card: false, widget: false });
+      await workspaceApp.expectPageClosed(plugin);
+    });
+  });
+
+  test("The card follows the section of its entry, the widget its own roles", async ({
+    page,
+    api,
+    apiSdk,
+    login,
+  }) => {
+    test.setTimeout(240000);
+    const workspaceApp = new WorkspaceApp(page, api.portalDomain);
+    // Entry in Settings only, widget for the owner and admins
+    const plugin = workspaceAppPlugins.settingsOnly;
+    const user = await apiSdk.profiles.addMemberWithId("owner", "User");
+
+    await test.step("The owner finds the entry in Settings, not in Files", async () => {
+      await plugins.uploadPluginAndWait(plugin.path);
+      await workspaceApp.expectEntryInSettingsSidebar(plugin);
+      await workspaceApp.expectEntryInFiles(plugin, false);
+    });
+
+    await test.step("The owner's card opens the plugin page in Settings", async () => {
+      await workspaceApp.expectOnHome(plugin, { card: true, widget: true });
+      await workspaceApp.openFromCard(plugin);
+    });
+
+    await test.step("A user cannot open Settings, so has neither card nor widget", async () => {
+      await login.logout();
+      await login.loginWithCredentials(
+        user.userData.email,
+        user.userData.password,
+      );
+      await workspaceApp.expectOnHome(plugin, { card: false, widget: false });
     });
   });
 });
