@@ -89,6 +89,23 @@ class RoomInfoPanel extends InfoPanel {
     await this.page.getByRole("listbox").getByText("Remove").click();
     await expect(memberRow).not.toBeVisible();
   }
+
+  // Agent members are removed only after a confirmation that warns their
+  // conversations with the agent are deleted.
+  async removeAgentMemberByName(
+    name: string,
+    dialogTexts: { title: string; message: string },
+  ) {
+    const memberRow = this.getMemberByName(name);
+    await memberRow.locator('[data-test-id="combo-button"]').click();
+    await this.page.getByRole("listbox").getByText("Remove").click();
+    const dialog = this.page.getByRole("dialog", { name: dialogTexts.title });
+    await expect(dialog).toBeVisible();
+    await expect(dialog.getByText(dialogTexts.message)).toBeVisible();
+    await dialog.getByRole("button", { name: "Remove", exact: true }).click();
+    await expect(dialog).toBeHidden();
+    await expect(memberRow).not.toBeVisible();
+  }
   async openSharePanel() {
     await this.close();
     await this.page.locator(SHARE_ROOM_BUTTON).click();

@@ -90,7 +90,7 @@ class FilesSelectPanel extends BaseSelector {
       documents: "Files",
       rooms: "Rooms",
       forms: "Forms",
-      ai: "AI Workspace",
+      ai: "AI Chat",
     }[type];
     const item = this.selector.getByTestId(`selector-item-${index}`);
     await expect(item).toContainText(label);

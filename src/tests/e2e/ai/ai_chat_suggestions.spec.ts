@@ -137,14 +137,14 @@ test.describe("AI Chat: suggestions per section", () => {
     }
   }
 
-  test("Every section shows its own suggestions that fill the composer, AI rooms shows none", async () => {
+  test("Every section shows its own suggestions that fill the composer, AI Chat shows none", async () => {
     await checkSections(apps.files, FILES_SECTIONS);
     await checkSections(apps.rooms, ROOMS_SECTIONS);
     await checkSections(apps.forms, FORMS_SECTIONS);
 
-    // AI rooms has the AI Chat header button too, so open the chat first -
-    // otherwise a zero chip count would pass with no chat on screen.
-    await test.step("AI rooms: the chat shows no suggestions", async () => {
+    // "AI Chat" in the sidebar opens the chat fullscreen; still check it is
+    // open - otherwise a zero chip count would pass with no chat on screen.
+    await test.step("AI Chat: the chat shows no suggestions", async () => {
       await aiAgents.openSectionWithChat(apps.aiAgents);
       await aiAgents.expectNoChatSuggestions();
     });

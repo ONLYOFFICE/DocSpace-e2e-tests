@@ -17,7 +17,7 @@ test.describe("Profile - Default Homepage", () => {
     await profileFileManagement.open();
   });
 
-  test("AI rooms - logo navigates to AI rooms URL", async () => {
+  test("AI Chat - logo navigates to AI Chat URL", async () => {
     await test.step("Select AI rooms as default homepage", async () => {
       await profileFileManagement.selectDefaultHomepage(
         defaultHomepageOptions.aiRooms,

@@ -3,7 +3,7 @@ const apps = {
   files: "Files",
   rooms: "Rooms",
   forms: "Forms",
-  aiAgents: "AI Workspace",
+  aiAgents: "AI Chat",
 } as const;
 
 const filesSubItems = {
@@ -28,10 +28,13 @@ const formsSubItems = {
   trash: "Trash",
 } as const;
 
+// "AI Chat" itself opens the chat fullscreen over the Agents list; the
+// list is reached through its "Agents" sub-item.
 const aiAgentsSubItems = {
-  recent: "Recent files",
-  favorites: "Favorite files",
-  trash: "Trash",
+  agents: "Agents",
+  recents: "Recents",
+  skillSets: "Skill sets",
+  knowledgeBases: "Knowledge bases",
 } as const;
 
 type TApp = (typeof apps)[keyof typeof apps];
