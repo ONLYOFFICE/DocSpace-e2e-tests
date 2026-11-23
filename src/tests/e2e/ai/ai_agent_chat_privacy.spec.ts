@@ -9,9 +9,9 @@ const PROJECT_NAME = "Chat Privacy Project";
 const OWNER_MESSAGE = "Owner's private message";
 const USER_MESSAGE = "Invited user's private message";
 
-// An AI project shares the model and linked rooms with the team, but every
+// An AI agent shares the model and linked rooms with the team, but every
 // member has their own conversations.
-test.describe("AI Projects: chat is private per member", () => {
+test.describe("AI Agents: chat is private per member", () => {
   let aiAgents: AiAgents;
   let aiSettings: AiSettings;
   let paymentApi: PaymentApi;
@@ -31,7 +31,7 @@ test.describe("AI Projects: chat is private per member", () => {
       await aiSettings.activate();
     });
 
-    await test.step("Precondition: create AI project", async () => {
+    await test.step("Precondition: create AI agent", async () => {
       await aiAgents.openDirectly();
       await aiAgents.openCreateAgentDialog();
       await aiAgents.fillAgentName(PROJECT_NAME);
@@ -62,11 +62,11 @@ test.describe("AI Projects: chat is private per member", () => {
       const userLogin = new Login(userPage, portalDomain);
       const userAiAgents = new AiAgents(userPage, portalDomain);
 
-      await test.step("Owner invites the user to the project as Member", async () => {
+      await test.step("Owner invites the user to the agent as Member", async () => {
         // Sending the message above left the page on the chat view; the
         // invite flow needs the list view for its context menu.
         await aiAgents.openAndExpectAgentInList(PROJECT_NAME);
-        // Member is the lowest project role and can still chat.
+        // Member is the lowest agent role and can still chat.
         await aiAgents.inviteUserToAgent(
           PROJECT_NAME,
           userData.email,
@@ -74,7 +74,7 @@ test.describe("AI Projects: chat is private per member", () => {
         );
       });
 
-      await test.step("Member opens the project and does not see the owner's message", async () => {
+      await test.step("Member opens the agent and does not see the owner's message", async () => {
         await userLogin.loginWithCredentials(userData.email, userData.password);
         await userAiAgents.openDirectly();
         await userAiAgents.openAgent(PROJECT_NAME);

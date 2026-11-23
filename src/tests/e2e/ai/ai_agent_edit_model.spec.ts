@@ -3,7 +3,7 @@ import AiAgents from "@/src/objects/ai/AiAgents";
 import AiSettings from "@/src/objects/ai/AiSettings";
 import { PaymentApi } from "@/src/api/payment";
 
-test.describe("AI Projects: edit an existing project's model", () => {
+test.describe("AI Agents: edit an existing agent's model", () => {
   let aiAgents: AiAgents;
   let aiSettings: AiSettings;
   let paymentApi: PaymentApi;
@@ -24,7 +24,7 @@ test.describe("AI Projects: edit an existing project's model", () => {
       await aiSettings.activate();
     });
 
-    await test.step("Precondition: create project with a known model", async () => {
+    await test.step("Precondition: create agent with a known model", async () => {
       await aiAgents.createAgent(PROJECT_NAME, {
         model: ORIGINAL_MODEL,
       });
@@ -32,8 +32,8 @@ test.describe("AI Projects: edit an existing project's model", () => {
     });
   });
 
-  test("Editing a project's model persists after saving", async () => {
-    await test.step("Change the project's model", async () => {
+  test("Editing an agent's model persists after saving", async () => {
+    await test.step("Change the agent's model", async () => {
       await aiAgents.editAgent(PROJECT_NAME, { model: UPDATED_MODEL });
     });
 

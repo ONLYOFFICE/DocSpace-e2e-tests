@@ -1,7 +1,7 @@
 export const aiAgentToastMessages = {
-  pinned: "Room pinned",
-  notificationsDisabled: "Room notifications disabled",
-  notificationsEnabled: "Room notifications enabled",
+  pinned: "Agent pinned",
+  notificationsDisabled: "AI agent notifications disabled",
+  notificationsEnabled: "AI agent notifications enabled",
   linkCopied: "Link has been copied to the clipboard",
   promptSaved: "Prompt saved",
   promptSavedToFolder: (folderName: string) =>
@@ -22,6 +22,14 @@ export const aiDeletePromptDialog = {
 export const aiDeletePromptFolderDialog = {
   title: "Warning",
   message: "Are you sure you want to delete this folder and all its prompts?",
+} as const;
+
+// Confirmation shown when an agent member is removed on the Members tab:
+// the server deletes their conversations with the agent.
+export const aiRemoveAgentMemberDialog = {
+  title: "Remove user",
+  message:
+    "Remove this user from the agent? Their conversations with this agent, including the files in them, will be permanently deleted. Inviting them again will not restore these conversations.",
 } as const;
 
 // Placeholder title a chat has until the AI generates one after the first reply.
@@ -176,7 +184,7 @@ export const aiChatNotActiveScreen = {
 export const aiSaveAsDocxSections = {
   files: "Files",
   rooms: "Rooms",
-  aiAgents: "AI Workspace",
+  aiAgents: "AI Chat",
   forms: "Forms",
 } as const;
 
@@ -202,31 +210,12 @@ export const aiAgentViewerChatEmptyView = {
 export const aiAgentViewerModeToastMessage =
   "You’re in view-only mode for this AI agent. You can see the results of AI Chat activity from other users.";
 
-export const aiSectionEmptyView = {
-  rooms: {
-    heading: "AI Workspace",
-    title: "No AI rooms yet",
-    description:
-      "Instructions rooms hold skills, Knowledge rooms hold the files the chat searches, and AI projects bring them together with a model and share that setup with the people you invite.",
-  },
-  recent: {
-    heading: "Recent",
-    title: "No recent files yet",
-    description:
-      "Files you've recently opened show up here and stick around for 90 days.",
-  },
-  favorites: {
-    heading: "Favorites",
-    title: "No favorite files yet",
-    description: "Star files and folders to keep them close at hand.",
-  },
-  // The description is not asserted yet: it currently says "All deleted items
-  // from Files are moved here" with a "Go to Files" button (Forms Trash names
-  // Forms), waiting for product confirmation.
-  trash: {
-    heading: "Trash",
-    title: "No items here yet",
-  },
+// Empty Agents list (the "Agents" sub-item of AI Chat, "My agents" tab).
+export const aiAgentsEmptyView = {
+  heading: "Agents",
+  title: "No agents yet",
+  description:
+    "An agent brings a model, skill sets and knowledge bases together and shares that setup with the people you invite.",
 } as const;
 
 // Shown in AI Chat when the portal, per-user or individual AI spending limit

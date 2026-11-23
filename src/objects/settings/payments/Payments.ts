@@ -622,7 +622,7 @@ export class Payments extends BasePage {
         break;
       case paymentsTab.invoiceHistory:
         await this.tabButton(tab).click();
-        await this.page.waitForURL(/\/billing\/invoice-history/);
+        await this.page.waitForURL(/\/billing\/invoices/);
         break;
       default:
         await this.tabButton(tab).click();

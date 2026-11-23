@@ -25,7 +25,7 @@ test.describe("AI Chat panel: buttons on Files", () => {
       await aiSettings.activate();
     });
 
-    await test.step("Precondition: create a project so the chat panel is usable", async () => {
+    await test.step("Precondition: create an agent so the chat panel is usable", async () => {
       await aiAgents.createAgent(PROJECT_NAME);
     });
 
@@ -35,9 +35,12 @@ test.describe("AI Chat panel: buttons on Files", () => {
   });
 
   test("Model selector lists raw models and switches the active one", async () => {
-    await test.step("Verify the model list includes raw models and Choose AI Project", async () => {
+    await test.step("Verify the model list includes raw models", async () => {
       await aiAgents.expectModelInQuickChatMenu("GPT 6 Luna", true);
-      await aiAgents.expectModelInQuickChatMenu("Choose AI Project", true);
+    });
+
+    await test.step("Verify the agent is offered in the chat title agent menu", async () => {
+      await aiAgents.expectAgentInChatAgentPicker(PROJECT_NAME);
     });
 
     await test.step("Select a different model and verify it's reflected", async () => {

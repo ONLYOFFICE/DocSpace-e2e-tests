@@ -36,6 +36,9 @@ test.describe("Copy files to an existing Form Filling room", () => {
 
   async function openFormFillingRoom() {
     await myRooms.sidebar.navigate(apps.forms);
+
+    await myRooms.checkHeadingExist(apps.forms);
+    await myRooms.removeAllToast();
     await myRooms.roomsTable.openRoomByName(FORM_FILLING_ROOM_NAME);
   }
 

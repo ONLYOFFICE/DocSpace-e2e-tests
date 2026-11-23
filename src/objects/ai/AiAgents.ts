@@ -8,7 +8,7 @@ import FilesTable from "../files/FilesTable";
 import BaseSelector from "../common/BaseSelector";
 import { apps, aiAgentsSubItems, TApp } from "@/src/utils/constants/navigation";
 import {
-  aiSectionEmptyView,
+  aiAgentsEmptyView,
   aiAgentViewerChatEmptyView,
   aiAgentViewerModeToastMessage,
   aiAgentToastMessages,
@@ -33,8 +33,9 @@ const EFFORT_MENU_ITEM = "effort-menu-item";
 const EFFORT_MENU_OPTION_PREFIX = "effort-menu-option-";
 const SUGGESTIONS = "suggestions";
 const SUGGESTION_BUTTON = "suggestion-button";
-const PROMPTS_BUTTON = "prompts-button";
-const PROMPTS_MENU = "prompts-menu";
+const ATTACHMENT_MENU_PROMPTS = "attachment-menu-prompts";
+// ui-kit names a submenu after its row: `${row testid}-submenu`.
+const PROMPTS_MENU = "attachment-menu-prompts-submenu";
 const PROMPTS_MENU_PROMPT = "prompts-menu-prompt";
 const PROMPTS_MENU_PROMPT_SUBMENU_BUTTON = "prompts-menu-prompt-submenu-button";
 const PROMPT_MENU_EDIT = "prompt-menu-edit";
@@ -95,9 +96,7 @@ const AI_PROJECT_SUBMIT = "ai-project-submit";
 const OPTION_EDIT_ROOM = "option_edit-room";
 const OPTION_DELETE_ROOM = "option_delete";
 const OPTION_INVITE = "option_invite-users-to-room";
-const OPTION_LEAVE_ROOM = "option_leave-room";
 const OPTION_ROOM_INFO = "option_room-info";
-const OPTION_DOWNLOAD = "option_download";
 const OPTION_CHANGE_ROOM_OWNER = "option_change-room-owner";
 
 const contextMenuItem = (value: string): TMenuItem => ({
@@ -133,7 +132,7 @@ export class AiAgents extends BasePage {
 
   private get aiNotActiveHeading() {
     return this.page.getByRole("heading", {
-      name: /AI isn.t active yet/,
+      name: /AI Chat isn.t active yet/,
     });
   }
 
@@ -228,8 +227,10 @@ export class AiAgents extends BasePage {
     await this.waitForAiAgentsPage();
   }
 
+  // "AI Chat" in the sidebar opens the chat fullscreen over the Agents list;
+  // its "Agents" sub-item shows the list itself.
   async open() {
-    await this.sidebar.navigate(apps.aiAgents);
+    await this.sidebar.openSubItem(apps.aiAgents, aiAgentsSubItems.agents);
     await this.waitForAiAgentsPage();
   }
 
@@ -248,8 +249,8 @@ export class AiAgents extends BasePage {
     await this.goToSettingsButton.click();
   }
 
-  // When AI features are not activated, the AI rooms page shows an
-  // "AI isn't active yet" empty view with a "Top up & activate" CTA.
+  // When AI features are not activated, the Agents list shows an
+  // "AI Chat isn't active yet" empty view with a "Top up & activate" CTA.
   async expectAiNotActive() {
     await expect(this.aiNotActiveHeading).toBeVisible();
     await expect(this.topUpAndActivateButton).toBeVisible();
@@ -274,49 +275,6 @@ export class AiAgents extends BasePage {
     await this.page.getByTestId("send-button").click();
   }
 
-  async openRecentFromNavigation() {
-    await this.sidebar.openSubItem(apps.aiAgents, aiAgentsSubItems.recent);
-    await expect(this.page).toHaveURL(/\/ai-rooms\/recent/);
-  }
-
-  async openFavoritesFromNavigation() {
-    await this.sidebar.openSubItem(apps.aiAgents, aiAgentsSubItems.favorites);
-    await expect(this.page).toHaveURL(/\/ai-rooms\/favorites/);
-  }
-
-  async openTrashFromNavigation() {
-    await this.sidebar.openSubItem(apps.aiAgents, aiAgentsSubItems.trash);
-    await expect(
-      this.page.getByRole("heading", {
-        name: aiSectionEmptyView.trash.heading,
-        exact: true,
-      }),
-    ).toBeVisible();
-  }
-
-  // AI rooms have no archive and deletion is permanent, so a deleted project
-  // must not land in the section's Trash - it stays empty.
-  async expectTrashEmpty() {
-    await expect(this.emptyView).toBeVisible();
-    await expect(
-      this.emptyView.getByText(aiSectionEmptyView.trash.title, { exact: true }),
-    ).toBeVisible();
-  }
-
-  async expectRecentSubItemActive() {
-    await this.sidebar.checkSubItemActive(
-      apps.aiAgents,
-      aiAgentsSubItems.recent,
-    );
-  }
-
-  async expectFavoritesSubItemActive() {
-    await this.sidebar.checkSubItemActive(
-      apps.aiAgents,
-      aiAgentsSubItems.favorites,
-    );
-  }
-
   getAgentFolderIdFromChat(): number {
     const folder = new URL(this.page.url()).searchParams.get("folder");
     if (!folder) {
@@ -339,55 +297,20 @@ export class AiAgents extends BasePage {
     await this.page.waitForTimeout(12000);
   }
 
-  async expectFileInRecent(fileTitle: string) {
-    await this.openRecentFromNavigation();
-    await this.expectFileVisibleInList(fileTitle);
-  }
-
-  async expectFileInFavorites(fileTitle: string) {
-    await this.openFavoritesFromNavigation();
-    await this.expectFileVisibleInList(fileTitle);
-  }
-
-  private async expectFileVisibleInList(fileTitle: string) {
+  async expectAgentsEmptyView() {
     await expect(
-      this.page.getByRole("main").getByText(fileTitle).first(),
-    ).toBeVisible({ timeout: 30000 });
-  }
-
-  private get resultStorageTab() {
-    return this.page.getByTestId("result_tab");
-  }
-
-  async openResultStorageTab() {
-    await expect(this.resultStorageTab).toBeVisible();
-    await this.resultStorageTab.click();
-    await expect(this.filesTable.tableContainer).toBeVisible();
-  }
-
-  async expectRoomsEmptyView() {
-    await this.expectSectionEmptyView(aiSectionEmptyView.rooms);
-  }
-
-  async expectRecentEmptyView() {
-    await this.expectSectionEmptyView(aiSectionEmptyView.recent);
-  }
-
-  async expectFavoritesEmptyView() {
-    await this.expectSectionEmptyView(aiSectionEmptyView.favorites);
-  }
-
-  private async expectSectionEmptyView(section: {
-    heading: string;
-    title: string;
-    description: string;
-  }) {
-    await expect(
-      this.page.getByRole("heading", { name: section.heading, exact: true }),
+      this.page.getByRole("heading", {
+        name: aiAgentsEmptyView.heading,
+        exact: true,
+      }),
     ).toBeVisible();
     await expect(this.emptyView).toBeVisible();
-    await expect(this.emptyView.getByText(section.title)).toBeVisible();
-    await expect(this.emptyView.getByText(section.description)).toBeVisible();
+    await expect(
+      this.emptyView.getByText(aiAgentsEmptyView.title, { exact: true }),
+    ).toBeVisible();
+    await expect(
+      this.emptyView.getByText(aiAgentsEmptyView.description),
+    ).toBeVisible();
   }
 
   async openCreateAgentDialog() {
@@ -395,7 +318,7 @@ export class AiAgents extends BasePage {
     // "Top up & activate" state; reload so the create-agent action shows.
     await this.page.reload();
     await this.waitForAiAgentsPage();
-    // "+" in the AI Workspace header opens the "Create AI project" dialog
+    // "+" in the Agents list header opens the create-agent dialog
     // directly - there is no room type step anymore.
     await this.navigation.clickAddButton();
     await expect(this.agentNameInput).toBeVisible();
@@ -608,6 +531,27 @@ export class AiAgents extends BasePage {
 
   async expectComposerFilled() {
     await expect(this.chatComposerInput).not.toBeEmpty();
+  }
+
+  // Agents are picked in the chat panel title menu, not in the model selector.
+  private get chatAgentPicker() {
+    return this.page.getByTestId("ai-chat-agent-picker");
+  }
+
+  private get chatAgentPickerMenu() {
+    return this.page.getByTestId("ai-chat-agent-picker-menu");
+  }
+
+  async expectAgentInChatAgentPicker(agentName: string) {
+    await this.chatAgentPicker.click();
+    await expect(this.chatAgentPickerMenu).toBeVisible();
+    await expect(
+      this.chatAgentPickerMenu
+        .getByTestId(/^ai-chat-agent-picker-agent-/)
+        .filter({ hasText: agentName }),
+    ).toBeVisible();
+    await this.page.keyboard.press("Escape");
+    await expect(this.chatAgentPickerMenu).toBeHidden();
   }
 
   // The model-selector button's own dropdown lists raw models (its top-level
@@ -960,44 +904,49 @@ export class AiAgents extends BasePage {
     await expect(member).toBeVisible();
   }
 
-  async downloadAgent(name: string) {
-    return this.waitForDownload(async () => {
-      await this.openAgentContextMenu(name);
-      await this.contextMenu.clickOption(contextMenuItem(OPTION_DOWNLOAD));
-    });
-  }
-
-  private async pickOwnerInChangeOwnerSelector(newOwnerName: string) {
+  // Change owner offers only Full and Room admins. The current owner may also
+  // tick "Leave agent" - the only way for an owner to leave an agent.
+  async changeAgentOwner(
+    agentName: string,
+    newOwnerName: string,
+    opts: { leave?: boolean } = {},
+  ) {
+    await this.openAgentContextMenu(agentName);
+    await this.contextMenu.clickOption(
+      contextMenuItem(OPTION_CHANGE_ROOM_OWNER),
+    );
     const panel = this.page.getByTestId("change_owner_people_selector");
     const item = panel
       .locator('[data-testid^="selector-item-"]')
       .filter({ hasText: newOwnerName });
     await expect(item).toBeVisible();
     await item.click();
+    if (opts.leave) {
+      const leaveCheckbox = panel.getByTestId("selector_footer_checkbox");
+      await expect(leaveCheckbox).toContainText("Leave agent");
+      await leaveCheckbox.click();
+    }
     const submit = panel.getByTestId("selector_submit_button");
     await expect(submit).toBeEnabled();
     await submit.click();
+    await expect(panel).toBeHidden();
   }
 
-  async changeAgentOwner(agentName: string, newOwnerName: string) {
-    await this.openAgentContextMenu(agentName);
-    await this.contextMenu.clickOption(
-      contextMenuItem(OPTION_CHANGE_ROOM_OWNER),
-    );
-    await this.pickOwnerInChangeOwnerSelector(newOwnerName);
-  }
-
-  async leaveAgent(name: string, newOwnerName: string) {
+  // An admin who is not a member of an agent still sees it in the list and
+  // may change its owner, but is not offered Edit, Share or notifications.
+  async expectAgentMenuForNonMemberAdmin(name: string) {
     await this.openAgentContextMenu(name);
-    await this.contextMenu.clickOption(contextMenuItem(OPTION_LEAVE_ROOM));
-    const assignOwner = this.page.getByTestId("leave_room_modal_submit");
-    await expect(assignOwner).toBeVisible();
-    await assignOwner.click();
-    await this.pickOwnerInChangeOwnerSelector(newOwnerName);
+    await expect(this.page.getByTestId(OPTION_CHANGE_ROOM_OWNER)).toBeVisible();
+    await expect(this.page.getByTestId(OPTION_EDIT_ROOM)).toHaveCount(0);
+    await expect(this.page.getByTestId(OPTION_INVITE)).toHaveCount(0);
+    await expect(
+      this.page.getByRole("menuitem", { name: "Disable notifications" }),
+    ).toHaveCount(0);
+    await this.page.keyboard.press("Escape");
   }
 
   // --- Saved AI Prompts library ---
-  // Opened from the composer's ">_" button. Menus and dialogs render in a
+  // Opened from the composer's "+" menu > Prompts. Menus and dialogs render in a
   // portal outside the chat root, so they are queried from the page root.
 
   // An open Radix menu's overlay intercepts every click on the page, and one
@@ -1031,9 +980,13 @@ export class AiAgents extends BasePage {
       .filter({ has: this.page.getByText(name, { exact: true }) });
   }
 
+  // The library is the "Prompts" submenu of the composer's "+" menu.
   async openPromptsLibrary() {
     await this.closeOpenMenus();
-    await this.page.getByTestId(PROMPTS_BUTTON).click();
+    await this.page.getByTestId("attachment-button").click();
+    // The "+" menu opens upward under the pointer, so the Prompts submenu may
+    // already be open and overlap its own row - force the hover.
+    await this.page.getByTestId(ATTACHMENT_MENU_PROMPTS).hover({ force: true });
     await expect(this.promptsMenu).toBeVisible();
   }
 
@@ -1060,7 +1013,8 @@ export class AiAgents extends BasePage {
   // a time, so its rename/delete items are queried from the page root.
   private async openPromptFolder(folderName: string) {
     await this.openPromptsLibrary();
-    await this.promptFolderItem(folderName).hover();
+    // The folder panel can open under the pointer and overlap its row.
+    await this.promptFolderItem(folderName).hover({ force: true });
     await expect(
       this.page.getByTestId(PROMPTS_MENU_RENAME_FOLDER),
     ).toBeVisible();
