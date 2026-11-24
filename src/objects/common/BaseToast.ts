@@ -11,12 +11,16 @@ class BaseToast {
     return this.page.locator("#toast-container").getByRole("alert");
   }
 
+  // Closes the toasts one by one from the top. `all()` would give positional
+  // locators: after the first toast closes, the next one slides under the
+  // cursor (hover pauses its auto-close) and `nth(0)` still resolves to it.
   async removeAllToast() {
-    const toasts = await this.toast.all();
+    let count = await this.toast.count();
 
-    for (const toast of toasts) {
-      await toast.click();
-      await expect(toast).not.toBeVisible();
+    while (count > 0) {
+      await this.toast.first().click();
+      await expect.poll(() => this.toast.count()).toBeLessThan(count);
+      count = await this.toast.count();
     }
   }
 

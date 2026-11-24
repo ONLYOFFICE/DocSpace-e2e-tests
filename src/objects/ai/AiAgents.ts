@@ -132,7 +132,7 @@ export class AiAgents extends BasePage {
 
   private get aiNotActiveHeading() {
     return this.page.getByRole("heading", {
-      name: /AI Chat isn.t active yet/,
+      name: /^AI isn.t active yet$/,
     });
   }
 
@@ -250,7 +250,7 @@ export class AiAgents extends BasePage {
   }
 
   // When AI features are not activated, the Agents list shows an
-  // "AI Chat isn't active yet" empty view with a "Top up & activate" CTA.
+  // "AI isn't active yet" empty view with a "Top up & activate" CTA.
   async expectAiNotActive() {
     await expect(this.aiNotActiveHeading).toBeVisible();
     await expect(this.topUpAndActivateButton).toBeVisible();

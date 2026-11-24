@@ -191,9 +191,9 @@ class FilesTable extends BaseTable {
   // Waits for the star on the row: marking re-renders the list, and a context
   // menu opened for the next row before that is closed by the re-render.
   async markAsFavorite(name: string) {
-    await this.openContextMenuForItem(name);
-    await this.contextMenu.clickOption("Mark as favorite");
     const row = await this.getRowByTitle(name);
+    await this.openContextMenuRow(row);
+    await this.contextMenu.clickOption("Mark as favorite");
     await expect(row.locator(FAVORITE_ICON)).toBeVisible();
   }
 
