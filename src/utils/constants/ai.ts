@@ -170,8 +170,7 @@ export const aiChatNotActiveScreen = {
     ],
   },
   user: {
-    description:
-      "Contact your Full admin to activate AI Chat for this workspace.",
+    description: "Only a Full admin can activate AI Chat for this workspace.",
     benefits: [
       "Work with rooms, files, and folders",
       "Pay-as-you-go, billed from your Wallet",

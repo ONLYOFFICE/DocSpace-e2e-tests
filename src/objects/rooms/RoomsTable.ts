@@ -208,8 +208,17 @@ class RoomsTable extends BaseTable {
     await this.contextMenu.clickSubmenuOption(parent, child);
   }
 
+  // The room name link in the list (table or tiles). A toast after copying
+  // into the room also links to it by name, so the link is matched by its
+  // list class.
+  private roomNameLink(roomName: string) {
+    return this.page
+      .getByRole("link", { name: roomName })
+      .and(this.page.locator(".item-file-name"));
+  }
+
   async openContextMenuByRoomName(roomName: string) {
-    const link = this.page.getByRole("link", { name: roomName });
+    const link = this.roomNameLink(roomName);
     await link.waitFor({ state: "visible" });
     await link.click({ button: "right" });
   }
@@ -217,7 +226,7 @@ class RoomsTable extends BaseTable {
   // Open a room by clicking its link and waiting for navigation. Form Set
   // rooms live under /forms/ instead of /rooms/shared/.
   async openRoomByName(roomName: string) {
-    const link = this.page.getByRole("link", { name: roomName });
+    const link = this.roomNameLink(roomName);
     await link.waitFor({ state: "visible" });
     await link.click();
     await this.page.waitForURL(/(rooms\/shared|forms)\/.*\/filter\?folder=/, {
