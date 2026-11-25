@@ -210,9 +210,10 @@ export class AiAgents extends BasePage {
     return this.page.getByTestId(AI_PROJECT_SUBMIT);
   }
 
+  // The Agents list opens in tile view by default (AiProjectTile)
   private agentNameCell(name: string) {
     return this.page
-      .locator('[data-testid^="rooms-cell-name-"]')
+      .locator('[data-testid^="tile_"]')
       .filter({ hasText: name });
   }
 

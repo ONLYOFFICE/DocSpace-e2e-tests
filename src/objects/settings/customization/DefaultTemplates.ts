@@ -27,7 +27,7 @@ export const DEFAULT_TEMPLATE_NAMES: Record<TTemplateFormat, string> = {
   docx: "Blank Document",
   xlsx: "Blank Spreadsheet",
   pptx: "Blank Presentation",
-  pdf: "Blank Form",
+  pdf: "Blank ONLYOFFICE PDF form",
 };
 
 class DefaultTemplates {
