@@ -20,7 +20,7 @@ export class TwoFactorAuthPage {
   constructor(page: Page) {
     this.page = page;
     this.codeInput = page.getByTestId("app_code_input").first();
-    this.connectButton = page.getByTestId("app_connect_button");
+    this.connectButton = page.getByTestId("app_connect_button").first();
     this.continueButton = page.getByTestId("app_code_continue_button");
   }
 
