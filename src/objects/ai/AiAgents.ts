@@ -589,7 +589,9 @@ export class AiAgents extends BasePage {
   }
 
   async expectQuickChatModelSelected(modelName: string) {
-    await expect(this.quickChatModelSelectorButton).toHaveText(modelName);
+    await expect(
+      this.quickChatModelSelectorButton.getByText(modelName, { exact: true }),
+    ).toBeVisible();
   }
 
   async expectModelInQuickChatMenu(modelName: string, visible: boolean) {
@@ -625,12 +627,11 @@ export class AiAgents extends BasePage {
       .click();
   }
 
-  private get webSearchToggle() {
-    return this.attachMenu.getByRole("switch");
-  }
-
-  async expectWebSearchToggleDisabled() {
-    await expect(this.webSearchToggle).toBeDisabled();
+  async expectWebSearchSetupOffered() {
+    await expect(
+      this.attachMenu.getByRole("menuitem", { name: "Set up Web search..." }),
+    ).toBeVisible();
+    await expect(this.attachMenu.getByRole("switch")).toHaveCount(0);
   }
 
   // Effort levels by their visible label -> the option testid suffix.
@@ -820,8 +821,16 @@ export class AiAgents extends BasePage {
   }
 
   async openEditAgentDialog(name: string) {
-    await this.openAgentContextMenu(name);
-    await this.contextMenu.clickOption(contextMenuItem(OPTION_EDIT_ROOM));
+    await this.ensureAiChatPanelOpened();
+    await this.chatAgentPicker.click();
+    await expect(this.chatAgentPickerMenu).toBeVisible();
+    await this.chatAgentPickerMenu
+      .getByTestId(/^ai-chat-agent-picker-agent-/)
+      .filter({ hasText: name })
+      .click();
+    await expect(this.chatAgentPicker).toContainText(name);
+    await this.page.getByTestId("ai-chat-agent-actions").click();
+    await this.page.getByTestId("ai-chat-agent-action-edit").click();
     await expect(this.agentNameInput).toHaveValue(name);
     await expect(this.modelCombobox).toBeVisible();
   }

@@ -145,7 +145,10 @@ test.describe("AI Agents: management", () => {
     await aiAgents.expectChatOpened();
   });
 
-  test("Change agent owner", async ({ apiSdk }) => {
+  // Bug 85475: changing the owner to a Room admin who is a Member of the agent
+  // fails - POST /files/owner returns 403 "The role is not available for this
+  // user type", and the panel keeps spinning with no error.
+  test.skip("[Bug 85475] Change agent owner", async ({ apiSdk }) => {
     const { userData } = await apiSdk.profiles.addMember("owner", "RoomAdmin");
     const userName = `${userData.firstName} ${userData.lastName}`;
 

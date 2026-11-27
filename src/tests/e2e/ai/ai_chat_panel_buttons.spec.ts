@@ -49,10 +49,10 @@ test.describe("AI Chat panel: buttons on Files", () => {
     });
   });
 
-  test("Attach menu exposes Web search toggle", async () => {
-    await test.step("Web search toggle is present but disabled (add-on not purchased)", async () => {
+  test("Attach menu offers Web search setup", async () => {
+    await test.step("Web search is offered as a setup item (add-on not purchased)", async () => {
       await aiAgents.openAttachMenu();
-      await aiAgents.expectWebSearchToggleDisabled();
+      await aiAgents.expectWebSearchSetupOffered();
     });
   });
 
