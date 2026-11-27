@@ -204,10 +204,7 @@ test.describe("Two-Factor Authentication tests", () => {
     });
 
     await test.step("Click print and verify printable page opens", async () => {
-      const [printPage] = await Promise.all([
-        page.context().waitForEvent("page"),
-        profile.clickPrintBackupCodes(),
-      ]);
+      const printPage = await profile.openPrintBackupCodes();
       expect(printPage).not.toBeNull();
       await printPage.close();
     });

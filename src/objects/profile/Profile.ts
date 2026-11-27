@@ -98,8 +98,23 @@ export class Profile extends BasePage {
     await expect(this.backupCodes).toHaveCount(expected);
   }
 
-  async clickPrintBackupCodes() {
-    await this.printBackupCodesLink.click();
+  // Print writes the codes into an about:blank popup and calls print() on it
+  // synchronously. In Firefox the native print dialog blocks the click from
+  // returning, so print() of the popup is stubbed. Returns the popup page.
+  async openPrintBackupCodes() {
+    await this.page.evaluate(() => {
+      const open = globalThis.open.bind(globalThis);
+      globalThis.open = (...args: Parameters<typeof globalThis.open>) => {
+        const popup = open(...args);
+        if (popup) popup.print = () => {};
+        return popup;
+      };
+    });
+    const [printPage] = await Promise.all([
+      this.page.context().waitForEvent("page"),
+      this.printBackupCodesLink.click(),
+    ]);
+    return printPage;
   }
 
   async closeBackupCodesDialog() {
